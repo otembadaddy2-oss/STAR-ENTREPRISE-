@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Application mobile gratuite — STAR ENTREPRISE</title>
+<meta name="description" content="Installez gratuitement l'application STAR ENTREPRISE sur votre téléphone, sans passer par un store. Suivez nos réalisations, contactez-nous et demandez un devis depuis votre écran d'accueil.">
+<meta name="theme-color" content="#06070f">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="assets/img/icons/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/img/icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <a href="index.html" class="brand">
+      <svg class="brand-mark" viewBox="0 0 48 48" fill="none">
+        <defs><linearGradient id="lgNav" x1="0" y1="0" x2="48" y2="48">
+          <stop offset="0%" stop-color="#8b6bff"/><stop offset="55%" stop-color="#2fe0e0"/><stop offset="100%" stop-color="#e8c368"/>
+        </linearGradient></defs>
+        <path d="M4 18 L24 4 L44 18 L36 18 L24 12 L12 18 Z" fill="url(#lgNav)"/>
+        <path d="M12 18 L24 44 L4 18 Z" fill="url(#lgNav)" opacity="0.75"/>
+        <path d="M36 18 L24 44 L44 18 Z" fill="url(#lgNav)" opacity="0.55"/>
+        <path d="M12 18 L24 44 L36 18 Z" fill="url(#lgNav)" opacity="0.92"/>
+      </svg>
+      <span>STAR ENTREPRISE<small>Agence digitale • Congo</small></span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Accueil</a>
+      <a href="services.html">Services</a>
+      <a href="realisations.html">Réalisations</a>
+      <a href="business-plan.html">Business Plan</a>
+      <a href="apropos.html">À propos</a>
+      <a href="application.html">Application</a>
+      <a href="contact.html">Contact</a>
+      <a href="contact.html" class="nav-cta">Devis gratuit</a>
+    </div>
+    <div class="nav-actions">
+      <a class="btn btn-primary btn-sm" href="contact.html">Devis gratuit</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" style="padding-top:150px;">
+  <div class="container hero-grid">
+    <div class="reveal in">
+      <div class="eyebrow"><span class="dot"></span> Application gratuite</div>
+      <h1>STAR ENTREPRISE dans <span class="text-grad">votre poche</span></h1>
+      <p class="lead">Installez notre application gratuitement, directement depuis ce site — sans store, sans compte, en quelques secondes. Réalisations, services, devis et WhatsApp à portée de main.</p>
+      <div class="hero-cta">
+        <button id="installBtn" class="btn btn-primary" disabled>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 19h16"/></svg>
+          Installer l'application
+        </button>
+        <a href="#instructions" class="btn btn-ghost">Voir les instructions</a>
+      </div>
+      <p id="installState" class="form-note">Vérification de la compatibilité de votre navigateur…</p>
+    </div>
+    <div class="hero-visual reveal-scale in" style="height:440px;">
+      <div class="diamond-orbit">
+        <div class="ring ring1"></div>
+        <div class="card" style="width:230px;padding:0;border-radius:36px;overflow:hidden;box-shadow:var(--shadow-lift);">
+          <div style="background:var(--grad-diamond-soft);padding:22px 20px 60px;">
+            <svg width="40" height="40" viewBox="0 0 48 48" fill="none">
+              <defs><linearGradient id="lgPhone" x1="0" y1="0" x2="48" y2="48">
+                <stop offset="0%" stop-color="#8b6bff"/><stop offset="55%" stop-color="#2fe0e0"/><stop offset="100%" stop-color="#e8c368"/>
+              </linearGradient></defs>
+              <path d="M4 18 L24 4 L44 18 L36 18 L24 12 L12 18 Z" fill="url(#lgPhone)"/>
+              <path d="M12 18 L24 44 L4 18 Z" fill="url(#lgPhone)" opacity="0.75"/>
+              <path d="M36 18 L24 44 L44 18 Z" fill="url(#lgPhone)" opacity="0.55"/>
+              <path d="M12 18 L24 44 L36 18 Z" fill="url(#lgPhone)" opacity="0.92"/>
+            </svg>
+            <b style="display:block;margin-top:12px;font-family:var(--ff-heading);">STAR ENTREPRISE</b>
+            <span style="font-size:.78rem;color:var(--text-dim);">Application installée</span>
+          </div>
+          <div style="background:var(--surface);padding:18px 20px;">
+            <div style="display:flex;justify-content:space-between;font-size:.78rem;color:var(--text-faint);margin-bottom:10px;"><span>Accueil</span><span>Services</span><span>Contact</span></div>
+            <div style="height:6px;border-radius:4px;background:var(--surface-3);margin-bottom:8px;"></div>
+            <div style="height:6px;border-radius:4px;background:var(--surface-3);width:70%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="container">
+    <div class="grid grid-3 stagger">
+      <div class="card reveal">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2 3 14h7l-1 8 11-14h-7z"/></svg></div>
+        <h3>Gratuite &amp; instantanée</h3>
+        <p>Aucun frais, aucun compte à créer. Installation en un clic depuis votre navigateur mobile ou ordinateur.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg></div>
+        <h3>Légère &amp; rapide</h3>
+        <p>Quelques kilo-octets seulement — aucune place perdue sur votre téléphone, chargement instantané.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+        <h3>Fonctionne hors-ligne</h3>
+        <p>Consultez nos services et réalisations même sans connexion, grâce à la technologie PWA.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="instructions">
+  <div class="container">
+    <div class="section-head center reveal">
+      <div class="eyebrow"><span class="dot"></span> Comment installer</div>
+      <h2>3 étapes, <span class="text-grad">30 secondes</span></h2>
+    </div>
+    <div class="grid grid-3 stagger">
+      <div class="card reveal">
+        <span class="badge-soft">Android / Chrome</span>
+        <h3 style="margin-top:16px;">Menu ⋮ → "Installer l'application"</h3>
+        <p>Ouvrez ce site dans Chrome, appuyez sur le menu (trois points), puis "Ajouter à l'écran d'accueil" ou "Installer l'application".</p>
+      </div>
+      <div class="card reveal">
+        <span class="badge-soft">iPhone / Safari</span>
+        <h3 style="margin-top:16px;">Partager → "Sur l'écran d'accueil"</h3>
+        <p>Appuyez sur l'icône Partager en bas de Safari, puis "Sur l'écran d'accueil". L'icône STAR ENTREPRISE apparaît instantanément.</p>
+      </div>
+      <div class="card reveal">
+        <span class="badge-soft">Ordinateur</span>
+        <h3 style="margin-top:16px;">Icône d'installation dans la barre d'adresse</h3>
+        <p>Sur Chrome ou Edge, cliquez sur l'icône d'installation à droite de la barre d'adresse, ou utilisez le bouton ci-dessus.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="cta-band reveal">
+      <div class="eyebrow"><span class="dot"></span> Bientôt disponible</div>
+      <h2>Version <span class="text-grad">Android &amp; iOS</span> native</h2>
+      <p>Une version complète sur Google Play et App Store est en préparation dans le cadre de notre feuille de route 5 ans. En attendant, profitez dès maintenant de l'application installable gratuitement.</p>
+      <div class="cta-actions">
+        <a href="business-plan.html" class="btn btn-ghost">Voir la roadmap</a>
+        <a href="https://wa.me/24266565050" target="_blank" rel="noopener" class="btn btn-whatsapp">Être informé en avant-première</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="brand">
+          <svg class="brand-mark" viewBox="0 0 48 48" fill="none">
+            <defs><linearGradient id="lgFoot" x1="0" y1="0" x2="48" y2="48">
+              <stop offset="0%" stop-color="#8b6bff"/><stop offset="55%" stop-color="#2fe0e0"/><stop offset="100%" stop-color="#e8c368"/>
+            </linearGradient></defs>
+            <path d="M4 18 L24 4 L44 18 L36 18 L24 12 L12 18 Z" fill="url(#lgFoot)"/>
+            <path d="M12 18 L24 44 L4 18 Z" fill="url(#lgFoot)" opacity="0.75"/>
+            <path d="M36 18 L24 44 L44 18 Z" fill="url(#lgFoot)" opacity="0.55"/>
+            <path d="M12 18 L24 44 L36 18 Z" fill="url(#lgFoot)" opacity="0.92"/>
+          </svg>
+          <span>STAR ENTREPRISE</span>
+        </a>
+        <p>Nous transformons vos idées en projets digitaux d'exception : sites web, applications mobiles et boutiques en ligne pensés pour convertir.</p>
+        <div class="social-row">
+          <a href="https://wa.me/24266565050" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.7 1.5 5.3L2 22l4.8-1.5c1.5.8 3.3 1.3 5.2 1.3 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg></a>
+          <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></a>
+          <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+          <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 11v5M8 8v.01M12 16v-5M12 11c0-1.5 1-2 2-2s2 .8 2 2v5"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="index.html">Accueil</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="realisations.html">Réalisations</a></li>
+          <li><a href="apropos.html">À propos</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Ressources</h4>
+        <ul>
+          <li><a href="business-plan.html">Business Plan</a></li>
+          <li><a href="application.html">Application mobile</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="https://wa.me/24266565050" target="_blank" rel="noopener">+242 06 656 50 50</a></li>
+          <li><a href="mailto:contact@star-entreprise.cg">contact@star-entreprise.cg</a></li>
+          <li><span style="font-size:.92rem;color:var(--text-dim);">Brazzaville, République du Congo</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span class="year"></span> STAR ENTREPRISE. Tous droits réservés.</span>
+      <span>Fondée par Carry OTEMBA — Président Fondateur</span>
+    </div>
+  </div>
+</footer>
+
+<a class="wa-float" href="https://wa.me/24266565050" target="_blank" rel="noopener" aria-label="Discuter sur WhatsApp">
+  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.7 1.5 5.3L2 22l4.8-1.5c1.5.8 3.3 1.3 5.2 1.3 5.5 0 10-4.5 10-10S17.5 2 12 2zm5.5 14.1c-.2.6-1.4 1.2-1.9 1.3-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.6-.6-2.8-1.2-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.8s.7-2 .9-2.2c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5.2.5.8 1.9.9 2.1.1.2.1.4 0 .6-.1.2-.2.3-.4.5-.2.2-.3.3-.4.5-.1.2-.3.4-.1.7.2.3.8 1.3 1.7 2.1 1.2 1 2.2 1.4 2.5 1.5.3.1.5.1.7-.1.2-.2.8-.9.9-1.2.2-.3.4-.2.6-.1.3.1 1.7.9 2 1 .3.1.5.2.6.3.1.2.1.9-.1 1.5z"/></svg>
+</a>
+
+<script src="assets/js/main.js"></script>
+<script src="assets/js/jardissa.js"></script>
+<script src="assets/js/pwa.js"></script>
+</body>
+</html>
