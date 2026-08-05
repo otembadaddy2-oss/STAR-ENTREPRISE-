@@ -11,7 +11,8 @@
 <link rel="apple-touch-icon" href="assets/img/icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap"></noscript>
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -28,20 +29,20 @@
         <path d="M36 18 L24 44 L44 18 Z" fill="url(#lgNav)" opacity="0.55"/>
         <path d="M12 18 L24 44 L36 18 Z" fill="url(#lgNav)" opacity="0.92"/>
       </svg>
-      <span>STAR ENTREPRISE<small>Agence digitale • Congo</small></span>
+      <span>STAR ENTREPRISE<small data-i18n="nav.brand.subtitle">Agence digitale • Congo</small></span>
     </a>
     <div class="nav-links" id="navLinks">
-      <a href="index.html">Accueil</a>
+      <a href="index.html" data-i18n="nav.home">Accueil</a>
       <a href="services.html">Services</a>
-      <a href="realisations.html">Réalisations</a>
+      <a href="realisations.html" data-i18n="nav.work">Réalisations</a>
       <a href="business-plan.html">Business Plan</a>
-      <a href="apropos.html">À propos</a>
+      <a href="apropos.html" data-i18n="nav.about">À propos</a>
       <a href="application.html">Application</a>
       <a href="contact.html">Contact</a>
-      <a href="contact.html" class="nav-cta">Devis gratuit</a>
+      <a href="contact.html" class="nav-cta" data-i18n="nav.cta">Devis gratuit</a>
     </div>
     <div class="nav-actions">
-      <a class="btn btn-primary btn-sm" href="contact.html">Devis gratuit</a>
+      <a class="btn btn-primary btn-sm" href="contact.html" data-i18n="nav.cta">Devis gratuit</a>
       <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span></button>
     </div>
   </div>
@@ -49,21 +50,21 @@
 
 <header class="page-hero">
   <div class="container">
-    <div class="eyebrow"><span class="dot"></span> Réalisations</div>
-    <h1>Des idées, <span class="text-grad">devenues diamants</span></h1>
-    <p>Un aperçu de concepts et projets que nous concevons pour nos clients — chaque idée reçoit un traitement sur-mesure, à l'image de ce que nous pouvons créer pour vous.</p>
+    <div class="eyebrow"><span class="dot"></span> <span data-i18n="work.hero.eyebrow">Réalisations</span></div>
+    <h1 data-i18n="work.hero.title">Des idées, <span class="text-grad">devenues diamants</span></h1>
+    <p data-i18n="work.hero.lead">Un aperçu de concepts et projets que nous concevons pour nos clients — chaque idée reçoit un traitement sur-mesure, à l'image de ce que nous pouvons créer pour vous.</p>
   </div>
 </header>
 
 <section style="padding-top:10px;">
   <div class="container">
     <div class="filter-row reveal in">
-      <button class="filter-btn active" data-filter="all">Tout</button>
-      <button class="filter-btn" data-filter="web">Sites Web</button>
-      <button class="filter-btn" data-filter="app">Applications</button>
-      <button class="filter-btn" data-filter="food">Nourriture</button>
-      <button class="filter-btn" data-filter="cosmetic">Cosmétiques</button>
-      <button class="filter-btn" data-filter="fashion">Mode</button>
+      <button class="filter-btn active" data-filter="all" data-i18n="work.filter.all">Tout</button>
+      <button class="filter-btn" data-filter="web" data-i18n="work.filter.web">Sites Web</button>
+      <button class="filter-btn" data-filter="app" data-i18n="work.filter.app">Applications</button>
+      <button class="filter-btn" data-filter="food" data-i18n="work.filter.food">Nourriture</button>
+      <button class="filter-btn" data-filter="cosmetic" data-i18n="work.filter.cosmetic">Cosmétiques</button>
+      <button class="filter-btn" data-filter="fashion" data-i18n="work.filter.fashion">Mode</button>
     </div>
 
     <div class="grid grid-3 stagger" id="workGrid">
@@ -73,9 +74,9 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="#e8c368" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 4 6 4 9s-1.5 6.4-4 9c-2.5-2.6-4-6-4-9s1.5-6.4 4-9z"/></svg>
         </div>
         <div class="work-body">
-          <span class="tag">Site Web</span>
-          <h3>Cabinet &amp; Services Pro</h3>
-          <p>Site institutionnel épuré pour un cabinet de conseil, pensé pour rassurer et convertir les prospects.</p>
+          <span class="tag" data-i18n="work.tag.web">Site Web</span>
+          <h3 data-i18n="work1.title">Cabinet &amp; Services Pro</h3>
+          <p data-i18n="work1.desc">Site institutionnel épuré pour un cabinet de conseil, pensé pour rassurer et convertir les prospects.</p>
         </div>
       </div>
 
@@ -84,9 +85,9 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="#2fe0e0" stroke-width="1.5"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>
         </div>
         <div class="work-body">
-          <span class="tag">Application</span>
-          <h3>App de livraison express</h3>
-          <p>Application de suivi de commandes en temps réel avec notifications et paiement intégré.</p>
+          <span class="tag" data-i18n="work.tag.app">Application</span>
+          <h3 data-i18n="work2.title">App de livraison express</h3>
+          <p data-i18n="work2.desc">Application de suivi de commandes en temps réel avec notifications et paiement intégré.</p>
         </div>
       </div>
 
@@ -95,9 +96,9 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="#e8c368" stroke-width="1.5"><path d="M3 11h18M3 11c0-4 4-8 9-8s9 4 9 8M3 11l1 8h16l1-8"/></svg>
         </div>
         <div class="work-body">
-          <span class="tag">Nourriture</span>
-          <h3>Menu digital &amp; commande en ligne</h3>
-          <p>Plateforme de commande pour restaurant : menu dynamique, paiement, suivi de livraison.</p>
+          <span class="tag" data-i18n="work.tag.food">Nourriture</span>
+          <h3 data-i18n="work3.title">Menu digital &amp; commande en ligne</h3>
+          <p data-i18n="work3.desc">Plateforme de commande pour restaurant : menu dynamique, paiement, suivi de livraison.</p>
         </div>
       </div>
 
@@ -106,9 +107,9 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="#ff6ec7" stroke-width="1.5"><path d="M12 2c-1.5 2-2 3.5-2 5a2 2 0 0 0 4 0c0-1.5-.5-3-2-5Z"/><rect x="6" y="10" width="12" height="11" rx="2"/></svg>
         </div>
         <div class="work-body">
-          <span class="tag">Cosmétique</span>
-          <h3>Boutique cosmétiques premium</h3>
-          <p>E-commerce beauté avec fiches produits immersives et programme de fidélité.</p>
+          <span class="tag" data-i18n="work.tag.cosmetic">Cosmétique</span>
+          <h3 data-i18n="work4.title">Boutique cosmétiques premium</h3>
+          <p data-i18n="work4.desc">E-commerce beauté avec fiches produits immersives et programme de fidélité.</p>
         </div>
       </div>
 
@@ -117,9 +118,9 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="#8b6bff" stroke-width="1.5"><path d="M20 8a4 4 0 0 0-8 0M4 8h16l-1.5 13h-13z"/></svg>
         </div>
         <div class="work-body">
-          <span class="tag">Mode</span>
-          <h3>Boutique mode &amp; accessoires</h3>
-          <p>Boutique en ligne habits &amp; sacs avec lookbook, filtres avancés et paiement rapide.</p>
+          <span class="tag" data-i18n="work.tag.fashion">Mode</span>
+          <h3 data-i18n="work5.title">Boutique mode &amp; accessoires</h3>
+          <p data-i18n="work5.desc">Boutique en ligne habits &amp; sacs avec lookbook, filtres avancés et paiement rapide.</p>
         </div>
       </div>
 
@@ -128,9 +129,9 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="#2fe0e0" stroke-width="1.5"><circle cx="13.5" cy="6.5" r="1"/><circle cx="17.5" cy="10.5" r="1"/><circle cx="8.5" cy="7.5" r="1"/><circle cx="6.5" cy="12.5" r="1"/><path d="M12 2a10 10 0 1 0 10 10c0-1-.5-2-2-2h-3a2 2 0 0 1-2-2V5a3 3 0 0 0-3-3z"/></svg>
         </div>
         <div class="work-body">
-          <span class="tag">Branding</span>
-          <h3>Identité de marque événementielle</h3>
-          <p>Logo, charte graphique et supports pour le lancement d'une marque événementielle.</p>
+          <span class="tag" data-i18n="work.tag.branding">Branding</span>
+          <h3 data-i18n="work6.title">Identité de marque événementielle</h3>
+          <p data-i18n="work6.desc">Logo, charte graphique et supports pour le lancement d'une marque événementielle.</p>
         </div>
       </div>
 
@@ -139,9 +140,9 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="#e8c368" stroke-width="1.5"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
         </div>
         <div class="work-body">
-          <span class="tag">Application</span>
-          <h3>Tableau de bord vendeur multi-boutique</h3>
-          <p>Application de gestion des ventes, stocks et statistiques pour vendeurs multi-canaux.</p>
+          <span class="tag" data-i18n="work.tag.app">Application</span>
+          <h3 data-i18n="work7.title">Tableau de bord vendeur multi-boutique</h3>
+          <p data-i18n="work7.desc">Application de gestion des ventes, stocks et statistiques pour vendeurs multi-canaux.</p>
         </div>
       </div>
 
@@ -150,9 +151,9 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="#ff6ec7" stroke-width="1.5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
         </div>
         <div class="work-body">
-          <span class="tag">Nourriture</span>
-          <h3>Marketplace de producteurs locaux</h3>
-          <p>Plateforme reliant producteurs et consommateurs, commande groupée et livraison planifiée.</p>
+          <span class="tag" data-i18n="work.tag.food">Nourriture</span>
+          <h3 data-i18n="work8.title">Marketplace de producteurs locaux</h3>
+          <p data-i18n="work8.desc">Plateforme reliant producteurs et consommateurs, commande groupée et livraison planifiée.</p>
         </div>
       </div>
 
@@ -161,9 +162,9 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="#8b6bff" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
         </div>
         <div class="work-body">
-          <span class="tag">Cosmétique</span>
-          <h3>Prise de rendez-vous institut de beauté</h3>
-          <p>Réservation en ligne de soins &amp; rappels automatiques par WhatsApp.</p>
+          <span class="tag" data-i18n="work.tag.cosmetic">Cosmétique</span>
+          <h3 data-i18n="work9.title">Prise de rendez-vous institut de beauté</h3>
+          <p data-i18n="work9.desc">Réservation en ligne de soins &amp; rappels automatiques par WhatsApp.</p>
         </div>
       </div>
 
@@ -174,12 +175,12 @@
 <section>
   <div class="container">
     <div class="cta-band reveal">
-      <div class="eyebrow"><span class="dot"></span> Votre projet, notre prochain diamant</div>
-      <h2>Et si c'était <span class="text-grad">votre tour</span> ?</h2>
-      <p>Chaque réalisation commence par une idée et une conversation. Racontez-nous la vôtre.</p>
+      <div class="eyebrow"><span class="dot"></span> <span data-i18n="work.cta.eyebrow">Votre projet, notre prochain diamant</span></div>
+      <h2 data-i18n="work.cta.title">Et si c'était <span class="text-grad">votre tour</span> ?</h2>
+      <p data-i18n="work.cta.lead">Chaque réalisation commence par une idée et une conversation. Racontez-nous la vôtre.</p>
       <div class="cta-actions">
-        <a href="contact.html" class="btn btn-primary">Démarrer mon projet</a>
-        <a href="https://wa.me/24266565050" target="_blank" rel="noopener" class="btn btn-whatsapp">Discuter sur WhatsApp</a>
+        <a href="contact.html" class="btn btn-primary" data-i18n="home.hero.cta1">Démarrer mon projet</a>
+        <a href="https://wa.me/24266565050" target="_blank" rel="noopener" class="btn btn-whatsapp" data-i18n="wa.cta.short">Discuter sur WhatsApp</a>
       </div>
     </div>
   </div>
@@ -201,33 +202,33 @@
           </svg>
           <span>STAR ENTREPRISE</span>
         </a>
-        <p>Nous transformons vos idées en projets digitaux d'exception : sites web, applications mobiles et boutiques en ligne pensés pour convertir.</p>
+        <p data-i18n="footer.tagline">Nous transformons vos idées en projets digitaux d'exception : sites web, applications mobiles et boutiques en ligne pensés pour convertir.</p>
         <div class="social-row">
-          <a href="https://wa.me/24266565050" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.7 1.5 5.3L2 22l4.8-1.5c1.5.8 3.3 1.3 5.2 1.3 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg></a>
+          <a href="https://wa.me/24266565050" target="_blank" rel="noopener" aria-label="WhatsApp" data-i18n-aria="wa.float.aria"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.7 1.5 5.3L2 22l4.8-1.5c1.5.8 3.3 1.3 5.2 1.3 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg></a>
           <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></a>
           <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
           <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 11v5M8 8v.01M12 16v-5M12 11c0-1.5 1-2 2-2s2 .8 2 2v5"/></svg></a>
         </div>
       </div>
       <div class="footer-col">
-        <h4>Navigation</h4>
+        <h4 data-i18n="footer.col.nav">Navigation</h4>
         <ul>
-          <li><a href="index.html">Accueil</a></li>
+          <li><a href="index.html" data-i18n="nav.home">Accueil</a></li>
           <li><a href="services.html">Services</a></li>
-          <li><a href="realisations.html">Réalisations</a></li>
-          <li><a href="apropos.html">À propos</a></li>
+          <li><a href="realisations.html" data-i18n="nav.work">Réalisations</a></li>
+          <li><a href="apropos.html" data-i18n="nav.about">À propos</a></li>
         </ul>
       </div>
       <div class="footer-col">
-        <h4>Ressources</h4>
+        <h4 data-i18n="footer.col.resources">Ressources</h4>
         <ul>
           <li><a href="business-plan.html">Business Plan</a></li>
-          <li><a href="application.html">Application mobile</a></li>
+          <li><a href="application.html" data-i18n="footer.link.appmobile">Application mobile</a></li>
           <li><a href="contact.html">Contact</a></li>
         </ul>
       </div>
       <div class="footer-col">
-        <h4>Contact</h4>
+        <h4 data-i18n="footer.col.contact">Contact</h4>
         <ul>
           <li><a href="https://wa.me/24266565050" target="_blank" rel="noopener">+242 06 656 50 50</a></li>
           <li><a href="mailto:contact@star-entreprise.cg">contact@star-entreprise.cg</a></li>
@@ -236,17 +237,18 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© <span class="year"></span> STAR ENTREPRISE. Tous droits réservés.</span>
-      <span>Fondée par Carry OTEMBA — Président Fondateur</span>
+      <span>© <span class="year"></span> <span data-i18n="footer.rights">STAR ENTREPRISE. Tous droits réservés.</span></span>
+      <span data-i18n="footer.founder">Fondée par Carry OTEMBA — Président Fondateur</span>
     </div>
   </div>
 </footer>
 
-<a class="wa-float" href="https://wa.me/24266565050" target="_blank" rel="noopener" aria-label="Discuter sur WhatsApp">
+<a class="wa-float" href="https://wa.me/24266565050" target="_blank" rel="noopener" aria-label="Discuter sur WhatsApp" data-i18n-aria="wa.float.aria">
   <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.7 1.5 5.3L2 22l4.8-1.5c1.5.8 3.3 1.3 5.2 1.3 5.5 0 10-4.5 10-10S17.5 2 12 2zm5.5 14.1c-.2.6-1.4 1.2-1.9 1.3-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.6-.6-2.8-1.2-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.8s.7-2 .9-2.2c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5.2.5.8 1.9.9 2.1.1.2.1.4 0 .6-.1.2-.2.3-.4.5-.2.2-.3.3-.4.5-.1.2-.3.4-.1.7.2.3.8 1.3 1.7 2.1 1.2 1 2.2 1.4 2.5 1.5.3.1.5.1.7-.1.2-.2.8-.9.9-1.2.2-.3.4-.2.6-.1.3.1 1.7.9 2 1 .3.1.5.2.6.3.1.2.1.9-.1 1.5z"/></svg>
 </a>
 
 <script src="assets/js/main.js"></script>
+<script src="assets/js/i18n.js"></script>
 <script src="assets/js/jardissa.js"></script>
 <script src="assets/js/pwa.js"></script>
 </body>

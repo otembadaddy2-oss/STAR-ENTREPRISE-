@@ -17,10 +17,15 @@ Site vitrine + application installable (PWA) + business plan 5 ans pour **STAR E
 ## Fonctionnalités clés
 
 - **Design 100% sur-mesure** (aucun framework CSS externe), thème "diamant" (violet/cyan/or), animations au scroll, micro-interactions.
-- **Jardissa** (`assets/js/jardissa.js`) — assistante virtuelle : répond aux questions fréquentes (services, tarifs, délais, secteurs) et relaie toute demande de devis directement vers le WhatsApp du fondateur pour validation humaine avant réponse engageante.
+- **Bilingue FR|EN** — sélecteur de langue dans la barre de navigation (`assets/js/i18n.js`), traduit le site et Jardissa à la volée, préférence mémorisée (localStorage).
+- **Jardissa** (`assets/js/jardissa.js`) — assistante virtuelle bilingue : répond aux questions fréquentes (services, tarifs, délais, secteurs) et relaie toute demande de devis directement vers le WhatsApp du fondateur pour validation humaine avant réponse engageante.
 - **Intégration WhatsApp** — bouton flottant + formulaires qui génèrent un message pré-rempli vers `+242 06 656 50 50`.
 - **Application installable gratuite (PWA)** — `manifest.json` + `sw.js` : installation en un clic depuis le navigateur (Android/iOS/desktop), fonctionne hors-ligne, sans passer par un store.
 - **Business plan 2026–2031** — étude de marché, modèle économique, organisation, feuille de route, plan financier détaillé, SWOT — généré en PDF dans `docs/business-plan-star-entreprise.pdf`.
+
+## Performance
+
+Le site pèse **~330 Ko au total** (HTML+CSS+JS+icônes+PDF inclus) — aucune photo lourde, uniquement des graphismes vectoriels (SVG). CSS et JS sont minifiés (`terser` / `clean-css`). Les polices Google Fonts se chargent en asynchrone (technique `media="print" onload`) pour ne jamais bloquer l'affichage, important sur les connexions mobiles plus lentes. `.htaccess` (Apache/Hostinger) et `_headers` (Netlify) activent la compression Gzip et la mise en cache navigateur.
 
 ## Lancer le site en local
 

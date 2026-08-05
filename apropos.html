@@ -11,7 +11,8 @@
 <link rel="apple-touch-icon" href="assets/img/icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap"></noscript>
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -28,20 +29,20 @@
         <path d="M36 18 L24 44 L44 18 Z" fill="url(#lgNav)" opacity="0.55"/>
         <path d="M12 18 L24 44 L36 18 Z" fill="url(#lgNav)" opacity="0.92"/>
       </svg>
-      <span>STAR ENTREPRISE<small>Agence digitale • Congo</small></span>
+      <span>STAR ENTREPRISE<small data-i18n="nav.brand.subtitle">Agence digitale • Congo</small></span>
     </a>
     <div class="nav-links" id="navLinks">
-      <a href="index.html">Accueil</a>
+      <a href="index.html" data-i18n="nav.home">Accueil</a>
       <a href="services.html">Services</a>
-      <a href="realisations.html">Réalisations</a>
+      <a href="realisations.html" data-i18n="nav.work">Réalisations</a>
       <a href="business-plan.html">Business Plan</a>
-      <a href="apropos.html">À propos</a>
+      <a href="apropos.html" data-i18n="nav.about">À propos</a>
       <a href="application.html">Application</a>
       <a href="contact.html">Contact</a>
-      <a href="contact.html" class="nav-cta">Devis gratuit</a>
+      <a href="contact.html" class="nav-cta" data-i18n="nav.cta">Devis gratuit</a>
     </div>
     <div class="nav-actions">
-      <a class="btn btn-primary btn-sm" href="contact.html">Devis gratuit</a>
+      <a class="btn btn-primary btn-sm" href="contact.html" data-i18n="nav.cta">Devis gratuit</a>
       <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span></button>
     </div>
   </div>
@@ -49,9 +50,9 @@
 
 <header class="page-hero">
   <div class="container">
-    <div class="eyebrow"><span class="dot"></span> À propos de nous</div>
-    <h1>L'histoire d'une <span class="text-grad">vision</span></h1>
-    <p>STAR ENTREPRISE est née d'une conviction simple : chaque idée mérite d'être révélée dans toute sa splendeur.</p>
+    <div class="eyebrow"><span class="dot"></span> <span data-i18n="about.hero.eyebrow">À propos de nous</span></div>
+    <h1 data-i18n="about.hero.title">L'histoire d'une <span class="text-grad">vision</span></h1>
+    <p data-i18n="about.hero.lead">STAR ENTREPRISE est née d'une conviction simple : chaque idée mérite d'être révélée dans toute sa splendeur.</p>
   </div>
 </header>
 
@@ -59,13 +60,13 @@
   <div class="container">
     <div class="grid grid-2" style="align-items:center;gap:60px;">
       <div class="reveal">
-        <div class="eyebrow"><span class="dot"></span> Notre fondateur</div>
-        <h2>Carry OTEMBA<br><span class="text-grad">Président Fondateur</span></h2>
-        <p style="margin-top:18px;font-size:1.02rem;">Convaincu que la technologie doit être accessible et belle à la fois, Carry OTEMBA a fondé STAR ENTREPRISE avec une mission claire : accompagner entrepreneurs, commerçants et porteurs de projets dans la création de sites web, d'applications et de boutiques en ligne qui marquent les esprits.</p>
-        <p style="margin-top:14px;">Sa philosophie : une idée, même imparfaite au départ, peut devenir un diamant si elle est taillée avec méthode, créativité et exigence.</p>
+        <div class="eyebrow"><span class="dot"></span> <span data-i18n="about.founder.eyebrow">Notre fondateur</span></div>
+        <h2 data-i18n="about.founder.title">Carry OTEMBA<br><span class="text-grad">Président Fondateur</span></h2>
+        <p style="margin-top:18px;font-size:1.02rem;" data-i18n="about.founder.p1">Convaincu que la technologie doit être accessible et belle à la fois, Carry OTEMBA a fondé STAR ENTREPRISE avec une mission claire : accompagner entrepreneurs, commerçants et porteurs de projets dans la création de sites web, d'applications et de boutiques en ligne qui marquent les esprits.</p>
+        <p style="margin-top:14px;" data-i18n="about.founder.p2">Sa philosophie : une idée, même imparfaite au départ, peut devenir un diamant si elle est taillée avec méthode, créativité et exigence.</p>
         <a href="https://wa.me/24266565050" target="_blank" rel="noopener" class="btn btn-whatsapp" style="margin-top:24px;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.7 1.5 5.3L2 22l4.8-1.5c1.5.8 3.3 1.3 5.2 1.3 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg>
-          Échanger avec Carry OTEMBA
+          <span data-i18n="about.founder.cta">Échanger avec Carry OTEMBA</span>
         </a>
       </div>
       <div class="reveal-scale">
@@ -81,8 +82,8 @@
               <path d="M26 38 L50 92 L74 38 Z" fill="url(#lgFounder)" opacity="0.92"/>
             </svg>
             <div style="position:absolute;bottom:0;left:0;right:0;padding:24px;background:linear-gradient(0deg,rgba(6,7,15,.9),transparent);">
-              <b style="font-family:var(--ff-heading);font-size:1.1rem;">Carry OTEMBA</b><br>
-              <span style="font-size:.82rem;color:var(--text-dim);">Président Fondateur, STAR ENTREPRISE</span>
+              <b style="font-family:var(--ff-heading);font-size:1.1rem;" data-i18n="about.founder.card.name">Carry OTEMBA</b><br>
+              <span style="font-size:.82rem;color:var(--text-dim);" data-i18n="about.founder.card.role">Président Fondateur, STAR ENTREPRISE</span>
             </div>
           </div>
         </div>
@@ -96,13 +97,13 @@
     <div class="grid grid-2 stagger">
       <div class="card reveal">
         <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2 4 6v6c0 5 3.4 8.7 8 10 4.6-1.3 8-5 8-10V6z"/></svg></div>
-        <h3>Notre mission</h3>
-        <p>Transformer les idées de nos clients en produits digitaux d'exception — sites web, applications et boutiques en ligne — accessibles, beaux et efficaces, pour tous les secteurs d'activité.</p>
+        <h3 data-i18n="about.mission.title">Notre mission</h3>
+        <p data-i18n="about.mission.desc">Transformer les idées de nos clients en produits digitaux d'exception — sites web, applications et boutiques en ligne — accessibles, beaux et efficaces, pour tous les secteurs d'activité.</p>
       </div>
       <div class="card reveal">
         <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></div>
-        <h3>Notre vision</h3>
-        <p>Devenir la référence en Afrique centrale pour la création digitale sur-mesure, en donnant à chaque entrepreneur les outils numériques des grandes marques.</p>
+        <h3 data-i18n="about.vision.title">Notre vision</h3>
+        <p data-i18n="about.vision.desc">Devenir la référence en Afrique centrale pour la création digitale sur-mesure, en donnant à chaque entrepreneur les outils numériques des grandes marques.</p>
       </div>
     </div>
   </div>
@@ -111,29 +112,29 @@
 <section>
   <div class="container">
     <div class="section-head center reveal">
-      <div class="eyebrow"><span class="dot"></span> Nos valeurs</div>
-      <h2>Ce qui guide <span class="text-grad">chaque projet</span></h2>
+      <div class="eyebrow"><span class="dot"></span> <span data-i18n="about.values.eyebrow">Nos valeurs</span></div>
+      <h2 data-i18n="about.values.title">Ce qui guide <span class="text-grad">chaque projet</span></h2>
     </div>
     <div class="grid grid-4 stagger">
       <div class="card reveal">
         <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/></svg></div>
-        <h3>Excellence</h3>
-        <p>Chaque détail compte, du pixel à la performance.</p>
+        <h3 data-i18n="about.val1.title">Excellence</h3>
+        <p data-i18n="about.val1.desc">Chaque détail compte, du pixel à la performance.</p>
       </div>
       <div class="card reveal">
         <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-        <h3>Écoute</h3>
-        <p>Votre idée d'abord — nous la comprenons avant de créer.</p>
+        <h3 data-i18n="about.val2.title">Écoute</h3>
+        <p data-i18n="about.val2.desc">Votre idée d'abord — nous la comprenons avant de créer.</p>
       </div>
       <div class="card reveal">
         <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2 3 14h7l-1 8 11-14h-7z"/></svg></div>
-        <h3>Rapidité</h3>
-        <p>Des délais tenus, une communication fluide et transparente.</p>
+        <h3 data-i18n="about.val3.title">Rapidité</h3>
+        <p data-i18n="about.val3.desc">Des délais tenus, une communication fluide et transparente.</p>
       </div>
       <div class="card reveal">
         <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg></div>
-        <h3>Engagement</h3>
-        <p>Nous restons présents bien après le lancement du projet.</p>
+        <h3 data-i18n="about.val4.title">Engagement</h3>
+        <p data-i18n="about.val4.desc">Nous restons présents bien après le lancement du projet.</p>
       </div>
     </div>
   </div>
@@ -142,34 +143,34 @@
 <section>
   <div class="container">
     <div class="section-head center reveal">
-      <div class="eyebrow"><span class="dot"></span> Notre trajectoire</div>
-      <h2>Une croissance <span class="text-grad">planifiée sur 5 ans</span></h2>
-      <p>Le détail complet est disponible dans notre Business Plan.</p>
+      <div class="eyebrow"><span class="dot"></span> <span data-i18n="about.timeline.eyebrow">Notre trajectoire</span></div>
+      <h2 data-i18n="about.timeline.title">Une croissance <span class="text-grad">planifiée sur 5 ans</span></h2>
+      <p data-i18n="about.timeline.lead">Le détail complet est disponible dans notre Business Plan.</p>
     </div>
     <div class="grid grid-4 stagger">
       <div class="card reveal">
-        <span class="badge-soft">Année 1</span>
-        <h3 style="margin-top:14px;">Fondation</h3>
-        <p>Lancement de l'agence, premiers clients, mise en place des process.</p>
+        <span class="badge-soft" data-i18n="about.tl1.badge">Année 1</span>
+        <h3 style="margin-top:14px;" data-i18n="about.tl1.title">Fondation</h3>
+        <p data-i18n="about.tl1.desc">Lancement de l'agence, premiers clients, mise en place des process.</p>
       </div>
       <div class="card reveal">
-        <span class="badge-soft">Année 2-3</span>
-        <h3 style="margin-top:14px;">Expansion</h3>
-        <p>Élargissement de l'équipe, nouveaux secteurs, partenariats stratégiques.</p>
+        <span class="badge-soft" data-i18n="about.tl2.badge">Année 2-3</span>
+        <h3 style="margin-top:14px;" data-i18n="about.tl2.title">Expansion</h3>
+        <p data-i18n="about.tl2.desc">Élargissement de l'équipe, nouveaux secteurs, partenariats stratégiques.</p>
       </div>
       <div class="card reveal">
-        <span class="badge-soft">Année 4</span>
-        <h3 style="margin-top:14px;">Structuration</h3>
-        <p>Studio créatif interne, offre SaaS pour PME, présence régionale.</p>
+        <span class="badge-soft" data-i18n="about.tl3.badge">Année 4</span>
+        <h3 style="margin-top:14px;" data-i18n="about.tl3.title">Structuration</h3>
+        <p data-i18n="about.tl3.desc">Studio créatif interne, offre SaaS pour PME, présence régionale.</p>
       </div>
       <div class="card reveal">
-        <span class="badge-soft">Année 5</span>
-        <h3 style="margin-top:14px;">Rayonnement</h3>
-        <p>Référence en Afrique centrale, franchise du modèle, nouveaux marchés.</p>
+        <span class="badge-soft" data-i18n="about.tl4.badge">Année 5</span>
+        <h3 style="margin-top:14px;" data-i18n="about.tl4.title">Rayonnement</h3>
+        <p data-i18n="about.tl4.desc">Référence en Afrique centrale, franchise du modèle, nouveaux marchés.</p>
       </div>
     </div>
     <div class="text-center" style="margin-top:40px;">
-      <a href="business-plan.html" class="btn btn-primary">Voir le Business Plan complet</a>
+      <a href="business-plan.html" class="btn btn-primary" data-i18n="about.tl.btn">Voir le Business Plan complet</a>
     </div>
   </div>
 </section>
@@ -190,33 +191,33 @@
           </svg>
           <span>STAR ENTREPRISE</span>
         </a>
-        <p>Nous transformons vos idées en projets digitaux d'exception : sites web, applications mobiles et boutiques en ligne pensés pour convertir.</p>
+        <p data-i18n="footer.tagline">Nous transformons vos idées en projets digitaux d'exception : sites web, applications mobiles et boutiques en ligne pensés pour convertir.</p>
         <div class="social-row">
-          <a href="https://wa.me/24266565050" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.7 1.5 5.3L2 22l4.8-1.5c1.5.8 3.3 1.3 5.2 1.3 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg></a>
+          <a href="https://wa.me/24266565050" target="_blank" rel="noopener" aria-label="WhatsApp" data-i18n-aria="wa.float.aria"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.7 1.5 5.3L2 22l4.8-1.5c1.5.8 3.3 1.3 5.2 1.3 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg></a>
           <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></a>
           <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
           <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 11v5M8 8v.01M12 16v-5M12 11c0-1.5 1-2 2-2s2 .8 2 2v5"/></svg></a>
         </div>
       </div>
       <div class="footer-col">
-        <h4>Navigation</h4>
+        <h4 data-i18n="footer.col.nav">Navigation</h4>
         <ul>
-          <li><a href="index.html">Accueil</a></li>
+          <li><a href="index.html" data-i18n="nav.home">Accueil</a></li>
           <li><a href="services.html">Services</a></li>
-          <li><a href="realisations.html">Réalisations</a></li>
-          <li><a href="apropos.html">À propos</a></li>
+          <li><a href="realisations.html" data-i18n="nav.work">Réalisations</a></li>
+          <li><a href="apropos.html" data-i18n="nav.about">À propos</a></li>
         </ul>
       </div>
       <div class="footer-col">
-        <h4>Ressources</h4>
+        <h4 data-i18n="footer.col.resources">Ressources</h4>
         <ul>
           <li><a href="business-plan.html">Business Plan</a></li>
-          <li><a href="application.html">Application mobile</a></li>
+          <li><a href="application.html" data-i18n="footer.link.appmobile">Application mobile</a></li>
           <li><a href="contact.html">Contact</a></li>
         </ul>
       </div>
       <div class="footer-col">
-        <h4>Contact</h4>
+        <h4 data-i18n="footer.col.contact">Contact</h4>
         <ul>
           <li><a href="https://wa.me/24266565050" target="_blank" rel="noopener">+242 06 656 50 50</a></li>
           <li><a href="mailto:contact@star-entreprise.cg">contact@star-entreprise.cg</a></li>
@@ -225,17 +226,18 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© <span class="year"></span> STAR ENTREPRISE. Tous droits réservés.</span>
-      <span>Fondée par Carry OTEMBA — Président Fondateur</span>
+      <span>© <span class="year"></span> <span data-i18n="footer.rights">STAR ENTREPRISE. Tous droits réservés.</span></span>
+      <span data-i18n="footer.founder">Fondée par Carry OTEMBA — Président Fondateur</span>
     </div>
   </div>
 </footer>
 
-<a class="wa-float" href="https://wa.me/24266565050" target="_blank" rel="noopener" aria-label="Discuter sur WhatsApp">
+<a class="wa-float" href="https://wa.me/24266565050" target="_blank" rel="noopener" aria-label="Discuter sur WhatsApp" data-i18n-aria="wa.float.aria">
   <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.7 1.5 5.3L2 22l4.8-1.5c1.5.8 3.3 1.3 5.2 1.3 5.5 0 10-4.5 10-10S17.5 2 12 2zm5.5 14.1c-.2.6-1.4 1.2-1.9 1.3-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.6-.6-2.8-1.2-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.8s.7-2 .9-2.2c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5.2.5.8 1.9.9 2.1.1.2.1.4 0 .6-.1.2-.2.3-.4.5-.2.2-.3.3-.4.5-.1.2-.3.4-.1.7.2.3.8 1.3 1.7 2.1 1.2 1 2.2 1.4 2.5 1.5.3.1.5.1.7-.1.2-.2.8-.9.9-1.2.2-.3.4-.2.6-.1.3.1 1.7.9 2 1 .3.1.5.2.6.3.1.2.1.9-.1 1.5z"/></svg>
 </a>
 
 <script src="assets/js/main.js"></script>
+<script src="assets/js/i18n.js"></script>
 <script src="assets/js/jardissa.js"></script>
 <script src="assets/js/pwa.js"></script>
 </body>
