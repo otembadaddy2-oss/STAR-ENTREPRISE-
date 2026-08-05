@@ -1,5 +1,5 @@
 // STAR ENTREPRISE — Service Worker (mise en cache pour installation & hors-ligne)
-const CACHE = "star-entreprise-v6";
+const CACHE = "star-entreprise-v7";
 const CORE_ASSETS = [
   "./",
   "index.html",
