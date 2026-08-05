@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>STAR ENTREPRISE — Vos idées. Notre éclat. Un diamant.</title>
+<meta name="description" content="STAR ENTREPRISE conçoit des sites web, applications mobiles et boutiques en ligne d'exception. De l'idée au diamant : design moderne, stratégie et accompagnement complet.">
+<meta name="theme-color" content="#06070f">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="assets/img/icons/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/img/icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap"></noscript>
+<link rel="stylesheet" href="assets/css/style.css">
+
+<meta property="og:title" content="STAR ENTREPRISE — Vos idées. Notre éclat. Un diamant.">
+<meta property="og:description" content="Sites web, applications mobiles et boutiques en ligne d'exception, conçus pour convertir vos visiteurs en clients.">
+<meta property="og:type" content="website">
+</head>
+<body>
+
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <a href="index.html" class="brand">
+      <svg class="brand-mark" viewBox="0 0 48 48" fill="none">
+        <defs><linearGradient id="lgNav" x1="0" y1="0" x2="48" y2="48">
+          <stop offset="0%" stop-color="#8b6bff"/><stop offset="55%" stop-color="#2fe0e0"/><stop offset="100%" stop-color="#e8c368"/>
+        </linearGradient></defs>
+        <path d="M4 18 L24 4 L44 18 L36 18 L24 12 L12 18 Z" fill="url(#lgNav)"/>
+        <path d="M12 18 L24 44 L4 18 Z" fill="url(#lgNav)" opacity="0.75"/>
+        <path d="M36 18 L24 44 L44 18 Z" fill="url(#lgNav)" opacity="0.55"/>
+        <path d="M12 18 L24 44 L36 18 Z" fill="url(#lgNav)" opacity="0.92"/>
+      </svg>
+      <span>STAR ENTREPRISE<small data-i18n="nav.brand.subtitle">Agence digitale • Congo</small></span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html" data-i18n="nav.home">Accueil</a>
+      <a href="services.html">Services</a>
+      <a href="realisations.html" data-i18n="nav.work">Réalisations</a>
+      <a href="business-plan.html">Business Plan</a>
+      <a href="apropos.html" data-i18n="nav.about">À propos</a>
+      <a href="application.html">Application</a>
+      <a href="contact.html">Contact</a>
+      <a href="contact.html" class="nav-cta" data-i18n="nav.cta">Devis gratuit</a>
+    </div>
+    <div class="nav-actions">
+      <a class="btn btn-primary btn-sm" href="contact.html" data-i18n="nav.cta">Devis gratuit</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container hero-grid">
+    <div class="reveal in">
+      <div class="eyebrow"><span class="dot"></span> <span data-i18n="home.hero.eyebrow">Agence digitale 360° — Congo &amp; International</span></div>
+      <h1 data-i18n="home.hero.title">Vos idées. Notre éclat. <span class="text-grad">Un diamant.</span></h1>
+      <p class="lead" data-i18n="home.hero.lead">STAR ENTREPRISE conçoit des sites web, applications mobiles et boutiques en ligne pensés pour convaincre, convertir et durer. Vous apportez l'idée — nous sculptons le diamant.</p>
+      <div class="hero-cta">
+        <a href="contact.html" class="btn btn-primary" data-i18n="home.hero.cta1">Démarrer mon projet</a>
+        <a href="https://wa.me/24266565050?text=Bonjour%20STAR%20ENTREPRISE%2C%20je%20souhaite%20discuter%20d%27un%20projet." target="_blank" rel="noopener" class="btn btn-whatsapp">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.1.2-.3.3-.4.1-.2 0-.4 0-.5C10 9 9.4 7.6 9.1 7c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.1s1 2.5 1.1 2.6c.1.2 1.9 3 4.7 4.1.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.7-.7 1.9-1.3.2-.6.2-1.2.2-1.3-.1-.1-.3-.2-.5-.3z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.7 1.5 5.3L2 22l4.8-1.5c1.5.8 3.3 1.3 5.2 1.3 5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18c-1.7 0-3.4-.5-4.8-1.3l-.3-.2-3.1 1 1-3-.2-.3C3.6 14.9 3.1 13.5 3.1 12c0-4.9 4-8.9 8.9-8.9s8.9 4 8.9 8.9-4 8.9-8.9 8.9z"/></svg>
+          <span data-i18n="home.hero.cta2">WhatsApp direct</span>
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><b data-count="120" data-suffix="+">0</b><span data-i18n="home.stat1.label">Projets livrés</span></div>
+        <div class="hero-stat"><b data-count="98" data-suffix="%">0</b><span data-i18n="home.stat2.label">Clients satisfaits</span></div>
+        <div class="hero-stat"><b data-count="12" data-suffix="">0</b><span data-i18n="home.stat3.label">Secteurs accompagnés</span></div>
+        <div class="hero-stat"><b data-count="5" data-suffix="j">0</b><span data-i18n="home.stat4.label">Réponse moyenne</span></div>
+      </div>
+    </div>
+
+    <div class="hero-visual reveal-scale in">
+      <div class="diamond-orbit">
+        <div class="ring ring1"></div>
+        <div class="ring ring2"></div>
+        <div class="diamond-core">
+          <svg viewBox="0 0 100 100" fill="none">
+            <defs><linearGradient id="lgHero" x1="0" y1="0" x2="100" y2="100">
+              <stop offset="0%" stop-color="#8b6bff"/><stop offset="55%" stop-color="#2fe0e0"/><stop offset="100%" stop-color="#e8c368"/>
+            </linearGradient></defs>
+            <path d="M8 38 L50 8 L92 38 L74 38 L50 22 L26 38 Z" fill="url(#lgHero)"/>
+            <path d="M26 38 L50 92 L8 38 Z" fill="url(#lgHero)" opacity="0.7"/>
+            <path d="M74 38 L50 92 L92 38 Z" fill="url(#lgHero)" opacity="0.5"/>
+            <path d="M26 38 L50 92 L74 38 Z" fill="url(#lgHero)" opacity="0.92"/>
+            <path d="M26 38 L50 8 L36 38 Z" fill="#fff" opacity="0.14"/>
+          </svg>
+        </div>
+        <div class="orbit-chip chip-1"><svg viewBox="0 0 24 24" fill="none" stroke="#e8c368" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 9h18"/></svg> <span data-i18n="home.orbit.web">Sites Web</span></div>
+        <div class="orbit-chip chip-2"><svg viewBox="0 0 24 24" fill="none" stroke="#2fe0e0" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg> <span data-i18n="home.orbit.apps">Applications</span></div>
+        <div class="orbit-chip chip-3"><svg viewBox="0 0 24 24" fill="none" stroke="#8b6bff" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg> <span data-i18n="home.orbit.shops">Boutiques</span></div>
+        <div class="orbit-chip chip-4"><svg viewBox="0 0 24 24" fill="none" stroke="#ff6ec7" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg> <span data-i18n="home.orbit.support">Support 7j/7</span></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="marquee">
+  <div class="marquee-track">
+    <span data-i18n="home.marquee.1">Sites Web</span><span data-i18n="home.marquee.2">Applications Mobiles</span><span data-i18n="home.marquee.3">E-commerce Nourriture</span><span data-i18n="home.marquee.4">Boutiques Cosmétiques</span><span data-i18n="home.marquee.5">Mode &amp; Accessoires</span><span data-i18n="home.marquee.6">Identité de marque</span><span data-i18n="home.marquee.7">Stratégie digitale</span>
+    <span data-i18n="home.marquee.1">Sites Web</span><span data-i18n="home.marquee.2">Applications Mobiles</span><span data-i18n="home.marquee.3">E-commerce Nourriture</span><span data-i18n="home.marquee.4">Boutiques Cosmétiques</span><span data-i18n="home.marquee.5">Mode &amp; Accessoires</span><span data-i18n="home.marquee.6">Identité de marque</span><span data-i18n="home.marquee.7">Stratégie digitale</span>
+  </div>
+</div>
+
+<section id="services">
+  <div class="container">
+    <div class="section-head center reveal">
+      <div class="eyebrow"><span class="dot"></span> <span data-i18n="home.services.eyebrow">Ce que nous créons</span></div>
+      <h2 data-i18n="home.services.title">Toutes vos idées, <span class="text-grad">une seule adresse</span></h2>
+      <p data-i18n="home.services.lead">Quel que soit votre secteur — nourriture, cosmétique, mode, services — nous concevons la plateforme digitale qui le fait rayonner.</p>
+    </div>
+
+    <div class="grid grid-3 stagger">
+      <div class="card reveal">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 4 6 4 9s-1.5 6.4-4 9c-2.5-2.6-4-6-4-9s1.5-6.4 4-9z"/></svg></div>
+        <h3 data-i18n="home.svc1.title">Sites Web sur mesure</h3>
+        <p data-i18n="home.svc1.desc">Sites vitrines, corporate ou institutionnels, rapides, élégants et pensés pour convertir vos visiteurs en clients.</p>
+        <div class="tags"><span>Vitrine</span><span>Corporate</span><span>Landing page</span></div>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></div>
+        <h3 data-i18n="home.svc2.title">Applications mobiles</h3>
+        <p data-i18n="home.svc2.desc">Applications Android/iOS et versions installables gratuitement, sans passer par un store, pour toucher tous vos clients.</p>
+        <div class="tags"><span>Android</span><span>iOS</span><span>PWA gratuite</span></div>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div>
+        <h3 data-i18n="home.svc3.title">Boutiques en ligne</h3>
+        <p data-i18n="home.svc3.desc">Vente de nourriture, cosmétiques, vêtements, sacs et accessoires : catalogues, paiement et livraison intégrés.</p>
+        <div class="tags"><span>Food</span><span>Cosmétique</span><span>Mode</span></div>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="13.5" cy="6.5" r="1"/><circle cx="17.5" cy="10.5" r="1"/><circle cx="8.5" cy="7.5" r="1"/><circle cx="6.5" cy="12.5" r="1"/><path d="M12 2a10 10 0 1 0 10 10c0-1-.5-2-2-2h-3a2 2 0 0 1-2-2V5a3 3 0 0 0-3-3z"/></svg></div>
+        <h3 data-i18n="home.svc4.title">Identité &amp; Design</h3>
+        <p data-i18n="home.svc4.desc">Logo, charte graphique, univers visuel : une image de marque qui inspire confiance dès le premier regard.</p>
+        <div class="tags"><span>Logo</span><span>Branding</span><span>UI/UX</span></div>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg></div>
+        <h3 data-i18n="home.svc5.title">Stratégie &amp; Marketing digital</h3>
+        <p data-i18n="home.svc5.desc">Réseaux sociaux, référencement, contenu : nous vous aidons à être vu, trouvé et choisi.</p>
+        <div class="tags"><span>SEO</span><span>Réseaux sociaux</span><span>Contenu</span></div>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2 4 6v6c0 5 3.4 8.7 8 10 4.6-1.3 8-5 8-10V6z"/></svg></div>
+        <h3 data-i18n="home.svc6.title">Accompagnement &amp; Support</h3>
+        <p data-i18n="home.svc6.desc">Maintenance, évolutions et assistance continue — votre projet grandit, nous grandissons avec lui.</p>
+        <div class="tags"><span>Maintenance</span><span>Support 7j/7</span><span>Évolutif</span></div>
+      </div>
+    </div>
+
+    <div class="text-center" style="margin-top:44px;">
+      <a href="services.html" class="btn btn-ghost" data-i18n="home.services.btn">Explorer tous nos services</a>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0;">
+  <div class="container">
+    <div class="section-head center reveal">
+      <div class="eyebrow"><span class="dot"></span> <span data-i18n="home.process.eyebrow">Notre méthode</span></div>
+      <h2 data-i18n="home.process.title">De l'idée au <span class="text-grad">diamant</span>, en 4 étapes</h2>
+      <p data-i18n="home.process.lead">Un processus clair, transparent, où vous validez chaque étape.</p>
+    </div>
+    <div class="process-row stagger">
+      <div class="process-step reveal">
+        <span class="num">01</span>
+        <h3 data-i18n="home.step1.title">On vous écoute</h3>
+        <p data-i18n="home.step1.desc">Un échange (WhatsApp, appel ou en personne) pour comprendre votre idée, votre marché et vos objectifs.</p>
+      </div>
+      <div class="process-step reveal">
+        <span class="num">02</span>
+        <h3 data-i18n="home.step2.title">On conçoit</h3>
+        <p data-i18n="home.step2.desc">Maquettes, parcours utilisateur et design premium — validés avec vous avant tout développement.</p>
+      </div>
+      <div class="process-step reveal">
+        <span class="num">03</span>
+        <h3 data-i18n="home.step3.title">On développe</h3>
+        <p data-i18n="home.step3.desc">Développement rigoureux, tests, optimisation vitesse et sécurité, sur site comme sur mobile.</p>
+      </div>
+      <div class="process-step reveal">
+        <span class="num">04</span>
+        <h3 data-i18n="home.step4.title">On lance &amp; accompagne</h3>
+        <p data-i18n="home.step4.desc">Mise en ligne, formation, puis support continu pour faire évoluer votre projet dans la durée.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="section-head center reveal">
+      <div class="eyebrow"><span class="dot"></span> <span data-i18n="home.sectors.eyebrow">Pour tous les secteurs</span></div>
+      <h2 data-i18n="home.sectors.title">Un <span class="text-grad">diamant</span> pour chaque idée</h2>
+      <p data-i18n="home.sectors.lead">Quel que soit votre univers, nous adaptons design et fonctionnalités à votre marché.</p>
+    </div>
+    <div class="grid grid-4 stagger">
+      <div class="card reveal">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11h18M3 11c0-4 4-8 9-8s9 4 9 8M3 11l1 8h16l1-8"/></svg></div>
+        <h3 data-i18n="home.sec1.title">Nourriture &amp; Restauration</h3>
+        <p data-i18n="home.sec1.desc">Commande en ligne, menus dynamiques, livraison.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2c-1.5 2-2 3.5-2 5a2 2 0 0 0 4 0c0-1.5-.5-3-2-5Z"/><rect x="6" y="10" width="12" height="11" rx="2"/></svg></div>
+        <h3 data-i18n="home.sec2.title">Cosmétiques &amp; Beauté</h3>
+        <p data-i18n="home.sec2.desc">Catalogues élégants, fiches produits, avis clients.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 8a4 4 0 0 0-8 0M4 8h16l-1.5 13h-13z"/></svg></div>
+        <h3 data-i18n="home.sec3.title">Mode, Habits &amp; Sacs</h3>
+        <p data-i18n="home.sec3.desc">Lookbook, filtres, panier fluide, tunnel d'achat.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+        <h3 data-i18n="home.sec4.title">Autres secteurs</h3>
+        <p data-i18n="home.sec4.desc">Services, immobilier, éducation, événementiel… parlons-en.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="section-head center reveal">
+      <div class="eyebrow"><span class="dot"></span> <span data-i18n="home.testi.eyebrow">Ils nous ont fait confiance</span></div>
+      <h2 data-i18n="home.testi.title">Des idées devenues <span class="text-grad">réalité</span></h2>
+    </div>
+    <div class="grid grid-3 stagger">
+      <div class="testi-card reveal">
+        <div class="stars">★★★★★</div>
+        <p data-i18n="home.testi1">"STAR ENTREPRISE a transformé mon idée de boutique en une vraie application. Réactivité et sens du détail impressionnants."</p>
+        <div class="testi-who"><div class="testi-avatar">N</div><div><b data-i18n="home.testi1.who">Nadia K.</b><span data-i18n="home.testi1.role">Fondatrice, boutique cosmétique</span></div></div>
+      </div>
+      <div class="testi-card reveal">
+        <div class="stars">★★★★★</div>
+        <p data-i18n="home.testi2">"Un accompagnement du début à la fin, avec un design qui a immédiatement marqué nos clients."</p>
+        <div class="testi-who"><div class="testi-avatar">M</div><div><b data-i18n="home.testi2.who">Marcel B.</b><span data-i18n="home.testi2.role">Restaurateur</span></div></div>
+      </div>
+      <div class="testi-card reveal">
+        <div class="stars">★★★★★</div>
+        <p data-i18n="home.testi3">"Ils ont pris mon idée floue et en ont fait un produit clair, moderne et performant."</p>
+        <div class="testi-who"><div class="testi-avatar">G</div><div><b data-i18n="home.testi3.who">Grâce M.</b><span data-i18n="home.testi3.role">Créatrice de mode</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="cta-band reveal">
+      <div class="eyebrow"><span class="dot"></span> <span data-i18n="home.cta.eyebrow">Prêt à commencer ?</span></div>
+      <h2 data-i18n="home.cta.title">Transformons votre idée en <span class="text-grad">diamant</span></h2>
+      <p data-i18n="home.cta.lead">Parlez-nous de votre projet dès aujourd'hui. Jardissa, notre assistante, ou Carry OTEMBA lui-même vous répondent rapidement.</p>
+      <div class="cta-actions">
+        <a href="contact.html" class="btn btn-primary" data-i18n="home.hero.cta1">Démarrer mon projet</a>
+        <a href="https://wa.me/24266565050" target="_blank" rel="noopener" class="btn btn-whatsapp" data-i18n="wa.cta.short">Discuter sur WhatsApp</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="brand">
+          <svg class="brand-mark" viewBox="0 0 48 48" fill="none">
+            <defs><linearGradient id="lgFoot" x1="0" y1="0" x2="48" y2="48">
+              <stop offset="0%" stop-color="#8b6bff"/><stop offset="55%" stop-color="#2fe0e0"/><stop offset="100%" stop-color="#e8c368"/>
+            </linearGradient></defs>
+            <path d="M4 18 L24 4 L44 18 L36 18 L24 12 L12 18 Z" fill="url(#lgFoot)"/>
+            <path d="M12 18 L24 44 L4 18 Z" fill="url(#lgFoot)" opacity="0.75"/>
+            <path d="M36 18 L24 44 L44 18 Z" fill="url(#lgFoot)" opacity="0.55"/>
+            <path d="M12 18 L24 44 L36 18 Z" fill="url(#lgFoot)" opacity="0.92"/>
+          </svg>
+          <span>STAR ENTREPRISE</span>
+        </a>
+        <p data-i18n="footer.tagline">Nous transformons vos idées en projets digitaux d'exception : sites web, applications mobiles et boutiques en ligne pensés pour convertir.</p>
+        <div class="social-row">
+          <a href="https://wa.me/24266565050" target="_blank" rel="noopener" aria-label="WhatsApp" data-i18n-aria="wa.float.aria"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.7 1.5 5.3L2 22l4.8-1.5c1.5.8 3.3 1.3 5.2 1.3 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg></a>
+          <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></a>
+          <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+          <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 11v5M8 8v.01M12 16v-5M12 11c0-1.5 1-2 2-2s2 .8 2 2v5"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer.col.nav">Navigation</h4>
+        <ul>
+          <li><a href="index.html" data-i18n="nav.home">Accueil</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="realisations.html" data-i18n="nav.work">Réalisations</a></li>
+          <li><a href="apropos.html" data-i18n="nav.about">À propos</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer.col.resources">Ressources</h4>
+        <ul>
+          <li><a href="business-plan.html">Business Plan</a></li>
+          <li><a href="application.html" data-i18n="footer.link.appmobile">Application mobile</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer.col.contact">Contact</h4>
+        <ul>
+          <li><a href="https://wa.me/24266565050" target="_blank" rel="noopener">+242 06 656 50 50</a></li>
+          <li><a href="mailto:contact@star-entreprise.cg">contact@star-entreprise.cg</a></li>
+          <li><span style="font-size:.92rem;color:var(--text-dim);">Brazzaville, République du Congo</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span class="year"></span> <span data-i18n="footer.rights">STAR ENTREPRISE. Tous droits réservés.</span></span>
+      <span data-i18n="footer.founder">Fondée par Carry OTEMBA — Président Fondateur</span>
+    </div>
+  </div>
+</footer>
+
+<a class="wa-float" href="https://wa.me/24266565050" target="_blank" rel="noopener" aria-label="Discuter sur WhatsApp" data-i18n-aria="wa.float.aria">
+  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.7 1.5 5.3L2 22l4.8-1.5c1.5.8 3.3 1.3 5.2 1.3 5.5 0 10-4.5 10-10S17.5 2 12 2zm5.5 14.1c-.2.6-1.4 1.2-1.9 1.3-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.6-.6-2.8-1.2-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.8s.7-2 .9-2.2c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5.2.5.8 1.9.9 2.1.1.2.1.4 0 .6-.1.2-.2.3-.4.5-.2.2-.3.3-.4.5-.1.2-.3.4-.1.7.2.3.8 1.3 1.7 2.1 1.2 1 2.2 1.4 2.5 1.5.3.1.5.1.7-.1.2-.2.8-.9.9-1.2.2-.3.4-.2.6-.1.3.1 1.7.9 2 1 .3.1.5.2.6.3.1.2.1.9-.1 1.5z"/></svg>
+</a>
+
+<script src="assets/js/main.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/jardissa.js"></script>
+<script src="assets/js/pwa.js"></script>
+</body>
+</html>
