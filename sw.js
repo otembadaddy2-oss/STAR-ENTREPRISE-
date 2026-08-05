@@ -1,5 +1,5 @@
 // STAR ENTREPRISE — Service Worker (mise en cache pour installation & hors-ligne)
-const CACHE = "star-entreprise-v4";
+const CACHE = "star-entreprise-v5";
 const CORE_ASSETS = [
   "./",
   "index.html",
@@ -19,7 +19,9 @@ const CORE_ASSETS = [
   "assets/img/icons/icon-512.png",
   "assets/img/jardissa-avatar.webp",
   "assets/img/jardissa-hero.webp",
-  "assets/img/nyc-skyline.webp"
+  "assets/img/nyc-skyline.webp",
+  "assets/img/diamond-real.webp",
+  "assets/img/diamond-real-small.webp"
 ];
 
 self.addEventListener("install", (event) => {
