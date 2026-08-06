@@ -1,5 +1,5 @@
 // STAR ENTREPRISE — Service Worker (mise en cache pour installation & hors-ligne)
-const CACHE = "star-entreprise-v10";
+const CACHE = "star-entreprise-v11";
 const CORE_ASSETS = [
   "./",
   "index.html",
@@ -10,18 +10,19 @@ const CORE_ASSETS = [
   "contact.html",
   "application.html",
   "manifest.json",
-  "assets/css/style.css",
-  "assets/js/main.js",
-  "assets/js/jardissa.js",
-  "assets/js/pwa.js",
+  "assets/css/style-v2.css",
+  "assets/js/main-v2.js",
+  "assets/js/jardissa-v2.js",
+  "assets/js/pwa-v2.js",
+  "assets/js/i18n-v2.js",
   "assets/img/icons/favicon.svg",
   "assets/img/icons/icon-192.png",
   "assets/img/icons/icon-512.png",
-  "assets/img/jardissa-avatar.webp",
-  "assets/img/jardissa-hero.webp",
+  "assets/img/jardissa-avatar-v2.webp",
+  "assets/img/jardissa-hero-v2.webp",
   "assets/img/nyc-skyline.webp",
-  "assets/img/diamond-real.webp",
-  "assets/img/diamond-real-small.webp"
+  "assets/img/diamond-real-v2.webp",
+  "assets/img/diamond-real-small-v2.webp"
 ];
 
 self.addEventListener("install", (event) => {
