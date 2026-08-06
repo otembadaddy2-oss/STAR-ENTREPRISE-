@@ -1,5 +1,5 @@
 // STAR ENTREPRISE — Service Worker (mise en cache pour installation & hors-ligne)
-const CACHE = "star-entreprise-v15";
+const CACHE = "star-entreprise-v16";
 const CORE_ASSETS = [
   "./",
   "index.html",
@@ -11,11 +11,11 @@ const CORE_ASSETS = [
   "application.html",
   "devis.html",
   "manifest.json",
-  "assets/css/style-v4.css",
+  "assets/css/style-v5.css",
   "assets/js/main-v2.js",
   "assets/js/jardissa-v6.js",
   "assets/js/pwa-v2.js",
-  "assets/js/i18n-v2.js",
+  "assets/js/i18n-v3.js",
   "assets/js/devis-v1.js",
   "assets/vendor/qrcode-v1.min.js",
   "assets/img/icons/favicon.svg",

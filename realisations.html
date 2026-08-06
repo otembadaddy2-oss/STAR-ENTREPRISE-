@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap"></noscript>
-<link rel="stylesheet" href="assets/css/style-v4.css">
+<link rel="stylesheet" href="assets/css/style-v5.css">
 </head>
 <body>
 
@@ -87,12 +87,19 @@
         </div>
       </div>
 
-      <div class="work-card reveal" data-cat="branding">
-        <div class="work-thumb" style="background-image:url('assets/img/portfolio-lamah.webp');background-size:cover;background-position:center;"><span class="thumb-watermark">Propriété de STAR ENTREPRISE</span></div>
+      <div class="work-card reveal" data-cat="branding" style="grid-column:span 2;">
+        <div class="work-thumb-mosaic">
+          <div class="mosaic-item" style="background-image:url('assets/img/portfolio-lamah-chef.webp');"></div>
+          <div class="mosaic-item" style="background-image:url('assets/img/portfolio-lamah-natural.webp');"></div>
+          <div class="mosaic-item" style="background-image:url('assets/img/portfolio-lamah-pl.webp');"></div>
+          <div class="mosaic-item" style="background-image:url('assets/img/portfolio-lamah-poster.webp');"></div>
+          <span style="position:absolute;top:12px;left:12px;background:var(--grad-diamond);color:#0a0a12;font-size:.68rem;font-weight:800;padding:5px 11px;border-radius:999px;letter-spacing:.03em;" data-i18n="work0c.badge">✦ 4 concepts explorés</span>
+          <span class="thumb-watermark">Propriété de STAR ENTREPRISE</span>
+        </div>
         <div class="work-body">
           <span class="tag" data-i18n="work.tag.branding">Branding</span>
           <h3 data-i18n="work0c.title">Pices LAMAH — Épices naturelles</h3>
-          <p data-i18n="work0c.desc">Identité visuelle et gamme d'emballages pour une marque d'épices : logo, palette, pictogrammes et déclinaison sur toute la ligne de produits.</p>
+          <p data-i18n="work0c.desc">Identité visuelle et gamme d'emballages pour une marque d'épices : logo, palette, pictogrammes et déclinaison sur toute la ligne de produits — plusieurs pistes créatives explorées avant validation par le client.</p>
         </div>
       </div>
 
@@ -285,7 +292,7 @@
 </a>
 
 <script src="assets/js/main-v2.js"></script>
-<script src="assets/js/i18n-v2.js"></script>
+<script src="assets/js/i18n-v3.js"></script>
 <script src="assets/js/jardissa-v6.js"></script>
 <script src="assets/js/pwa-v2.js"></script>
 </body>
