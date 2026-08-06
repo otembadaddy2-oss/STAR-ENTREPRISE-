@@ -91,7 +91,7 @@
   }
 
   function waLink(text) {
-    var num = window.STAR_WA_NUMBER || "24266565050";
+    var num = window.STAR_WA_NUMBER || "242066565050";
     return window.buildWhatsAppLink ? window.buildWhatsAppLink(text) : "https://wa.me/" + num + "?text=" + encodeURIComponent(text);
   }
 
