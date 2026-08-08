@@ -138,7 +138,7 @@
     if (!state.err) {
       html += '<div class="devis-card">';
       html += '<div class="devis-top">';
-      html += '<div class="devis-brand"><img src="assets/img/logo-star-full-v1.webp" alt="STAR ENTREPRISE"><div><b>STAR ENTREPRISE</b><span>Brazzaville, République du Congo</span><span>+242 06 656 50 50</span></div></div>';
+      html += '<div class="devis-brand"><img src="assets/img/logo-star-rounded-v1.webp" alt="STAR ENTREPRISE"><div><b>STAR ENTREPRISE</b><span>Brazzaville, République du Congo</span><span>+242 06 656 50 50</span></div></div>';
       html += '<div class="devis-meta"><b>' + esc(t.docTitle) + " " + esc(t.docNumber) + " " + esc(r.id) + "</b><span>" + esc(t.docDate) + " : " + esc(formatDate(r.createdAt, l)) + "</span></div>";
       html += "</div>";
 
