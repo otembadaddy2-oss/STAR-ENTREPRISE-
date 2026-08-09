@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pili-Pili Events — Votre partenaire événementiel de prestige</title>
-<meta name="description" content="Pili-Pili Events — mariages coutumiers, mariages traditionnels et décoration d'exception à Brazzaville. Vos souvenirs. Notre éclat.">
+<meta name="description" content="Pili-Pili Events — mariages coutumiers, mariages traditionnels et décoration d'exception à Brazzaville. Du rêve à la réalité.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,900;1,500&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -67,9 +67,9 @@ p{line-height:1.7; color:var(--ink-soft); margin:0;}
   max-width:1180px; margin:0 auto; padding:16px 24px;
   display:flex; align-items:center; justify-content:space-between;
 }
-.brand{display:flex; flex-direction:column; line-height:1; text-decoration:none;}
-.brand .b1{font-family:var(--serif); font-weight:700; font-size:19px; letter-spacing:.02em; color:var(--ink);}
-.brand .b2{font-family:var(--serif); font-weight:700; font-size:19px; letter-spacing:.02em; color:var(--gold-deep); margin-top:1px;}
+.brand{display:flex; align-items:center; text-decoration:none;}
+.brand-logo{height:44px; width:auto; display:block;}
+.footer-brand-logo{height:64px;}
 .nav-links{display:flex; align-items:center; gap:30px; list-style:none; margin:0; padding:0;}
 .nav-links a{
   font-size:13px; font-weight:600; letter-spacing:.04em; text-transform:uppercase;
@@ -168,6 +168,7 @@ section{padding:110px 0;}
 .svc-card{
   background:var(--ivory); border:1px solid var(--line); border-radius:18px; padding:34px 26px;
   transition:transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+  cursor:pointer;
 }
 .svc-card:hover{transform:translateY(-6px); box-shadow:0 30px 50px -28px rgba(35,31,26,.22); border-color:var(--gold);}
 .svc-ic{
@@ -176,6 +177,17 @@ section{padding:110px 0;}
 }
 .svc-card h3{font-size:19px; margin-bottom:10px; line-height:1.25;}
 .svc-card p{font-size:13.8px;}
+.svc-see{
+  display:inline-block; margin-top:16px; font-size:11.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+  color:var(--gold-deep); opacity:0; transform:translateX(-4px);
+  transition:opacity .25s ease, transform .25s ease;
+}
+.svc-card:hover .svc-see{opacity:1; transform:translateX(0);}
+.svc-quote{
+  text-align:center; max-width:620px; margin:56px auto 0;
+  font-family:var(--serif); font-style:italic; font-size:clamp(17px,2.4vw,21px); color:var(--ink);
+  line-height:1.5;
+}
 
 /* ============================================================ PORTFOLIO */
 .folio{background:var(--ivory);}
@@ -184,21 +196,25 @@ section{padding:110px 0;}
 @media (max-width:560px){ .folio-grid{grid-template-columns:1fr;} }
 .folio-card{
   position:relative; border-radius:16px; overflow:hidden; aspect-ratio:4/5;
-  background:
-    radial-gradient(circle at 30% 20%, rgba(184,147,90,.28), transparent 55%),
-    radial-gradient(circle at 80% 80%, rgba(217,79,61,.16), transparent 55%),
-    linear-gradient(160deg, #FFFDF9, var(--gold-pale));
-  border:1px solid var(--line);
-  display:flex; align-items:flex-end; padding:22px;
+  border:1px solid var(--line); cursor:pointer;
+  display:flex; align-items:flex-end; padding:0;
+  background:var(--gold-pale);
+}
+.folio-card img{
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+  transition:transform .5s cubic-bezier(.2,.7,.2,1);
+}
+.folio-card:hover img{transform:scale(1.06);}
+.folio-card::after{
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(180deg, transparent 55%, rgba(20,14,8,.72) 100%);
 }
 .folio-card::before{
-  content:""; position:absolute; inset:14px; border:1px solid rgba(184,147,90,.45); border-radius:10px; pointer-events:none;
+  content:""; position:absolute; inset:12px; border:1px solid rgba(255,255,255,.55); border-radius:10px; pointer-events:none; z-index:2;
 }
 .folio-tag{
-  position:relative; font-family:var(--serif); font-style:italic; font-size:16px; color:var(--gold-deep);
-}
-.folio-soon{
-  grid-column:1/-1; text-align:center; margin-top:8px; font-size:13px; color:var(--ink-faint);
+  position:relative; z-index:2; font-family:var(--serif); font-style:italic; font-size:15.5px; color:#fff;
+  padding:18px 20px;
 }
 
 /* ============================================================ ABOUT */
@@ -290,6 +306,55 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
   padding:9px 16px; border-radius:999px; margin-left:14px; cursor:pointer;
 }
 .install-pill.show{display:inline-flex;}
+
+/* ============================================================ CIRCULAR GALLERY MODAL */
+.gallery-modal{
+  position:fixed; inset:0; z-index:90;
+  display:none; align-items:center; justify-content:center;
+}
+.gallery-modal.open{display:flex;}
+.gm-scrim{
+  position:absolute; inset:0; background:rgba(18,12,8,.78);
+  opacity:0; transition:opacity .35s ease;
+}
+.gallery-modal.open .gm-scrim{opacity:1;}
+.gm-panel{
+  position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; gap:16px;
+  padding:10px 20px 10px; max-width:520px; width:92vw;
+  transform:scale(.94); opacity:0;
+  transition:opacity .35s ease, transform .4s cubic-bezier(.2,.8,.2,1);
+}
+.gallery-modal.open .gm-panel{transform:scale(1); opacity:1;}
+.gm-close{
+  position:absolute; top:-44px; right:2px; width:38px; height:38px; border-radius:50%;
+  background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.35); color:#fff; font-size:22px;
+  cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1;
+}
+.gm-title{
+  font-family:var(--serif); font-weight:700; font-style:italic; font-size:20px; color:var(--gold-pale);
+  text-align:center;
+}
+.gm-circle{
+  position:relative; width:min(72vw,320px); aspect-ratio:1/1; border-radius:50%;
+  box-shadow:0 0 0 1px rgba(184,147,90,.65), 0 0 0 9px rgba(255,255,255,.07), 0 30px 70px -20px rgba(0,0,0,.65);
+  overflow:hidden; background:#100b08; touch-action:none; user-select:none;
+}
+.gm-slide{
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+  clip-path:circle(0% at 50% 50%); opacity:0; pointer-events:none;
+}
+.gm-slide.active{
+  clip-path:circle(74% at 50% 50%); opacity:1; z-index:2;
+  transition:clip-path .95s cubic-bezier(.16,.8,.2,1);
+}
+.gm-slide.leaving{
+  clip-path:circle(0% at 50% 50%); opacity:1; z-index:1;
+  transition:clip-path .95s cubic-bezier(.16,.8,.2,1), opacity .1s linear .85s;
+}
+.gm-caption{color:rgba(255,255,255,.85); font-size:13.5px; text-align:center; min-height:1.4em; margin:0;}
+.gm-dots{display:flex; gap:8px;}
+.gm-dot{width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.32); transition:background .25s, transform .25s; cursor:pointer;}
+.gm-dot.active{background:var(--gold-pale); transform:scale(1.35);}
 </style>
 </head>
 <body>
@@ -297,8 +362,7 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
 <nav class="nav" id="siteNav">
   <div class="nav-inner">
     <a class="brand" href="#top">
-      <span class="b1">PILI-PILI</span>
-      <span class="b2">EVENTS</span>
+      <img src="assets/img/logo.png" alt="Pili-Pili Events" class="brand-logo">
     </a>
     <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span><span></span><span></span></button>
     <ul class="nav-links" id="navLinks">
@@ -327,7 +391,7 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
   <div class="wrap hero-inner reveal in">
     <span class="eyebrow">Pili-Pili Events · Brazzaville</span>
     <h1>Vos souvenirs.<br><span class="gold-text">Notre éclat.</span></h1>
-    <p class="lead">L'agence événementielle de référence pour les mariages coutumiers, les mariages traditionnels et les réceptions d'exception — pensée pour les familles et les personnalités les plus exigeantes.</p>
+    <p class="lead">L'agence événementielle de référence à Brazzaville — mariages, anniversaires, baptêmes, baby showers, fiançailles. Chaque événement raconte une histoire ; la vôtre sera inoubliable.</p>
     <div class="cta-row">
       <a class="btn btn-gold" href="#contact">Demander un devis</a>
       <a class="btn btn-wa" href="https://wa.me/242068700066" target="_blank" rel="noopener">
@@ -341,8 +405,8 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
 
 <div class="stats">
   <div class="stats-inner">
+    <div class="stat reveal"><b>10 ans</b><span>D'expérience</span></div>
     <div class="stat reveal"><b>21 000+</b><span>Abonnés conquis</span></div>
-    <div class="stat reveal"><b>Coutumier &amp; Traditionnel</b><span>Mariages congolais</span></div>
     <div class="stat reveal"><b>Brazzaville</b><span>Plateau des 15 ans</span></div>
   </div>
 </div>
@@ -355,27 +419,32 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
       <p>De la cérémonie coutumière à la décoration la plus raffinée, chaque prestation est pensée sur-mesure.</p>
     </div>
     <div class="services-grid">
-      <div class="svc-card reveal">
+      <div class="svc-card reveal" data-service="Mariage coutumier" data-photos="coffre-dot,tenue-traditionnelle,verres-honneur">
         <div class="svc-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8C6A34" stroke-width="1.4"><path d="M12 3l2.5 5 5.5.6-4 3.8 1 5.4L12 15l-5 2.8 1-5.4-4-3.8 5.5-.6L12 3Z"/></svg></div>
         <h3>Mariage coutumier</h3>
         <p>La dot, les rites, l'union des familles — une mise en scène fidèle aux traditions, célébrée avec faste.</p>
+        <span class="svc-see">Voir en images ✦</span>
       </div>
-      <div class="svc-card reveal">
+      <div class="svc-card reveal" data-service="Mariage traditionnel" data-photos="tenue-traditionnelle,eventail,verres-honneur">
         <div class="svc-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8C6A34" stroke-width="1.4"><path d="M12 21s-7-4.5-9.5-9C.5 8 3 4 7 4c2 0 4 1.3 5 3 1-1.7 3-3 5-3 4 0 6.5 4 4.5 8-2.5 4.5-9.5 9-9.5 9Z"/></svg></div>
         <h3>Mariage traditionnel</h3>
         <p>Cérémonie traditionnelle congolaise pensée dans les moindres détails, entre héritage et raffinement.</p>
+        <span class="svc-see">Voir en images ✦</span>
       </div>
-      <div class="svc-card reveal">
+      <div class="svc-card reveal" data-service="Décoration de mariage" data-photos="boutique-1,robes,coffre-dot,eventail">
         <div class="svc-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8C6A34" stroke-width="1.4"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 9h16M9 4v16"/></svg></div>
         <h3>Décoration de mariage</h3>
         <p>Salles transformées, tables sublimées, lumière et matières nobles pour une réception inoubliable.</p>
+        <span class="svc-see">Voir en images ✦</span>
       </div>
-      <div class="svc-card reveal">
+      <div class="svc-card reveal" data-service="Anniversaires & célébrations" data-photos="chaussures,vibrant-kiss,robes">
         <div class="svc-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8C6A34" stroke-width="1.4"><path d="M12 2v6M8 5l4 3 4-3M4 21h16M6 21V11a6 6 0 0 1 12 0v10"/></svg></div>
-        <h3>Décoration d'anniversaire</h3>
-        <p>Des célébrations sur-mesure, du premier au plus prestigieux des anniversaires.</p>
+        <h3>Anniversaires &amp; célébrations</h3>
+        <p>Anniversaires, baptêmes, baby showers, fiançailles — et notre boutique d'accessoires pour sublimer chaque fête.</p>
+        <span class="svc-see">Voir en images ✦</span>
       </div>
     </div>
+    <p class="svc-quote reveal">« Chaque événement raconte une histoire… Faites en sorte que la vôtre soit inoubliable. »</p>
   </div>
 </section>
 
@@ -384,17 +453,9 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
     <div class="section-head reveal">
       <span class="eyebrow">Réalisations</span>
       <h2>Des <span class="gold-text">instants</span> sublimés</h2>
-      <p>Une sélection de nos plus belles cérémonies — la galerie s'enrichit prochainement de nos réalisations.</p>
+      <p>Un aperçu de notre univers — la boutique, les tenues et les accessoires qui subliment chaque célébration.</p>
     </div>
-    <div class="folio-grid">
-      <div class="folio-card reveal"><span class="folio-tag">Mariage coutumier</span></div>
-      <div class="folio-card reveal"><span class="folio-tag">Décoration de salle</span></div>
-      <div class="folio-card reveal"><span class="folio-tag">Mariage traditionnel</span></div>
-      <div class="folio-card reveal"><span class="folio-tag">Table d'honneur</span></div>
-      <div class="folio-card reveal"><span class="folio-tag">Anniversaire</span></div>
-      <div class="folio-card reveal"><span class="folio-tag">Soirée en blanc</span></div>
-      <p class="folio-soon reveal">✦ Vos plus belles réalisations prendront place ici, dès réception des visuels ✦</p>
-    </div>
+    <div class="folio-grid" id="folioGrid"></div>
   </div>
 </section>
 
@@ -410,12 +471,13 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
     <div class="reveal">
       <span class="eyebrow">À propos</span>
       <h2>L'excellence, <span class="gold-text">une tradition</span></h2>
-      <p>Depuis Brazzaville, Pili-Pili Events accompagne les familles et les personnalités dans l'organisation de leurs événements les plus précieux. Fidèle aux traditions congolaises et exigeante sur chaque détail, l'agence s'est imposée comme une référence, portée par une communauté de plus de 21 000 abonnés sur les réseaux sociaux.</p>
-      <p class="about-quote">« La touche qu'il vous faut pour des événements uniques et mémorables. »</p>
+      <p>Depuis plus de 10 ans à Brazzaville, Pili-Pili Events accompagne les familles et les personnalités dans la création d'événements uniques, élégants et parfaitement organisés. Mariage, anniversaire, baptême, baby shower, fiançailles — l'agence donne vie à vos idées avec créativité et savoir-faire, et sa boutique propose une sélection d'accessoires pour sublimer chacune de vos fêtes. Une communauté de plus de 21 000 abonnés en témoigne sur les réseaux sociaux.</p>
+      <p class="about-quote">« Du rêve à la réalité. »</p>
       <div class="pill-row">
         <span class="pill">Mariages coutumiers</span>
         <span class="pill">Mariages traditionnels</span>
-        <span class="pill">Décoration sur-mesure</span>
+        <span class="pill">Anniversaires &amp; célébrations</span>
+        <span class="pill">Boutique d'accessoires</span>
       </div>
     </div>
   </div>
@@ -495,10 +557,9 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
 <footer>
   <div class="wrap footer-inner">
     <a class="brand" href="#top">
-      <span class="b1">PILI-PILI</span>
-      <span class="b2">EVENTS</span>
+      <img src="assets/img/logo.png" alt="Pili-Pili Events" class="brand-logo footer-brand-logo">
     </a>
-    <p class="footer-tag">La touche qu'il vous faut pour des événements uniques et mémorables.</p>
+    <p class="footer-tag">Du rêve à la réalité.</p>
     <div class="rule-gold" style="max-width:120px;"></div>
     <p class="footer-credit">© 2026 Pili-Pili Events · Conçu par <a href="https://star-entreprise.netlify.app" target="_blank" rel="noopener">STAR ENTREPRISE</a></p>
   </div>
@@ -507,6 +568,17 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
 <a class="wa-fab" href="https://wa.me/242068700066" target="_blank" rel="noopener" aria-label="WhatsApp">
   <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-1 1.2-.2.2-.4.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.4.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5C10 9 9.4 7.6 9.1 7c-.2-.5-.5-.4-.7-.4h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 5 4.3.7.3 1.2.5 1.7.6.7.2 1.3.2 1.8.1.5-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.2-1.3-.1-.2-.3-.2-.6-.3z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.7 1.5 5.3L2 22l4.8-1.5C8.3 21.5 10.1 22 12 22c5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18c-1.7 0-3.3-.5-4.7-1.3l-.3-.2-3.2 1 1-3.1-.2-.3C3.5 14.7 3 13.4 3 12c0-4.9 4.1-9 9-9s9 4.1 9 9-4.1 9-9 9z"/></svg>
 </a>
+
+<div class="gallery-modal" id="galleryModal" aria-hidden="true">
+  <div class="gm-scrim" id="gmScrim"></div>
+  <div class="gm-panel">
+    <button class="gm-close" id="gmClose" aria-label="Fermer">&times;</button>
+    <div class="gm-title" id="gmTitle"></div>
+    <div class="gm-circle" id="gmCircle"></div>
+    <p class="gm-caption" id="gmCaption"></p>
+    <div class="gm-dots" id="gmDots"></div>
+  </div>
+</div>
 
 <script>
 (function(){
@@ -530,6 +602,112 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
   navLinks.querySelectorAll('a').forEach(function(a){
     a.addEventListener('click', closeNav);
   });
+
+  // ---- Gallery data + circular "wow" carousel ----
+  var GALLERY = {
+    'boutique-1': { src:'assets/img/gallery/boutique-1.jpg', caption:"L'univers Pili-Pili Events" },
+    'tenue-traditionnelle': { src:'assets/img/gallery/tenue-traditionnelle.jpg', caption:'Tenue traditionnelle sur-mesure' },
+    'robes': { src:'assets/img/gallery/robes.jpg', caption:'Une sélection de robes de cérémonie' },
+    'coffre-dot': { src:'assets/img/gallery/coffre-dot.jpg', caption:'Le coffre de la dot, sublimé' },
+    'eventail': { src:'assets/img/gallery/eventail.jpg', caption:"Éventail de cérémonie, plumes et dorure" },
+    'chaussures': { src:'assets/img/gallery/chaussures.jpg', caption:'Chaussures et accessoires assortis' },
+    'verres-honneur': { src:'assets/img/gallery/verres-honneur.jpg', caption:"Le rituel du verre d'honneur" },
+    'vibrant-kiss': { src:'assets/img/gallery/vibrant-kiss.jpg', caption:'Une attention signée Pili-Pili' }
+  };
+  var ALL_KEYS = Object.keys(GALLERY);
+
+  var folioGrid = document.getElementById('folioGrid');
+  ALL_KEYS.forEach(function(k, i){
+    var card = document.createElement('div');
+    card.className = 'folio-card reveal';
+    card.innerHTML = '<img src="' + GALLERY[k].src + '" alt="' + GALLERY[k].caption + '" loading="lazy">' +
+      '<span class="folio-tag">' + GALLERY[k].caption + '</span>';
+    card.addEventListener('click', function(){ openGallery('Nos réalisations', ALL_KEYS, i); });
+    folioGrid.appendChild(card);
+  });
+
+  var gmModal = document.getElementById('galleryModal');
+  var gmCircle = document.getElementById('gmCircle');
+  var gmTitle = document.getElementById('gmTitle');
+  var gmCaption = document.getElementById('gmCaption');
+  var gmDots = document.getElementById('gmDots');
+  var gmClose = document.getElementById('gmClose');
+  var gmScrim = document.getElementById('gmScrim');
+
+  var gmKeys = [];
+  var gmSlideEls = [];
+  var gmIndex = 0;
+  var gmTimer = null;
+  var gmResumeTimer = null;
+
+  function gmBuild(keys){
+    gmKeys = keys;
+    gmCircle.innerHTML = '';
+    gmDots.innerHTML = '';
+    gmSlideEls = keys.map(function(k, i){
+      var img = document.createElement('img');
+      img.className = 'gm-slide';
+      img.src = GALLERY[k].src;
+      img.alt = GALLERY[k].caption;
+      gmCircle.appendChild(img);
+      var dot = document.createElement('span');
+      dot.className = 'gm-dot';
+      dot.addEventListener('click', function(){ gmGoTo(i); gmPauseThenResume(); });
+      gmDots.appendChild(dot);
+      return img;
+    });
+  }
+
+  function gmGoTo(i){
+    gmSlideEls.forEach(function(el, idx){
+      if (idx === i){ el.classList.remove('leaving'); el.classList.add('active'); }
+      else if (el.classList.contains('active')){ el.classList.remove('active'); el.classList.add('leaving'); }
+    });
+    Array.prototype.forEach.call(gmDots.children, function(d, idx){
+      d.classList.toggle('active', idx === i);
+    });
+    gmCaption.textContent = GALLERY[gmKeys[i]].caption;
+    gmIndex = i;
+  }
+
+  function gmNext(){ gmGoTo((gmIndex + 1) % gmKeys.length); }
+  function gmStartAuto(){ clearInterval(gmTimer); gmTimer = setInterval(gmNext, 3200); }
+  function gmStopAuto(){ clearInterval(gmTimer); }
+  function gmPauseThenResume(){
+    gmStopAuto();
+    clearTimeout(gmResumeTimer);
+    gmResumeTimer = setTimeout(gmStartAuto, 2600);
+  }
+
+  function openGallery(title, keys, startAt){
+    gmTitle.textContent = title;
+    gmBuild(keys && keys.length ? keys : ALL_KEYS);
+    gmGoTo(startAt || 0);
+    gmModal.classList.add('open');
+    gmModal.setAttribute('aria-hidden', 'false');
+    gmStartAuto();
+  }
+  function closeGallery(){
+    gmModal.classList.remove('open');
+    gmModal.setAttribute('aria-hidden', 'true');
+    gmStopAuto();
+    clearTimeout(gmResumeTimer);
+  }
+
+  document.querySelectorAll('.svc-card').forEach(function(card){
+    card.addEventListener('click', function(){
+      var keys = (card.dataset.photos || '').split(',').map(function(s){ return s.trim(); }).filter(function(s){ return GALLERY[s]; });
+      openGallery(card.dataset.service || 'Pili-Pili Events', keys, 0);
+    });
+  });
+
+  gmClose.addEventListener('click', closeGallery);
+  gmScrim.addEventListener('click', closeGallery);
+  gmCircle.addEventListener('pointerdown', gmStopAuto);
+  gmCircle.addEventListener('pointerup', gmPauseThenResume);
+  gmCircle.addEventListener('touchstart', gmStopAuto, { passive:true });
+  gmCircle.addEventListener('touchend', gmPauseThenResume, { passive:true });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeGallery(); });
 
   var io = new IntersectionObserver(function(entries){
     entries.forEach(function(e){
