@@ -101,7 +101,12 @@ h1,h2,h3{font-family:var(--serif); font-weight:700; color:var(--navy);}
 .stat-chip span{font-size:11px; color:var(--ink-faint);}
 
 /* ---- section shells ---- */
-section{padding:76px 0;}
+section{padding:76px 0; position:relative;}
+.section-glow{position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden;}
+.section-glow span{position:absolute; border-radius:50%; filter:blur(60px);}
+.section-glow .g1{width:280px; height:280px; top:-60px; right:-40px; background:radial-gradient(circle, rgba(62,158,146,.16), transparent 70%);}
+.section-glow .g2{width:240px; height:240px; bottom:-60px; left:-30px; background:radial-gradient(circle, rgba(199,154,69,.18), transparent 70%);}
+section > .wrap{position:relative; z-index:1;}
 .section-head{max-width:640px; margin:0 auto 44px; text-align:center;}
 .section-head .eyebrow{justify-content:center;}
 .section-head h2{font-size:clamp(24px,3.4vw,34px); line-height:1.2;}
@@ -111,8 +116,11 @@ section{padding:76px 0;}
 .pillars{display:grid; grid-template-columns:repeat(4,1fr); gap:20px;}
 @media (max-width:900px){.pillars{grid-template-columns:1fr 1fr;}}
 @media (max-width:520px){.pillars{grid-template-columns:1fr;}}
-.pillar{background:var(--white); border:1px solid var(--line); border-radius:20px; padding:28px 22px; text-align:left; transition:transform .25s, box-shadow .25s;}
+.pillars-wrap{position:relative;}
+.pillars-arc{position:absolute; top:-30px; left:50%; transform:translateX(-50%); width:min(900px,92%); height:220px; z-index:0; pointer-events:none; opacity:.55;}
+.pillar{position:relative; background:var(--white); border:1px solid var(--line); border-radius:20px; padding:28px 22px; text-align:left; transition:transform .25s, box-shadow .25s;}
 .pillar:hover{transform:translateY(-4px); box-shadow:0 16px 34px rgba(19,34,72,.10);}
+.pillar-num{position:absolute; top:16px; right:18px; font-family:var(--serif); font-weight:700; font-size:13px; color:var(--line);}
 .pillar-ic{width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; margin-bottom:16px; font-size:24px;}
 .pillar h3{font-size:17px; margin-bottom:8px;}
 .pillar p{font-size:13.6px; color:var(--ink-soft); line-height:1.6;}
@@ -241,32 +249,42 @@ footer{background:var(--navy-deep); color:#B9C1D6; padding:52px 0 26px; margin-t
 </header>
 
 <section id="mission">
+  <div class="section-glow"><span class="g1"></span><span class="g2"></span></div>
   <div class="wrap">
     <div class="section-head reveal">
       <span class="eyebrow"><span class="eyebrow-dot"></span>Notre mission</span>
       <h2>Quatre piliers, <span class="gold-text">un seul but</span> : l'espoir</h2>
       <p>Une prise en charge complète, humaine et rassurante — pensée avec l'œil d'une pédiatre spécialiste du sujet.</p>
     </div>
-    <div class="pillars">
-      <div class="pillar reveal">
-        <div class="pillar-ic" style="background:#FBEAE8;">🩸</div>
-        <h3>Dépistage</h3>
-        <p>Faciliter l'accès au dépistage précoce, pour agir avant que la maladie ne s'installe.</p>
-      </div>
-      <div class="pillar reveal">
-        <div class="pillar-ic" style="background:#F3ECD9;">🤝</div>
-        <h3>Accompagnement des familles</h3>
-        <p>Un soutien humain et continu pour les parents et les enfants, à chaque étape du parcours.</p>
-      </div>
-      <div class="pillar reveal">
-        <div class="pillar-ic" style="background:#E4F2F0;">📣</div>
-        <h3>Sensibilisation</h3>
-        <p>Informer le grand public pour faire tomber les idées reçues et les tabous autour de la drépanocytose.</p>
-      </div>
-      <div class="pillar reveal">
-        <div class="pillar-ic" style="background:#FBEAE8;">❤️</div>
-        <h3>Don de sang</h3>
-        <p>Mobiliser des donneurs pour un geste simple qui change une vie, voire la sauve.</p>
+    <div class="pillars-wrap">
+      <svg class="pillars-arc" viewBox="0 0 900 220" fill="none" aria-hidden="true">
+        <path d="M40,180 C260,20 640,20 860,180" stroke="#C79A45" stroke-width="1.4" stroke-dasharray="2 10" stroke-linecap="round"/>
+      </svg>
+      <div class="pillars">
+        <div class="pillar reveal">
+          <span class="pillar-num">01</span>
+          <div class="pillar-ic" style="background:#FBEAE8;">🩸</div>
+          <h3>Dépistage</h3>
+          <p>Faciliter l'accès au dépistage précoce, pour agir avant que la maladie ne s'installe.</p>
+        </div>
+        <div class="pillar reveal">
+          <span class="pillar-num">02</span>
+          <div class="pillar-ic" style="background:#F3ECD9;">🤝</div>
+          <h3>Accompagnement des familles</h3>
+          <p>Un soutien humain et continu pour les parents et les enfants, à chaque étape du parcours.</p>
+        </div>
+        <div class="pillar reveal">
+          <span class="pillar-num">03</span>
+          <div class="pillar-ic" style="background:#E4F2F0;">📣</div>
+          <h3>Sensibilisation</h3>
+          <p>Informer le grand public pour faire tomber les idées reçues et les tabous autour de la drépanocytose.</p>
+        </div>
+        <div class="pillar reveal">
+          <span class="pillar-num">04</span>
+          <div class="pillar-ic" style="background:#FBEAE8;">❤️</div>
+          <h3>Don de sang</h3>
+          <p>Mobiliser des donneurs pour un geste simple qui change une vie, voire la sauve.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -313,6 +331,7 @@ footer{background:var(--navy-deep); color:#B9C1D6; padding:52px 0 26px; margin-t
 </section>
 
 <section id="aider" style="background:var(--white);">
+  <div class="section-glow"><span class="g1"></span><span class="g2"></span></div>
   <div class="wrap">
     <div class="section-head reveal">
       <span class="eyebrow"><span class="eyebrow-dot"></span>Comment aider</span>
@@ -342,6 +361,7 @@ footer{background:var(--navy-deep); color:#B9C1D6; padding:52px 0 26px; margin-t
 </section>
 
 <section id="contact">
+  <div class="section-glow"><span class="g1"></span><span class="g2"></span></div>
   <div class="wrap">
     <div class="section-head reveal">
       <span class="eyebrow"><span class="eyebrow-dot"></span>Contact</span>
