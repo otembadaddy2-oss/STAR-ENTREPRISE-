@@ -88,6 +88,12 @@ body{
   flex-direction:column;
   align-items:center;
   transform:translateY(6vh);
+  opacity:1;
+  transition:opacity .5s ease;
+}
+.rig.hide{
+  opacity:0;
+  pointer-events:none;
 }
 
 .shadow-el{
@@ -506,6 +512,7 @@ body{
     finaleLogo.classList.remove('pop');
     slogan.textContent = '';
     rig.classList.remove('frozen');
+    rig.classList.remove('hide');
     rig.classList.add('dancing');
     charHero.classList.add('showing');
     charAvatar.classList.remove('showing');
@@ -529,6 +536,9 @@ body{
     rig.classList.add('frozen');
     fireBurst();
     await wait(350);
+
+    rig.classList.add('hide');
+    await wait(400);
 
     finale.classList.add('on');
     var sloganDone = typeInto(slogan, SLOGAN, 42);
