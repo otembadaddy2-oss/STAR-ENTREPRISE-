@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pili-Pili Events — Votre partenaire événementiel de prestige</title>
+<meta name="description" content="Pili-Pili Events — mariages coutumiers, mariages traditionnels et décoration d'exception à Brazzaville. Vos souvenirs. Notre éclat.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,900;1,500&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#FBF8F3">
+<link rel="icon" href="assets/img/icons/favicon-96.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/img/icons/apple-touch-icon.png">
+<style>
+:root{
+  --white:#FFFFFF;
+  --ivory:#FBF8F3;
+  --ivory-deep:#F5EFE4;
+  --ink:#231F1A;
+  --ink-soft:#5B564E;
+  --ink-faint:#8D877A;
+  --gold:#B8935A;
+  --gold-deep:#8C6A34;
+  --gold-pale:#F1E6D3;
+  --coral:#D94F3D;
+  --coral-soft:#FBE6E2;
+  --line:#E7DFD2;
+  --serif:'Playfair Display', Georgia, serif;
+  --sans:'Montserrat', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; background:var(--white); color:var(--ink);
+  font-family:var(--sans); -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+img{max-width:100%; display:block;}
+a{color:inherit;}
+.wrap{max-width:1180px; margin:0 auto; padding:0 24px;}
+.eyebrow{
+  font-family:var(--sans); font-weight:700; font-size:11.5px; letter-spacing:.22em;
+  text-transform:uppercase; color:var(--coral);
+}
+h1,h2,h3{font-family:var(--serif); font-weight:700; margin:0; color:var(--ink);}
+.gold-text{color:var(--gold-deep);}
+p{line-height:1.7; color:var(--ink-soft); margin:0;}
+
+/* ---------- ornamental helpers ---------- */
+.rule{height:1px; background:var(--line); border:none; width:100%;}
+.rule-gold{height:1px; background:linear-gradient(90deg, transparent, var(--gold), transparent);}
+.ornament{width:34px; height:34px; opacity:.85;}
+
+/* ---------- reveal ---------- */
+.reveal{opacity:0; transform:translateY(22px); transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1);}
+.reveal.in{opacity:1; transform:translateY(0);}
+
+/* ============================================================ NAV */
+.nav{
+  position:fixed; top:0; left:0; right:0; z-index:50;
+  background:rgba(255,255,255,.86); backdrop-filter:blur(10px);
+  border-bottom:1px solid transparent; transition:border-color .3s, box-shadow .3s;
+}
+.nav.scrolled{border-color:var(--line); box-shadow:0 6px 24px -18px rgba(35,31,26,.25);}
+.nav-inner{
+  max-width:1180px; margin:0 auto; padding:16px 24px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.brand{display:flex; flex-direction:column; line-height:1; text-decoration:none;}
+.brand .b1{font-family:var(--serif); font-weight:700; font-size:19px; letter-spacing:.02em; color:var(--ink);}
+.brand .b2{font-family:var(--serif); font-weight:700; font-size:19px; letter-spacing:.02em; color:var(--gold-deep); margin-top:1px;}
+.nav-links{display:flex; align-items:center; gap:30px; list-style:none; margin:0; padding:0;}
+.nav-links a{
+  font-size:13px; font-weight:600; letter-spacing:.04em; text-transform:uppercase;
+  text-decoration:none; color:var(--ink-soft); transition:color .2s;
+  position:relative; padding-bottom:3px;
+}
+.nav-links a::after{content:""; position:absolute; left:0; right:100%; bottom:0; height:1px; background:var(--gold); transition:right .25s ease;}
+.nav-links a:hover{color:var(--ink);}
+.nav-links a:hover::after{right:0;}
+.nav-cta{
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--ink); color:var(--white); font-size:12.5px; font-weight:700;
+  letter-spacing:.05em; text-transform:uppercase; text-decoration:none;
+  padding:11px 20px; border-radius:999px; transition:background .2s, transform .2s;
+}
+.nav-cta:hover{background:var(--gold-deep); transform:translateY(-1px);}
+.nav-toggle{display:none; background:none; border:none; cursor:pointer; padding:6px;}
+.nav-toggle span{display:block; width:22px; height:2px; background:var(--ink); margin:5px 0; transition:.25s;}
+.nav-scrim{
+  display:none; position:fixed; inset:0; background:rgba(35,31,26,.42); z-index:45;
+  opacity:0; transition:opacity .3s ease;
+}
+.nav-scrim.show{display:block; opacity:1;}
+
+@media (max-width:900px){
+  .nav-links{
+    position:fixed; inset:0 0 0 auto; width:78vw; max-width:340px; height:100vh; z-index:46;
+    background:var(--white); flex-direction:column; align-items:flex-start; justify-content:center;
+    gap:26px; padding:40px; transform:translateX(100%); transition:transform .35s ease;
+    box-shadow:-20px 0 50px -20px rgba(0,0,0,.2);
+  }
+  .nav-links.open{transform:translateX(0);}
+  .nav-links a{font-size:16px;}
+  .nav-cta{display:none;}
+  .nav-links .nav-cta-mobile{display:inline-flex; margin-top:10px;}
+  .nav-toggle{display:block;}
+}
+
+/* ============================================================ HERO */
+.hero{
+  position:relative; padding:168px 0 110px; overflow:hidden;
+  background:
+    radial-gradient(ellipse 900px 520px at 82% -8%, rgba(184,147,90,.16), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 8% 8%, rgba(217,79,61,.07), transparent 60%),
+    var(--ivory);
+}
+.hero-orn{
+  position:absolute; top:50%; right:-6%; width:640px; max-width:60vw; transform:translateY(-46%);
+  opacity:.9; pointer-events:none;
+}
+.hero-inner{position:relative; max-width:640px;}
+.hero h1{
+  font-size:clamp(34px, 6vw, 64px); line-height:1.06; letter-spacing:-.01em; margin:18px 0 22px;
+}
+.hero p.lead{font-size:17px; max-width:480px; margin-bottom:34px;}
+.cta-row{display:flex; flex-wrap:wrap; gap:14px; align-items:center;}
+.btn{
+  display:inline-flex; align-items:center; gap:10px; text-decoration:none;
+  font-family:var(--sans); font-weight:700; font-size:13.5px; letter-spacing:.04em; text-transform:uppercase;
+  padding:16px 30px; border-radius:999px; transition:transform .22s, box-shadow .22s, background .22s;
+  border:1px solid transparent;
+}
+.btn-gold{
+  background:linear-gradient(135deg, var(--gold), var(--gold-deep)); color:var(--white);
+  box-shadow:0 14px 30px -14px rgba(140,106,52,.55);
+}
+.btn-gold:hover{transform:translateY(-2px); box-shadow:0 18px 34px -12px rgba(140,106,52,.6);}
+.btn-outline{
+  background:transparent; border-color:var(--ink); color:var(--ink);
+}
+.btn-outline:hover{background:var(--ink); color:var(--white); transform:translateY(-2px);}
+.btn-wa{background:#20BA5A; color:#fff; box-shadow:0 14px 30px -14px rgba(32,186,90,.55);}
+.btn-wa:hover{transform:translateY(-2px); background:#1CA652;}
+
+/* ---------- stat strip ---------- */
+.stats{border-top:1px solid var(--line); border-bottom:1px solid var(--line); background:var(--white);}
+.stats-inner{
+  max-width:1180px; margin:0 auto; padding:34px 24px;
+  display:grid; grid-template-columns:repeat(3,1fr); gap:20px; text-align:center;
+}
+.stat b{display:block; font-family:var(--serif); font-size:26px; color:var(--gold-deep); margin-bottom:4px;}
+.stat span{font-size:12px; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-faint); font-weight:600;}
+@media (max-width:700px){ .stats-inner{grid-template-columns:1fr; gap:22px;} }
+
+/* ============================================================ SECTION SHELL */
+section{padding:110px 0;}
+.section-head{max-width:640px; margin:0 auto 56px; text-align:center;}
+.section-head h2{font-size:clamp(28px,4.4vw,42px); margin:14px 0 16px;}
+.section-head p{font-size:15.5px;}
+.center{text-align:center;}
+
+/* ============================================================ SERVICES */
+.services-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:26px;}
+@media (max-width:980px){ .services-grid{grid-template-columns:repeat(2,1fr);} }
+@media (max-width:600px){ .services-grid{grid-template-columns:1fr;} }
+.svc-card{
+  background:var(--ivory); border:1px solid var(--line); border-radius:18px; padding:34px 26px;
+  transition:transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+}
+.svc-card:hover{transform:translateY(-6px); box-shadow:0 30px 50px -28px rgba(35,31,26,.22); border-color:var(--gold);}
+.svc-ic{
+  width:52px; height:52px; border-radius:50%; background:var(--white); border:1px solid var(--gold);
+  display:flex; align-items:center; justify-content:center; margin-bottom:20px;
+}
+.svc-card h3{font-size:19px; margin-bottom:10px; line-height:1.25;}
+.svc-card p{font-size:13.8px;}
+
+/* ============================================================ PORTFOLIO */
+.folio{background:var(--ivory);}
+.folio-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:22px;}
+@media (max-width:900px){ .folio-grid{grid-template-columns:repeat(2,1fr);} }
+@media (max-width:560px){ .folio-grid{grid-template-columns:1fr;} }
+.folio-card{
+  position:relative; border-radius:16px; overflow:hidden; aspect-ratio:4/5;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(184,147,90,.28), transparent 55%),
+    radial-gradient(circle at 80% 80%, rgba(217,79,61,.16), transparent 55%),
+    linear-gradient(160deg, #FFFDF9, var(--gold-pale));
+  border:1px solid var(--line);
+  display:flex; align-items:flex-end; padding:22px;
+}
+.folio-card::before{
+  content:""; position:absolute; inset:14px; border:1px solid rgba(184,147,90,.45); border-radius:10px; pointer-events:none;
+}
+.folio-tag{
+  position:relative; font-family:var(--serif); font-style:italic; font-size:16px; color:var(--gold-deep);
+}
+.folio-soon{
+  grid-column:1/-1; text-align:center; margin-top:8px; font-size:13px; color:var(--ink-faint);
+}
+
+/* ============================================================ ABOUT */
+.about{display:grid; grid-template-columns:1.1fr .9fr; gap:70px; align-items:center;}
+@media (max-width:900px){ .about{grid-template-columns:1fr; gap:40px;} }
+.about-visual{
+  aspect-ratio:1/1; border-radius:22px; position:relative; overflow:hidden;
+  background:
+    radial-gradient(circle at 25% 25%, rgba(184,147,90,.3), transparent 55%),
+    radial-gradient(circle at 78% 75%, rgba(217,79,61,.22), transparent 55%),
+    linear-gradient(150deg, var(--ivory), var(--gold-pale));
+  border:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center;
+}
+.about-visual svg{width:46%; height:46%; opacity:.92;}
+.about h2{font-size:clamp(26px,4vw,38px); margin:14px 0 20px;}
+.about p{margin-bottom:16px; font-size:15px;}
+.about-quote{
+  margin-top:26px; padding-left:20px; border-left:2px solid var(--gold);
+  font-family:var(--serif); font-style:italic; color:var(--ink); font-size:17px; line-height:1.55;
+}
+.pill-row{display:flex; flex-wrap:wrap; gap:10px; margin-top:24px;}
+.pill{
+  border:1px solid var(--gold); color:var(--gold-deep); font-size:11.5px; font-weight:700;
+  letter-spacing:.04em; text-transform:uppercase; padding:8px 16px; border-radius:999px; background:var(--white);
+}
+
+/* ============================================================ CONTACT / DEVIS */
+.contact{background:var(--ink); color:var(--white); position:relative; overflow:hidden;}
+.contact::before{
+  content:""; position:absolute; inset:0;
+  background:radial-gradient(ellipse 700px 500px at 85% 0%, rgba(184,147,90,.18), transparent 60%);
+  pointer-events:none;
+}
+.contact .section-head h2{color:var(--white);}
+.contact .section-head p{color:rgba(255,255,255,.68);}
+.contact-grid{position:relative; display:grid; grid-template-columns:1fr 1fr; gap:60px;}
+@media (max-width:900px){ .contact-grid{grid-template-columns:1fr; gap:44px;} }
+.form-row{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;}
+@media (max-width:560px){ .form-row{grid-template-columns:1fr;} }
+.field{display:flex; flex-direction:column; gap:7px;}
+.field label{font-size:11.5px; letter-spacing:.05em; text-transform:uppercase; color:rgba(255,255,255,.55); font-weight:600;}
+.field input, .field select, .field textarea{
+  background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.18); border-radius:10px;
+  padding:13px 14px; color:var(--white); font-family:var(--sans); font-size:14px; outline:none;
+  transition:border-color .2s, background .2s;
+}
+.field input::placeholder, .field textarea::placeholder{color:rgba(255,255,255,.35);}
+.field input:focus, .field select:focus, .field textarea:focus{border-color:var(--gold); background:rgba(255,255,255,.1);}
+.field select option{color:#111;}
+.form-note{font-size:12px; color:rgba(255,255,255,.5); margin-top:14px;}
+.contact-info{display:flex; flex-direction:column; gap:22px;}
+.info-row{display:flex; gap:16px; align-items:flex-start;}
+.info-ic{
+  width:40px; height:40px; border-radius:50%; border:1px solid rgba(184,147,90,.6);
+  display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--gold);
+}
+.info-row b{display:block; font-size:14px; margin-bottom:2px;}
+.info-row span{font-size:13.5px; color:rgba(255,255,255,.62);}
+.social-row{display:flex; gap:12px; margin-top:8px;}
+.social-btn{
+  width:42px; height:42px; border-radius:50%; border:1px solid rgba(255,255,255,.25);
+  display:flex; align-items:center; justify-content:center; color:var(--white); text-decoration:none;
+  transition:border-color .2s, background .2s;
+}
+.social-btn:hover{border-color:var(--gold); background:rgba(184,147,90,.14);}
+
+/* ============================================================ FOOTER */
+footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid var(--line);}
+.footer-inner{display:flex; flex-direction:column; align-items:center; text-align:center; gap:14px;}
+.footer-inner .brand{align-items:center;}
+.footer-tag{font-size:13px; color:var(--ink-faint); max-width:420px;}
+.footer-credit{font-size:11.5px; color:var(--ink-faint); margin-top:18px;}
+.footer-credit a{color:var(--gold-deep); text-decoration:none; font-weight:600;}
+
+/* ============================================================ WHATSAPP FAB */
+.wa-fab{
+  position:fixed; right:20px; bottom:20px; z-index:60;
+  width:58px; height:58px; border-radius:50%; background:#20BA5A; color:#fff;
+  display:flex; align-items:center; justify-content:center; text-decoration:none;
+  box-shadow:0 14px 30px -10px rgba(32,186,90,.6); animation:waPulse 2.6s ease-in-out infinite;
+}
+@keyframes waPulse{0%,100%{box-shadow:0 14px 30px -10px rgba(32,186,90,.6);}50%{box-shadow:0 14px 30px -6px rgba(32,186,90,.85);}}
+
+/* ============================================================ PWA install pill */
+.install-pill{
+  display:none; align-items:center; gap:8px; background:var(--gold-pale); color:var(--gold-deep);
+  border:1px solid var(--gold); font-size:12px; font-weight:700; letter-spacing:.03em;
+  padding:9px 16px; border-radius:999px; margin-left:14px; cursor:pointer;
+}
+.install-pill.show{display:inline-flex;}
+</style>
+</head>
+<body>
+
+<nav class="nav" id="siteNav">
+  <div class="nav-inner">
+    <a class="brand" href="#top">
+      <span class="b1">PILI-PILI</span>
+      <span class="b2">EVENTS</span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#prestations">Prestations</a></li>
+      <li><a href="#realisations">Réalisations</a></li>
+      <li><a href="#apropos">À propos</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li><a class="btn btn-wa nav-cta-mobile" href="https://wa.me/242068700066" target="_blank" rel="noopener">WhatsApp</a></li>
+    </ul>
+    <a class="nav-cta" href="#contact">Demander un devis</a>
+  </div>
+</nav>
+<div class="nav-scrim" id="navScrim"></div>
+
+<header class="hero" id="top">
+  <svg class="hero-orn" viewBox="0 0 400 400" fill="none" aria-hidden="true">
+    <circle cx="200" cy="200" r="150" stroke="#B8935A" stroke-width="1" opacity=".5"/>
+    <circle cx="200" cy="200" r="118" stroke="#B8935A" stroke-width="1" opacity=".35"/>
+    <path d="M200,120 C230,120 248,150 238,182 C232,202 210,214 200,236 C190,214 168,202 162,182 C152,150 170,120 200,120 Z" fill="#D94F3D" opacity=".14"/>
+    <path d="M200,236 C200,236 205,258 200,272" stroke="#8C6A34" stroke-width="2" opacity=".5" stroke-linecap="round"/>
+    <g opacity=".55">
+      <path d="M120,120 C150,110 250,110 280,120" stroke="#B8935A" stroke-width="1"/>
+      <path d="M120,280 C150,290 250,290 280,280" stroke="#B8935A" stroke-width="1"/>
+    </g>
+  </svg>
+  <div class="wrap hero-inner reveal in">
+    <span class="eyebrow">Pili-Pili Events · Brazzaville</span>
+    <h1>Vos souvenirs.<br><span class="gold-text">Notre éclat.</span></h1>
+    <p class="lead">L'agence événementielle de référence pour les mariages coutumiers, les mariages traditionnels et les réceptions d'exception — pensée pour les familles et les personnalités les plus exigeantes.</p>
+    <div class="cta-row">
+      <a class="btn btn-gold" href="#contact">Demander un devis</a>
+      <a class="btn btn-wa" href="https://wa.me/242068700066" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.7-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-1 1.2-.2.2-.4.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.4.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5C10 9 9.4 7.6 9.1 7c-.2-.5-.5-.4-.7-.4h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 5 4.3.7.3 1.2.5 1.7.6.7.2 1.3.2 1.8.1.5-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.2-1.3-.1-.2-.3-.2-.6-.3z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.7 1.5 5.3L2 22l4.8-1.5C8.3 21.5 10.1 22 12 22c5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18c-1.7 0-3.3-.5-4.7-1.3l-.3-.2-3.2 1 1-3.1-.2-.3C3.5 14.7 3 13.4 3 12c0-4.9 4.1-9 9-9s9 4.1 9 9-4.1 9-9 9z"/></svg>
+        WhatsApp direct
+      </a>
+      <button class="install-pill" id="installPill">📲 Installer l'application</button>
+    </div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stats-inner">
+    <div class="stat reveal"><b>21 000+</b><span>Abonnés conquis</span></div>
+    <div class="stat reveal"><b>Coutumier &amp; Traditionnel</b><span>Mariages congolais</span></div>
+    <div class="stat reveal"><b>Brazzaville</b><span>Plateau des 15 ans</span></div>
+  </div>
+</div>
+
+<section id="prestations">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Nos prestations</span>
+      <h2>Chaque tradition, <span class="gold-text">une mise en scène</span></h2>
+      <p>De la cérémonie coutumière à la décoration la plus raffinée, chaque prestation est pensée sur-mesure.</p>
+    </div>
+    <div class="services-grid">
+      <div class="svc-card reveal">
+        <div class="svc-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8C6A34" stroke-width="1.4"><path d="M12 3l2.5 5 5.5.6-4 3.8 1 5.4L12 15l-5 2.8 1-5.4-4-3.8 5.5-.6L12 3Z"/></svg></div>
+        <h3>Mariage coutumier</h3>
+        <p>La dot, les rites, l'union des familles — une mise en scène fidèle aux traditions, célébrée avec faste.</p>
+      </div>
+      <div class="svc-card reveal">
+        <div class="svc-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8C6A34" stroke-width="1.4"><path d="M12 21s-7-4.5-9.5-9C.5 8 3 4 7 4c2 0 4 1.3 5 3 1-1.7 3-3 5-3 4 0 6.5 4 4.5 8-2.5 4.5-9.5 9-9.5 9Z"/></svg></div>
+        <h3>Mariage traditionnel</h3>
+        <p>Cérémonie traditionnelle congolaise pensée dans les moindres détails, entre héritage et raffinement.</p>
+      </div>
+      <div class="svc-card reveal">
+        <div class="svc-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8C6A34" stroke-width="1.4"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 9h16M9 4v16"/></svg></div>
+        <h3>Décoration de mariage</h3>
+        <p>Salles transformées, tables sublimées, lumière et matières nobles pour une réception inoubliable.</p>
+      </div>
+      <div class="svc-card reveal">
+        <div class="svc-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8C6A34" stroke-width="1.4"><path d="M12 2v6M8 5l4 3 4-3M4 21h16M6 21V11a6 6 0 0 1 12 0v10"/></svg></div>
+        <h3>Décoration d'anniversaire</h3>
+        <p>Des célébrations sur-mesure, du premier au plus prestigieux des anniversaires.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="realisations" class="folio">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Réalisations</span>
+      <h2>Des <span class="gold-text">instants</span> sublimés</h2>
+      <p>Une sélection de nos plus belles cérémonies — la galerie s'enrichit prochainement de nos réalisations.</p>
+    </div>
+    <div class="folio-grid">
+      <div class="folio-card reveal"><span class="folio-tag">Mariage coutumier</span></div>
+      <div class="folio-card reveal"><span class="folio-tag">Décoration de salle</span></div>
+      <div class="folio-card reveal"><span class="folio-tag">Mariage traditionnel</span></div>
+      <div class="folio-card reveal"><span class="folio-tag">Table d'honneur</span></div>
+      <div class="folio-card reveal"><span class="folio-tag">Anniversaire</span></div>
+      <div class="folio-card reveal"><span class="folio-tag">Soirée en blanc</span></div>
+      <p class="folio-soon reveal">✦ Vos plus belles réalisations prendront place ici, dès réception des visuels ✦</p>
+    </div>
+  </div>
+</section>
+
+<section id="apropos">
+  <div class="wrap about">
+    <div class="about-visual reveal">
+      <svg viewBox="0 0 200 200" fill="none" aria-hidden="true">
+        <circle cx="100" cy="100" r="86" stroke="#B8935A" stroke-width="1"/>
+        <path d="M100,54 C122,54 136,76 128,100 C123,114 108,122 100,138 C92,122 77,114 72,100 C64,76 78,54 100,54 Z" fill="#D94F3D" opacity=".85"/>
+        <path d="M100,138 C100,138 104,152 100,162" stroke="#8C6A34" stroke-width="2.4" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="reveal">
+      <span class="eyebrow">À propos</span>
+      <h2>L'excellence, <span class="gold-text">une tradition</span></h2>
+      <p>Depuis Brazzaville, Pili-Pili Events accompagne les familles et les personnalités dans l'organisation de leurs événements les plus précieux. Fidèle aux traditions congolaises et exigeante sur chaque détail, l'agence s'est imposée comme une référence, portée par une communauté de plus de 21 000 abonnés sur les réseaux sociaux.</p>
+      <p class="about-quote">« La touche qu'il vous faut pour des événements uniques et mémorables. »</p>
+      <div class="pill-row">
+        <span class="pill">Mariages coutumiers</span>
+        <span class="pill">Mariages traditionnels</span>
+        <span class="pill">Décoration sur-mesure</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="contact">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Contact</span>
+      <h2>Parlons de <span class="gold-text">votre événement</span></h2>
+      <p>Un projet de mariage ou de réception ? Décrivez-le nous, nous revenons vers vous rapidement.</p>
+    </div>
+    <div class="contact-grid">
+      <form class="reveal" id="devisForm">
+        <div class="form-row">
+          <div class="field">
+            <label for="fNom">Nom complet</label>
+            <input id="fNom" name="nom" type="text" placeholder="Votre nom" required>
+          </div>
+          <div class="field">
+            <label for="fTel">Téléphone / WhatsApp</label>
+            <input id="fTel" name="tel" type="tel" placeholder="+242 …" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="fType">Type d'événement</label>
+            <select id="fType" name="type">
+              <option>Mariage coutumier</option>
+              <option>Mariage traditionnel</option>
+              <option>Décoration de mariage</option>
+              <option>Décoration d'anniversaire</option>
+              <option>Autre événement</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="fDate">Date envisagée</label>
+            <input id="fDate" name="date" type="date">
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:18px;">
+          <label for="fMsg">Votre message</label>
+          <textarea id="fMsg" name="msg" rows="4" placeholder="Parlez-nous de votre événement…"></textarea>
+        </div>
+        <button type="submit" class="btn btn-gold" style="border:none; cursor:pointer;">Envoyer via WhatsApp</button>
+        <p class="form-note">En envoyant, WhatsApp s'ouvre avec votre message pré-rempli — aucune donnée n'est stockée ailleurs.</p>
+      </form>
+      <div class="contact-info reveal">
+        <div class="info-row">
+          <div class="info-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 4H4v16l4-4h12V4Z"/></svg></div>
+          <div><b>Adresse</b><span>1296 rue Nko, en face de l'école 8 Mars, Plateau des 15 ans, Brazzaville</span></div>
+        </div>
+        <div class="info-row">
+          <div class="info-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2Z"/></svg></div>
+          <div><b>Téléphone</b><span>+242 06 870 0066</span></div>
+        </div>
+        <div class="info-row">
+          <div class="info-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16v16H4z"/><path d="m4 5 8 7 8-7"/></svg></div>
+          <div><b>E-mail</b><span>pilipilievents1@gmail.com</span></div>
+        </div>
+        <div class="social-row">
+          <a class="social-btn" href="https://www.facebook.com/pilipilievents" target="_blank" rel="noopener" aria-label="Facebook">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 22v-8.5h2.8l.4-3.3h-3.2V8.1c0-.9.3-1.6 1.7-1.6h1.6V3.5C16.5 3.4 15.5 3 14.3 3c-2.4 0-4.1 1.5-4.1 4.2v2h-2.7v3.3h2.7V22h3.3Z"/></svg>
+          </a>
+          <a class="social-btn" href="https://www.tiktok.com/@pilipili_events" target="_blank" rel="noopener" aria-label="TikTok">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 2c.4 2.4 2 4 4.4 4.2v3.1c-1.6.1-3-.4-4.4-1.3v6.6c0 3.6-2.9 6.4-6.5 6.4S3.5 18.2 3.5 14.6c0-3.4 2.6-6.1 5.9-6.4v3.2c-1.6.3-2.8 1.6-2.8 3.2 0 1.8 1.5 3.3 3.4 3.3s3.4-1.5 3.4-3.3V2h3.1Z"/></svg>
+          </a>
+          <a class="social-btn" href="https://wa.me/242068700066" target="_blank" rel="noopener" aria-label="WhatsApp">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-1 1.2-.2.2-.4.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.4.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5C10 9 9.4 7.6 9.1 7c-.2-.5-.5-.4-.7-.4h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 5 4.3.7.3 1.2.5 1.7.6.7.2 1.3.2 1.8.1.5-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.2-1.3-.1-.2-.3-.2-.6-.3z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.7 1.5 5.3L2 22l4.8-1.5C8.3 21.5 10.1 22 12 22c5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18c-1.7 0-3.3-.5-4.7-1.3l-.3-.2-3.2 1 1-3.1-.2-.3C3.5 14.7 3 13.4 3 12c0-4.9 4.1-9 9-9s9 4.1 9 9-4.1 9-9 9z"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footer-inner">
+    <a class="brand" href="#top">
+      <span class="b1">PILI-PILI</span>
+      <span class="b2">EVENTS</span>
+    </a>
+    <p class="footer-tag">La touche qu'il vous faut pour des événements uniques et mémorables.</p>
+    <div class="rule-gold" style="max-width:120px;"></div>
+    <p class="footer-credit">© 2026 Pili-Pili Events · Conçu par <a href="https://star-entreprise.netlify.app" target="_blank" rel="noopener">STAR ENTREPRISE</a></p>
+  </div>
+</footer>
+
+<a class="wa-fab" href="https://wa.me/242068700066" target="_blank" rel="noopener" aria-label="WhatsApp">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-1 1.2-.2.2-.4.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.4.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5C10 9 9.4 7.6 9.1 7c-.2-.5-.5-.4-.7-.4h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 5 4.3.7.3 1.2.5 1.7.6.7.2 1.3.2 1.8.1.5-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.2-1.3-.1-.2-.3-.2-.6-.3z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.7 1.5 5.3L2 22l4.8-1.5C8.3 21.5 10.1 22 12 22c5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18c-1.7 0-3.3-.5-4.7-1.3l-.3-.2-3.2 1 1-3.1-.2-.3C3.5 14.7 3 13.4 3 12c0-4.9 4.1-9 9-9s9 4.1 9 9-4.1 9-9 9z"/></svg>
+</a>
+
+<script>
+(function(){
+  "use strict";
+
+  var nav = document.getElementById('siteNav');
+  window.addEventListener('scroll', function(){
+    nav.classList.toggle('scrolled', window.scrollY > 12);
+  });
+
+  var navToggle = document.getElementById('navToggle');
+  var navLinks = document.getElementById('navLinks');
+  var navScrim = document.getElementById('navScrim');
+  function closeNav(){ navLinks.classList.remove('open'); navScrim.classList.remove('show'); }
+  navToggle.addEventListener('click', function(){
+    var willOpen = !navLinks.classList.contains('open');
+    navLinks.classList.toggle('open', willOpen);
+    navScrim.classList.toggle('show', willOpen);
+  });
+  navScrim.addEventListener('click', closeNav);
+  navLinks.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', closeNav);
+  });
+
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { threshold:.14 });
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+
+  document.getElementById('devisForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var nom = document.getElementById('fNom').value.trim();
+    var tel = document.getElementById('fTel').value.trim();
+    var type = document.getElementById('fType').value;
+    var date = document.getElementById('fDate').value;
+    var msg = document.getElementById('fMsg').value.trim();
+    var lines = [
+      "Bonjour Pili-Pili Events,",
+      "Je souhaiterais une demande de devis :",
+      "— Nom : " + nom,
+      "— Téléphone : " + tel,
+      "— Type d'événement : " + type,
+      date ? ("— Date envisagée : " + date) : null,
+      msg ? ("— Détails : " + msg) : null
+    ].filter(Boolean).join("\n");
+    window.open("https://wa.me/242068700066?text=" + encodeURIComponent(lines), "_blank", "noopener");
+  });
+
+  // ---- PWA install prompt ----
+  var deferredPrompt = null;
+  var installPill = document.getElementById('installPill');
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    deferredPrompt = e;
+    installPill.classList.add('show');
+  });
+  installPill.addEventListener('click', function(){
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.finally(function(){
+      deferredPrompt = null;
+      installPill.classList.remove('show');
+    });
+  });
+  window.addEventListener('appinstalled', function(){ installPill.classList.remove('show'); });
+
+  if ('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('sw.js').catch(function(){});
+    });
+  }
+})();
+</script>
+</body>
+</html>
