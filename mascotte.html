@@ -397,6 +397,7 @@ body{
   var sparkles = document.getElementById('sparkles');
 
   var running = false;
+  var runToken = 0;
   var frenchVoice = null;
 
   function buildSparkles(){
@@ -503,8 +504,13 @@ body{
   }
 
   async function playSequence(){
-    if (running) return;
+    // A fresh call always wins: bump the token so any in-flight run
+    // (still waiting on a speech safety-net timer, etc.) bails out at
+    // its next checkpoint instead of silently swallowing this click.
+    runToken++;
+    var myToken = runToken;
     running = true;
+    if ('speechSynthesis' in window){ try{ speechSynthesis.cancel(); }catch(e){} }
 
     // reset
     finale.classList.remove('on');
@@ -517,8 +523,10 @@ body{
     charHero.classList.add('showing');
     charAvatar.classList.remove('showing');
     captions.textContent = '';
+    hideBubble();
 
     await wait(500);
+    if (myToken !== runToken) return;
 
     for (var i=0;i<LINES.length;i++){
       swapShot();
@@ -526,9 +534,12 @@ body{
       var shown = showBubble(line);
       var spoken = speak(line);
       await shown;
+      if (myToken !== runToken) return;
       await spoken;
+      if (myToken !== runToken) return;
       hideBubble();
       await wait(180);
+      if (myToken !== runToken) return;
     }
 
     captions.textContent = '';
@@ -536,20 +547,24 @@ body{
     rig.classList.add('frozen');
     fireBurst();
     await wait(350);
+    if (myToken !== runToken) return;
 
     rig.classList.add('hide');
     await wait(400);
+    if (myToken !== runToken) return;
 
     finale.classList.add('on');
     var sloganDone = typeInto(slogan, SLOGAN, 42);
     var sloganSpoken = speak(SLOGAN);
     await sloganDone;
+    if (myToken !== runToken) return;
     finaleLogo.classList.add('pop');
     await wait(200);
+    if (myToken !== runToken) return;
     finaleActions.classList.add('on');
     await sloganSpoken;
 
-    running = false;
+    if (myToken === runToken) running = false;
   }
 
   btnStart.addEventListener('click', function(){
@@ -562,7 +577,6 @@ body{
   });
 
   btnReplay.addEventListener('click', function(){
-    if (running) return;
     playSequence();
   });
 
