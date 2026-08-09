@@ -287,8 +287,16 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
 .footer-inner{display:flex; flex-direction:column; align-items:center; text-align:center; gap:14px;}
 .footer-inner .brand{align-items:center;}
 .footer-tag{font-size:13px; color:var(--ink-faint); max-width:420px;}
-.footer-credit{font-size:11.5px; color:var(--ink-faint); margin-top:18px;}
-.footer-credit a{color:var(--gold-deep); text-decoration:none; font-weight:600;}
+.footer-credit{
+  font-size:11.5px; color:var(--ink-faint); margin-top:18px;
+  display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap;
+}
+.footer-credit a{
+  color:var(--ink); text-decoration:none; font-weight:700; letter-spacing:.02em;
+  display:inline-flex; align-items:center; gap:7px;
+}
+.footer-credit a:hover{color:var(--gold-deep);}
+.footer-credit-logo{height:20px; width:20px; border-radius:6px; display:block;}
 
 /* ============================================================ WHATSAPP FAB */
 .wa-fab{
@@ -561,7 +569,12 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
     </a>
     <p class="footer-tag">Du rêve à la réalité.</p>
     <div class="rule-gold" style="max-width:120px;"></div>
-    <p class="footer-credit">© 2026 Pili-Pili Events · Conçu par <a href="https://star-entreprise.netlify.app" target="_blank" rel="noopener">STAR ENTREPRISE</a></p>
+    <p class="footer-credit">© 2026 Pili-Pili Events · Conçu par
+      <a href="https://star-entreprise.netlify.app" target="_blank" rel="noopener">
+        <img src="assets/img/star-entreprise-logo.webp" alt="STAR ENTREPRISE" class="footer-credit-logo">
+        STAR ENTREPRISE
+      </a>
+    </p>
   </div>
 </footer>
 
