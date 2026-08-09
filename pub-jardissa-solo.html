@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>STAR ENTREPRISE — Jardissa vous dit tout</title>
+<meta name="description" content="La pub animée de STAR ENTREPRISE, racontée par Jardissa.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Manrope:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy-950:#050914;
+  --navy-900:#0a1226;
+  --navy-800:#0f1c38;
+  --navy-700:#16274a;
+  --gold-400:#f3ce7a;
+  --gold-500:#e3b34a;
+  --gold-600:#c8952b;
+  --cream:#fbf6ea;
+  --ink:#0a0e18;
+  --white:#ffffff;
+}
+
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0;
+  background:var(--navy-950);
+  color:var(--cream);
+  font-family:'Manrope',ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+.stage{
+  position:relative;
+  width:100%;
+  height:100dvh;
+  min-height:560px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:
+    radial-gradient(ellipse 900px 700px at 50% 18%, rgba(227,179,74,.16), transparent 60%),
+    radial-gradient(ellipse 1200px 900px at 50% 120%, rgba(22,39,74,.9), transparent 60%),
+    linear-gradient(180deg, var(--navy-950) 0%, var(--navy-900) 45%, var(--navy-950) 100%);
+}
+
+/* ---------- sparkle field ---------- */
+.sparkles{position:absolute; inset:0; overflow:hidden; pointer-events:none;}
+.spark{
+  position:absolute;
+  width:var(--s,4px); height:var(--s,4px);
+  background:var(--gold-400);
+  border-radius:50%;
+  opacity:0;
+  box-shadow:0 0 8px 1px rgba(243,206,122,.9);
+  animation:twinkle var(--dur,3.2s) ease-in-out var(--delay,0s) infinite;
+}
+@keyframes twinkle{
+  0%,100%{opacity:0; transform:scale(.4);}
+  50%{opacity:var(--peak,.9); transform:scale(1);}
+}
+
+/* ---------- vignette ---------- */
+.vignette{position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(ellipse 70% 60% at 50% 45%, transparent 55%, rgba(2,4,10,.55) 100%);
+}
+
+/* ---------- character rig ---------- */
+.rig{
+  position:relative;
+  width:min(78vw, 420px);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  transform:translateY(6vh);
+  opacity:1;
+  transition:opacity .5s ease;
+}
+.rig.hide{
+  opacity:0;
+  pointer-events:none;
+}
+
+.shadow-el{
+  width:52%;
+  height:22px;
+  border-radius:50%;
+  background:radial-gradient(ellipse at center, rgba(0,0,0,.55), transparent 72%);
+  margin-top:-6px;
+  animation:shadowPulse 0.62s ease-in-out infinite alternate;
+}
+@keyframes shadowPulse{
+  0%{transform:scaleX(1); opacity:.55;}
+  100%{transform:scaleX(.72); opacity:.32;}
+}
+
+.char-frame{
+  position:relative;
+  width:100%;
+  aspect-ratio:1/1;
+  border-radius:28px;
+  overflow:hidden;
+  box-shadow:0 30px 70px -20px rgba(0,0,0,.7), 0 0 0 1px rgba(227,179,74,.25) inset;
+  background:linear-gradient(160deg, var(--navy-800), var(--navy-950));
+}
+.char-frame::after{
+  content:"";
+  position:absolute; inset:0;
+  background:linear-gradient(180deg, transparent 60%, rgba(5,9,20,.75) 100%);
+}
+.char-img{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover;
+  object-position:50% 15%;
+  opacity:0;
+  transform:scale(1.06);
+  transition:opacity .35s ease;
+}
+.char-img.showing{opacity:1;}
+
+.dancing .char-frame{ animation:dance .62s ease-in-out infinite; }
+@keyframes dance{
+  0%{transform:translateY(0) rotate(-2.2deg) scale(1,1);}
+  25%{transform:translateY(-14px) rotate(1.6deg) scale(1.02,.98);}
+  50%{transform:translateY(-2px) rotate(-1deg) scale(.99,1.01);}
+  75%{transform:translateY(-16px) rotate(2.4deg) scale(1.02,.98);}
+  100%{transform:translateY(0) rotate(-2.2deg) scale(1,1);}
+}
+.frozen .char-frame{ animation:none; transform:translateY(-10px) rotate(-1.4deg); }
+
+.burst{position:absolute; inset:-20%; pointer-events:none; opacity:0;}
+.burst.go{opacity:1;}
+.burst i{
+  position:absolute; left:50%; top:45%;
+  width:6px; height:6px; border-radius:1px;
+  background:var(--gold-400);
+  box-shadow:0 0 6px rgba(243,206,122,.9);
+  transform-origin:0 0;
+  animation:fly .9s cubic-bezier(.15,.6,.3,1) forwards;
+}
+@keyframes fly{
+  0%{transform:translate(0,0) rotate(var(--rot)) scale(1); opacity:1;}
+  100%{transform:translate(var(--dx),var(--dy)) rotate(var(--rot)) scale(.2); opacity:0;}
+}
+
+/* ---------- speech bubble ---------- */
+.bubble-wrap{
+  position:absolute;
+  top:6%;
+  left:50%;
+  transform:translateX(-50%);
+  width:min(88vw, 460px);
+  display:flex;
+  justify-content:center;
+  pointer-events:none;
+}
+.bubble{
+  position:relative;
+  max-width:100%;
+  background:var(--white);
+  color:var(--ink);
+  border-radius:20px;
+  padding:16px 20px;
+  font-weight:700;
+  font-size:clamp(15px, 3.6vw, 20px);
+  line-height:1.35;
+  text-align:center;
+  box-shadow:0 18px 40px -12px rgba(0,0,0,.55);
+  opacity:0;
+  transform:translateY(-10px) scale(.94);
+  transition:opacity .28s ease, transform .28s ease;
+}
+.bubble.on{opacity:1; transform:translateY(0) scale(1);}
+.bubble::after{
+  content:"";
+  position:absolute;
+  bottom:-11px; left:50%;
+  transform:translateX(-50%);
+  border-width:12px 10px 0 10px;
+  border-style:solid;
+  border-color:var(--white) transparent transparent transparent;
+}
+.bubble .cursor{
+  display:inline-block; width:2px; height:1em; background:var(--gold-600);
+  vertical-align:-2px; margin-left:2px;
+  animation:blink 0.8s steps(1) infinite;
+}
+@keyframes blink{50%{opacity:0;}}
+
+/* ---------- captions ---------- */
+.captions{
+  position:absolute;
+  left:50%; bottom:8%;
+  transform:translateX(-50%);
+  width:min(92vw,560px);
+  text-align:center;
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:.02em;
+  color:rgba(251,246,234,.55);
+  min-height:1.4em;
+}
+
+/* ---------- finale ---------- */
+.finale{
+  position:absolute; inset:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:18px;
+  opacity:0; pointer-events:none;
+  transition:opacity .5s ease;
+  text-align:center;
+  padding:0 6vw;
+}
+.finale.on{opacity:1; pointer-events:auto;}
+.slogan{
+  font-family:'Fraunces', Georgia, serif;
+  font-weight:900;
+  font-size:clamp(26px, 6.6vw, 52px);
+  line-height:1.12;
+  letter-spacing:-.01em;
+  background:linear-gradient(100deg, var(--gold-400), var(--cream) 45%, var(--gold-500) 60%, var(--gold-400));
+  background-size:220% 100%;
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  animation:shine 3.4s linear infinite;
+  min-height:1.3em;
+}
+@keyframes shine{
+  0%{background-position:0% 0;}
+  100%{background-position:220% 0;}
+}
+.slogan .cursor{
+  display:inline-block; width:.09em; height:.95em; background:var(--gold-400);
+  vertical-align:-.08em; margin-left:.05em;
+  animation:blink 0.8s steps(1) infinite;
+}
+.finale-logo{
+  width:min(34vw,150px);
+  border-radius:26%;
+  opacity:0;
+  transform:scale(.6) rotate(-8deg);
+  box-shadow:0 20px 60px -15px rgba(227,179,74,.55);
+}
+.finale-logo.pop{
+  animation:popLogo .7s cubic-bezier(.2,1.4,.4,1) forwards;
+}
+@keyframes popLogo{
+  to{opacity:1; transform:scale(1) rotate(0deg);}
+}
+.finale-actions{
+  display:flex; gap:12px; flex-wrap:wrap; justify-content:center;
+  opacity:0; transform:translateY(8px);
+  transition:opacity .5s ease .3s, transform .5s ease .3s;
+}
+.finale-actions.on{opacity:1; transform:translateY(0);}
+
+.btn{
+  appearance:none; border:none; cursor:pointer;
+  font-family:'Manrope',inherit; font-weight:700; font-size:14.5px;
+  padding:13px 22px; border-radius:999px;
+  display:inline-flex; align-items:center; gap:8px;
+}
+.btn-gold{
+  background:linear-gradient(135deg, var(--gold-400), var(--gold-600));
+  color:var(--ink);
+  box-shadow:0 10px 26px -8px rgba(227,179,74,.6);
+}
+.btn-ghost{
+  background:rgba(255,255,255,.08);
+  color:var(--cream);
+  border:1px solid rgba(251,246,234,.28);
+}
+.btn:active{transform:translateY(1px);}
+
+/* ---------- start overlay ---------- */
+.start-overlay{
+  position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(5,9,20,.55), rgba(5,9,20,.86));
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+  text-align:center; padding:0 8vw;
+  transition:opacity .5s ease, visibility .5s;
+  z-index:5;
+}
+.start-overlay.hide{opacity:0; visibility:hidden; pointer-events:none;}
+.start-eyebrow{
+  font-size:12px; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--gold-400);
+}
+.start-title{
+  font-family:'Fraunces', Georgia, serif; font-weight:900;
+  font-size:clamp(22px,6vw,34px); max-width:480px; line-height:1.15;
+}
+.start-title span{color:var(--gold-400);}
+
+/* ---------- sound badge ---------- */
+.sound-tag{
+  position:absolute; top:16px; right:16px;
+  font-size:11px; font-weight:700; letter-spacing:.04em;
+  padding:7px 12px; border-radius:999px;
+  background:rgba(255,255,255,.08); border:1px solid rgba(251,246,234,.22);
+  color:var(--cream); opacity:0; transition:opacity .3s ease;
+  display:flex; align-items:center; gap:6px;
+}
+.sound-tag.on{opacity:1;}
+.sound-dot{width:7px; height:7px; border-radius:50%; background:#3EE07A; box-shadow:0 0 6px #3ee07a;}
+
+@media (min-width:760px){
+  .rig{width:min(48vw,440px);}
+}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <div class="sparkles" id="sparkles"></div>
+  <div class="vignette"></div>
+
+  <div class="sound-tag" id="soundTag"><span class="sound-dot"></span><span id="soundTagText">Son actif</span></div>
+
+  <div class="bubble-wrap">
+    <div class="bubble" id="bubble"><span id="bubbleText"></span></div>
+  </div>
+
+  <div class="rig" id="rig">
+    <div class="char-frame" id="charFrame">
+      <img class="char-img" id="charHero" src="https://deploy-preview-17--star-entreprise.netlify.app/assets/img/jardissa-hero-v2.webp" alt="Jardissa, l'assistante STAR ENTREPRISE">
+      <img class="char-img" id="charAvatar" src="https://deploy-preview-17--star-entreprise.netlify.app/assets/img/jardissa-avatar-v2.webp" alt="Jardissa, l'assistante STAR ENTREPRISE">
+      <div class="burst" id="burst"></div>
+    </div>
+    <div class="shadow-el"></div>
+  </div>
+
+  <div class="captions" id="captions"></div>
+
+  <div class="finale" id="finale">
+    <div class="slogan" id="slogan"></div>
+    <img class="finale-logo" id="finaleLogo" src="https://deploy-preview-17--star-entreprise.netlify.app/assets/img/logo-star-rounded-v1.webp" alt="Logo STAR ENTREPRISE">
+    <div class="finale-actions" id="finaleActions">
+      <button class="btn btn-gold" id="btnDiscover">Découvrir STAR ENTREPRISE</button>
+      <button class="btn btn-ghost" id="btnReplay">Revoir ↻</button>
+    </div>
+  </div>
+
+  <div class="start-overlay" id="startOverlay">
+    <div class="start-eyebrow">STAR ENTREPRISE présente</div>
+    <div class="start-title">Jardissa a <span>2 minutes</span> pour vous convaincre.</div>
+    <button class="btn btn-gold" id="btnStart">▶ Lancer la pub</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var LINES = [
+    "Vous avez une idée qui dort dans un coin de votre tête ?",
+    "Moi, Jardissa, je la réveille... et je la transforme en diamant.",
+    "Site web qui claque : fait. Appli mobile qui déchire : fait.",
+    "Boutique en ligne qui vend même quand vous dormez : archi-fait.",
+    "Stratégie, design, accompagnement... on ne fait pas semblant : on scintille.",
+    "Alors, prêt à briller avec nous ?"
+  ];
+  var SLOGAN = "Vos idées. Notre éclat. Un diamant.";
+
+  var stage = document.getElementById('stage');
+  var rig = document.getElementById('rig');
+  var charHero = document.getElementById('charHero');
+  var charAvatar = document.getElementById('charAvatar');
+  var bubble = document.getElementById('bubble');
+  var bubbleText = document.getElementById('bubbleText');
+  var captions = document.getElementById('captions');
+  var finale = document.getElementById('finale');
+  var slogan = document.getElementById('slogan');
+  var finaleLogo = document.getElementById('finaleLogo');
+  var finaleActions = document.getElementById('finaleActions');
+  var startOverlay = document.getElementById('startOverlay');
+  var btnStart = document.getElementById('btnStart');
+  var btnReplay = document.getElementById('btnReplay');
+  var btnDiscover = document.getElementById('btnDiscover');
+  var soundTag = document.getElementById('soundTag');
+  var soundTagText = document.getElementById('soundTagText');
+  var burst = document.getElementById('burst');
+  var sparkles = document.getElementById('sparkles');
+
+  var running = false;
+  var runToken = 0;
+  var frenchVoice = null;
+
+  function buildSparkles(){
+    sparkles.innerHTML = "";
+    var n = 26;
+    for (var i=0;i<n;i++){
+      var d = document.createElement('div');
+      d.className = 'spark';
+      d.style.setProperty('--s', (2+Math.random()*4).toFixed(1)+'px');
+      d.style.setProperty('--dur', (2.2+Math.random()*2.6).toFixed(2)+'s');
+      d.style.setProperty('--delay', (Math.random()*3).toFixed(2)+'s');
+      d.style.setProperty('--peak', (0.5+Math.random()*0.5).toFixed(2));
+      d.style.left = (Math.random()*100).toFixed(1)+'%';
+      d.style.top = (Math.random()*100).toFixed(1)+'%';
+      sparkles.appendChild(d);
+    }
+  }
+  buildSparkles();
+
+  function pickVoice(){
+    var voices = speechSynthesis.getVoices ? speechSynthesis.getVoices() : [];
+    var fr = voices.filter(function(v){ return /fr/i.test(v.lang); });
+    var female = fr.filter(function(v){ return /female|amelie|audrey|marie|virginie|celine|julie/i.test(v.name); });
+    frenchVoice = female[0] || fr[0] || voices[0] || null;
+  }
+  if ('speechSynthesis' in window){
+    pickVoice();
+    speechSynthesis.onvoiceschanged = pickVoice;
+  }
+
+  function speak(text){
+    return new Promise(function(resolve){
+      if (!('speechSynthesis' in window)){ resolve(); return; }
+      try{
+        speechSynthesis.cancel();
+        var u = new SpeechSynthesisUtterance(text);
+        u.lang = 'fr-FR';
+        if (frenchVoice) u.voice = frenchVoice;
+        u.rate = 1.02;
+        u.pitch = 1.08;
+        var done = false;
+        var finish = function(){ if(!done){ done=true; resolve(); } };
+        u.onend = finish;
+        u.onerror = finish;
+        speechSynthesis.speak(u);
+        setTimeout(finish, Math.max(2600, text.length*90));
+      }catch(e){ resolve(); }
+    });
+  }
+
+  function wait(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+
+  function typeInto(el, text, speed){
+    return new Promise(function(resolve){
+      el.innerHTML = '';
+      var i = 0;
+      var cursor = document.createElement('span');
+      cursor.className = 'cursor';
+      function step(){
+        if (i <= text.length){
+          el.textContent = text.slice(0, i);
+          el.appendChild(cursor);
+          i++;
+          setTimeout(step, speed);
+        } else {
+          resolve();
+        }
+      }
+      step();
+    });
+  }
+
+  function swapShot(){
+    var showHero = !charHero.classList.contains('showing');
+    charHero.classList.toggle('showing', showHero);
+    charAvatar.classList.toggle('showing', !showHero);
+  }
+
+  function showBubble(text){
+    captions.textContent = text;
+    bubble.classList.add('on');
+    return typeInto(bubbleText, text, 22);
+  }
+  function hideBubble(){
+    bubble.classList.remove('on');
+  }
+
+  function fireBurst(){
+    burst.innerHTML = '';
+    var n = 18;
+    for (var i=0;i<n;i++){
+      var s = document.createElement('i');
+      var ang = Math.random()*Math.PI*2;
+      var dist = 70 + Math.random()*90;
+      s.style.setProperty('--dx', (Math.cos(ang)*dist).toFixed(0)+'px');
+      s.style.setProperty('--dy', (Math.sin(ang)*dist).toFixed(0)+'px');
+      s.style.setProperty('--rot', (Math.random()*360).toFixed(0)+'deg');
+      s.style.animationDelay = (Math.random()*0.15).toFixed(2)+'s';
+      burst.appendChild(s);
+    }
+    burst.classList.add('go');
+    setTimeout(function(){ burst.classList.remove('go'); }, 1100);
+  }
+
+  async function playSequence(){
+    runToken++;
+    var myToken = runToken;
+    running = true;
+    if ('speechSynthesis' in window){ try{ speechSynthesis.cancel(); }catch(e){} }
+
+    finale.classList.remove('on');
+    finaleActions.classList.remove('on');
+    finaleLogo.classList.remove('pop');
+    slogan.textContent = '';
+    rig.classList.remove('frozen');
+    rig.classList.remove('hide');
+    rig.classList.add('dancing');
+    charHero.classList.add('showing');
+    charAvatar.classList.remove('showing');
+    captions.textContent = '';
+    hideBubble();
+
+    await wait(500);
+    if (myToken !== runToken) return;
+
+    for (var i=0;i<LINES.length;i++){
+      swapShot();
+      var line = LINES[i];
+      var shown = showBubble(line);
+      var spoken = speak(line);
+      await shown;
+      if (myToken !== runToken) return;
+      await spoken;
+      if (myToken !== runToken) return;
+      hideBubble();
+      await wait(180);
+      if (myToken !== runToken) return;
+    }
+
+    captions.textContent = '';
+    rig.classList.remove('dancing');
+    rig.classList.add('frozen');
+    fireBurst();
+    await wait(350);
+    if (myToken !== runToken) return;
+
+    rig.classList.add('hide');
+    await wait(400);
+    if (myToken !== runToken) return;
+
+    finale.classList.add('on');
+    var sloganDone = typeInto(slogan, SLOGAN, 42);
+    var sloganSpoken = speak(SLOGAN);
+    await sloganDone;
+    if (myToken !== runToken) return;
+    finaleLogo.classList.add('pop');
+    await wait(200);
+    if (myToken !== runToken) return;
+    finaleActions.classList.add('on');
+    await sloganSpoken;
+
+    if (myToken === runToken) running = false;
+  }
+
+  btnStart.addEventListener('click', function(){
+    startOverlay.classList.add('hide');
+    soundTag.classList.add('on');
+    if (!('speechSynthesis' in window)){
+      soundTagText.textContent = 'Sous-titres (pas de voix ici)';
+    }
+    playSequence();
+  });
+
+  btnReplay.addEventListener('click', function(){
+    playSequence();
+  });
+
+  btnDiscover.addEventListener('click', function(){
+    window.open('https://star-entreprise.netlify.app', '_blank', 'noopener');
+  });
+})();
+</script>
+</body>
+</html>
