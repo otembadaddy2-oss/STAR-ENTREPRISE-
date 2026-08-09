@@ -363,6 +363,22 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
 .gm-dots{display:flex; gap:8px;}
 .gm-dot{width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.32); transition:background .25s, transform .25s; cursor:pointer;}
 .gm-dot.active{background:var(--gold-pale); transform:scale(1.35);}
+
+/* ---- Ambiance diaporama ---- */
+.diapo-section{padding:20px 0 96px;}
+.diapo{position:relative; max-width:1180px; margin:44px auto 0; height:620px; border-radius:22px; overflow:hidden; box-shadow:0 30px 70px -25px rgba(35,31,26,.35); background:var(--ink);}
+.diapo-track{position:absolute; inset:0;}
+.diapo-slide{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transform:scale(1.08); transition:opacity 1.5s ease;}
+.diapo-slide.active{opacity:1; animation:diapoKen 7s ease-out forwards;}
+@keyframes diapoKen{from{transform:scale(1.08);} to{transform:scale(1);}}
+.diapo-caption{position:absolute; left:0; right:0; bottom:0; padding:38px 44px 26px; background:linear-gradient(to top, rgba(20,17,13,.75), rgba(20,17,13,0) 88%); color:#fff; font-family:var(--serif); font-size:22px; letter-spacing:.01em; pointer-events:none;}
+.diapo-dots{position:absolute; right:26px; bottom:26px; display:flex; gap:7px; z-index:2;}
+.diapo-dot{width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.45); cursor:pointer; transition:all .3s;}
+.diapo-dot.active{background:var(--gold); width:22px; border-radius:4px;}
+@media (max-width:720px){
+  .diapo{height:420px; border-radius:14px;}
+  .diapo-caption{font-size:16.5px; padding:22px 20px 18px;}
+}
 </style>
 </head>
 <body>
@@ -453,6 +469,21 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
       </div>
     </div>
     <p class="svc-quote reveal">« Chaque événement raconte une histoire… Faites en sorte que la vôtre soit inoubliable. »</p>
+  </div>
+</section>
+
+<section id="ambiance" class="diapo-section">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Ambiance &amp; décoration</span>
+      <h2>L'art de <span class="gold-text">sublimer</span> un lieu</h2>
+      <p>Salles transformées, arches fleuries, tables d'exception — un aperçu de nos réalisations récentes à Brazzaville.</p>
+    </div>
+  </div>
+  <div class="diapo reveal" id="diapo">
+    <div class="diapo-track" id="diapoTrack"></div>
+    <div class="diapo-caption" id="diapoCaption"></div>
+    <div class="diapo-dots" id="diapoDots"></div>
   </div>
 </section>
 
@@ -706,6 +737,51 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
     gmStopAuto();
     clearTimeout(gmResumeTimer);
   }
+
+  // ---- Ambiance diaporama ----
+  var AMBIANCE = [
+    { src:'assets/img/gallery/stage-arch-gold.jpg', caption:'Arche fleurie & salon doré, cérémonie' },
+    { src:'assets/img/gallery/ballroom-green-1.jpg', caption:'Grande salle, rideaux émeraude et chaises cristal' },
+    { src:'assets/img/gallery/ballroom-lights.jpg', caption:'Plafond lumineux & tables cocktail' },
+    { src:'assets/img/gallery/entrance-hall-candles.jpg', caption:"Allée d'honneur, bougies et compositions" },
+    { src:'assets/img/gallery/reception-crystal-chairs.jpg', caption:'Réception, chaises cristal et verdure' },
+    { src:'assets/img/gallery/wall-florals-aisle.jpg', caption:"Mur floral & tapis d'entrée" },
+    { src:'assets/img/gallery/centerpiece-lily.jpg', caption:'Composition lys blancs & bougies' },
+    { src:'assets/img/gallery/centerpiece-roses.jpg', caption:'Centre de table, roses ivoire' },
+    { src:'assets/img/gallery/stage-chandelier-arch.jpg', caption:'Double arche florale & lustre suspendu' }
+  ];
+  var diapoTrack = document.getElementById('diapoTrack');
+  var diapoCaption = document.getElementById('diapoCaption');
+  var diapoDots = document.getElementById('diapoDots');
+  var diapoEls = AMBIANCE.map(function(a, i){
+    var img = document.createElement('img');
+    img.className = 'diapo-slide';
+    img.src = a.src; img.alt = a.caption; img.loading = i === 0 ? 'eager' : 'lazy';
+    diapoTrack.appendChild(img);
+    var dot = document.createElement('span');
+    dot.className = 'diapo-dot';
+    dot.addEventListener('click', function(){ diapoGoTo(i); diapoPauseThenResume(); });
+    diapoDots.appendChild(dot);
+    return img;
+  });
+  var diapoIndex = 0, diapoTimer = null, diapoResumeTimer = null;
+  function diapoGoTo(i){
+    diapoEls.forEach(function(el, idx){ el.classList.toggle('active', idx === i); });
+    Array.prototype.forEach.call(diapoDots.children, function(d, idx){ d.classList.toggle('active', idx === i); });
+    diapoCaption.textContent = AMBIANCE[i].caption;
+    diapoIndex = i;
+  }
+  function diapoNext(){ diapoGoTo((diapoIndex + 1) % AMBIANCE.length); }
+  function diapoStart(){ clearInterval(diapoTimer); diapoTimer = setInterval(diapoNext, 4200); }
+  function diapoStop(){ clearInterval(diapoTimer); }
+  function diapoPauseThenResume(){ diapoStop(); clearTimeout(diapoResumeTimer); diapoResumeTimer = setTimeout(diapoStart, 3000); }
+  diapoGoTo(0);
+  diapoStart();
+  var diapoEl = document.getElementById('diapo');
+  diapoEl.addEventListener('pointerdown', diapoStop);
+  diapoEl.addEventListener('pointerup', diapoPauseThenResume);
+  diapoEl.addEventListener('touchstart', diapoStop, { passive:true });
+  diapoEl.addEventListener('touchend', diapoPauseThenResume, { passive:true });
 
   document.querySelectorAll('.svc-card').forEach(function(card){
     card.addEventListener('click', function(){
