@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 :root{
   --navy:#132248; --navy-deep:#0B1730; --gold:#C79A45; --gold-deep:#8C6A22;
@@ -215,12 +216,16 @@ body{
   };
 
   var STORE_KEY = 'drepano_bulle_identity';
-  var MSG_KEY = 'drepano_bulle_messages';
+
+  var SUPABASE_URL = 'https://jzrtiadzhwwdokskimpe.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_6u3qL18t8L5A0jsKfGb8DA_ogsMT9XW';
+  var sb = null;
+  try {
+    if (window.supabase) sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  } catch(e){ sb = null; }
 
   function loadIdentity(){ try { return JSON.parse(localStorage.getItem(STORE_KEY)); } catch(e){ return null; } }
   function saveIdentity(id){ localStorage.setItem(STORE_KEY, JSON.stringify(id)); }
-  function loadMessages(){ try { return JSON.parse(localStorage.getItem(MSG_KEY)) || []; } catch(e){ return []; } }
-  function saveMessages(list){ localStorage.setItem(MSG_KEY, JSON.stringify(list)); }
 
   function initials(prenom, nom){
     return ((prenom||'').charAt(0) + (nom||'').charAt(0)).toUpperCase() || '?';
@@ -251,7 +256,8 @@ body{
   function enterChat(id){
     identity = id;
     joinOverlay.classList.add('hide');
-    renderAll();
+    loadHistory();
+    subscribeRealtime();
   }
 
   joinBtn.addEventListener('click', function(){
@@ -281,20 +287,56 @@ body{
   var chatEmpty = document.getElementById('chatEmpty');
   var msgCount = document.getElementById('msgCount');
 
+  var msgTotal = 0;
+
   function fmtTime(ts){
     var d = new Date(ts);
     return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
   }
 
-  function renderAll(){
-    var msgs = loadMessages();
-    msgCount.textContent = msgs.length + (msgs.length > 1 ? ' messages' : ' message');
-    var nodes = chatWrap.querySelectorAll('.msg');
-    nodes.forEach(function(n){ n.remove(); });
-    if (!msgs.length){ chatEmpty.style.display = 'block'; return; }
-    chatEmpty.style.display = 'none';
-    msgs.forEach(appendMsgNode);
-    window.scrollTo(0, document.body.scrollHeight);
+  function bumpCount(n){
+    msgTotal += n;
+    msgCount.textContent = msgTotal + (msgTotal > 1 ? ' messages' : ' message');
+  }
+
+  function loadHistory(){
+    if (!sb){ chatEmpty.textContent = "Connexion impossible — vérifie ta connexion internet et recharge la page."; return; }
+    chatEmpty.textContent = 'Chargement des messages…';
+    sb.from('drepano_messages').select('*').order('created_at', { ascending:true })
+      .then(function(res){
+        if (res.error){
+          chatEmpty.textContent = "Connexion impossible — vérifie ta connexion internet.";
+          return;
+        }
+        var rows = res.data || [];
+        if (!rows.length){
+          chatEmpty.textContent = "💬 Personne n'a encore écrit ici — sois le premier à dire bonjour !";
+          return;
+        }
+        chatEmpty.style.display = 'none';
+        rows.forEach(function(row){ appendMsgNode(rowToMsg(row)); });
+        bumpCount(rows.length);
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+  }
+
+  function subscribeRealtime(){
+    if (!sb) return;
+    sb.channel('drepano-room')
+      .on('postgres_changes', { event:'INSERT', schema:'public', table:'drepano_messages' }, function(payload){
+        chatEmpty.style.display = 'none';
+        appendMsgNode(rowToMsg(payload.new));
+        bumpCount(1);
+        window.scrollTo(0, document.body.scrollHeight);
+      })
+      .subscribe();
+  }
+
+  function rowToMsg(row){
+    return {
+      userId: row.user_id, prenom: row.prenom, nom: row.nom, statut: row.statut,
+      type: row.type, text: row.body, audio: row.audio_url, ts: new Date(row.created_at).getTime()
+    };
   }
 
   function appendMsgNode(m){
@@ -369,18 +411,9 @@ body{
     chatWrap.appendChild(wrap);
   }
 
-  function pushMessage(partial){
-    if (!identity) return;
-    var msgs = loadMessages();
-    var m = Object.assign({
-      userId: identity.id, prenom: identity.prenom, nom: identity.nom, statut: identity.statut, ts: Date.now()
-    }, partial);
-    msgs.push(m);
-    saveMessages(msgs);
-    chatEmpty.style.display = 'none';
-    appendMsgNode(m);
-    msgCount.textContent = msgs.length + (msgs.length > 1 ? ' messages' : ' message');
-    window.scrollTo(0, document.body.scrollHeight);
+  function insertMessage(row){
+    if (!sb) return Promise.resolve({ error:true });
+    return sb.from('drepano_messages').insert(row);
   }
 
   // ---------- text composer ----------
@@ -390,9 +423,14 @@ body{
   function sendText(){
     var val = textInput.value.trim();
     if (!val || !identity) return;
-    pushMessage({ type:'text', text: val });
     textInput.value = '';
     sendBtn.disabled = true;
+    insertMessage({
+      user_id: identity.id, prenom: identity.prenom, nom: identity.nom, statut: identity.statut,
+      type:'text', body: val
+    }).then(function(res){
+      if (res.error){ alert("Message non envoyé — vérifie ta connexion internet."); }
+    });
   }
   sendBtn.addEventListener('click', sendText);
   textInput.addEventListener('keydown', function(e){ if (e.key === 'Enter') sendText(); });
@@ -424,12 +462,18 @@ body{
       mediaRecorder = new MediaRecorder(stream);
       mediaRecorder.ondataavailable = function(e){ if (e.data.size > 0) recChunks.push(e.data); };
       mediaRecorder.onstop = function(){
+        if (!sb){ alert("Connexion impossible — vérifie ta connexion internet."); recStream.getTracks().forEach(function(t){ t.stop(); }); return; }
         var blob = new Blob(recChunks, { type:'audio/webm' });
-        var reader = new FileReader();
-        reader.onload = function(){
-          pushMessage({ type:'voice', audio: reader.result });
-        };
-        reader.readAsDataURL(blob);
+        var path = identity.id + '/' + Date.now() + '.webm';
+        sb.storage.from('drepano-voice').upload(path, blob, { contentType:'audio/webm' })
+          .then(function(up){
+            if (up.error){ alert("Message vocal non envoyé — vérifie ta connexion internet."); return; }
+            var publicUrl = sb.storage.from('drepano-voice').getPublicUrl(path).data.publicUrl;
+            return insertMessage({
+              user_id: identity.id, prenom: identity.prenom, nom: identity.nom, statut: identity.statut,
+              type:'voice', audio_url: publicUrl
+            });
+          });
         recStream.getTracks().forEach(function(t){ t.stop(); });
       };
       mediaRecorder.start();
