@@ -92,7 +92,10 @@ body{
 .bubble{border-radius:18px; padding:12px 15px; font-size:14px; line-height:1.5; position:relative;}
 .msg:not(.me) .bubble{border-bottom-left-radius:5px;}
 .msg.me .bubble{border-bottom-right-radius:5px; background:linear-gradient(135deg, rgba(199,154,69,.35), rgba(199,154,69,.18));}
-.bubble time{display:block; font-size:9.5px; color:#B9C1D6; margin-top:5px; text-align:right;}
+.bubble time{display:block; font-size:9.5px; color:#B9C1D6;}
+.bubble-foot{display:flex; align-items:center; justify-content:flex-end; gap:8px; margin-top:5px;}
+.msg-delete{width:20px; height:20px; border-radius:50%; border:0; background:rgba(255,255,255,.14); color:#D8DEEC; display:flex; align-items:center; justify-content:center; cursor:pointer; flex:none;}
+.msg-delete:hover{background:rgba(179,32,44,.4); color:#fff;}
 .voice-row{display:flex; align-items:center; gap:10px;}
 .voice-play{width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,.2); border:0; color:#fff; flex:none; display:flex; align-items:center; justify-content:center; cursor:pointer;}
 .voice-wave{flex:1; height:22px; display:flex; align-items:center; gap:2px;}
@@ -329,21 +332,43 @@ body{
         bumpCount(1);
         window.scrollTo(0, document.body.scrollHeight);
       })
+      .on('postgres_changes', { event:'DELETE', schema:'public', table:'drepano_messages' }, function(payload){
+        removeMsgNode(payload.old.id);
+      })
       .subscribe();
   }
 
+  var MODERATOR_STATUTS = ['admin-a','admin-b','ministre'];
+
   function rowToMsg(row){
     return {
-      userId: row.user_id, prenom: row.prenom, nom: row.nom, statut: row.statut,
+      id: row.id, userId: row.user_id, prenom: row.prenom, nom: row.nom, statut: row.statut,
       type: row.type, text: row.body, audio: row.audio_url, ts: new Date(row.created_at).getTime()
     };
+  }
+
+  function removeMsgNode(id){
+    var el = chatWrap.querySelector('[data-id="' + id + '"]');
+    if (el) el.remove();
+    if (msgTotal > 0) bumpCount(-1);
+    if (!chatWrap.querySelector('.msg')) chatEmpty.style.display = 'block';
+  }
+
+  function deleteMessage(id){
+    if (!sb || !confirm('Supprimer ce message ?')) return;
+    sb.from('drepano_messages').delete().eq('id', id).then(function(res){
+      if (res.error){ alert('Suppression impossible — vérifie ta connexion internet.'); return; }
+      removeMsgNode(id);
+    });
   }
 
   function appendMsgNode(m){
     var meta = STATUS_META[m.statut] || { label:m.statut, color:'#8B8577' };
     var isMe = identity && m.userId === identity.id;
+    var canDelete = isMe || (identity && MODERATOR_STATUTS.indexOf(identity.statut) !== -1);
     var wrap = document.createElement('div');
     wrap.className = 'msg' + (isMe ? ' me' : '');
+    wrap.dataset.id = m.id;
 
     var av = document.createElement('div');
     av.className = 'avatar';
@@ -402,9 +427,21 @@ body{
       bubble.appendChild(txt);
     }
 
+    var footRow = document.createElement('div');
+    footRow.className = 'bubble-foot';
+    if (canDelete){
+      var delBtn = document.createElement('button');
+      delBtn.className = 'msg-delete';
+      delBtn.type = 'button';
+      delBtn.setAttribute('aria-label', 'Supprimer');
+      delBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M9 3a1 1 0 00-1 1v1H4v2h16V5h-4V4a1 1 0 00-1-1H9zM6 8l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12H6z"/></svg>';
+      delBtn.addEventListener('click', function(){ deleteMessage(m.id); });
+      footRow.appendChild(delBtn);
+    }
     var time = document.createElement('time');
     time.textContent = fmtTime(m.ts);
-    bubble.appendChild(time);
+    footRow.appendChild(time);
+    bubble.appendChild(footRow);
 
     body.appendChild(bubble);
     wrap.appendChild(body);
