@@ -81,7 +81,9 @@ body{
 /* ---- chat ---- */
 .chat-wrap{max-width:640px; margin:0 auto; padding:14px 12px 130px; position:relative; z-index:1;}
 .chat-empty{text-align:center; padding:60px 20px; color:#D8DEEC; font-size:13.5px;}
-.msg{display:flex; gap:10px; margin-bottom:16px; align-items:flex-end;}
+.msg{display:flex; gap:10px; margin-bottom:16px; align-items:flex-end; animation:msgIn .35s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes msgIn{from{opacity:0; transform:translateY(10px) scale(.96);} to{opacity:1; transform:translateY(0) scale(1);}}
+@media (prefers-reduced-motion:reduce){.msg{animation:none;}}
 .msg.me{flex-direction:row-reverse;}
 .avatar{width:38px; height:38px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center;
   font-family:var(--serif); font-weight:700; font-size:14px; color:#fff; box-shadow:0 4px 10px rgba(0,0,0,.25);}
@@ -89,9 +91,12 @@ body{
 .msg-meta{display:flex; align-items:center; gap:7px; margin-bottom:5px; font-size:11px; color:#C7CEE1;}
 .msg.me .msg-meta{flex-direction:row-reverse;}
 .badge{font-size:9.5px; font-weight:800; letter-spacing:.03em; padding:2.5px 8px; border-radius:100px; text-transform:uppercase; color:#241A05;}
-.bubble{border-radius:18px; padding:12px 15px; font-size:14px; line-height:1.5; position:relative;}
+.bubble{border-radius:18px; padding:12px 15px; font-size:14px; line-height:1.5; position:relative;
+  background-size:220% 220%; animation:bubbleShift 7s ease-in-out infinite;}
+@keyframes bubbleShift{0%,100%{background-position:0% 50%;} 50%{background-position:100% 50%;}}
+@media (prefers-reduced-motion:reduce){.bubble{animation:none;}}
 .msg:not(.me) .bubble{border-bottom-left-radius:5px;}
-.msg.me .bubble{border-bottom-right-radius:5px; background:linear-gradient(135deg, rgba(199,154,69,.35), rgba(199,154,69,.18));}
+.msg.me .bubble{border-bottom-right-radius:5px; background:linear-gradient(120deg, rgba(199,154,69,.4), rgba(199,154,69,.2), rgba(199,154,69,.4));}
 .bubble time{display:block; font-size:9.5px; color:#B9C1D6;}
 .bubble-foot{display:flex; align-items:center; justify-content:flex-end; gap:8px; margin-top:5px;}
 .msg-delete{width:20px; height:20px; border-radius:50%; border:0; background:rgba(255,255,255,.14); color:#D8DEEC; display:flex; align-items:center; justify-content:center; cursor:pointer; flex:none;}
@@ -374,6 +379,12 @@ body{
     window.open('https://wa.me/242066565050?text=' + encodeURIComponent(text), '_blank');
   }
 
+  function hexToRgba(hex, alpha){
+    var h = hex.replace('#','');
+    var r = parseInt(h.substring(0,2),16), g = parseInt(h.substring(2,4),16), b = parseInt(h.substring(4,6),16);
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+  }
+
   function appendMsgNode(m){
     var meta = STATUS_META[m.statut] || { label:m.statut, color:'#8B8577' };
     var isMe = identity && m.userId === identity.id;
@@ -405,6 +416,9 @@ body{
 
     var bubble = document.createElement('div');
     bubble.className = 'bubble glass';
+    if (!isMe){
+      bubble.style.background = 'linear-gradient(120deg, ' + hexToRgba(meta.color,.22) + ', ' + hexToRgba(meta.color,.07) + ', ' + hexToRgba(meta.color,.22) + ')';
+    }
 
     if (m.type === 'voice'){
       var vr = document.createElement('div');
