@@ -191,31 +191,38 @@ section{padding:110px 0;}
 
 /* ============================================================ PORTFOLIO */
 .folio{background:var(--ivory);}
-.folio-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:22px;}
-@media (max-width:900px){ .folio-grid{grid-template-columns:repeat(2,1fr);} }
-@media (max-width:560px){ .folio-grid{grid-template-columns:1fr;} }
-.folio-card{
-  position:relative; border-radius:16px; overflow:hidden; aspect-ratio:4/5;
+.cat-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:26px;}
+@media (max-width:640px){ .cat-grid{grid-template-columns:1fr;} }
+.cat-card{
+  position:relative; border-radius:18px; overflow:hidden; aspect-ratio:4/3;
   border:1px solid var(--line); cursor:pointer;
-  display:flex; align-items:flex-end; padding:0;
-  background:var(--gold-pale);
+  display:flex; align-items:flex-end; background:var(--gold-pale);
+  transition:transform .4s cubic-bezier(.2,.7,.2,1), box-shadow .4s ease;
 }
-.folio-card img{
+.cat-card:hover{transform:translateY(-4px); box-shadow:0 22px 44px -22px rgba(20,14,8,.4);}
+.cat-card img{
   position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
-  transition:transform .5s cubic-bezier(.2,.7,.2,1);
+  transition:transform .6s cubic-bezier(.2,.7,.2,1);
 }
-.folio-card:hover img{transform:scale(1.06);}
-.folio-card::after{
+.cat-card:hover img{transform:scale(1.07);}
+.cat-card::after{
   content:""; position:absolute; inset:0;
-  background:linear-gradient(180deg, transparent 55%, rgba(20,14,8,.72) 100%);
+  background:linear-gradient(180deg, transparent 40%, rgba(20,14,8,.78) 100%);
 }
-.folio-card::before{
-  content:""; position:absolute; inset:12px; border:1px solid rgba(255,255,255,.55); border-radius:10px; pointer-events:none; z-index:2;
+.cat-card::before{
+  content:""; position:absolute; inset:14px; border:1px solid rgba(255,255,255,.5); border-radius:12px; pointer-events:none; z-index:2;
 }
-.folio-tag{
-  position:relative; z-index:2; font-family:var(--serif); font-style:italic; font-size:15.5px; color:#fff;
-  padding:18px 20px;
+.cat-card-body{position:relative; z-index:2; padding:20px 22px;}
+.cat-card-body h3{font-family:var(--serif); font-style:italic; font-size:19px; color:#fff; margin:0 0 6px;}
+.cat-card-tag{display:inline-block; font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--gold-pale); opacity:.9;}
+.cat-card-placeholder{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-size:40px; background:linear-gradient(150deg, var(--gold-pale), var(--ivory));
 }
+.cat-card.coming-soon{cursor:default;}
+.cat-card.coming-soon:hover{transform:none; box-shadow:none;}
+.cat-card.coming-soon:hover img{transform:none;}
+.cat-card.coming-soon .cat-card-tag{color:#fff;}
 
 /* ============================================================ ABOUT */
 .about{display:grid; grid-template-columns:1.1fr .9fr; gap:70px; align-items:center;}
@@ -358,6 +365,34 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
 .gm-slide.leaving{
   clip-path:circle(0% at 50% 50%); opacity:1; z-index:1;
   transition:clip-path .95s cubic-bezier(.16,.8,.2,1), opacity .1s linear .85s;
+}
+/* style — glissement (mariage coutumier) */
+.gm-circle.style-slide .gm-slide{
+  clip-path:none; transform:translateX(105%); opacity:0; z-index:0;
+  transition:transform .7s cubic-bezier(.4,0,.2,1), opacity .3s ease;
+}
+.gm-circle.style-slide .gm-slide.active{
+  transform:translateX(0); opacity:1; z-index:2;
+}
+.gm-circle.style-slide .gm-slide.leaving{
+  transform:translateX(-105%); opacity:1; z-index:1;
+}
+/* style — zoom panoramique (décoration mariage) */
+.gm-circle.style-kenburns .gm-slide{
+  clip-path:none; opacity:0; z-index:0; transform:scale(1);
+  transition:opacity .9s ease;
+}
+.gm-circle.style-kenburns .gm-slide.active{
+  opacity:1; z-index:2; animation:kenburnsZoom 5.2s ease-out forwards;
+}
+.gm-circle.style-kenburns .gm-slide.leaving{
+  opacity:0; z-index:1; transition:opacity .9s ease;
+}
+@keyframes kenburnsZoom{ from{ transform:scale(1); } to{ transform:scale(1.16); } }
+@media (prefers-reduced-motion:reduce){
+  .gm-circle.style-slide .gm-slide,
+  .gm-circle.style-kenburns .gm-slide{ transition:opacity .3s ease; }
+  .gm-circle.style-kenburns .gm-slide.active{ animation:none; }
 }
 .gm-caption{color:rgba(255,255,255,.85); font-size:13.5px; text-align:center; min-height:1.4em; margin:0;}
 .gm-dots{display:flex; gap:8px;}
@@ -537,7 +572,7 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
       <h2>Des <span class="gold-text">instants</span> sublimés</h2>
       <p>Un aperçu de notre univers — la boutique, les tenues et les accessoires qui subliment chaque célébration.</p>
     </div>
-    <div class="folio-grid" id="folioGrid"></div>
+    <div class="cat-grid" id="catGrid"></div>
   </div>
 </section>
 
@@ -699,18 +734,43 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
     'eventail': { src:'assets/img/gallery/eventail.jpg', caption:"Éventail de cérémonie, plumes et dorure" },
     'chaussures': { src:'assets/img/gallery/chaussures.jpg', caption:'Chaussures et accessoires assortis' },
     'verres-honneur': { src:'assets/img/gallery/verres-honneur.jpg', caption:"Le rituel du verre d'honneur" },
-    'vibrant-kiss': { src:'assets/img/gallery/vibrant-kiss.jpg', caption:'Une attention signée Pili-Pili' }
+    'vibrant-kiss': { src:'assets/img/gallery/vibrant-kiss.jpg', caption:'Une attention signée Pili-Pili' },
+    'stage-arch-gold': { src:'assets/img/gallery/stage-arch-gold.jpg', caption:'Arche fleurie & salon doré, cérémonie' },
+    'ballroom-green-1': { src:'assets/img/gallery/ballroom-green-1.jpg', caption:'Grande salle, rideaux émeraude et chaises cristal' },
+    'ballroom-lights': { src:'assets/img/gallery/ballroom-lights.jpg', caption:'Plafond lumineux & tables cocktail' },
+    'entrance-hall-candles': { src:'assets/img/gallery/entrance-hall-candles.jpg', caption:"Allée d'honneur, bougies et compositions" },
+    'reception-crystal-chairs': { src:'assets/img/gallery/reception-crystal-chairs.jpg', caption:'Réception, chaises cristal et verdure' },
+    'wall-florals-aisle': { src:'assets/img/gallery/wall-florals-aisle.jpg', caption:"Mur floral & tapis d'entrée" },
+    'centerpiece-lily': { src:'assets/img/gallery/centerpiece-lily.jpg', caption:'Composition lys blancs & bougies' },
+    'centerpiece-roses': { src:'assets/img/gallery/centerpiece-roses.jpg', caption:'Centre de table, roses ivoire' },
+    'stage-chandelier-arch': { src:'assets/img/gallery/stage-chandelier-arch.jpg', caption:'Double arche florale & lustre suspendu' }
   };
   var ALL_KEYS = Object.keys(GALLERY);
 
-  var folioGrid = document.getElementById('folioGrid');
-  ALL_KEYS.forEach(function(k, i){
+  var CATEGORIES = [
+    { key:'traditionnel', title:'Mariage traditionnel', tag:'Style — fondu enchaîné', style:'fade',
+      keys:['tenue-traditionnelle','robes','vibrant-kiss','boutique-1'] },
+    { key:'coutumier', title:'Mariage coutumier', tag:'Style — glissement', style:'slide',
+      keys:['coffre-dot','eventail','chaussures','verres-honneur'] },
+    { key:'decoration', title:'Décoration mariage', tag:'Style — zoom panoramique', style:'kenburns',
+      keys:['stage-arch-gold','ballroom-green-1','ballroom-lights','entrance-hall-candles','reception-crystal-chairs','wall-florals-aisle','centerpiece-lily','centerpiece-roses','stage-chandelier-arch'] },
+    { key:'anniversaire', title:'Anniversaire & célébration', tag:'Bientôt disponible', style:'slide',
+      keys:[], comingSoon:true }
+  ];
+
+  var catGrid = document.getElementById('catGrid');
+  CATEGORIES.forEach(function(cat){
     var card = document.createElement('div');
-    card.className = 'folio-card reveal';
-    card.innerHTML = '<img src="' + GALLERY[k].src + '" alt="' + GALLERY[k].caption + '" loading="lazy">' +
-      '<span class="folio-tag">' + GALLERY[k].caption + '</span>';
-    card.addEventListener('click', function(){ openGallery('Nos réalisations', ALL_KEYS, i); });
-    folioGrid.appendChild(card);
+    card.className = 'cat-card reveal' + (cat.comingSoon ? ' coming-soon' : '');
+    var coverKey = cat.keys[0];
+    var coverSrc = coverKey ? GALLERY[coverKey].src : null;
+    card.innerHTML =
+      (coverSrc ? '<img src="' + coverSrc + '" alt="' + cat.title + '" loading="lazy">' : '<div class="cat-card-placeholder">✨</div>') +
+      '<div class="cat-card-body"><h3>' + cat.title + '</h3><span class="cat-card-tag">' + cat.tag + '</span></div>';
+    if (!cat.comingSoon){
+      card.addEventListener('click', function(){ openGallery(cat.title, cat.keys, 0, cat.style); });
+    }
+    catGrid.appendChild(card);
   });
 
   var gmModal = document.getElementById('galleryModal');
@@ -766,8 +826,9 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
     gmResumeTimer = setTimeout(gmStartAuto, 2600);
   }
 
-  function openGallery(title, keys, startAt){
+  function openGallery(title, keys, startAt, style){
     gmTitle.textContent = title;
+    gmCircle.className = 'gm-circle style-' + (style || 'fade');
     gmBuild(keys && keys.length ? keys : ALL_KEYS);
     gmGoTo(startAt || 0);
     gmModal.classList.add('open');
@@ -845,10 +906,12 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
 
   gmClose.addEventListener('click', closeGallery);
   gmScrim.addEventListener('click', closeGallery);
+  function gmResumeNow(){ clearTimeout(gmResumeTimer); gmStartAuto(); }
   gmCircle.addEventListener('pointerdown', gmStopAuto);
-  gmCircle.addEventListener('pointerup', gmPauseThenResume);
+  gmCircle.addEventListener('pointerup', gmResumeNow);
+  gmCircle.addEventListener('pointercancel', gmResumeNow);
   gmCircle.addEventListener('touchstart', gmStopAuto, { passive:true });
-  gmCircle.addEventListener('touchend', gmPauseThenResume, { passive:true });
+  gmCircle.addEventListener('touchend', gmResumeNow, { passive:true });
   document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeGallery(); });
 
   var io = new IntersectionObserver(function(entries){

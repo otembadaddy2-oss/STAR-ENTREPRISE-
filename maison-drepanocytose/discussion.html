@@ -287,17 +287,17 @@ body{
     enterChat(id);
   });
 
-  var existing = loadIdentity();
-  if (existing && existing.prenom){
-    enterChat(existing);
-  }
-
   // ---------- rendering ----------
   var chatWrap = document.getElementById('chatWrap');
   var chatEmpty = document.getElementById('chatEmpty');
   var msgCount = document.getElementById('msgCount');
 
   var msgTotal = 0;
+
+  var existing = loadIdentity();
+  if (existing && existing.prenom){
+    enterChat(existing);
+  }
 
   function fmtTime(ts){
     var d = new Date(ts);

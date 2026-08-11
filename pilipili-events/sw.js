@@ -1,5 +1,5 @@
 // Pili-Pili Events — Service Worker (installation & usage hors-ligne)
-const CACHE = "pilipili-events-v5";
+const CACHE = "pilipili-events-v6";
 const CORE_ASSETS = [
   "./",
   "index.html",

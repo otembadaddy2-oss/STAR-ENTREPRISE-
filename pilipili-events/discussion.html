@@ -100,6 +100,7 @@ body{
 @media (prefers-reduced-motion:reduce){.bubble{animation:none;}}
 .msg:not(.me) .bubble{border-bottom-left-radius:5px; background:linear-gradient(120deg, rgba(140,106,52,.16), rgba(140,106,52,.05), rgba(140,106,52,.16));}
 .msg.role-admin:not(.me) .bubble{background:linear-gradient(120deg, rgba(140,106,52,.26), rgba(140,106,52,.09), rgba(140,106,52,.26));}
+.msg.role-designer:not(.me) .bubble{background:linear-gradient(120deg, rgba(91,110,225,.22), rgba(91,110,225,.07), rgba(91,110,225,.22));}
 .msg.me .bubble{border-bottom-right-radius:5px; background:linear-gradient(120deg, rgba(217,79,61,.26), rgba(217,79,61,.1), rgba(217,79,61,.26));}
 .bubble time{display:block; font-size:9.5px; color:var(--ink-faint);}
 .bubble-foot{display:flex; align-items:center; justify-content:flex-end; gap:8px; margin-top:5px;}
@@ -193,10 +194,10 @@ body{
       <input type="tel" id="fTel" placeholder="+242 ...">
     </div>
 
-    <button class="admin-toggle" id="adminToggle" type="button">🔑 Je suis Pili-Pili Events</button>
+    <button class="admin-toggle" id="adminToggle" type="button">🔑 J'ai un code administrateur</button>
     <div class="admin-box" id="adminBox">
       <div class="field">
-        <label>Code administratrice</label>
+        <label>Code administrateur</label>
         <input type="password" id="fPass" placeholder="Code">
       </div>
     </div>
@@ -211,11 +212,14 @@ body{
   "use strict";
 
   var ADMIN_CODE = 'pilipili2026';
+  var DESIGNER_CODE = 'starentreprise2026';
 
   var ROLE_META = {
-    'client': { label:'Client', color:'#D94F3D' },
-    'admin':  { label:'Pili-Pili Events', color:'#8C6A34' }
+    'client':   { label:'Client', color:'#D94F3D' },
+    'admin':    { label:'Pili-Pili Events · Administratrice principale', color:'#8C6A34' },
+    'designer': { label:'STAR ENTREPRISE · Administrateur concepteur', color:'#5B6EE1' }
   };
+  var MODERATOR_ROLES = ['admin', 'designer'];
 
   var STORE_KEY = 'pilipili_discussion_identity';
 
@@ -274,11 +278,14 @@ body{
     }
     var role = 'client';
     if (adminBox.classList.contains('show')){
-      if (fPass.value !== ADMIN_CODE){
-        joinError.textContent = 'Code administratrice incorrect.';
+      if (fPass.value === ADMIN_CODE){
+        role = 'admin';
+      } else if (fPass.value === DESIGNER_CODE){
+        role = 'designer';
+      } else {
+        joinError.textContent = 'Code administrateur incorrect.';
         return;
       }
-      role = 'admin';
     }
     var id = {
       prenom: fPrenom.value.trim(),
@@ -291,16 +298,16 @@ body{
     enterChat(id);
   });
 
-  var existing = loadIdentity();
-  if (existing && existing.prenom){
-    enterChat(existing);
-  }
-
   // ---------- rendering ----------
   var chatWrap = document.getElementById('chatWrap');
   var chatEmpty = document.getElementById('chatEmpty');
   var msgCount = document.getElementById('msgCount');
   var msgTotal = 0;
+
+  var existing = loadIdentity();
+  if (existing && existing.prenom){
+    enterChat(existing);
+  }
 
   function fmtTime(ts){
     var d = new Date(ts);
@@ -370,8 +377,9 @@ body{
     });
   }
 
+  var ROLE_SHORT_NAME = { 'admin':'Pili-Pili Events', 'designer':'STAR ENTREPRISE' };
   function reportMessage(m){
-    var senderName = m.role === 'admin' ? 'Pili-Pili Events' : ((m.prenom||'') + ' ' + (m.nom||''));
+    var senderName = ROLE_SHORT_NAME[m.role] || ((m.prenom||'') + ' ' + (m.nom||''));
     var reason = prompt('Pourquoi signales-tu ce message ?');
     if (reason === null) return;
     var snippet = m.type === 'voice' ? '[message vocal]' : (m.text || '').slice(0, 200);
@@ -383,7 +391,7 @@ body{
   function appendMsgNode(m){
     var meta = ROLE_META[m.role] || { label:m.role, color:'#8D877A' };
     var isMe = identity && m.userId === identity.id;
-    var canDelete = isMe || (identity && identity.role === 'admin');
+    var canDelete = isMe || (identity && MODERATOR_ROLES.indexOf(identity.role) !== -1);
     var wrap = document.createElement('div');
     wrap.className = 'msg role-' + m.role + (isMe ? ' me' : '');
     wrap.dataset.id = m.id;
@@ -404,7 +412,7 @@ body{
     badge.style.background = meta.color;
     badge.textContent = meta.label;
     var nameSpan = document.createElement('span');
-    nameSpan.textContent = m.role === 'admin' ? 'Pili-Pili Events' : (m.prenom + ' ' + m.nom);
+    nameSpan.textContent = ROLE_SHORT_NAME[m.role] || (m.prenom + ' ' + m.nom);
     metaRow.appendChild(nameSpan);
     metaRow.appendChild(badge);
     body.appendChild(metaRow);
