@@ -125,8 +125,20 @@ section > .wrap{position:relative; z-index:1;}
 .pillar h3{font-size:17px; margin-bottom:8px;}
 .pillar p{font-size:13.6px; color:var(--ink-soft); line-height:1.6;}
 
+/* ---- joy gallery ---- */
+.joy-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:40px;}
+@media (max-width:900px){.joy-grid{grid-template-columns:1fr 1fr;}}
+@media (max-width:520px){.joy-grid{grid-template-columns:1fr;}}
+.joy-card{position:relative; border-radius:20px; overflow:hidden; aspect-ratio:4/5; box-shadow:0 14px 30px rgba(19,34,72,.14);}
+.joy-card img{width:100%; height:100%; object-fit:cover; display:block; transition:transform .5s ease;}
+.joy-card:hover img{transform:scale(1.06);}
+.joy-card::after{content:""; position:absolute; inset:0; background:linear-gradient(to top, rgba(11,23,48,.72) 0%, rgba(11,23,48,0) 45%);}
+.joy-card span{position:absolute; left:14px; right:14px; bottom:12px; color:#fff; font-weight:700; font-size:13.5px; z-index:1;}
+.joy-caption{text-align:center; color:var(--ink-soft); font-size:12.5px; margin-top:16px; font-style:italic;}
+
 /* ---- hope band ---- */
 .hope-band{position:relative; background:linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%); color:var(--white); overflow:hidden; border-radius:28px; margin:0 24px; padding:56px 8%;}
+.hope-band-photo{position:absolute; inset:0; background-size:cover; background-position:center 30%; opacity:.32; mix-blend-mode:luminosity;}
 .hope-band::before{content:""; position:absolute; top:-60px; right:-60px; width:260px; height:260px; border-radius:50%; background:radial-gradient(circle, rgba(199,154,69,.35), transparent 70%);}
 .hope-band::after{content:""; position:absolute; bottom:-80px; left:-40px; width:220px; height:220px; border-radius:50%; background:radial-gradient(circle, rgba(62,158,146,.30), transparent 70%);}
 .hope-inner{position:relative; z-index:1; max-width:680px; margin:0 auto; text-align:center;}
@@ -289,12 +301,20 @@ footer{background:var(--navy-deep); color:#B9C1D6; padding:52px 0 26px; margin-t
         </div>
       </div>
     </div>
+    <div class="joy-grid">
+      <div class="joy-card reveal"><img src="assets/img/joie/joie-enfants-01.webp" alt="Enfants souriants, symbole d'espoir" loading="lazy"><span>Espoir</span></div>
+      <div class="joy-card reveal"><img src="assets/img/joie/joie-famille-02.webp" alt="Famille unie et soutenue" loading="lazy"><span>Famille unie</span></div>
+      <div class="joy-card reveal"><img src="assets/img/joie/joie-soins-06.webp" alt="Accompagnement médical avec bienveillance" loading="lazy"><span>Soins avec le sourire</span></div>
+      <div class="joy-card reveal"><img src="assets/img/joie/joie-enfants-03.webp" alt="Enfants unis, force collective" loading="lazy"><span>Solidarité</span></div>
+    </div>
+    <p class="joy-caption">Photos d'illustration libres de droits — pour incarner la joie et l'espoir que nous voulons transmettre.</p>
   </div>
 </section>
 
 <section>
   <div class="wrap">
     <div class="hope-band reveal">
+      <div class="hope-band-photo" style="background-image:url('assets/img/joie/joie-famille-08.webp');"></div>
       <div class="hope-inner">
         <h2>« On ne guérit pas seul. On avance ensemble. »</h2>
         <p>La Maison de la Drépanocytose veut que chaque famille se sente vue, écoutée et soutenue — avec le sourire, pas la peur.</p>
