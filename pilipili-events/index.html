@@ -369,7 +369,7 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
 /* style — glissement (mariage coutumier) */
 .gm-circle.style-slide .gm-slide{
   clip-path:none; transform:translateX(105%); opacity:0; z-index:0;
-  transition:transform .7s cubic-bezier(.4,0,.2,1), opacity .3s ease;
+  transition:transform .55s cubic-bezier(.4,0,.2,1), opacity .3s ease;
 }
 .gm-circle.style-slide .gm-slide.active{
   transform:translateX(0); opacity:1; z-index:2;
@@ -383,7 +383,7 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
   transition:opacity .9s ease;
 }
 .gm-circle.style-kenburns .gm-slide.active{
-  opacity:1; z-index:2; animation:kenburnsZoom 5.2s ease-out forwards;
+  opacity:1; z-index:2; animation:kenburnsZoom 4s ease-out forwards;
 }
 .gm-circle.style-kenburns .gm-slide.leaving{
   opacity:0; z-index:1; transition:opacity .9s ease;
@@ -393,6 +393,18 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
   .gm-circle.style-slide .gm-slide,
   .gm-circle.style-kenburns .gm-slide{ transition:opacity .3s ease; }
   .gm-circle.style-kenburns .gm-slide.active{ animation:none; }
+}
+/* forme rectangle, plus grande et plus visible — mariage traditionnel / décoration / anniversaire */
+.gm-circle.shape-rect{
+  width:min(92vw,480px); aspect-ratio:4/3; border-radius:20px;
+}
+.gm-circle.shape-rect.style-fade .gm-slide{
+  clip-path:none; opacity:0; z-index:0; transition:opacity .55s ease;
+}
+.gm-circle.shape-rect.style-fade .gm-slide.active{ opacity:1; z-index:2; }
+.gm-circle.shape-rect.style-fade .gm-slide.leaving{ opacity:0; z-index:1; }
+@media (prefers-reduced-motion:reduce){
+  .gm-circle.shape-rect.style-fade .gm-slide{ transition:opacity .3s ease; }
 }
 .gm-caption{color:rgba(255,255,255,.85); font-size:13.5px; text-align:center; min-height:1.4em; margin:0;}
 .gm-dots{display:flex; gap:8px;}
@@ -562,6 +574,21 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
     <div class="diapo-track" id="diapoTrack"></div>
     <div class="diapo-caption" id="diapoCaption"></div>
     <div class="diapo-dots" id="diapoDots"></div>
+  </div>
+</section>
+
+<section id="boutique" class="diapo-section">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Notre boutique</span>
+      <h2>Des <span class="gold-text">accessoires</span> pour sublimer chaque fête</h2>
+      <p>Un aperçu de la sélection disponible en boutique — tenues, chaussures et accessoires de cérémonie.</p>
+    </div>
+  </div>
+  <div class="diapo reveal" id="boutiqueDiapo">
+    <div class="diapo-track" id="boutiqueTrack"></div>
+    <div class="diapo-caption" id="boutiqueCaption"></div>
+    <div class="diapo-dots" id="boutiqueDots"></div>
   </div>
 </section>
 
@@ -748,13 +775,13 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
   var ALL_KEYS = Object.keys(GALLERY);
 
   var CATEGORIES = [
-    { key:'traditionnel', title:'Mariage traditionnel', tag:'Style — fondu enchaîné', style:'fade',
+    { key:'traditionnel', title:'Mariage traditionnel', tag:'Grand format — fondu', style:'fade', shape:'rect',
       keys:['tenue-traditionnelle','robes','vibrant-kiss','boutique-1'] },
     { key:'coutumier', title:'Mariage coutumier', tag:'Style — glissement', style:'slide',
       keys:['coffre-dot','eventail','chaussures','verres-honneur'] },
-    { key:'decoration', title:'Décoration mariage', tag:'Style — zoom panoramique', style:'kenburns',
+    { key:'decoration', title:'Décoration mariage', tag:'Grand format — zoom panoramique', style:'kenburns', shape:'rect',
       keys:['stage-arch-gold','ballroom-green-1','ballroom-lights','entrance-hall-candles','reception-crystal-chairs','wall-florals-aisle','centerpiece-lily','centerpiece-roses','stage-chandelier-arch'] },
-    { key:'anniversaire', title:'Anniversaire & célébration', tag:'Bientôt disponible', style:'slide',
+    { key:'anniversaire', title:'Anniversaire & célébration', tag:'Bientôt disponible', style:'slide', shape:'rect',
       keys:[], comingSoon:true }
   ];
 
@@ -768,7 +795,7 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
       (coverSrc ? '<img src="' + coverSrc + '" alt="' + cat.title + '" loading="lazy">' : '<div class="cat-card-placeholder">✨</div>') +
       '<div class="cat-card-body"><h3>' + cat.title + '</h3><span class="cat-card-tag">' + cat.tag + '</span></div>';
     if (!cat.comingSoon){
-      card.addEventListener('click', function(){ openGallery(cat.title, cat.keys, 0, cat.style); });
+      card.addEventListener('click', function(){ openGallery(cat.title, cat.keys, 0, cat.style, cat.shape); });
     }
     catGrid.appendChild(card);
   });
@@ -818,7 +845,7 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
   }
 
   function gmNext(){ gmGoTo((gmIndex + 1) % gmKeys.length); }
-  function gmStartAuto(){ clearInterval(gmTimer); gmTimer = setInterval(gmNext, 3200); }
+  function gmStartAuto(){ clearInterval(gmTimer); gmTimer = setInterval(gmNext, 2600); }
   function gmStopAuto(){ clearInterval(gmTimer); }
   function gmPauseThenResume(){
     gmStopAuto();
@@ -826,9 +853,9 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
     gmResumeTimer = setTimeout(gmStartAuto, 2600);
   }
 
-  function openGallery(title, keys, startAt, style){
+  function openGallery(title, keys, startAt, style, shape){
     gmTitle.textContent = title;
-    gmCircle.className = 'gm-circle style-' + (style || 'fade');
+    gmCircle.className = 'gm-circle style-' + (style || 'fade') + (shape === 'rect' ? ' shape-rect' : '');
     gmBuild(keys && keys.length ? keys : ALL_KEYS);
     gmGoTo(startAt || 0);
     gmModal.classList.add('open');
@@ -852,7 +879,42 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
     else { showreelVideo.pause(); showreelIcon.innerHTML = PLAY_ICON; }
   });
 
-  // ---- Ambiance diaporama ----
+  // ---- Full-width diaporamas (Ambiance, Boutique) ----
+  function initDiapo(items, ids, intervalMs){
+    var track = document.getElementById(ids.track);
+    var caption = document.getElementById(ids.caption);
+    var dots = document.getElementById(ids.dots);
+    var container = document.getElementById(ids.container);
+    var els = items.map(function(a, i){
+      var img = document.createElement('img');
+      img.className = 'diapo-slide';
+      img.src = a.src; img.alt = a.caption; img.loading = i === 0 ? 'eager' : 'lazy';
+      track.appendChild(img);
+      var dot = document.createElement('span');
+      dot.className = 'diapo-dot';
+      dot.addEventListener('click', function(){ goTo(i); pauseThenResume(); });
+      dots.appendChild(dot);
+      return img;
+    });
+    var index = 0, timer = null, resumeTimer = null;
+    function goTo(i){
+      els.forEach(function(el, idx){ el.classList.toggle('active', idx === i); });
+      Array.prototype.forEach.call(dots.children, function(d, idx){ d.classList.toggle('active', idx === i); });
+      caption.textContent = items[i].caption;
+      index = i;
+    }
+    function next(){ goTo((index + 1) % items.length); }
+    function start(){ clearInterval(timer); timer = setInterval(next, intervalMs); }
+    function stop(){ clearInterval(timer); }
+    function pauseThenResume(){ stop(); clearTimeout(resumeTimer); resumeTimer = setTimeout(start, 3000); }
+    goTo(0);
+    start();
+    container.addEventListener('pointerdown', stop);
+    container.addEventListener('pointerup', pauseThenResume);
+    container.addEventListener('touchstart', stop, { passive:true });
+    container.addEventListener('touchend', pauseThenResume, { passive:true });
+  }
+
   var AMBIANCE = [
     { src:'assets/img/gallery/stage-arch-gold.jpg', caption:'Arche fleurie & salon doré, cérémonie' },
     { src:'assets/img/gallery/ballroom-green-1.jpg', caption:'Grande salle, rideaux émeraude et chaises cristal' },
@@ -864,38 +926,16 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
     { src:'assets/img/gallery/centerpiece-roses.jpg', caption:'Centre de table, roses ivoire' },
     { src:'assets/img/gallery/stage-chandelier-arch.jpg', caption:'Double arche florale & lustre suspendu' }
   ];
-  var diapoTrack = document.getElementById('diapoTrack');
-  var diapoCaption = document.getElementById('diapoCaption');
-  var diapoDots = document.getElementById('diapoDots');
-  var diapoEls = AMBIANCE.map(function(a, i){
-    var img = document.createElement('img');
-    img.className = 'diapo-slide';
-    img.src = a.src; img.alt = a.caption; img.loading = i === 0 ? 'eager' : 'lazy';
-    diapoTrack.appendChild(img);
-    var dot = document.createElement('span');
-    dot.className = 'diapo-dot';
-    dot.addEventListener('click', function(){ diapoGoTo(i); diapoPauseThenResume(); });
-    diapoDots.appendChild(dot);
-    return img;
-  });
-  var diapoIndex = 0, diapoTimer = null, diapoResumeTimer = null;
-  function diapoGoTo(i){
-    diapoEls.forEach(function(el, idx){ el.classList.toggle('active', idx === i); });
-    Array.prototype.forEach.call(diapoDots.children, function(d, idx){ d.classList.toggle('active', idx === i); });
-    diapoCaption.textContent = AMBIANCE[i].caption;
-    diapoIndex = i;
-  }
-  function diapoNext(){ diapoGoTo((diapoIndex + 1) % AMBIANCE.length); }
-  function diapoStart(){ clearInterval(diapoTimer); diapoTimer = setInterval(diapoNext, 4200); }
-  function diapoStop(){ clearInterval(diapoTimer); }
-  function diapoPauseThenResume(){ diapoStop(); clearTimeout(diapoResumeTimer); diapoResumeTimer = setTimeout(diapoStart, 3000); }
-  diapoGoTo(0);
-  diapoStart();
-  var diapoEl = document.getElementById('diapo');
-  diapoEl.addEventListener('pointerdown', diapoStop);
-  diapoEl.addEventListener('pointerup', diapoPauseThenResume);
-  diapoEl.addEventListener('touchstart', diapoStop, { passive:true });
-  diapoEl.addEventListener('touchend', diapoPauseThenResume, { passive:true });
+  initDiapo(AMBIANCE, { track:'diapoTrack', caption:'diapoCaption', dots:'diapoDots', container:'diapo' }, 4200);
+
+  // Photos boutique provisoires (accessoires déjà disponibles) — à remplacer par les photos produits de Carry
+  var BOUTIQUE = [
+    { src:'assets/img/gallery/boutique-1.jpg', caption:"L'univers Pili-Pili Events" },
+    { src:'assets/img/gallery/chaussures.jpg', caption:'Chaussures et accessoires assortis' },
+    { src:'assets/img/gallery/eventail.jpg', caption:'Éventail de cérémonie, plumes et dorure' },
+    { src:'assets/img/gallery/verres-honneur.jpg', caption:"Verres d'honneur et art de la table" }
+  ];
+  initDiapo(BOUTIQUE, { track:'boutiqueTrack', caption:'boutiqueCaption', dots:'boutiqueDots', container:'boutiqueDiapo' }, 4200);
 
   document.querySelectorAll('.svc-card').forEach(function(card){
     card.addEventListener('click', function(){
