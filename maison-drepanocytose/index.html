@@ -27,6 +27,18 @@ a{color:inherit;}
 .wrap{max-width:1120px; margin:0 auto; padding:0 24px;}
 h1,h2,h3{font-family:var(--serif); font-weight:700; color:var(--navy);}
 .gold-text{color:var(--gold-deep);}
+.glow-word{font-style:normal; color:var(--gold-deep);}
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+  .glow-word{
+    background:linear-gradient(90deg, var(--gold-deep), var(--red), var(--teal), var(--gold-deep));
+    background-size:300% 100%;
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent; color:transparent;
+    animation:gradientShift 6s ease-in-out infinite;
+  }
+}
+@keyframes gradientShift{0%{background-position:0% 50%;} 50%{background-position:100% 50%;} 100%{background-position:0% 50%;}}
+@media (prefers-reduced-motion:reduce){.glow-word{animation:none !important; background-position:0 50%;}}
 .reveal{opacity:0; transform:translateY(22px); transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1);}
 .reveal.in{opacity:1; transform:translateY(0);}
 
@@ -63,6 +75,18 @@ h1,h2,h3{font-family:var(--serif); font-weight:700; color:var(--navy);}
 .hero{position:relative; overflow:hidden; padding:76px 0 64px;
   background:radial-gradient(120% 100% at 15% 0%, #FFF7E6 0%, var(--cream) 46%, var(--cream) 100%);}
 .hero-rays{position:absolute; inset:0; z-index:0; pointer-events:none; opacity:.5;}
+.hero-blob{position:absolute; border-radius:50%; filter:blur(42px); pointer-events:none; z-index:0;}
+.hero-blob.b1{width:220px; height:220px; top:-60px; left:-40px; background:radial-gradient(circle, var(--gold), transparent 70%); opacity:.35; animation:driftA 15s ease-in-out infinite;}
+.hero-blob.b2{width:260px; height:260px; bottom:-90px; right:6%; background:radial-gradient(circle, var(--teal), transparent 70%); opacity:.28; animation:driftB 18s ease-in-out infinite;}
+.hero-blob.b3{width:180px; height:180px; top:40%; right:-50px; background:radial-gradient(circle, var(--red), transparent 70%); opacity:.22; animation:driftC 13s ease-in-out infinite;}
+@keyframes driftA{0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(18px,22px) scale(1.08);}}
+@keyframes driftB{0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(-22px,-14px) scale(1.05);}}
+@keyframes driftC{0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(-14px,18px) scale(1.1);}}
+@media (prefers-reduced-motion:reduce){.hero-blob{animation:none;}}
+.sparkles{position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:2;}
+.sparkles span{position:absolute; width:4px; height:4px; border-radius:50%; background:var(--gold); box-shadow:0 0 7px 1.5px rgba(199,154,69,.65); opacity:0; animation:sparkleFloat 5.5s ease-in infinite;}
+@keyframes sparkleFloat{0%{opacity:0; transform:translateY(0) scale(.6);} 18%{opacity:1;} 75%{opacity:.85;} 100%{opacity:0; transform:translateY(-78px) scale(1);}}
+@media (prefers-reduced-motion:reduce){.sparkles span{animation:none; opacity:0;}}
 .hero-inner{position:relative; z-index:1; display:grid; grid-template-columns:1.05fr .95fr; gap:48px; align-items:center;}
 @media (max-width:900px){.hero-inner{grid-template-columns:1fr;}}
 .eyebrow{display:inline-flex; align-items:center; gap:8px; font-size:12px; font-weight:700; letter-spacing:.08em; color:var(--red); text-transform:uppercase; margin-bottom:16px;}
@@ -76,12 +100,18 @@ h1,h2,h3{font-family:var(--serif); font-weight:700; color:var(--navy);}
 .btn-navy:hover{box-shadow:0 14px 32px rgba(19,34,72,.36);}
 .btn-wa{background:#25D366; color:var(--white); box-shadow:0 10px 24px rgba(37,211,102,.32);}
 .btn-outline{background:var(--white); color:var(--navy); border:1.5px solid var(--line);}
-.install-pill{display:none; align-items:center; gap:8px; background:transparent; border:1.5px solid var(--gold); color:var(--gold-deep); padding:10px 20px; border-radius:100px; font-size:13px; font-weight:700; cursor:pointer; margin-top:4px;}
+.install-pill{display:none; align-items:center; gap:8px; background:linear-gradient(180deg,#E3C377,var(--gold)); border:0; color:#2a1c02; padding:11px 22px; border-radius:100px; font-size:13px; font-weight:700; cursor:pointer; margin-top:4px; box-shadow:0 8px 18px -6px rgba(199,154,69,.6); transition:transform .25s cubic-bezier(.34,1.56,.64,1);}
+.install-pill:active{transform:scale(.94);}
 .install-pill.show{display:inline-flex;}
 
 .hero-art{position:relative; display:flex; align-items:center; justify-content:center;}
 .hero-art-glow{position:absolute; width:340px; height:340px; border-radius:50%;
   background:radial-gradient(circle, rgba(199,154,69,.30) 0%, rgba(199,154,69,0) 70%); z-index:0;}
+.hero-ring-pulse{position:absolute; top:50%; left:50%; border-radius:50%; border:1.5px solid rgba(199,154,69,.5); z-index:0;}
+.hero-ring-pulse.r2{width:300px; height:300px; margin:-150px 0 0 -150px; opacity:.6; animation:pulseRing 3.6s ease-out infinite;}
+.hero-ring-pulse.r3{width:340px; height:340px; margin:-170px 0 0 -170px; opacity:.35; animation:pulseRing 3.6s ease-out infinite 1.2s; border-color:rgba(62,158,146,.5);}
+@keyframes pulseRing{0%{transform:scale(.82); opacity:.6;} 80%{opacity:0;} 100%{transform:scale(1.14); opacity:0;}}
+@media (prefers-reduced-motion:reduce){.hero-ring-pulse{animation:none; opacity:.3;}}
 .hero-logo-ring{position:relative; z-index:1; width:280px; height:280px; border-radius:50%; padding:14px;
   background:conic-gradient(from 180deg, var(--gold), #F3D998, var(--teal), var(--gold)); animation:spin 22s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
@@ -227,10 +257,21 @@ footer{background:var(--navy-deep); color:#B9C1D6; padding:52px 0 26px; margin-t
     <circle cx="640" cy="90" r="120" stroke="#3E9E92" stroke-width="1" opacity=".3"/>
     <circle cx="640" cy="90" r="160" stroke="#C79A45" stroke-width="1" opacity=".25"/>
   </svg>
+  <div class="hero-blob b1"></div>
+  <div class="hero-blob b2"></div>
+  <div class="hero-blob b3"></div>
+  <div class="sparkles" aria-hidden="true">
+    <span style="top:12%; left:8%; animation-delay:.2s;"></span>
+    <span style="top:22%; left:78%; animation-delay:1.4s;"></span>
+    <span style="top:58%; left:16%; animation-delay:2.6s;"></span>
+    <span style="top:68%; left:88%; animation-delay:.9s;"></span>
+    <span style="top:40%; left:52%; animation-delay:3.4s;"></span>
+    <span style="top:80%; left:40%; animation-delay:1.9s;"></span>
+  </div>
   <div class="wrap hero-inner">
     <div class="reveal in">
       <span class="eyebrow"><span class="eyebrow-dot"></span>La Maison de la Drépanocytose · Pointe-Noire</span>
-      <h1>Chaque famille mérite <span class="gold-text">de l'espoir</span>, pas seulement des soins.</h1>
+      <h1>Chaque famille mérite <span class="glow-word">de l'espoir</span>, pas seulement des soins.</h1>
       <p class="lead">Nous accompagnons les personnes et familles touchées par la drépanocytose à Pointe-Noire — dépistage, soutien humain, sensibilisation et don de sang. Ensemble, on avance.</p>
       <div class="cta-row">
         <a class="btn btn-navy" href="#mission">Découvrir notre mission</a>
@@ -252,6 +293,8 @@ footer{background:var(--navy-deep); color:#B9C1D6; padding:52px 0 26px; margin-t
 
     <div class="hero-art reveal in">
       <div class="hero-art-glow"></div>
+      <div class="hero-ring-pulse r2"></div>
+      <div class="hero-ring-pulse r3"></div>
       <span class="hero-spark s1">✨</span>
       <span class="hero-spark s2">🌟</span>
       <span class="hero-spark s3">✨</span>

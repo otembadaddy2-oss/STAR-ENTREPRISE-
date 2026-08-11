@@ -1,5 +1,5 @@
 // La Maison de la Drépanocytose — Service Worker (installation & usage hors-ligne)
-const CACHE = "maison-drepano-v4";
+const CACHE = "maison-drepano-v5";
 const CORE_ASSETS = [
   "./",
   "index.html",
