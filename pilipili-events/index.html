@@ -770,19 +770,30 @@ footer{background:var(--ivory-deep); padding:50px 0 26px; border-top:1px solid v
     'wall-florals-aisle': { src:'assets/img/gallery/wall-florals-aisle.jpg', caption:"Mur floral & tapis d'entrée" },
     'centerpiece-lily': { src:'assets/img/gallery/centerpiece-lily.jpg', caption:'Composition lys blancs & bougies' },
     'centerpiece-roses': { src:'assets/img/gallery/centerpiece-roses.jpg', caption:'Centre de table, roses ivoire' },
-    'stage-chandelier-arch': { src:'assets/img/gallery/stage-chandelier-arch.jpg', caption:'Double arche florale & lustre suspendu' }
+    'stage-chandelier-arch': { src:'assets/img/gallery/stage-chandelier-arch.jpg', caption:'Double arche florale & lustre suspendu' },
+    'dance-raffia-costumes': { src:'assets/img/gallery/dance-raffia-costumes.jpg', caption:'Troupe traditionnelle, tenues en raphia' },
+    'snack-kola-basket': { src:'assets/img/gallery/snack-kola-basket.jpg', caption:"Noix de cola, l'accueil traditionnel" },
+    'bar-jus-traditionnel': { src:'assets/img/gallery/bar-jus-traditionnel.jpg', caption:'Bar à jus traditionnel' },
+    'couple-peacock-orange': { src:'assets/img/gallery/couple-peacock-orange.jpg', caption:'Les mariés, fauteuils paon et décor corail' },
+    'peacock-chairs-wax-backdrop': { src:'assets/img/gallery/peacock-chairs-wax-backdrop.jpg', caption:'Fauteuils paon & mur en wax' },
+    'tent-aisle-entree': { src:'assets/img/gallery/tent-aisle-entree.jpg', caption:"Allée d'honneur sous chapiteau" },
+    'peacock-chairs-orange-floral': { src:'assets/img/gallery/peacock-chairs-orange-floral.jpg', caption:'Coin salon, mur corail et fleurs séchées' },
+    'lantern-palm': { src:'assets/img/gallery/lantern-palm.jpg', caption:'Suspension tressée dans les palmiers' },
+    'floral-arch-entrance': { src:'assets/img/gallery/floral-arch-entrance.jpg', caption:"Arche fleurie, entrée du chapiteau" },
+    'buffet-bar-staff': { src:'assets/img/gallery/buffet-bar-staff.jpg', caption:"Bar d'accueil, agrumes et épices" },
+    'anniv-minnie-balloons': { src:'assets/img/gallery/anniv-minnie-balloons.jpg', caption:"Décor d'anniversaire, thème Minnie" }
   };
   var ALL_KEYS = Object.keys(GALLERY);
 
   var CATEGORIES = [
     { key:'traditionnel', title:'Mariage traditionnel', tag:'Grand format — fondu', style:'fade', shape:'rect',
-      keys:['tenue-traditionnelle','robes','vibrant-kiss','boutique-1'] },
+      keys:['tenue-traditionnelle','robes','vibrant-kiss','dance-raffia-costumes','snack-kola-basket','bar-jus-traditionnel'] },
     { key:'coutumier', title:'Mariage coutumier', tag:'Style — glissement', style:'slide',
-      keys:['coffre-dot','eventail','chaussures','verres-honneur'] },
+      keys:['coffre-dot','eventail','chaussures','verres-honneur','couple-peacock-orange','peacock-chairs-wax-backdrop'] },
     { key:'decoration', title:'Décoration mariage', tag:'Grand format — zoom panoramique', style:'kenburns', shape:'rect',
-      keys:['stage-arch-gold','ballroom-green-1','ballroom-lights','entrance-hall-candles','reception-crystal-chairs','wall-florals-aisle','centerpiece-lily','centerpiece-roses','stage-chandelier-arch'] },
-    { key:'anniversaire', title:'Anniversaire & célébration', tag:'Bientôt disponible', style:'slide', shape:'rect',
-      keys:[], comingSoon:true }
+      keys:['stage-arch-gold','ballroom-green-1','ballroom-lights','entrance-hall-candles','reception-crystal-chairs','wall-florals-aisle','centerpiece-lily','centerpiece-roses','stage-chandelier-arch','tent-aisle-entree','peacock-chairs-orange-floral','lantern-palm','floral-arch-entrance','buffet-bar-staff'] },
+    { key:'anniversaire', title:'Anniversaire & célébration', tag:'Grand format — glissement', style:'slide', shape:'rect',
+      keys:['anniv-minnie-balloons'] }
   ];
 
   var catGrid = document.getElementById('catGrid');
