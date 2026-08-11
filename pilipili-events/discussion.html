@@ -99,6 +99,8 @@ body{
 .bubble-foot{display:flex; align-items:center; justify-content:flex-end; gap:8px; margin-top:5px;}
 .msg-delete{width:20px; height:20px; border-radius:50%; border:0; background:rgba(140,106,52,.14); color:var(--gold-deep); display:flex; align-items:center; justify-content:center; cursor:pointer; flex:none;}
 .msg-delete:hover{background:rgba(217,79,61,.35); color:#fff;}
+.msg-report{width:20px; height:20px; border-radius:50%; border:0; background:rgba(140,106,52,.14); color:var(--gold-deep); display:flex; align-items:center; justify-content:center; cursor:pointer; flex:none; opacity:.75;}
+.msg-report:hover{background:rgba(217,79,61,.35); color:#fff; opacity:1;}
 .voice-row{display:flex; align-items:center; gap:10px;}
 .voice-play{width:32px; height:32px; border-radius:50%; background:rgba(140,106,52,.16); border:0; color:var(--gold-deep); flex:none; display:flex; align-items:center; justify-content:center; cursor:pointer;}
 .voice-wave{flex:1; height:22px; display:flex; align-items:center; gap:2px;}
@@ -362,6 +364,16 @@ body{
     });
   }
 
+  function reportMessage(m){
+    var senderName = m.role === 'admin' ? 'Pili-Pili Events' : ((m.prenom||'') + ' ' + (m.nom||''));
+    var reason = prompt('Pourquoi signales-tu ce message ?');
+    if (reason === null) return;
+    var snippet = m.type === 'voice' ? '[message vocal]' : (m.text || '').slice(0, 200);
+    var text = 'Signalement — Bulle Pili-Pili Events\nMessage de : ' + senderName +
+      '\nContenu : ' + snippet + '\nRaison : ' + (reason || '(non précisée)');
+    window.open('https://wa.me/242068700066?text=' + encodeURIComponent(text), '_blank');
+  }
+
   function appendMsgNode(m){
     var meta = ROLE_META[m.role] || { label:m.role, color:'#8D877A' };
     var isMe = identity && m.userId === identity.id;
@@ -429,6 +441,16 @@ body{
 
     var footRow = document.createElement('div');
     footRow.className = 'bubble-foot';
+    if (!isMe){
+      var reportBtn = document.createElement('button');
+      reportBtn.className = 'msg-report';
+      reportBtn.type = 'button';
+      reportBtn.setAttribute('aria-label', 'Signaler');
+      reportBtn.title = 'Signaler ce message';
+      reportBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3v18h2v-7h8l1 2h5V5h-5l-1-2H5z"/></svg>';
+      reportBtn.addEventListener('click', function(){ reportMessage(m); });
+      footRow.appendChild(reportBtn);
+    }
     if (canDelete){
       var delBtn = document.createElement('button');
       delBtn.className = 'msg-delete';
