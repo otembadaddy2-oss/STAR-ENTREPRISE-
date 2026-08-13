@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>La Maison de la Drépanocytose — Espoir, dépistage & accompagnement</title>
-<meta name="description" content="Dépistage, accompagnement des familles, sensibilisation et don de sang — Pointe-Noire, République du Congo.">
+<meta name="description" content="Dépistage, accompagnement des familles et sensibilisation — Pointe-Noire, République du Congo.">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#132248">
 <link rel="icon" href="assets/img/icons/favicon-96.png" type="image/png">
@@ -124,7 +124,7 @@ h1,h2,h3{font-family:var(--serif); font-weight:700; color:var(--navy);}
 .hero-spark.s3{top:46%; left:-6%; animation:float 5.6s ease-in-out infinite 1.6s;}
 @keyframes float{0%,100%{transform:translateY(0);} 50%{transform:translateY(-12px);}}
 
-.stat-row{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:52px;}
+.stat-row{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:52px;}
 @media (max-width:760px){.stat-row{grid-template-columns:repeat(2,1fr);}}
 .stat-chip{background:var(--white); border:1px solid var(--line); border-radius:16px; padding:16px 14px; text-align:center;}
 .stat-chip .ic{font-size:22px; margin-bottom:6px;}
@@ -144,7 +144,7 @@ section > .wrap{position:relative; z-index:1;}
 .section-head p{margin-top:14px; color:var(--ink-soft); font-size:15px;}
 
 /* ---- mission pillars ---- */
-.pillars{display:grid; grid-template-columns:repeat(4,1fr); gap:20px;}
+.pillars{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
 @media (max-width:900px){.pillars{grid-template-columns:1fr 1fr;}}
 @media (max-width:520px){.pillars{grid-template-columns:1fr;}}
 .pillars-wrap{position:relative;}
@@ -191,7 +191,7 @@ section > .wrap{position:relative; z-index:1;}
 .founder-card p{font-size:13.6px; color:var(--ink-soft); line-height:1.6;}
 
 /* ---- comment aider ---- */
-.help-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+.help-grid{display:grid; grid-template-columns:repeat(2,1fr); max-width:720px; margin:0 auto; gap:20px;}
 @media (max-width:820px){.help-grid{grid-template-columns:1fr;}}
 .help-card{background:var(--white); border:1px solid var(--line); border-radius:20px; padding:26px; text-align:center;}
 .help-card .ic{width:52px; height:52px; border-radius:50%; margin:0 auto 14px; display:flex; align-items:center; justify-content:center; font-size:22px;}
@@ -273,7 +273,7 @@ footer{background:var(--navy-deep); color:#B9C1D6; padding:52px 0 26px; margin-t
     <div class="reveal in">
       <span class="eyebrow"><span class="eyebrow-dot"></span>La Maison de la Drépanocytose · Pointe-Noire</span>
       <h1>Chaque famille mérite <span class="glow-word">de l'espoir</span>, pas seulement des soins.</h1>
-      <p class="lead">Nous accompagnons les personnes et familles touchées par la drépanocytose à Pointe-Noire — dépistage, soutien humain, sensibilisation et don de sang. Ensemble, on avance.</p>
+      <p class="lead">Nous accompagnons les personnes et familles touchées par la drépanocytose à Pointe-Noire — dépistage, soutien humain et sensibilisation. Ensemble, on avance.</p>
       <div class="cta-row">
         <a class="btn btn-navy" href="#mission">Découvrir notre mission</a>
         <a class="btn btn-wa" href="https://wa.me/242066565050" target="_blank" rel="noopener">
@@ -288,7 +288,6 @@ footer{background:var(--navy-deep); color:#B9C1D6; padding:52px 0 26px; margin-t
         <div class="stat-chip reveal"><div class="ic">🩸</div><b>Dépistage</b><span>Prévenir tôt</span></div>
         <div class="stat-chip reveal"><div class="ic">🤝</div><b>Accompagnement</b><span>Familles soutenues</span></div>
         <div class="stat-chip reveal"><div class="ic">📣</div><b>Sensibilisation</b><span>Grand public</span></div>
-        <div class="stat-chip reveal"><div class="ic">❤️</div><b>Don de sang</b><span>Un geste vital</span></div>
       </div>
     </div>
 
@@ -311,7 +310,7 @@ footer{background:var(--navy-deep); color:#B9C1D6; padding:52px 0 26px; margin-t
   <div class="wrap">
     <div class="section-head reveal">
       <span class="eyebrow"><span class="eyebrow-dot"></span>Notre mission</span>
-      <h2>Quatre piliers, <span class="gold-text">un seul but</span> : l'espoir</h2>
+      <h2>Trois piliers, <span class="gold-text">un seul but</span> : l'espoir</h2>
       <p>Une prise en charge complète, humaine et rassurante — pensée avec l'œil d'une pédiatre spécialiste du sujet.</p>
     </div>
     <div class="pillars-wrap">
@@ -336,12 +335,6 @@ footer{background:var(--navy-deep); color:#B9C1D6; padding:52px 0 26px; margin-t
           <div class="pillar-ic" style="background:#E4F2F0;">📣</div>
           <h3>Sensibilisation</h3>
           <p>Informer le grand public pour faire tomber les idées reçues et les tabous autour de la drépanocytose.</p>
-        </div>
-        <div class="pillar reveal">
-          <span class="pillar-num">04</span>
-          <div class="pillar-ic" style="background:#FBEAE8;">❤️</div>
-          <h3>Don de sang</h3>
-          <p>Mobiliser des donneurs pour un geste simple qui change une vie, voire la sauve.</p>
         </div>
       </div>
     </div>
@@ -401,15 +394,9 @@ footer{background:var(--navy-deep); color:#B9C1D6; padding:52px 0 26px; margin-t
   <div class="wrap">
     <div class="section-head reveal">
       <span class="eyebrow"><span class="eyebrow-dot"></span>Comment aider</span>
-      <h2>Trois façons de <span class="gold-text">faire la différence</span></h2>
+      <h2>Deux façons de <span class="gold-text">faire la différence</span></h2>
     </div>
     <div class="help-grid">
-      <div class="help-card reveal">
-        <div class="ic" style="background:#FBEAE8;">🩸</div>
-        <h3>Donner son sang</h3>
-        <p>Un geste simple, quelques minutes, une vie changée. Contactez-nous pour connaître les prochaines collectes.</p>
-        <a href="https://wa.me/242066565050" target="_blank" rel="noopener">Je veux donner →</a>
-      </div>
       <div class="help-card reveal">
         <div class="ic" style="background:#F3ECD9;">🙌</div>
         <h3>Devenir bénévole</h3>
@@ -464,7 +451,7 @@ footer{background:var(--navy-deep); color:#B9C1D6; padding:52px 0 26px; margin-t
   <div class="wrap footer-inner">
     <img src="assets/img/logo.png" alt="La Maison de la Drépanocytose" class="footer-brand-logo">
     <p class="footer-tag">Ensemble, transformons chaque épreuve en espoir.</p>
-    <p class="footer-sub">Dépistage · Accompagnement des familles · Sensibilisation · Don de sang — Pointe-Noire</p>
+    <p class="footer-sub">Dépistage · Accompagnement des familles · Sensibilisation — Pointe-Noire</p>
     <div class="rule-gold"></div>
     <p class="footer-credit">© 2026 La Maison de la Drépanocytose · Conçu par
       <a href="https://star-entreprise.netlify.app" target="_blank" rel="noopener">
