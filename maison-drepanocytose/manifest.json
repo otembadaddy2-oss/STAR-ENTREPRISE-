@@ -1,7 +1,7 @@
 {
   "name": "La Maison de la Drépanocytose — Espoir & accompagnement",
   "short_name": "Maison Drépano",
-  "description": "Dépistage, accompagnement des familles, sensibilisation et don de sang — Pointe-Noire, Congo.",
+  "description": "Dépistage, accompagnement des familles et sensibilisation — Pointe-Noire, Congo.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
