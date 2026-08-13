@@ -86,13 +86,14 @@
   }
 
   /* ---------- Shine sweep on premium surfaces ---------- */
-  document.querySelectorAll(".card, .plan-card, .work-card, .testi-card, .eco-card, .diamond-core").forEach(function (el) {
+  var CARD_SEL = ".card, .plan-card, .work-card, .testi-card, .eco-card, .diamond-core, .svc-card, .showreel-card, .joy-card, .founder-card, .help-card, .contact-card, .cat-card-placeholder";
+  document.querySelectorAll(CARD_SEL).forEach(function (el) {
     el.classList.add("se-shine");
   });
 
   /* ---------- 3D tilt on cards ---------- */
   if (fine && !reduced) {
-    var tiltEls = document.querySelectorAll(".card, .plan-card, .work-card, .testi-card, .eco-card, .process-step, .diamond-core");
+    var tiltEls = document.querySelectorAll(CARD_SEL + ", .process-step");
     tiltEls.forEach(function (el) {
       el.classList.add("se-tilt");
       el.addEventListener("mousemove", function (e) {
@@ -108,8 +109,9 @@
   }
 
   /* ---------- Magnetic buttons ---------- */
+  var CTA_SEL = ".btn-primary, .btn-whatsapp, .nav-cta, .btn-gold, .btn-navy, .btn-wa";
   if (fine && !reduced) {
-    document.querySelectorAll(".btn-primary, .btn-whatsapp, .nav-cta").forEach(function (btn) {
+    document.querySelectorAll(CTA_SEL).forEach(function (btn) {
       btn.addEventListener("mousemove", function (e) {
         var r = btn.getBoundingClientRect();
         var mx = (e.clientX - r.left - r.width / 2) * 0.28;
@@ -139,7 +141,7 @@
       (function (node) { setTimeout(function () { node.remove(); }, 750); })(s);
     }
   }
-  document.querySelectorAll(".btn-primary, .btn-whatsapp").forEach(function (btn) {
+  document.querySelectorAll(CTA_SEL).forEach(function (btn) {
     btn.addEventListener("click", function (e) {
       burstSparks(e.clientX, e.clientY);
     });
@@ -173,7 +175,7 @@
       raf(follow);
     })();
 
-    document.querySelectorAll("a, button, .btn, .card, .eco-card, input, textarea, select").forEach(function (el) {
+    document.querySelectorAll("a, button, .btn, input, textarea, select, " + CARD_SEL).forEach(function (el) {
       el.addEventListener("mouseenter", function () { ring.classList.add("se-cursor-active"); });
       el.addEventListener("mouseleave", function () { ring.classList.remove("se-cursor-active"); });
     });
