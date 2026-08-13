@@ -1,0 +1,94 @@
+/* STAR ENTREPRISE — Premium interaction & motion layer (additive, non-destructive) */
+
+/* ---------- Scroll progress bar ---------- */
+#se-progress{position:fixed;top:0;left:0;height:3px;width:0%;z-index:2000;background:linear-gradient(90deg,#8b6bff,#2fe0e0 52%,#e8c368);box-shadow:0 0 12px rgba(139,107,255,.7);transition:width .08s linear}
+
+/* ---------- Custom cursor (fine pointers only) ---------- */
+@media (hover:hover) and (pointer:fine){
+  html.se-cursor-on, html.se-cursor-on a, html.se-cursor-on button, html.se-cursor-on .btn{cursor:none}
+  #se-cursor-dot,#se-cursor-ring{position:fixed;top:0;left:0;z-index:9998;pointer-events:none;border-radius:50%;will-change:transform;transform:translate(-50%,-50%)}
+  #se-cursor-dot{width:6px;height:6px;background:#e8c368;box-shadow:0 0 8px 2px rgba(232,195,104,.8)}
+  #se-cursor-ring{width:34px;height:34px;border:1px solid rgba(139,107,255,.55);background:radial-gradient(circle,rgba(139,107,255,.12),transparent 70%);transition:width .25s ease,height .25s ease,border-color .25s ease,background .25s ease,opacity .25s ease}
+  #se-cursor-ring.se-cursor-active{width:56px;height:56px;border-color:rgba(232,195,104,.8);background:radial-gradient(circle,rgba(232,195,104,.16),transparent 70%)}
+  #se-cursor-ring.se-cursor-hide,#se-cursor-dot.se-cursor-hide{opacity:0}
+}
+@media (hover:none),(pointer:coarse){#se-cursor-dot,#se-cursor-ring{display:none}}
+
+/* ---------- Aurora / mesh drift behind hero & CTA bands ---------- */
+.se-aurora{position:absolute;inset:-10%;z-index:0;pointer-events:none;overflow:hidden;filter:blur(60px);opacity:.55}
+.se-aurora span{position:absolute;border-radius:50%;mix-blend-mode:screen;animation:seDrift 22s ease-in-out infinite}
+.se-aurora span:nth-child(1){width:38vw;height:38vw;left:-6%;top:-8%;background:radial-gradient(circle,rgba(139,107,255,.55),transparent 65%);animation-duration:26s}
+.se-aurora span:nth-child(2){width:32vw;height:32vw;right:-8%;top:10%;background:radial-gradient(circle,rgba(47,224,224,.45),transparent 65%);animation-duration:20s;animation-delay:-4s}
+.se-aurora span:nth-child(3){width:34vw;height:34vw;left:20%;bottom:-16%;background:radial-gradient(circle,rgba(232,195,104,.4),transparent 65%);animation-duration:24s;animation-delay:-9s}
+@keyframes seDrift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(4%,6%) scale(1.08)}66%{transform:translate(-5%,-3%) scale(.95)}}
+
+/* ---------- Hero cursor-spotlight ---------- */
+.hero{position:relative}
+.hero::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(480px circle at var(--se-mx,50%) var(--se-my,20%),rgba(232,195,104,.10),transparent 60%);transition:background .12s ease}
+
+/* ---------- Tilt targets ---------- */
+.se-tilt{transform-style:preserve-3d;transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s ease;will-change:transform}
+.se-tilt:hover{box-shadow:0 30px 70px -24px rgba(90,61,255,.55)}
+
+/* ---------- Shine sweep on hoverable surfaces ---------- */
+.se-shine{position:relative;overflow:hidden}
+.se-shine::before{content:"";position:absolute;top:0;left:-140%;width:60%;height:100%;background:linear-gradient(115deg,transparent 0%,rgba(255,255,255,.16) 45%,rgba(255,255,255,.35) 50%,rgba(255,255,255,.16) 55%,transparent 100%);transform:skewX(-18deg);transition:left .75s cubic-bezier(.2,.8,.2,1);pointer-events:none;z-index:1}
+.se-shine:hover::before{left:140%}
+
+/* ---------- Magnetic buttons ---------- */
+.btn{will-change:transform}
+
+/* ---------- Sparkle burst on click ---------- */
+.se-spark{position:fixed;z-index:9997;pointer-events:none;width:5px;height:5px;border-radius:50%;background:#e8c368;box-shadow:0 0 6px 1px rgba(232,195,104,.9);animation:seSparkOut .7s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes seSparkOut{to{transform:translate(var(--sx),var(--sy)) scale(0);opacity:0}}
+
+/* ---------- Enriched reveal states (rides on existing .reveal/.in classes) ---------- */
+.reveal{filter:blur(6px)}
+.reveal.in{filter:blur(0)}
+.reveal-scale{filter:blur(6px)}
+.reveal-scale.in{filter:blur(0)}
+
+/* ---------- Grain / texture overlay for depth ---------- */
+.se-grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.035;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* ---------- Marquee glow pulse ---------- */
+.marquee{position:relative}
+.marquee::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(139,107,255,.08),rgba(47,224,224,.08),rgba(232,195,104,.08));animation:seMarqueeGlow 6s ease-in-out infinite;pointer-events:none}
+@keyframes seMarqueeGlow{0%,100%{opacity:.5}50%{opacity:1}}
+
+/* ---------- Ecosystem cards (new homepage section) ---------- */
+.eco-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+@media (max-width:980px){.eco-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.eco-grid{grid-template-columns:1fr}}
+.eco-card{position:relative;border-radius:var(--radius-lg);padding:28px 24px;background:var(--surface);border:1px solid var(--border);overflow:hidden;isolation:isolate}
+.eco-card::before{content:"";position:absolute;inset:0;z-index:-1;opacity:0;background:var(--eco-grad,var(--grad-diamond-soft));transition:opacity .4s ease}
+.eco-card:hover::before{opacity:1}
+.eco-card .eco-badge{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-2);background:rgba(232,195,104,.1);border:1px solid rgba(232,195,104,.3);padding:5px 12px;border-radius:999px;margin-bottom:16px}
+.eco-card h3{margin-bottom:8px;font-size:1.18rem}
+.eco-card p{font-size:.92rem;margin-bottom:14px}
+.eco-card .eco-stat{font-family:var(--ff-heading);font-weight:800;font-size:1.6rem;background:var(--grad-diamond);-webkit-background-clip:text;background-clip:text;color:transparent;display:block;margin-bottom:2px}
+.eco-card .eco-link{font-size:.86rem;font-weight:700;color:var(--gold-2);display:inline-flex;align-items:center;gap:6px}
+.eco-card .eco-link svg{width:14px;height:14px;transition:transform .25s ease}
+.eco-card:hover .eco-link svg{transform:translateX(4px)}
+
+/* ---------- Proof / urgency banner ---------- */
+.se-proof-band{display:flex;flex-wrap:wrap;gap:14px 28px;align-items:center;justify-content:center;padding:16px 22px;border-radius:999px;background:rgba(232,195,104,.06);border:1px solid rgba(232,195,104,.22);margin:0 auto 46px;max-width:fit-content;font-size:.88rem;color:var(--text-dim)}
+.se-proof-band b{color:var(--gold-2)}
+.se-proof-band .se-sep{width:4px;height:4px;border-radius:50%;background:var(--text-faint)}
+
+/* ---------- Floating diamond motes (hero) ---------- */
+.se-mote{position:absolute;border-radius:50%;background:radial-gradient(circle,#fff,rgba(232,195,104,.2) 60%,transparent 70%);pointer-events:none;animation:seFloat linear infinite;opacity:.85}
+@keyframes seFloat{0%{transform:translateY(0) translateX(0) scale(1);opacity:0}10%{opacity:.9}90%{opacity:.7}100%{transform:translateY(-140px) translateX(var(--mx,20px)) scale(.4);opacity:0}}
+
+/* ---------- Rotating glow ring on the CTA band ---------- */
+.cta-band{position:relative;isolation:isolate}
+.cta-band::before{content:"";position:absolute;inset:0;z-index:0;border-radius:inherit;padding:2px;background:conic-gradient(from 0deg,var(--violet),var(--cyan),var(--gold),var(--pink),var(--violet));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:seSpinRing 6s linear infinite;opacity:.55;pointer-events:none}
+.cta-band>*{position:relative;z-index:1}
+@keyframes seSpinRing{to{transform:rotate(360deg)}}
+
+@media (prefers-reduced-motion:reduce){
+  .se-aurora span,.marquee::before,.se-mote,.cta-band::before{animation:none!important}
+  .se-tilt{transition:none!important}
+  .reveal,.reveal-scale{filter:none!important}
+}

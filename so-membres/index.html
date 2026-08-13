@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>S.O — Gestion des membres</title>
+<meta name="description" content="S.O — Gestion des membres : fiches d'adhésion, recherche, filtre par année, export Excel. Une application STAR CRÉAT, filiale de STAR ENTREPRISE.">
+<meta name="theme-color" content="#141311">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="assets/img/icons/favicon-96.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/img/icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap"></noscript>
+<link rel="stylesheet" href="assets/css/so-membres.css">
+<link rel="stylesheet" href="../assets/css/effects-v1.css">
+<meta property="og:title" content="S.O — Gestion des membres">
+<meta property="og:description" content="Organiser. Simplifier. Connecter. Servir avec excellence. Une application de gestion des adhésions, installable gratuitement sur téléphone, tablette et ordinateur.">
+<meta property="og:type" content="website">
+</head>
+<body>
+
+<div class="so-sidebar-scrim" id="soScrim"></div>
+
+<div class="so-app">
+  <aside class="so-sidebar" id="soSidebar">
+    <div class="so-sidebar-brand">
+      <img class="so-shimmer" src="assets/img/logo-so.jpg" alt="S.O">
+      <div>
+        <div class="name so-display">S.O</div>
+        <div class="tag so-mono">Gestion des membres</div>
+      </div>
+    </div>
+    <nav class="so-nav" id="soNav">
+      <button class="so-sans" data-view="liste">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Membres
+      </button>
+      <button class="so-sans" data-view="nouveau">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
+        Nouvelle fiche
+      </button>
+    </nav>
+    <div class="so-sidebar-foot">
+      <p class="so-sans">Organiser. Simplifier. Connecter.<br>Servir avec excellence.</p>
+    </div>
+  </aside>
+
+  <div class="so-main">
+    <div class="so-topbar">
+      <div class="so-topbar-left">
+        <button class="so-menu-btn" id="soMenuBtn" aria-label="Menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+        </button>
+        <div>
+          <h1 class="so-display" id="soTitle">Membres</h1>
+          <p class="sub so-sans" id="soSubtitle"></p>
+        </div>
+      </div>
+      <div class="so-topbar-right" id="soTopbarActions"></div>
+    </div>
+
+    <div class="so-content">
+      <div id="soView"></div>
+    </div>
+  </div>
+</div>
+
+<div id="soModalRoot"></div>
+<div class="so-toast so-sans" id="soToast"></div>
+
+<script src="assets/vendor/xlsx.core.min.js"></script>
+<script src="assets/js/so-membres.js"></script>
+<script src="../assets/js/effects-v1.js"></script>
+</body>
+</html>
