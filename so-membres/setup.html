@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S.O — Configuration du compte</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,'Segoe UI',sans-serif;min-height:100vh;
+    background:linear-gradient(160deg,#141311,#0B0A09);color:#fff;
+    display:flex;align-items:center;justify-content:center;padding:24px;
+  }
+  .card{
+    width:100%;max-width:400px;padding:30px 26px;background:rgba(255,255,255,.04);
+    border:1px solid rgba(232,199,124,.28);border-radius:20px;
+  }
+  h1{font-size:19px;font-weight:600;margin-bottom:6px;color:#fff}
+  p.sub{font-size:12.5px;color:rgba(255,255,255,.6);margin-bottom:22px;line-height:1.5}
+  label{display:block;font-size:12px;color:rgba(255,255,255,.68);margin-bottom:6px;margin-top:14px}
+  input{
+    width:100%;padding:11px 13px;border-radius:10px;border:1px solid rgba(255,255,255,.16);
+    background:rgba(255,255,255,.06);color:#fff;font-size:14px;
+  }
+  input:focus{outline:none;border-color:#B8912E}
+  button{
+    width:100%;margin-top:22px;padding:12px;border:none;border-radius:10px;
+    background:linear-gradient(135deg,#D9B75C,#B8912E);color:#141311;font-weight:700;font-size:14px;cursor:pointer;
+  }
+  button:disabled{opacity:.6}
+  .msg{margin-top:16px;padding:10px 12px;border-radius:10px;font-size:12.5px;display:none}
+  .msg.ok{display:block;background:rgba(61,122,78,.16);border:1px solid rgba(61,122,78,.4);color:#a9d6b4}
+  .msg.err{display:block;background:rgba(179,69,58,.16);border:1px solid rgba(179,69,58,.4);color:#f3b8b1}
+  .hint{font-size:11px;color:rgba(255,255,255,.4);margin-top:20px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Configuration du compte — STAR ENTREPRISE</h1>
+  <p class="sub">Page à usage unique : crée le premier compte administrateur du groupe (ou un compte supplémentaire pour une filiale). Le jeton de configuration t'a été communiqué séparément — ne le partage avec personne.</p>
+
+  <label>Jeton de configuration</label>
+  <input type="password" id="setupToken" autocomplete="off">
+
+  <label>Identifiant choisi</label>
+  <input type="text" id="username" autocomplete="off">
+
+  <label>Mot de passe (8 caractères minimum)</label>
+  <input type="password" id="password" autocomplete="new-password">
+
+  <label>Nom affiché</label>
+  <input type="text" id="displayName" placeholder="Ex. Carry Otemba">
+
+  <label>Filiale / organisation</label>
+  <input type="text" id="org" value="star_entreprise" placeholder="star_entreprise, sos_doc, drepanocytose, pilipili, so_membres">
+
+  <button id="submitBtn">Créer le compte</button>
+  <div class="msg" id="msg"></div>
+
+  <p class="hint">Une fois ton compte créé, ouvre l'application S.O et connecte-toi avec cet identifiant et ce mot de passe. Tu peux revenir sur cette page plus tard pour ajouter d'autres comptes (une personne par filiale, par exemple), toujours avec le même jeton de configuration.</p>
+</div>
+<script>
+document.getElementById("submitBtn").addEventListener("click", function () {
+  var btn = this;
+  var msg = document.getElementById("msg");
+  msg.className = "msg";
+  var body = {
+    action: "bootstrap",
+    setupToken: document.getElementById("setupToken").value.trim(),
+    username: document.getElementById("username").value.trim(),
+    password: document.getElementById("password").value,
+    displayName: document.getElementById("displayName").value.trim(),
+    org: document.getElementById("org").value.trim() || "star_entreprise"
+  };
+  if (!body.setupToken || !body.username || body.password.length < 8) {
+    msg.textContent = "Remplis le jeton, l'identifiant, et un mot de passe d'au moins 8 caractères.";
+    msg.className = "msg err";
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = "Création...";
+  fetch("/api/auth", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body)
+  })
+    .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
+    .then(function (res) {
+      btn.disabled = false;
+      btn.textContent = "Créer le compte";
+      if (!res.ok) {
+        msg.textContent = res.data.error || "Erreur lors de la création du compte.";
+        msg.className = "msg err";
+        return;
+      }
+      msg.textContent = "Compte « " + res.data.username + " » créé avec succès. Tu peux maintenant te connecter dans l'application S.O.";
+      msg.className = "msg ok";
+    })
+    .catch(function () {
+      btn.disabled = false;
+      btn.textContent = "Créer le compte";
+      msg.textContent = "Connexion impossible — vérifie ta connexion internet.";
+      msg.className = "msg err";
+    });
+});
+</script>
+</body>
+</html>
