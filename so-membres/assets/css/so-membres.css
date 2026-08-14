@@ -234,3 +234,48 @@ input,textarea,select{font-family:inherit}
   .so-view{animation:none}
   .so-shimmer::after{animation:none;display:none}
 }
+
+/* ---------- Connexion — un seul compte pour tout le groupe STAR ENTREPRISE ---------- */
+.so-login-wrap{
+  position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:24px;
+  background:
+    linear-gradient(180deg,rgba(11,10,9,.62) 0%,rgba(20,19,17,.42) 30%,rgba(250,248,243,.30) 62%,var(--canvas) 90%),
+    linear-gradient(100deg,rgba(184,145,46,.14),transparent 60%),
+    url('../img/team-bg.jpg');
+  background-size:cover,cover,cover;background-position:top center,top center,26% 22%;
+  filter:saturate(1.1);
+}
+.so-login-card{
+  width:100%;max-width:380px;padding:34px 30px 30px;
+  background:linear-gradient(165deg,rgba(20,19,17,.86),rgba(11,10,9,.9));
+  border:1px solid rgba(232,199,124,.28);border-radius:22px;
+  box-shadow:0 40px 90px -30px rgba(0,0,0,.6);
+  animation:soCardIn .6s cubic-bezier(.2,.8,.2,1) both;
+}
+.so-login-brand{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.so-login-brand img{width:42px;height:42px;border-radius:11px;box-shadow:0 0 0 1px rgba(232,195,104,.25),0 8px 24px -8px rgba(184,145,46,.5)}
+.so-login-brand .nm{color:#fff;font-size:18px;font-weight:600}
+.so-login-brand .tg{color:var(--gold);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;margin-top:2px}
+.so-login-title{display:flex;align-items:center;gap:9px;color:#fff;font-size:19px;font-weight:600;margin-bottom:6px}
+.so-login-title svg{color:var(--gold-2)}
+.so-login-sub{color:rgba(255,255,255,.62);font-size:12.5px;margin-bottom:20px}
+.so-login-error{
+  background:rgba(179,69,58,.16);border:1px solid rgba(179,69,58,.4);color:#f3b8b1;
+  font-size:12.5px;padding:9px 12px;border-radius:10px;margin-bottom:16px;
+}
+.so-login-card .so-field{margin-bottom:14px}
+.so-login-card .lbl{color:rgba(255,255,255,.68)}
+.so-login-card .so-input{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.16);color:#fff}
+.so-login-card .so-input::placeholder{color:rgba(255,255,255,.35)}
+.so-login-card .so-input:focus{border-color:var(--gold);background:rgba(255,255,255,.09)}
+.so-login-btn{width:100%;justify-content:center;margin-top:6px}
+
+/* ---------- Compte connecté (pied de la barre latérale) ---------- */
+.so-account{display:flex;flex-direction:column;gap:10px}
+.so-account .who{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.85);font-size:12.5px;font-weight:600}
+.so-account .who .dot{width:7px;height:7px;border-radius:50%;background:#3D7A4E;box-shadow:0 0 0 3px rgba(61,122,78,.25);flex-shrink:0}
+.so-logout{
+  display:inline-flex;align-items:center;gap:7px;color:rgba(255,255,255,.5);font-size:11.5px;
+  transition:color .2s ease;align-self:flex-start;
+}
+.so-logout:hover{color:var(--gold-2)}
