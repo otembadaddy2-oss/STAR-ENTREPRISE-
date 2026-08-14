@@ -1,8 +1,8 @@
-/* S.O — Gestion des membres. Application autonome (localStorage), sans dépendance serveur. */
+/* S.O — Gestion des membres. Backend partagé du groupe STAR ENTREPRISE (Postgres + connexion). */
 (function () {
   "use strict";
 
-  var STORE_KEY = "so_membres_data_v1";
+  var AUTH_KEY = "so_auth_v1";
   var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var fine = window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
@@ -21,14 +21,15 @@
     briefcase: '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
     fileText: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>',
     calendar: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
-    check: '<path d="M20 6 9 17l-5-5"/>'
+    check: '<path d="M20 6 9 17l-5-5"/>',
+    lock: '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+    logOut: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/>'
   };
   function icon(name, size) {
     size = size || 16;
     return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + (ICON[name] || "") + "</svg>";
   }
 
-  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
   function todayISO() { return new Date().toISOString().slice(0, 10); }
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
@@ -45,41 +46,114 @@
   }
 
   /* ---------------------------------------------------------------- */
-  /*  Stockage local — remplace la persistance serveur pour une        */
-  /*  application 100% gratuite, installable et fonctionnelle hors-ligne */
+  /*  Authentification — connexion unique pour le groupe STAR ENTREPRISE */
   /* ---------------------------------------------------------------- */
-  function loadMembres() {
+  function getAuth() {
     try {
-      var raw = localStorage.getItem(STORE_KEY);
-      return raw ? JSON.parse(raw) : [];
-    } catch (e) { return []; }
+      var raw = localStorage.getItem(AUTH_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
   }
-  function persistMembres(arr) {
-    try { localStorage.setItem(STORE_KEY, JSON.stringify(arr)); } catch (e) {
-      toast("Stockage plein — supprimez une photo pour libérer de la place.");
+  function setAuth(data) {
+    try { localStorage.setItem(AUTH_KEY, JSON.stringify(data)); } catch (e) {}
+  }
+  function clearAuth() {
+    try { localStorage.removeItem(AUTH_KEY); } catch (e) {}
+  }
+
+  var appEl = document.getElementById("soApp");
+  var authRoot = document.getElementById("soAuthRoot");
+
+  function renderLogin(errorMsg) {
+    appEl.style.display = "none";
+    authRoot.innerHTML =
+      '<div class="so-login-wrap">' +
+        '<div class="so-login-card card">' +
+          '<div class="so-login-brand">' +
+            '<img src="assets/img/logo-so.jpg" alt="S.O">' +
+            '<div><div class="nm so-display">S.O</div><div class="tg so-mono">Gestion des membres</div></div>' +
+          "</div>" +
+          '<h1 class="so-login-title so-display">' + icon("lock", 18) + " Connexion au groupe</h1>" +
+          '<p class="so-login-sub so-sans">Identifiant et mot de passe STAR ENTREPRISE.</p>' +
+          (errorMsg ? '<div class="so-login-error so-sans">' + esc(errorMsg) + "</div>" : "") +
+          '<label class="so-field"><span class="lbl so-sans">Identifiant</span><input class="so-input so-sans" id="loginUser" autocomplete="username"></label>' +
+          '<label class="so-field"><span class="lbl so-sans">Mot de passe</span><input class="so-input so-sans" type="password" id="loginPass" autocomplete="current-password"></label>' +
+          '<button class="so-btn btn-gold so-login-btn" id="loginSubmit">' + icon("lock", 15) + " Se connecter</button>" +
+        "</div>" +
+      "</div>";
+
+    var userInput = document.getElementById("loginUser");
+    var passInput = document.getElementById("loginPass");
+    var submitBtn = document.getElementById("loginSubmit");
+
+    function doLogin() {
+      var username = userInput.value.trim();
+      var password = passInput.value;
+      if (!username || !password) return;
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Connexion...";
+      fetch("/api/auth", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "login", username: username, password: password })
+      })
+        .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
+        .then(function (res) {
+          if (!res.ok) {
+            renderLogin(res.data.error || "Connexion impossible.");
+            return;
+          }
+          setAuth({ token: res.data.token, account: res.data.account });
+          boot();
+        })
+        .catch(function () { renderLogin("Connexion impossible — vérifiez votre connexion internet."); });
     }
+
+    submitBtn.addEventListener("click", doLogin);
+    [userInput, passInput].forEach(function (el) {
+      el.addEventListener("keydown", function (e) { if (e.key === "Enter") doLogin(); });
+    });
+    userInput.focus();
+  }
+
+  /* ---------------------------------------------------------------- */
+  /*  Appels API — base de données partagée du groupe (fini localStorage) */
+  /* ---------------------------------------------------------------- */
+  function api(path, opts) {
+    opts = opts || {};
+    var auth = getAuth();
+    var headers = Object.assign({}, opts.headers || {});
+    if (auth && auth.token) headers.Authorization = "Bearer " + auth.token;
+    if (opts.body && !headers["content-type"]) headers["content-type"] = "application/json";
+    return fetch(path, { method: opts.method || "GET", headers: headers, body: opts.body })
+      .then(function (r) {
+        if (r.status === 401) {
+          clearAuth();
+          renderLogin("Session expirée — reconnectez-vous.");
+          throw new Error("unauthorized");
+        }
+        return r.json().then(function (data) { return { ok: r.ok, data: data }; });
+      });
   }
 
   var state = {
-    membres: loadMembres(),
+    membres: [],
     view: "liste",
     editing: null,
     query: "",
     anneeFiltre: "toutes",
-    mobileOpen: false
+    mobileOpen: false,
+    loading: true
   };
 
-  function saveMembres(arr) {
-    state.membres = arr;
-    persistMembres(arr);
-  }
-  function upsertMembre(m) {
+  function upsertLocal(m) {
     var exists = state.membres.some(function (x) { return x.id === m.id; });
-    var next = exists ? state.membres.map(function (x) { return x.id === m.id ? m : x; }) : state.membres.concat([m]);
-    saveMembres(next);
+    state.membres = exists
+      ? state.membres.map(function (x) { return x.id === m.id ? m : x; })
+      : state.membres.concat([m]);
   }
-  function removeMembre(id) {
-    saveMembres(state.membres.filter(function (m) { return m.id !== id; }));
+  function removeLocal(id) {
+    state.membres = state.membres.filter(function (m) { return m.id !== id; });
   }
 
   /* ---------------------------------------------------------------- */
@@ -110,10 +184,13 @@
     document.getElementById("soModalBox").addEventListener("click", function (e) { e.stopPropagation(); });
     document.getElementById("soCancelDel").addEventListener("click", closeModal);
     document.getElementById("soConfirmDel").addEventListener("click", function () {
-      removeMembre(m.id);
-      closeModal();
-      toast("Fiche supprimée.");
-      renderView();
+      api("/api/members?id=" + encodeURIComponent(m.id), { method: "DELETE" }).then(function (res) {
+        if (!res.ok) { toast(res.data.error || "Suppression impossible."); return; }
+        removeLocal(m.id);
+        closeModal();
+        toast("Fiche supprimée.");
+        renderView();
+      });
     });
   }
   function closeModal() { modalRoot.innerHTML = ""; }
@@ -179,6 +256,12 @@
   var viewEl = document.getElementById("soView");
 
   function renderListView() {
+    if (state.loading) {
+      setTopbar("Membres", "Chargement...", "");
+      viewEl.innerHTML = '<div class="so-view so-empty card"><div class="ico">' + icon("users", 26) + '</div><h3>Chargement des fiches...</h3><p>Connexion à la base du groupe STAR ENTREPRISE.</p></div>';
+      return;
+    }
+
     var years = Array.from(new Set(state.membres.map(function (m) {
       return (m.dateEnregistrement || "").slice(0, 4);
     }).filter(Boolean))).sort().reverse();
@@ -392,14 +475,24 @@
     });
     document.getElementById("soSaveForm").addEventListener("click", function () {
       if (!(currentForm.nom.trim() && currentForm.prenom.trim())) return;
-      var m = Object.assign({}, currentForm);
-      delete m.__id;
-      m.id = state.editing ? state.editing.id : uid();
-      upsertMembre(m);
-      currentForm = null;
-      toast(state.editing ? "Fiche mise à jour." : "Fiche enregistrée.");
-      state.view = "liste"; state.editing = null;
-      renderView();
+      var payload = Object.assign({}, currentForm);
+      delete payload.__id;
+      var saveBtn = document.getElementById("soSaveForm");
+      saveBtn.disabled = true;
+
+      var isEdit = !!state.editing;
+      var req = isEdit
+        ? api("/api/members", { method: "PUT", body: JSON.stringify(Object.assign({}, payload, { id: state.editing.id })) })
+        : api("/api/members", { method: "POST", body: JSON.stringify(payload) });
+
+      req.then(function (res) {
+        if (!res.ok) { toast(res.data.error || "Enregistrement impossible."); saveBtn.disabled = false; return; }
+        upsertLocal(res.data.membre);
+        currentForm = null;
+        toast(isEdit ? "Fiche mise à jour." : "Fiche enregistrée.");
+        state.view = "liste"; state.editing = null;
+        renderView();
+      });
     });
 
     enhance(viewEl);
@@ -438,6 +531,24 @@
   });
 
   /* ---------------------------------------------------------------- */
+  /*  Compte connecté + déconnexion                                     */
+  /* ---------------------------------------------------------------- */
+  function renderAccountFoot(account) {
+    var foot = document.querySelector(".so-sidebar-foot");
+    if (!foot) return;
+    foot.innerHTML =
+      '<div class="so-account so-sans">' +
+        '<div class="who"><span class="dot"></span>' + esc(account.displayName) + "</div>" +
+        '<button class="so-logout" id="soLogoutBtn">' + icon("logOut", 13) + " Déconnexion</button>" +
+      "</div>";
+    document.getElementById("soLogoutBtn").addEventListener("click", function () {
+      clearAuth();
+      state.membres = []; state.loading = true;
+      renderLogin();
+    });
+  }
+
+  /* ---------------------------------------------------------------- */
   /*  Effets premium locaux pour le contenu généré dynamiquement        */
   /*  (le scan global de effects-v1.js ne voit que le DOM au chargement) */
   /* ---------------------------------------------------------------- */
@@ -469,7 +580,28 @@
     });
   }
 
-  renderView();
+  /* ---------------------------------------------------------------- */
+  /*  Démarrage — vérifie la session puis charge les fiches partagées   */
+  /* ---------------------------------------------------------------- */
+  function boot() {
+    var auth = getAuth();
+    if (!auth || !auth.token) { renderLogin(); return; }
+
+    authRoot.innerHTML = "";
+    appEl.style.display = "";
+    renderAccountFoot(auth.account);
+    state.loading = true;
+    renderView();
+
+    api("/api/members").then(function (res) {
+      state.loading = false;
+      if (!res.ok) { toast(res.data.error || "Impossible de charger les fiches."); state.membres = []; renderView(); return; }
+      state.membres = res.data.membres || [];
+      renderView();
+    }).catch(function () {});
+  }
+
+  boot();
 
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
