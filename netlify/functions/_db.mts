@@ -106,6 +106,32 @@ export async function ensureSchema() {
     )
   `;
 
+  await sql`
+    CREATE TABLE IF NOT EXISTS jardis_documents (
+      id SERIAL PRIMARY KEY,
+      nom TEXT NOT NULL,
+      dossier TEXT NOT NULL DEFAULT 'STAR ENTREPRISE',
+      type_mime TEXT DEFAULT '',
+      taille INTEGER DEFAULT 0,
+      contenu_texte TEXT DEFAULT '',
+      blob_key TEXT NOT NULL,
+      tags TEXT DEFAULT '',
+      created_by INTEGER REFERENCES accounts(id) ON DELETE SET NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS jardis_log (
+      id SERIAL PRIMARY KEY,
+      action TEXT NOT NULL,
+      detail TEXT DEFAULT '',
+      doc_id INTEGER REFERENCES jardis_documents(id) ON DELETE SET NULL,
+      created_by INTEGER REFERENCES accounts(id) ON DELETE SET NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
   initialized = true;
 }
 

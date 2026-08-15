@@ -1,0 +1,16 @@
+{
+  "name": "JARDIS — Assistant personnel STAR ENTREPRISE",
+  "short_name": "JARDIS",
+  "description": "Assistant personnel de Carry OTEMBA : retrouve, prépare et présente vos documents STAR ENTREPRISE.",
+  "start_url": "./jardis.html",
+  "scope": "./jardis.html",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0B0A09",
+  "theme_color": "#0B0A09",
+  "lang": "fr",
+  "icons": [
+    { "src": "assets/img/icons/icon-192-rounded-v1.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/img/icons/icon-512-rounded-v1.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

@@ -38,3 +38,23 @@ export async function requireAuth(req: Request): Promise<SessionClaims | null> {
   if (!token) return null;
   return verifyToken(token);
 }
+
+// Jeton court et scopé à un seul document — utilisé pour la lecture directe
+// (aperçu iframe, Google Cast) là où l'en-tête Authorization n'est pas
+// envoyé par le lecteur (le récepteur Cast récupère l'URL lui-même).
+export async function issueDocToken(docId: string): Promise<string> {
+  return new SignJWT({ docId, kind: "doc" })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("15m")
+    .sign(secret());
+}
+
+export async function verifyDocToken(token: string, docId: string): Promise<boolean> {
+  try {
+    const { payload } = await jwtVerify(token, secret());
+    return payload.kind === "doc" && payload.docId === docId;
+  } catch {
+    return false;
+  }
+}
