@@ -58,7 +58,10 @@
   <input type="text" id="username" autocomplete="off">
 
   <label>Mot de passe (8 caractères minimum)</label>
-  <input type="password" id="password" autocomplete="new-password">
+  <div class="field-row">
+    <input type="password" id="password" autocomplete="new-password">
+    <button type="button" class="toggle-eye" id="togglePassword">Afficher</button>
+  </div>
 
   <label>Nom affiché</label>
   <input type="text" id="displayName" placeholder="Ex. Carry Otemba">
@@ -74,6 +77,12 @@
 <script>
 document.getElementById("toggleToken").addEventListener("click", function () {
   var f = document.getElementById("setupToken");
+  var showing = f.type === "text";
+  f.type = showing ? "password" : "text";
+  this.textContent = showing ? "Afficher" : "Cacher";
+});
+document.getElementById("togglePassword").addEventListener("click", function () {
+  var f = document.getElementById("password");
   var showing = f.type === "text";
   f.type = showing ? "password" : "text";
   this.textContent = showing ? "Afficher" : "Cacher";
