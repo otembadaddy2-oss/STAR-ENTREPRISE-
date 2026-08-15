@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>JARDIS — Assistant personnel STAR ENTREPRISE</title>
+<meta name="description" content="JARDIS — assistant personnel de Carry OTEMBA : retrouve, prépare et présente vos documents STAR ENTREPRISE.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0B0A09">
+<link rel="manifest" href="jardis-manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0B0A09; --navy-2:#141311; --gold:#D9B75C; --gold-deep:#B8912E; --gold-2:#E8C77C;
+  --cream:#FBF8F3; --ink:#231F1A; --ink-soft:#5B564E; --ink-faint:#8D877A; --line:#E7DFD2;
+  --red:#B3202C; --teal:#3E9E92;
+  --serif:'Fraunces',Georgia,serif; --sans:'Inter',ui-sans-serif,system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);color:var(--ink);background:var(--cream);min-height:100vh}
+h1,h2,h3{font-family:var(--serif)}
+button{cursor:pointer;border:0;font-family:var(--sans)}
+input,select,textarea{font-family:var(--sans)}
+
+/* ---- login ---- */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(120% 100% at 20% 0%,#241d10 0%,var(--navy) 60%)}
+.login-card{width:100%;max-width:420px;background:#fff;border-radius:22px;padding:34px 28px;box-shadow:0 30px 70px rgba(0,0,0,.4)}
+.login-brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.login-brand .orb{width:44px;height:44px;border-radius:50%;background:conic-gradient(from 180deg,var(--gold),var(--gold-2),var(--teal),var(--gold));flex:none}
+.login-card h1{font-size:22px}
+.login-card .sub{font-size:12.5px;color:var(--ink-soft);margin-bottom:22px;line-height:1.5}
+.login-error{background:#FBE6E2;border:1px solid #E7B4AA;color:var(--red);border-radius:10px;padding:10px 12px;font-size:12.5px;margin-bottom:16px}
+label{display:block;font-size:12px;color:var(--ink-soft);font-weight:600;margin:14px 0 6px}
+.login-card input{width:100%;padding:12px 13px;border-radius:10px;border:1.5px solid var(--line);background:var(--cream);font-size:14px;color:var(--ink)}
+.login-card input:focus{outline:none;border-color:var(--gold-deep)}
+.field-row{position:relative}
+.field-row input{padding-right:66px}
+.toggle-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:#fff;border:1px solid var(--line);border-radius:7px;color:var(--gold-deep);font-size:11px;padding:6px 10px;cursor:pointer;font-weight:700}
+.btn-gold{width:100%;margin-top:22px;padding:13px;border-radius:12px;background:linear-gradient(135deg,var(--gold-2),var(--gold-deep));color:#241a02;font-weight:800;font-size:14px}
+.btn-gold:disabled{opacity:.6}
+
+/* ---- shell ---- */
+.app{display:none;min-height:100vh}
+.topbar{background:var(--navy);color:#fff;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:20}
+.topbar .brand{display:flex;align-items:center;gap:10px}
+.topbar .orb{width:30px;height:30px;border-radius:50%;background:conic-gradient(from 180deg,var(--gold),var(--gold-2),var(--teal),var(--gold));flex:none}
+.topbar h1{color:#fff;font-size:17px}
+.topbar .who{font-size:11.5px;color:#C9C4B8}
+.logout-btn{background:rgba(255,255,255,.12);color:#fff;padding:8px 16px;border-radius:100px;font-size:12.5px;font-weight:700}
+
+.tabs{display:flex;gap:8px;padding:14px 20px 0;max-width:820px;margin:0 auto;flex-wrap:wrap}
+.tab{background:#fff;border:1px solid var(--line);padding:9px 18px;border-radius:100px;font-size:13px;font-weight:700;color:var(--ink-soft)}
+.tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+.wrap{max-width:820px;margin:0 auto;padding:20px 20px 60px}
+.view{display:none}
+.view.active{display:block}
+
+/* ---- recherche ---- */
+.search-box{background:#fff;border:1px solid var(--line);border-radius:18px;padding:8px 8px 8px 18px;display:flex;align-items:center;gap:10px;box-shadow:0 10px 30px rgba(19,17,10,.08)}
+.search-box input{flex:1;border:0;background:transparent;font-size:15px;padding:12px 0;color:var(--ink)}
+.search-box input:focus{outline:none}
+.mic-btn,.send-btn{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none}
+.mic-btn{background:var(--cream);border:1px solid var(--line);color:var(--ink-soft)}
+.mic-btn.listening{background:var(--red);color:#fff;animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(179,32,44,.5)}50%{box-shadow:0 0 0 8px rgba(179,32,44,0)}}
+.send-btn{background:linear-gradient(135deg,var(--gold-2),var(--gold-deep));color:#241a02}
+
+.jardis-msg{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-top:18px;font-size:14px;line-height:1.6}
+.jardis-msg .avatar{display:inline-flex;align-items:center;gap:8px;font-weight:800;color:var(--gold-deep);margin-bottom:8px;font-size:12.5px;letter-spacing:.02em;text-transform:uppercase}
+.jardis-msg .avatar .dot{width:8px;height:8px;border-radius:50%;background:var(--teal)}
+
+.results{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.result-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+.result-card .row1{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.result-card b{font-size:15px}
+.result-card .meta{font-size:12px;color:var(--ink-faint);margin-top:2px}
+.result-card .extrait{font-size:12.5px;color:var(--ink-soft);margin-top:8px;line-height:1.5}
+.score-badge{font-size:10.5px;font-weight:800;padding:3px 10px;border-radius:100px;background:#F1E6D3;color:var(--gold-deep);white-space:nowrap}
+.result-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.icon-btn{background:var(--cream);border:1px solid var(--line);border-radius:9px;padding:8px 14px;font-size:12.5px;color:var(--ink-soft);font-weight:700}
+.icon-btn.gold{background:linear-gradient(135deg,var(--gold-2),var(--gold-deep));color:#241a02;border:0}
+.icon-btn.danger{color:var(--red)}
+
+.preview-modal{position:fixed;inset:0;background:rgba(11,10,9,.82);z-index:50;display:none;align-items:center;justify-content:center;padding:20px}
+.preview-modal.show{display:flex}
+.preview-box{background:#fff;border-radius:18px;max-width:800px;width:100%;max-height:88vh;display:flex;flex-direction:column;overflow:hidden}
+.preview-head{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line)}
+.preview-head b{font-size:14px}
+.preview-body{flex:1;overflow:auto;background:var(--cream)}
+.preview-body iframe,.preview-body img{width:100%;height:100%;min-height:400px;border:0;display:block;object-fit:contain}
+.close-btn{background:none;font-size:20px;color:var(--ink-faint)}
+
+/* ---- bibliothèque ---- */
+.upload-form{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;margin-bottom:20px}
+.upload-form h3{font-size:16px;margin-bottom:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+@media (max-width:560px){.grid2{grid-template-columns:1fr}}
+.upload-form input,.upload-form select,.upload-form textarea{width:100%;padding:11px 13px;border-radius:10px;border:1.5px solid var(--line);background:var(--cream);font-size:14px;color:var(--ink)}
+.upload-form input:focus,.upload-form select:focus,.upload-form textarea:focus{outline:none;border-color:var(--gold-deep)}
+.btn-save{background:var(--navy);color:#fff;padding:11px 22px;border-radius:100px;font-size:13.5px;font-weight:700;margin-top:16px}
+.lib-list{display:flex;flex-direction:column;gap:10px}
+.lib-item{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.lib-item b{font-size:14px}
+.lib-item .meta{font-size:11.5px;color:var(--ink-faint)}
+.badge-dossier{font-size:10.5px;font-weight:800;background:#E4F2F0;color:#2f7a6f;padding:3px 10px;border-radius:100px}
+
+/* ---- journal ---- */
+.log-item{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-bottom:8px;font-size:13px}
+.log-item .action{font-weight:700;text-transform:capitalize;color:var(--navy)}
+.log-item .time{font-size:11px;color:var(--ink-faint);float:right}
+
+.empty{text-align:center;padding:50px 20px;color:var(--ink-faint)}
+.empty .ic{font-size:36px;margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<div id="authRoot"></div>
+
+<div class="app" id="app">
+  <div class="topbar">
+    <div class="brand"><span class="orb"></span><h1>JARDIS</h1></div>
+    <div style="display:flex;align-items:center;gap:14px">
+      <span class="who" id="whoLabel"></span>
+      <button class="logout-btn" id="logoutBtn">Déconnexion</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-view="search">Rechercher</button>
+    <button class="tab" data-view="library">Bibliothèque</button>
+    <button class="tab" data-view="journal">Journal</button>
+  </div>
+
+  <div class="wrap">
+
+    <div class="view active" id="viewSearch">
+      <div class="search-box">
+        <input id="searchInput" placeholder="Retrouve le dernier business plan…" autocomplete="off">
+        <button class="mic-btn" id="micBtn" title="Recherche vocale" aria-label="Recherche vocale">🎙️</button>
+        <button class="send-btn" id="sendBtn" aria-label="Rechercher">→</button>
+      </div>
+      <div id="searchOutput"></div>
+    </div>
+
+    <div class="view" id="viewLibrary">
+      <div class="upload-form">
+        <h3>Ajouter un document</h3>
+        <div class="grid2">
+          <div><label>Nom</label><input id="upNom" placeholder="Ex. Business plan 2026"></div>
+          <div><label>Dossier</label>
+            <select id="upDossier">
+              <option>STAR ENTREPRISE</option>
+              <option>SO-MEMBRES</option>
+              <option>Drépanocytose</option>
+              <option>Pili-Pili Events</option>
+              <option>SOS-DOC</option>
+              <option>Personnel</option>
+            </select>
+          </div>
+        </div>
+        <label>Fichier</label>
+        <input id="upFile" type="file">
+        <label>Mots-clés (séparés par des virgules)</label>
+        <input id="upTags" placeholder="Ex. business plan, finances, 2026">
+        <label>Description courte (rend le document trouvable par le contenu)</label>
+        <textarea id="upDesc" rows="3" placeholder="Résume en quelques mots ce que contient ce document…"></textarea>
+        <button class="btn-save" id="upSaveBtn">Ajouter à la bibliothèque</button>
+      </div>
+      <div id="libraryList"></div>
+    </div>
+
+    <div class="view" id="viewJournal">
+      <div id="journalList"></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="preview-modal" id="previewModal">
+  <div class="preview-box">
+    <div class="preview-head">
+      <b id="previewTitle"></b>
+      <button class="close-btn" id="previewClose">✕</button>
+    </div>
+    <div class="preview-body" id="previewBody"></div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
+<script>
+(function(){
+  "use strict";
+  var AUTH_KEY = "so_auth_v1";
+  var authRoot = document.getElementById("authRoot");
+  var appEl = document.getElementById("app");
+  var state = { lastResults: [] };
+
+  function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); }
+  function getAuth(){ try { return JSON.parse(localStorage.getItem(AUTH_KEY)); } catch(e){ return null; } }
+  function setAuth(d){ try { localStorage.setItem(AUTH_KEY, JSON.stringify(d)); } catch(e){} }
+  function clearAuth(){ try { localStorage.removeItem(AUTH_KEY); } catch(e){} }
+
+  function api(path, opts){
+    opts = opts || {};
+    var auth = getAuth();
+    var headers = Object.assign({ "content-type": "application/json" }, opts.headers || {});
+    if (auth && auth.token) headers["authorization"] = "Bearer " + auth.token;
+    return fetch(path, Object.assign({}, opts, { headers: headers }))
+      .then(function(r){
+        if (r.status === 401) { clearAuth(); boot(); return Promise.reject("unauth"); }
+        return r.json().then(function(data){ return { ok: r.ok, data: data }; });
+      });
+  }
+
+  /* ---------------- Connexion ---------------- */
+  function renderLogin(errorMsg){
+    appEl.style.display = "none";
+    authRoot.innerHTML =
+      '<div class="login-wrap"><div class="login-card">' +
+        '<div class="login-brand"><span class="orb"></span><h1>JARDIS</h1></div>' +
+        '<p class="sub">Assistant personnel de Carry OTEMBA — connexion STAR ENTREPRISE requise. « Je retrouve, je prépare, je présente — toujours avec votre autorisation. »</p>' +
+        (errorMsg ? '<div class="login-error">' + esc(errorMsg) + '</div>' : '') +
+        '<label>Identifiant</label><input id="lUser" autocomplete="username">' +
+        '<label>Mot de passe</label>' +
+        '<div class="field-row"><input type="password" id="lPass" autocomplete="current-password"><button type="button" class="toggle-eye" id="lToggle">Afficher</button></div>' +
+        '<button class="btn-gold" id="lSubmit">Se connecter</button>' +
+      '</div></div>';
+
+    var u = document.getElementById("lUser"), p = document.getElementById("lPass"), btn = document.getElementById("lSubmit");
+    document.getElementById("lToggle").addEventListener("click", function(){
+      var showing = p.type === "text"; p.type = showing ? "password" : "text";
+      this.textContent = showing ? "Afficher" : "Cacher";
+    });
+    function doLogin(){
+      var username = u.value.trim(), password = p.value;
+      if (!username || !password) return;
+      btn.disabled = true; btn.textContent = "Connexion...";
+      fetch("/api/auth", { method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify({action:"login",username:username,password:password}) })
+        .then(function(r){ return r.json().then(function(data){ return {ok:r.ok,data:data}; }); })
+        .then(function(res){
+          if (!res.ok) { renderLogin(res.data.error || "Connexion impossible."); return; }
+          setAuth({ token: res.data.token, account: res.data.account });
+          boot();
+        })
+        .catch(function(){ renderLogin("Connexion impossible — vérifiez votre connexion internet."); });
+    }
+    btn.addEventListener("click", doLogin);
+    [u,p].forEach(function(el){ el.addEventListener("keydown", function(e){ if (e.key === "Enter") doLogin(); }); });
+    u.focus();
+  }
+
+  /* ---------------- Voix ---------------- */
+  var voices = [];
+  if ("speechSynthesis" in window) {
+    voices = window.speechSynthesis.getVoices() || [];
+    window.speechSynthesis.onvoiceschanged = function(){ voices = window.speechSynthesis.getVoices() || []; };
+  }
+  function speak(text){
+    if (!("speechSynthesis" in window)) return;
+    try {
+      var clean = text.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+      var u = new SpeechSynthesisUtterance(clean);
+      u.lang = "fr-FR";
+      var fr = voices.filter(function(v){ return v.lang && v.lang.toLowerCase().indexOf("fr") === 0; })[0];
+      if (fr) u.voice = fr;
+      u.rate = 0.95; u.pitch = 1.05;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(u);
+    } catch(e){}
+  }
+
+  var recognition = null;
+  var SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var micBtn = document.getElementById("micBtn");
+  if (SpeechRec) {
+    recognition = new SpeechRec();
+    recognition.lang = "fr-FR";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognition.onresult = function(e){
+      var text = e.results[0][0].transcript;
+      document.getElementById("searchInput").value = text;
+      runSearch(text);
+    };
+    recognition.onend = function(){ micBtn.classList.remove("listening"); };
+    recognition.onerror = function(){ micBtn.classList.remove("listening"); };
+  } else {
+    micBtn.style.display = "none";
+  }
+  micBtn.addEventListener("click", function(){
+    if (!recognition) return;
+    micBtn.classList.add("listening");
+    try { recognition.start(); } catch(e){ micBtn.classList.remove("listening"); }
+  });
+
+  /* ---------------- Recherche ---------------- */
+  function formatSize(bytes){
+    if (!bytes) return "";
+    if (bytes < 1024) return bytes + " o";
+    if (bytes < 1024*1024) return Math.round(bytes/1024) + " Ko";
+    return (bytes/1024/1024).toFixed(1) + " Mo";
+  }
+  function formatDate(iso){
+    try { return new Date(iso).toLocaleDateString("fr-FR", {day:"2-digit",month:"long",year:"numeric"}); } catch(e){ return ""; }
+  }
+
+  function runSearch(q){
+    q = (q || document.getElementById("searchInput").value || "").trim();
+    if (!q) return;
+    var out = document.getElementById("searchOutput");
+    out.innerHTML = '<div class="jardis-msg"><span class="avatar"><span class="dot"></span>JARDIS</span>Je cherche…</div>';
+    api("/api/jardis-documents?q=" + encodeURIComponent(q)).then(function(res){
+      if (!res.ok) { out.innerHTML = '<div class="jardis-msg"><span class="avatar"><span class="dot"></span>JARDIS</span>Une erreur est survenue pendant la recherche.</div>'; return; }
+      var docs = res.data.documents || [];
+      state.lastResults = docs;
+      renderResults(q, docs);
+    });
+  }
+
+  function renderResults(q, docs){
+    var out = document.getElementById("searchOutput");
+    var msg, spoken;
+    if (!docs.length) {
+      msg = 'Je n\'ai rien trouvé de clair pour « ' + esc(q) + ' » dans la bibliothèque. Peux-tu préciser un mot-clé, un dossier ou une période ?';
+      spoken = "Je n'ai rien trouvé de clair. Peux-tu préciser ?";
+      out.innerHTML = '<div class="jardis-msg"><span class="avatar"><span class="dot"></span>JARDIS</span>' + msg + '</div>';
+      speak(spoken);
+      return;
+    }
+    var top3 = docs.slice(0, 3);
+    if (top3.length === 1 && top3[0].score >= 90) {
+      msg = 'J\'ai trouvé <b>' + esc(top3[0].nom) + '</b>, dans le dossier ' + esc(top3[0].dossier) + ', ajouté le ' + formatDate(top3[0].createdAt) + '.';
+      spoken = "J'ai trouvé " + top3[0].nom + ".";
+    } else {
+      msg = 'J\'ai trouvé ' + top3.length + ' résultat' + (top3.length > 1 ? 's' : '') + ' pour « ' + esc(q) + ' ». Voici le' + (top3.length > 1 ? 's meilleurs' : '') + ' :';
+      spoken = "J'ai trouvé " + top3.length + " résultats. Lequel veux-tu ?";
+    }
+    out.innerHTML = '<div class="jardis-msg"><span class="avatar"><span class="dot"></span>JARDIS</span>' + msg + '</div>' +
+      '<div class="results">' + top3.map(function(d){
+        return '<div class="result-card" data-id="' + d.id + '">' +
+          '<div class="row1"><div><b>' + esc(d.nom) + '</b>' +
+          '<div class="meta">' + esc(d.dossier) + ' · ' + formatDate(d.createdAt) + (d.taille ? ' · ' + formatSize(d.taille) : '') + '</div></div>' +
+          '<span class="score-badge">' + d.score + '% pertinent</span></div>' +
+          (d.extrait ? '<div class="extrait">' + esc(d.extrait) + '…</div>' : '') +
+          '<div class="result-actions">' +
+            '<button class="icon-btn gold" data-act="preview">👁️ Aperçu</button>' +
+            '<button class="icon-btn" data-act="cast">📺 Projeter</button>' +
+          '</div>' +
+        '</div>';
+      }).join("") + '</div>';
+    speak(spoken);
+
+    out.querySelectorAll(".result-card").forEach(function(el){
+      var id = el.getAttribute("data-id");
+      var doc = docs.filter(function(d){ return d.id === id; })[0];
+      el.querySelector('[data-act="preview"]').addEventListener("click", function(){ openPreview(doc); });
+      el.querySelector('[data-act="cast"]').addEventListener("click", function(){ castDoc(doc); });
+    });
+  }
+
+  document.getElementById("sendBtn").addEventListener("click", function(){ runSearch(); });
+  document.getElementById("searchInput").addEventListener("keydown", function(e){ if (e.key === "Enter") runSearch(); });
+
+  /* ---------------- Aperçu ---------------- */
+  function openPreview(doc){
+    api("/api/jardis-doc-link", { method:"POST", body: JSON.stringify({ id: doc.id }) }).then(function(res){
+      if (!res.ok) { alert("Impossible d'ouvrir l'aperçu."); return; }
+      document.getElementById("previewTitle").textContent = doc.nom;
+      var body = document.getElementById("previewBody");
+      var t = res.data.typeMime || "";
+      if (t.indexOf("image/") === 0) {
+        body.innerHTML = '<img src="' + res.data.url + '" alt="">';
+      } else {
+        body.innerHTML = '<iframe src="' + res.data.url + '"></iframe>';
+      }
+      document.getElementById("previewModal").classList.add("show");
+    });
+  }
+  document.getElementById("previewClose").addEventListener("click", function(){
+    document.getElementById("previewModal").classList.remove("show");
+    document.getElementById("previewBody").innerHTML = "";
+  });
+
+  /* ---------------- Projection Google Cast ---------------- */
+  var castAvailable = false;
+  window.__onGCastApiAvailable = function(isAvailable){
+    if (!isAvailable) return;
+    castAvailable = true;
+    var context = cast.framework.CastContext.getInstance();
+    context.setOptions({
+      receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
+      autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+    });
+  };
+
+  function castDoc(doc){
+    if (!castAvailable || typeof cast === "undefined") {
+      alert("La projection nécessite Chrome sur un réseau où un appareil Google Cast (Chromecast / Google TV) est disponible.");
+      return;
+    }
+    api("/api/jardis-doc-link", { method:"POST", body: JSON.stringify({ id: doc.id }) }).then(function(res){
+      if (!res.ok) { alert("Impossible de préparer la projection."); return; }
+      var session = cast.framework.CastContext.getInstance().getCurrentSession();
+      function launch(session){
+        var mediaInfo = new chrome.cast.media.MediaInfo(res.data.url, res.data.typeMime || "application/octet-stream");
+        var request = new chrome.cast.media.LoadRequest(mediaInfo);
+        session.loadMedia(request).then(
+          function(){ speak("Projection lancée sur l'écran."); },
+          function(err){ alert("Erreur de projection : " + err); }
+        );
+      }
+      if (session) { launch(session); return; }
+      cast.framework.CastContext.getInstance().requestSession().then(function(){
+        launch(cast.framework.CastContext.getInstance().getCurrentSession());
+      }).catch(function(){});
+    });
+  }
+
+  /* ---------------- Bibliothèque ---------------- */
+  function loadLibrary(){
+    api("/api/jardis-documents").then(function(res){
+      if (!res.ok) return;
+      var docs = res.data.documents || [];
+      var root = document.getElementById("libraryList");
+      if (!docs.length) { root.innerHTML = '<div class="empty"><div class="ic">📂</div><div>Aucun document dans la bibliothèque pour le moment.</div></div>'; return; }
+      root.innerHTML = '<div class="lib-list">' + docs.map(function(d){
+        return '<div class="lib-item" data-id="' + d.id + '">' +
+          '<div><b>' + esc(d.nom) + '</b><div class="meta">' + formatDate(d.createdAt) + (d.taille ? ' · ' + formatSize(d.taille) : '') + '</div></div>' +
+          '<span class="badge-dossier">' + esc(d.dossier) + '</span>' +
+          '<button class="icon-btn danger" data-act="del">Supprimer</button>' +
+        '</div>';
+      }).join("") + '</div>';
+      root.querySelectorAll('[data-act="del"]').forEach(function(btn){
+        btn.addEventListener("click", function(){
+          var id = this.closest(".lib-item").getAttribute("data-id");
+          if (!confirm("Supprimer ce document de la bibliothèque ?")) return;
+          api("/api/jardis-documents?id=" + id, { method:"DELETE" }).then(function(res){ if (res.ok) loadLibrary(); });
+        });
+      });
+    });
+  }
+
+  function fileToBase64(file){
+    return new Promise(function(resolve, reject){
+      var reader = new FileReader();
+      reader.onload = function(){ resolve(reader.result); };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  document.getElementById("upSaveBtn").addEventListener("click", function(){
+    var nom = document.getElementById("upNom").value.trim();
+    var fileInput = document.getElementById("upFile");
+    var file = fileInput.files[0];
+    if (!nom || !file) { alert("Nom et fichier requis."); return; }
+    if (file.size > 6_000_000) { alert("Fichier trop volumineux (limite 6 Mo)."); return; }
+    var btn = this;
+    btn.disabled = true; btn.textContent = "Envoi...";
+    fileToBase64(file).then(function(dataUrl){
+      return api("/api/jardis-documents", {
+        method: "POST",
+        body: JSON.stringify({
+          nom: nom,
+          dossier: document.getElementById("upDossier").value,
+          typeMime: file.type,
+          tags: document.getElementById("upTags").value.trim(),
+          contenuTexte: document.getElementById("upDesc").value.trim(),
+          fileBase64: dataUrl
+        })
+      });
+    }).then(function(res){
+      btn.disabled = false; btn.textContent = "Ajouter à la bibliothèque";
+      if (!res.ok) { alert(res.data.error || "Erreur lors de l'ajout."); return; }
+      document.getElementById("upNom").value = "";
+      document.getElementById("upTags").value = "";
+      document.getElementById("upDesc").value = "";
+      fileInput.value = "";
+      loadLibrary();
+    }).catch(function(){
+      btn.disabled = false; btn.textContent = "Ajouter à la bibliothèque";
+    });
+  });
+
+  /* ---------------- Journal ---------------- */
+  function loadJournal(){
+    api("/api/jardis-log").then(function(res){
+      if (!res.ok) return;
+      var entries = res.data.entries || [];
+      var root = document.getElementById("journalList");
+      if (!entries.length) { root.innerHTML = '<div class="empty"><div class="ic">📜</div><div>Aucune action enregistrée pour le moment.</div></div>'; return; }
+      root.innerHTML = entries.map(function(e){
+        var d = new Date(e.createdAt);
+        var time = d.toLocaleDateString("fr-FR", {day:"2-digit",month:"short"}) + " à " + d.toLocaleTimeString("fr-FR", {hour:"2-digit",minute:"2-digit"});
+        return '<div class="log-item"><span class="time">' + time + '</span><span class="action">' + esc(e.action) + '</span>' +
+          (e.docNom ? ' — ' + esc(e.docNom) : (e.detail ? ' — ' + esc(e.detail) : '')) + '</div>';
+      }).join("");
+    });
+  }
+
+  /* ---------------- Onglets ---------------- */
+  document.querySelectorAll(".tab").forEach(function(tab){
+    tab.addEventListener("click", function(){
+      document.querySelectorAll(".tab").forEach(function(t){ t.classList.remove("active"); });
+      this.classList.add("active");
+      var view = this.getAttribute("data-view");
+      document.querySelectorAll(".view").forEach(function(v){ v.classList.remove("active"); });
+      document.getElementById("view" + view.charAt(0).toUpperCase() + view.slice(1)).classList.add("active");
+      if (view === "library") loadLibrary();
+      if (view === "journal") loadJournal();
+    });
+  });
+
+  document.getElementById("logoutBtn").addEventListener("click", function(){ clearAuth(); boot(); });
+
+  function boot(){
+    var auth = getAuth();
+    if (!auth || !auth.token) { renderLogin(); return; }
+    authRoot.innerHTML = "";
+    appEl.style.display = "block";
+    document.getElementById("whoLabel").textContent = auth.account ? auth.account.displayName : "";
+  }
+
+  boot();
+})();
+</script>
+</body>
+</html>
