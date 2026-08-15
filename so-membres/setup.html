@@ -24,6 +24,13 @@
     background:rgba(255,255,255,.06);color:#fff;font-size:14px;
   }
   input:focus{outline:none;border-color:#B8912E}
+  .field-row{position:relative}
+  .field-row input{padding-right:66px}
+  .toggle-eye{
+    position:absolute;right:6px;top:50%;transform:translateY(-50%);
+    background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:7px;
+    color:#E8C77C;font-size:11px;padding:6px 10px;cursor:pointer;
+  }
   button{
     width:100%;margin-top:22px;padding:12px;border:none;border-radius:10px;
     background:linear-gradient(135deg,#D9B75C,#B8912E);color:#141311;font-weight:700;font-size:14px;cursor:pointer;
@@ -41,7 +48,10 @@
   <p class="sub">Page à usage unique : crée le premier compte administrateur du groupe (ou un compte supplémentaire pour une filiale). Le jeton de configuration t'a été communiqué séparément — ne le partage avec personne.</p>
 
   <label>Jeton de configuration</label>
-  <input type="text" id="setupToken" autocomplete="off" placeholder="Ex. ZDAEX732" style="text-transform:uppercase">
+  <div class="field-row">
+    <input type="password" id="setupToken" autocomplete="off" placeholder="Ex. ZDAEX732" style="text-transform:uppercase">
+    <button type="button" class="toggle-eye" id="toggleToken">Afficher</button>
+  </div>
 
   <label>Identifiant choisi</label>
   <input type="text" id="username" autocomplete="off">
@@ -61,6 +71,12 @@
   <p class="hint">Une fois ton compte créé, ouvre l'application S.O et connecte-toi avec cet identifiant et ce mot de passe. Tu peux revenir sur cette page plus tard pour ajouter d'autres comptes (une personne par filiale, par exemple), toujours avec le même jeton de configuration.</p>
 </div>
 <script>
+document.getElementById("toggleToken").addEventListener("click", function () {
+  var f = document.getElementById("setupToken");
+  var showing = f.type === "text";
+  f.type = showing ? "password" : "text";
+  this.textContent = showing ? "Afficher" : "Cacher";
+});
 document.getElementById("submitBtn").addEventListener("click", function () {
   var btn = this;
   var msg = document.getElementById("msg");
