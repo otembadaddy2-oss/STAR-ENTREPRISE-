@@ -41,7 +41,7 @@
   <p class="sub">Page à usage unique : crée le premier compte administrateur du groupe (ou un compte supplémentaire pour une filiale). Le jeton de configuration t'a été communiqué séparément — ne le partage avec personne.</p>
 
   <label>Jeton de configuration</label>
-  <input type="password" id="setupToken" autocomplete="off">
+  <input type="text" id="setupToken" autocomplete="off" placeholder="Ex. ZDAEX732" style="text-transform:uppercase">
 
   <label>Identifiant choisi</label>
   <input type="text" id="username" autocomplete="off">
@@ -67,7 +67,7 @@ document.getElementById("submitBtn").addEventListener("click", function () {
   msg.className = "msg";
   var body = {
     action: "bootstrap",
-    setupToken: document.getElementById("setupToken").value.trim(),
+    setupToken: document.getElementById("setupToken").value.trim().toUpperCase(),
     username: document.getElementById("username").value.trim(),
     password: document.getElementById("password").value,
     displayName: document.getElementById("displayName").value.trim(),
