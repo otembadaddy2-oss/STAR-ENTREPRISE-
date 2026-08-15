@@ -54,6 +54,7 @@ button{cursor:pointer;border:0;font-family:var(--sans)}
 .badge{display:inline-block;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.02em;padding:3px 10px;border-radius:100px}
 .badge.devis{background:#F1E6D3;color:var(--gold-deep)}
 .badge.contact{background:#E4F2F0;color:#2f7a6f}
+.badge.document{background:#E7E5F7;color:#5a4bb8}
 select.statut{font-size:12px;padding:6px 10px;border-radius:100px;font-weight:700}
 .icon-btn{background:var(--cream);border:1px solid var(--line);border-radius:9px;padding:7px 11px;font-size:12px;color:var(--ink-soft);font-weight:700;margin-top:8px}
 .icon-btn.danger{color:var(--red)}
@@ -78,6 +79,7 @@ select.statut{font-size:12px;padding:6px 10px;border-radius:100px;font-weight:70
     <div class="tabs">
       <button class="tab active" data-filter="all">Tout</button>
       <button class="tab" data-filter="devis">Devis</button>
+      <button class="tab" data-filter="document">Documents</button>
       <button class="tab" data-filter="contact">Contact</button>
     </div>
     <div class="count" id="countLabel">0 demande</div>
@@ -154,7 +156,7 @@ select.statut{font-size:12px;padding:6px 10px;border-radius:100px;font-weight:70
       var date = l.createdAt ? new Date(l.createdAt).toLocaleDateString("fr-FR", {day:"2-digit",month:"short",year:"numeric"}) : "";
       return '<div class="item" data-id="' + l.id + '">' +
         '<div class="row1">' +
-          '<div><span class="badge ' + esc(l.type) + '">' + (l.type === "devis" ? "Devis" : "Contact") + '</span><br>' +
+          '<div><span class="badge ' + esc(l.type) + '">' + (l.type === "devis" ? "Devis" : l.type === "document" ? "Document" : "Contact") + '</span><br>' +
           '<b style="margin-top:6px;display:inline-block">' + esc(l.nom || "(sans nom)") + (l.entreprise ? " — " + esc(l.entreprise) : "") + '</b>' +
           '<div class="meta">' + [l.email, l.telephone, l.service, date].filter(Boolean).map(esc).join(" · ") + '</div></div>' +
           (l.type === "devis"
