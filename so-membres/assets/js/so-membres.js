@@ -77,7 +77,12 @@
           '<p class="so-login-sub so-sans">Identifiant et mot de passe STAR ENTREPRISE.</p>' +
           (errorMsg ? '<div class="so-login-error so-sans">' + esc(errorMsg) + "</div>" : "") +
           '<label class="so-field"><span class="lbl so-sans">Identifiant</span><input class="so-input so-sans" id="loginUser" autocomplete="username"></label>' +
-          '<label class="so-field"><span class="lbl so-sans">Mot de passe</span><input class="so-input so-sans" type="password" id="loginPass" autocomplete="current-password"></label>' +
+          '<label class="so-field"><span class="lbl so-sans">Mot de passe</span>' +
+            '<span style="position:relative;display:block">' +
+              '<input class="so-input so-sans" type="password" id="loginPass" autocomplete="current-password" style="padding-right:66px">' +
+              '<button type="button" id="loginPassToggle" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:7px;color:#E8C77C;font-size:11px;padding:6px 10px;cursor:pointer">Afficher</button>' +
+            "</span>" +
+          "</label>" +
           '<button class="so-btn btn-gold so-login-btn" id="loginSubmit">' + icon("lock", 15) + " Se connecter</button>" +
         "</div>" +
       "</div>";
@@ -85,6 +90,12 @@
     var userInput = document.getElementById("loginUser");
     var passInput = document.getElementById("loginPass");
     var submitBtn = document.getElementById("loginSubmit");
+    var passToggle = document.getElementById("loginPassToggle");
+    passToggle.addEventListener("click", function () {
+      var showing = passInput.type === "text";
+      passInput.type = showing ? "password" : "text";
+      passToggle.textContent = showing ? "Afficher" : "Cacher";
+    });
 
     function doLogin() {
       var username = userInput.value.trim();
