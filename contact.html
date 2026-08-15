@@ -98,7 +98,7 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.7 1.5 5.3L2 22l4.8-1.5c1.5.8 3.3 1.3 5.2 1.3 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg>
             <span data-i18n="contact.btn.send">Envoyer via WhatsApp</span>
           </button>
-          <p class="form-note" id="lead-note" data-i18n="contact.form.note">Votre message est envoyé directement sur le WhatsApp de STAR ENTREPRISE — aucune donnée n'est stockée sur nos serveurs.</p>
+          <p class="form-note" id="lead-note" data-i18n="contact.form.note">Votre message est envoyé sur le WhatsApp de STAR ENTREPRISE et enregistré en toute sécurité dans notre espace équipe.</p>
         </form>
       </div>
 
@@ -191,5 +191,28 @@
 <script src="assets/js/jardissa-v6.js"></script>
 <script src="assets/js/pwa-v2.js"></script>
 <script src="assets/js/effects-v1.js"></script>
+<script>
+// Capture le formulaire de contact vers l'espace direction, en plus du
+// message WhatsApp existant. Écoute en phase de capture sur document pour
+// s'exécuter avant le gestionnaire de main-v2.js (qui réinitialise le
+// formulaire) — l'ordre entre scripts n'a donc pas d'importance ici.
+document.addEventListener("submit", function (e) {
+  var form = e.target;
+  if (!form || form.id !== "lead-form") return;
+  var data = new FormData(form);
+  fetch("/api/leads", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      type: "contact",
+      nom: data.get("nom") || "",
+      email: /@/.test(data.get("contact") || "") ? data.get("contact") : "",
+      telephone: /@/.test(data.get("contact") || "") ? "" : (data.get("contact") || ""),
+      service: data.get("service") || "",
+      message: (data.get("budget") ? "Budget : " + data.get("budget") + "\n" : "") + (data.get("message") || "")
+    })
+  }).catch(function () {});
+}, true);
+</script>
 </body>
 </html>

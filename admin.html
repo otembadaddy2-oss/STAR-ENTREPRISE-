@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Espace direction — STAR ENTREPRISE</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0B0A09; --navy-2:#141311; --gold:#D9B75C; --gold-deep:#B8912E;
+  --cream:#FBF8F3; --ink:#231F1A; --ink-soft:#5B564E; --ink-faint:#8D877A; --line:#E7DFD2;
+  --red:#B3202C;
+  --serif:'Sora',ui-sans-serif,system-ui,sans-serif; --sans:'Inter',ui-sans-serif,system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);color:var(--ink);background:var(--cream);min-height:100vh}
+h1,h2,h3{font-family:var(--serif)}
+
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(160deg,var(--navy-2),var(--navy))}
+.login-card{width:100%;max-width:400px;background:#fff;border-radius:22px;padding:32px 26px;box-shadow:0 30px 60px rgba(0,0,0,.35)}
+.login-card h1{font-size:19px;margin-bottom:4px}
+.login-card .sub{font-size:12.5px;color:var(--ink-soft);margin-bottom:22px}
+.login-error{background:#FBE6E2;border:1px solid #E7B4AA;color:var(--red);border-radius:10px;padding:10px 12px;font-size:12.5px;margin-bottom:16px}
+label{display:block;font-size:12px;color:var(--ink-soft);font-weight:600;margin:14px 0 6px}
+input,select{width:100%;padding:11px 13px;border-radius:10px;border:1.5px solid var(--line);background:var(--cream);font-size:14px;font-family:var(--sans);color:var(--ink)}
+input:focus,select:focus{outline:none;border-color:var(--gold-deep)}
+.field-row{position:relative}
+.field-row input{padding-right:66px}
+.toggle-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:#fff;border:1px solid var(--line);border-radius:7px;color:var(--gold-deep);font-size:11px;padding:6px 10px;cursor:pointer;font-weight:700}
+button{cursor:pointer;border:0;font-family:var(--sans)}
+.btn-gold{width:100%;margin-top:22px;padding:13px;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#241a02;font-weight:800;font-size:14px}
+.btn-gold:disabled{opacity:.6}
+
+.app{display:none;min-height:100vh}
+.topbar{background:var(--navy);color:#fff;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.topbar h1{color:#fff;font-size:18px}
+.topbar .who{font-size:12px;color:#C9C4B8}
+.logout-btn{background:rgba(255,255,255,.12);color:#fff;padding:8px 16px;border-radius:100px;font-size:12.5px;font-weight:700}
+.wrap{max-width:960px;margin:0 auto;padding:28px 20px 60px}
+.tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.tab{background:#fff;border:1px solid var(--line);padding:9px 18px;border-radius:100px;font-size:13px;font-weight:700;color:var(--ink-soft)}
+.tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.count{font-size:13px;color:var(--ink-soft);margin-bottom:14px}
+
+.list{display:flex;flex-direction:column;gap:10px}
+.item{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+.item .row1{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.item b{font-size:15px}
+.item .meta{font-size:12px;color:var(--ink-faint);margin-top:2px}
+.item .msg{font-size:13px;color:var(--ink-soft);margin-top:10px;line-height:1.5;max-width:60ch}
+.badge{display:inline-block;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.02em;padding:3px 10px;border-radius:100px}
+.badge.devis{background:#F1E6D3;color:var(--gold-deep)}
+.badge.contact{background:#E4F2F0;color:#2f7a6f}
+select.statut{font-size:12px;padding:6px 10px;border-radius:100px;font-weight:700}
+.icon-btn{background:var(--cream);border:1px solid var(--line);border-radius:9px;padding:7px 11px;font-size:12px;color:var(--ink-soft);font-weight:700;margin-top:8px}
+.icon-btn.danger{color:var(--red)}
+
+.empty{text-align:center;padding:60px 20px;color:var(--ink-faint)}
+.empty .ic{font-size:38px;margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<div id="authRoot"></div>
+
+<div class="app" id="app">
+  <div class="topbar">
+    <h1>💎 Espace direction — STAR ENTREPRISE</h1>
+    <div style="display:flex;align-items:center;gap:14px">
+      <span class="who" id="whoLabel"></span>
+      <button class="logout-btn" id="logoutBtn">Déconnexion</button>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="tabs">
+      <button class="tab active" data-filter="all">Tout</button>
+      <button class="tab" data-filter="devis">Devis</button>
+      <button class="tab" data-filter="contact">Contact</button>
+    </div>
+    <div class="count" id="countLabel">0 demande</div>
+    <div id="listRoot"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var AUTH_KEY = "so_auth_v1";
+  var authRoot = document.getElementById("authRoot");
+  var appEl = document.getElementById("app");
+  var state = { leads: [], filter: "all" };
+
+  function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); }
+  function getAuth(){ try { return JSON.parse(localStorage.getItem(AUTH_KEY)); } catch(e){ return null; } }
+  function setAuth(d){ try { localStorage.setItem(AUTH_KEY, JSON.stringify(d)); } catch(e){} }
+  function clearAuth(){ try { localStorage.removeItem(AUTH_KEY); } catch(e){} }
+
+  function api(path, opts){
+    opts = opts || {};
+    var auth = getAuth();
+    var headers = Object.assign({ "content-type": "application/json" }, opts.headers || {});
+    if (auth && auth.token) headers["authorization"] = "Bearer " + auth.token;
+    return fetch(path, Object.assign({}, opts, { headers: headers }))
+      .then(function(r){
+        if (r.status === 401) { clearAuth(); boot(); return Promise.reject("unauth"); }
+        return r.json().then(function(data){ return { ok: r.ok, data: data }; });
+      });
+  }
+
+  function renderLogin(errorMsg){
+    appEl.style.display = "none";
+    authRoot.innerHTML =
+      '<div class="login-wrap"><div class="login-card">' +
+        '<h1>💎 Espace direction</h1><p class="sub">STAR ENTREPRISE — identifiant du groupe.</p>' +
+        (errorMsg ? '<div class="login-error">' + esc(errorMsg) + '</div>' : '') +
+        '<label>Identifiant</label><input id="lUser" autocomplete="username">' +
+        '<label>Mot de passe</label>' +
+        '<div class="field-row"><input type="password" id="lPass" autocomplete="current-password"><button type="button" class="toggle-eye" id="lToggle">Afficher</button></div>' +
+        '<button class="btn-gold" id="lSubmit">Se connecter</button>' +
+      '</div></div>';
+
+    var u = document.getElementById("lUser"), p = document.getElementById("lPass"), btn = document.getElementById("lSubmit");
+    document.getElementById("lToggle").addEventListener("click", function(){
+      var showing = p.type === "text"; p.type = showing ? "password" : "text";
+      this.textContent = showing ? "Afficher" : "Cacher";
+    });
+    function doLogin(){
+      var username = u.value.trim(), password = p.value;
+      if (!username || !password) return;
+      btn.disabled = true; btn.textContent = "Connexion...";
+      fetch("/api/auth", { method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify({action:"login",username:username,password:password}) })
+        .then(function(r){ return r.json().then(function(data){ return {ok:r.ok,data:data}; }); })
+        .then(function(res){
+          if (!res.ok) { renderLogin(res.data.error || "Connexion impossible."); return; }
+          setAuth({ token: res.data.token, account: res.data.account });
+          boot();
+        })
+        .catch(function(){ renderLogin("Connexion impossible — vérifiez votre connexion internet."); });
+    }
+    btn.addEventListener("click", doLogin);
+    [u,p].forEach(function(el){ el.addEventListener("keydown", function(e){ if (e.key === "Enter") doLogin(); }); });
+    u.focus();
+  }
+
+  function renderList(){
+    var root = document.getElementById("listRoot");
+    var items = state.leads.filter(function(l){ return state.filter === "all" || l.type === state.filter; });
+    document.getElementById("countLabel").textContent = items.length + (items.length > 1 ? " demandes" : " demande");
+    if (!items.length) { root.innerHTML = '<div class="empty"><div class="ic">📭</div><div>Aucune demande pour le moment.</div></div>'; return; }
+    root.innerHTML = '<div class="list">' + items.map(function(l){
+      var date = l.createdAt ? new Date(l.createdAt).toLocaleDateString("fr-FR", {day:"2-digit",month:"short",year:"numeric"}) : "";
+      return '<div class="item" data-id="' + l.id + '">' +
+        '<div class="row1">' +
+          '<div><span class="badge ' + esc(l.type) + '">' + (l.type === "devis" ? "Devis" : "Contact") + '</span><br>' +
+          '<b style="margin-top:6px;display:inline-block">' + esc(l.nom || "(sans nom)") + (l.entreprise ? " — " + esc(l.entreprise) : "") + '</b>' +
+          '<div class="meta">' + [l.email, l.telephone, l.service, date].filter(Boolean).map(esc).join(" · ") + '</div></div>' +
+          (l.type === "devis"
+            ? '<span class="badge devis">Généré via Jardissa</span>'
+            : '<select class="statut" data-id="' + l.id + '">' +
+                '<option value="nouveau"' + (l.statut === "nouveau" ? " selected" : "") + '>Nouveau</option>' +
+                '<option value="en_cours"' + (l.statut === "en_cours" ? " selected" : "") + '>En cours</option>' +
+                '<option value="traite"' + (l.statut === "traite" ? " selected" : "") + '>Traité</option>' +
+              '</select>') +
+        '</div>' +
+        (l.message ? '<div class="msg">' + esc(l.message) + '</div>' : '') +
+        (l.type === "devis" ? '' : '<button class="icon-btn danger" data-act="del">Supprimer</button>') +
+      '</div>';
+    }).join("") + '</div>';
+
+    root.querySelectorAll(".statut").forEach(function(sel){
+      sel.addEventListener("change", function(){
+        api("/api/leads", { method:"PUT", body: JSON.stringify({ id: this.getAttribute("data-id"), statut: this.value }) })
+          .then(function(res){ if (res.ok) loadLeads(); });
+      });
+    });
+    root.querySelectorAll('[data-act="del"]').forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var id = this.closest(".item").getAttribute("data-id");
+        if (!confirm("Supprimer cette demande ?")) return;
+        api("/api/leads?id=" + id, { method:"DELETE" }).then(function(res){ if (res.ok) loadLeads(); });
+      });
+    });
+  }
+
+  document.querySelectorAll(".tab").forEach(function(tab){
+    tab.addEventListener("click", function(){
+      document.querySelectorAll(".tab").forEach(function(t){ t.classList.remove("active"); });
+      this.classList.add("active");
+      state.filter = this.getAttribute("data-filter");
+      renderList();
+    });
+  });
+
+  document.getElementById("logoutBtn").addEventListener("click", function(){ clearAuth(); boot(); });
+
+  function devisToLead(d){
+    var formulaLabels = { essentiel: "Essentiel — Site vitrine", croissance: "Croissance — Boutique en ligne", "sur-mesure": "Sur-mesure — Application" };
+    return {
+      id: "devis-" + d.id,
+      type: "devis",
+      nom: d.name,
+      entreprise: "",
+      email: "",
+      telephone: d.phone,
+      service: formulaLabels[d.formula] || d.formula || "",
+      message: (d.need ? d.need + "\n\n" : "") + "Référence : " + d.id,
+      statut: null,
+      createdAt: d.createdAt
+    };
+  }
+
+  function loadLeads(){
+    Promise.all([
+      api("/api/leads"),
+      api("/api/devis-list")
+    ]).then(function(results){
+      var leadsRes = results[0], devisRes = results[1];
+      var leads = leadsRes.ok ? (leadsRes.data.leads || []) : [];
+      var devis = devisRes.ok ? (devisRes.data.devis || []).map(devisToLead) : [];
+      state.leads = leads.concat(devis).sort(function(a, b){ return (b.createdAt || "").localeCompare(a.createdAt || ""); });
+      renderList();
+    }).catch(function(){});
+  }
+
+  function boot(){
+    var auth = getAuth();
+    if (!auth || !auth.token) { renderLogin(); return; }
+    authRoot.innerHTML = "";
+    appEl.style.display = "block";
+    document.getElementById("whoLabel").textContent = auth.account ? auth.account.displayName : "";
+    loadLeads();
+  }
+
+  boot();
+})();
+</script>
+</body>
+</html>

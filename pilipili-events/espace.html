@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Espace équipe — Pili-Pili Events</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --white:#FFFFFF; --ivory:#FBF8F3; --ivory-deep:#F5EFE4; --ink:#231F1A;
+  --ink-soft:#5B564E; --ink-faint:#8D877A; --gold:#B8935A; --gold-deep:#8C6A34;
+  --gold-pale:#F1E6D3; --coral:#D94F3D; --coral-soft:#FBE6E2; --line:#E7DFD2;
+  --serif:'Playfair Display',Georgia,serif; --sans:'Montserrat',ui-sans-serif,system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);color:var(--ink);background:var(--ivory);min-height:100vh}
+h1,h2,h3{font-family:var(--serif)}
+
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(160deg,#2a1f14,#120d08)}
+.login-card{width:100%;max-width:400px;background:var(--white);border-radius:22px;padding:32px 26px;box-shadow:0 30px 60px rgba(0,0,0,.35)}
+.login-card h1{font-size:19px;margin-bottom:4px}
+.login-card .sub{font-size:12.5px;color:var(--ink-soft);margin-bottom:22px}
+.login-error{background:var(--coral-soft);border:1px solid #ecb9ac;color:var(--coral);border-radius:10px;padding:10px 12px;font-size:12.5px;margin-bottom:16px}
+label{display:block;font-size:12px;color:var(--ink-soft);font-weight:600;margin:14px 0 6px}
+input,select,textarea{width:100%;padding:11px 13px;border-radius:10px;border:1.5px solid var(--line);background:var(--ivory);font-size:14px;font-family:var(--sans);color:var(--ink)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold)}
+.field-row{position:relative}
+.field-row input{padding-right:66px}
+.toggle-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:var(--white);border:1px solid var(--line);border-radius:7px;color:var(--gold-deep);font-size:11px;padding:6px 10px;cursor:pointer;font-weight:700}
+button{cursor:pointer;border:0;font-family:var(--sans)}
+.btn-gold{width:100%;margin-top:22px;padding:13px;border-radius:12px;background:linear-gradient(135deg,#D8B37B,var(--gold));color:#2a1c02;font-weight:800;font-size:14px}
+.btn-gold:disabled{opacity:.6}
+
+.app{display:none;min-height:100vh}
+.topbar{background:var(--ink);color:var(--white);padding:16px 22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.topbar h1{color:var(--white);font-size:18px}
+.topbar .who{font-size:12px;color:#C9BFAE}
+.logout-btn{background:rgba(255,255,255,.12);color:var(--white);padding:8px 16px;border-radius:100px;font-size:12.5px;font-weight:700}
+.wrap{max-width:900px;margin:0 auto;padding:28px 20px 60px}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.count{font-size:13px;color:var(--ink-soft)}
+.btn-new{background:var(--ink);color:var(--white);padding:11px 20px;border-radius:100px;font-size:13.5px;font-weight:700}
+.btn-back{background:var(--white);color:var(--ink-soft);border:1px solid var(--line);padding:9px 16px;border-radius:100px;font-size:12.5px;font-weight:700}
+
+.card-form{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:22px;margin-bottom:22px;display:none}
+.card-form.show{display:block}
+.card-form h3{font-size:16px;margin-bottom:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+@media (max-width:560px){.grid2{grid-template-columns:1fr}}
+.form-actions{display:flex;gap:10px;margin-top:18px}
+.btn-save{background:var(--ink);color:var(--white);padding:11px 22px;border-radius:100px;font-size:13.5px;font-weight:700}
+.btn-cancel{background:var(--ivory);color:var(--ink-soft);padding:11px 22px;border-radius:100px;font-size:13.5px;font-weight:700;border:1px solid var(--line)}
+
+.list{display:flex;flex-direction:column;gap:10px}
+.item{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:16px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;cursor:pointer}
+.item .info b{font-size:16px}
+.item .info .meta{font-size:12px;color:var(--ink-faint);margin-top:2px}
+.item .badge{display:inline-block;font-size:11px;font-weight:800;background:var(--gold-pale);color:var(--gold-deep);padding:4px 11px;border-radius:100px}
+.item .actions{display:flex;gap:8px}
+.icon-btn{background:var(--ivory);border:1px solid var(--line);border-radius:9px;padding:7px 11px;font-size:12px;color:var(--ink-soft);font-weight:700}
+.icon-btn.danger{color:var(--coral)}
+
+.empty{text-align:center;padding:60px 20px;color:var(--ink-faint)}
+.empty .ic{font-size:38px;margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<div id="authRoot"></div>
+
+<div class="app" id="app">
+  <div class="topbar">
+    <h1>🎉 Espace équipe — Pili-Pili Events</h1>
+    <div style="display:flex;align-items:center;gap:14px">
+      <span class="who" id="whoLabel"></span>
+      <button class="logout-btn" id="logoutBtn">Déconnexion</button>
+    </div>
+  </div>
+  <div class="wrap">
+
+    <!-- Vue liste des événements -->
+    <div id="eventsView">
+      <div class="toolbar">
+        <span class="count" id="eventsCount">0 événement</span>
+        <button class="btn-new" id="newEventBtn">+ Nouvel événement</button>
+      </div>
+      <div class="card-form" id="eventFormCard">
+        <h3 id="eventFormTitle">Nouvel événement</h3>
+        <input type="hidden" id="eId">
+        <label>Titre</label><input id="eTitre">
+        <div class="grid2">
+          <div><label>Date</label><input id="eDate" type="date"></div>
+          <div><label>Lieu</label><input id="eLieu"></div>
+        </div>
+        <label>Description</label><textarea id="eDescription" rows="3"></textarea>
+        <div class="form-actions">
+          <button class="btn-save" id="eSaveBtn">Enregistrer</button>
+          <button class="btn-cancel" id="eCancelBtn">Annuler</button>
+        </div>
+      </div>
+      <div id="eventsListRoot"></div>
+    </div>
+
+    <!-- Vue détail d'un événement + inscriptions -->
+    <div id="eventDetailView" style="display:none">
+      <button class="btn-back" id="backBtn" style="margin-bottom:16px">← Tous les événements</button>
+      <h2 id="detailTitle" style="font-size:22px;margin-bottom:4px"></h2>
+      <p id="detailMeta" style="color:var(--ink-soft);font-size:13px;margin-bottom:20px"></p>
+
+      <div class="toolbar">
+        <span class="count" id="regCount">0 inscription</span>
+        <button class="btn-new" id="newRegBtn">+ Inscrire quelqu'un</button>
+      </div>
+      <div class="card-form" id="regFormCard">
+        <h3>Nouvelle inscription</h3>
+        <div class="grid2">
+          <div><label>Nom</label><input id="rNom"></div>
+          <div><label>Prénom</label><input id="rPrenom"></div>
+        </div>
+        <div class="grid2">
+          <div><label>Téléphone</label><input id="rTelephone"></div>
+          <div><label>Email</label><input id="rEmail" type="email"></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-save" id="rSaveBtn">Enregistrer</button>
+          <button class="btn-cancel" id="rCancelBtn">Annuler</button>
+        </div>
+      </div>
+      <div id="regListRoot"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var AUTH_KEY = "so_auth_v1";
+  var authRoot = document.getElementById("authRoot");
+  var appEl = document.getElementById("app");
+  var state = { events: [], regs: [], currentEvent: null };
+
+  function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); }
+  function getAuth(){ try { return JSON.parse(localStorage.getItem(AUTH_KEY)); } catch(e){ return null; } }
+  function setAuth(d){ try { localStorage.setItem(AUTH_KEY, JSON.stringify(d)); } catch(e){} }
+  function clearAuth(){ try { localStorage.removeItem(AUTH_KEY); } catch(e){} }
+
+  function api(path, opts){
+    opts = opts || {};
+    var auth = getAuth();
+    var headers = Object.assign({ "content-type": "application/json" }, opts.headers || {});
+    if (auth && auth.token) headers["authorization"] = "Bearer " + auth.token;
+    return fetch(path, Object.assign({}, opts, { headers: headers }))
+      .then(function(r){
+        if (r.status === 401) { clearAuth(); boot(); return Promise.reject("unauth"); }
+        return r.json().then(function(data){ return { ok: r.ok, data: data }; });
+      });
+  }
+
+  function renderLogin(errorMsg){
+    appEl.style.display = "none";
+    authRoot.innerHTML =
+      '<div class="login-wrap"><div class="login-card">' +
+        '<h1>🎉 Espace équipe</h1><p class="sub">Pili-Pili Events — identifiant STAR ENTREPRISE.</p>' +
+        (errorMsg ? '<div class="login-error">' + esc(errorMsg) + '</div>' : '') +
+        '<label>Identifiant</label><input id="lUser" autocomplete="username">' +
+        '<label>Mot de passe</label>' +
+        '<div class="field-row"><input type="password" id="lPass" autocomplete="current-password"><button type="button" class="toggle-eye" id="lToggle">Afficher</button></div>' +
+        '<button class="btn-gold" id="lSubmit">Se connecter</button>' +
+      '</div></div>';
+
+    var u = document.getElementById("lUser"), p = document.getElementById("lPass"), btn = document.getElementById("lSubmit");
+    document.getElementById("lToggle").addEventListener("click", function(){
+      var showing = p.type === "text"; p.type = showing ? "password" : "text";
+      this.textContent = showing ? "Afficher" : "Cacher";
+    });
+    function doLogin(){
+      var username = u.value.trim(), password = p.value;
+      if (!username || !password) return;
+      btn.disabled = true; btn.textContent = "Connexion...";
+      fetch("/api/auth", { method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify({action:"login",username:username,password:password}) })
+        .then(function(r){ return r.json().then(function(data){ return {ok:r.ok,data:data}; }); })
+        .then(function(res){
+          if (!res.ok) { renderLogin(res.data.error || "Connexion impossible."); return; }
+          setAuth({ token: res.data.token, account: res.data.account });
+          boot();
+        })
+        .catch(function(){ renderLogin("Connexion impossible — vérifiez votre connexion internet."); });
+    }
+    btn.addEventListener("click", doLogin);
+    [u,p].forEach(function(el){ el.addEventListener("keydown", function(e){ if (e.key === "Enter") doLogin(); }); });
+    u.focus();
+  }
+
+  /* ---- Événements ---- */
+  function renderEvents(){
+    var root = document.getElementById("eventsListRoot");
+    document.getElementById("eventsCount").textContent = state.events.length + (state.events.length > 1 ? " événements" : " événement");
+    if (!state.events.length) { root.innerHTML = '<div class="empty"><div class="ic">🎊</div><div>Aucun événement pour le moment.</div></div>'; return; }
+    root.innerHTML = '<div class="list">' + state.events.map(function(ev){
+      return '<div class="item" data-id="' + ev.id + '">' +
+        '<div class="info"><b>' + esc(ev.titre) + '</b>' +
+        '<div class="meta">' + [ev.dateEvent, ev.lieu].filter(Boolean).map(esc).join(" · ") + '</div></div>' +
+        '<span class="badge">' + ev.inscrits + (ev.inscrits > 1 ? " inscrits" : " inscrit") + '</span>' +
+      '</div>';
+    }).join("") + '</div>';
+    root.querySelectorAll(".item").forEach(function(el){
+      var id = el.getAttribute("data-id");
+      el.addEventListener("click", function(){ openEventDetail(state.events.filter(function(e){ return e.id === id; })[0]); });
+    });
+  }
+
+  document.getElementById("newEventBtn").addEventListener("click", function(){
+    document.getElementById("eventFormTitle").textContent = "Nouvel événement";
+    document.getElementById("eId").value = "";
+    document.getElementById("eTitre").value = "";
+    document.getElementById("eDate").value = "";
+    document.getElementById("eLieu").value = "";
+    document.getElementById("eDescription").value = "";
+    document.getElementById("eventFormCard").classList.add("show");
+    document.getElementById("eTitre").focus();
+  });
+  document.getElementById("eCancelBtn").addEventListener("click", function(){ document.getElementById("eventFormCard").classList.remove("show"); });
+  document.getElementById("eSaveBtn").addEventListener("click", function(){
+    var id = document.getElementById("eId").value;
+    var body = {
+      titre: document.getElementById("eTitre").value.trim(),
+      dateEvent: document.getElementById("eDate").value,
+      lieu: document.getElementById("eLieu").value.trim(),
+      description: document.getElementById("eDescription").value.trim()
+    };
+    if (!body.titre) { alert("Titre requis."); return; }
+    var req = id
+      ? api("/api/pilipili-evenements", { method:"PUT", body: JSON.stringify(Object.assign({id:id}, body)) })
+      : api("/api/pilipili-evenements", { method:"POST", body: JSON.stringify(body) });
+    req.then(function(res){
+      if (!res.ok) { alert(res.data.error || "Erreur."); return; }
+      document.getElementById("eventFormCard").classList.remove("show");
+      loadEvents();
+    });
+  });
+
+  function loadEvents(){
+    api("/api/pilipili-evenements").then(function(res){
+      if (!res.ok) return;
+      state.events = res.data.evenements || [];
+      renderEvents();
+    }).catch(function(){});
+  }
+
+  /* ---- Détail événement + inscriptions ---- */
+  function openEventDetail(ev){
+    state.currentEvent = ev;
+    document.getElementById("eventsView").style.display = "none";
+    document.getElementById("eventDetailView").style.display = "block";
+    document.getElementById("detailTitle").textContent = ev.titre;
+    document.getElementById("detailMeta").textContent = [ev.dateEvent, ev.lieu].filter(Boolean).join(" · ");
+    loadRegs();
+  }
+  document.getElementById("backBtn").addEventListener("click", function(){
+    document.getElementById("eventDetailView").style.display = "none";
+    document.getElementById("eventsView").style.display = "block";
+    loadEvents();
+  });
+
+  function renderRegs(){
+    var root = document.getElementById("regListRoot");
+    document.getElementById("regCount").textContent = state.regs.length + (state.regs.length > 1 ? " inscriptions" : " inscription");
+    if (!state.regs.length) { root.innerHTML = '<div class="empty"><div class="ic">🙋</div><div>Aucune inscription pour le moment.</div></div>'; return; }
+    root.innerHTML = '<div class="list">' + state.regs.map(function(r){
+      return '<div class="item" data-id="' + r.id + '">' +
+        '<div class="info"><b>' + esc(r.prenom) + ' ' + esc(r.nom) + '</b>' +
+        '<div class="meta">' + [r.telephone, r.email].filter(Boolean).map(esc).join(" · ") + '</div></div>' +
+        '<div class="actions"><button class="icon-btn danger" data-act="del">Retirer</button></div>' +
+      '</div>';
+    }).join("") + '</div>';
+    root.querySelectorAll(".item").forEach(function(el){
+      var id = el.getAttribute("data-id");
+      var r = state.regs.filter(function(x){ return x.id === id; })[0];
+      el.querySelector('[data-act="del"]').addEventListener("click", function(){
+        if (!confirm("Retirer " + r.prenom + " " + r.nom + " de la liste ?")) return;
+        api("/api/pilipili-inscriptions?id=" + r.id, { method:"DELETE" }).then(function(res){ if (res.ok) loadRegs(); });
+      });
+    });
+  }
+
+  document.getElementById("newRegBtn").addEventListener("click", function(){
+    document.getElementById("rNom").value = "";
+    document.getElementById("rPrenom").value = "";
+    document.getElementById("rTelephone").value = "";
+    document.getElementById("rEmail").value = "";
+    document.getElementById("regFormCard").classList.add("show");
+    document.getElementById("rNom").focus();
+  });
+  document.getElementById("rCancelBtn").addEventListener("click", function(){ document.getElementById("regFormCard").classList.remove("show"); });
+  document.getElementById("rSaveBtn").addEventListener("click", function(){
+    var body = {
+      evenementId: state.currentEvent.id,
+      nom: document.getElementById("rNom").value.trim(),
+      prenom: document.getElementById("rPrenom").value.trim(),
+      telephone: document.getElementById("rTelephone").value.trim(),
+      email: document.getElementById("rEmail").value.trim()
+    };
+    if (!body.nom || !body.prenom) { alert("Nom et prénom requis."); return; }
+    api("/api/pilipili-inscriptions", { method:"POST", body: JSON.stringify(body) }).then(function(res){
+      if (!res.ok) { alert(res.data.error || "Erreur."); return; }
+      document.getElementById("regFormCard").classList.remove("show");
+      loadRegs();
+    });
+  });
+
+  function loadRegs(){
+    api("/api/pilipili-inscriptions?evenementId=" + state.currentEvent.id).then(function(res){
+      if (!res.ok) return;
+      state.regs = res.data.inscriptions || [];
+      renderRegs();
+    }).catch(function(){});
+  }
+
+  document.getElementById("logoutBtn").addEventListener("click", function(){ clearAuth(); boot(); });
+
+  function boot(){
+    var auth = getAuth();
+    if (!auth || !auth.token) { renderLogin(); return; }
+    authRoot.innerHTML = "";
+    appEl.style.display = "block";
+    document.getElementById("whoLabel").textContent = auth.account ? auth.account.displayName : "";
+    document.getElementById("eventDetailView").style.display = "none";
+    document.getElementById("eventsView").style.display = "block";
+    loadEvents();
+  }
+
+  boot();
+})();
+</script>
+</body>
+</html>
