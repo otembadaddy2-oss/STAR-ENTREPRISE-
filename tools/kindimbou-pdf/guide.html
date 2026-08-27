@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>KINDIMBOU — Guide d'utilisation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500;1,600&family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  :root{
+    --cream:#f8f5ec; --cream-soft:#f1ecdd; --paper:#fffdf8;
+    --navy:#0c1936; --navy-soft:#132247; --navy-deep:#070f24;
+    --ink:#1c2436; --ink-dim:#5c6478; --ink-faint:#8b93a6;
+    --gold:#c8942f; --gold-light:#e3b45a; --gold-dark:#8f6a1f;
+    --green:#2f7d4f; --red:#b8342f; --blue:#3d5fc4;
+    --line:#e4dcc8; --line-strong:#d8cca5;
+    --page-w:210mm; --page-h:297mm;
+  }
+  @page{size:A4;margin:0;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:#e9e9e9;}
+  body{font-family:"Inter",Arial,sans-serif;color:var(--ink);}
+  h1,h2,h3,.disp{font-family:"Sora",Arial,sans-serif;}
+  .serif{font-family:"Fraunces","Source Serif 4",Georgia,serif;}
+  .pg{
+    width:var(--page-w); height:var(--page-h);
+    position:relative; overflow:hidden; background:var(--paper);
+    break-after:page; page-break-after:always;
+  }
+  .pg:last-child{break-after:auto;page-break-after:auto;}
+  .pg-inner{position:absolute;inset:0;padding:18mm 16mm 20mm;}
+  .pg-navy{background:var(--navy);color:#eef1f8;}
+  .pg-navy .dim{color:#a7b0c4;}
+
+  .kicker{
+    display:inline-flex;align-items:center;gap:7px;
+    font-size:9.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--gold-dark);margin-bottom:10px;
+  }
+  .pg-navy .kicker{color:var(--gold-light);}
+  .kicker i{width:16px;height:2px;background:var(--gold-dark);display:inline-block;border-radius:2px;}
+  .pg-navy .kicker i{background:var(--gold-light);}
+  .pg-title{font-size:24px;font-weight:800;letter-spacing:-.01em;margin:0 0 4mm;line-height:1.12;}
+  .pg-navy .pg-title{color:#fff;}
+  .pg-lede{font-size:11.5px;line-height:1.65;color:var(--ink-dim);max-width:155mm;margin:0 0 8mm;}
+  .pg-navy .pg-lede{color:#c3cadd;}
+
+  .brandline{
+    position:absolute;top:14mm;left:16mm;right:16mm;
+    display:flex;align-items:center;justify-content:space-between;
+    font-size:8.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--ink-faint);
+  }
+  .pg-navy .brandline{color:#5c6784;}
+  .brandline .b-left{display:flex;align-items:center;gap:6px;}
+  .brandline img{width:14px;height:14px;border-radius:3px;}
+
+  p{margin:0 0 3mm;}
+  ul{margin:0;padding:0 0 0 4mm;}
+  li{margin-bottom:2.4mm;font-size:10.5px;line-height:1.55;}
+
+  .card{border-radius:3mm;border:1px solid var(--line);background:#fff;padding:6mm;}
+  .pg-navy .card{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);}
+
+  .stat{border-radius:3mm;padding:6mm 5mm;background:#fff;border:1px solid var(--line);text-align:left;}
+  .stat b{display:block;font-family:"Sora",sans-serif;font-size:22px;font-weight:800;color:var(--navy);line-height:1;}
+  .stat span{display:block;font-size:9px;color:var(--ink-dim);margin-top:2mm;line-height:1.4;}
+  .pg-navy .stat{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);}
+  .pg-navy .stat b{color:var(--gold-light);}
+  .pg-navy .stat span{color:#a7b0c4;}
+
+  .tag{display:inline-block;font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+    padding:1.4mm 3mm;border-radius:99px;background:rgba(200,148,47,.12);color:var(--gold-dark);border:1px solid rgba(200,148,47,.35);}
+
+  table.numtable{width:100%;border-collapse:collapse;font-size:10px;}
+  table.numtable th{text-align:left;font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);padding:0 0 2mm;border-bottom:1px solid var(--line);}
+  table.numtable td{padding:3mm 0;border-bottom:1px solid var(--cream-soft);vertical-align:top;}
+  table.numtable td.num{font-family:"Sora",sans-serif;font-weight:800;color:var(--gold-dark);font-size:13px;white-space:nowrap;padding-right:4mm;}
+
+  table.sectable{width:100%;border-collapse:collapse;font-size:9.5px;}
+  table.sectable th{text-align:left;font-size:7.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);padding:0 3mm 2mm 0;border-bottom:1px solid var(--line);}
+  table.sectable td{padding:2.6mm 3mm 2.6mm 0;border-bottom:1px solid var(--cream-soft);vertical-align:top;font-size:9.5px;}
+  table.sectable td.code{font-family:"Sora",sans-serif;font-weight:800;color:var(--gold-dark);font-size:9px;white-space:nowrap;}
+  table.sectable td.sec{white-space:nowrap;}
+  .sec-pill{display:inline-block;font-size:7.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:1mm 2.4mm;border-radius:99px;color:#fff;}
+
+  .flowbadge{width:6mm;height:6mm;border-radius:50%;background:var(--gold-dark);color:#fff;font-family:"Sora",sans-serif;font-weight:800;font-size:9.5px;display:flex;align-items:center;justify-content:center;flex:none;}
+  .pg-navy .flowbadge{background:var(--gold-light);color:#241703;}
+
+  .footer-band{position:absolute;left:16mm;right:16mm;bottom:12mm;display:flex;justify-content:space-between;align-items:center;}
+  .footer-band .num{font-size:8px;color:var(--ink-faint);letter-spacing:.06em;}
+  .pg-navy .footer-band .num{color:#5c6784;}
+
+  .warn{border-radius:3mm;border:1px solid #e6c9a8;background:#fbf2e4;padding:5mm 6mm;}
+  .warn p{font-size:9.5px;line-height:1.55;color:#6b4a1c;margin:0;}
+  .ok{border-radius:3mm;border:1px solid #bcdcc4;background:#eef8f1;padding:5mm 6mm;}
+  .ok p{font-size:9.5px;line-height:1.55;color:#215c37;margin:0;}
+  .no{border-radius:3mm;border:1px solid #e6bdb8;background:#fbeeec;padding:5mm 6mm;}
+  .no p{font-size:9.5px;line-height:1.55;color:#7a2a22;margin:0;}
+
+  /* cover */
+  .cover{background:
+      radial-gradient(120mm 90mm at 18% -6%, rgba(200,148,47,.28), transparent 60%),
+      radial-gradient(140mm 110mm at 92% 10%, rgba(61,123,240,.14), transparent 55%),
+      var(--navy-deep);
+    color:#fff;
+  }
+  .cover-badge{width:44mm;position:absolute;top:32mm;left:16mm;filter:drop-shadow(0 6mm 10mm rgba(0,0,0,.5));}
+  .cover-title{position:absolute;left:16mm;top:98mm;right:16mm;}
+  .cover-title .t1{font-size:12.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-light);font-weight:700;margin-bottom:6mm;}
+  .cover-title h1{font-size:42px;line-height:1.05;font-weight:600;margin:0 0 6mm;letter-spacing:-.01em;font-family:"Fraunces",Georgia,serif;}
+  .cover-title h1 em{font-style:italic;font-weight:500;color:var(--gold-light);}
+  .cover-title .tag2{font-size:13px;color:#c3cadd;letter-spacing:.03em;}
+  .cover-bottom{position:absolute;left:16mm;right:16mm;bottom:16mm;display:flex;justify-content:space-between;align-items:flex-end;}
+  .cover-bottom .meta{font-size:9.5px;color:#93a0bd;line-height:1.7;}
+  .cover-bottom .meta b{color:#fff;display:block;font-size:11px;margin-bottom:1mm;}
+  .cover-line{position:absolute;left:16mm;right:16mm;top:86mm;height:1px;background:linear-gradient(90deg,rgba(232,184,92,.7),transparent);}
+</style>
+</head>
+<body>
+
+<!-- ============================================================ PAGE 1 — COUVERTURE ============================================================ -->
+<div class="pg cover">
+  <img class="cover-badge" src="kindimbou-emblem.png">
+  <div class="cover-title">
+    <div class="t1">Guide d'utilisation</div>
+    <h1>KINDIMBOU<br><em>Guichet unique du Congo</em></h1>
+    <div class="tag2">De l'inscription au dépôt du dossier à l'ACPCE — pas à pas</div>
+  </div>
+  <div class="cover-line"></div>
+  <div style="position:absolute;left:16mm;right:16mm;top:170mm;max-width:155mm;">
+    <p style="font-size:13px;line-height:1.6;color:#dfe4f0;font-weight:500;">
+      Ce document explique en détail le fonctionnement de KINDIMBOU, de la première ouverture de
+      l'application jusqu'au dépôt du dossier au guichet de l'ACPCE — conçu pour être présenté et
+      discuté avec les autorités compétentes.
+    </p>
+  </div>
+  <div class="cover-bottom">
+    <div class="meta">
+      <b>République du Congo</b>
+      Brazzaville — Août 2026
+    </div>
+    <div class="meta" style="text-align:right;">
+      <b>Conçu par STAR ENTREPRISE</b>
+      star-entreprise.netlify.app
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 2 — SOMMAIRE ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>Guide KINDIMBOU</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>Sommaire</div>
+    <h2 class="pg-title" style="font-size:28px;">Ce que contient ce guide</h2>
+    <table class="numtable" style="margin-top:10mm;">
+      <tr><td class="num">01</td><td><b>Qu'est-ce que KINDIMBOU</b><br><span style="color:var(--ink-dim);">Positionnement, rôle exact, ce que l'application fait et ne fait pas</span></td></tr>
+      <tr><td class="num">02</td><td><b>Avant de commencer</b><br><span style="color:var(--ink-dim);">Ce qu'il faut savoir et préparer avant de remplir quoi que ce soit</span></td></tr>
+      <tr><td class="num">03</td><td><b>Créer son compte</b><br><span style="color:var(--ink-dim);">Inscription pas à pas et protection du mot de passe</span></td></tr>
+      <tr><td class="num">04</td><td><b>Se connecter et gérer son espace</b><br><span style="color:var(--ink-dim);">Connexion, profil, suivi des démarches</span></td></tr>
+      <tr><td class="num">05</td><td><b>Les démarches, secteur par secteur</b><br><span style="color:var(--ink-dim);">Les 8 démarches guidées classées par catégorie</span></td></tr>
+      <tr><td class="num">06</td><td><b>Consulter une démarche et sa checklist</b><br><span style="color:var(--ink-dim);">Comprendre les pièces exigées avant de se déplacer</span></td></tr>
+      <tr><td class="num">07</td><td><b>Confirmer les pièces et rejoindre son suivi</b><br><span style="color:var(--ink-dim);">Le contrôle qui bloque un dossier incomplet</span></td></tr>
+      <tr><td class="num">08</td><td><b>Le numéro de dossier unique</b><br><span style="color:var(--ink-dim);">Génération, conservation, usage au guichet</span></td></tr>
+      <tr><td class="num">09</td><td><b>Le paiement</b><br><span style="color:var(--ink-dim);">Exclusivement au guichet ACPCE — jamais sur KINDIMBOU</span></td></tr>
+      <tr><td class="num">10</td><td><b>Le dépôt final au guichet ACPCE</b><br><span style="color:var(--ink-dim);">Étapes pratiques, adresses, ce qu'il faut présenter</span></td></tr>
+      <tr><td class="num">11</td><td><b>Sécurité et confidentialité des données</b><br><span style="color:var(--ink-dim);">Ce qui protège réellement le compte du déclarant</span></td></tr>
+      <tr><td class="num">12</td><td><b>Périmètre et limites du service</b><br><span style="color:var(--ink-dim);">Ce que KINDIMBOU ne fait pas, en toute transparence</span></td></tr>
+      <tr><td class="num">13</td><td><b>À propos de STAR ENTREPRISE</b><br><span style="color:var(--ink-dim);">L'agence et le contact</span></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 3 — 01 QU'EST-CE QUE KINDIMBOU ============================================================ -->
+<div class="pg pg-navy">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>01 — Qu'est-ce que KINDIMBOU</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>01 · Qu'est-ce que KINDIMBOU</div>
+    <h2 class="pg-title">Du besoin à la formalité, savoir toujours où aller</h2>
+    <p class="pg-lede">KINDIMBOU est une application de préparation aux démarches administratives liées à
+    l'entreprise en République du Congo. Elle centralise les démarches courantes, présente pour chacune
+    une checklist claire des pièces à réunir, puis oriente le déclarant vers le service officiel compétent
+    — au premier rang duquel l'Agence Congolaise pour la Création des Entreprises (ACPCE).</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5mm;margin-top:6mm;">
+      <div class="card">
+        <p style="font-weight:800;font-size:12px;margin-bottom:2mm;color:var(--gold-light);">Ce que KINDIMBOU fait</p>
+        <ul class="dim" style="padding-left:0;list-style:none;">
+          <li>✦ Explique chaque démarche et la checklist exacte des pièces à réunir.</li>
+          <li>✦ Fait confirmer, une par une, que le déclarant possède bien chaque pièce.</li>
+          <li>✦ Génère un numéro de dossier unique dès qu'une démarche rejoint le suivi.</li>
+          <li>✦ Oriente vers le portail ou le guichet ACPCE compétent pour le dépôt réel.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p style="font-weight:800;font-size:12px;margin-bottom:2mm;color:#e88;">Ce que KINDIMBOU ne fait pas</p>
+        <ul class="dim" style="padding-left:0;list-style:none;">
+          <li>✦ Ne délivre et ne valide aucun document officiel.</li>
+          <li>✦ Ne vérifie pas l'authenticité d'une pièce déposée (voir page 12).</li>
+          <li>✦ Ne traite aucun paiement (voir page 9).</li>
+          <li>✦ N'est pas connectée au système interne de l'ACPCE (voir page 12).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="margin-top:9mm;padding:6mm;border-radius:4mm;background:linear-gradient(135deg,#132247,#1c3466);color:#fff;">
+      <p style="font-size:11px;font-weight:700;margin-bottom:1.5mm;">En une phrase</p>
+      <p style="font-size:10.5px;line-height:1.6;color:#c3cadd;margin:0;">KINDIMBOU prépare le déclarant avant son passage au guichet — l'ACPCE reste, du début à la
+      fin, la seule autorité qui reçoit, instruit, valide et délivre.</p>
+    </div>
+  </div>
+  <div class="footer-band"><div class="num">KINDIMBOU — Guide d'utilisation</div></div>
+</div>
+
+<!-- ============================================================ PAGE 4 — 02 AVANT DE COMMENCER ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>02 — Avant de commencer</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>02 · Avant de commencer</div>
+    <h2 class="pg-title">Ce qu'il faut savoir avant de remplir quoi que ce soit</h2>
+    <p class="pg-lede">Avant d'ouvrir une démarche, quatre éléments doivent être réunis. S'y préparer en
+    amont évite tout blocage une fois la checklist affichée.</p>
+
+    <div style="display:flex;flex-direction:column;gap:4mm;margin-top:6mm;">
+      <div style="display:flex;gap:5mm;align-items:flex-start;">
+        <span class="flowbadge">1</span>
+        <div><p style="font-weight:800;font-size:11px;margin:0 0 1mm;">Une pièce d'identité valide</p>
+        <p style="font-size:9.5px;color:var(--ink-dim);margin:0;">Carte nationale d'identité (CNI), passeport ou carte de résident — le type exact est demandé dès l'inscription.</p></div>
+      </div>
+      <div style="display:flex;gap:5mm;align-items:flex-start;">
+        <span class="flowbadge">2</span>
+        <div><p style="font-weight:800;font-size:11px;margin:0 0 1mm;">Ses informations personnelles complètes</p>
+        <p style="font-size:9.5px;color:var(--ink-dim);margin:0;">Nom, prénom, date et lieu de naissance, nationalité, numéro de téléphone joignable.</p></div>
+      </div>
+      <div style="display:flex;gap:5mm;align-items:flex-start;">
+        <span class="flowbadge">3</span>
+        <div><p style="font-weight:800;font-size:11px;margin:0 0 1mm;">La démarche exacte à effectuer</p>
+        <p style="font-size:9.5px;color:var(--ink-dim);margin:0;">Créer une entreprise individuelle ? Une société ? Modifier une entreprise existante ? Le catalogue (page 6) aide à identifier la bonne démarche avant de commencer.</p></div>
+      </div>
+      <div style="display:flex;gap:5mm;align-items:flex-start;">
+        <span class="flowbadge">4</span>
+        <div><p style="font-weight:800;font-size:11px;margin:0 0 1mm;">Les pièces propres à cette démarche, physiquement en main</p>
+        <p style="font-size:9.5px;color:var(--ink-dim);margin:0;">Chaque démarche a sa propre liste (statuts, justificatif de siège, casier judiciaire…) — consultable avant même de créer un compte.</p></div>
+      </div>
+    </div>
+
+    <div class="ok" style="margin-top:8mm;">
+      <p><b>Bon à savoir :</b> le catalogue des démarches et leurs checklists sont consultables sans créer de compte.
+      Seul l'ajout d'une démarche au suivi personnel (et la génération d'un numéro de dossier) demande une inscription.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 5 — 03 CREER SON COMPTE ============================================================ -->
+<div class="pg pg-navy">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>03 — Créer son compte</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>03 · Créer son compte</div>
+    <h2 class="pg-title">L'inscription, étape par étape</h2>
+    <p class="pg-lede">Depuis l'onglet « Mon espace », le déclarant choisit « Inscription » et renseigne
+    les champs suivants :</p>
+
+    <table class="numtable" style="margin-top:4mm;">
+      <tr><td class="num">1</td><td><b style="color:#fff;">Identité</b><br><span class="dim">Prénom et nom, tels qu'ils figurent sur la pièce d'identité.</span></td></tr>
+      <tr><td class="num">2</td><td><b style="color:#fff;">Email et mot de passe</b><br><span class="dim">Toute adresse email valide est acceptée (Gmail, Yahoo, etc.). Le mot de passe doit compter au moins 8 caractères ; un bouton « œil » permet de le vérifier avant de valider.</span></td></tr>
+      <tr><td class="num">3</td><td><b style="color:#fff;">Naissance et nationalité</b><br><span class="dim">Date et lieu de naissance, nationalité (« Congolaise » par défaut, modifiable).</span></td></tr>
+      <tr><td class="num">4</td><td><b style="color:#fff;">Téléphone</b><br><span class="dim">Numéro joignable, au format congolais (+242…).</span></td></tr>
+      <tr><td class="num">5</td><td><b style="color:#fff;">Type et numéro de pièce d'identité</b><br><span class="dim">CNI, passeport ou carte de résident, avec possibilité de joindre une copie numérique de la pièce.</span></td></tr>
+    </table>
+
+    <div class="warn" style="margin-top:7mm;">
+      <p><b>Important :</b> l'inscription crée un compte propre au déclarant. Se connecter avec une adresse
+      qui n'a jamais été inscrite ne fonctionnera pas — il faut d'abord passer par « Inscription », une seule fois.</p>
+    </div>
+  </div>
+  <div class="footer-band"><div class="num">KINDIMBOU — Guide d'utilisation</div></div>
+</div>
+
+<!-- ============================================================ PAGE 6 — 04 SE CONNECTER ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>04 — Se connecter</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>04 · Se connecter et gérer son espace</div>
+    <h2 class="pg-title">« Mon espace » : le tableau de bord du déclarant</h2>
+    <p class="pg-lede">Une fois le compte créé, l'onglet « Mon espace » regroupe tout ce qui concerne le
+    déclarant :</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5mm;margin-top:6mm;">
+      <div class="card">
+        <p style="font-weight:800;font-size:12px;margin-bottom:2mm;color:var(--gold-dark);">Profil</p>
+        <p style="font-size:10px;color:var(--ink-dim);">Coordonnées enregistrées, statut de la pièce d'identité déposée.</p>
+      </div>
+      <div class="card">
+        <p style="font-weight:800;font-size:12px;margin-bottom:2mm;color:var(--gold-dark);">Suivi des démarches</p>
+        <p style="font-size:10px;color:var(--ink-dim);">Liste des démarches ajoutées, chacune avec son numéro de dossier unique et son statut.</p>
+      </div>
+    </div>
+
+    <div style="margin-top:8mm;">
+      <p style="font-weight:800;font-size:11px;margin-bottom:2mm;">Sécurité du compte</p>
+      <ul>
+        <li>Le mot de passe n'est jamais stocké en clair (chiffrement irréversible avant enregistrement).</li>
+        <li>Après 5 tentatives de connexion échouées, le compte est verrouillé automatiquement pendant 15 minutes.</li>
+        <li>La session est protégée par un jeton signé, propre à chaque connexion.</li>
+      </ul>
+      <p style="font-size:9.5px;color:var(--ink-dim);margin-top:3mm;">Le détail complet de la sécurité est présenté page 11.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 7 — 05 SECTEURS ============================================================ -->
+<div class="pg pg-navy">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>05 — Les démarches par secteur</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>05 · Les démarches, secteur par secteur</div>
+    <h2 class="pg-title">Huit démarches guidées, classées par catégorie</h2>
+    <p class="pg-lede">Le catalogue se filtre par secteur pour retrouver rapidement la démarche recherchée.</p>
+
+    <table class="sectable" style="margin-top:4mm;">
+      <tr><th>Code</th><th>Secteur</th><th>Démarche</th><th>Objet</th></tr>
+      <tr><td class="code" style="color:var(--gold-light);">KDB / 01</td><td class="sec"><span class="sec-pill" style="background:var(--gold-dark);">Création</span></td><td style="color:#fff;">Entreprise individuelle</td><td class="dim">Créer et déclarer une activité en nom propre.</td></tr>
+      <tr><td class="code" style="color:var(--gold-light);">KDB / 02</td><td class="sec"><span class="sec-pill" style="background:var(--gold-dark);">Création</span></td><td style="color:#fff;">Créer une société</td><td class="dim">SARL, SA ou autre forme sociétaire (droit OHADA).</td></tr>
+      <tr><td class="code" style="color:var(--gold-light);">KDB / 03</td><td class="sec"><span class="sec-pill" style="background:var(--gold-dark);">Création</span></td><td style="color:#fff;">Succursale</td><td class="dim">Implanter la succursale d'une société existante.</td></tr>
+      <tr><td class="code" style="color:var(--gold-light);">KDB / 04</td><td class="sec"><span class="sec-pill" style="background:var(--blue);">Entreprise</span></td><td style="color:#fff;">Modifier une entreprise</td><td class="dim">Changement de dirigeant, siège, activité ou dénomination.</td></tr>
+      <tr><td class="code" style="color:var(--gold-light);">KDB / 05</td><td class="sec"><span class="sec-pill" style="background:var(--green);">Fiscalité</span></td><td style="color:#fff;">NIU &amp; fiscalité</td><td class="dim">Identification fiscale de l'activité (NIU).</td></tr>
+      <tr><td class="code" style="color:var(--gold-light);">KDB / 06</td><td class="sec"><span class="sec-pill" style="background:#6d4fc9;">Social</span></td><td style="color:#fff;">CNSS &amp; personnel</td><td class="dim">Démarches sociales liées à l'employeur et aux agents.</td></tr>
+      <tr><td class="code" style="color:var(--gold-light);">KDB / 07</td><td class="sec"><span class="sec-pill" style="background:#c8570f;">Foncier</span></td><td style="color:#fff;">Foncier &amp; implantation</td><td class="dim">Terrain, permis ou implantation d'un projet.</td></tr>
+      <tr><td class="code" style="color:var(--gold-light);">KDB / 08</td><td class="sec"><span class="sec-pill" style="background:#8b93a6;">Ressources</span></td><td style="color:#fff;">Documents &amp; modèles</td><td class="dim">Formulaires OHADA, modèles de déclaration, guides.</td></tr>
+    </table>
+
+    <div class="ok" style="margin-top:8mm;background:rgba(47,125,79,.12);border-color:rgba(47,125,79,.4);">
+      <p style="color:#bfe6cb;"><b>Sources :</b> chaque fiche renvoie vers le portail officiel compétent — acpce.cg pour les démarches
+      de création, entreprise, fiscalité et social ; entreprises.gouv.cg pour le foncier et les ressources.</p>
+    </div>
+  </div>
+  <div class="footer-band"><div class="num">KINDIMBOU — Guide d'utilisation</div></div>
+</div>
+
+<!-- ============================================================ PAGE 8 — 06 CONSULTER UNE DEMARCHE ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>06 — Consulter une démarche</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>06 · Consulter une démarche et sa checklist</div>
+    <h2 class="pg-title">Savoir précisément quoi réunir, avant de se déplacer</h2>
+    <p class="pg-lede">En ouvrant une démarche depuis le catalogue, le déclarant accède à trois blocs
+    d'information :</p>
+
+    <div style="display:flex;flex-direction:column;gap:5mm;margin-top:6mm;">
+      <div class="card">
+        <p style="font-weight:800;font-size:11px;margin-bottom:1.5mm;">Présentation de la démarche</p>
+        <p style="font-size:9.5px;color:var(--ink-dim);margin:0;">Un résumé en une phrase de ce que couvre la démarche et à qui elle s'adresse.</p>
+      </div>
+      <div class="card">
+        <p style="font-weight:800;font-size:11px;margin-bottom:1.5mm;">Checklist indicative des pièces à préparer</p>
+        <p style="font-size:9.5px;color:var(--ink-dim);margin:0;">La liste exacte des documents exigés pour cette démarche — indicative, à vérifier auprès de l'organisme compétent avant tout dépôt.</p>
+      </div>
+      <div class="card">
+        <p style="font-weight:800;font-size:11px;margin-bottom:1.5mm;">Deux actions possibles</p>
+        <p style="font-size:9.5px;color:var(--ink-dim);margin:0;"><b>« Ajouter à mon suivi »</b> pour préparer un numéro de dossier (voir page 7) — ou
+        <b>« Consulter le portail officiel »</b> pour aller directement sur le site de l'organisme compétent.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 9 — 07 CONFIRMER LES PIECES ============================================================ -->
+<div class="pg pg-navy">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>07 — Confirmer les pièces</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>07 · Confirmer les pièces et rejoindre son suivi</div>
+    <h2 class="pg-title">Un dossier incomplet ne peut pas être transmis au suivi</h2>
+    <p class="pg-lede">Avant de pouvoir ajouter une démarche à son suivi personnel, le déclarant doit
+    cocher, une par une, chaque pièce de la checklist pour confirmer qu'il la possède réellement.</p>
+
+    <div style="display:flex;gap:7mm;margin-top:6mm;">
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:3mm;margin-bottom:3mm;">
+          <span class="flowbadge">1</span>
+          <p style="font-weight:800;font-size:11px;margin:0;color:#fff;">Cocher chaque pièce possédée</p>
+        </div>
+        <p style="font-size:9.5px;color:#a7b0c4;">Un compteur affiche en permanence « X / Y pièces confirmées ».</p>
+      </div>
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:3mm;margin-bottom:3mm;">
+          <span class="flowbadge">2</span>
+          <p style="font-weight:800;font-size:11px;margin:0;color:#fff;">Le bouton reste bloqué tant que la liste n'est pas complète</p>
+        </div>
+        <p style="font-size:9.5px;color:#a7b0c4;">« Ajouter à mon suivi » n'est activé qu'une fois toutes les pièces confirmées.</p>
+      </div>
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:3mm;margin-bottom:3mm;">
+          <span class="flowbadge">3</span>
+          <p style="font-weight:800;font-size:11px;margin:0;color:#fff;">Message explicite en cas de manque</p>
+        </div>
+        <p style="font-size:9.5px;color:#a7b0c4;">Une tentative avec une pièce manquante affiche exactement combien il en manque.</p>
+      </div>
+    </div>
+
+    <div class="no" style="margin-top:9mm;background:rgba(184,52,47,.14);border-color:rgba(184,52,47,.4);">
+      <p style="color:#f3c6c2;"><b>Ce que ce contrôle vérifie — et ce qu'il ne vérifie pas :</b> il s'agit d'une confirmation
+      déclarative de possession, pas d'une vérification d'authenticité des documents. Cette limite, et la raison
+      pour laquelle elle existe, sont détaillées page 12.</p>
+    </div>
+  </div>
+  <div class="footer-band"><div class="num">KINDIMBOU — Guide d'utilisation</div></div>
+</div>
+
+<!-- ============================================================ PAGE 10 — 08 NUMERO DE DOSSIER ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>08 — Le numéro de dossier</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>08 · Le numéro de dossier unique</div>
+    <h2 class="pg-title">Une référence personnelle, à conserver précieusement</h2>
+    <p class="pg-lede">Dès qu'une démarche complète rejoint le suivi, KINDIMBOU génère automatiquement
+    un numéro de dossier unique, au format <b>KDB-ANNÉE-XXXXXX</b> (ex. <span style="font-family:'Sora',sans-serif;font-weight:800;color:var(--gold-dark);">KDB-2026-A3F9</span>).</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5mm;margin-top:6mm;">
+      <div class="stat"><b>1</b><span>Numéro par démarche ajoutée au suivi — chaque dossier a sa propre référence, même pour un même déclarant.</span></div>
+      <div class="stat"><b>∞</b><span>Durée de conservation dans « Mon espace » — le numéro reste visible tant que le compte existe.</span></div>
+    </div>
+
+    <div style="margin-top:8mm;">
+      <p style="font-weight:800;font-size:11px;margin-bottom:2mm;">À quoi il sert</p>
+      <ul>
+        <li>Il identifie le dossier auprès de STAR ENTREPRISE, dans l'espace personnel du déclarant.</li>
+        <li>Il est destiné à être présenté par le déclarant lors de son passage physique au guichet ACPCE.</li>
+        <li>Le déclarant doit le garder précieusement — un rappel s'affiche à chaque confirmation d'ajout au suivi.</li>
+      </ul>
+    </div>
+
+    <div class="warn" style="margin-top:6mm;">
+      <p><b>Point de vigilance :</b> ce numéro identifie le dossier dans le système de STAR ENTREPRISE.
+      Sa reconnaissance automatique par le système interne de l'ACPCE suppose une intégration technique
+      avec l'agence — voir le détail exact de cette limite page 12.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 11 — 09 PAIEMENT ============================================================ -->
+<div class="pg pg-navy">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>09 — Le paiement</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>09 · Le paiement</div>
+    <h2 class="pg-title">Aucune transaction financière sur KINDIMBOU</h2>
+    <p class="pg-lede">C'est une règle absolue de conception : KINDIMBOU ne contient, à aucun endroit,
+    de fonctionnalité de paiement.</p>
+
+    <div class="card" style="margin-top:6mm;">
+      <p style="font-weight:800;font-size:12px;margin-bottom:2mm;color:var(--gold-light);">Le paiement se fait exclusivement au guichet ACPCE</p>
+      <p style="font-size:10px;color:#a7b0c4;margin:0;">Les frais liés à une démarche sont réglés physiquement, au moment du dépôt du dossier,
+      directement auprès de l'ACPCE — selon les tarifs et moyens de paiement en vigueur dans ses guichets.
+      KINDIMBOU n'intervient à aucun moment dans cette transaction.</p>
+    </div>
+
+    <div style="margin-top:7mm;">
+      <p style="font-weight:800;font-size:11px;margin-bottom:2mm;">Ce que cela garantit</p>
+      <ul>
+        <li>Aucune donnée bancaire n'est demandée ni conservée par l'application.</li>
+        <li>Aucun risque de paiement frauduleux via une fausse plateforme se faisant passer pour KINDIMBOU.</li>
+        <li>Le rappel « Aucun paiement ne se fait sur KINDIMBOU » est affiché en clair sur l'écran d'accueil.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-band"><div class="num">KINDIMBOU — Guide d'utilisation</div></div>
+</div>
+
+<!-- ============================================================ PAGE 12 — 10 DEPOT FINAL ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>10 — Le dépôt final</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>10 · Le dépôt final au guichet ACPCE</div>
+    <h2 class="pg-title">De l'écran au guichet, en trois gestes</h2>
+
+    <table class="numtable" style="margin-top:4mm;">
+      <tr><td class="num">1</td><td><b>Se présenter avec ses pièces originales</b><br><span style="color:var(--ink-dim);">Les pièces confirmées dans la checklist, en version physique et originale.</span></td></tr>
+      <tr><td class="num">2</td><td><b>Présenter son numéro de dossier KINDIMBOU</b><br><span style="color:var(--ink-dim);">Visible dans « Mon espace », il accompagne et identifie la démarche préparée.</span></td></tr>
+      <tr><td class="num">3</td><td><b>Régler les frais et déposer le dossier</b><br><span style="color:var(--ink-dim);">Le paiement et le dépôt officiel se font entièrement au guichet, selon la procédure ACPCE.</span></td></tr>
+    </table>
+
+    <div class="card" style="margin-top:8mm;">
+      <p style="font-weight:800;font-size:11px;margin-bottom:2mm;">Où se présenter</p>
+      <p style="font-size:10px;color:var(--ink-dim);line-height:1.6;margin:0;">
+        <b style="color:var(--ink);">Brazzaville</b> — Avenue Cardinal Émile Biayenda<br>
+        <b style="color:var(--ink);">Pointe-Noire</b> — Avenue Simon Kimbangou<br>
+        Antennes à Dolisie, Nkayi, Owando et Ouesso — 6 guichets ACPCE au total.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 13 — 11 SECURITE ============================================================ -->
+<div class="pg pg-navy">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>11 — Sécurité et confidentialité</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>11 · Sécurité et confidentialité des données</div>
+    <h2 class="pg-title">Ce qui protège réellement le compte du déclarant</h2>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5mm;margin-top:6mm;">
+      <div class="card">
+        <p style="font-weight:800;font-size:11.5px;margin-bottom:2mm;color:var(--gold-light);">Mots de passe chiffrés</p>
+        <p style="font-size:9.5px;color:#a7b0c4;margin:0;">Chaque mot de passe est transformé par une fonction de hachage irréversible (bcrypt) avant
+        tout enregistrement. Personne, y compris l'équipe technique, ne peut le consulter en clair.</p>
+      </div>
+      <div class="card">
+        <p style="font-weight:800;font-size:11.5px;margin-bottom:2mm;color:var(--gold-light);">Verrouillage anti-intrusion</p>
+        <p style="font-size:9.5px;color:#a7b0c4;margin:0;">Après 5 tentatives de connexion échouées sur un même compte, celui-ci est automatiquement
+        verrouillé pendant 15 minutes.</p>
+      </div>
+      <div class="card">
+        <p style="font-weight:800;font-size:11.5px;margin-bottom:2mm;color:var(--gold-light);">Sessions signées</p>
+        <p style="font-size:9.5px;color:#a7b0c4;margin:0;">Chaque connexion délivre un jeton d'accès signé numériquement, propre au compte et limité
+        dans le temps.</p>
+      </div>
+      <div class="card">
+        <p style="font-weight:800;font-size:11.5px;margin-bottom:2mm;color:var(--gold-light);">Messages neutres à la connexion</p>
+        <p style="font-size:9.5px;color:#a7b0c4;margin:0;">En cas d'échec, le message reste volontairement générique, pour ne jamais révéler si un
+        email donné correspond ou non à un compte existant.</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer-band"><div class="num">KINDIMBOU — Guide d'utilisation</div></div>
+</div>
+
+<!-- ============================================================ PAGE 14 — 12 PERIMETRE ET LIMITES ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>12 — Périmètre et limites</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>12 · Périmètre et limites du service</div>
+    <h2 class="pg-title">Ce que KINDIMBOU ne fait pas, en toute transparence</h2>
+    <p class="pg-lede">Trois limites structurelles doivent être connues avant toute présentation aux
+    autorités — elles ne relèvent pas d'un choix technique de STAR ENTREPRISE, mais de ce qu'une
+    application indépendante peut légitimement faire sans l'accès aux systèmes de l'État.</p>
+
+    <table class="numtable" style="margin-top:4mm;">
+      <tr><td class="num">A</td><td><b>Authenticité des pièces</b><br><span style="color:var(--ink-dim);">Vérifier qu'une pièce d'identité ou un document n'est pas falsifié exige l'accès aux bases
+      officielles de l'État (fichiers d'état civil, registre du commerce) ou un service spécialisé de
+      vérification. KINDIMBOU contrôle la <i>complétude déclarative</i> du dossier (page 7), pas l'authenticité
+      des documents eux-mêmes.</span></td></tr>
+      <tr><td class="num">B</td><td><b>Synchronisation avec la base ACPCE</b><br><span style="color:var(--ink-dim);">Pour qu'un agent ACPCE retrouve instantanément un dossier à partir de son numéro KINDIMBOU,
+      une intégration technique entre les deux systèmes est nécessaire. Elle suppose l'accord et la
+      coopération institutionnelle de l'ACPCE — c'est précisément l'objet de la présentation de ce
+      document.</span></td></tr>
+      <tr><td class="num">C</td><td><b>Délivrance de documents</b><br><span style="color:var(--ink-dim);">KINDIMBOU ne délivre, ne signe ni ne valide aucun acte administratif. Seule l'ACPCE, ou
+      l'organisme compétent, délivre les documents officiels — au terme de la procédure légale
+      applicable.</span></td></tr>
+    </table>
+
+    <div class="ok" style="margin-top:7mm;">
+      <p><b>Ce que cela permet de proposer :</b> une intégration technique avec l'ACPCE transformerait
+      le numéro de dossier KINDIMBOU en identifiant reconnu de bout en bout — de la préparation par le
+      citoyen jusqu'au traitement par l'agent au guichet.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 15 — 13 A PROPOS ============================================================ -->
+<div class="pg pg-navy">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>13 — À propos</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>13 · À propos de STAR ENTREPRISE</div>
+    <h2 class="pg-title">Une agence digitale congolaise, plusieurs projets d'utilité publique</h2>
+    <p class="pg-lede">STAR ENTREPRISE conçoit et opère KINDIMBOU aux côtés d'autres projets numériques
+    portés en République du Congo, dont STAR ALERTE, l'application citoyenne de signalement d'urgence.</p>
+
+    <div class="card" style="margin-top:8mm;">
+      <p style="font-weight:800;font-size:11.5px;margin-bottom:2mm;">Contact</p>
+      <p style="font-size:10.5px;color:#a7b0c4;margin:0;line-height:1.7;">
+        WhatsApp — +242 06 656 50 50<br>
+        star-entreprise.netlify.app<br>
+        star-entreprise.netlify.app/guichet-unique/
+      </p>
+    </div>
+
+    <div style="margin-top:9mm;padding:6mm;border-radius:4mm;background:linear-gradient(135deg,#132247,#1c3466);color:#fff;">
+      <p style="font-size:11px;font-weight:700;margin-bottom:1.5mm;">Ce document est une base de discussion</p>
+      <p style="font-size:10.5px;line-height:1.6;color:#c3cadd;margin:0;">STAR ENTREPRISE se tient à la disposition de l'ACPCE et des autorités compétentes pour
+      présenter KINDIMBOU en détail et étudier les conditions d'une intégration technique entre les
+      deux systèmes.</p>
+    </div>
+  </div>
+  <div class="footer-band"><div class="num">KINDIMBOU — Guide d'utilisation</div></div>
+</div>
+
+</body>
+</html>
