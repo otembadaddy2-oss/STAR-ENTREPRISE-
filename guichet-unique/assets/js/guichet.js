@@ -370,7 +370,6 @@ $$(".pw-toggle").forEach((btn) => {
     btn.setAttribute("aria-label", show ? "Masquer le mot de passe" : "Afficher le mot de passe");
   });
 });
-
 $$(".tp-chip").forEach((chip) => {
   chip.addEventListener("click", () => {
     $$(".tp-chip").forEach((c) => c.classList.remove("selected"));
