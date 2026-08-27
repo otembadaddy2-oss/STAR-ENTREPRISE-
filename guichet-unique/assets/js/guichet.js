@@ -359,6 +359,17 @@ function setAuthMode(mode) {
 }
 $$(".auth-tab").forEach((t) => t.addEventListener("click", () => setAuthMode(t.dataset.mode)));
 
+$$(".pw-toggle").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const input = document.getElementById(btn.dataset.target);
+    if (!input) return;
+    const show = input.type === "password";
+    input.type = show ? "text" : "password";
+    btn.querySelector(".pw-eye").hidden = show;
+    btn.querySelector(".pw-eye-off").hidden = !show;
+    btn.setAttribute("aria-label", show ? "Masquer le mot de passe" : "Afficher le mot de passe");
+  });
+});
 $$(".tp-chip").forEach((chip) => {
   chip.addEventListener("click", () => {
     $$(".tp-chip").forEach((c) => c.classList.remove("selected"));

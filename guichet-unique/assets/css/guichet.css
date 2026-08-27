@@ -222,6 +222,14 @@ label.field-label{display:block;font-size:.74rem;font-weight:800;letter-spacing:
 input[type=text],input[type=email],input[type=password],input[type=tel],input[type=date],textarea,select{
   width:100%;background:#fff;border:1px solid var(--line-strong);border-radius:var(--radius-sm);padding:13px 14px;color:var(--ink);font-size:.9rem;font-family:inherit;
 }
+.field-pw-wrap{position:relative;}
+.field-pw-wrap input{padding-right:42px;}
+.pw-toggle{
+  position:absolute;top:50%;right:6px;transform:translateY(-50%);
+  width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+  background:none;border:none;color:var(--ink-dim);cursor:pointer;padding:0;
+}
+.pw-toggle svg{width:19px;height:19px;}
 input:focus,textarea:focus,select:focus{outline:none;border-color:var(--gold);}
 input::placeholder,textarea::placeholder{color:var(--ink-faint);}
 select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235c6478' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:16px;padding-right:36px;}
