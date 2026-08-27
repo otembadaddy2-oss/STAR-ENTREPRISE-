@@ -10,7 +10,7 @@ const API = "/api/guichet-auth";
 const API_DEMANDES = "/api/guichet-demandes";
 
 /* ---------------- Toasts ---------------- */
-function toast(msg, kind = "") {
+function toast(msg, kind = "", duration = 3200) {
   const wrap = $("#toastWrap");
   if (!wrap) return;
   const el = document.createElement("div");
@@ -22,7 +22,7 @@ function toast(msg, kind = "") {
     el.style.transform = "translateY(8px)";
     el.style.transition = "opacity .3s ease, transform .3s ease";
     setTimeout(() => el.remove(), 320);
-  }, 3200);
+  }, duration);
 }
 
 /* ---------------- Splash ---------------- */
@@ -250,6 +250,16 @@ $$(".nav-btn[data-screen]").forEach((btn) => {
 /* ============================================================
    Démarche detail
    ============================================================ */
+function updateSuiviGate() {
+  const boxes = $$("#dmPieces input[type=checkbox]");
+  const total = boxes.length;
+  const checked = boxes.filter((b) => b.checked).length;
+  const btn = $("#btnAjouterSuivi");
+  const counter = $("#dmPiecesCount");
+  if (counter) counter.textContent = `${checked}/${total} pièces confirmées`;
+  if (btn) btn.disabled = checked < total;
+}
+
 function openDemarche(key) {
   currentDemarche = DEMARCHES.find((d) => d.key === key);
   if (!currentDemarche) return;
@@ -259,16 +269,28 @@ function openDemarche(key) {
   $("#dmLede").textContent = d.lede;
   $("#dmPieces").innerHTML = d.pieces
     .map(
-      (p) => `<div class="piece-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span>${p}</span></div>`
+      (p, i) => `<label class="piece-row piece-row--check">
+        <input type="checkbox" data-piece="${i}">
+        <span class="piece-check-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg></span>
+        <span>${p}</span>
+      </label>`
     )
     .join("");
+  $$("#dmPieces input[type=checkbox]").forEach((b) => b.addEventListener("change", updateSuiviGate));
   $("#dmPortailLink").href = d.portail;
+  updateSuiviGate();
   navStack.push("demarche-detail");
   showScreen("demarche-detail", { fromBack: true });
 }
 
 $("#btnAjouterSuivi")?.addEventListener("click", async () => {
   if (!currentDemarche) return;
+  const boxes = $$("#dmPieces input[type=checkbox]");
+  const missing = boxes.filter((b) => !b.checked).length;
+  if (missing > 0) {
+    toast(`Il manque ${missing} pièce${missing > 1 ? "s" : ""} confirmée${missing > 1 ? "s" : ""} — le dossier ne peut pas être transmis à votre suivi.`, "warn");
+    return;
+  }
   const token = localStorage.getItem("kdb_token");
   if (!token) {
     toast("Connectez-vous pour ajouter cette démarche à votre suivi.", "warn");
@@ -282,7 +304,7 @@ $("#btnAjouterSuivi")?.addEventListener("click", async () => {
       body: JSON.stringify({
         serviceCode: currentDemarche.key,
         serviceLabel: currentDemarche.title,
-        details: "Checklist préparée via KINDIMBOU",
+        details: "Checklist préparée via KINDIMBOU — toutes les pièces confirmées par le déclarant",
       }),
     });
     const data = await res.json();
@@ -290,7 +312,7 @@ $("#btnAjouterSuivi")?.addEventListener("click", async () => {
       toast(data.error || "Erreur lors de l'ajout.", "warn");
       return;
     }
-    toast(`Ajoutée à votre suivi — référence ${data.demande.numeroDossier}`, "ok");
+    toast(`Dossier ajouté — numéro ${data.demande.numeroDossier}. Conservez-le précieusement : il vous sera demandé à l'ACPCE.`, "ok", 6000);
   } catch {
     toast("Connexion impossible. Réessayez.", "warn");
   }
