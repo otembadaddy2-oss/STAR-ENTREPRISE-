@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Confidentialité — KINDIMBOU</title>
+<meta name="theme-color" content="#0c1936">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="assets/img/icons/favicon-96.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/img/icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500;1,600&family=Sora:wght@700;800&family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="assets/css/guichet.css">
+</head>
+<body>
+<div class="app-shell" style="padding-bottom:40px;">
+
+  <a class="legal-back" href="index.html">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M19 12H5m0 0 7 7m-7-7 7-7"/></svg>
+    Retour à KINDIMBOU
+  </a>
+
+  <div class="legal-card">
+    <p class="legal-kicker">Transparence et sécurité</p>
+    <h2>Confidentialité</h2>
+    <p>KINDIMBOU est un prototype fonctionnel destiné à être présenté et discuté avec les autorités compétentes de la République du Congo avant tout déploiement à grande échelle. Cette page explique précisément ce qui est stocké, où, et pourquoi.</p>
+  </div>
+
+  <div class="demo-banner">
+    Version de démonstration — KINDIMBOU n'est pas, à ce stade, un service administratif officiel. Aucune démarche n'est délivrée ou validée par cette application : elle vous prépare, puis vous oriente vers le guichet ACPCE ou le portail compétent.
+  </div>
+
+  <div class="legal-card">
+    <h3>Responsable de l'application</h3>
+    <p>KINDIMBOU est un projet porté par <strong>STAR ENTREPRISE</strong> en République du Congo, conçu par Carry OTEMBA. Pour toute question, contactez STAR ENTREPRISE via WhatsApp au +242 06 656 50 50.</p>
+  </div>
+
+  <div class="legal-card">
+    <h3>Ce que nous conservons, réellement</h3>
+    <ul>
+      <li><strong>Votre compte</strong> : nom, prénom, email, mot de passe (jamais stocké en clair — un hachage sécurisé bcrypt est utilisé), et si vous les renseignez : date et lieu de naissance, nationalité, téléphone.</li>
+      <li><strong>Votre pièce d'identité</strong> (CNI, passeport ou carte de résident), si vous choisissez de la déposer : le fichier est stocké dans un espace de stockage privé, séparé de la base de données, et n'est jamais accessible par une URL publique. Seule l'application, avec votre session authentifiée, peut y accéder.</li>
+      <li><strong>Votre suivi</strong> : les démarches que vous ajoutez à « Mon espace » (type de démarche, date, un numéro de référence interne à KINDIMBOU).</li>
+    </ul>
+    <p>Ces informations sont hébergées sur l'infrastructure de STAR ENTREPRISE (base de données et stockage de fichiers gérés via Netlify), avec chiffrement en transit (HTTPS) et un accès protégé par mot de passe et jeton de session.</p>
+    <p>Votre mot de passe n'est jamais stocké tel quel : il est transformé par un hachage cryptographique (bcrypt) impossible à inverser. Après 5 tentatives de connexion échouées, votre compte est automatiquement verrouillé 15 minutes pour empêcher toute tentative de piratage par force brute.</p>
+  </div>
+
+  <div class="legal-card">
+    <h3>Ce que nous ne faisons pas</h3>
+    <ul>
+      <li>Nous ne transmettons jamais votre pièce d'identité à un tiers, à une administration ou à l'ACPCE sans votre action explicite.</li>
+      <li>KINDIMBOU ne délivre, ne valide et ne certifie aucun document officiel — les checklists sont indicatives et le dépôt réel se fait toujours auprès du service compétent.</li>
+      <li>Nous ne suivons pas votre position géographique et ne partageons pas vos données à des fins publicitaires.</li>
+    </ul>
+  </div>
+
+  <div class="legal-card">
+    <h3>Vos droits</h3>
+    <p>Vous pouvez demander à tout moment la suppression de votre compte, de votre pièce d'identité et de votre historique de suivi en écrivant à STAR ENTREPRISE (WhatsApp +242 06 656 50 50). Nous traiterons votre demande sous 7 jours ouvrés.</p>
+  </div>
+
+  <div class="legal-card warn">
+    <h3>Un rappel important</h3>
+    <p>Pour toute démarche officielle, seul l'ACPCE (Agence Congolaise pour la Création des Entreprises) et les administrations compétentes font foi. KINDIMBOU est un outil de préparation, pas un canal de dépôt légal — même une fois ajoutée à votre suivi, une démarche doit être finalisée sur le portail ou au guichet officiel.</p>
+  </div>
+
+  <div class="legal-card">
+    <h3>Mise à jour</h3>
+    <p>Politique publiée le 27 août 2026. Elle sera republiée avant toute évolution majeure — notamment une intégration officielle avec l'ACPCE ou une autre administration.</p>
+  </div>
+
+  <footer class="site-footer" style="border-top:none;">
+    <div class="footer-brand">
+      <img src="../assets/img/logo-star-rounded-v1.webp" alt="STAR ENTREPRISE">
+      <div>
+        <b>Conçu par Carry OTEMBA</b>
+        <span>© 2026 · Tous droits réservés. Conçu par STAR ENTREPRISE.</span>
+      </div>
+    </div>
+  </footer>
+</div>
+</body>
+</html>

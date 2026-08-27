@@ -122,6 +122,45 @@ export async function ensureSchema() {
   `;
 
   await sql`
+    CREATE TABLE IF NOT EXISTS guichet_citoyens (
+      id SERIAL PRIMARY KEY,
+      email TEXT UNIQUE NOT NULL,
+      password_hash TEXT NOT NULL,
+      nom TEXT NOT NULL,
+      prenom TEXT NOT NULL,
+      date_naissance TEXT DEFAULT '',
+      lieu_naissance TEXT DEFAULT '',
+      nationalite TEXT DEFAULT '',
+      telephone TEXT DEFAULT '',
+      type_piece TEXT NOT NULL DEFAULT 'cni',
+      numero_piece TEXT DEFAULT '',
+      piece_blob_key TEXT DEFAULT '',
+      piece_type_mime TEXT DEFAULT '',
+      failed_attempts INTEGER NOT NULL DEFAULT 0,
+      locked_until TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+  await sql`ALTER TABLE guichet_citoyens ADD COLUMN IF NOT EXISTS failed_attempts INTEGER NOT NULL DEFAULT 0`;
+  await sql`ALTER TABLE guichet_citoyens ADD COLUMN IF NOT EXISTS locked_until TIMESTAMPTZ`;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS guichet_demandes (
+      id SERIAL PRIMARY KEY,
+      citoyen_id INTEGER NOT NULL REFERENCES guichet_citoyens(id) ON DELETE CASCADE,
+      numero_dossier TEXT UNIQUE NOT NULL,
+      service_code TEXT NOT NULL,
+      service_label TEXT NOT NULL,
+      statut TEXT NOT NULL DEFAULT 'recue',
+      details TEXT DEFAULT '',
+      piece_jointe_blob_key TEXT DEFAULT '',
+      piece_jointe_nom TEXT DEFAULT '',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
+  await sql`
     CREATE TABLE IF NOT EXISTS jardis_log (
       id SERIAL PRIMARY KEY,
       action TEXT NOT NULL,
