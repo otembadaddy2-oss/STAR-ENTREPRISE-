@@ -27,7 +27,7 @@
 
 <div class="app-shell">
 
-  <!-- ============ HEADER ============ -->
+  <!-- ============ HEADER (partagé sur tous les écrans) ============ -->
   <header class="topbar">
     <div class="brand">
       <img class="brand-badge" src="assets/img/star-alerte-badge.png" alt="STAR ALERTE">
@@ -42,25 +42,63 @@
   <!-- ============ ACCUEIL ============ -->
   <section class="screen active" id="screen-accueil">
 
-    <svg class="flag-wrap" viewBox="0 0 300 200" aria-hidden="true" focusable="false">
+    <!-- drapeau congolais flottant au vent, sur sa hampe -->
+    <div class="flag-banner">
+    <svg class="flag-wrap" viewBox="0 0 400 190" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid meet">
       <defs>
         <linearGradient id="cgFlag" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#00923F"/>
-          <stop offset="40%" stop-color="#00923F"/>
-          <stop offset="40%" stop-color="#FFD100"/>
-          <stop offset="60%" stop-color="#FFD100"/>
-          <stop offset="60%" stop-color="#DC241F"/>
+          <stop offset="0%" stop-color="#00A651"/>
+          <stop offset="38%" stop-color="#00A651"/>
+          <stop offset="38%" stop-color="#FFD100"/>
+          <stop offset="58%" stop-color="#FFD100"/>
+          <stop offset="58%" stop-color="#DC241F"/>
           <stop offset="100%" stop-color="#DC241F"/>
         </linearGradient>
-        <filter id="flagWave" x="-30%" y="-30%" width="160%" height="160%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.012 0.045" numOctaves="2" seed="7" result="noise">
-            <animate attributeName="baseFrequency" dur="9s" values="0.012 0.045;0.017 0.055;0.012 0.045" repeatCount="indefinite"/>
+        <linearGradient id="poleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#7a5a1e"/>
+          <stop offset="45%" stop-color="#f4d488"/>
+          <stop offset="100%" stop-color="#a97a26"/>
+        </linearGradient>
+        <radialGradient id="ballGrad" cx="35%" cy="30%" r="70%">
+          <stop offset="0%" stop-color="#fff3d0"/>
+          <stop offset="55%" stop-color="#e8b85c"/>
+          <stop offset="100%" stop-color="#96691c"/>
+        </radialGradient>
+        <filter id="flagWave" x="-40%" y="-40%" width="180%" height="180%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.006 0.05" numOctaves="2" seed="7" result="noise">
+            <animate attributeName="baseFrequency" dur="3.4s" values="0.006 0.045;0.010 0.065;0.006 0.045" repeatCount="indefinite"/>
           </feTurbulence>
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="16" xChannelSelector="R" yChannelSelector="G"/>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="15" xChannelSelector="R" yChannelSelector="G"/>
         </filter>
+        <clipPath id="flagClip">
+          <path id="flagShapeClip" d="M34,28 C110,24 160,30 230,26 C245,60 245,130 230,165 C160,168 110,160 34,163 Z"/>
+        </clipPath>
       </defs>
-      <rect width="300" height="200" rx="12" fill="url(#cgFlag)" filter="url(#flagWave)"/>
+
+      <!-- pole -->
+      <rect x="27" y="8" width="6" height="176" rx="3" fill="url(#poleGrad)"/>
+      <circle cx="30" cy="10" r="8" fill="url(#ballGrad)"/>
+
+      <!-- waving cloth -->
+      <g filter="url(#flagWave)">
+        <path id="flagShape" fill="url(#cgFlag)">
+          <animate attributeName="d" dur="2.6s" repeatCount="indefinite"
+            values="
+              M34,28 C110,24 160,30 230,26 C245,60 245,130 230,165 C160,168 110,160 34,163 Z;
+              M34,29 C112,34 158,20 230,35 C248,52 244,142 228,158 C158,150 108,172 34,161 Z;
+              M34,27 C108,18 162,34 230,20 C240,68 250,118 230,171 C162,178 112,150 34,164 Z;
+              M34,28 C110,24 160,30 230,26 C245,60 245,130 230,165 C160,168 110,160 34,163 Z
+            "/>
+        </path>
+        <!-- soft sunlight sweep, clipped to the flag silhouette -->
+        <g clip-path="url(#flagClip)">
+          <rect x="-60" y="0" width="90" height="190" fill="#ffffff" opacity=".22" transform="skewX(-18)">
+            <animate attributeName="x" values="-90;420" dur="3.6s" repeatCount="indefinite"/>
+          </rect>
+        </g>
+      </g>
     </svg>
+    </div>
 
     <div class="hero-card reveal">
       <span class="tag-country"><i></i> République du Congo</span>

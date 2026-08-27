@@ -104,28 +104,30 @@ img{max-width:100%;display:block;}
 @keyframes loadBar{0%{transform:translateX(-100%);}100%{transform:translateX(350%);}}
 
 /* ============================================================
-   Congo flag — floating background watermark (Accueil only)
+   Congo flag — waving on its pole, above the SOS hero (Accueil)
    ============================================================ */
-#screen-accueil{position:relative;}
-#screen-accueil > .topbar,
-#screen-accueil > .hero-card,
-#screen-accueil > .quickcall,
-#screen-accueil > .section,
-#screen-accueil > .note-row{position:relative;z-index:1;}
+.flag-banner{
+  position:relative;
+  padding:10px 6px 4px;
+  overflow:hidden;
+  animation:flagSway 6s ease-in-out infinite;
+  transform-origin:16% 8%;
+}
+.flag-banner::before{
+  content:"";position:absolute;inset:-20% -10%;
+  background:radial-gradient(220px 200px at 22% 40%, rgba(232,184,92,.16), transparent 70%);
+  pointer-events:none;z-index:0;
+  animation:ambientGlow 4.5s ease-in-out infinite;
+}
+@keyframes ambientGlow{0%,100%{opacity:.6;}50%{opacity:1;}}
 .flag-wrap{
-  position:absolute;top:-36px;left:50%;
-  width:145%;max-width:820px;
-  transform:translate(-50%,0) rotate(-4deg);
-  opacity:.30;pointer-events:none;z-index:0;
-  filter:drop-shadow(0 22px 44px rgba(0,0,0,.55));
-  animation:flagDrift 8s ease-in-out infinite;
+  position:relative;z-index:1;
+  display:block;width:100%;height:auto;
+  filter:drop-shadow(0 14px 22px rgba(0,0,0,.45));
 }
-@keyframes flagDrift{
-  0%,100%{transform:translate(-50%,0) rotate(-4deg);}
-  50%{transform:translate(-49%,-10px) rotate(-2deg);}
-}
-@media (min-width:600px){
-  .flag-wrap{max-width:900px;}
+@keyframes flagSway{
+  0%,100%{transform:rotate(-1.4deg);}
+  50%{transform:rotate(1.6deg);}
 }
 
 /* ============================================================
@@ -137,14 +139,17 @@ img{max-width:100%;display:block;}
 }
 .brand{display:flex;align-items:center;gap:10px;}
 .brand-badge{
-  width:42px;height:42px;flex:none;
-  animation:floatRotate 7s ease-in-out infinite;
-  filter:drop-shadow(0 4px 10px rgba(0,0,0,.5));
+  width:50px;height:50px;flex:none;
+  animation:floatRotate 4.2s ease-in-out infinite;
+  filter:drop-shadow(0 6px 12px rgba(0,0,0,.55)) drop-shadow(0 0 0 rgba(232,184,92,0));
+  will-change:transform,filter;
 }
 @keyframes floatRotate{
-  0%{transform:translateY(0) rotate(-3deg);}
-  50%{transform:translateY(-5px) rotate(3deg);}
-  100%{transform:translateY(0) rotate(-3deg);}
+  0%{transform:translateY(0) rotate(-6deg) scale(1); filter:drop-shadow(0 6px 12px rgba(0,0,0,.55)) drop-shadow(0 0 0 rgba(232,184,92,0));}
+  25%{transform:translateY(-7px) rotate(3deg) scale(1.045); filter:drop-shadow(0 10px 16px rgba(0,0,0,.55)) drop-shadow(0 0 14px rgba(232,184,92,.55));}
+  50%{transform:translateY(-2px) rotate(7deg) scale(1); filter:drop-shadow(0 8px 14px rgba(0,0,0,.55)) drop-shadow(0 0 4px rgba(232,184,92,.15));}
+  75%{transform:translateY(-9px) rotate(-4deg) scale(1.04); filter:drop-shadow(0 11px 18px rgba(0,0,0,.55)) drop-shadow(0 0 16px rgba(232,184,92,.6));}
+  100%{transform:translateY(0) rotate(-6deg) scale(1); filter:drop-shadow(0 6px 12px rgba(0,0,0,.55)) drop-shadow(0 0 0 rgba(232,184,92,0));}
 }
 .brand-word{font-family:"Sora",sans-serif;font-weight:800;font-size:1.05rem;line-height:1.05;}
 .brand-word small{display:block;font-weight:600;font-size:.6rem;letter-spacing:.13em;color:var(--text-dim);text-transform:uppercase;margin-top:2px;}
