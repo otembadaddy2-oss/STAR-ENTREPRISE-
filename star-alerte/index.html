@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>STAR ALERTE — Signaler. Localiser. Secourir.</title>
+<meta name="description" content="STAR ALERTE — signalez une urgence en République du Congo avec une photo, votre voix et votre position. Un projet national porté par STAR ENTREPRISE.">
+<meta name="theme-color" content="#070c1a">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="assets/img/icons/favicon-96.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/img/icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap"></noscript>
+<link rel="stylesheet" href="assets/css/star-alerte.css">
+</head>
+<body>
+
+<!-- ============ SPLASH ============ -->
+<div class="splash" id="splash" aria-hidden="true">
+  <img class="splash-badge" src="assets/img/star-alerte-badge.png" alt="">
+  <div class="splash-word">STAR ALERTE</div>
+  <div class="splash-tag">Signaler · Localiser · Secourir</div>
+  <div class="splash-bar"><i></i></div>
+</div>
+
+<div class="app-shell">
+
+  <!-- ============ HEADER (partagé sur tous les écrans) ============ -->
+  <header class="topbar">
+    <div class="brand">
+      <img class="brand-badge" src="assets/img/star-alerte-badge.png" alt="STAR ALERTE">
+      <div class="brand-word">STAR <span>ALERTE</span><small>République du Congo</small></div>
+    </div>
+    <button class="btn-install" hidden>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v13m0 0 5-5m-5 5-5-5M4 21h16"/></svg>
+      Installer
+    </button>
+  </header>
+
+  <!-- ============ ACCUEIL ============ -->
+  <section class="screen active" id="screen-accueil">
+
+    <div class="hero-card reveal">
+      <span class="tag-country"><i></i> République du Congo</span>
+      <div class="sos-wrap">
+        <span class="sos-ring r1"></span>
+        <span class="sos-ring r2"></span>
+        <span class="sos-ring r3"></span>
+        <button class="sos-btn" id="btnSos" data-go="signaler" aria-label="Lancer une alerte SOS">
+          <span class="sos-label">ALERTE</span>
+          <span class="sos-word">SOS</span>
+          <span class="sos-cta">APPUYER</span>
+        </button>
+      </div>
+      <h1 class="hero-title">Un geste rapide peut <span class="accent">sauver une vie.</span></h1>
+      <p class="hero-sub">Signalez une urgence avec une photo, votre voix et votre position. STAR ALERTE prépare un rapport clair que vous contrôlez avant tout envoi.</p>
+      <button class="btn btn-primary" data-go="signaler">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 7 9 18l-5-5"/></svg>
+        Signaler une urgence
+      </button>
+    </div>
+
+    <div class="quickcall reveal">
+      <button class="btn btn-outline" data-go="urgences">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        Appeler les secours
+      </button>
+      <p style="color:var(--text-dim);font-size:.84rem;margin:0;">En danger immédiat, appelez directement le service compétent.</p>
+    </div>
+
+    <div class="section reveal">
+      <p class="section-kicker">Voir · Comprendre · Agir</p>
+      <h2 class="section-title">Une image peut faire comprendre l'urgence</h2>
+      <p class="section-sub">Choisissez la situation la plus proche. STAR ALERTE vous conduit directement vers un signalement adapté.</p>
+      <div class="incident-scroll">
+
+        <div class="incident-card icard--accident reveal" data-go="signaler" data-type="accident">
+          <span class="pill-tag">Accident</span>
+          <div class="incident-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#1b1200" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L14.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+          <h3>Accident sur la RN1 / RN2</h3>
+          <p>Signalez rapidement un accident, un véhicule immobilisé ou un danger sur la route.</p>
+          <span class="incident-link">Signaler cette situation →</span>
+        </div>
+
+        <div class="incident-card icard--incendie reveal" data-go="signaler" data-type="incendie">
+          <span class="pill-tag">Incendie</span>
+          <div class="incident-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#2a0900" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 17a2.5 2.5 0 0 0 2.5-2.5c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7.5 7.5 0 1 1-15 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></div>
+          <h3>Incendie et fumée</h3>
+          <p>Alertez sans vous approcher des flammes et joignez une position précise aux secours.</p>
+          <span class="incident-link">Signaler cette situation →</span>
+        </div>
+
+        <div class="incident-card icard--agression reveal" data-go="signaler" data-type="agression">
+          <span class="pill-tag">Agression</span>
+          <div class="incident-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#1b0f38" stroke-width="2"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/></svg></div>
+          <h3>Violence ou harcèlement</h3>
+          <p>Préparez un signalement discret et rejoignez d'abord un endroit sûr.</p>
+          <span class="incident-link">Signaler cette situation →</span>
+        </div>
+
+        <div class="incident-card icard--inondation reveal" data-go="signaler" data-type="inondation">
+          <span class="pill-tag">Inondation</span>
+          <div class="incident-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#001b33" stroke-width="2"><path d="M2 12h2a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3h2M2 18h2a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3h2"/></svg></div>
+          <h3>Inondation / route coupée</h3>
+          <p>Signalez une montée des eaux ou une chaussée impraticable près de chez vous.</p>
+          <span class="incident-link">Signaler cette situation →</span>
+        </div>
+
+        <div class="incident-card icard--vol reveal" data-go="signaler" data-type="vol">
+          <span class="pill-tag">Vol</span>
+          <div class="incident-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#00251f" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <h3>Vol / cambriolage</h3>
+          <p>Décrivez les faits, joignez une photo si possible, en toute sécurité.</p>
+          <span class="incident-link">Signaler cette situation →</span>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="section reveal">
+      <p class="section-kicker">Accès immédiat</p>
+      <h2 class="section-title">Services d'urgence vérifiés</h2>
+      <div class="svc-list">
+        <div class="svc-row">
+          <div class="svc-icon" style="background:rgba(61,123,240,.16);">🔷</div>
+          <div class="svc-body">
+            <span class="svc-verified">✓ Vérifié</span>
+            <h4>Police</h4>
+            <p>Danger, agression, sécurité</p>
+          </div>
+          <a class="svc-call" href="tel:117"><b>117</b><small>Appeler</small></a>
+        </div>
+        <div class="svc-row">
+          <div class="svc-icon" style="background:rgba(239,59,48,.16);">🔺</div>
+          <div class="svc-body">
+            <span class="svc-verified">✓ Vérifié</span>
+            <h4>Sapeurs-pompiers</h4>
+            <p>Incendie, accident, évacuation</p>
+          </div>
+          <a class="svc-call" href="tel:118"><b>118</b><small>Appeler</small></a>
+        </div>
+        <div class="svc-row">
+          <div class="svc-icon" style="background:rgba(232,184,92,.16);">💛</div>
+          <div class="svc-body">
+            <span class="svc-verified">✓ Vérifié</span>
+            <h4>Violences / VBG</h4>
+            <p>Écoute et signalement sécurisé</p>
+          </div>
+          <a class="svc-call" href="tel:1444"><b>1444</b><small>Appeler</small></a>
+        </div>
+        <div class="svc-row">
+          <div class="svc-icon" style="background:rgba(31,184,166,.16);">⚡</div>
+          <div class="svc-body">
+            <span class="svc-verified">✓ Vérifié</span>
+            <h4>Urgence RN1 / RN2</h4>
+            <p>Centre d'assistance LCR 24h/24 · appel gratuit</p>
+          </div>
+          <a class="svc-call" href="tel:1010"><b>1010</b><small>Appeler</small></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="section reveal">
+      <div class="map-box">
+        <div class="map-pin">
+          <svg viewBox="0 0 24 24" fill="#ef3b30" stroke="#e8b85c" stroke-width="1"><path d="M12 22s7-7.58 7-13A7 7 0 0 0 5 9c0 5.42 7 13 7 13Z"/><circle cx="12" cy="9" r="2.4" fill="#e8b85c"/></svg>
+          <span>Position de l'incident</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section reveal">
+      <p class="section-kicker">Position de l'incident</p>
+      <h2 class="section-title">Localisez l'urgence avec précision</h2>
+      <p class="section-sub">Activez le GPS uniquement au moment du signalement.</p>
+      <button class="btn btn-outline" data-go="signaler">Utiliser ma position</button>
+    </div>
+
+    <div class="note-row reveal">
+      <div class="note-ic">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e8b85c" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <div>
+        <h4>Rien ne part sans votre accord</h4>
+        <p>Vous pouvez vérifier, modifier, télécharger ou supprimer chaque signalement avant de le partager.</p>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============ SIGNALER ============ -->
+  <section class="screen" id="screen-signaler">
+    <div class="page-head">
+      <h1>Signaler une urgence</h1>
+      <p>4 étapes rapides. Vous gardez le contrôle à chaque instant.</p>
+    </div>
+
+    <div class="steps-track">
+      <i class="active" data-s="1"><b></b></i>
+      <i data-s="2"><b></b></i>
+      <i data-s="3"><b></b></i>
+      <i data-s="4"><b></b></i>
+    </div>
+
+    <div class="wiz-panel">
+
+      <!-- step 1 : type -->
+      <div class="wiz-step" data-step="1">
+        <div class="field">
+          <label class="field-label">Type d'urgence</label>
+          <div class="type-grid">
+            <div class="type-chip" data-type="accident"><svg viewBox="0 0 24 24" fill="none" stroke="#f0b429" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L14.71 3.86a2 2 0 0 0-3.42 0z"/></svg><span>Accident</span></div>
+            <div class="type-chip" data-type="incendie"><svg viewBox="0 0 24 24" fill="none" stroke="#ef3b30" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 17a2.5 2.5 0 0 0 2.5-2.5c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7.5 7.5 0 1 1-15 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg><span>Incendie</span></div>
+            <div class="type-chip" data-type="agression"><svg viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/></svg><span>Agression</span></div>
+            <div class="type-chip" data-type="inondation"><svg viewBox="0 0 24 24" fill="none" stroke="#3d7bf0" stroke-width="2"><path d="M2 12h2a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3h2M2 18h2a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3h2"/></svg><span>Inondation</span></div>
+            <div class="type-chip" data-type="vol"><svg viewBox="0 0 24 24" fill="none" stroke="#1fb8a6" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><span>Vol</span></div>
+            <div class="type-chip" data-type="autre"><svg viewBox="0 0 24 24" fill="none" stroke="#a6b0c8" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5m0 3h.01"/></svg><span>Autre</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- step 2 : capture -->
+      <div class="wiz-step" data-step="2" hidden>
+        <div class="capture-block">
+          <h4>📷 Photo de la situation</h4>
+          <p class="cb-sub">Facultatif, mais très utile pour les secours.</p>
+          <div class="cam-preview">
+            <video id="camVideo" hidden playsinline muted></video>
+            <img id="photoPreviewImg" hidden alt="Photo capturée">
+            <div id="camPlaceholder" class="cam-placeholder">Aucune photo pour l'instant</div>
+          </div>
+          <div class="cam-controls">
+            <button class="btn btn-ghost btn-sm" id="btnOpenCamera" type="button">Ouvrir la caméra</button>
+            <button class="shutter-btn" id="btnShutter" type="button" aria-label="Prendre la photo"></button>
+            <label class="btn btn-ghost btn-sm" style="cursor:pointer;">
+              Choisir une photo
+              <input type="file" accept="image/*" id="fileFallback" style="display:none;">
+            </label>
+          </div>
+          <button class="btn btn-ghost btn-sm" id="btnRemovePhoto" type="button" style="margin-top:10px;">Retirer la photo</button>
+        </div>
+
+        <div class="capture-block">
+          <h4>🎙️ Message vocal</h4>
+          <p class="cb-sub">Décrivez la situation à voix haute, en toute sécurité.</p>
+          <div class="mic-row">
+            <button class="mic-btn" id="micBtn" type="button" aria-label="Enregistrer un message vocal">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z"/><path d="M19 11a7 7 0 0 1-14 0M12 19v3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+            </button>
+            <div class="wave" id="waveBars">
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <div class="mic-timer" id="micTimer">00:00</div>
+          </div>
+          <audio id="audioPlayback" hidden controls></audio>
+          <button class="btn btn-ghost btn-sm" id="btnRemoveAudio" type="button" style="margin-top:10px;">Supprimer l'enregistrement</button>
+        </div>
+
+        <div class="capture-block">
+          <h4>📝 Description écrite</h4>
+          <p class="cb-sub">Ajoutez des détails utiles (lieu, nombre de personnes, gravité…).</p>
+          <textarea id="descInput" rows="4" placeholder="Ex : accident entre deux véhicules au niveau du PK 45, une personne blessée…"></textarea>
+        </div>
+      </div>
+
+      <!-- step 3 : location -->
+      <div class="wiz-step" data-step="3" hidden>
+        <div class="capture-block">
+          <h4>📍 Position de l'incident</h4>
+          <p class="cb-sub" id="locStatus">Position non partagée pour l'instant.</p>
+          <button class="btn btn-gold" id="btnGeoloc" type="button">Utiliser ma position actuelle</button>
+          <p class="mic-timer" id="locCoords" hidden style="text-align:left;color:var(--gold-light);margin-top:10px;"></p>
+        </div>
+        <div class="note-row" style="margin:0;">
+          <div class="note-ic">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e8b85c" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5m0 3h.01"/></svg>
+          </div>
+          <div>
+            <h4>Le GPS n'est activé qu'à votre demande</h4>
+            <p>Votre position n'est jamais suivie en arrière-plan. Elle n'est utilisée que si vous appuyez sur ce bouton.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- step 4 : review -->
+      <div class="wiz-step" data-step="4" hidden>
+        <div id="reviewList"></div>
+        <div class="note-row" style="margin:16px 0;">
+          <div class="note-ic">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e8b85c" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div>
+            <h4>Rien n'est envoyé automatiquement</h4>
+            <p>En appuyant sur « Partager », votre téléphone ouvre son propre menu de partage (WhatsApp, SMS, appel…). Vous choisissez le destinataire.</p>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="btnShareReport" type="button" style="margin-bottom:10px;">Partager le signalement</button>
+        <button class="btn btn-ghost" id="btnSaveDraft" type="button">Enregistrer comme brouillon</button>
+      </div>
+
+    </div>
+
+    <div class="wiz-nav" id="wizNav">
+      <button class="btn btn-outline" id="wizBack" type="button" hidden>Retour</button>
+      <button class="btn btn-gold" id="wizNext" type="button">Continuer</button>
+    </div>
+  </section>
+
+  <!-- ============ URGENCES ============ -->
+  <section class="screen" id="screen-urgences">
+    <div class="page-head">
+      <h1>Appeler le bon service</h1>
+      <p>Les numéros courts ci-dessous proviennent d'une publication gouvernementale congolaise et de La Congolaise des Routes (LCR). Vérifiez votre réseau avant l'appel.</p>
+    </div>
+    <div class="section">
+      <div class="svc-list">
+        <div class="svc-row">
+          <div class="svc-icon" style="background:rgba(61,123,240,.16);">🔷</div>
+          <div class="svc-body"><span class="svc-verified">✓ Source officielle</span><h4>Police</h4><p>Danger, agression, sécurité</p></div>
+          <a class="svc-call" href="tel:117"><b>117</b><small>Appeler</small></a>
+        </div>
+        <div class="svc-row">
+          <div class="svc-icon" style="background:rgba(239,59,48,.16);">🔺</div>
+          <div class="svc-body"><span class="svc-verified">✓ Source officielle</span><h4>Sapeurs-pompiers</h4><p>Incendie, accident, évacuation</p></div>
+          <a class="svc-call" href="tel:118"><b>118</b><small>Appeler</small></a>
+        </div>
+        <div class="svc-row">
+          <div class="svc-icon" style="background:rgba(232,184,92,.16);">💛</div>
+          <div class="svc-body"><span class="svc-verified">✓ Source officielle</span><h4>Violences / VBG</h4><p>Écoute et signalement sécurisé</p></div>
+          <a class="svc-call" href="tel:1444"><b>1444</b><small>Appeler</small></a>
+        </div>
+        <div class="svc-row">
+          <div class="svc-icon" style="background:rgba(31,184,166,.16);">⚡</div>
+          <div class="svc-body"><span class="svc-verified">✓ Source officielle</span><h4>Urgence RN1 / RN2</h4><p>Centre d'assistance LCR 24h/24 · appel gratuit · axe Brazzaville–Pointe-Noire (535 km)</p></div>
+          <a class="svc-call" href="tel:1010"><b>1010</b><small>Appeler</small></a>
+        </div>
+      </div>
+
+      <p class="section-kicker" style="margin-top:26px;">Personnaliser</p>
+      <h2 class="section-title" style="font-size:1.2rem;">Ajouter un contact local fiable</h2>
+      <p class="section-sub">Commissariat de quartier, clinique, proche ou responsable de sécurité. Ce contact reste uniquement sur votre appareil.</p>
+      <form id="contactForm" class="capture-block" style="margin-bottom:0;">
+        <div class="field"><input type="text" id="contactName" placeholder="Nom du service" required></div>
+        <div class="field" style="margin-bottom:14px;"><input type="tel" id="contactPhone" placeholder="Numéro" required></div>
+        <button class="btn btn-gold" type="submit">+ Ajouter</button>
+      </form>
+      <div class="contact-list" id="contactList"></div>
+
+      <div class="source-links">
+        <a href="https://www.sgg.cg/" target="_blank" rel="noopener">Source gouvernementale des numéros d'urgence ↗</a>
+        <a href="https://www.lacongolaisedesroutes.cg/" target="_blank" rel="noopener">Source officielle LCR pour le 1010 ↗</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HISTORIQUE ============ -->
+  <section class="screen" id="screen-historique">
+    <div class="page-head">
+      <h1>Historique local</h1>
+      <p>Conservé uniquement sur cet appareil. Les photos et messages vocaux ne sont pas archivés (voir Confidentialité).</p>
+    </div>
+    <div class="section">
+      <div id="historyList"></div>
+      <button class="btn btn-outline" id="btnClearHistory" type="button" style="margin-top:8px;">Vider l'historique</button>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer">
+    <div class="footer-brand">
+      <img src="../assets/img/logo-star-rounded-v1.webp" alt="STAR ENTREPRISE">
+      <div>
+        <b>Conçu par Carry OTEMBA</b>
+        <span>© 2026 · Tous droits réservés. Conçu par STAR ENTREPRISE.</span>
+      </div>
+    </div>
+    <p class="footer-legal">
+      <a href="confidentialite.html">Confidentialité et données personnelles</a><br><br>
+      STAR ALERTE est un projet national porté par STAR ENTREPRISE en République du Congo. Cette application ne remplace pas les services publics d'urgence : en cas de danger immédiat, appelez le 117 (Police) ou le 118 (Sapeurs-pompiers).
+    </p>
+  </footer>
+</div>
+
+<!-- ============ BOTTOM NAV ============ -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" data-screen="accueil">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><path d="M9 22V12h6v10"/></svg>
+    Accueil
+  </button>
+  <button class="nav-btn nav-fab-wrap" data-screen="signaler">
+    <span class="nav-fab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></span>
+  </button>
+  <button class="nav-btn" data-screen="urgences">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+    Urgences
+  </button>
+  <button class="nav-btn" data-screen="historique">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l4 2"/></svg>
+    Historique
+  </button>
+</nav>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script src="assets/js/star-alerte.js"></script>
+</body>
+</html>

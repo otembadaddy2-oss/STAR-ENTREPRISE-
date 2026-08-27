@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>STAR ALERTE — Dossier de présentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  :root{
+    --bg:#070c1a; --bg-soft:#0b1224; --bg-elevated:#0f1830;
+    --navy:#0d1830; --text:#151b2c; --text-dim:#5b6478; --text-faint:#8a93a8;
+    --red:#ef3b30; --red-dark:#9c1f1a;
+    --gold:#c8942f; --gold-light:#e8b85c; --gold-pale:#f4e2b8;
+    --blue:#2f5fc4; --green:#1a8f52; --purple:#6d4fc9; --teal:#0f8f80;
+    --paper:#fbf9f4;
+    --page-w:210mm; --page-h:297mm;
+  }
+  @page{size:A4;margin:0;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:#e9e9e9;}
+  body{font-family:"Inter",Arial,sans-serif;color:var(--text);}
+  h1,h2,h3,.disp{font-family:"Sora",Arial,sans-serif;}
+  .pg{
+    width:var(--page-w); height:var(--page-h);
+    position:relative; overflow:hidden; background:var(--paper);
+    break-after:page; page-break-after:always;
+  }
+  .pg:last-child{break-after:auto;page-break-after:auto;}
+  .pg-inner{position:absolute;inset:0;padding:18mm 16mm 20mm;}
+  .pg-dark{background:var(--bg);color:#eef1f8;}
+  .pg-dark .dim{color:#a7b0c4;}
+
+  /* ---- shared page chrome ---- */
+  .kicker{
+    display:inline-flex;align-items:center;gap:7px;
+    font-size:9.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--gold);margin-bottom:10px;
+  }
+  .kicker i{width:16px;height:2px;background:var(--gold);display:inline-block;border-radius:2px;}
+  .pg-title{font-size:24px;font-weight:800;letter-spacing:-.01em;margin:0 0 4mm;line-height:1.12;}
+  .pg-dark .pg-title{color:#fff;}
+  .pg-lede{font-size:11.5px;line-height:1.65;color:var(--text-dim);max-width:150mm;margin:0 0 8mm;}
+  .pg-dark .pg-lede{color:#c3cadd;}
+
+  .brandline{
+    position:absolute;top:14mm;left:16mm;right:16mm;
+    display:flex;align-items:center;justify-content:space-between;
+    font-size:8.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--text-faint);
+  }
+  .pg-dark .brandline{color:#5c6784;}
+  .brandline .b-left{display:flex;align-items:center;gap:6px;}
+  .brandline img{width:14px;height:14px;border-radius:3px;}
+
+  p{margin:0 0 3mm;}
+  ul{margin:0;padding:0 0 0 4mm;}
+  li{margin-bottom:2.4mm;font-size:10.5px;line-height:1.55;}
+
+  .card{border-radius:3mm;border:1px solid #e4ded0;background:#fff;padding:6mm;}
+  .pg-dark .card{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1);}
+
+  .stat{border-radius:3mm;padding:6mm 5mm;background:#fff;border:1px solid #e4ded0;text-align:left;}
+  .stat b{display:block;font-family:"Sora",sans-serif;font-size:22px;font-weight:800;color:var(--red);line-height:1;}
+  .stat span{display:block;font-size:9px;color:var(--text-dim);margin-top:2mm;line-height:1.4;}
+  .pg-dark .stat{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);}
+  .pg-dark .stat span{color:#a7b0c4;}
+
+  .tag{display:inline-block;font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+    padding:1.4mm 3mm;border-radius:99px;background:rgba(200,148,47,.12);color:var(--gold);border:1px solid rgba(200,148,47,.35);}
+
+  .shot{border-radius:4mm;border:1px solid #dcd6c6;box-shadow:0 6mm 12mm -8mm rgba(0,0,0,.4);}
+  .shot-frame{background:#070c1a;border-radius:5mm;padding:3mm;box-shadow:0 8mm 16mm -10mm rgba(0,0,0,.55);}
+  .shot-frame img{display:block;width:100%;border-radius:2.5mm;}
+
+  table.numtable{width:100%;border-collapse:collapse;font-size:10px;}
+  table.numtable th{text-align:left;font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);padding:0 0 2mm;border-bottom:1px solid #e4ded0;}
+  table.numtable td{padding:3mm 0;border-bottom:1px solid #eee6d4;vertical-align:top;}
+  table.numtable td.num{font-family:"Sora",sans-serif;font-weight:800;color:var(--blue);font-size:13px;white-space:nowrap;padding-right:4mm;}
+
+  .icon-tile{width:11mm;height:11mm;border-radius:3mm;display:flex;align-items:center;justify-content:center;flex:none;}
+  .icon-tile svg{width:6mm;height:6mm;}
+
+  .flowbadge{width:5.5mm;height:5.5mm;border-radius:50%;background:var(--gold);color:#241703;font-family:"Sora",sans-serif;font-weight:800;font-size:9px;display:flex;align-items:center;justify-content:center;flex:none;}
+
+  .footer-band{position:absolute;left:16mm;right:16mm;bottom:12mm;display:flex;justify-content:space-between;align-items:center;}
+  .footer-band .num{font-size:8px;color:var(--text-faint);letter-spacing:.06em;}
+
+  /* typology grid */
+  .typo-grid{display:grid;grid-template-columns:1fr 1fr;gap:5mm;}
+  .typo-card{border-radius:4mm;padding:6mm;position:relative;overflow:hidden;color:#fff;min-height:38mm;}
+  .typo-card h4{margin:3mm 0 1.5mm;font-size:13px;font-weight:800;}
+  .typo-card p{font-size:9px;line-height:1.5;opacity:.92;margin:0;}
+  .typo-card .ic{width:9mm;height:9mm;}
+
+  /* cover */
+  .cover{background:
+      radial-gradient(120mm 90mm at 20% -6%, rgba(61,123,240,.25), transparent 60%),
+      radial-gradient(140mm 110mm at 92% 8%, rgba(232,184,92,.16), transparent 55%),
+      var(--bg);
+    color:#fff;
+  }
+  .cover-badge{width:46mm;position:absolute;top:34mm;left:16mm;filter:drop-shadow(0 6mm 10mm rgba(0,0,0,.5));}
+  .cover-flagmark{position:absolute;top:38mm;right:16mm;width:30mm;opacity:.9;}
+  .cover-title{position:absolute;left:16mm;top:100mm;right:16mm;}
+  .cover-title .t1{font-size:13px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-light);font-weight:700;margin-bottom:6mm;}
+  .cover-title h1{font-size:46px;line-height:1.03;font-weight:800;margin:0 0 6mm;letter-spacing:-.01em;}
+  .cover-title h1 span{color:var(--gold-light);}
+  .cover-title .tag2{font-size:13px;color:#c3cadd;letter-spacing:.05em;}
+  .cover-bottom{position:absolute;left:16mm;right:16mm;bottom:16mm;display:flex;justify-content:space-between;align-items:flex-end;}
+  .cover-bottom .meta{font-size:9.5px;color:#93a0bd;line-height:1.7;}
+  .cover-bottom .meta b{color:#fff;display:block;font-size:11px;margin-bottom:1mm;}
+  .cover-line{position:absolute;left:16mm;right:16mm;top:88mm;height:1px;background:linear-gradient(90deg,rgba(232,184,92,.7),transparent);}
+</style>
+</head>
+<body>
+
+<!-- ============================================================ PAGE 1 — COUVERTURE ============================================================ -->
+<div class="pg cover">
+  <img class="cover-badge" src="star-alerte-badge.png">
+  <div class="cover-title">
+    <div class="t1">Dossier de présentation</div>
+    <h1>STAR<br><span>ALERTE.</span></h1>
+    <div class="tag2">Signaler. Localiser. Secourir.</div>
+  </div>
+  <div class="cover-line"></div>
+  <div style="position:absolute;left:16mm;right:16mm;top:180mm;max-width:150mm;">
+    <p style="font-size:13px;line-height:1.6;color:#dfe4f0;font-weight:500;">
+      Une application citoyenne de signalement d'urgence pour la République du Congo —
+      conçue pour être présentée et discutée avec les autorités compétentes.
+    </p>
+  </div>
+  <div class="cover-bottom">
+    <div class="meta">
+      <b>République du Congo</b>
+      Brazzaville — Août 2026
+    </div>
+    <div class="meta" style="text-align:right;">
+      <b>Conçu par STAR ENTREPRISE</b>
+      Un projet porté par Carry OTEMBA
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 2 — SOMMAIRE ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>Dossier STAR ALERTE</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>Sommaire</div>
+    <h2 class="pg-title" style="font-size:28px;">Ce que contient ce dossier</h2>
+    <table class="numtable" style="margin-top:10mm;">
+      <tr><td class="num">01</td><td><b>Le constat</b><br><span style="color:var(--text-dim);">Pourquoi une application de signalement est aujourd'hui nécessaire</span></td></tr>
+      <tr><td class="num">02</td><td><b>Notre réponse : STAR ALERTE</b><br><span style="color:var(--text-dim);">Vision, mission et principes fondateurs</span></td></tr>
+      <tr><td class="num">03</td><td><b>Comment ça marche</b><br><span style="color:var(--text-dim);">L'expérience citoyenne, écran par écran</span></td></tr>
+      <tr><td class="num">04</td><td><b>Le parcours de signalement en 4 étapes</b><br><span style="color:var(--text-dim);">Photo, voix, position, vérification</span></td></tr>
+      <tr><td class="num">05</td><td><b>Typologie des urgences couvertes</b><br><span style="color:var(--text-dim);">Accident, incendie, agression, inondation, vol</span></td></tr>
+      <tr><td class="num">06</td><td><b>Numéros vérifiés &amp; guichet d'urgence</b><br><span style="color:var(--text-dim);">Police, Sapeurs-pompiers, VBG, LCR</span></td></tr>
+      <tr><td class="num">07</td><td><b>Sécurité et confidentialité par conception</b><br><span style="color:var(--text-dim);">Rien n'est envoyé sans l'accord du citoyen</span></td></tr>
+      <tr><td class="num">08</td><td><b>La valeur pour l'État et les citoyens</b><br><span style="color:var(--text-dim);">Ce que le numérique peut changer, concrètement</span></td></tr>
+      <tr><td class="num">09</td><td><b>Feuille de route</b><br><span style="color:var(--text-dim);">Ce que nous proposons de construire avec l'État</span></td></tr>
+      <tr><td class="num">10</td><td><b>À propos de STAR ENTREPRISE</b><br><span style="color:var(--text-dim);">L'agence, le fondateur, le contact</span></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 3 — LE CONSTAT ============================================================ -->
+<div class="pg pg-dark">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>01 — Le constat</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>01 · Le constat</div>
+    <h2 class="pg-title">Chaque minute perdue a un coût humain</h2>
+    <p class="pg-lede">En République du Congo comme ailleurs, l'urgence ne prévient pas. Accident de la route,
+    incendie, agression, inondation : la rapidité et la précision du signalement font souvent la différence
+    entre une intervention efficace et une perte de temps critique. Aujourd'hui, ce signalement reste
+    largement informel — un appel, un message, un témoin qui ne sait pas quel numéro composer.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5mm;margin:10mm 0;">
+      <div class="stat"><b>535 km</b><span>L'axe Brazzaville–Pointe-Noire (RN1/RN2), artère économique nationale exposée aux accidents et incidents de circulation — source : La Congolaise des Routes (LCR).</span></div>
+      <div class="stat"><b>4</b><span>Numéros d'urgence distincts à connaître aujourd'hui (Police, Pompiers, VBG, LCR) — souvent inconnus du citoyen au moment critique.</span></div>
+      <div class="stat"><b>0</b><span>Position GPS, photo ou message vocal transmis automatiquement aux secours dans le circuit actuel de signalement informel.</span></div>
+    </div>
+
+    <div class="card">
+      <p style="font-size:11px;font-weight:700;color:#fff;margin-bottom:2mm;">Trois failles récurrentes du signalement informel</p>
+      <ul class="dim">
+        <li><b style="color:#fff;">La localisation est imprécise.</b> Un appel décrivant « près du grand carrefour » fait perdre un temps précieux aux secours.</li>
+        <li><b style="color:#fff;">La preuve visuelle manque.</b> Sans photo ni description structurée, l'urgence est mal évaluée avant l'arrivée sur place.</li>
+        <li><b style="color:#fff;">Le bon service n'est pas toujours identifié.</b> Le citoyen ne sait pas toujours qui appeler, ni si le numéro est encore actif.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-band"><div class="num">STAR ALERTE — Dossier de présentation</div></div>
+</div>
+
+<!-- ============================================================ PAGE 4 — NOTRE REPONSE ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>02 — Notre réponse</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>02 · Notre réponse</div>
+    <h2 class="pg-title">STAR ALERTE : signaler juste, en quelques secondes</h2>
+    <p class="pg-lede">STAR ALERTE est une application citoyenne pensée pour transformer un réflexe d'urgence
+    en un signalement clair, localisé et exploitable — sans complexité, sans compte à créer, et sans jamais
+    imposer l'envoi automatique d'une information privée.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5mm;margin-top:8mm;">
+      <div class="card">
+        <p style="font-weight:800;font-size:12px;margin-bottom:2mm;color:var(--red-dark);">Signaler</p>
+        <p style="font-size:10px;color:var(--text-dim);">Une photo, un message vocal, une description écrite — le citoyen choisit ce qu'il veut ajouter,
+        en fonction de la situation et de sa sécurité.</p>
+      </div>
+      <div class="card">
+        <p style="font-weight:800;font-size:12px;margin-bottom:2mm;color:var(--blue);">Localiser</p>
+        <p style="font-size:10px;color:var(--text-dim);">La position GPS n'est utilisée qu'à la demande explicite du citoyen, au moment précis du
+        signalement — jamais suivie en arrière-plan.</p>
+      </div>
+      <div class="card">
+        <p style="font-weight:800;font-size:12px;margin-bottom:2mm;color:var(--gold);">Secourir</p>
+        <p style="font-size:10px;color:var(--text-dim);">Les numéros d'urgence vérifiés sont intégrés et accessibles en un geste, pour ne jamais
+        retarder l'appel qui sauve une vie.</p>
+      </div>
+      <div class="card">
+        <p style="font-weight:800;font-size:12px;margin-bottom:2mm;color:var(--green);">Contrôler</p>
+        <p style="font-size:10px;color:var(--text-dim);">Rien n'est envoyé sans validation du citoyen. Chaque signalement est vérifiable, modifiable
+        et supprimable avant tout partage.</p>
+      </div>
+    </div>
+
+    <div style="margin-top:9mm;padding:6mm;border-radius:4mm;background:linear-gradient(135deg,#0d1830,#152244);color:#fff;">
+      <p style="font-size:11px;font-weight:700;margin-bottom:1.5mm;">Un principe fondateur</p>
+      <p style="font-size:10.5px;line-height:1.6;color:#c3cadd;margin:0;">« Rien ne part sans l'accord du citoyen. » STAR ALERTE prépare un rapport clair et
+      laisse le citoyen décider, en toute connaissance de cause, à qui et comment il le partage — via le
+      menu de partage natif de son propre téléphone.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 5 — COMMENT CA MARCHE ============================================================ -->
+<div class="pg pg-dark">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>03 — Comment ça marche</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>03 · Comment ça marche</div>
+    <h2 class="pg-title">L'écran d'accueil : un geste, une alerte</h2>
+    <p class="pg-lede">Dès l'ouverture, un bouton SOS unique et un accès direct aux services d'urgence
+    vérifiés. Le citoyen n'a besoin d'aucune formation pour comprendre quoi faire.</p>
+    <div style="display:flex;gap:8mm;align-items:flex-start;margin-top:6mm;">
+      <div class="shot-frame" style="width:72mm;flex:none;">
+        <img src="accueil_top.png">
+      </div>
+      <div class="shot-frame" style="width:72mm;flex:none;">
+        <img src="accueil_services.png">
+      </div>
+      <div style="flex:1;">
+        <ul class="dim" style="padding-left:0;list-style:none;">
+          <li>✦ Bouton SOS animé, toujours visible, qui ouvre directement le parcours de signalement.</li>
+          <li>✦ Six types d'urgence en accès direct — l'application oriente le citoyen vers le bon
+          formulaire dès le premier écran.</li>
+          <li>✦ Numéros vérifiés (Police, Pompiers, VBG, LCR) affichés avec leur source officielle,
+          appelables en un geste.</li>
+          <li>✦ Application installable sur l'écran d'accueil du téléphone, sans passer par un store —
+          gratuite, légère, accessible au plus grand nombre.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer-band"><div class="num">STAR ALERTE — Dossier de présentation</div></div>
+</div>
+
+<!-- ============================================================ PAGE 6 — PARCOURS 1/2 ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>04 — Le parcours de signalement</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>04 · Le parcours de signalement</div>
+    <h2 class="pg-title">Quatre étapes, du choix à la vérification</h2>
+    <p class="pg-lede">Le parcours a été conçu pour rester rapide même sous stress — chaque étape est
+    courte, réversible, et rien n'oblige le citoyen à remplir un champ qu'il ne souhaite pas partager.</p>
+
+    <div style="display:flex;gap:7mm;margin-top:6mm;">
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:3mm;margin-bottom:3mm;">
+          <span class="flowbadge">1</span>
+          <p style="font-weight:800;font-size:11px;margin:0;">Choisir le type d'urgence</p>
+        </div>
+        <p style="font-size:9.5px;color:var(--text-dim);margin-bottom:4mm;">Accident, incendie, agression, inondation, vol ou autre — un choix visuel, immédiat.</p>
+        <div class="shot-frame"><img src="signaler_step1.png"></div>
+      </div>
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:3mm;margin-bottom:3mm;">
+          <span class="flowbadge">2</span>
+          <p style="font-weight:800;font-size:11px;margin:0;">Photo, voix, description</p>
+        </div>
+        <p style="font-size:9.5px;color:var(--text-dim);margin-bottom:4mm;">Caméra en direct ou galerie, message vocal avec forme d'onde en temps réel, texte libre — tout est facultatif.</p>
+        <div class="shot-frame"><img src="signaler_step2.png"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 7 — PARCOURS 2/2 ============================================================ -->
+<div class="pg pg-dark">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>04 — Le parcours de signalement</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>04 · Le parcours de signalement (suite)</div>
+    <h2 class="pg-title">Localiser, puis vérifier avant tout partage</h2>
+    <div style="display:flex;gap:7mm;margin-top:6mm;">
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:3mm;margin-bottom:3mm;">
+          <span class="flowbadge">3</span>
+          <p style="font-weight:800;font-size:11px;margin:0;color:#fff;">Position GPS à la demande</p>
+        </div>
+        <p style="font-size:9.5px;color:#a7b0c4;margin-bottom:4mm;">Coordonnées précises obtenues en un geste — jamais suivies en arrière-plan.</p>
+        <div class="shot-frame"><img src="signaler_step3.png"></div>
+      </div>
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:3mm;margin-bottom:3mm;">
+          <span class="flowbadge">4</span>
+          <p style="font-weight:800;font-size:11px;margin:0;color:#fff;">Vérification &amp; partage contrôlé</p>
+        </div>
+        <p style="font-size:9.5px;color:#a7b0c4;margin-bottom:4mm;">Récapitulatif complet, modifiable élément par élément, avant le partage via le téléphone du citoyen.</p>
+        <div class="shot-frame"><img src="signaler_step4.png"></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-band"><div class="num">STAR ALERTE — Dossier de présentation</div></div>
+</div>
+
+<!-- ============================================================ PAGE 8 — TYPOLOGIE ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>05 — Typologie des urgences</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>05 · Typologie des urgences couvertes</div>
+    <h2 class="pg-title">Six situations, un parcours adapté à chacune</h2>
+    <p class="pg-lede">Chaque type d'urgence oriente le citoyen vers les bons réflexes — sans jamais l'exposer
+    inutilement au danger qu'il signale.</p>
+
+    <div class="typo-grid" style="margin-top:6mm;">
+      <div class="typo-card" style="background:linear-gradient(135deg,#f0b429,#c8570f);">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="#3a1e00" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L14.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <h4>Accident de la route</h4>
+        <p>Axe RN1/RN2 en priorité — véhicule immobilisé, danger sur la voie, blessé léger.</p>
+      </div>
+      <div class="typo-card" style="background:linear-gradient(135deg,#ff7a59,#ef3b30);">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="#3a0900" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 17a2.5 2.5 0 0 0 2.5-2.5c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7.5 7.5 0 1 1-15 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+        <h4>Incendie &amp; fumée</h4>
+        <p>Signaler sans s'approcher des flammes, en joignant une position précise aux secours.</p>
+      </div>
+      <div class="typo-card" style="background:linear-gradient(135deg,#b98cff,#6d4fc9);">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="#1b0f38" stroke-width="2"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/></svg>
+        <h4>Agression, violence conjugale &amp; harcèlement</h4>
+        <p>Un signalement discret et rapide, pensé pour rejoindre d'abord un lieu sûr — orienté vers la
+        ligne Violences/VBG (1444).</p>
+      </div>
+      <div class="typo-card" style="background:linear-gradient(135deg,#4fb3ff,#2f5fc4);">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="#001b33" stroke-width="2"><path d="M2 12h2a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3h2M2 18h2a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3h2"/></svg>
+        <h4>Inondation &amp; route coupée</h4>
+        <p>Montée des eaux, chaussée impraticable — signalement utile à la gestion du trafic et des secours.</p>
+      </div>
+      <div class="typo-card" style="background:linear-gradient(135deg,#39d3c0,#0f8f80);">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="#00251f" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <h4>Vol &amp; cambriolage</h4>
+        <p>Description des faits et photo si possible, en toute sécurité pour le déclarant.</p>
+      </div>
+      <div class="typo-card" style="background:linear-gradient(135deg,#a6b0c8,#5b6785);">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="#141824" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5m0 3h.01"/></svg>
+        <h4>Autre urgence</h4>
+        <p>Toute situation non couverte par les catégories ci-dessus reste signalable, sans blocage.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 9 — NUMEROS / GUICHET ============================================================ -->
+<div class="pg pg-dark">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>06 — Numéros vérifiés</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>06 · Numéros vérifiés &amp; guichet d'urgence</div>
+    <h2 class="pg-title">Le bon numéro, toujours à portée de main</h2>
+    <p class="pg-lede">Les numéros d'urgence intégrés proviennent de sources officielles et sont appelables
+    en un geste. Le citoyen peut aussi ajouter ses propres contacts locaux fiables — commissariat de
+    quartier, clinique, responsable de sécurité — conservés uniquement sur son appareil.</p>
+    <div style="display:flex;gap:8mm;align-items:flex-start;margin-top:6mm;">
+      <div class="shot-frame" style="width:72mm;flex:none;"><img src="urgences.png"></div>
+      <div style="flex:1;">
+        <table class="numtable" style="color:#fff;">
+          <tr><td class="num" style="color:var(--blue);">117</td><td class="dim">Police — danger, agression, sécurité</td></tr>
+          <tr><td class="num" style="color:var(--red);">118</td><td class="dim">Sapeurs-pompiers — incendie, accident, évacuation</td></tr>
+          <tr><td class="num" style="color:var(--gold-light);">1444</td><td class="dim">Violences / VBG — écoute et signalement sécurisé</td></tr>
+          <tr><td class="num" style="color:var(--teal);">1010</td><td class="dim">Centre d'assistance LCR — axe Brazzaville–Pointe-Noire, 24h/24, appel gratuit</td></tr>
+        </table>
+        <p style="font-size:8.5px;color:#8a93a8;margin-top:5mm;">Sources : publication gouvernementale congolaise des numéros d'urgence ; La Congolaise des Routes
+        (LCR) pour le 1010.</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer-band"><div class="num">STAR ALERTE — Dossier de présentation</div></div>
+</div>
+
+<!-- ============================================================ PAGE 10 — CONFIDENTIALITE ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>07 — Confidentialité par conception</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>07 · Sécurité et confidentialité par conception</div>
+    <h2 class="pg-title">La confiance du citoyen ne se décrète pas, elle se construit</h2>
+    <p class="pg-lede">Pour qu'une application d'alerte soit utilisée, elle doit d'abord être digne de
+    confiance. STAR ALERTE applique un principe simple : le citoyen garde le contrôle, à chaque étape.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5mm;margin-top:7mm;">
+      <div class="card"><p style="font-weight:800;font-size:10.5px;margin-bottom:1.5mm;">Aucun envoi automatique</p>
+        <p style="font-size:9.5px;color:var(--text-dim);">Chaque signalement est présenté au citoyen pour vérification avant tout partage — jamais transmis sans son geste explicite.</p></div>
+      <div class="card"><p style="font-weight:800;font-size:10.5px;margin-bottom:1.5mm;">Position GPS à la demande</p>
+        <p style="font-size:9.5px;color:var(--text-dim);">La localisation n'est utilisée qu'au moment du signalement — jamais suivie en arrière-plan.</p></div>
+      <div class="card"><p style="font-weight:800;font-size:10.5px;margin-bottom:1.5mm;">Photos et messages vocaux non archivés</p>
+        <p style="font-size:9.5px;color:var(--text-dim);">Dans cette version, ils existent le temps de préparer le signalement, puis sont abandonnés — aucun stockage centralisé.</p></div>
+      <div class="card"><p style="font-weight:800;font-size:10.5px;margin-bottom:1.5mm;">Historique local uniquement</p>
+        <p style="font-size:9.5px;color:var(--text-dim);">Conservé sur l'appareil du citoyen, jamais sur un serveur — supprimable à tout moment.</p></div>
+    </div>
+
+    <div style="margin-top:8mm;padding:6mm;border-radius:4mm;border:1px solid #e0a8a0;background:#fdf3f1;">
+      <p style="font-size:10.5px;font-weight:800;color:var(--red-dark);margin-bottom:1.5mm;">Un rappel assumé</p>
+      <p style="font-size:9.5px;color:var(--text-dim);margin:0;">STAR ALERTE ne remplace pas les services publics d'urgence et n'est reliée, à ce stade, à aucun
+      centre de commandement. En cas de danger immédiat, l'application redirige toujours vers l'appel
+      direct — 117, 118, 1444 ou 1010.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 11 — VALEUR ============================================================ -->
+<div class="pg pg-dark">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>08 — La valeur pour l'État et les citoyens</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>08 · La valeur pour l'État et les citoyens</div>
+    <h2 class="pg-title">Pourquoi cette application compte</h2>
+    <p class="pg-lede">Le numérique civique n'est plus une option pour un État moderne — c'est un outil de
+    service public. L'expérience régionale le démontre déjà à grande échelle.</p>
+
+    <div class="card" style="margin-bottom:6mm;">
+      <p class="tag">Précédent régional</p>
+      <p style="font-size:11px;font-weight:700;color:#fff;margin:3mm 0 1.5mm;">Le modèle Irembo, au Rwanda</p>
+      <p style="font-size:9.5px;color:#a7b0c4;margin:0;">Le guichet unique numérique rwandais Irembo regroupe aujourd'hui plus de 240 services publics.
+      Résultat mesuré : plus de <b style="color:#fff;">120 millions d'heures</b> économisées pour les citoyens, et un temps
+      d'obtention des services réduit de <b style="color:#fff;">plus de 80 %</b>. La traçabilité numérique de chaque étape a
+      aussi réduit les opportunités de corruption. STAR ALERTE s'inscrit dans cette même conviction :
+      un service public numérique bien conçu change concrètement la vie des citoyens.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5mm;">
+      <div class="stat"><b>Rapidité</b><span>Un signalement complet — photo, voix, position — préparé en moins d'une minute, au lieu d'un appel confus sous stress.</span></div>
+      <div class="stat"><b>Précision</b><span>Des coordonnées GPS exactes remplacent des descriptions approximatives, pour des secours orientés plus vite au bon endroit.</span></div>
+      <div class="stat"><b>Confiance</b><span>Une conception qui respecte le citoyen dès le premier jour, condition indispensable à une adoption large et durable.</span></div>
+      <div class="stat"><b>Image de l'État</b><span>Un signal fort de modernisation des services publics, aligné avec les ambitions de transformation numérique nationale.</span></div>
+    </div>
+  </div>
+  <div class="footer-band"><div class="num">STAR ALERTE — Dossier de présentation</div></div>
+</div>
+
+<!-- ============================================================ PAGE 12 — FEUILLE DE ROUTE ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>09 — Feuille de route</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>09 · Feuille de route</div>
+    <h2 class="pg-title">Ce que nous proposons de construire avec l'État</h2>
+    <p class="pg-lede">STAR ALERTE est présentée comme un prototype fonctionnel et honnête sur ce qu'il fait
+    aujourd'hui. Sa prochaine étape ne peut se décider qu'en partenariat avec les autorités compétentes.</p>
+
+    <table class="numtable" style="margin-top:8mm;">
+      <tr>
+        <td class="num">01</td>
+        <td><b>Stockage centralisé et sécurisé</b><br><span style="color:var(--text-dim);">Une infrastructure d'hébergement souveraine, avec les garanties de sécurité et de protection des données appropriées, pour conserver les signalements au-delà de l'appareil du citoyen.</span></td>
+      </tr>
+      <tr>
+        <td class="num">02</td>
+        <td><b>Tri assisté par intelligence artificielle</b><br><span style="color:var(--text-dim);">Une aide à la priorisation des signalements entrants pour les centres d'urgence, sous supervision humaine.</span></td>
+      </tr>
+      <tr>
+        <td class="num">03</td>
+        <td><b>Transmission officielle directe</b><br><span style="color:var(--text-dim);">Une intégration avec les centres d'urgence — Police, Sapeurs-pompiers, Ministère de la Défense, services du Premier ministre — pour un envoi direct et sécurisé, en coordination complète avec les autorités.</span></td>
+      </tr>
+      <tr>
+        <td class="num">04</td>
+        <td><b>Déploiement national et communication publique</b><br><span style="color:var(--text-dim);">Une campagne d'adoption citoyenne, en s'appuyant sur les canaux déjà présents dans le quotidien des Congolais (WhatsApp, Facebook, TikTok, radio de proximité).</span></td>
+      </tr>
+    </table>
+
+    <div style="margin-top:8mm;padding:6mm;border-radius:4mm;background:linear-gradient(135deg,#0d1830,#152244);color:#fff;">
+      <p style="font-size:10.5px;font-weight:700;margin-bottom:1.5mm;">Notre position</p>
+      <p style="font-size:9.5px;line-height:1.6;color:#c3cadd;margin:0;">Chacune de ces étapes touche à la souveraineté des données et à la sécurité publique — elles ne
+      seront activées qu'après validation explicite des autorités compétentes, jamais unilatéralement.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 13 — A PROPOS / CONTACT ============================================================ -->
+<div class="pg pg-dark">
+  <div class="pg-inner" style="padding-top:30mm;">
+    <img src="logo-star-rounded-v1.webp" style="width:20mm;border-radius:4mm;margin-bottom:8mm;">
+    <div class="kicker"><i></i>10 · À propos</div>
+    <h2 class="pg-title">STAR ENTREPRISE</h2>
+    <p class="pg-lede" style="max-width:140mm;">Agence digitale basée à Brazzaville, STAR ENTREPRISE conçoit des sites web, applications
+    mobiles et solutions numériques sur mesure — de la boutique en ligne à l'outil de service public.
+    STAR ALERTE est portée par Carry OTEMBA, fondateur de STAR ENTREPRISE, comme un projet à vocation
+    nationale, pensé dès le départ pour être discuté et co-construit avec les autorités compétentes de la
+    République du Congo.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5mm;margin-top:10mm;">
+      <div class="card">
+        <p style="font-weight:800;font-size:10.5px;margin-bottom:1.5mm;color:#fff;">Contact</p>
+        <p style="font-size:9.5px;color:#a7b0c4;margin:0;">WhatsApp : +242 06 656 50 50<br>Fondateur : Carry OTEMBA</p>
+      </div>
+      <div class="card">
+        <p style="font-weight:800;font-size:10.5px;margin-bottom:1.5mm;color:#fff;">Prochaine étape proposée</p>
+        <p style="font-size:9.5px;color:#a7b0c4;margin:0;">Une présentation en personne de STAR ALERTE en conditions réelles, suivie d'un échange sur les
+        modalités d'un partenariat institutionnel.</p>
+      </div>
+    </div>
+
+    <div style="position:absolute;left:16mm;right:16mm;bottom:20mm;border-top:1px solid rgba(255,255,255,.12);padding-top:6mm;">
+      <p style="font-size:9.5px;color:#8a93a8;margin:0;">Merci de l'attention portée à ce dossier. STAR ENTREPRISE reste à la disposition des autorités
+      compétentes de la République du Congo pour toute question, démonstration ou complément d'information.</p>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
