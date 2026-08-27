@@ -104,33 +104,6 @@ img{max-width:100%;display:block;}
 @keyframes loadBar{0%{transform:translateX(-100%);}100%{transform:translateX(350%);}}
 
 /* ============================================================
-   Congo flag — waving on its pole, above the SOS hero (Accueil)
-   ============================================================ */
-.flag-banner{
-  position:relative;
-  padding:10px 6px 4px;
-  overflow:hidden;
-  animation:flagSway 6s ease-in-out infinite;
-  transform-origin:16% 8%;
-}
-.flag-banner::before{
-  content:"";position:absolute;inset:-20% -10%;
-  background:radial-gradient(220px 200px at 22% 40%, rgba(232,184,92,.16), transparent 70%);
-  pointer-events:none;z-index:0;
-  animation:ambientGlow 4.5s ease-in-out infinite;
-}
-@keyframes ambientGlow{0%,100%{opacity:.6;}50%{opacity:1;}}
-.flag-wrap{
-  position:relative;z-index:1;
-  display:block;width:100%;height:auto;
-  filter:drop-shadow(0 14px 22px rgba(0,0,0,.45));
-}
-@keyframes flagSway{
-  0%,100%{transform:rotate(-1.4deg);}
-  50%{transform:rotate(1.6deg);}
-}
-
-/* ============================================================
    HEADER
    ============================================================ */
 .topbar{
@@ -516,3 +489,17 @@ label.field-label{display:block;font-size:.78rem;font-weight:800;letter-spacing:
 @media (min-width:600px){
   .hero-title{font-size:2.3rem;}
 }
+
+/* ============================================================
+   Effet lumière au toucher — passe sur la surface à chaque tap
+   ============================================================ */
+.se-shine{position:relative;overflow:hidden;}
+.shine-sweep{
+  position:absolute;top:0;left:0;width:60%;height:100%;pointer-events:none;z-index:3;
+  background:linear-gradient(115deg,transparent 0%,rgba(255,226,163,.35) 45%,rgba(255,255,255,.9) 50%,rgba(255,226,163,.35) 55%,transparent 100%);
+  transform:translateX(-350%) skewX(-16deg);
+  will-change:transform;
+  transition:transform .75s cubic-bezier(.2,.8,.2,1);
+}
+.shine-sweep.shine-run{transform:translateX(350%) skewX(-16deg);}
+.shine-sweep.shine-reset{transition:none;}

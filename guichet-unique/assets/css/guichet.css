@@ -313,3 +313,17 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .demo-banner{margin:14px 16px;padding:13px 16px;border-radius:var(--radius-sm);background:#fbf1dc;border:1px solid #ecd8ac;font-size:.8rem;color:var(--gold-dark);font-weight:600;line-height:1.5;}
 
 @media (min-width:600px){ .hero-card h1{font-size:2.1rem;} }
+
+/* ============================================================
+   Effet lumière au toucher — passe sur la surface à chaque tap
+   ============================================================ */
+.se-shine{position:relative;overflow:hidden;}
+.shine-sweep{
+  position:absolute;top:0;left:0;width:60%;height:100%;pointer-events:none;z-index:3;
+  background:linear-gradient(115deg,transparent 0%,rgba(200,148,47,.22) 45%,rgba(227,180,90,.75) 50%,rgba(200,148,47,.22) 55%,transparent 100%);
+  transform:translateX(-350%) skewX(-16deg);
+  will-change:transform;
+  transition:transform .75s cubic-bezier(.2,.8,.2,1);
+}
+.shine-sweep.shine-run{transform:translateX(350%) skewX(-16deg);}
+.shine-sweep.shine-reset{transition:none;}

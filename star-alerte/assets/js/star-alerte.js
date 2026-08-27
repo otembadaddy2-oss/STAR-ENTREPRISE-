@@ -590,6 +590,39 @@ $("#contactForm")?.addEventListener("submit", (e) => {
   toast("Contact ajouté (enregistré uniquement sur cet appareil).", "ok");
 });
 
+/* ============================================================
+   Effet lumière au toucher — passe sur la surface à chaque tap
+   ============================================================ */
+const SHINE_SEL = ".incident-card, .hero-card, .svc-row, .quickcall, .note-row, .type-chip, .review-item, .hist-card, .contact-row, .capture-block, .map-box";
+function armShine(root = document) {
+  root.querySelectorAll(SHINE_SEL).forEach((el) => {
+    if (el.dataset.shineArmed) return;
+    el.dataset.shineArmed = "1";
+    el.classList.add("se-shine");
+    const sweep = document.createElement("span");
+    sweep.className = "shine-sweep";
+    sweep.setAttribute("aria-hidden", "true");
+    el.appendChild(sweep);
+    const resetShine = () => {
+      sweep.classList.add("shine-reset");
+      sweep.classList.remove("shine-run");
+      void sweep.offsetWidth; // force reflow so the transition can restart cleanly
+      sweep.classList.remove("shine-reset");
+    };
+    el.addEventListener("pointerdown", () => {
+      resetShine();
+      void sweep.offsetWidth;
+      requestAnimationFrame(() => sweep.classList.add("shine-run"));
+    });
+    sweep.addEventListener("transitionend", (e) => {
+      if (e.propertyName === "transform") resetShine();
+    });
+  });
+}
+const shineObserver = new MutationObserver(() => armShine());
+shineObserver.observe(document.body, { childList: true, subtree: true });
+
 /* ---------------- init ---------------- */
 observeReveals();
 renderContacts();
+armShine();

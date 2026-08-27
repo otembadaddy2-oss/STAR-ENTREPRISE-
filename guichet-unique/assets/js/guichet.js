@@ -508,6 +508,41 @@ function logout() {
 }
 $("#btnLogout")?.addEventListener("click", logout);
 
+/* ============================================================
+   Effet lumière au toucher — passe sur la surface à chaque tap
+   ============================================================ */
+const SHINE_SEL = ".svc-card, .hero-card, .demarche-hero, .checklist-card, .card, .trust-item, .profile-card, .suivi-card, .hero-stat";
+function armShine(root = document) {
+  root.querySelectorAll(SHINE_SEL).forEach((el) => {
+    if (el.dataset.shineArmed) return;
+    el.dataset.shineArmed = "1";
+    el.classList.add("se-shine");
+    const sweep = document.createElement("span");
+    sweep.className = "shine-sweep";
+    sweep.setAttribute("aria-hidden", "true");
+    el.appendChild(sweep);
+    const resetShine = () => {
+      sweep.classList.add("shine-reset");
+      sweep.classList.remove("shine-run");
+      void sweep.offsetWidth; // force reflow so the transition can restart cleanly
+      sweep.classList.remove("shine-reset");
+    };
+    el.addEventListener("pointerdown", () => {
+      resetShine();
+      void sweep.offsetWidth;
+      requestAnimationFrame(() => sweep.classList.add("shine-run"));
+    });
+    sweep.addEventListener("transitionend", (e) => {
+      if (e.propertyName === "transform") resetShine();
+    });
+  });
+}
+// nouvelles cartes injectées dynamiquement (catalogue, suivi...) : on
+// réarme après chaque rendu.
+const shineObserver = new MutationObserver(() => armShine());
+shineObserver.observe(document.body, { childList: true, subtree: true });
+
 /* ---------------- init ---------------- */
 renderChips();
 observeReveals();
+armShine();
