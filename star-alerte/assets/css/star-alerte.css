@@ -348,6 +348,10 @@ img{max-width:100%;display:block;}
 .page-head h1{font-size:1.5rem;font-weight:800;margin:0 0 4px;}
 .page-head p{color:var(--text-dim);font-size:.9rem;margin:0;line-height:1.5;}
 
+.backbar{display:flex;align-items:center;gap:10px;padding:calc(12px + var(--safe-top)) 18px 0;}
+.back-btn{display:flex;align-items:center;gap:6px;background:var(--bg-elevated);border:1px solid var(--card-border-strong);color:#fff;padding:8px 14px 8px 10px;border-radius:var(--radius-pill,999px);font-weight:700;font-size:.82rem;cursor:pointer;}
+.back-btn svg{width:15px;height:15px;}
+
 /* ============================================================
    Wizard (Signaler)
    ============================================================ */
