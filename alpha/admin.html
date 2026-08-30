@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>ALPHA — Espace pro</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0E1826">
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --ink:#0E1826; --ink-2:#16233A; --ink-3:#1E2E48;
+  --line:rgba(247,244,236,.12); --line-soft:rgba(247,244,236,.07);
+  --paper:#F5F1E7; --paper-2:#E9E1CE; --paper-ink:#161E2C; --paper-soft:#5C6472;
+  --white:#F7F4EC; --off:#AEB6C4;
+  --gold:#C9A227; --gold-2:#E8CA6B; --gold-deep:#8A6A16; --gold-glow:rgba(201,162,39,.5);
+  --blue:#2F6FED; --blue-2:#6E9CFF;
+  --ok:#3FAE6A; --warn:#E0A22E; --err:#E0524B;
+}
+*,*::before,*::after{box-sizing:border-box;}
+body{
+  margin:0; min-height:100vh; background:var(--ink); color:var(--white);
+  font-family:"Manrope",ui-sans-serif,system-ui,sans-serif; line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{ font-family:"Unbounded",ui-sans-serif,sans-serif; font-weight:800; letter-spacing:-.01em; margin:0 0 .3em; }
+a{ color:inherit; }
+button{ font:inherit; color:inherit; cursor:pointer; }
+input,select,textarea{ font:inherit; }
+img{ max-width:100%; display:block; }
+
+.topbar{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:14px 20px; border-bottom:1px solid var(--line); position:sticky; top:0; background:rgba(14,24,38,.92); backdrop-filter:blur(10px); z-index:20;
+}
+.brand{ display:flex; align-items:center; gap:.6em; text-decoration:none; }
+.brand img{ width:32px; height:32px; border-radius:50%; }
+.brand b{ font-family:"Unbounded",sans-serif; font-size:.95rem; letter-spacing:.02em; }
+.brand span{ display:block; font-size:.66rem; color:var(--off); font-weight:600; }
+.back-link{ font-size:.78rem; font-weight:700; color:var(--gold-2); text-decoration:none; display:flex; align-items:center; gap:.4em; }
+.back-link svg{ width:14px; height:14px; }
+
+/* -------- login -------- */
+.login-wrap{ min-height:calc(100vh - 64px); display:flex; align-items:center; justify-content:center; padding:24px; }
+.login-card{
+  width:100%; max-width:380px; background:var(--ink-2); border:1px solid var(--line); border-radius:18px; padding:32px 28px;
+}
+.login-eyebrow{ font-size:.72rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--gold-2); margin-bottom:.5em; }
+.login-card h2{ font-size:1.5rem; margin-bottom:.2em; }
+.login-card p.sub{ color:var(--off); font-size:.86rem; margin:0 0 1.6em; }
+.field{ margin-bottom:16px; }
+.field label{ display:block; font-size:.76rem; font-weight:700; color:var(--off); margin-bottom:.4em; text-transform:uppercase; letter-spacing:.05em; }
+.field input{
+  width:100%; background:var(--ink-3); border:1px solid var(--line); color:var(--white); border-radius:10px;
+  padding:.75em .9em; outline:none; transition:border-color .2s ease;
+}
+.field input:focus{ border-color:var(--gold); }
+.pw-wrap{ position:relative; }
+.pw-wrap input{ padding-right:2.6em; }
+.pw-toggle{
+  position:absolute; right:.5em; top:50%; transform:translateY(-50%); background:none; border:none; padding:.4em;
+  color:var(--off); display:flex; border-radius:8px;
+}
+.pw-toggle:hover{ color:var(--gold-2); }
+.pw-toggle svg{ width:19px; height:19px; }
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:.5em; border-radius:999px; border:1.5px solid transparent;
+  padding:.85em 1.3em; font-weight:700; font-size:.88rem; cursor:pointer; transition:transform .18s ease, box-shadow .2s ease; width:100%;
+}
+.btn.primary{ background:var(--gold); color:#1a1300; }
+.btn.primary:hover{ box-shadow:0 12px 28px var(--gold-glow); transform:translateY(-2px); }
+.btn.primary:disabled{ opacity:.6; cursor:default; transform:none; box-shadow:none; }
+.form-status{ min-height:1.4em; font-size:.82rem; margin:.8em 0 0; }
+.form-status.err{ color:#ff8a80; }
+.form-status.ok{ color:var(--gold-2); }
+
+/* -------- dashboard -------- */
+.dash{ display:none; max-width:1100px; margin:0 auto; padding:28px 20px 60px; }
+.dash.show{ display:block; }
+.login-wrap.hide{ display:none; }
+.dash-head{ display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:24px; }
+.dash-head h1{ font-size:1.7rem; }
+.dash-head p{ color:var(--off); margin:0; font-size:.88rem; }
+.logout-btn{
+  background:none; border:1px solid var(--line); color:var(--off); border-radius:999px; padding:.6em 1.1em; font-size:.8rem; font-weight:700;
+}
+.logout-btn:hover{ border-color:var(--gold); color:var(--gold-2); }
+
+.stat-row{ display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:24px; }
+.stat-card{ background:var(--ink-2); border:1px solid var(--line); border-radius:14px; padding:16px; }
+.stat-card b{ font-family:"Unbounded",sans-serif; font-size:1.5rem; display:block; color:var(--gold-2); }
+.stat-card span{ font-size:.74rem; color:var(--off); }
+
+.toolbar{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:16px; }
+.toolbar input[type="search"]{
+  flex:1; min-width:180px; background:var(--ink-2); border:1px solid var(--line); color:var(--white); border-radius:10px; padding:.7em .9em; outline:none;
+}
+.toolbar select{ background:var(--ink-2); border:1px solid var(--line); color:var(--white); border-radius:10px; padding:.7em .9em; outline:none; }
+.toolbar .refresh{ background:none; border:1px solid var(--line); color:var(--off); border-radius:10px; padding:.7em .9em; font-size:.8rem; font-weight:700; }
+.toolbar .refresh:hover{ border-color:var(--gold); color:var(--gold-2); }
+
+.empty{ text-align:center; padding:60px 20px; color:var(--off); border:1px dashed var(--line); border-radius:16px; }
+
+.card-list{ display:flex; flex-direction:column; gap:12px; }
+.camp-card{ background:var(--ink-2); border:1px solid var(--line); border-radius:14px; padding:18px 20px; }
+.camp-top{ display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px; align-items:flex-start; }
+.camp-name{ font-family:"Unbounded",sans-serif; font-weight:700; font-size:1.05rem; }
+.camp-meta{ font-size:.78rem; color:var(--off); margin-top:.2em; }
+.camp-date{ font-size:.72rem; color:var(--off); white-space:nowrap; }
+.camp-msg{ font-size:.86rem; color:var(--white); margin-top:.7em; background:var(--ink-3); border-radius:10px; padding:.8em 1em; max-width:60ch; }
+.camp-actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; align-items:center; }
+.wa-link{
+  display:inline-flex; align-items:center; gap:.4em; color:var(--gold-2); text-decoration:none; font-size:.82rem; font-weight:700; border:1px solid var(--line); border-radius:999px; padding:.5em 1em;
+}
+.wa-link:hover{ border-color:var(--gold); }
+.status-select{ background:var(--ink-3); border:1px solid var(--line); color:var(--white); border-radius:999px; padding:.5em 1em; font-size:.8rem; font-weight:700; outline:none; }
+.del-btn{ background:none; border:1px solid rgba(224,82,75,.4); color:#ff8a80; border-radius:999px; padding:.5em 1em; font-size:.8rem; font-weight:700; }
+.del-btn:hover{ background:rgba(224,82,75,.12); }
+.badge{ display:inline-block; font-size:.7rem; font-weight:700; padding:.3em .7em; border-radius:999px; text-transform:uppercase; letter-spacing:.04em; }
+.badge.nouveau{ background:rgba(47,111,237,.18); color:var(--blue-2); }
+.badge.en_discussion{ background:rgba(224,162,46,.18); color:var(--warn); }
+.badge.en_cours{ background:rgba(201,162,39,.2); color:var(--gold-2); }
+.badge.lance{ background:rgba(63,174,106,.2); color:var(--ok); }
+.badge.termine{ background:rgba(174,182,196,.18); color:var(--off); }
+.badge.sans_suite{ background:rgba(224,82,75,.15); color:#ff8a80; }
+
+@media (max-width:600px){ .login-card{ padding:26px 20px; } }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="index.html">
+    <img src="../assets/img/logo-star-rounded-v1.webp" alt="ALPHA" />
+    <span><b>ALPHA</b><span>Espace pro</span></span>
+  </a>
+  <a class="back-link" href="index.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+    Retour au site
+  </a>
+</header>
+
+<div class="login-wrap" id="loginWrap">
+  <div class="login-card">
+    <p class="login-eyebrow">Accès réservé</p>
+    <h2>Espace pro ALPHA</h2>
+    <p class="sub">Suivi des demandes de campagne reçues depuis le site.</p>
+    <form id="loginForm">
+      <div class="field">
+        <label for="lUser">Identifiant</label>
+        <input id="lUser" required autocomplete="username" placeholder="identifiant" />
+      </div>
+      <div class="field">
+        <label for="lPass">Mot de passe</label>
+        <div class="pw-wrap">
+          <input id="lPass" type="password" required autocomplete="current-password" placeholder="••••••••" />
+          <button type="button" class="pw-toggle" data-target="lPass" aria-label="Afficher le mot de passe">
+            <svg class="pw-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="pw-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a20.3 20.3 0 0 1 5.06-6.06M9.9 4.24A10.4 10.4 0 0 1 12 4c7 0 11 8 11 8a20.3 20.3 0 0 1-3.22 4.55M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          </button>
+        </div>
+      </div>
+      <button class="btn primary" type="submit" id="loginBtn">Se connecter</button>
+      <p class="form-status" id="loginStatus"></p>
+    </form>
+  </div>
+</div>
+
+<main class="dash" id="dash">
+  <div class="dash-head">
+    <div>
+      <h1>Demandes de campagne</h1>
+      <p>Chaque brief envoyé depuis le site ALPHA arrive ici en temps réel.</p>
+    </div>
+    <button class="logout-btn" id="logoutBtn">Se déconnecter</button>
+  </div>
+
+  <div class="stat-row" id="statRow"></div>
+
+  <div class="toolbar">
+    <input type="search" id="searchBox" placeholder="Rechercher un nom, une entreprise..." />
+    <select id="statusFilter">
+      <option value="">Tous les statuts</option>
+      <option value="nouveau">Nouveau</option>
+      <option value="en_discussion">En discussion</option>
+      <option value="en_cours">Campagne en cours</option>
+      <option value="lance">Lancée</option>
+      <option value="termine">Terminée</option>
+      <option value="sans_suite">Sans suite</option>
+    </select>
+    <button class="refresh" id="refreshBtn">Actualiser</button>
+  </div>
+
+  <div id="listWrap">
+    <div class="empty">Chargement...</div>
+  </div>
+</main>
+
+<script>
+(function(){
+  var API_AUTH = "/api/auth";
+  var API_CAMPAIGNS = "/api/alpha-campaigns";
+  var TOKEN_KEY = "alpha_admin_token";
+  var statusLabels = { nouveau:"Nouveau", en_discussion:"En discussion", en_cours:"Campagne en cours", lance:"Lancée", termine:"Terminée", sans_suite:"Sans suite" };
+  var allCampaigns = [];
+
+  document.querySelectorAll(".pw-toggle").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var input = document.getElementById(btn.dataset.target);
+      if(!input) return;
+      var show = input.type === "password";
+      input.type = show ? "text" : "password";
+      btn.querySelector(".pw-eye").hidden = show;
+      btn.querySelector(".pw-eye-off").hidden = !show;
+      btn.setAttribute("aria-label", show ? "Masquer le mot de passe" : "Afficher le mot de passe");
+    });
+  });
+
+  function getToken(){ try{ return localStorage.getItem(TOKEN_KEY) || ""; }catch(e){ return ""; } }
+  function setToken(t){ try{ if(t) localStorage.setItem(TOKEN_KEY, t); else localStorage.removeItem(TOKEN_KEY); }catch(e){} }
+
+  function showDash(){
+    document.getElementById("loginWrap").classList.add("hide");
+    document.getElementById("dash").classList.add("show");
+    loadCampaigns();
+  }
+  function showLogin(){
+    document.getElementById("loginWrap").classList.remove("hide");
+    document.getElementById("dash").classList.remove("show");
+  }
+
+  document.getElementById("loginForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    var status = document.getElementById("loginStatus");
+    var btn = document.getElementById("loginBtn");
+    var username = document.getElementById("lUser").value.trim();
+    var password = document.getElementById("lPass").value;
+    status.textContent = "Connexion...";
+    status.className = "form-status";
+    btn.disabled = true;
+    fetch(API_AUTH, {
+      method:"POST", headers:{"content-type":"application/json"},
+      body: JSON.stringify({ action:"login", username: username, password: password })
+    }).then(function(r){ return r.json().then(function(d){ return {ok:r.ok, data:d}; }); })
+      .then(function(res){
+        btn.disabled = false;
+        if(!res.ok){ status.textContent = res.data.error || "Identifiants incorrects."; status.className = "form-status err"; return; }
+        setToken(res.data.token);
+        status.textContent = "";
+        showDash();
+      })
+      .catch(function(){ btn.disabled = false; status.textContent = "Connexion impossible. Réessayez."; status.className = "form-status err"; });
+  });
+
+  document.getElementById("logoutBtn").addEventListener("click", function(){
+    setToken("");
+    showLogin();
+  });
+
+  function waLink(phone, name){
+    var digits = String(phone||"").replace(/[^0-9]/g,"");
+    var text = "Bonjour " + (name||"") + ", ici ALPHA (STAR CRÉAT) au sujet de votre demande de campagne.";
+    return "https://wa.me/" + digits + "?text=" + encodeURIComponent(text);
+  }
+
+  function renderStats(list){
+    var counts = { nouveau:0, en_discussion:0, en_cours:0, lance:0, termine:0, sans_suite:0 };
+    list.forEach(function(c){ if(counts[c.statut] !== undefined) counts[c.statut]++; });
+    var html = '<div class="stat-card"><b>' + list.length + '</b><span>Total reçues</span></div>';
+    html += '<div class="stat-card"><b>' + counts.nouveau + '</b><span>Nouvelles</span></div>';
+    html += '<div class="stat-card"><b>' + counts.en_cours + '</b><span>En cours</span></div>';
+    html += '<div class="stat-card"><b>' + counts.lance + '</b><span>Lancées</span></div>';
+    document.getElementById("statRow").innerHTML = html;
+  }
+
+  function escapeHtml(s){
+    return String(s||"").replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+
+  function fmtDate(iso){
+    try{
+      var d = new Date(iso);
+      return d.toLocaleDateString("fr-FR", { day:"2-digit", month:"short", year:"numeric" }) + " à " + d.toLocaleTimeString("fr-FR", { hour:"2-digit", minute:"2-digit" });
+    }catch(e){ return iso; }
+  }
+
+  function renderList(){
+    var q = document.getElementById("searchBox").value.trim().toLowerCase();
+    var statusF = document.getElementById("statusFilter").value;
+    var filtered = allCampaigns.filter(function(c){
+      var matchesQ = !q || (c.nom+" "+c.entreprise).toLowerCase().indexOf(q) !== -1;
+      var matchesS = !statusF || c.statut === statusF;
+      return matchesQ && matchesS;
+    });
+    renderStats(allCampaigns);
+    var wrap = document.getElementById("listWrap");
+    if(!filtered.length){
+      wrap.innerHTML = '<div class="empty">Aucune demande pour le moment.</div>';
+      return;
+    }
+    wrap.innerHTML = '<div class="card-list">' + filtered.map(function(c){
+      var opts = Object.keys(statusLabels).map(function(k){
+        return '<option value="'+k+'"'+(k===c.statut?" selected":"")+'>'+statusLabels[k]+'</option>';
+      }).join("");
+      return '' +
+        '<div class="camp-card" data-id="'+c.id+'">' +
+          '<div class="camp-top">' +
+            '<div>' +
+              '<span class="badge '+c.statut+'">'+ (statusLabels[c.statut]||c.statut) +'</span>' +
+              '<div class="camp-name">'+escapeHtml(c.nom)+(c.entreprise?" — "+escapeHtml(c.entreprise):"")+'</div>' +
+              '<div class="camp-meta">'+escapeHtml(c.telephone)+(c.objectif?" · Objectif : "+escapeHtml(c.objectif):"")+'</div>' +
+            '</div>' +
+            '<div class="camp-date">'+fmtDate(c.createdAt)+'</div>' +
+          '</div>' +
+          (c.message ? '<div class="camp-msg">'+escapeHtml(c.message)+'</div>' : '') +
+          '<div class="camp-actions">' +
+            '<a class="wa-link" target="_blank" rel="noopener" href="'+waLink(c.telephone, c.nom)+'">Répondre sur WhatsApp</a>' +
+            '<select class="status-select" data-id="'+c.id+'">'+opts+'</select>' +
+            '<button class="del-btn" data-id="'+c.id+'">Supprimer</button>' +
+          '</div>' +
+        '</div>';
+    }).join("") + '</div>';
+
+    wrap.querySelectorAll(".status-select").forEach(function(sel){
+      sel.addEventListener("change", function(){ updateStatus(sel.dataset.id, sel.value); });
+    });
+    wrap.querySelectorAll(".del-btn").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        if(!confirm("Supprimer définitivement cette demande ?")) return;
+        deleteCampaign(btn.dataset.id);
+      });
+    });
+  }
+
+  function authHeaders(){
+    return { "content-type":"application/json", "authorization": "Bearer " + getToken() };
+  }
+
+  function loadCampaigns(){
+    document.getElementById("listWrap").innerHTML = '<div class="empty">Chargement...</div>';
+    fetch(API_CAMPAIGNS, { headers: authHeaders() })
+      .then(function(r){
+        if(r.status === 401){ setToken(""); showLogin(); throw new Error("unauthorized"); }
+        return r.json();
+      })
+      .then(function(d){ allCampaigns = d.campaigns || []; renderList(); })
+      .catch(function(){ document.getElementById("listWrap").innerHTML = '<div class="empty">Impossible de charger les demandes. Vérifiez votre connexion et réessayez.</div>'; });
+  }
+
+  function updateStatus(id, statut){
+    fetch(API_CAMPAIGNS, { method:"PUT", headers: authHeaders(), body: JSON.stringify({ id:id, statut:statut }) })
+      .then(function(){ loadCampaigns(); });
+  }
+
+  function deleteCampaign(id){
+    fetch(API_CAMPAIGNS + "?id=" + encodeURIComponent(id), { method:"DELETE", headers: authHeaders() })
+      .then(function(){ loadCampaigns(); });
+  }
+
+  document.getElementById("searchBox").addEventListener("input", renderList);
+  document.getElementById("statusFilter").addEventListener("change", renderList);
+  document.getElementById("refreshBtn").addEventListener("click", loadCampaigns);
+
+  if(getToken()){ showDash(); }
+})();
+</script>
+</body>
+</html>

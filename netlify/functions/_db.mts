@@ -107,6 +107,20 @@ export async function ensureSchema() {
   `;
 
   await sql`
+    CREATE TABLE IF NOT EXISTS alpha_campaigns (
+      id SERIAL PRIMARY KEY,
+      nom TEXT NOT NULL,
+      entreprise TEXT DEFAULT '',
+      telephone TEXT NOT NULL,
+      objectif TEXT DEFAULT '',
+      message TEXT DEFAULT '',
+      statut TEXT NOT NULL DEFAULT 'nouveau',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
+  await sql`
     CREATE TABLE IF NOT EXISTS jardis_documents (
       id SERIAL PRIMARY KEY,
       nom TEXT NOT NULL,
