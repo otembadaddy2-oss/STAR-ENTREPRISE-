@@ -20,6 +20,30 @@
 <meta property="og:title" content="STAR ENTREPRISE — Vos idées. Notre éclat. Un diamant.">
 <meta property="og:description" content="Sites web, applications mobiles et boutiques en ligne d'exception, conçus pour convertir vos visiteurs en clients.">
 <meta property="og:type" content="website">
+<style>
+  .hero-typewriter{
+    font-family:var(--ff-heading); font-weight:800; font-size:clamp(1.05rem,2.2vw,1.4rem);
+    display:flex; flex-wrap:wrap; align-items:baseline; gap:.5em; margin:0 0 20px;
+  }
+  .hero-typewriter > span:first-child{ color:var(--text); font-weight:600; }
+  .tw-word{ white-space:nowrap; min-width:1px; }
+  .tw-cursor{ color:var(--gold-2); font-weight:400; animation:twBlink .9s steps(1) infinite; }
+  @keyframes twBlink{ 50%{ opacity:0; } }
+
+  .wa-key-badge{
+    display:inline-flex; align-items:center; gap:12px; margin-bottom:16px;
+    padding:9px 18px 9px 10px; border-radius:999px; background:rgba(232,195,104,.08);
+    border:1px solid rgba(232,195,104,.3);
+  }
+  .wa-key-badge span{ font-family:var(--ff-heading); font-weight:700; font-size:.86rem; color:var(--gold-2); }
+  .wa-key-icon path[stroke]{ stroke-dasharray:34; stroke-dashoffset:34; animation:waKeyDraw 1.6s .3s cubic-bezier(.2,.8,.2,1) forwards; }
+  @keyframes waKeyDraw{ to{ stroke-dashoffset:0; } }
+
+  @media (prefers-reduced-motion: reduce){
+    .tw-cursor{ animation:none; }
+    .wa-key-icon path[stroke]{ animation:none; stroke-dashoffset:0; }
+  }
+</style>
 </head>
 <body>
 
@@ -51,6 +75,10 @@
     <div class="reveal in">
       <div class="eyebrow"><span class="dot"></span> <span data-i18n="home.hero.eyebrow">Agence digitale 360° — Congo &amp; International</span></div>
       <h1 data-i18n="home.hero.title">Vos idées. Notre éclat. <span class="text-grad">Un diamant.</span></h1>
+      <p class="hero-typewriter" aria-live="polite">
+        <span>On transforme en diamant votre</span>
+        <span class="tw-word text-grad" id="heroTypeword"></span><span class="tw-cursor" id="heroTypeCursor" aria-hidden="true">|</span>
+      </p>
       <p class="lead" data-i18n="home.hero.lead">STAR ENTREPRISE conçoit des sites web, applications mobiles et boutiques en ligne pensés pour convaincre, convertir et durer. Vous apportez l'idée — nous sculptons le diamant.</p>
       <div class="hero-cta">
         <a href="contact.html" class="btn btn-primary" data-i18n="home.hero.cta1">Démarrer mon projet</a>
@@ -315,7 +343,15 @@
     <div class="cta-band reveal">
       <div class="eyebrow"><span class="dot"></span> <span data-i18n="home.cta.eyebrow">Prêt à commencer ?</span></div>
       <h2 data-i18n="home.cta.title">Transformons votre idée en <span class="text-grad">diamant</span></h2>
-      <p data-i18n="home.cta.reach">Basés à Pointe-Noire, connectés partout où vivent nos clients — en République du Congo, ailleurs en Afrique (Ghana, Nigeria, Sénégal, Côte d'Ivoire, Bénin, Angola...) comme dans la diaspora, au Canada ou en Europe. Où que vous soyez, un message WhatsApp suffit pour démarrer.</p>
+      <div class="wa-key-badge">
+        <svg class="wa-key-icon" width="46" height="26" viewBox="0 0 46 26" aria-hidden="true">
+          <circle cx="12" cy="13" r="11" fill="#20BA5A"/>
+          <path fill="#fff" d="M12 6.6c-3 0-5.4 2.4-5.4 5.4 0 .95.25 1.87.72 2.68l-.77 2.8 2.87-.75a5.36 5.36 0 0 0 2.58.66c3 0 5.4-2.4 5.4-5.4s-2.4-5.4-5.4-5.4Zm3.16 7.7c-.13.37-.77.7-1.07.75-.28.05-.63.07-1.01-.06a9.3 9.3 0 0 1-.9-.34c-1.6-.68-2.64-2.28-2.72-2.39-.08-.11-.65-.87-.65-1.65 0-.79.41-1.17.56-1.33.14-.15.31-.19.42-.19h.3c.1 0 .23-.02.35.29.13.3.44 1.05.48 1.13.04.08.06.18.01.29-.05.11-.08.18-.16.27-.08.09-.17.21-.24.28-.08.08-.17.17-.07.33.1.16.44.75.96 1.21.66.6 1.21.79 1.38.87.17.08.27.07.37-.04.1-.11.42-.5.53-.66.11-.17.22-.14.37-.08.15.06.97.47 1.14.55.17.08.28.13.32.19.04.08.04.42-.09.79Z"/>
+          <path fill="none" stroke="var(--gold-2)" stroke-width="2.4" stroke-linecap="round" d="M22 13h20M32 13v4M38 13v6"/>
+        </svg>
+        <span data-i18n="home.cta.reach.badge">La clé WhatsApp — 100% disponible</span>
+      </div>
+      <p data-i18n="home.cta.reach">Du Canada à la République du Congo — en passant par le Ghana, le Nigeria, le Sénégal, la Côte d'Ivoire, le Bénin, l'Angola et toute l'Europe — notre service client est <b>100% disponible</b>. Où que vous soyez, un message WhatsApp suffit pour démarrer.</p>
       <p data-i18n="home.cta.lead">Parlez-nous de votre projet dès aujourd'hui. Jardissa, notre assistante, ou Carry OTEMBA lui-même vous répondent rapidement.</p>
       <div class="cta-actions">
         <a href="contact.html" class="btn btn-primary" data-i18n="home.hero.cta1">Démarrer mon projet</a>
@@ -384,6 +420,33 @@
 <script src="assets/js/jardissa-v6.js"></script>
 <script src="assets/js/pwa-v2.js"></script>
 <script src="assets/js/effects-v1.js"></script>
+<script>
+(function(){
+  var el = document.getElementById('heroTypeword');
+  if(!el) return;
+  var words = ["Site Web","Application Mobile","Boutique en Ligne","Identité de Marque","Stratégie Digitale"];
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    el.textContent = words[0];
+    return;
+  }
+  var wi = 0, ci = 0, deleting = false;
+  function tick(){
+    var w = words[wi];
+    if(!deleting){
+      ci++;
+      el.textContent = w.slice(0, ci);
+      if(ci === w.length){ deleting = true; setTimeout(tick, 1500); return; }
+      setTimeout(tick, 55 + Math.random()*45);
+    } else {
+      ci--;
+      el.textContent = w.slice(0, ci);
+      if(ci === 0){ deleting = false; wi = (wi + 1) % words.length; setTimeout(tick, 350); return; }
+      setTimeout(tick, 26);
+    }
+  }
+  tick();
+})();
+</script>
 <script src="assets/js/doc-request-v1.js"></script>
 </body>
 </html>
