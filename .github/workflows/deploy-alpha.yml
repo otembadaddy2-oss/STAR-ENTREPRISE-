@@ -32,6 +32,7 @@ jobs:
           mkdir -p deploy-alpha
           cp alpha/index.html deploy-alpha/index.html
           cp alpha/admin.html deploy-alpha/admin.html
+          cp alpha/bootstrap.html deploy-alpha/bootstrap.html
 
       - name: Déploie sur Netlify (site + fonctions backend)
         uses: netlify/actions/cli@master
