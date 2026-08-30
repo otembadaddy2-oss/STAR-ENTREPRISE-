@@ -145,13 +145,15 @@ p{ margin:0 0 1em; max-width:60ch; }
 /* ticker */
 .ticker-wrap{
   overflow:hidden; background:var(--red); color:#fff;
-  font-family:"IBM Plex Mono",monospace; font-size:.66rem; letter-spacing:.12em; text-transform:uppercase;
-  height:28px; display:flex; align-items:center; position:sticky; top:var(--header-h); z-index:35;
+  font-family:"IBM Plex Mono",monospace; font-size:.72rem; letter-spacing:.1em; text-transform:uppercase;
+  height:30px; display:flex; align-items:center; position:sticky; top:var(--header-h); z-index:35;
 }
-.ticker{ display:flex; gap:48px; white-space:nowrap; animation:tick 22s linear infinite; padding-left:100%; }
+.ticker{ display:flex; gap:48px; white-space:nowrap; animation:tick 38s linear infinite; padding-left:100%; }
 .ticker span{ display:flex; align-items:center; gap:10px; }
 .ticker span::after{ content:"◆"; opacity:.6; font-size:.6rem; }
+.ticker-wrap:hover .ticker{ animation-play-state:paused; }
 @keyframes tick{ to{ transform:translateX(-100%); } }
+@media (prefers-reduced-motion: reduce){ .ticker{ animation-duration:70s; } }
 
 /* ============ top progress (view transition) ============ */
 .route-progress{
