@@ -175,6 +175,22 @@ export async function ensureSchema() {
   `;
 
   await sql`
+    CREATE TABLE IF NOT EXISTS alpha_vitrine (
+      id SERIAL PRIMARY KEY,
+      titre TEXT NOT NULL,
+      client TEXT DEFAULT '',
+      type_media TEXT NOT NULL DEFAULT 'image',
+      type_mime TEXT DEFAULT '',
+      blob_key TEXT NOT NULL,
+      lien_externe TEXT DEFAULT '',
+      actif BOOLEAN NOT NULL DEFAULT true,
+      ordre INTEGER NOT NULL DEFAULT 0,
+      created_by INTEGER REFERENCES accounts(id) ON DELETE SET NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
+  await sql`
     CREATE TABLE IF NOT EXISTS jardis_log (
       id SERIAL PRIMARY KEY,
       action TEXT NOT NULL,

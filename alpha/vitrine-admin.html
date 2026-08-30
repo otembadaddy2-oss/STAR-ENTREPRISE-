@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>ALPHA — Gérer la vitrine</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0B132A">
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --ink:#0B132A; --ink-2:#131E3A; --ink-3:#1B2A4A;
+  --line:rgba(247,244,236,.12);
+  --white:#F7F4EC; --off:#AEB6C4;
+  --gold:#C9A227; --gold-2:#E8CA6B;
+  --blue:#2E64E0; --blue-2:#6E9CFF;
+  --ok:#3FAE6A; --err:#E0524B;
+}
+*,*::before,*::after{ box-sizing:border-box; }
+body{ margin:0; min-height:100vh; background:var(--ink); color:var(--white); font-family:"Manrope",sans-serif; line-height:1.5; padding-bottom:60px; }
+h1,h2{ font-family:"Unbounded",sans-serif; font-weight:800; margin:0 0 .3em; }
+a{ color:inherit; }
+button{ font:inherit; color:inherit; cursor:pointer; }
+input,select,textarea{ font:inherit; }
+
+.topbar{ display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid var(--line); position:sticky; top:0; background:rgba(14,24,38,.92); backdrop-filter:blur(10px); z-index:20; }
+.topbar a{ color:var(--gold-2); text-decoration:none; font-weight:700; font-size:.85rem; }
+main{ max-width:760px; margin:0 auto; padding:24px 18px; }
+
+.card{ background:var(--ink-2); border:1px solid var(--line); border-radius:14px; padding:18px; margin-bottom:20px; }
+label{ display:block; font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; color:var(--off); margin:12px 0 5px; }
+input[type=text], input[type=url], select, textarea{
+  width:100%; background:var(--ink); border:1px solid var(--line); color:var(--white); border-radius:9px; padding:10px 12px; font-size:.9rem;
+}
+input[type=file]{ width:100%; color:var(--off); font-size:.85rem; }
+.row{ display:flex; gap:10px; flex-wrap:wrap; }
+.row > *{ flex:1; min-width:140px; }
+
+.btn{ border:none; border-radius:999px; padding:12px 20px; font-weight:700; font-size:.85rem; }
+.btn.primary{ background:var(--blue); color:#fff; width:100%; margin-top:16px; }
+.btn.primary:disabled{ opacity:.6; }
+
+.status{ margin-top:10px; font-size:.85rem; }
+.status.ok{ color:var(--ok); }
+.status.err{ color:var(--err); }
+
+.qr-box{ display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+.qr-box img{ width:130px; height:130px; border-radius:10px; background:#fff; padding:8px; }
+.qr-box .link{ font-size:.82rem; color:var(--gold-2); word-break:break-all; }
+
+.item{ display:flex; gap:12px; padding:12px; border:1px solid var(--line); border-radius:12px; margin-bottom:10px; align-items:center; }
+.item img.thumb, .item video.thumb{ width:64px; height:64px; object-fit:cover; border-radius:8px; background:#000; flex-shrink:0; }
+.item .info{ flex:1; min-width:0; }
+.item .titre{ font-weight:700; font-size:.9rem; }
+.item .meta{ font-size:.75rem; color:var(--off); }
+.item .actions{ display:flex; gap:8px; flex-shrink:0; }
+.item button{ border:1px solid var(--line); background:none; color:var(--white); border-radius:999px; padding:.4em .9em; font-size:.75rem; }
+.item button.del{ border-color:rgba(224,82,75,.4); color:#ff8a80; }
+.item button.toggle.on{ border-color:var(--ok); color:var(--ok); }
+.item button.toggle.off{ border-color:var(--off); color:var(--off); }
+
+.login-wrap{ max-width:360px; margin:60px auto; padding:0 18px; }
+.hide{ display:none !important; }
+.empty{ color:var(--off); font-size:.85rem; text-align:center; padding:20px 0; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="admin.html">&larr; Espace pro</a>
+  <b>Gérer la vitrine</b>
+  <a href="vitrine.html" target="_blank">Voir la vitrine &rarr;</a>
+</div>
+
+<div class="login-wrap" id="loginWrap">
+  <h1>Connexion</h1>
+  <p style="color:var(--off); font-size:.85rem;">Utilise le même identifiant que ton Espace pro.</p>
+  <form id="loginForm">
+    <label>Identifiant</label>
+    <input type="text" id="lUser" autocomplete="username" required />
+    <label>Mot de passe</label>
+    <input type="password" id="lPass" autocomplete="current-password" required />
+    <button class="btn primary" id="loginBtn" type="submit">Se connecter</button>
+    <div class="status" id="loginStatus"></div>
+  </form>
+</div>
+
+<main id="dash" style="display:none;">
+  <div class="card qr-box">
+    <img id="qrImg" alt="QR code vitrine" />
+    <div>
+      <div class="titre" style="margin-bottom:6px;">QR code de la vitrine</div>
+      <div class="link" id="vitrineLink"></div>
+      <div style="font-size:.75rem; color:var(--off); margin-top:6px;">Mets ce QR code sur tes affiches, stories WhatsApp/TikTok/Facebook — un scan ramène directement ici.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:1rem;">Publier sur la vitrine</h2>
+    <form id="uploadForm">
+      <label>Titre de la publication</label>
+      <input type="text" id="fTitre" required placeholder="Ex : Campagne D-INNOVATION PRESSING" />
+      <div class="row">
+        <div>
+          <label>Client / Entreprise</label>
+          <input type="text" id="fClient" />
+        </div>
+        <div>
+          <label>Type</label>
+          <select id="fType">
+            <option value="image">Image / Affiche</option>
+            <option value="video">Vidéo</option>
+          </select>
+        </div>
+      </div>
+      <label>Lien externe (optionnel — ex. le post Facebook/TikTok original)</label>
+      <input type="url" id="fLien" placeholder="https://..." />
+      <label>Fichier (image ou vidéo, 15 Mo max)</label>
+      <input type="file" id="fFile" accept="image/*,video/*" required />
+      <button class="btn primary" id="uploadBtn" type="submit">Publier sur la vitrine</button>
+      <div class="status" id="uploadStatus"></div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:1rem;">Publications</h2>
+    <div id="listWrap"><div class="empty">Chargement...</div></div>
+  </div>
+</main>
+
+<script>
+(function(){
+  var API_AUTH = "/api/auth";
+  var API_VITRINE = "/api/alpha-vitrine";
+  var TOKEN_KEY = "alpha_admin_token";
+
+  function getToken(){ try{ return localStorage.getItem(TOKEN_KEY) || ""; }catch(e){ return ""; } }
+  function setToken(t){ try{ if(t) localStorage.setItem(TOKEN_KEY, t); else localStorage.removeItem(TOKEN_KEY); }catch(e){} }
+  function authHeaders(){ return { "content-type":"application/json", "authorization":"Bearer "+getToken() }; }
+
+  function showDash(){
+    document.getElementById("loginWrap").classList.add("hide");
+    document.getElementById("dash").style.display = "block";
+    loadItems();
+  }
+  function showLogin(){
+    document.getElementById("loginWrap").classList.remove("hide");
+    document.getElementById("dash").style.display = "none";
+  }
+
+  var vitrineUrl = window.location.origin + "/vitrine.html";
+  document.getElementById("vitrineLink").textContent = vitrineUrl;
+  document.getElementById("qrImg").src = "https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=" + encodeURIComponent(vitrineUrl);
+
+  document.getElementById("loginForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    var status = document.getElementById("loginStatus");
+    var btn = document.getElementById("loginBtn");
+    status.textContent = "Connexion..."; status.className = "status";
+    btn.disabled = true;
+    fetch(API_AUTH, {
+      method:"POST", headers:{"content-type":"application/json"},
+      body: JSON.stringify({ action:"login", username: document.getElementById("lUser").value.trim(), password: document.getElementById("lPass").value })
+    }).then(function(r){ return r.json().then(function(d){ return {ok:r.ok, data:d}; }); })
+      .then(function(res){
+        btn.disabled = false;
+        if(!res.ok){ status.textContent = res.data.error || "Identifiants incorrects."; status.className = "status err"; return; }
+        setToken(res.data.token);
+        status.textContent = "";
+        showDash();
+      })
+      .catch(function(){ btn.disabled = false; status.textContent = "Connexion impossible."; status.className = "status err"; });
+  });
+
+  function fileToBase64(file){
+    return new Promise(function(resolve, reject){
+      var reader = new FileReader();
+      reader.onload = function(){ resolve(reader.result); };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  document.getElementById("uploadForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    var status = document.getElementById("uploadStatus");
+    var btn = document.getElementById("uploadBtn");
+    var file = document.getElementById("fFile").files[0];
+    if(!file){ status.textContent = "Choisis un fichier."; status.className = "status err"; return; }
+    if(file.size > 15*1024*1024){ status.textContent = "Fichier trop volumineux (15 Mo max)."; status.className = "status err"; return; }
+
+    btn.disabled = true;
+    status.textContent = "Envoi en cours..."; status.className = "status";
+
+    fileToBase64(file).then(function(b64){
+      return fetch(API_VITRINE, {
+        method: "POST", headers: authHeaders(),
+        body: JSON.stringify({
+          titre: document.getElementById("fTitre").value.trim(),
+          client: document.getElementById("fClient").value.trim(),
+          typeMedia: document.getElementById("fType").value,
+          typeMime: file.type,
+          lienExterne: document.getElementById("fLien").value.trim(),
+          fileBase64: b64
+        })
+      });
+    }).then(function(r){ return r.json().then(function(d){ return {ok:r.ok, data:d}; }); })
+      .then(function(res){
+        btn.disabled = false;
+        if(!res.ok){ status.textContent = res.data.error || "Erreur lors de l'envoi."; status.className = "status err"; return; }
+        status.textContent = "Publié avec succès !"; status.className = "status ok";
+        document.getElementById("uploadForm").reset();
+        loadItems();
+      })
+      .catch(function(){ btn.disabled = false; status.textContent = "Erreur réseau."; status.className = "status err"; });
+  });
+
+  function loadItems(){
+    fetch(API_VITRINE + "?all=1", { headers: authHeaders() })
+      .then(function(r){ if(r.status===401){ setToken(""); showLogin(); throw new Error("401"); } return r.json(); })
+      .then(function(d){ renderItems(d.items || []); })
+      .catch(function(){});
+  }
+
+  function renderItems(items){
+    var wrap = document.getElementById("listWrap");
+    if(!items.length){ wrap.innerHTML = '<div class="empty">Aucune publication pour le moment.</div>'; return; }
+    wrap.innerHTML = items.map(function(it){
+      var thumb = it.typeMedia === "video"
+        ? '<video class="thumb" muted src="'+it.mediaUrl+'"></video>'
+        : '<img class="thumb" src="'+it.mediaUrl+'" alt="" />';
+      return '' +
+        '<div class="item" data-id="'+it.id+'">' +
+          thumb +
+          '<div class="info">' +
+            '<div class="titre">'+escapeHtml(it.titre)+'</div>' +
+            '<div class="meta">'+escapeHtml(it.client||"—")+' · '+(it.typeMedia==="video"?"Vidéo":"Image")+'</div>' +
+          '</div>' +
+          '<div class="actions">' +
+            '<button class="toggle '+(it.actif?"on":"off")+'" data-id="'+it.id+'" data-actif="'+(it.actif?"0":"1")+'">'+(it.actif?"En ligne":"Masqué")+'</button>' +
+            '<button class="del" data-id="'+it.id+'">Suppr.</button>' +
+          '</div>' +
+        '</div>';
+    }).join("");
+
+    wrap.querySelectorAll(".toggle").forEach(function(b){
+      b.addEventListener("click", function(){
+        fetch(API_VITRINE, { method:"PUT", headers: authHeaders(), body: JSON.stringify({ id: b.dataset.id, actif: b.dataset.actif === "1" }) })
+          .then(function(){ loadItems(); });
+      });
+    });
+    wrap.querySelectorAll(".del").forEach(function(b){
+      b.addEventListener("click", function(){
+        if(!confirm("Supprimer définitivement cette publication ?")) return;
+        fetch(API_VITRINE + "?id=" + encodeURIComponent(b.dataset.id), { method:"DELETE", headers: authHeaders() })
+          .then(function(){ loadItems(); });
+      });
+    });
+  }
+
+  function escapeHtml(s){
+    return String(s||"").replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+
+  if(getToken()) showDash(); else showLogin();
+})();
+</script>
+</body>
+</html>

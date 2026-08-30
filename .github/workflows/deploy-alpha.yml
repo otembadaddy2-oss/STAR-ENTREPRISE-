@@ -34,6 +34,8 @@ jobs:
           cp alpha/admin.html deploy-alpha/admin.html
           cp alpha/bootstrap.html deploy-alpha/bootstrap.html
           cp alpha/devis.html deploy-alpha/devis.html
+          cp alpha/vitrine.html deploy-alpha/vitrine.html
+          cp alpha/vitrine-admin.html deploy-alpha/vitrine-admin.html
 
       - name: Déploie sur Netlify (site + fonctions backend)
         uses: netlify/actions/cli@master
