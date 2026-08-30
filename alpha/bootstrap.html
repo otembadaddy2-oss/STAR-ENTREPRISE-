@@ -82,6 +82,7 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
     result.className = 'err';
     result.textContent = 'Erreur réseau : ' + e.message;
   }
+  result.style.display = 'block';
   btn.disabled = false;
   btn.textContent = 'Créer le compte';
 });
