@@ -115,6 +115,10 @@ img{ max-width:100%; display:block; }
   display:inline-flex; align-items:center; gap:.4em; color:var(--gold-2); text-decoration:none; font-size:.82rem; font-weight:700; border:1px solid var(--line); border-radius:999px; padding:.5em 1em;
 }
 .wa-link:hover{ border-color:var(--gold); }
+.devis-link{
+  display:inline-flex; align-items:center; gap:.4em; color:var(--blue-2); text-decoration:none; font-size:.82rem; font-weight:700; border:1px solid var(--line); border-radius:999px; padding:.5em 1em;
+}
+.devis-link:hover{ border-color:var(--blue-2); }
 .status-select{ background:var(--ink-3); border:1px solid var(--line); color:var(--white); border-radius:999px; padding:.5em 1em; font-size:.8rem; font-weight:700; outline:none; }
 .del-btn{ background:none; border:1px solid rgba(224,82,75,.4); color:#ff8a80; border-radius:999px; padding:.5em 1em; font-size:.8rem; font-weight:700; }
 .del-btn:hover{ background:rgba(224,82,75,.12); }
@@ -319,6 +323,7 @@ img{ max-width:100%; display:block; }
           (c.message ? '<div class="camp-msg">'+escapeHtml(c.message)+'</div>' : '') +
           '<div class="camp-actions">' +
             '<a class="wa-link" target="_blank" rel="noopener" href="'+waLink(c.telephone, c.nom)+'">Répondre sur WhatsApp</a>' +
+            '<a class="devis-link" href="devis.html?nom='+encodeURIComponent(c.nom)+'&entreprise='+encodeURIComponent(c.entreprise||"")+'&tel='+encodeURIComponent(c.telephone)+'">Créer un devis</a>' +
             '<select class="status-select" data-id="'+c.id+'">'+opts+'</select>' +
             '<button class="del-btn" data-id="'+c.id+'">Supprimer</button>' +
           '</div>' +
