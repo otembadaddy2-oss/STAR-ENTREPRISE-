@@ -1,0 +1,41 @@
+name: Déployer ALPHA (site + backend) sur Netlify
+
+on:
+  push:
+    branches:
+      - claude/video-mp4-social-media-0hgpf6
+      - main
+    paths:
+      - "alpha/**"
+      - "netlify/functions/**"
+      - "package.json"
+      - ".github/workflows/deploy-alpha.yml"
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupère le dépôt
+        uses: actions/checkout@v4
+
+      - name: Installe Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Installe les dépendances (fonctions)
+        run: npm install --no-audit --no-fund
+
+      - name: Prépare le dossier de déploiement
+        run: |
+          mkdir -p deploy-alpha
+          cp alpha/index.html deploy-alpha/index.html
+          cp alpha/admin.html deploy-alpha/admin.html
+
+      - name: Déploie sur Netlify (site + fonctions backend)
+        uses: netlify/actions/cli@master
+        with:
+          args: deploy --prod --site ${{ secrets.NETLIFY_ALPHA_SITE_ID }} --dir deploy-alpha --functions netlify/functions
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
