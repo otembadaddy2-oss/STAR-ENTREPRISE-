@@ -1,0 +1,52 @@
+name: Créer / Réinitialiser un compte ALPHA
+
+on:
+  workflow_dispatch:
+    inputs:
+      username:
+        description: "Identifiant de connexion"
+        required: true
+      password:
+        description: "Mot de passe (8 caractères minimum)"
+        required: true
+      setup_token:
+        description: "Jeton SETUP_TOKEN (variable d'environnement Netlify du site alpha-star-creat)"
+        required: true
+      display_name:
+        description: "Nom affiché"
+        required: false
+        default: "Administrateur ALPHA"
+      org:
+        description: "Organisation"
+        required: false
+        default: "star_creat"
+      role:
+        description: "Rôle"
+        required: false
+        default: "admin"
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Masque les valeurs sensibles dans les journaux
+        run: |
+          echo "::add-mask::${{ inputs.password }}"
+          echo "::add-mask::${{ inputs.setup_token }}"
+
+      - name: Crée le compte via l'API ALPHA
+        run: |
+          curl -sS -X POST "https://alpha-star-creat.netlify.app/api/auth" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+                --arg action "bootstrap" \
+                --arg setupToken "${{ inputs.setup_token }}" \
+                --arg username "${{ inputs.username }}" \
+                --arg password "${{ inputs.password }}" \
+                --arg displayName "${{ inputs.display_name }}" \
+                --arg org "${{ inputs.org }}" \
+                --arg role "${{ inputs.role }}" \
+                '{action:$action, setupToken:$setupToken, username:$username, password:$password, displayName:$displayName, org:$org, role:$role}')" \
+            -o response.json -w "HTTP %{http_code}\n"
+          echo "Réponse du serveur :"
+          cat response.json
