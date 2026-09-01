@@ -37,6 +37,7 @@ jobs:
           cp alpha/vitrine.html deploy-alpha/vitrine.html
           cp alpha/vitrine-admin.html deploy-alpha/vitrine-admin.html
           cp alpha/lancement.html deploy-alpha/lancement.html
+          cp alpha/decouverte.html deploy-alpha/decouverte.html
 
       - name: Déploie sur Netlify (site + fonctions backend)
         uses: netlify/actions/cli@master
