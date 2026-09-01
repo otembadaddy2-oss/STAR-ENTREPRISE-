@@ -13,6 +13,7 @@
     --navy:#0B132A; --navy-2:#131E3A; --navy-3:#1B2A52;
     --gold:#C9A227; --gold-2:#E8CA6B; --gold-deep:#8A6A16; --gold-glow:rgba(201,162,39,.55);
     --green:#1EA35A; --green-2:#5CD98A; --green-deep:#0E5A32;
+    --sky:#4FC3F7; --sky-2:#A6E4FF; --sky-deep:#1B6E96;
     --off:#F3EFE4;
   }
   *{ box-sizing:border-box; margin:0; padding:0; }
@@ -29,6 +30,12 @@
   /* ---------- Background ---------- */
   #bg{ position:fixed; inset:0; z-index:0; overflow:hidden; background:
        radial-gradient(120% 90% at 50% -10%, #16224a 0%, var(--navy) 55%, #070c1c 100%); }
+  #leftPattern{ position:fixed; left:0; top:0; width:52vw; height:100vh; z-index:0; pointer-events:none;
+       background-image:url("assets/img/pattern-tribal.webp"); background-size:cover; background-position:center;
+       opacity:.16; -webkit-mask-image:linear-gradient(90deg, #000 0%, #000 65%, transparent 100%);
+       mask-image:linear-gradient(90deg, #000 0%, #000 65%, transparent 100%); }
+  #leftPattern::after{ content:""; position:absolute; inset:0;
+       background:linear-gradient(120deg, rgba(14,90,50,.55), rgba(11,19,42,.25) 60%, transparent 100%); }
   .blob{ position:absolute; border-radius:50%; filter:blur(60px); opacity:.5; }
   .blob.b1{ width:50vw; height:50vw; left:-14vw; top:-12vw; background:radial-gradient(circle, var(--gold-glow), transparent 70%); animation:drift1 22s ease-in-out infinite alternate; }
   .blob.b2{ width:44vw; height:44vw; right:-14vw; top:8vh; background:radial-gradient(circle, rgba(18,48,110,.55), transparent 70%); animation:drift2 26s ease-in-out infinite alternate; }
@@ -78,8 +85,9 @@
           max-width:580px; margin-bottom:18px; }
   .quote .hl{ background:linear-gradient(100deg, var(--gold-2), var(--gold)); -webkit-background-clip:text;
               background-clip:text; color:transparent; font-weight:800; }
-  .quote .w{ display:inline-block; opacity:0; transform:translateY(10px); animation:wordIn .5s ease-out forwards; }
-  @keyframes wordIn{ to{ opacity:1; transform:translateY(0); } }
+  .quote .w{ display:inline-block; opacity:0; transform:translateY(10px);
+             transition:opacity .5s ease-out, transform .5s ease-out; }
+  .quote .w.show{ opacity:1; transform:translateY(0); }
   @keyframes slideUp{ from{opacity:0; transform:translateY(16px);} to{opacity:1; transform:translateY(0);} }
 
   .credit{ font-size:.86rem; color:#9FA6BE; margin-bottom:28px;
@@ -113,29 +121,30 @@
   @keyframes shine{ 0%{ left:-60%; } 35%{ left:130%; } 100%{ left:130%; } }
 
   /* ---------- Marquee ---------- */
-  .mq-wrap{ position:relative; z-index:3; width:100%; overflow:hidden; padding:22px 0;
-            border-top:1px solid rgba(255,255,255,.08); border-bottom:1px solid rgba(255,255,255,.08);
-            background:rgba(255,255,255,.02); margin-bottom:40px;
+  .mq-wrap{ position:relative; z-index:3; width:100%; overflow:hidden; padding:30px 0;
+            border-top:1px solid rgba(79,195,247,.25); border-bottom:1px solid rgba(79,195,247,.25);
+            background:linear-gradient(180deg, rgba(79,195,247,.07), rgba(79,195,247,.02)); margin-bottom:40px;
             opacity:0; animation:fadeIn .7s ease-out .9s forwards; }
-  .mq-title{ text-align:center; font-size:.72rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
-             color:#8A93AD; margin-bottom:16px; }
-  .mq{ display:flex; width:max-content; gap:18px; animation:mqScroll 34s linear infinite; padding:0 18px; }
+  .mq-title{ text-align:center; font-size:.86rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+             color:var(--sky); margin-bottom:20px; }
+  .mq{ display:flex; width:max-content; gap:22px; animation:mqScroll 34s linear infinite; padding:0 18px; }
   .mq-wrap:hover .mq{ animation-play-state:paused; }
-  .mq-card{ position:relative; flex:none; width:170px; height:212px; border-radius:14px; overflow:hidden;
-            box-shadow:0 14px 30px rgba(0,0,0,.4); border:1px solid rgba(255,255,255,.08); }
+  .mq-card{ position:relative; flex:none; width:210px; height:262px; border-radius:16px; overflow:hidden;
+            box-shadow:0 16px 34px rgba(0,0,0,.45); border:1px solid rgba(79,195,247,.3); }
   .mq-card img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .mq-card::after{ content:""; position:absolute; inset:0; background:linear-gradient(0deg, rgba(4,8,20,.88) 0%, rgba(4,8,20,.15) 55%, transparent 75%); }
-  .mq-cap{ position:absolute; left:0; right:0; bottom:0; z-index:1; padding:12px 12px 10px;
-           font-family:"Unbounded",sans-serif; font-size:.72rem; font-weight:700; color:#fff; line-height:1.3; }
-  .mq-cap span{ display:block; font-family:"Manrope",sans-serif; font-weight:600; font-size:.64rem; color:var(--gold-2); margin-top:2px; }
+  .mq-card::after{ content:""; position:absolute; inset:0; background:linear-gradient(0deg, rgba(4,8,20,.9) 0%, rgba(4,8,20,.2) 55%, transparent 75%); }
+  .mq-cap{ position:absolute; left:0; right:0; bottom:0; z-index:1; padding:16px 14px 14px;
+           font-family:"Unbounded",sans-serif; font-size:.88rem; font-weight:700; color:#fff; line-height:1.35;
+           text-align:center; }
+  .mq-cap span{ display:block; font-family:"Manrope",sans-serif; font-weight:600; font-size:.74rem; color:var(--sky-2); margin-top:4px; }
   @keyframes mqScroll{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
 
   /* ---------- Footer ---------- */
   footer{ position:relative; z-index:3; width:100%; max-width:720px; padding:0 24px 40px;
           display:flex; flex-direction:column; align-items:center; gap:16px; text-align:center; }
-  .foot-brand{ display:flex; align-items:center; gap:10px; opacity:.9; }
-  .foot-brand img{ width:26px; height:26px; object-fit:contain; }
-  .foot-brand span{ font-size:.78rem; color:#9FA6BE; }
+  .foot-brand{ display:flex; align-items:center; gap:12px; opacity:.95; }
+  .foot-brand img{ width:46px; height:46px; object-fit:contain; }
+  .foot-brand span{ font-size:.82rem; color:#9FA6BE; }
   .foot-brand b{ color:var(--gold-2); font-family:"Unbounded",sans-serif; }
 
   .wa-line{ font-size:.88rem; color:#9FA6BE; }
@@ -164,6 +173,7 @@
 <body>
 
   <div id="bg"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+  <div id="leftPattern"></div>
   <div id="particles"></div>
   <div class="cursor-glow" id="cursorGlow"></div>
   <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
@@ -249,19 +259,17 @@ document.getElementById('goAlpha').addEventListener('click', function(){
   setTimeout(function(){ window.location.href = 'index.html'; }, 1450);
 });
 
-/* révélation du texte mot par mot */
+/* révélation du texte mot par mot, en boucle continue */
 (function(){
   var quote = document.querySelector('.quote');
   var nodes = Array.prototype.slice.call(quote.childNodes);
   quote.innerHTML = '';
-  var i = 0;
-  var STEP = 0.055;
+  var words = [];
   function wordSpan(text){
     var s = document.createElement('span');
     s.className = 'w';
-    s.style.animationDelay = (0.15 + i*STEP)+'s';
     s.textContent = text;
-    i++;
+    words.push(s);
     return s;
   }
   nodes.forEach(function(node){
@@ -273,11 +281,26 @@ document.getElementById('goAlpha').addEventListener('click', function(){
       });
     } else if(node.nodeType === 1){
       node.classList.add('w');
-      node.style.animationDelay = (0.15 + i*STEP)+'s';
-      i++;
+      words.push(node);
       quote.appendChild(node);
     }
   });
+
+  var STEP = 55, HOLD = 3200, FADE = 500, GAP = 700;
+  var timers = [];
+  function clearTimers(){ timers.forEach(clearTimeout); timers = []; }
+  function cycle(){
+    clearTimers();
+    words.forEach(function(w, i){
+      timers.push(setTimeout(function(){ w.classList.add('show'); }, 150 + i*STEP));
+    });
+    var revealEnd = 150 + words.length*STEP;
+    timers.push(setTimeout(function(){
+      words.forEach(function(w){ w.classList.remove('show'); });
+    }, revealEnd + HOLD));
+    timers.push(setTimeout(cycle, revealEnd + HOLD + FADE + GAP));
+  }
+  cycle();
 })();
 
 /* compteur animé 0 -> 100% */
