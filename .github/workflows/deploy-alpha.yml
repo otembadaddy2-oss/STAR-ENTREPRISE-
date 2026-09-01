@@ -38,6 +38,7 @@ jobs:
           cp alpha/vitrine-admin.html deploy-alpha/vitrine-admin.html
           cp alpha/lancement.html deploy-alpha/lancement.html
           cp alpha/decouverte.html deploy-alpha/decouverte.html
+          cp alpha/decouverte-alt.html deploy-alpha/decouverte-alt.html
           mkdir -p deploy-alpha/assets/img
           cp alpha/assets/img/*.webp deploy-alpha/assets/img/
 
