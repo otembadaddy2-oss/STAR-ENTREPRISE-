@@ -20,7 +20,6 @@
     --navy:#0B132A; --navy-2:#131E3A; --navy-3:#1B2A52;
     --gold:#C9A227; --gold-2:#E8CA6B; --gold-deep:#8A6A16; --gold-glow:rgba(201,162,39,.55);
     --green:#1EA35A; --green-2:#5CD98A; --green-deep:#0E5A32;
-    --sky:#4FC3F7; --sky-2:#A6E4FF; --sky-deep:#1B6E96;
     --off:#F3EFE4;
   }
   *{ box-sizing:border-box; margin:0; padding:0; }
@@ -129,21 +128,21 @@
 
   /* ---------- Marquee ---------- */
   .mq-wrap{ position:relative; z-index:3; width:100%; overflow:hidden; padding:30px 0;
-            border-top:1px solid rgba(79,195,247,.25); border-bottom:1px solid rgba(79,195,247,.25);
-            background:linear-gradient(180deg, rgba(79,195,247,.07), rgba(79,195,247,.02)); margin-bottom:40px;
+            border-top:1px solid rgba(201,162,39,.25); border-bottom:1px solid rgba(201,162,39,.25);
+            background:linear-gradient(180deg, rgba(201,162,39,.07), rgba(201,162,39,.02)); margin-bottom:40px;
             opacity:0; animation:fadeIn .7s ease-out .9s forwards; }
   .mq-title{ text-align:center; font-size:.86rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
-             color:var(--sky); margin-bottom:20px; }
-  .mq{ display:flex; width:max-content; gap:24px; animation:mqScroll 44s linear infinite; padding:0 18px; }
+             color:var(--gold-2); margin-bottom:20px; }
+  .mq{ display:flex; width:max-content; gap:24px; animation:mqScroll 50s linear infinite; padding:0 18px; }
   .mq-wrap:hover .mq{ animation-play-state:paused; }
   .mq-card{ position:relative; flex:none; width:270px; height:338px; border-radius:18px; overflow:hidden;
-            box-shadow:0 18px 40px rgba(0,0,0,.5); border:1px solid rgba(79,195,247,.32); }
+            box-shadow:0 18px 40px rgba(0,0,0,.5); border:1px solid rgba(201,162,39,.32); }
   .mq-card img{ width:100%; height:100%; object-fit:cover; display:block; }
   .mq-card::after{ content:""; position:absolute; inset:0; background:linear-gradient(0deg, rgba(4,8,20,.88) 0%, rgba(4,8,20,.15) 50%, transparent 72%); }
   .mq-cap{ position:absolute; left:0; right:0; bottom:0; z-index:1; padding:20px 16px 18px;
            font-family:"Unbounded",sans-serif; font-size:1.04rem; font-weight:700; color:#fff; line-height:1.35;
            text-align:center; }
-  .mq-cap span{ display:block; font-family:"Manrope",sans-serif; font-weight:600; font-size:.82rem; color:var(--sky-2); margin-top:5px; }
+  .mq-cap span{ display:block; font-family:"Manrope",sans-serif; font-weight:600; font-size:.82rem; color:var(--gold); margin-top:5px; }
   @keyframes mqScroll{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
 
   /* ---------- Footer ---------- */
@@ -194,8 +193,8 @@
     <div class="quote-mark">&ldquo;</div>
     <p class="quote">ALPHA gère vos <span class="hl">campagnes publicitaires</span> et votre
       <span class="hl">présence digitale</span> — la vitrine, le site web, l'application, l'événementiel.
-      Une seule équipe, un seul outil, pour toutes vos idées.</p>
-    <p class="credit">ALPHA — un produit <b>STAR CRÉAT</b>, membre du groupe STAR ENTREPRISE</p>
+      Stratégie, créativité, exécution : une seule équipe, un seul outil, pour révéler tout votre potentiel.</p>
+    <p class="credit">ALPHA — stratégie marketing digitale haut niveau, un produit <b>STAR CRÉAT</b>, membre du groupe STAR ENTREPRISE</p>
 
     <div class="badge">
       <div class="badge-stripe"></div>
@@ -212,15 +211,17 @@
     <p class="mq-title">Ce qu'on peut créer pour vous</p>
     <div class="mq">
       <div class="mq-card"><img src="assets/img/carousel-diamant.webp" alt="Restaurant, salles de sport, entreprise"><div class="mq-cap">Restaurant · Salle de sport<span>Une idée, un secteur — on s'occupe du reste</span></div></div>
-      <div class="mq-card"><img src="assets/img/carousel-siteweb.webp" alt="Packaging et identité produit"><div class="mq-cap">Packaging & identité produit<span>Emballage, mascotte, univers de marque</span></div></div>
+      <div class="mq-card"><img src="assets/img/carousel-services.webp" alt="Stratégie marketing digitale"><div class="mq-cap">Stratégie digitale haut niveau<span>Campagnes publicitaires pensées pour convertir</span></div></div>
+      <div class="mq-card"><img src="assets/img/carousel-idees.webp" alt="Toutes vos idées reçues"><div class="mq-cap">Vos idées, notre mission<span>Site web, application, événementiel…</span></div></div>
+      <div class="mq-card"><img src="assets/img/carousel-diamant.webp" alt="Réseaux sociaux et image de marque"><div class="mq-cap">Réseaux sociaux & image de marque<span>Une présence forte, du contenu qui marque</span></div></div>
       <div class="mq-card"><img src="assets/img/carousel-services.webp" alt="Tous vos projets réunis"><div class="mq-cap">Tous secteurs confondus<span>Restaurant, sport, entreprise, et bien plus</span></div></div>
-      <div class="mq-card"><img src="assets/img/carousel-branding.webp" alt="Identité de marque"><div class="mq-cap">Identité de marque<span>Logo, affiches, univers visuel complet</span></div></div>
-      <div class="mq-card"><img src="assets/img/carousel-idees.webp" alt="Toutes vos idées reçues"><div class="mq-cap">Vos idées, notre mission<span>Projets, logos, stratégie marketing…</span></div></div>
+      <div class="mq-card"><img src="assets/img/carousel-idees.webp" alt="Potentiel marketing ALPHA"><div class="mq-cap">Votre potentiel, révélé<span>Stratégie, créativité, exécution — un seul outil</span></div></div>
       <div class="mq-card"><img src="assets/img/carousel-diamant.webp" alt="Restaurant, salles de sport, entreprise"><div class="mq-cap">Restaurant · Salle de sport<span>Une idée, un secteur — on s'occupe du reste</span></div></div>
-      <div class="mq-card"><img src="assets/img/carousel-siteweb.webp" alt="Packaging et identité produit"><div class="mq-cap">Packaging & identité produit<span>Emballage, mascotte, univers de marque</span></div></div>
+      <div class="mq-card"><img src="assets/img/carousel-services.webp" alt="Stratégie marketing digitale"><div class="mq-cap">Stratégie digitale haut niveau<span>Campagnes publicitaires pensées pour convertir</span></div></div>
+      <div class="mq-card"><img src="assets/img/carousel-idees.webp" alt="Toutes vos idées reçues"><div class="mq-cap">Vos idées, notre mission<span>Site web, application, événementiel…</span></div></div>
+      <div class="mq-card"><img src="assets/img/carousel-diamant.webp" alt="Réseaux sociaux et image de marque"><div class="mq-cap">Réseaux sociaux & image de marque<span>Une présence forte, du contenu qui marque</span></div></div>
       <div class="mq-card"><img src="assets/img/carousel-services.webp" alt="Tous vos projets réunis"><div class="mq-cap">Tous secteurs confondus<span>Restaurant, sport, entreprise, et bien plus</span></div></div>
-      <div class="mq-card"><img src="assets/img/carousel-branding.webp" alt="Identité de marque"><div class="mq-cap">Identité de marque<span>Logo, affiches, univers visuel complet</span></div></div>
-      <div class="mq-card"><img src="assets/img/carousel-idees.webp" alt="Toutes vos idées reçues"><div class="mq-cap">Vos idées, notre mission<span>Projets, logos, stratégie marketing…</span></div></div>
+      <div class="mq-card"><img src="assets/img/carousel-idees.webp" alt="Potentiel marketing ALPHA"><div class="mq-cap">Votre potentiel, révélé<span>Stratégie, créativité, exécution — un seul outil</span></div></div>
     </div>
   </div>
 
