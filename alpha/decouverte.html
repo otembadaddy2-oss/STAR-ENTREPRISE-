@@ -31,7 +31,7 @@
        radial-gradient(120% 90% at 50% -10%, #16224a 0%, var(--navy) 55%, #070c1c 100%); }
   .blob{ position:absolute; border-radius:50%; filter:blur(60px); opacity:.5; }
   .blob.b1{ width:50vw; height:50vw; left:-14vw; top:-12vw; background:radial-gradient(circle, var(--gold-glow), transparent 70%); animation:drift1 22s ease-in-out infinite alternate; }
-  .blob.b2{ width:44vw; height:44vw; right:-14vw; top:8vh; background:radial-gradient(circle, rgba(46,100,224,.4), transparent 70%); animation:drift2 26s ease-in-out infinite alternate; }
+  .blob.b2{ width:44vw; height:44vw; right:-14vw; top:8vh; background:radial-gradient(circle, rgba(18,48,110,.55), transparent 70%); animation:drift2 26s ease-in-out infinite alternate; }
   .blob.b3{ width:38vw; height:38vw; left:22vw; bottom:-10vh; background:radial-gradient(circle, rgba(30,163,90,.32), transparent 70%); animation:drift3 20s ease-in-out infinite alternate; }
   @keyframes drift1{ from{ transform:translate(0,0) scale(1);} to{ transform:translate(6vw,4vh) scale(1.12);} }
   @keyframes drift2{ from{ transform:translate(0,0) scale(1);} to{ transform:translate(-5vw,-5vh) scale(1.15);} }
@@ -57,11 +57,13 @@
   .corner.br{ bottom:16px; right:16px; border-bottom:2px solid; border-right:2px solid; }
 
   /* ---------- Header ---------- */
-  header{ position:relative; z-index:3; width:100%; max-width:720px; padding:26px 24px 0;
-          display:flex; align-items:center; gap:10px; opacity:0; animation:fadeIn .7s ease-out .1s forwards; }
-  header img{ width:34px; height:34px; object-fit:contain; }
-  header b{ font-family:"Unbounded",sans-serif; font-weight:800; font-size:1rem; color:var(--gold-2); letter-spacing:.02em; }
-  header span{ font-size:.72rem; color:#8A93AD; }
+  header{ position:relative; z-index:3; width:100%; max-width:720px; padding:30px 24px 0;
+          display:flex; align-items:center; gap:14px; opacity:0; animation:fadeIn .7s ease-out .1s forwards; }
+  header img{ width:58px; height:58px; object-fit:contain; animation:headerLogoSpin 11s linear infinite;
+              filter:drop-shadow(0 0 12px rgba(201,162,39,.3)); }
+  @keyframes headerLogoSpin{ from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } }
+  header b{ font-family:"Unbounded",sans-serif; font-weight:800; font-size:1.14rem; color:var(--gold-2); letter-spacing:.02em; }
+  header span{ font-size:.76rem; color:#8A93AD; }
   @keyframes fadeIn{ from{opacity:0; transform:translateY(-6px);} to{opacity:1; transform:translateY(0);} }
 
   /* ---------- Quote hero ---------- */
@@ -111,14 +113,21 @@
   @keyframes shine{ 0%{ left:-60%; } 35%{ left:130%; } 100%{ left:130%; } }
 
   /* ---------- Marquee ---------- */
-  .mq-wrap{ position:relative; z-index:3; width:100%; overflow:hidden; padding:16px 0;
+  .mq-wrap{ position:relative; z-index:3; width:100%; overflow:hidden; padding:22px 0;
             border-top:1px solid rgba(255,255,255,.08); border-bottom:1px solid rgba(255,255,255,.08);
             background:rgba(255,255,255,.02); margin-bottom:40px;
             opacity:0; animation:fadeIn .7s ease-out .9s forwards; }
-  .mq{ display:flex; width:max-content; animation:mqScroll 28s linear infinite; }
-  .mq span{ display:flex; align-items:center; gap:10px; font-size:.86rem; font-weight:700; color:var(--off);
-            white-space:nowrap; padding:0 22px; }
-  .mq span::after{ content:"✦"; color:var(--gold); font-size:.7rem; }
+  .mq-title{ text-align:center; font-size:.72rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+             color:#8A93AD; margin-bottom:16px; }
+  .mq{ display:flex; width:max-content; gap:18px; animation:mqScroll 34s linear infinite; padding:0 18px; }
+  .mq-wrap:hover .mq{ animation-play-state:paused; }
+  .mq-card{ position:relative; flex:none; width:170px; height:212px; border-radius:14px; overflow:hidden;
+            box-shadow:0 14px 30px rgba(0,0,0,.4); border:1px solid rgba(255,255,255,.08); }
+  .mq-card img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .mq-card::after{ content:""; position:absolute; inset:0; background:linear-gradient(0deg, rgba(4,8,20,.88) 0%, rgba(4,8,20,.15) 55%, transparent 75%); }
+  .mq-cap{ position:absolute; left:0; right:0; bottom:0; z-index:1; padding:12px 12px 10px;
+           font-family:"Unbounded",sans-serif; font-size:.72rem; font-weight:700; color:#fff; line-height:1.3; }
+  .mq-cap span{ display:block; font-family:"Manrope",sans-serif; font-weight:600; font-size:.64rem; color:var(--gold-2); margin-top:2px; }
   @keyframes mqScroll{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
 
   /* ---------- Footer ---------- */
@@ -183,11 +192,18 @@
   </main>
 
   <div class="mq-wrap">
+    <p class="mq-title">Ce qu'on peut créer pour vous</p>
     <div class="mq">
-      <span>Site vitrine</span><span>Site web professionnel</span><span>Application mobile</span>
-      <span>Gestion d'événementiel</span><span>Disponible à 100%</span><span>Un service qui vous écoute</span>
-      <span>Site vitrine</span><span>Site web professionnel</span><span>Application mobile</span>
-      <span>Gestion d'événementiel</span><span>Disponible à 100%</span><span>Un service qui vous écoute</span>
+      <div class="mq-card"><img src="assets/img/carousel-diamant.webp" alt="Restaurant, salles de sport, entreprise"><div class="mq-cap">Restaurant · Salle de sport<span>Une idée, un secteur — on s'occupe du reste</span></div></div>
+      <div class="mq-card"><img src="assets/img/carousel-siteweb.webp" alt="Packaging et identité produit"><div class="mq-cap">Packaging & identité produit<span>Emballage, mascotte, univers de marque</span></div></div>
+      <div class="mq-card"><img src="assets/img/carousel-services.webp" alt="Tous vos projets réunis"><div class="mq-cap">Tous secteurs confondus<span>Restaurant, sport, entreprise, et bien plus</span></div></div>
+      <div class="mq-card"><img src="assets/img/carousel-branding.webp" alt="Identité de marque"><div class="mq-cap">Identité de marque<span>Logo, affiches, univers visuel complet</span></div></div>
+      <div class="mq-card"><img src="assets/img/carousel-idees.webp" alt="Toutes vos idées reçues"><div class="mq-cap">Vos idées, notre mission<span>Projets, logos, stratégie marketing…</span></div></div>
+      <div class="mq-card"><img src="assets/img/carousel-diamant.webp" alt="Restaurant, salles de sport, entreprise"><div class="mq-cap">Restaurant · Salle de sport<span>Une idée, un secteur — on s'occupe du reste</span></div></div>
+      <div class="mq-card"><img src="assets/img/carousel-siteweb.webp" alt="Packaging et identité produit"><div class="mq-cap">Packaging & identité produit<span>Emballage, mascotte, univers de marque</span></div></div>
+      <div class="mq-card"><img src="assets/img/carousel-services.webp" alt="Tous vos projets réunis"><div class="mq-cap">Tous secteurs confondus<span>Restaurant, sport, entreprise, et bien plus</span></div></div>
+      <div class="mq-card"><img src="assets/img/carousel-branding.webp" alt="Identité de marque"><div class="mq-cap">Identité de marque<span>Logo, affiches, univers visuel complet</span></div></div>
+      <div class="mq-card"><img src="assets/img/carousel-idees.webp" alt="Toutes vos idées reçues"><div class="mq-cap">Vos idées, notre mission<span>Projets, logos, stratégie marketing…</span></div></div>
     </div>
   </div>
 

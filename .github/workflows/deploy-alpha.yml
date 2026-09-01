@@ -38,6 +38,8 @@ jobs:
           cp alpha/vitrine-admin.html deploy-alpha/vitrine-admin.html
           cp alpha/lancement.html deploy-alpha/lancement.html
           cp alpha/decouverte.html deploy-alpha/decouverte.html
+          mkdir -p deploy-alpha/assets/img
+          cp alpha/assets/img/*.webp deploy-alpha/assets/img/
 
       - name: Déploie sur Netlify (site + fonctions backend)
         uses: netlify/actions/cli@master
