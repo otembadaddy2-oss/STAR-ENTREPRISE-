@@ -41,6 +41,7 @@ jobs:
           cp alpha/decouverte-alt.html deploy-alpha/decouverte-alt.html
           mkdir -p deploy-alpha/assets/img
           cp alpha/assets/img/*.webp deploy-alpha/assets/img/
+          cp alpha/assets/img/*.jpg deploy-alpha/assets/img/
 
       - name: Déploie sur Netlify (site + fonctions backend)
         uses: netlify/actions/cli@master
