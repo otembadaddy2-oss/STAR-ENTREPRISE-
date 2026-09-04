@@ -190,6 +190,79 @@ export async function ensureSchema() {
     )
   `;
 
+  // STAR Marketplace — comptes vendeurs/acheteurs (distincts des comptes
+  // staff `accounts`), annonces payantes à durée déterminée, et commandes
+  // dont le paiement n'est validé que si le montant reçu correspond
+  // exactement au montant attendu.
+  await sql`
+    CREATE TABLE IF NOT EXISTS marketplace_users (
+      id SERIAL PRIMARY KEY,
+      email TEXT UNIQUE NOT NULL,
+      password_hash TEXT NOT NULL,
+      nom TEXT NOT NULL,
+      telephone TEXT DEFAULT '',
+      ville TEXT DEFAULT '',
+      est_vendeur BOOLEAN NOT NULL DEFAULT false,
+      failed_attempts INTEGER NOT NULL DEFAULT 0,
+      locked_until TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS marketplace_listings (
+      id SERIAL PRIMARY KEY,
+      seller_id INTEGER NOT NULL REFERENCES marketplace_users(id) ON DELETE CASCADE,
+      titre TEXT NOT NULL,
+      description TEXT DEFAULT '',
+      categorie TEXT DEFAULT 'autre',
+      prix INTEGER NOT NULL,
+      devise TEXT NOT NULL DEFAULT 'FCFA',
+      photos TEXT DEFAULT '[]',
+      ville TEXT DEFAULT '',
+      duree_jours INTEGER NOT NULL DEFAULT 30,
+      statut TEXT NOT NULL DEFAULT 'en_attente_paiement',
+      expire_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS marketplace_listing_payments (
+      id SERIAL PRIMARY KEY,
+      listing_id INTEGER NOT NULL REFERENCES marketplace_listings(id) ON DELETE CASCADE,
+      montant_attendu INTEGER NOT NULL,
+      montant_recu INTEGER,
+      devise TEXT NOT NULL DEFAULT 'FCFA',
+      methode TEXT DEFAULT '',
+      reference_transaction TEXT DEFAULT '',
+      statut TEXT NOT NULL DEFAULT 'en_attente',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      validated_at TIMESTAMPTZ
+    )
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS marketplace_orders (
+      id SERIAL PRIMARY KEY,
+      listing_id INTEGER NOT NULL REFERENCES marketplace_listings(id) ON DELETE CASCADE,
+      buyer_id INTEGER REFERENCES marketplace_users(id) ON DELETE SET NULL,
+      acheteur_nom TEXT NOT NULL,
+      acheteur_telephone TEXT NOT NULL,
+      acheteur_email TEXT DEFAULT '',
+      quantite INTEGER NOT NULL DEFAULT 1,
+      montant_attendu INTEGER NOT NULL,
+      montant_recu INTEGER,
+      devise TEXT NOT NULL DEFAULT 'FCFA',
+      methode_paiement TEXT DEFAULT '',
+      reference_transaction TEXT DEFAULT '',
+      statut TEXT NOT NULL DEFAULT 'en_attente_paiement',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
   await sql`
     CREATE TABLE IF NOT EXISTS jardis_log (
       id SERIAL PRIMARY KEY,

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vendre — STAR Marketplace</title>
+<meta name="description" content="Déposez votre produit ou service sur STAR Marketplace : inscription, annonce, et paiement de votre espace pour une durée déterminée.">
+<meta name="theme-color" content="#06070f">
+<link rel="icon" href="../assets/img/icons/favicon-star-rounded-v1.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap"></noscript>
+<link rel="stylesheet" href="../assets/css/style-v6.css">
+<link rel="stylesheet" href="../assets/css/effects-v1.css">
+<style>
+  .mk-wrap{ max-width:640px; margin:0 auto; padding:150px 20px 90px; }
+  .mk-step{ display:none; }
+  .mk-step.active{ display:block; }
+  .mk-card2{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:34px; }
+  .mk-tabs{ display:flex; gap:8px; margin-bottom:26px; }
+  .mk-tab{ flex:1; padding:12px; text-align:center; border-radius:12px; border:1px solid var(--border-strong);
+           background:rgba(255,255,255,.02); font-weight:700; font-size:.88rem; cursor:pointer; color:var(--text-dim); }
+  .mk-tab.active{ background:var(--grad-diamond); color:#0a0a12; border-color:transparent; }
+  .checkbox-row{ display:flex; align-items:center; gap:10px; margin:14px 0 20px; font-size:.9rem; color:var(--text-dim); }
+  .mk-msg{ border-radius:12px; padding:14px 16px; margin-bottom:18px; font-size:.88rem; display:none; }
+  .mk-msg.err{ background:rgba(255,110,110,.12); border:1px solid rgba(255,110,110,.35); color:#ffc9c9; display:block; }
+  .mk-msg.ok{ background:rgba(60,232,107,.12); border:1px solid rgba(60,232,107,.35); color:#bdf5cf; display:block; }
+  .pay-box{ background:#f6f4ff; color:#111; border-radius:14px; padding:24px; text-align:center; margin:20px 0; }
+  .pay-box .amount{ font-family:var(--ff-heading); font-size:2.1rem; font-weight:800; color:#3d2c8d; margin:8px 0; }
+  .pay-status{ font-size:.86rem; margin-top:14px; padding:10px; border-radius:10px; }
+  .pay-status.waiting{ background:rgba(255,159,67,.14); color:#8a5a17; }
+  .pay-status.valide{ background:rgba(60,178,107,.14); color:#1c6b3d; }
+  .pay-status.invalide{ background:rgba(255,90,90,.14); color:#a02020; }
+  .photo-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+  .photo-row img{ width:70px; height:70px; object-fit:cover; border-radius:8px; border:1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <a href="index.html" class="brand">
+      <img class="brand-mark" src="../assets/img/logo-star-rounded-v1.webp" alt="STAR ENTREPRISE">
+      <span>STAR Marketplace<small>par STAR ENTREPRISE</small></span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Explorer</a>
+      <a href="vendre.html" class="active">Vendre</a>
+      <a href="../index.html">Site STAR ENTREPRISE</a>
+    </div>
+    <div class="nav-actions">
+      <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="mk-wrap">
+
+  <!-- Étape 1 — connexion / inscription vendeur -->
+  <section class="mk-step active" id="stepAuth">
+    <div class="eyebrow"><span class="dot"></span> Espace vendeur</div>
+    <h1 style="margin-bottom:26px;">Commence à vendre.</h1>
+    <div class="mk-card2">
+      <div class="mk-tabs">
+        <div class="mk-tab active" data-tab="login">Se connecter</div>
+        <div class="mk-tab" data-tab="register">Créer un compte</div>
+      </div>
+      <div class="mk-msg" id="authMsg"></div>
+
+      <form id="loginForm">
+        <div class="field"><label>Email</label><input type="email" id="loginEmail" required></div>
+        <div class="field"><label>Mot de passe</label><input type="password" id="loginPassword" required></div>
+        <button type="submit" class="btn btn-primary btn-block">Se connecter</button>
+      </form>
+
+      <form id="registerForm" style="display:none;">
+        <div class="field-row">
+          <div class="field"><label>Nom complet</label><input type="text" id="regNom" required></div>
+          <div class="field"><label>Téléphone</label><input type="tel" id="regTelephone" required></div>
+        </div>
+        <div class="field"><label>Ville</label><input type="text" id="regVille"></div>
+        <div class="field"><label>Email</label><input type="email" id="regEmail" required></div>
+        <div class="field"><label>Mot de passe (8 caractères min.)</label><input type="password" id="regPassword" minlength="8" required></div>
+        <button type="submit" class="btn btn-primary btn-block">Créer mon compte vendeur</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Étape 2 — dépôt de l'annonce -->
+  <section class="mk-step" id="stepListing">
+    <div class="eyebrow"><span class="dot"></span> Ton annonce</div>
+    <h1 style="margin-bottom:26px;">Décris ton produit ou service.</h1>
+    <div class="mk-card2">
+      <div class="mk-msg" id="listingMsg"></div>
+      <form id="listingForm">
+        <div class="field"><label>Titre</label><input type="text" id="lTitre" maxlength="200" required></div>
+        <div class="field"><label>Description</label><textarea id="lDescription" maxlength="4000"></textarea></div>
+        <div class="field-row">
+          <div class="field">
+            <label>Catégorie</label>
+            <select id="lCategorie">
+              <option value="mode">Mode</option>
+              <option value="electronique">Électronique</option>
+              <option value="maison">Maison</option>
+              <option value="beaute">Beauté</option>
+              <option value="alimentation">Alimentation</option>
+              <option value="services">Services</option>
+              <option value="vehicules">Véhicules</option>
+              <option value="immobilier">Immobilier</option>
+              <option value="autre" selected>Autre</option>
+            </select>
+          </div>
+          <div class="field"><label>Ville</label><input type="text" id="lVille"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Prix (FCFA)</label><input type="number" id="lPrix" min="1" required></div>
+          <div class="field">
+            <label>Durée de l'annonce</label>
+            <select id="lDuree">
+              <option value="7">7 jours</option>
+              <option value="30" selected>30 jours</option>
+              <option value="90">90 jours</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Photos (optionnel)</label>
+          <input type="file" id="lPhotos" accept="image/*" multiple>
+          <div class="photo-row" id="photoPreview"></div>
+          <p class="form-note">6 photos maximum, 2 Mo par photo.</p>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Continuer vers le paiement de l'espace</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Étape 3 — paiement de l'espace -->
+  <section class="mk-step" id="stepPay">
+    <div class="eyebrow"><span class="dot"></span> Dernière étape</div>
+    <h1 style="margin-bottom:26px;">Paye ton espace pour publier.</h1>
+    <div class="mk-card2">
+      <p style="color:var(--text-dim);">Ton annonce est enregistrée mais pas encore visible. Elle passera en ligne automatiquement dès que le paiement ci-dessous sera confirmé.</p>
+      <div class="pay-box">
+        <div>Montant à payer</div>
+        <div class="amount" id="payAmount">—</div>
+        <div style="font-size:.82rem; color:#555;">Mobile Money, carte ou PayPal — les moyens de paiement en ligne seront activés prochainement.</div>
+        <div class="pay-status waiting" id="payStatus">En attente de confirmation du paiement…</div>
+      </div>
+      <p class="form-note">En attendant l'activation des paiements en ligne, contacte-nous sur WhatsApp pour finaliser le paiement de ton espace : <a href="https://wa.me/242066565050" target="_blank" rel="noopener" style="color:var(--gold-2);">+242 06 656 50 50</a>.</p>
+      <a href="index.html" class="btn btn-ghost btn-block" style="margin-top:16px;">Retour à l'accueil</a>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-bottom">
+      <span>© STAR ENTREPRISE — STAR Marketplace</span>
+      <a href="https://wa.me/242066565050" target="_blank" rel="noopener">+242 06 656 50 50</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var navToggle = document.getElementById('navToggle');
+  var navLinks = document.getElementById('navLinks');
+  navToggle && navToggle.addEventListener('click', function(){ navLinks.classList.toggle('open'); });
+})();
+
+(function(){
+  var TOKEN_KEY = 'mk_token';
+  var token = localStorage.getItem(TOKEN_KEY);
+
+  var stepAuth = document.getElementById('stepAuth');
+  var stepListing = document.getElementById('stepListing');
+  var stepPay = document.getElementById('stepPay');
+
+  function showStep(step){
+    [stepAuth, stepListing, stepPay].forEach(function(s){ s.classList.remove('active'); });
+    step.classList.add('active');
+  }
+
+  function showMsg(el, text, ok){
+    el.textContent = text;
+    el.className = 'mk-msg ' + (ok ? 'ok' : 'err');
+  }
+
+  // --- Onglets connexion / inscription ---
+  var tabs = document.querySelectorAll('.mk-tab');
+  var loginForm = document.getElementById('loginForm');
+  var registerForm = document.getElementById('registerForm');
+  tabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      tabs.forEach(function(t){ t.classList.remove('active'); });
+      tab.classList.add('active');
+      var isLogin = tab.dataset.tab === 'login';
+      loginForm.style.display = isLogin ? 'block' : 'none';
+      registerForm.style.display = isLogin ? 'none' : 'block';
+    });
+  });
+
+  function afterAuth(data){
+    token = data.token;
+    localStorage.setItem(TOKEN_KEY, token);
+    if (!data.user.estVendeur) {
+      showMsg(document.getElementById('authMsg'), "Ce compte n'est pas un compte vendeur. Crée un compte vendeur pour déposer une annonce.", false);
+      return;
+    }
+    showStep(stepListing);
+  }
+
+  loginForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    fetch('/api/marketplace-auth', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        action: 'login',
+        email: document.getElementById('loginEmail').value,
+        password: document.getElementById('loginPassword').value,
+      }),
+    }).then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); })
+      .then(function(res){
+        if (!res.ok) return showMsg(document.getElementById('authMsg'), res.d.error || 'Erreur de connexion', false);
+        afterAuth(res.d);
+      });
+  });
+
+  registerForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    fetch('/api/marketplace-auth', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        action: 'register',
+        nom: document.getElementById('regNom').value,
+        telephone: document.getElementById('regTelephone').value,
+        ville: document.getElementById('regVille').value,
+        email: document.getElementById('regEmail').value,
+        password: document.getElementById('regPassword').value,
+        estVendeur: true,
+      }),
+    }).then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); })
+      .then(function(res){
+        if (!res.ok) return showMsg(document.getElementById('authMsg'), res.d.error || 'Erreur de création de compte', false);
+        afterAuth(res.d);
+      });
+  });
+
+  // --- Photos (aperçu local, converties en base64 pour l'envoi) ---
+  var photos = [];
+  document.getElementById('lPhotos').addEventListener('change', function(e){
+    var files = Array.from(e.target.files).slice(0, 6);
+    var preview = document.getElementById('photoPreview');
+    preview.innerHTML = '';
+    photos = [];
+    files.forEach(function(file){
+      if (file.size > 2 * 1024 * 1024) return;
+      var reader = new FileReader();
+      reader.onload = function(ev){
+        photos.push(ev.target.result);
+        var img = document.createElement('img');
+        img.src = ev.target.result;
+        preview.appendChild(img);
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+
+  // --- Dépôt de l'annonce ---
+  var listingId = null;
+  document.getElementById('listingForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    fetch('/api/marketplace-listings', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: 'Bearer ' + token },
+      body: JSON.stringify({
+        titre: document.getElementById('lTitre').value,
+        description: document.getElementById('lDescription').value,
+        categorie: document.getElementById('lCategorie').value,
+        ville: document.getElementById('lVille').value,
+        prix: Number(document.getElementById('lPrix').value),
+        dureeJours: Number(document.getElementById('lDuree').value),
+        photos: photos,
+      }),
+    }).then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); })
+      .then(function(res){
+        if (!res.ok) return showMsg(document.getElementById('listingMsg'), res.d.error || 'Erreur lors du dépôt', false);
+        listingId = res.d.listing.id;
+        document.getElementById('payAmount').textContent =
+          res.d.paiementEspace.montantAttendu.toLocaleString('fr-FR') + ' ' + res.d.paiementEspace.devise;
+        showStep(stepPay);
+        pollPayment();
+      });
+  });
+
+  // --- Suivi du paiement en temps réel ---
+  function pollPayment(){
+    if (!listingId) return;
+    fetch('/api/marketplace-payments?kind=listing&id=' + listingId)
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        var statusEl = document.getElementById('payStatus');
+        var statut = d.paiement && d.paiement.statut;
+        if (statut === 'valide') {
+          statusEl.className = 'pay-status valide';
+          statusEl.textContent = 'Paiement confirmé — ton annonce est en ligne !';
+          return;
+        }
+        if (statut === 'invalide') {
+          statusEl.className = 'pay-status invalide';
+          statusEl.textContent = 'Montant reçu incorrect — contacte-nous sur WhatsApp pour régulariser.';
+          return;
+        }
+        setTimeout(pollPayment, 8000);
+      })
+      .catch(function(){ setTimeout(pollPayment, 8000); });
+  }
+
+  if (token) {
+    fetch('/api/marketplace-auth', { headers: { authorization: 'Bearer ' + token } })
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(d){ if (d && d.user && d.user.estVendeur) showStep(stepListing); });
+  }
+})();
+</script>
+</body>
+</html>
