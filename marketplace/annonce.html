@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Annonce — STAR Marketplace</title>
+<meta name="description" content="Découvrez ce produit ou service sur STAR Marketplace et commandez en toute confiance, avec un paiement Mobile Money vérifié.">
+<meta name="theme-color" content="#F7F5F0">
+<link rel="icon" href="assets/img/logo-icon.webp" type="image/webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FBF9F5; --bg-soft:#F3EFE7; --card:#FFFFFF;
+    --navy:#0E1B34; --navy-2:#1B3A6B; --blue:#2F6FED; --blue-2:#5B93FF;
+    --green:#2FA36B; --green-2:#7FD9A8; --maroon:#5C2A22; --purple:#6C3FC5;
+    --gold:#C9982F; --gold-2:#E8C468;
+    --ink:#171B26; --mute:#5B6478; --line:#E7E1D6;
+    --ff-head:"Fraunces", Georgia, serif; --ff-body:"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+    --grad-luxe: linear-gradient(115deg, var(--navy) 0%, var(--blue) 48%, var(--purple) 100%);
+    --radius:20px; --radius-lg:28px; --shadow: 0 20px 50px -20px rgba(14,27,52,.25);
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  body{ background:var(--bg); color:var(--ink); font-family:var(--ff-body); font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+  a{ color:inherit; text-decoration:none; }
+  img{ max-width:100%; display:block; }
+  h1,h2,h3{ font-family:var(--ff-head); font-weight:700; letter-spacing:-.01em; line-height:1.16; color:var(--navy); }
+  p{ color:var(--mute); }
+  .container{ max-width:1240px; margin:0 auto; padding:0 24px; }
+
+  /* Nav (identique aux autres pages) */
+  .navbar{ position:fixed; top:0; left:0; right:0; z-index:100; padding:18px 0; transition:.3s; }
+  .navbar.scrolled{ padding:12px 0; background:rgba(251,249,245,.85); backdrop-filter:blur(14px) saturate(140%); border-bottom:1px solid var(--line); }
+  .navbar .container{ display:flex; align-items:center; justify-content:space-between; }
+  .brand{ display:flex; align-items:center; gap:10px; font-family:var(--ff-head); font-weight:700; font-size:1.1rem; color:var(--navy); }
+  .brand img{ width:42px; height:auto; }
+  .brand small{ display:block; font-family:var(--ff-body); font-weight:600; font-size:.6rem; letter-spacing:.14em; color:var(--mute); text-transform:uppercase; }
+  .nav-links{ display:flex; align-items:center; gap:4px; }
+  .nav-links a{ padding:10px 16px; border-radius:999px; font-size:.92rem; font-weight:600; color:var(--navy); transition:.2s; }
+  .nav-links a.active, .nav-links a:hover{ background:rgba(47,111,237,.1); color:var(--blue); }
+  .nav-toggle{ display:none; width:44px; height:44px; align-items:center; justify-content:center; border-radius:12px; background:rgba(14,27,52,.05); border:1px solid var(--line); }
+  .nav-toggle span, .nav-toggle span::before, .nav-toggle span::after{ content:""; display:block; width:18px; height:2px; background:var(--navy); position:relative; }
+  .nav-toggle span::before{ position:absolute; top:-6px; } .nav-toggle span::after{ position:absolute; top:6px; }
+  @media (max-width:960px){
+    .nav-links{ position:fixed; top:0; right:0; height:100vh; width:min(78vw,340px); flex-direction:column; align-items:stretch;
+                background:#fff; border-left:1px solid var(--line); padding:100px 24px 30px; transform:translateX(100%); transition:.35s; gap:4px; }
+    .nav-links.open{ transform:translateX(0); }
+    .nav-toggle{ display:flex; }
+  }
+
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:10px; padding:15px 30px; border-radius:999px;
+        font-weight:700; font-size:.96rem; border:1px solid transparent; transition:.25s; font-family:var(--ff-body); cursor:pointer; }
+  .btn-primary{ position:relative; overflow:hidden; background:var(--grad-luxe); color:#fff; box-shadow:0 14px 30px -10px rgba(47,111,237,.45); }
+  .btn-primary:hover{ transform:translateY(-3px); box-shadow:0 20px 40px -10px rgba(47,111,237,.55); }
+  .btn-primary::after{ content:""; position:absolute; top:0; left:-60%; width:40%; height:100%;
+        background:linear-gradient(115deg, transparent, rgba(255,255,255,.5), transparent); transform:skewX(-20deg); animation:shine 3.6s ease-in-out 1.4s infinite; }
+  @keyframes shine{ 0%{ left:-60%; } 35%{ left:130%; } 100%{ left:130%; } }
+  .btn-ghost{ background:#fff; color:var(--navy); border-color:var(--line); }
+  .btn-ghost:hover{ transform:translateY(-3px); box-shadow:var(--shadow); }
+  .btn-block{ width:100%; }
+  .btn.is-loading{ pointer-events:none; opacity:.85; }
+  .btn.is-loading::before{ content:""; width:16px; height:16px; border-radius:50%; border:2px solid rgba(255,255,255,.4);
+    border-top-color:#fff; animation:spin .7s linear infinite; margin-right:2px; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  .back-btn{ position:fixed; top:96px; left:20px; z-index:60; display:inline-flex; align-items:center; gap:8px;
+    padding:10px 16px 10px 12px; border-radius:999px; background:#fff; border:1px solid var(--line);
+    color:var(--navy); font-weight:600; font-size:.88rem; box-shadow:0 6px 18px rgba(14,27,52,.08); transition:.2s; }
+  .back-btn:hover{ background:var(--navy); color:#fff; transform:translateX(-2px); border-color:var(--navy); }
+  .back-btn svg{ width:16px; height:16px; }
+  @media (max-width:640px){ .back-btn{ top:82px; left:14px; padding:8px 14px 8px 10px; font-size:.82rem; } }
+
+  .eyebrow{ display:inline-flex; align-items:center; gap:8px; font-size:.78rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+            color:var(--maroon); background:rgba(92,42,34,.08); border:1px solid rgba(92,42,34,.22); padding:7px 16px; border-radius:999px; margin-bottom:16px; }
+  .eyebrow .dot{ width:6px; height:6px; border-radius:50%; background:var(--gold); box-shadow:0 0 10px var(--gold); }
+
+  .reveal{ opacity:0; transform:translateY(24px); transition:opacity .7s cubic-bezier(.2,.6,.2,1), transform .7s cubic-bezier(.2,.6,.2,1); }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  /* ---------- Page ---------- */
+  .an-wrap{ padding:150px 0 90px; }
+  .an-loading, .an-error{ text-align:center; padding:80px 24px; color:var(--mute); }
+  .an-error a{ color:var(--blue); font-weight:700; }
+
+  .an-grid{ display:grid; grid-template-columns:1.15fr .85fr; gap:48px; align-items:start; }
+  @media (max-width:900px){ .an-grid{ grid-template-columns:1fr; } }
+
+  .gallery-main{ border-radius:var(--radius-lg); overflow:hidden; height:440px; background:var(--bg-soft);
+        display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow); position:relative; }
+  .gallery-main img{ width:100%; height:100%; object-fit:cover; }
+  .gallery-main svg{ width:64px; height:64px; opacity:.3; color:var(--navy); }
+  .gallery-thumbs{ display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; }
+  .gallery-thumbs img{ width:74px; height:74px; object-fit:cover; border-radius:12px; cursor:pointer; border:2px solid transparent; transition:.2s; }
+  .gallery-thumbs img.active, .gallery-thumbs img:hover{ border-color:var(--blue); }
+  @media (max-width:640px){ .gallery-main{ height:300px; } }
+
+  .an-cat{ font-size:.72rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--purple); margin:26px 0 8px; display:block; }
+  .an-title{ font-size:clamp(1.8rem,3.6vw,2.5rem); margin-bottom:10px; }
+  .an-meta{ display:flex; gap:16px; flex-wrap:wrap; font-size:.88rem; color:var(--mute); margin-bottom:26px; }
+  .an-meta span{ display:inline-flex; align-items:center; gap:6px; }
+  .an-meta svg{ width:15px; height:15px; }
+  .an-desc{ white-space:pre-line; line-height:1.75; margin-bottom:30px; }
+
+  .seller-card{ background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:20px 22px; display:flex; align-items:center; gap:14px; margin-bottom:10px; }
+  .seller-avatar{ width:48px; height:48px; border-radius:50%; background:var(--grad-luxe); color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--ff-head); font-weight:700; font-size:1.1rem; flex:none; }
+  .seller-card h4{ font-size:.98rem; color:var(--navy); }
+  .seller-card .badge-ok{ display:inline-flex; align-items:center; gap:5px; font-size:.76rem; color:var(--green); font-weight:700; margin-top:2px; }
+  .seller-card .badge-ok svg{ width:13px; height:13px; }
+
+  /* ---------- Purchase panel ---------- */
+  .buy-card{ position:sticky; top:110px; background:var(--card); border:1px solid var(--line); border-radius:var(--radius-lg); padding:30px; box-shadow:var(--shadow); }
+  .buy-price{ font-family:var(--ff-head); font-weight:800; font-size:2.1rem; color:var(--navy); margin-bottom:4px; }
+  .buy-price small{ font-family:var(--ff-body); font-weight:600; font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; color:var(--mute); display:block; margin-bottom:6px; }
+  .stock-line{ display:flex; align-items:center; gap:8px; font-size:.85rem; color:var(--green); font-weight:700; margin:6px 0 22px; }
+  .stock-line .dot-ok{ width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 0 4px rgba(47,163,107,.18); }
+  .qty-row{ display:flex; align-items:center; gap:14px; margin-bottom:20px; }
+  .qty-row label{ font-size:.84rem; font-weight:700; color:var(--navy); }
+  .qty-stepper{ display:flex; align-items:center; border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+  .qty-stepper button{ width:38px; height:38px; background:var(--bg-soft); border:0; font-size:1.1rem; font-weight:700; color:var(--navy); cursor:pointer; }
+  .qty-stepper button:hover{ background:var(--line); }
+  .qty-stepper span{ width:42px; text-align:center; font-weight:700; }
+  .buy-total{ display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-top:1px dashed var(--line); margin-bottom:18px; font-weight:700; }
+  .buy-total b{ font-family:var(--ff-head); font-size:1.3rem; color:var(--blue); }
+  .trust-mini{ display:flex; gap:10px; margin-top:20px; font-size:.78rem; color:var(--mute); }
+  .trust-mini span{ display:flex; align-items:center; gap:6px; }
+  .trust-mini svg{ width:14px; height:14px; color:var(--green); flex:none; }
+
+  .field{ margin-bottom:16px; }
+  .field label{ display:block; font-size:.84rem; font-weight:700; margin-bottom:8px; color:var(--navy); }
+  .field input, .field select{ width:100%; padding:13px 16px; border-radius:12px; background:var(--bg-soft);
+        border:1px solid var(--line); color:var(--ink); font-size:.95rem; font-family:var(--ff-body); transition:.2s; }
+  .field input:focus, .field select:focus{ outline:0; border-color:var(--blue); background:#fff; }
+  .field-row{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:500px){ .field-row{ grid-template-columns:1fr; } }
+  .form-note{ font-size:.78rem; color:var(--mute); margin-top:10px; }
+  .mk-msg{ border-radius:12px; padding:14px 16px; margin-bottom:16px; font-size:.86rem; display:none; }
+  .mk-msg.err{ background:rgba(210,60,60,.09); border:1px solid rgba(210,60,60,.3); color:#a02020; display:block; }
+  .mk-msg.ok{ background:rgba(47,163,107,.1); border:1px solid rgba(47,163,107,.32); color:#1c6b3d; display:block; }
+
+  .buy-step{ display:none; }
+  .buy-step.active{ display:block; animation:fadeUp .5s ease-out; }
+  @keyframes fadeUp{ from{ opacity:0; transform:translateY(14px); } to{ opacity:1; transform:translateY(0); } }
+
+  .pay-box{ background:var(--grad-luxe); color:#fff; border-radius:16px; padding:24px; text-align:center; margin:6px 0 20px; }
+  .pay-box .amount{ font-family:var(--ff-head); font-size:1.9rem; font-weight:800; margin:6px 0; }
+  .mm-row{ display:flex; gap:8px; justify-content:center; margin:14px 0 4px; flex-wrap:wrap; }
+  .mm-chip{ background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.28); padding:8px 14px; border-radius:999px; font-size:.78rem; font-weight:700; }
+  .mm-number{ font-family:var(--ff-head); font-size:1.15rem; font-weight:700; margin-top:6px; }
+  .pay-status{ font-size:.84rem; margin-top:14px; padding:10px; border-radius:10px; background:rgba(255,255,255,.12); }
+  .pay-status.valide{ background:rgba(127,217,168,.28); }
+  .pay-status.invalide{ background:rgba(224,120,120,.28); }
+
+  footer{ border-top:1px solid var(--line); padding:44px 0 26px; background:var(--bg-soft); margin-top:70px; }
+  .footer-bottom{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; font-size:.82rem; color:var(--mute); }
+</style>
+</head>
+<body>
+
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <a href="index.html" class="brand">
+      <img src="assets/img/logo-icon.webp" alt="STAR Marketplace">
+      <span>STAR Marketplace<small>par STAR ENTREPRISE</small></span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Explorer</a>
+      <a href="vendre.html">Vendre</a>
+      <a href="compte.html">Mon compte</a>
+      <a href="../index.html">Site STAR ENTREPRISE</a>
+    </div>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span></button>
+  </div>
+</nav>
+
+<a href="index.html" class="back-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Retour</a>
+
+<div class="an-wrap container">
+  <div id="anLoading" class="an-loading">Chargement de l'annonce…</div>
+  <div id="anError" class="an-error" style="display:none;"></div>
+
+  <div id="anContent" style="display:none;">
+    <div class="an-grid">
+      <div class="reveal">
+        <div class="gallery-main" id="galleryMain"></div>
+        <div class="gallery-thumbs" id="galleryThumbs"></div>
+
+        <span class="an-cat" id="anCat"></span>
+        <h1 class="an-title" id="anTitre"></h1>
+        <div class="an-meta">
+          <span id="anVille"></span>
+          <span id="anDate"></span>
+        </div>
+        <p class="an-desc" id="anDesc"></p>
+
+        <div class="seller-card">
+          <div class="seller-avatar" id="sellerAvatar"></div>
+          <div>
+            <h4 id="sellerNom"></h4>
+            <span class="badge-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> Vendeur STAR Marketplace</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <div class="buy-card">
+
+          <div class="buy-step active" id="buyStepInfo">
+            <small style="font-family:var(--ff-body); font-weight:700; font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; color:var(--mute);">Prix</small>
+            <div class="buy-price" id="buyPrice">—</div>
+            <div class="stock-line"><span class="dot-ok"></span> Disponible — paiement vérifié à la commande</div>
+
+            <div class="qty-row">
+              <label>Quantité</label>
+              <div class="qty-stepper">
+                <button type="button" id="qtyMinus">−</button>
+                <span id="qtyVal">1</span>
+                <button type="button" id="qtyPlus">+</button>
+              </div>
+            </div>
+            <div class="buy-total"><span>Total</span><b id="buyTotal">—</b></div>
+
+            <button class="btn btn-primary btn-block" id="btnOrder">Commander</button>
+
+            <div class="trust-mini">
+              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> Paiement vérifié</span>
+              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> Mobile Money</span>
+            </div>
+          </div>
+
+          <div class="buy-step" id="buyStepForm">
+            <h3 style="font-size:1.15rem; margin-bottom:18px;">Tes coordonnées</h3>
+            <div class="mk-msg" id="orderMsg"></div>
+            <form id="orderForm">
+              <div class="field"><label>Nom complet</label><input type="text" id="oNom" required></div>
+              <div class="field-row">
+                <div class="field"><label>Téléphone</label><input type="tel" id="oTelephone" required></div>
+                <div class="field"><label>Email (optionnel)</label><input type="email" id="oEmail"></div>
+              </div>
+              <button type="submit" class="btn btn-primary btn-block">Continuer vers le paiement</button>
+            </form>
+            <button type="button" class="btn btn-ghost btn-block" style="margin-top:10px;" id="btnBackInfo">Retour</button>
+          </div>
+
+          <div class="buy-step" id="buyStepPay">
+            <h3 style="font-size:1.15rem; margin-bottom:14px;">Dépose via Mobile Money</h3>
+            <div class="pay-box">
+              <div style="font-size:.8rem; opacity:.85;">Montant à déposer</div>
+              <div class="amount" id="payAmount">—</div>
+              <div class="mm-row">
+                <span class="mm-chip">🟠 Airtel Money</span>
+                <span class="mm-chip">🟡 MTN Mobile Money</span>
+              </div>
+              <div style="font-size:.78rem; opacity:.85; margin-top:8px;">Numéro de dépôt</div>
+              <div class="mm-number">+242 06 656 50 50</div>
+              <div class="pay-status" id="payStatus">En attente de ta confirmation…</div>
+            </div>
+            <form id="confirmForm">
+              <div class="field-row">
+                <div class="field">
+                  <label>Opérateur utilisé</label>
+                  <select id="cOperateur">
+                    <option value="mobile_money">Airtel Money</option>
+                    <option value="mobile_money">MTN Mobile Money</option>
+                  </select>
+                </div>
+                <div class="field"><label>Référence transaction</label><input type="text" id="cReference" placeholder="Ex : MP240912.1234" required></div>
+              </div>
+              <div class="field"><label>Montant envoyé (FCFA)</label><input type="number" id="cMontant" min="1" required></div>
+              <button type="submit" class="btn btn-primary btn-block">Confirmer mon dépôt</button>
+              <p class="form-note">Le montant doit correspondre exactement à la somme affichée ci-dessus — sinon la confirmation sera rejetée automatiquement.</p>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="container footer-bottom">
+    <span>© STAR ENTREPRISE — STAR Marketplace</span>
+    <a href="https://wa.me/242066565050" target="_blank" rel="noopener" style="color:var(--navy); font-weight:600;">+242 06 656 50 50</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var navToggle = document.getElementById('navToggle');
+  var navLinks = document.getElementById('navLinks');
+  navToggle && navToggle.addEventListener('click', function(){ navLinks.classList.toggle('open'); });
+  window.addEventListener('scroll', function(){
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10);
+  });
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if (e.isIntersecting) e.target.classList.add('in'); });
+  }, { threshold: .1 });
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+})();
+
+(function(){
+  var CAT_LABELS = { mode:'Mode', electronique:'Électronique', maison:'Maison', beaute:'Beauté',
+    alimentation:'Alimentation', services:'Services', vehicules:'Véhicules', immobilier:'Immobilier', autre:'Autre' };
+
+  function svgPlaceholder(){
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 15l5-5 4 4 3-3 6 6"/><circle cx="8" cy="9" r="1.5"/></svg>';
+  }
+
+  function setLoading(form, on){
+    var btn = form.querySelector('button[type="submit"]');
+    if (!btn) return;
+    btn.classList.toggle('is-loading', on);
+    btn.disabled = on;
+  }
+
+  var listingId = new URLSearchParams(location.search).get('id');
+  if (!listingId) {
+    document.getElementById('anLoading').style.display = 'none';
+    document.getElementById('anError').style.display = 'block';
+    document.getElementById('anError').innerHTML = "<p>Aucune annonce sélectionnée. <a href='index.html'>Retourner aux annonces</a>.</p>";
+  } else {
+    fetch('/api/marketplace-listings?id=' + encodeURIComponent(listingId))
+      .then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); })
+      .then(function(res){
+        document.getElementById('anLoading').style.display = 'none';
+        if (!res.ok) {
+          document.getElementById('anError').style.display = 'block';
+          document.getElementById('anError').innerHTML = "<p>" + (res.d.error || 'Annonce introuvable') + " — <a href='index.html'>voir d'autres annonces</a>.</p>";
+          return;
+        }
+        renderListing(res.d.listing);
+      })
+      .catch(function(){
+        document.getElementById('anLoading').style.display = 'none';
+        document.getElementById('anError').style.display = 'block';
+        document.getElementById('anError').innerHTML = "<p>Impossible de charger cette annonce. Réessaie dans un instant.</p>";
+      });
+  }
+
+  var listing = null;
+  var qty = 1;
+
+  function renderListing(l){
+    listing = l;
+    document.getElementById('anContent').style.display = 'block';
+    document.title = l.titre + ' — STAR Marketplace';
+
+    var photos = l.photos || [];
+    var main = document.getElementById('galleryMain');
+    var thumbs = document.getElementById('galleryThumbs');
+    if (photos.length) {
+      main.innerHTML = '<img src="' + photos[0] + '" alt="' + l.titre.replace(/"/g,'') + '">';
+      thumbs.innerHTML = photos.map(function(p, i){
+        return '<img src="' + p + '" data-i="' + i + '" class="' + (i === 0 ? 'active' : '') + '">';
+      }).join('');
+      thumbs.addEventListener('click', function(e){
+        var img = e.target.closest('img');
+        if (!img) return;
+        main.innerHTML = '<img src="' + photos[img.dataset.i] + '">';
+        thumbs.querySelectorAll('img').forEach(function(t){ t.classList.remove('active'); });
+        img.classList.add('active');
+      });
+    } else {
+      main.innerHTML = svgPlaceholder();
+    }
+
+    document.getElementById('anCat').textContent = CAT_LABELS[l.categorie] || l.categorie;
+    document.getElementById('anTitre').textContent = l.titre;
+    document.getElementById('anVille').innerHTML = l.ville
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 3 6v6c0 5 4 9 9 10 5-1 9-5 9-10V6l-9-4z"/></svg>' + l.ville
+      : '';
+    var d = new Date(l.createdAt);
+    document.getElementById('anDate').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Publiée le ' + d.toLocaleDateString('fr-FR');
+    document.getElementById('anDesc').textContent = l.description || '';
+
+    document.getElementById('sellerAvatar').textContent = (l.vendeur && l.vendeur.nom ? l.vendeur.nom[0] : '?').toUpperCase();
+    document.getElementById('sellerNom').textContent = l.vendeur ? l.vendeur.nom : 'Vendeur STAR Marketplace';
+
+    updatePrice();
+
+    if (l.statut !== 'active') {
+      document.querySelector('.stock-line').innerHTML = 'Cette annonce n\'est plus disponible à la commande.';
+      document.querySelector('.stock-line').style.color = 'var(--mute)';
+      document.getElementById('btnOrder').disabled = true;
+      document.getElementById('btnOrder').style.opacity = '.5';
+    }
+  }
+
+  function updatePrice(){
+    if (!listing) return;
+    document.getElementById('buyPrice').textContent = listing.prix.toLocaleString('fr-FR') + ' ' + listing.devise;
+    document.getElementById('qtyVal').textContent = qty;
+    document.getElementById('buyTotal').textContent = (listing.prix * qty).toLocaleString('fr-FR') + ' ' + listing.devise;
+  }
+
+  document.getElementById('qtyMinus').addEventListener('click', function(){ if (qty > 1) { qty--; updatePrice(); } });
+  document.getElementById('qtyPlus').addEventListener('click', function(){ if (qty < 20) { qty++; updatePrice(); } });
+
+  var stepInfo = document.getElementById('buyStepInfo');
+  var stepForm = document.getElementById('buyStepForm');
+  var stepPay = document.getElementById('buyStepPay');
+  function showStep(step){
+    [stepInfo, stepForm, stepPay].forEach(function(s){ s.classList.remove('active'); });
+    step.classList.add('active');
+  }
+
+  document.getElementById('btnOrder').addEventListener('click', function(){ showStep(stepForm); });
+  document.getElementById('btnBackInfo').addEventListener('click', function(){ showStep(stepInfo); });
+
+  var orderId = null;
+  var orderForm = document.getElementById('orderForm');
+  orderForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    setLoading(orderForm, true);
+    var msg = document.getElementById('orderMsg');
+    msg.style.display = 'none';
+    fetch('/api/marketplace-orders', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        listingId: listing.id,
+        acheteurNom: document.getElementById('oNom').value,
+        acheteurTelephone: document.getElementById('oTelephone').value,
+        acheteurEmail: document.getElementById('oEmail').value,
+        quantite: qty,
+      }),
+    }).then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); })
+      .then(function(res){
+        if (!res.ok) { msg.className = 'mk-msg err'; msg.textContent = res.d.error || 'Erreur lors de la commande'; return; }
+        orderId = res.d.order.id;
+        var montant = res.d.order.montantAttendu;
+        document.getElementById('payAmount').textContent = montant.toLocaleString('fr-FR') + ' ' + res.d.order.devise;
+        document.getElementById('cMontant').value = montant;
+        showStep(stepPay);
+      })
+      .catch(function(){ msg.className = 'mk-msg err'; msg.textContent = 'Impossible de créer la commande pour le moment.'; })
+      .finally(function(){ setLoading(orderForm, false); });
+  });
+
+  var confirmForm = document.getElementById('confirmForm');
+  confirmForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    setLoading(confirmForm, true);
+    var statusEl = document.getElementById('payStatus');
+    statusEl.className = 'pay-status';
+    statusEl.textContent = 'Vérification en cours…';
+    fetch('/api/marketplace-payments', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        kind: 'order', id: orderId,
+        montantRecu: Number(document.getElementById('cMontant').value),
+        methode: 'mobile_money',
+        reference: document.getElementById('cReference').value,
+      }),
+    }).then(function(r){ return r.json(); })
+      .then(function(d){
+        if (d.statut === 'paye') {
+          statusEl.className = 'pay-status valide';
+          statusEl.textContent = 'Paiement confirmé — le vendeur va te contacter !';
+          confirmForm.querySelector('button').style.display = 'none';
+        } else {
+          statusEl.className = 'pay-status invalide';
+          statusEl.textContent = d.message || 'Montant incorrect — vérifie le montant envoyé et réessaie.';
+        }
+      })
+      .catch(function(){
+        statusEl.className = 'pay-status invalide';
+        statusEl.textContent = 'Impossible de vérifier le paiement pour le moment. Réessaie dans un instant.';
+      })
+      .finally(function(){ setLoading(confirmForm, false); });
+  });
+})();
+</script>
+</body>
+</html>
