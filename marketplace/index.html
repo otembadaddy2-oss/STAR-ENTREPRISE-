@@ -91,12 +91,44 @@
 
   /* ---------- Hero ---------- */
   .hero{ padding:168px 0 60px; position:relative; }
+  .back-btn{ position:fixed; top:96px; left:20px; z-index:60; display:inline-flex; align-items:center; gap:8px;
+    padding:10px 16px 10px 12px; border-radius:999px; background:#fff; border:1px solid var(--line);
+    color:var(--navy); font-weight:600; font-size:.88rem; box-shadow:0 6px 18px rgba(14,27,52,.08); transition:.2s; }
+  .back-btn:hover{ background:var(--navy); color:#fff; transform:translateX(-2px); border-color:var(--navy); }
+  .back-btn svg{ width:16px; height:16px; }
+  @media (max-width:640px){ .back-btn{ top:82px; left:14px; padding:8px 14px 8px 10px; font-size:.82rem; } }
   .eyebrow{ display:inline-flex; align-items:center; gap:8px; font-size:.78rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
             color:var(--maroon); background:rgba(92,42,34,.08); border:1px solid rgba(92,42,34,.22); padding:7px 16px; border-radius:999px; margin-bottom:20px; }
   .eyebrow .dot{ width:6px; height:6px; border-radius:50%; background:var(--gold); box-shadow:0 0 10px var(--gold); }
   .hero h1{ margin-bottom:18px; }
   .hero p.lead{ font-size:1.14rem; max-width:600px; }
   .hero-cta{ display:flex; flex-wrap:wrap; gap:14px; margin-top:30px; }
+  .hero-grid{ display:grid; grid-template-columns:1.05fr .95fr; gap:56px; align-items:center; }
+  @media (max-width:900px){ .hero-grid{ grid-template-columns:1fr; } }
+  .hero-media{ position:relative; }
+  .hero-media .frame{ position:relative; border-radius:30px; overflow:hidden; box-shadow:0 34px 60px -22px rgba(14,27,52,.4); }
+  .hero-media img{ width:100%; height:520px; object-fit:cover; object-position:top center; transition:transform 1.4s cubic-bezier(.2,.7,.2,1); }
+  .hero-media:hover img{ transform:scale(1.05); }
+  .hero-media::before{ content:""; position:absolute; inset:-16px; border-radius:38px; background:var(--grad-luxe); opacity:.22; filter:blur(26px); z-index:-1; }
+  .hero-badge{ position:absolute; background:#fff; border-radius:16px; padding:12px 18px; box-shadow:0 16px 34px -12px rgba(14,27,52,.3);
+        display:flex; align-items:center; gap:10px; font-weight:700; font-size:.85rem; color:var(--navy); animation:floatY 4.2s ease-in-out infinite; }
+  .hero-badge.b1{ top:-16px; right:-14px; }
+  .hero-badge.b2{ bottom:26px; left:-22px; animation-delay:1.1s; }
+  .hero-badge .dot-ok{ width:10px; height:10px; border-radius:50%; background:var(--green); box-shadow:0 0 0 5px rgba(47,163,107,.18); flex:none; }
+  @keyframes floatY{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-10px); } }
+  @media (max-width:900px){ .hero-media img{ height:420px; } }
+  @media (max-width:640px){ .hero-badge{ font-size:.7rem; padding:9px 12px; gap:7px; } .hero-badge.b1{ top:-10px; right:-6px; } .hero-badge.b2{ bottom:12px; left:-10px; } .hero-media img{ height:340px; } }
+
+  /* ---------- Ville band ---------- */
+  .ville-band{ position:relative; border-radius:var(--radius-lg); overflow:hidden; margin:10px 0 60px; height:340px;
+        display:flex; align-items:center; justify-content:center; text-align:center; }
+  .ville-band img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:saturate(1.05); }
+  .ville-band::after{ content:""; position:absolute; inset:0; background:linear-gradient(115deg, rgba(14,27,52,.88) 0%, rgba(27,58,107,.72) 45%, rgba(108,63,197,.55) 100%); }
+  .ville-band-inner{ position:relative; z-index:1; max-width:640px; padding:0 24px; }
+  .ville-band .eyebrow{ background:rgba(255,255,255,.14); border-color:rgba(255,255,255,.3); color:#fff; }
+  .ville-band h2{ color:#fff; margin-bottom:10px; }
+  .ville-band p{ color:rgba(255,255,255,.85); }
+  @media (max-width:640px){ .ville-band{ height:300px; } }
 
   /* ---------- Search & filters ---------- */
   .mk-search{ display:flex; gap:10px; flex-wrap:wrap; margin:44px 0 8px; }
@@ -167,6 +199,10 @@
   .mk-vendre-band h2{ color:#fff; margin-bottom:10px; }
   .mk-vendre-band p{ max-width:480px; color:rgba(255,255,255,.82); }
   .mk-vendre-band .btn-ghost{ background:#fff; }
+  .mk-vendre-band-media{ position:relative; z-index:1; flex:none; width:190px; height:130px; border-radius:18px; overflow:hidden;
+        box-shadow:0 20px 40px -14px rgba(0,0,0,.5); border:3px solid rgba(255,255,255,.25); display:none; }
+  .mk-vendre-band-media img{ width:100%; height:100%; object-fit:cover; }
+  @media (min-width:760px){ .mk-vendre-band-media{ display:block; } }
 
   footer{ border-top:1px solid var(--line); padding:60px 0 30px; background:var(--bg-soft); }
   .footer-grid{ display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:40px; margin-bottom:44px; }
@@ -207,14 +243,27 @@
   </div>
 </nav>
 
+<a href="../index.html" class="back-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> STAR ENTREPRISE</a>
+
 <header class="hero">
   <div class="container">
-    <div class="eyebrow"><span class="dot"></span> STAR Marketplace</div>
-    <h1>Achetez et vendez, <span class="text-grad">en toute confiance.</span></h1>
-    <p class="lead">Déposez votre produit ou service, ou trouvez ce dont vous avez besoin — chaque commande est suivie et le paiement Mobile Money vérifié avant validation.</p>
-    <div class="hero-cta">
-      <a href="vendre.html" class="btn btn-primary">Déposer une annonce</a>
-      <a href="#annonces" class="btn btn-ghost">Voir les annonces</a>
+    <div class="hero-grid">
+      <div class="hero-text">
+        <div class="eyebrow"><span class="dot"></span> STAR Marketplace</div>
+        <h1>Achetez et vendez, <span class="text-grad">en toute confiance.</span></h1>
+        <p class="lead">Déposez votre produit ou service, ou trouvez ce dont vous avez besoin — chaque commande est suivie et le paiement Mobile Money vérifié avant validation.</p>
+        <div class="hero-cta">
+          <a href="vendre.html" class="btn btn-primary">Déposer une annonce</a>
+          <a href="#annonces" class="btn btn-ghost">Voir les annonces</a>
+        </div>
+      </div>
+      <div class="hero-media reveal">
+        <div class="frame">
+          <img src="assets/img/hero-vendeuse.webp" alt="Vendeuse sur STAR Marketplace" loading="eager">
+        </div>
+        <div class="hero-badge b1"><span class="dot-ok"></span> Paiement confirmé</div>
+        <div class="hero-badge b2">🇨🇬 Vendeurs vérifiés au Congo</div>
+      </div>
     </div>
   </div>
 </header>
@@ -257,6 +306,15 @@
     </div>
   </div>
 
+  <div class="ville-band reveal">
+    <img src="assets/img/section-ville.webp" alt="Le commerce prend vie dans nos villes" loading="lazy">
+    <div class="ville-band-inner">
+      <div class="eyebrow"><span class="dot"></span> Un marché qui vit</div>
+      <h2>Votre ville. Vos commerces. <span style="color:var(--gold-2);">Un seul marché.</span></h2>
+      <p>Chaque annonce vient d'un vendeur réel, quelque part au Congo — prêt à vous servir.</p>
+    </div>
+  </div>
+
   <div class="mk-search">
     <input type="search" id="mkSearch" placeholder="Rechercher un produit ou un service…">
   </div>
@@ -278,6 +336,9 @@
   </div>
 
   <div class="mk-vendre-band reveal">
+    <div class="mk-vendre-band-media">
+      <img src="assets/img/trust-confiance.webp" alt="Un partenariat de confiance" loading="lazy">
+    </div>
     <div>
       <h2>Votre produit mérite d'être vu.</h2>
       <p>Déposez votre annonce pour une durée déterminée — visible par tous les visiteurs dès votre paiement Mobile Money confirmé.</p>
