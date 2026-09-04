@@ -1,7 +1,6 @@
 // STAR Marketplace — annonces. Une annonce reste "en_attente_paiement"
 // (invisible côté public) tant que le paiement de l'espace n'est pas
-// confirmé par /api/marketplace-payments. Le tarif ci-dessous est un
-// PLACEHOLDER à valider avec Carry avant mise en production.
+// confirmé par /api/marketplace-payments.
 import type { Context, Config } from "@netlify/functions";
 import { ensureSchema, db, json } from "./_db.mts";
 import { requireAuth } from "./_auth.mts";
@@ -10,8 +9,9 @@ function clean(value: unknown, maxLen: number): string {
   return String(value ?? "").trim().slice(0, maxLen);
 }
 
-// PLACEHOLDER — tarif de l'espace vendeur, à confirmer avec Carry.
-const TARIF_PAR_30_JOURS = 2000; // FCFA / tranche de 30 jours
+// Tarif de l'espace vendeur confirmé par Carry : 10 000 FCFA / 30 jours,
+// proportionnel à la durée choisie (ex. 15 jours = 5 000 FCFA).
+const TARIF_PAR_30_JOURS = 10000; // FCFA / tranche de 30 jours
 
 const CATEGORIES = new Set([
   "mode", "electronique", "maison", "beaute", "alimentation",
