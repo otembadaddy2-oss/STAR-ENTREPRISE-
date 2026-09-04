@@ -4,36 +4,104 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Vendre — STAR Marketplace</title>
-<meta name="description" content="Déposez votre produit ou service sur STAR Marketplace : inscription, annonce, et paiement de votre espace pour une durée déterminée.">
-<meta name="theme-color" content="#06070f">
-<link rel="icon" href="../assets/img/icons/favicon-star-rounded-v1.png" type="image/png">
+<meta name="description" content="Déposez votre produit ou service sur STAR Marketplace : inscription, annonce, et paiement Mobile Money de votre espace pour une durée déterminée.">
+<meta name="theme-color" content="#F7F5F0">
+<link rel="icon" href="assets/img/logo-icon.webp" type="image/webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap"></noscript>
-<link rel="stylesheet" href="../assets/css/style-v6.css">
-<link rel="stylesheet" href="../assets/css/effects-v1.css">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+  :root{
+    --bg:#FBF9F5; --bg-soft:#F3EFE7; --card:#FFFFFF;
+    --navy:#0E1B34; --navy-2:#1B3A6B; --blue:#2F6FED; --blue-2:#5B93FF;
+    --green:#2FA36B; --green-2:#7FD9A8; --maroon:#5C2A22; --purple:#6C3FC5;
+    --gold:#C9982F; --gold-2:#E8C468;
+    --ink:#171B26; --mute:#5B6478; --line:#E7E1D6;
+    --ff-head:"Fraunces", Georgia, serif; --ff-body:"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+    --grad-luxe: linear-gradient(115deg, var(--navy) 0%, var(--blue) 48%, var(--purple) 100%);
+    --radius:20px; --shadow: 0 20px 50px -20px rgba(14,27,52,.25);
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ background:var(--bg); color:var(--ink); font-family:var(--ff-body); font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased; }
+  a{ color:inherit; text-decoration:none; }
+  h1{ font-family:var(--ff-head); font-weight:700; letter-spacing:-.01em; line-height:1.12; color:var(--navy); font-size:clamp(2rem,4.4vw,2.9rem); }
+  .container{ max-width:1240px; margin:0 auto; padding:0 24px; }
+
+  .navbar{ position:fixed; top:0; left:0; right:0; z-index:100; padding:18px 0; transition:.3s; }
+  .navbar.scrolled{ padding:12px 0; background:rgba(251,249,245,.85); backdrop-filter:blur(14px) saturate(140%); border-bottom:1px solid var(--line); }
+  .navbar .container{ display:flex; align-items:center; justify-content:space-between; }
+  .brand{ display:flex; align-items:center; gap:10px; font-family:var(--ff-head); font-weight:700; font-size:1.1rem; color:var(--navy); }
+  .brand img{ width:42px; height:auto; }
+  .brand small{ display:block; font-family:var(--ff-body); font-weight:600; font-size:.6rem; letter-spacing:.14em; color:var(--mute); text-transform:uppercase; }
+  .nav-links{ display:flex; align-items:center; gap:4px; }
+  .nav-links a{ padding:10px 16px; border-radius:999px; font-size:.92rem; font-weight:600; color:var(--navy); transition:.2s; }
+  .nav-links a.active, .nav-links a:hover{ background:rgba(47,111,237,.1); color:var(--blue); }
+  .nav-toggle{ display:none; width:44px; height:44px; align-items:center; justify-content:center; border-radius:12px; background:rgba(14,27,52,.05); border:1px solid var(--line); }
+  .nav-toggle span, .nav-toggle span::before, .nav-toggle span::after{ content:""; display:block; width:18px; height:2px; background:var(--navy); position:relative; }
+  .nav-toggle span::before{ position:absolute; top:-6px; } .nav-toggle span::after{ position:absolute; top:6px; }
+  @media (max-width:960px){
+    .nav-links{ position:fixed; top:0; right:0; height:100vh; width:min(78vw,340px); flex-direction:column; align-items:stretch;
+                background:#fff; border-left:1px solid var(--line); padding:100px 24px 30px; transform:translateX(100%); transition:.35s; gap:4px; }
+    .nav-links.open{ transform:translateX(0); }
+    .nav-toggle{ display:flex; }
+  }
+
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:10px; padding:15px 30px; border-radius:999px;
+        font-weight:700; font-size:.96rem; border:1px solid transparent; transition:.25s; font-family:var(--ff-body); cursor:pointer; }
+  .btn-primary{ position:relative; overflow:hidden; background:var(--grad-luxe); color:#fff; box-shadow:0 14px 30px -10px rgba(47,111,237,.45); }
+  .btn-primary:hover{ transform:translateY(-3px); box-shadow:0 20px 40px -10px rgba(47,111,237,.55); }
+  .btn-primary::after{ content:""; position:absolute; top:0; left:-60%; width:40%; height:100%;
+        background:linear-gradient(115deg, transparent, rgba(255,255,255,.5), transparent); transform:skewX(-20deg); animation:shine 3.6s ease-in-out 1.4s infinite; }
+  @keyframes shine{ 0%{ left:-60%; } 35%{ left:130%; } 100%{ left:130%; } }
+  .btn-ghost{ background:#fff; color:var(--navy); border-color:var(--line); }
+  .btn-ghost:hover{ transform:translateY(-3px); box-shadow:var(--shadow); }
+  .btn-block{ width:100%; }
+  .btn.is-loading{ pointer-events:none; opacity:.85; }
+  .btn.is-loading::before{
+    content:""; width:16px; height:16px; border-radius:50%; border:2px solid rgba(255,255,255,.4);
+    border-top-color:#fff; animation:spin .7s linear infinite; margin-right:2px;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
   .mk-wrap{ max-width:640px; margin:0 auto; padding:150px 20px 90px; }
   .mk-step{ display:none; }
-  .mk-step.active{ display:block; }
-  .mk-card2{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:34px; }
+  .mk-step.active{ display:block; animation:fadeUp .5s ease-out; }
+  @keyframes fadeUp{ from{ opacity:0; transform:translateY(14px); } to{ opacity:1; transform:translateY(0); } }
+  .eyebrow{ display:inline-flex; align-items:center; gap:8px; font-size:.78rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+            color:var(--maroon); background:rgba(92,42,34,.08); border:1px solid rgba(92,42,34,.22); padding:7px 16px; border-radius:999px; margin-bottom:20px; }
+  .eyebrow .dot{ width:6px; height:6px; border-radius:50%; background:var(--gold); box-shadow:0 0 10px var(--gold); }
+  .mk-card2{ background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:34px; box-shadow:var(--shadow); }
   .mk-tabs{ display:flex; gap:8px; margin-bottom:26px; }
-  .mk-tab{ flex:1; padding:12px; text-align:center; border-radius:12px; border:1px solid var(--border-strong);
-           background:rgba(255,255,255,.02); font-weight:700; font-size:.88rem; cursor:pointer; color:var(--text-dim); }
-  .mk-tab.active{ background:var(--grad-diamond); color:#0a0a12; border-color:transparent; }
-  .checkbox-row{ display:flex; align-items:center; gap:10px; margin:14px 0 20px; font-size:.9rem; color:var(--text-dim); }
+  .mk-tab{ flex:1; padding:12px; text-align:center; border-radius:12px; border:1px solid var(--line);
+           background:var(--bg-soft); font-weight:700; font-size:.88rem; cursor:pointer; color:var(--mute); transition:.2s; }
+  .mk-tab.active{ background:var(--grad-luxe); color:#fff; border-color:transparent; }
+
+  .field{ margin-bottom:18px; }
+  .field label{ display:block; font-size:.84rem; font-weight:700; margin-bottom:8px; color:var(--navy); }
+  .field input, .field select, .field textarea{ width:100%; padding:13px 16px; border-radius:12px; background:var(--bg-soft);
+        border:1px solid var(--line); color:var(--ink); font-size:.95rem; font-family:var(--ff-body); transition:.2s; }
+  .field input:focus, .field select:focus, .field textarea:focus{ outline:0; border-color:var(--blue); background:#fff; }
+  .field textarea{ min-height:120px; resize:vertical; }
+  .field-row{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  @media (max-width:600px){ .field-row{ grid-template-columns:1fr; } }
+  .form-note{ font-size:.78rem; color:var(--mute); margin-top:10px; }
+
   .mk-msg{ border-radius:12px; padding:14px 16px; margin-bottom:18px; font-size:.88rem; display:none; }
-  .mk-msg.err{ background:rgba(255,110,110,.12); border:1px solid rgba(255,110,110,.35); color:#ffc9c9; display:block; }
-  .mk-msg.ok{ background:rgba(60,232,107,.12); border:1px solid rgba(60,232,107,.35); color:#bdf5cf; display:block; }
-  .pay-box{ background:#f6f4ff; color:#111; border-radius:14px; padding:24px; text-align:center; margin:20px 0; }
-  .pay-box .amount{ font-family:var(--ff-heading); font-size:2.1rem; font-weight:800; color:#3d2c8d; margin:8px 0; }
-  .pay-status{ font-size:.86rem; margin-top:14px; padding:10px; border-radius:10px; }
-  .pay-status.waiting{ background:rgba(255,159,67,.14); color:#8a5a17; }
-  .pay-status.valide{ background:rgba(60,178,107,.14); color:#1c6b3d; }
-  .pay-status.invalide{ background:rgba(255,90,90,.14); color:#a02020; }
+  .mk-msg.err{ background:rgba(210,60,60,.09); border:1px solid rgba(210,60,60,.3); color:#a02020; display:block; }
+  .mk-msg.ok{ background:rgba(47,163,107,.1); border:1px solid rgba(47,163,107,.32); color:#1c6b3d; display:block; }
+
+  .pay-box{ background:var(--grad-luxe); color:#fff; border-radius:16px; padding:28px; text-align:center; margin:20px 0; position:relative; overflow:hidden; }
+  .pay-box .amount{ font-family:var(--ff-head); font-size:2.3rem; font-weight:800; margin:8px 0; }
+  .mm-row{ display:flex; gap:10px; justify-content:center; margin:18px 0 6px; flex-wrap:wrap; }
+  .mm-chip{ background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.28); padding:9px 16px; border-radius:999px; font-size:.82rem; font-weight:700; }
+  .mm-number{ font-family:var(--ff-head); font-size:1.3rem; font-weight:700; margin-top:6px; }
+  .pay-status{ font-size:.86rem; margin-top:16px; padding:10px; border-radius:10px; background:rgba(255,255,255,.12); }
+  .pay-status.valide{ background:rgba(127,217,168,.28); }
+  .pay-status.invalide{ background:rgba(255,140,140,.28); }
+
+  .confirm-form{ margin-top:22px; }
   .photo-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
-  .photo-row img{ width:70px; height:70px; object-fit:cover; border-radius:8px; border:1px solid var(--border); }
+  .photo-row img{ width:70px; height:70px; object-fit:cover; border-radius:8px; border:1px solid var(--line); }
 </style>
 </head>
 <body>
@@ -41,7 +109,7 @@
 <nav class="navbar" id="navbar">
   <div class="container">
     <a href="index.html" class="brand">
-      <img class="brand-mark" src="../assets/img/logo-star-rounded-v1.webp" alt="STAR ENTREPRISE">
+      <img src="assets/img/logo-icon.webp" alt="STAR Marketplace">
       <span>STAR Marketplace<small>par STAR ENTREPRISE</small></span>
     </a>
     <div class="nav-links" id="navLinks">
@@ -49,9 +117,7 @@
       <a href="vendre.html" class="active">Vendre</a>
       <a href="../index.html">Site STAR ENTREPRISE</a>
     </div>
-    <div class="nav-actions">
-      <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span></button>
-    </div>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span></button>
   </div>
 </nav>
 
@@ -130,36 +196,55 @@
           <div class="photo-row" id="photoPreview"></div>
           <p class="form-note">6 photos maximum, 2 Mo par photo.</p>
         </div>
-        <button type="submit" class="btn btn-primary btn-block">Continuer vers le paiement de l'espace</button>
+        <button type="submit" class="btn btn-primary btn-block">Continuer vers le paiement</button>
       </form>
     </div>
   </section>
 
-  <!-- Étape 3 — paiement de l'espace -->
+  <!-- Étape 3 — paiement Mobile Money de l'espace -->
   <section class="mk-step" id="stepPay">
     <div class="eyebrow"><span class="dot"></span> Dernière étape</div>
-    <h1 style="margin-bottom:26px;">Paye ton espace pour publier.</h1>
+    <h1 style="margin-bottom:26px;">Dépose via Mobile Money.</h1>
     <div class="mk-card2">
-      <p style="color:var(--text-dim);">Ton annonce est enregistrée mais pas encore visible. Elle passera en ligne automatiquement dès que le paiement ci-dessous sera confirmé.</p>
+      <p style="color:var(--mute);">Ton annonce est enregistrée mais pas encore visible. Elle passe en ligne automatiquement dès que ton dépôt est confirmé.</p>
       <div class="pay-box">
-        <div>Montant à payer</div>
+        <div style="font-size:.82rem; opacity:.85;">Montant à déposer</div>
         <div class="amount" id="payAmount">—</div>
-        <div style="font-size:.82rem; color:#555;">Mobile Money, carte ou PayPal — les moyens de paiement en ligne seront activés prochainement.</div>
-        <div class="pay-status waiting" id="payStatus">En attente de confirmation du paiement…</div>
+        <div class="mm-row">
+          <span class="mm-chip">🟠 Airtel Money</span>
+          <span class="mm-chip">🟡 MTN Mobile Money</span>
+        </div>
+        <div style="font-size:.82rem; opacity:.85; margin-top:8px;">Numéro de dépôt</div>
+        <div class="mm-number" id="mmNumber">[numéro Mobile Money à confirmer]</div>
+        <div class="pay-status" id="payStatus">En attente de ta confirmation…</div>
       </div>
-      <p class="form-note">En attendant l'activation des paiements en ligne, contacte-nous sur WhatsApp pour finaliser le paiement de ton espace : <a href="https://wa.me/242066565050" target="_blank" rel="noopener" style="color:var(--gold-2);">+242 06 656 50 50</a>.</p>
+
+      <form class="confirm-form" id="confirmForm">
+        <div class="field-row">
+          <div class="field">
+            <label>Opérateur utilisé</label>
+            <select id="cOperateur">
+              <option value="mobile_money">Airtel Money</option>
+              <option value="mobile_money">MTN Mobile Money</option>
+            </select>
+          </div>
+          <div class="field"><label>Référence de la transaction</label><input type="text" id="cReference" placeholder="Ex : MP240912.1234" required></div>
+        </div>
+        <div class="field"><label>Montant envoyé (FCFA)</label><input type="number" id="cMontant" min="1" required></div>
+        <button type="submit" class="btn btn-primary btn-block">Confirmer mon dépôt</button>
+        <p class="form-note">Le montant doit correspondre exactement à la somme affichée ci-dessus — sinon la confirmation sera rejetée automatiquement.</p>
+      </form>
+
       <a href="index.html" class="btn btn-ghost btn-block" style="margin-top:16px;">Retour à l'accueil</a>
     </div>
   </section>
 
 </div>
 
-<footer>
-  <div class="container">
-    <div class="footer-bottom">
-      <span>© STAR ENTREPRISE — STAR Marketplace</span>
-      <a href="https://wa.me/242066565050" target="_blank" rel="noopener">+242 06 656 50 50</a>
-    </div>
+<footer style="border-top:1px solid var(--line); padding:26px 0; background:var(--bg-soft);">
+  <div class="container" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; font-size:.82rem; color:var(--mute);">
+    <span>© STAR ENTREPRISE — STAR Marketplace</span>
+    <a href="https://wa.me/242066565050" target="_blank" rel="noopener" style="color:var(--navy); font-weight:600;">+242 06 656 50 50</a>
   </div>
 </footer>
 
@@ -168,6 +253,9 @@
   var navToggle = document.getElementById('navToggle');
   var navLinks = document.getElementById('navLinks');
   navToggle && navToggle.addEventListener('click', function(){ navLinks.classList.toggle('open'); });
+  window.addEventListener('scroll', function(){
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10);
+  });
 })();
 
 (function(){
@@ -188,7 +276,6 @@
     el.className = 'mk-msg ' + (ok ? 'ok' : 'err');
   }
 
-  // --- Onglets connexion / inscription ---
   var tabs = document.querySelectorAll('.mk-tab');
   var loginForm = document.getElementById('loginForm');
   var registerForm = document.getElementById('registerForm');
@@ -202,6 +289,13 @@
     });
   });
 
+  function setLoading(form, on){
+    var btn = form.querySelector('button[type="submit"]');
+    if (!btn) return;
+    btn.classList.toggle('is-loading', on);
+    btn.disabled = on;
+  }
+
   function afterAuth(data){
     token = data.token;
     localStorage.setItem(TOKEN_KEY, token);
@@ -214,6 +308,7 @@
 
   loginForm.addEventListener('submit', function(e){
     e.preventDefault();
+    setLoading(loginForm, true);
     fetch('/api/marketplace-auth', {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
@@ -225,11 +320,13 @@
       .then(function(res){
         if (!res.ok) return showMsg(document.getElementById('authMsg'), res.d.error || 'Erreur de connexion', false);
         afterAuth(res.d);
-      });
+      })
+      .finally(function(){ setLoading(loginForm, false); });
   });
 
   registerForm.addEventListener('submit', function(e){
     e.preventDefault();
+    setLoading(registerForm, true);
     fetch('/api/marketplace-auth', {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
@@ -245,10 +342,10 @@
       .then(function(res){
         if (!res.ok) return showMsg(document.getElementById('authMsg'), res.d.error || 'Erreur de création de compte', false);
         afterAuth(res.d);
-      });
+      })
+      .finally(function(){ setLoading(registerForm, false); });
   });
 
-  // --- Photos (aperçu local, converties en base64 pour l'envoi) ---
   var photos = [];
   document.getElementById('lPhotos').addEventListener('change', function(e){
     var files = Array.from(e.target.files).slice(0, 6);
@@ -268,10 +365,12 @@
     });
   });
 
-  // --- Dépôt de l'annonce ---
   var listingId = null;
-  document.getElementById('listingForm').addEventListener('submit', function(e){
+  var expectedAmount = 0;
+  var listingForm = document.getElementById('listingForm');
+  listingForm.addEventListener('submit', function(e){
     e.preventDefault();
+    setLoading(listingForm, true);
     fetch('/api/marketplace-listings', {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: 'Bearer ' + token },
@@ -288,35 +387,45 @@
       .then(function(res){
         if (!res.ok) return showMsg(document.getElementById('listingMsg'), res.d.error || 'Erreur lors du dépôt', false);
         listingId = res.d.listing.id;
-        document.getElementById('payAmount').textContent =
-          res.d.paiementEspace.montantAttendu.toLocaleString('fr-FR') + ' ' + res.d.paiementEspace.devise;
+        expectedAmount = res.d.paiementEspace.montantAttendu;
+        document.getElementById('payAmount').textContent = expectedAmount.toLocaleString('fr-FR') + ' ' + res.d.paiementEspace.devise;
+        document.getElementById('cMontant').value = expectedAmount;
         showStep(stepPay);
-        pollPayment();
-      });
+      })
+      .finally(function(){ setLoading(listingForm, false); });
   });
 
-  // --- Suivi du paiement en temps réel ---
-  function pollPayment(){
-    if (!listingId) return;
-    fetch('/api/marketplace-payments?kind=listing&id=' + listingId)
-      .then(function(r){ return r.json(); })
+  var confirmForm = document.getElementById('confirmForm');
+  confirmForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    setLoading(confirmForm, true);
+    var statusEl = document.getElementById('payStatus');
+    statusEl.className = 'pay-status';
+    statusEl.textContent = 'Vérification en cours…';
+    fetch('/api/marketplace-payments', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        kind: 'listing', id: listingId,
+        montantRecu: Number(document.getElementById('cMontant').value),
+        methode: 'mobile_money',
+        reference: document.getElementById('cReference').value,
+      }),
+    }).then(function(r){ return r.json(); })
       .then(function(d){
-        var statusEl = document.getElementById('payStatus');
-        var statut = d.paiement && d.paiement.statut;
-        if (statut === 'valide') {
+        if (d.statut === 'valide') {
           statusEl.className = 'pay-status valide';
           statusEl.textContent = 'Paiement confirmé — ton annonce est en ligne !';
-          return;
-        }
-        if (statut === 'invalide') {
+        } else {
           statusEl.className = 'pay-status invalide';
-          statusEl.textContent = 'Montant reçu incorrect — contacte-nous sur WhatsApp pour régulariser.';
-          return;
+          statusEl.textContent = d.message || 'Montant incorrect — vérifie le montant envoyé et réessaie.';
         }
-        setTimeout(pollPayment, 8000);
       })
-      .catch(function(){ setTimeout(pollPayment, 8000); });
-  }
+      .catch(function(){
+        statusEl.className = 'pay-status invalide';
+        statusEl.textContent = 'Impossible de vérifier le paiement pour le moment. Réessaie dans un instant.';
+      })
+      .finally(function(){ setLoading(confirmForm, false); });
+  });
 
   if (token) {
     fetch('/api/marketplace-auth', { headers: { authorization: 'Bearer ' + token } })

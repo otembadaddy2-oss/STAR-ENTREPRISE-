@@ -4,81 +4,194 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>STAR Marketplace — Achetez et vendez au Congo</title>
-<meta name="description" content="STAR Marketplace, par STAR ENTREPRISE : déposez vos produits et services, ou trouvez ce dont vous avez besoin, avec des commandes suivies et sécurisées.">
-<meta name="theme-color" content="#06070f">
-<link rel="icon" href="../assets/img/icons/favicon-star-rounded-v1.png" type="image/png">
+<meta name="description" content="STAR Marketplace, par STAR ENTREPRISE : déposez vos produits et services, ou trouvez ce dont vous avez besoin, avec des commandes suivies et un paiement Mobile Money vérifié.">
+<meta name="theme-color" content="#F7F5F0">
+<link rel="icon" href="assets/img/logo-icon.webp" type="image/webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap"></noscript>
-<link rel="stylesheet" href="../assets/css/style-v6.css">
-<link rel="stylesheet" href="../assets/css/effects-v1.css">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <meta property="og:type" content="website">
 <meta property="og:title" content="STAR Marketplace — Achetez et vendez au Congo">
-<meta property="og:description" content="Déposez vos produits et services, ou trouvez ce dont vous avez besoin. Par STAR ENTREPRISE.">
+<meta property="og:description" content="Déposez vos produits et services, ou trouvez ce dont vous avez besoin. Paiement Mobile Money vérifié. Par STAR ENTREPRISE.">
 <style>
-  .mk-hero{ padding:150px 0 60px; }
-  .mk-hero .eyebrow{ margin:0 0 18px; }
-  .mk-hero h1{ margin-bottom:18px; }
-  .mk-hero p.lead{ font-size:1.1rem; max-width:600px; }
-  .mk-hero-cta{ display:flex; flex-wrap:wrap; gap:14px; margin-top:30px; }
-
-  .mk-search{ display:flex; gap:10px; flex-wrap:wrap; margin:36px 0 8px; }
-  .mk-search input[type="search"]{
-    flex:1; min-width:220px; padding:14px 18px; border-radius:12px;
-    background:rgba(255,255,255,.03); border:1px solid var(--border-strong);
-    color:var(--text); font-size:.95rem;
+  :root{
+    --bg:#FBF9F5; --bg-soft:#F3EFE7; --card:#FFFFFF;
+    --navy:#0E1B34; --navy-2:#1B3A6B; --blue:#2F6FED; --blue-2:#5B93FF;
+    --green:#2FA36B; --green-2:#7FD9A8; --maroon:#5C2A22; --purple:#6C3FC5;
+    --gold:#C9982F; --gold-2:#E8C468;
+    --ink:#171B26; --mute:#5B6478; --line:#E7E1D6;
+    --ff-head:"Fraunces", Georgia, serif; --ff-body:"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+    --grad-luxe: linear-gradient(115deg, var(--navy) 0%, var(--blue) 48%, var(--purple) 100%);
+    --grad-gold: linear-gradient(115deg, var(--gold) 0%, var(--gold-2) 100%);
+    --radius:20px; --radius-lg:28px;
+    --shadow: 0 20px 50px -20px rgba(14,27,52,.25);
   }
-  .mk-search input:focus{ outline:0; border-color:var(--violet); }
-
-  .mk-cats{ display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 46px; }
-  .mk-cat-btn{
-    padding:9px 18px; border-radius:999px; border:1px solid var(--border-strong);
-    background:rgba(255,255,255,.03); font-size:.85rem; font-weight:600;
-    color:var(--text-dim); transition:.2s; cursor:pointer;
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  body{
+    background:var(--bg); color:var(--ink); font-family:var(--ff-body);
+    font-size:16px; line-height:1.6; overflow-x:hidden; -webkit-font-smoothing:antialiased;
   }
-  .mk-cat-btn.active, .mk-cat-btn:hover{ background:var(--grad-diamond); color:#0a0a12; border-color:transparent; }
+  img{ max-width:100%; display:block; }
+  a{ color:inherit; text-decoration:none; }
+  .container{ max-width:1240px; margin:0 auto; padding:0 24px; }
+  h1,h2,h3{ font-family:var(--ff-head); font-weight:700; letter-spacing:-.01em; line-height:1.12; color:var(--navy); }
+  h1{ font-size:clamp(2.4rem,5.4vw,4.2rem); }
+  h2{ font-size:clamp(1.8rem,3.6vw,2.7rem); }
+  p{ color:var(--mute); }
+  .text-grad{ background:var(--grad-luxe); -webkit-background-clip:text; background-clip:text; color:transparent; }
 
-  .mk-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(240px,1fr)); gap:24px; margin-bottom:60px; }
-  .mk-card{
-    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
-    overflow:hidden; transition:transform .3s ease, border-color .3s ease; display:flex; flex-direction:column;
-  }
-  .mk-card:hover{ transform:translateY(-6px); border-color:var(--border-strong); }
-  .mk-card-img{ height:170px; background:var(--surface-2); display:flex; align-items:center; justify-content:center; overflow:hidden; }
-  .mk-card-img img{ width:100%; height:100%; object-fit:cover; }
-  .mk-card-img svg{ width:40px; height:40px; opacity:.35; }
-  .mk-card-body{ padding:18px 18px 20px; display:flex; flex-direction:column; gap:6px; flex:1; }
-  .mk-card-cat{ font-size:.68rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--gold-2); }
-  .mk-card-title{ font-family:var(--ff-heading); font-weight:700; font-size:1rem; line-height:1.3; }
-  .mk-card-ville{ font-size:.78rem; color:var(--text-faint); }
-  .mk-card-price{ margin-top:auto; padding-top:10px; font-family:var(--ff-heading); font-weight:800; font-size:1.15rem; color:var(--gold-2); }
+  /* ---------- Ambiance ---------- */
+  #bg{ position:fixed; inset:0; z-index:-1; overflow:hidden; background:var(--bg); }
+  .orb{ position:absolute; border-radius:50%; filter:blur(70px); opacity:.35; }
+  .orb.o1{ width:44vw; height:44vw; left:-12vw; top:-16vw; background:radial-gradient(circle, var(--blue), transparent 70%); animation:drift1 24s ease-in-out infinite alternate; }
+  .orb.o2{ width:38vw; height:38vw; right:-10vw; top:6vh; background:radial-gradient(circle, var(--purple), transparent 70%); animation:drift2 28s ease-in-out infinite alternate; }
+  .orb.o3{ width:34vw; height:34vw; left:26vw; bottom:-14vh; background:radial-gradient(circle, var(--green-2), transparent 70%); opacity:.28; animation:drift3 22s ease-in-out infinite alternate; }
+  @keyframes drift1{ to{ transform:translate(5vw,4vh) scale(1.12); } }
+  @keyframes drift2{ to{ transform:translate(-4vw,-4vh) scale(1.1); } }
+  @keyframes drift3{ to{ transform:translate(-3vw,4vh) scale(1.08); } }
 
-  .mk-empty{
-    text-align:center; padding:70px 24px; border:1px dashed var(--border-strong);
-    border-radius:var(--radius); color:var(--text-dim); margin-bottom:60px;
+  /* ---------- Nav ---------- */
+  .navbar{ position:fixed; top:0; left:0; right:0; z-index:100; padding:18px 0; transition:.3s; }
+  .navbar.scrolled{ padding:12px 0; background:rgba(251,249,245,.85); backdrop-filter:blur(14px) saturate(140%); border-bottom:1px solid var(--line); }
+  .navbar .container{ display:flex; align-items:center; justify-content:space-between; }
+  .brand{ display:flex; align-items:center; gap:10px; font-family:var(--ff-head); font-weight:700; font-size:1.1rem; color:var(--navy); }
+  .brand img{ width:42px; height:auto; }
+  .brand small{ display:block; font-family:var(--ff-body); font-weight:600; font-size:.6rem; letter-spacing:.14em; color:var(--mute); text-transform:uppercase; }
+  .nav-links{ display:flex; align-items:center; gap:4px; }
+  .nav-links a{ padding:10px 16px; border-radius:999px; font-size:.92rem; font-weight:600; color:var(--navy); transition:.2s; }
+  .nav-links a.active, .nav-links a:hover{ background:rgba(47,111,237,.1); color:var(--blue); }
+  .nav-links a.nav-cta{ display:none; }
+  .nav-actions{ display:flex; align-items:center; gap:12px; }
+  .nav-toggle{ display:none; width:44px; height:44px; align-items:center; justify-content:center; border-radius:12px; background:rgba(14,27,52,.05); border:1px solid var(--line); }
+  .nav-toggle span, .nav-toggle span::before, .nav-toggle span::after{ content:""; display:block; width:18px; height:2px; background:var(--navy); position:relative; transition:.25s; }
+  .nav-toggle span::before{ position:absolute; top:-6px; } .nav-toggle span::after{ position:absolute; top:6px; }
+  @media (max-width:960px){
+    .nav-links{ position:fixed; top:0; right:0; height:100vh; width:min(78vw,340px); flex-direction:column; align-items:stretch;
+                background:#fff; border-left:1px solid var(--line); padding:100px 24px 30px; transform:translateX(100%); transition:.35s; gap:4px; }
+    .nav-links.open{ transform:translateX(0); }
+    .nav-links a{ padding:14px 16px; font-size:1.02rem; }
+    .nav-links a.nav-cta{ margin-top:10px; background:var(--grad-luxe); color:#fff; text-align:center; font-weight:700; }
+    .nav-toggle{ display:flex; }
   }
-  .mk-empty svg{ width:44px; height:44px; opacity:.4; margin-bottom:16px; }
+  @media (max-width:640px){ .navbar .nav-actions .btn-primary{ display:none; } .brand small{ display:none; } }
+
+  /* ---------- Buttons ---------- */
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:10px; padding:15px 30px; border-radius:999px;
+        font-weight:700; font-size:.96rem; border:1px solid transparent; transition:.25s; white-space:nowrap; font-family:var(--ff-body); cursor:pointer; }
+  .btn-primary{ position:relative; overflow:hidden; background:var(--grad-luxe); color:#fff; box-shadow:0 14px 30px -10px rgba(47,111,237,.45); }
+  .btn-primary:hover{ transform:translateY(-3px); box-shadow:0 20px 40px -10px rgba(47,111,237,.55); }
+  .btn-primary::after{ content:""; position:absolute; top:0; left:-60%; width:40%; height:100%;
+        background:linear-gradient(115deg, transparent, rgba(255,255,255,.5), transparent); transform:skewX(-20deg); animation:shine 3.6s ease-in-out 1.4s infinite; }
+  @keyframes shine{ 0%{ left:-60%; } 35%{ left:130%; } 100%{ left:130%; } }
+  .btn-ghost{ background:#fff; color:var(--navy); border-color:var(--line); }
+  .btn-ghost:hover{ transform:translateY(-3px); border-color:var(--blue); box-shadow:var(--shadow); }
+  .btn-sm{ padding:10px 20px; font-size:.85rem; }
+  .btn-block{ width:100%; }
+
+  /* ---------- Hero ---------- */
+  .hero{ padding:168px 0 60px; position:relative; }
+  .eyebrow{ display:inline-flex; align-items:center; gap:8px; font-size:.78rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+            color:var(--maroon); background:rgba(92,42,34,.08); border:1px solid rgba(92,42,34,.22); padding:7px 16px; border-radius:999px; margin-bottom:20px; }
+  .eyebrow .dot{ width:6px; height:6px; border-radius:50%; background:var(--gold); box-shadow:0 0 10px var(--gold); }
+  .hero h1{ margin-bottom:18px; }
+  .hero p.lead{ font-size:1.14rem; max-width:600px; }
+  .hero-cta{ display:flex; flex-wrap:wrap; gap:14px; margin-top:30px; }
+
+  /* ---------- Search & filters ---------- */
+  .mk-search{ display:flex; gap:10px; flex-wrap:wrap; margin:44px 0 8px; }
+  .mk-search input[type="search"]{ flex:1; min-width:220px; padding:15px 20px; border-radius:14px; background:#fff;
+        border:1px solid var(--line); color:var(--ink); font-size:.95rem; font-family:var(--ff-body); box-shadow:var(--shadow); }
+  .mk-search input:focus{ outline:0; border-color:var(--blue); }
+
+  .mk-cats{ display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 50px; }
+  .mk-cat-btn{ padding:9px 18px; border-radius:999px; border:1px solid var(--line); background:#fff; font-size:.85rem;
+        font-weight:700; color:var(--mute); transition:.2s; cursor:pointer; font-family:var(--ff-body); }
+  .mk-cat-btn.active, .mk-cat-btn:hover{ background:var(--grad-luxe); color:#fff; border-color:transparent; }
+
+  /* ---------- Cards ---------- */
+  .mk-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(250px,1fr)); gap:26px; margin-bottom:64px; }
+  .mk-card{ background:var(--card); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;
+        transition:transform .35s ease, box-shadow .35s ease, border-color .35s ease; display:flex; flex-direction:column; }
+  .mk-card:hover{ transform:translateY(-8px); box-shadow:var(--shadow); border-color:transparent; }
+  .mk-card-img{ height:180px; background:var(--bg-soft); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
+  .mk-card-img img{ width:100%; height:100%; object-fit:cover; transition:transform .5s ease; }
+  .mk-card:hover .mk-card-img img{ transform:scale(1.08); }
+  .mk-card-img svg{ width:40px; height:40px; opacity:.3; color:var(--navy); }
+  .mk-card-body{ padding:18px 20px 22px; display:flex; flex-direction:column; gap:6px; flex:1; }
+  .mk-card-cat{ font-size:.66rem; font-weight:800; letter-spacing:.07em; text-transform:uppercase; color:var(--purple); }
+  .mk-card-title{ font-family:var(--ff-head); font-weight:600; font-size:1.08rem; line-height:1.3; color:var(--navy); }
+  .mk-card-ville{ font-size:.78rem; color:var(--mute); }
+  .mk-card-price{ margin-top:auto; padding-top:10px; font-family:var(--ff-head); font-weight:700; font-size:1.2rem; color:var(--blue); }
+
+  .mk-empty{ text-align:center; padding:76px 24px; border:1px dashed var(--line); border-radius:var(--radius); background:#fff; margin-bottom:64px; }
+  .mk-empty svg{ width:44px; height:44px; opacity:.35; margin-bottom:16px; color:var(--navy); }
   .mk-empty p{ max-width:420px; margin:0 auto; }
+  .mk-loading{ text-align:center; padding:50px; color:var(--mute); }
 
-  .mk-loading{ text-align:center; padding:50px; color:var(--text-faint); }
+  /* ---------- Reveal on scroll ---------- */
+  .reveal{ opacity:0; transform:translateY(24px); transition:opacity .7s cubic-bezier(.2,.6,.2,1), transform .7s cubic-bezier(.2,.6,.2,1); }
+  .reveal.in{ opacity:1; transform:translateY(0); }
 
-  .mk-vendre-band{
-    border-radius:var(--radius-lg); padding:56px 46px; margin-bottom:80px;
-    background:linear-gradient(135deg, rgba(139,107,255,.16), rgba(47,224,224,.09) 50%, rgba(232,195,104,.13));
-    border:1px solid var(--border-strong); display:flex; align-items:center; justify-content:space-between;
-    gap:30px; flex-wrap:wrap;
-  }
-  .mk-vendre-band h2{ margin-bottom:10px; }
-  .mk-vendre-band p{ max-width:480px; }
+  /* ---------- How it works ---------- */
+  .how-wrap{ padding:20px 0 66px; text-align:center; }
+  .how-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:26px; text-align:left; }
+  @media (max-width:800px){ .how-row{ grid-template-columns:1fr; } }
+  .how-step{ background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:30px 26px; position:relative; overflow:hidden; }
+  .how-step::before{ content:""; position:absolute; top:0; left:0; right:0; height:4px; background:var(--grad-luxe); }
+  .how-step:nth-child(2)::before{ background:linear-gradient(90deg, var(--blue), var(--purple)); }
+  .how-step:nth-child(3)::before{ background:linear-gradient(90deg, var(--purple), var(--green)); }
+  .how-num{ font-family:var(--ff-head); font-size:2.4rem; font-weight:800; -webkit-text-stroke:1.4px var(--line); color:transparent; display:block; margin-bottom:10px; }
+  .how-step h3{ font-size:1.1rem; margin-bottom:8px; }
+  .how-step p{ font-size:.9rem; }
+
+  /* ---------- Trust band ---------- */
+  .trust-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin:0 0 60px; }
+  @media (max-width:800px){ .trust-row{ grid-template-columns:1fr; } }
+  .trust-card{ background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:26px; display:flex; gap:16px; align-items:flex-start; }
+  .trust-card .ic{ width:46px; height:46px; border-radius:14px; display:flex; align-items:center; justify-content:center; flex:none; }
+  .trust-card .ic svg{ width:22px; height:22px; }
+  .trust-card:nth-child(1) .ic{ background:rgba(47,111,237,.12); color:var(--blue); }
+  .trust-card:nth-child(2) .ic{ background:rgba(47,163,107,.14); color:var(--green); }
+  .trust-card:nth-child(3) .ic{ background:rgba(108,63,197,.12); color:var(--purple); }
+  .trust-card h3{ font-family:var(--ff-head); font-size:1.02rem; margin-bottom:4px; color:var(--navy); }
+  .trust-card p{ font-size:.88rem; }
+
+  /* ---------- CTA band ---------- */
+  .mk-vendre-band{ border-radius:var(--radius-lg); padding:60px 46px; margin-bottom:90px;
+        background:var(--grad-luxe); position:relative; overflow:hidden;
+        display:flex; align-items:center; justify-content:space-between; gap:30px; flex-wrap:wrap; }
+  .mk-vendre-band::before{ content:""; position:absolute; inset:-40%; background:conic-gradient(from 0deg, transparent, rgba(232,196,104,.22), transparent 30%); animation:spin 18s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .mk-vendre-band > *{ position:relative; z-index:1; }
+  .mk-vendre-band h2{ color:#fff; margin-bottom:10px; }
+  .mk-vendre-band p{ max-width:480px; color:rgba(255,255,255,.82); }
+  .mk-vendre-band .btn-ghost{ background:#fff; }
+
+  footer{ border-top:1px solid var(--line); padding:60px 0 30px; background:var(--bg-soft); }
+  .footer-grid{ display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:40px; margin-bottom:44px; }
+  @media (max-width:800px){ .footer-grid{ grid-template-columns:1fr 1fr; } }
+  @media (max-width:560px){ .footer-grid{ grid-template-columns:1fr; } }
+  .footer-brand p{ margin:16px 0 20px; font-size:.9rem; max-width:300px; }
+  .footer-col h4{ font-size:.76rem; text-transform:uppercase; letter-spacing:.1em; color:var(--mute); margin-bottom:16px; }
+  .footer-col ul li{ margin-bottom:10px; list-style:none; }
+  .footer-col a{ font-size:.9rem; color:var(--navy); transition:.2s; }
+  .footer-col a:hover{ color:var(--blue); }
+  .footer-bottom{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; padding-top:22px; border-top:1px solid var(--line); font-size:.82rem; color:var(--mute); }
+  .social-row{ display:flex; gap:10px; margin-top:6px; }
+  .social-row a{ width:38px; height:38px; border-radius:10px; background:#fff; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; }
+  .social-row a:hover{ background:var(--green); color:#fff; border-color:transparent; }
+  .social-row svg{ width:16px; height:16px; }
 </style>
 </head>
 <body>
 
+<div id="bg"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div>
+
 <nav class="navbar" id="navbar">
   <div class="container">
     <a href="index.html" class="brand">
-      <img class="brand-mark" src="../assets/img/logo-star-rounded-v1.webp" alt="STAR ENTREPRISE">
+      <img src="assets/img/logo-icon.webp" alt="STAR Marketplace">
       <span>STAR Marketplace<small>par STAR ENTREPRISE</small></span>
     </a>
     <div class="nav-links" id="navLinks">
@@ -94,12 +207,12 @@
   </div>
 </nav>
 
-<header class="mk-hero">
+<header class="hero">
   <div class="container">
     <div class="eyebrow"><span class="dot"></span> STAR Marketplace</div>
-    <h1>Achetez et vendez, <span class="text-grad">simplement.</span></h1>
-    <p class="lead">Déposez votre produit ou service, ou trouvez ce dont vous avez besoin — chaque commande est suivie et le paiement vérifié avant validation.</p>
-    <div class="mk-hero-cta">
+    <h1>Achetez et vendez, <span class="text-grad">en toute confiance.</span></h1>
+    <p class="lead">Déposez votre produit ou service, ou trouvez ce dont vous avez besoin — chaque commande est suivie et le paiement Mobile Money vérifié avant validation.</p>
+    <div class="hero-cta">
       <a href="vendre.html" class="btn btn-primary">Déposer une annonce</a>
       <a href="#annonces" class="btn btn-ghost">Voir les annonces</a>
     </div>
@@ -107,6 +220,43 @@
 </header>
 
 <main class="container" id="annonces">
+  <div class="trust-row">
+    <div class="trust-card reveal">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 9V7a5 5 0 0 0-10 0v2M5 9h14l-1 12H6L5 9z"/></svg></div>
+      <div><h3>Paiement vérifié</h3><p>Aucune commande validée sans le montant exact reçu.</p></div>
+    </div>
+    <div class="trust-card reveal">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 10h20M6 15h4M2 6h20v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z"/></svg></div>
+      <div><h3>Mobile Money</h3><p>Airtel Money, MTN Mobile Money — un dépôt simple, depuis votre téléphone.</p></div>
+    </div>
+    <div class="trust-card reveal">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 3 6v6c0 5 4 9 9 10 5-1 9-5 9-10V6l-9-4z"/></svg></div>
+      <div><h3>Suivi en temps réel</h3><p>Vendeur comme acheteur voient l'état de chaque paiement, en direct.</p></div>
+    </div>
+  </div>
+
+  <div class="how-wrap">
+    <div class="eyebrow"><span class="dot"></span> Comment ça marche</div>
+    <h2 style="margin-bottom:40px;">Vendre en trois étapes.</h2>
+    <div class="how-row">
+      <div class="how-step reveal">
+        <span class="how-num">01</span>
+        <h3>Publiez</h3>
+        <p>Décrivez votre produit ou service, ajoutez vos photos, fixez votre prix.</p>
+      </div>
+      <div class="how-step reveal">
+        <span class="how-num">02</span>
+        <h3>Déposez</h3>
+        <p>Payez votre espace via Airtel Money ou MTN Mobile Money, en un instant.</p>
+      </div>
+      <div class="how-step reveal">
+        <span class="how-num">03</span>
+        <h3>Vendez</h3>
+        <p>Votre annonce passe en ligne dès confirmation — les acheteurs vous trouvent.</p>
+      </div>
+    </div>
+  </div>
+
   <div class="mk-search">
     <input type="search" id="mkSearch" placeholder="Rechercher un produit ou un service…">
   </div>
@@ -127,12 +277,12 @@
     <div class="mk-loading">Chargement des annonces…</div>
   </div>
 
-  <div class="mk-vendre-band">
+  <div class="mk-vendre-band reveal">
     <div>
       <h2>Votre produit mérite d'être vu.</h2>
-      <p>Déposez votre annonce pour une durée déterminée — visible par tous les visiteurs de STAR Marketplace dès le paiement de votre espace confirmé.</p>
+      <p>Déposez votre annonce pour une durée déterminée — visible par tous les visiteurs dès votre paiement Mobile Money confirmé.</p>
     </div>
-    <a href="vendre.html" class="btn btn-primary">Commencer à vendre</a>
+    <a href="vendre.html" class="btn btn-ghost">Commencer à vendre</a>
   </div>
 </main>
 
@@ -141,7 +291,7 @@
     <div class="footer-grid">
       <div class="footer-brand">
         <a href="index.html" class="brand">
-          <img class="brand-mark" src="../assets/img/logo-star-rounded-v1.webp" alt="STAR ENTREPRISE">
+          <img src="assets/img/logo-icon.webp" alt="STAR Marketplace">
           <span>STAR Marketplace</span>
         </a>
         <p>Un produit STAR ENTREPRISE — acheter et vendre en toute confiance, avec des paiements vérifiés.</p>
@@ -162,7 +312,7 @@
         <ul>
           <li><a href="https://wa.me/242066565050" target="_blank" rel="noopener">+242 06 656 50 50</a></li>
           <li><a href="mailto:contact@star-entreprise.cg">contact@star-entreprise.cg</a></li>
-          <li><span style="font-size:.92rem;color:var(--text-dim);">Brazzaville, République du Congo</span></li>
+          <li><span style="font-size:.9rem;color:var(--mute);">Brazzaville, République du Congo</span></li>
         </ul>
       </div>
     </div>
@@ -180,6 +330,11 @@
   window.addEventListener('scroll', function(){
     document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10);
   });
+
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if (e.isIntersecting) e.target.classList.add('in'); });
+  }, { threshold: .15 });
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
 })();
 
 (function(){
@@ -199,7 +354,7 @@
       ? '<img src="' + l.photos[0] + '" alt="' + l.titre.replace(/"/g,'') + '">'
       : svgPlaceholder();
     return '' +
-      '<a class="mk-card" href="annonce.html?id=' + l.id + '">' +
+      '<a class="mk-card reveal in" href="annonce.html?id=' + l.id + '">' +
         '<div class="mk-card-img">' + img + '</div>' +
         '<div class="mk-card-body">' +
           '<span class="mk-card-cat">' + l.categorie + '</span>' +
@@ -213,7 +368,7 @@
   function emptyHtml(){
     return '' +
       '<div class="mk-empty">' + svgPlaceholder() +
-        '<p><b>Aucune annonce pour le moment.</b><br>Sois le premier à publier — <a href="vendre.html" style="color:var(--gold-2);">dépose ton produit ou service ici</a>.</p>' +
+        '<p><b>Aucune annonce pour le moment.</b><br>Sois le premier à publier — <a href="vendre.html" style="color:var(--blue);">dépose ton produit ou service ici</a>.</p>' +
       '</div>';
   }
 
