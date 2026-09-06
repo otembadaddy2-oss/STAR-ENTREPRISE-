@@ -1,6 +1,6 @@
 {
-  "name": "KINDIMBOU — Guichet unique de la République du Congo",
-  "short_name": "KINDIMBOU",
+  "name": "KIDIMBOU — Guichet unique de la République du Congo",
+  "short_name": "KIDIMBOU",
   "description": "Préparez vos démarches administratives et suivez vos dossiers en un seul endroit — un projet porté par STAR ENTREPRISE.",
   "start_url": "./index.html",
   "scope": "./",

@@ -1,6 +1,6 @@
 "use strict";
 /* ============================================================
-   KINDIMBOU — Guichet unique de la République du Congo
+   KIDIMBOU — Guichet unique de la République du Congo
    ============================================================ */
 
 const $ = (sel, root = document) => root.querySelector(sel);
@@ -304,7 +304,7 @@ $("#btnAjouterSuivi")?.addEventListener("click", async () => {
       body: JSON.stringify({
         serviceCode: currentDemarche.key,
         serviceLabel: currentDemarche.title,
-        details: "Checklist préparée via KINDIMBOU — toutes les pièces confirmées par le déclarant",
+        details: "Checklist préparée via KIDIMBOU — toutes les pièces confirmées par le déclarant",
       }),
     });
     const data = await res.json();
