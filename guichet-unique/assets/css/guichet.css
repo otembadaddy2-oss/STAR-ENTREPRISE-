@@ -1,5 +1,5 @@
 /* ============================================================
-   KINDIMBOU — Guichet unique de la République du Congo
+   KIDIMBOU — Guichet unique de la République du Congo
    Design system éditorial : crème / marine / or
    ============================================================ */
 
@@ -127,11 +127,22 @@ img{max-width:100%;display:block;}
 /* ============================================================
    HERO
    ============================================================ */
-.hero-card{margin:4px 16px 18px;padding:28px 22px 24px;border-radius:var(--radius-lg);background:var(--paper);border:1px solid var(--line);position:relative;overflow:hidden;box-shadow:var(--shadow-soft);}
+.hero-photo{margin:4px 16px 14px;border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-soft);position:relative;height:200px;}
+.hero-photo > img{width:100%;height:100%;object-fit:cover;object-position:center 30%;}
+.hero-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(20,20,15,0) 72%, rgba(20,20,15,.32));pointer-events:none;}
+.hero-photo-badge{position:absolute;left:14px;bottom:12px;color:#fff;font-size:.7rem;font-weight:700;letter-spacing:.04em;display:flex;align-items:center;gap:6px;text-shadow:0 1px 4px rgba(0,0,0,.4);}
+.hero-photo-badge svg{width:13px;height:13px;flex:none;}
+
+.hero-photo--big{height:320px;}
+.hero-photo--big > img{object-position:center 22%;}
+.hero-photo-title{position:absolute;left:16px;right:16px;top:16px;z-index:2;}
+.hero-photo-title .plate{display:inline-block;max-width:280px;background:rgba(255,253,248,.94);border-radius:16px;padding:14px 16px;box-shadow:0 10px 28px -10px rgba(20,20,10,.4);}
+.hero-photo-emblem{width:32px;height:32px;margin-bottom:8px;}
+.hero-photo-title h1{font-size:1.42rem;line-height:1.18;font-weight:600;margin:0;letter-spacing:-.01em;color:var(--ink);}
+.hero-photo-title h1 em{font-style:italic;font-weight:500;color:var(--gold-dark);}
+
+.hero-card{margin:4px 16px 18px;padding:22px 22px 24px;border-radius:var(--radius-lg);background:var(--paper);border:1px solid var(--line);position:relative;overflow:hidden;box-shadow:var(--shadow-soft);}
 .hero-card::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(360px 220px at 100% -10%, rgba(200,148,47,.14), transparent 65%);}
-.hero-emblem{width:56px;height:56px;margin-bottom:16px;}
-.hero-card h1{font-size:1.9rem;line-height:1.14;font-weight:600;margin:0 0 12px;letter-spacing:-.01em;position:relative;}
-.hero-card h1 em{font-style:italic;font-weight:500;color:var(--gold-dark);}
 .hero-card p{color:var(--ink-dim);font-size:.94rem;line-height:1.55;margin:0 0 20px;position:relative;max-width:420px;font-family:"Inter",sans-serif;}
 .hero-stats{display:flex;gap:10px;position:relative;margin-bottom:6px;}
 .hero-stat{flex:1;background:var(--cream-soft);border:1px solid var(--line);border-radius:14px;padding:10px 8px;text-align:center;}
@@ -150,8 +161,12 @@ img{max-width:100%;display:block;}
 
 /* service grid */
 .svc-grid{display:flex;flex-direction:column;gap:12px;}
-.svc-card{border-radius:var(--radius-md);border:1px solid var(--line);background:var(--paper);padding:18px;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease;position:relative;}
+.svc-card{border-radius:var(--radius-md);border:1px solid var(--line);background:var(--paper);overflow:hidden;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease;position:relative;}
 .svc-card:active{transform:scale(.985);}
+.svc-card-img{height:132px;overflow:hidden;}
+.svc-card-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease;}
+.svc-card:active .svc-card-img img{transform:scale(1.04);}
+.svc-card-body{padding:16px 18px 18px;}
 .svc-card .svc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
 .svc-code{font-size:.66rem;font-weight:800;letter-spacing:.06em;color:var(--gold-dark);}
 .svc-cat-tag{font-size:.6rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint);border:1px solid var(--line-strong);padding:3px 9px;border-radius:99px;}
@@ -184,8 +199,12 @@ img{max-width:100%;display:block;}
 /* ============================================================
    Démarche detail
    ============================================================ */
-.demarche-hero{margin:4px 16px 16px;padding:24px 20px;border-radius:var(--radius-lg);background:var(--navy);color:#fff;position:relative;overflow:hidden;}
-.demarche-hero::before{content:"";position:absolute;inset:0;background:radial-gradient(300px 200px at 100% 0%, rgba(200,148,47,.22), transparent 60%);pointer-events:none;}
+.demarche-hero{margin:4px 16px 16px;border-radius:var(--radius-lg);background:var(--navy);color:#fff;position:relative;overflow:hidden;}
+.demarche-hero::before{content:"";position:absolute;inset:0;background:radial-gradient(300px 200px at 100% 0%, rgba(200,148,47,.22), transparent 60%);pointer-events:none;z-index:1;}
+.dh-img{height:158px;position:relative;}
+.dh-img img{width:100%;height:100%;object-fit:cover;}
+.dh-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(12,25,54,0) 62%, var(--navy) 100%);}
+.demarche-hero .dh-body{padding:20px 20px 24px;position:relative;z-index:1;}
 .demarche-hero .dh-kicker{font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-light);margin-bottom:8px;position:relative;}
 .demarche-hero h2{font-size:1.6rem;margin:0 0 8px;position:relative;font-weight:600;}
 .demarche-hero p{margin:0;font-size:.88rem;color:#c3cadd;line-height:1.55;position:relative;font-family:"Inter",sans-serif;}
@@ -209,6 +228,12 @@ img{max-width:100%;display:block;}
 #btnAjouterSuivi:disabled{opacity:.45;cursor:not-allowed;}
 
 .indicative-note{background:var(--cream-soft);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 14px;font-size:.78rem;color:var(--ink-dim);line-height:1.5;margin:14px 0;}
+
+.acpce-photos{display:flex;gap:10px;margin-top:14px;}
+.acpce-photo{flex:1;position:relative;border-radius:var(--radius-md);overflow:hidden;height:140px;box-shadow:var(--shadow-soft);}
+.acpce-photo img{width:100%;height:100%;object-fit:cover;}
+.acpce-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(20,20,15,0) 62%, rgba(20,20,15,.5));pointer-events:none;}
+.acpce-photo span{position:absolute;left:10px;right:10px;bottom:8px;color:#fff;font-size:.68rem;font-weight:700;line-height:1.3;text-shadow:0 1px 4px rgba(0,0,0,.4);}
 
 /* ============================================================
    Auth (connexion / inscription)
@@ -330,7 +355,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .legal-kicker{font-size:.7rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-dark);margin:0 0 8px;}
 .demo-banner{margin:14px 16px;padding:13px 16px;border-radius:var(--radius-sm);background:#fbf1dc;border:1px solid #ecd8ac;font-size:.8rem;color:var(--gold-dark);font-weight:600;line-height:1.5;}
 
-@media (min-width:600px){ .hero-card h1{font-size:2.1rem;} }
+@media (min-width:600px){ .hero-photo-title h1{font-size:1.85rem;} .hero-photo-title .plate{max-width:400px;} }
 
 /* ============================================================
    Effet lumière au toucher — passe sur la surface à chaque tap

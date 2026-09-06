@@ -15,7 +15,7 @@ const { chromium } = require('playwright');
     </div>`;
 
   await page.pdf({
-    path: process.argv[2] || '/tmp/KINDIMBOU_guide_utilisation.pdf',
+    path: process.argv[2] || '/tmp/KIDIMBOU_guide_utilisation.pdf',
     printBackground: true,
     displayHeaderFooter: true,
     headerTemplate: '<div></div>',

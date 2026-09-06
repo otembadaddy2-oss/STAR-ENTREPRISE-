@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>D-INNOVATION Pressing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#F2ECDE;
+    --paper-raised:#FFFFFF;
+    --ink:#211B14;
+    --ink-soft:#5B5346;
+    --brass:#96691F;
+    --brass-deep:#6E4E18;
+    --brass-ink:#7C5A22;
+    --teal:#1B6459;
+    --teal-ink:#14493F;
+    --line:#D8CBAE;
+    --shadow: 0 18px 40px -22px rgba(33,27,20,.35);
+    --radius: 2px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#14181A;
+      --paper-raised:#1C2124;
+      --ink:#F1ECDD;
+      --ink-soft:#A79E8B;
+      --brass:#D2A54C;
+      --brass-deep:#F0CA80;
+      --brass-ink:#E9C578;
+      --teal:#4FB3A2;
+      --teal-ink:#7FD0C1;
+      --line:#333A3D;
+      --shadow: 0 18px 44px -20px rgba(0,0,0,.55);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#14181A;
+    --paper-raised:#1C2124;
+    --ink:#F1ECDD;
+    --ink-soft:#A79E8B;
+    --brass:#D2A54C;
+    --brass-deep:#F0CA80;
+    --brass-ink:#E9C578;
+    --teal:#4FB3A2;
+    --teal-ink:#7FD0C1;
+    --line:#333A3D;
+    --shadow: 0 18px 44px -20px rgba(0,0,0,.55);
+  }
+
+  *,*::before,*::after{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Archivo",ui-sans-serif,system-ui,sans-serif;
+    font-size:16px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    position:relative;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    pointer-events:none;
+    z-index:0;
+    opacity:.5;
+    mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+  }
+  h1,h2,h3{
+    font-family:"Fraunces",Georgia,serif;
+    font-weight:500;
+    color:var(--ink);
+    margin:0 0 .4em;
+    text-wrap:balance;
+    letter-spacing:-.01em;
+  }
+  p{margin:0 0 1em; max-width:62ch;}
+  img,svg{display:block; max-width:100%;}
+  a{color:inherit;}
+  .eyebrow{
+    font-family:"Space Mono",ui-monospace,monospace;
+    font-size:.72rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--brass-ink);
+    margin:0 0 .9em;
+    display:flex; align-items:center; gap:.6em;
+  }
+  .eyebrow::before{
+    content:"";
+    width:1.4em; height:1px;
+    background:var(--brass);
+    display:inline-block;
+  }
+  .tag{
+    font-family:"Space Mono",ui-monospace,monospace;
+    color:var(--brass-ink);
+    font-size:.85rem;
+  }
+
+  .wrap{max-width:1180px; margin:0 auto; padding:0 clamp(1.25rem,4vw,3rem);}
+  .section{padding:clamp(4rem,9vw,7.5rem) clamp(1.25rem,4vw,3rem); position:relative; z-index:1;}
+  .section-inner{max-width:1180px; margin:0 auto;}
+  .section-head{max-width:56ch; margin-bottom:clamp(2.5rem,5vw,3.75rem);}
+  .section-head h2{font-size:clamp(1.7rem,3.2vw,2.5rem);}
+  .stitch{
+    border:none;
+    border-top:1.5px dashed var(--line);
+    margin:0;
+  }
+
+  /* corner-notched "ticket" panel */
+  .ticket{
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    box-shadow:var(--shadow);
+    position:relative;
+  }
+  .ticket::before,.ticket::after{
+    content:"";
+    position:absolute; width:16px; height:16px;
+    background:var(--paper);
+    border-radius:50%;
+    border:1px solid var(--line);
+    top:50%; transform:translateY(-50%);
+  }
+
+  /* ---------- header ---------- */
+  header.topbar{
+    position:sticky; top:0; z-index:20;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:1rem clamp(1.25rem,4vw,3rem);
+    background:color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex; align-items:center; gap:.7em; text-decoration:none;}
+  .brand-mark{
+    width:42px; height:42px; border-radius:50%;
+    border:1.5px dashed var(--brass);
+    display:flex; align-items:center; justify-content:center;
+    flex:none;
+  }
+  .brand-mark span{
+    font-family:"Fraunces",serif; font-weight:600; font-style:italic;
+    color:var(--brass-ink); font-size:1.05rem;
+  }
+  .brand-word strong{
+    display:block; font-family:"Fraunces",serif; font-size:1.02rem; letter-spacing:.02em;
+  }
+  .brand-word em{
+    display:block; font-style:normal; font-family:"Space Mono",monospace;
+    font-size:.62rem; letter-spacing:.24em; color:var(--ink-soft);
+  }
+  .nav-cta{
+    font-family:"Space Mono",monospace; font-size:.8rem; letter-spacing:.04em;
+    padding:.65em 1.3em; border:1px solid var(--ink); text-decoration:none;
+    transition:background .2s ease, color .2s ease;
+  }
+  .nav-cta:hover{background:var(--ink); color:var(--paper);}
+
+  /* ---------- buttons ---------- */
+  .btn{
+    display:inline-flex; align-items:center; gap:.6em;
+    font-family:"Space Mono",monospace; font-size:.85rem; letter-spacing:.03em;
+    padding:.95em 1.7em; text-decoration:none; border:1px solid transparent;
+    cursor:pointer; transition:transform .18s ease, box-shadow .18s ease, background .18s ease, color .18s ease;
+    white-space:nowrap;
+  }
+  .btn.primary{background:var(--ink); color:var(--paper); border-color:var(--ink);}
+  .btn.primary:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+  .btn.ghost{background:transparent; color:var(--ink); border-color:var(--ink);}
+  .btn.ghost:hover{background:var(--ink); color:var(--paper);}
+  .btn.brass{background:var(--brass); color:#1b1206; border-color:var(--brass);}
+  .btn.brass:hover{transform:translateY(-2px); box-shadow:var(--shadow);}
+  .btn.full{width:100%; justify-content:center;}
+  .btn:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible{
+    outline:2px solid var(--teal); outline-offset:3px;
+  }
+
+  /* ---------- hero ---------- */
+  .hero{
+    display:grid; grid-template-columns:1.1fr .9fr; gap:clamp(2rem,5vw,4rem);
+    align-items:center;
+    padding:clamp(3.5rem,8vw,6rem) clamp(1.25rem,4vw,3rem) clamp(4rem,8vw,6rem);
+    max-width:1180px; margin:0 auto; position:relative; z-index:1;
+  }
+  .hero-copy .opacity-seq > *{
+    opacity:0; transform:translateY(14px);
+    animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards;
+  }
+  .hero-copy .opacity-seq > *:nth-child(1){animation-delay:.05s;}
+  .hero-copy .opacity-seq > *:nth-child(2){animation-delay:.16s;}
+  .hero-copy .opacity-seq > *:nth-child(3){animation-delay:.28s;}
+  .hero-copy .opacity-seq > *:nth-child(4){animation-delay:.4s;}
+  .hero-copy .opacity-seq > *:nth-child(5){animation-delay:.52s;}
+  @keyframes rise{to{opacity:1; transform:translateY(0);}}
+  @media (prefers-reduced-motion: reduce){
+    .hero-copy .opacity-seq > *{animation:none; opacity:1; transform:none;}
+    *{scroll-behavior:auto !important;}
+  }
+
+  .hero h1{font-size:clamp(2.1rem,4.6vw,3.5rem); line-height:1.08;}
+  .hero h1 em{
+    font-style:italic; color:var(--brass-ink); font-weight:500;
+  }
+  .hero .lead{font-size:1.05rem; color:var(--ink-soft);}
+  .hero-actions{display:flex; flex-wrap:wrap; gap:.9em; margin:1.6em 0 2.2em;}
+
+  .trust-row{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:0;
+    border:1px solid var(--line);
+  }
+  .trust-row div{padding:.9em 1.1em; border-left:1px dashed var(--line);}
+  .trust-row div:first-child{border-left:none;}
+  .trust-row b{display:block; font-family:"Fraunces",serif; font-size:1.02rem; font-weight:500;}
+  .trust-row span{font-size:.72rem; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.05em;}
+
+  .hero-visual{position:relative; display:flex; justify-content:center;}
+  .badge-ring{
+    position:relative; width:min(360px,80vw); aspect-ratio:1;
+    border-radius:50%;
+    border:1.5px dashed var(--line);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .badge-ring::before{
+    content:""; position:absolute; inset:14px; border-radius:50%;
+    border:1px solid var(--line);
+  }
+  .steam{
+    position:absolute; border-radius:50%; filter:blur(26px); opacity:.5;
+    background:radial-gradient(circle, var(--teal), transparent 70%);
+    animation:drift 9s ease-in-out infinite;
+  }
+  .steam.s1{width:140px; height:140px; top:-10%; left:10%;}
+  .steam.s2{width:110px; height:110px; bottom:-6%; right:6%; animation-delay:2.4s; background:radial-gradient(circle, var(--brass), transparent 70%);}
+  @keyframes drift{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-14px) scale(1.06);}}
+  @media (prefers-reduced-motion: reduce){.steam{animation:none;}}
+
+  .garment{width:56%; position:relative; z-index:1;}
+  .garment path,.garment circle,.garment line{
+    fill:none; stroke:var(--ink); stroke-width:1.4; stroke-linejoin:round; stroke-linecap:round;
+  }
+  .garment .fill{fill:var(--paper-raised); stroke:var(--ink);}
+  .garment .accent{stroke:var(--brass); stroke-width:1.6;}
+  .hang-tag{
+    position:absolute; right:6%; top:8%;
+    background:var(--paper-raised); border:1px solid var(--line);
+    padding:.4em .7em; font-family:"Space Mono",monospace; font-size:.68rem;
+    color:var(--brass-ink); box-shadow:var(--shadow); transform:rotate(4deg);
+  }
+
+  /* ---------- services ---------- */
+  .cards{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line);}
+  .card{background:var(--paper-raised); padding:2.1rem 1.6rem; display:flex; flex-direction:column; gap:.6em;}
+  .card > .tag{font-size:1.5rem; color:var(--line); font-weight:700;}
+  .card h3{font-size:1.08rem; margin-bottom:.15em;}
+  .card p{font-size:.92rem; color:var(--ink-soft); margin-bottom:0;}
+  .card.accent{background:var(--ink); color:var(--paper);}
+  .card.accent h3,.card.accent p{color:var(--paper);}
+  .card.accent > .tag{color:var(--brass);}
+  .card.accent p{color:color-mix(in srgb, var(--paper) 75%, transparent);}
+
+  /* ---------- why ---------- */
+  .why-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:clamp(1.5rem,3vw,2.5rem);}
+  .why-item{display:flex; flex-direction:column; gap:.8em;}
+  .why-item .icon{width:2.4rem; height:2.4rem; color:var(--teal);}
+  .why-item .icon svg{width:100%; height:100%;}
+  .why-item h3{font-size:1.02rem;}
+  .why-item p{font-size:.92rem; color:var(--ink-soft); margin-bottom:0;}
+
+  /* ---------- steps ---------- */
+  .steps{display:grid; grid-template-columns:repeat(4,1fr); position:relative;}
+  .steps::before{
+    content:""; position:absolute; top:1.05rem; left:2%; right:2%; height:1px;
+    background-image:linear-gradient(90deg, var(--line) 60%, transparent 40%);
+    background-size:12px 1px; background-repeat:repeat-x;
+  }
+  .steps > div{position:relative; padding-right:1.4rem;}
+  .steps span{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:2.1rem; height:2.1rem; border-radius:50%;
+    background:var(--paper); border:1.5px solid var(--ink);
+    font-family:"Space Mono",monospace; font-size:.85rem; position:relative; z-index:1;
+    margin-bottom:1em;
+  }
+  .steps h3{font-size:1.02rem;}
+  .steps p{font-size:.9rem; color:var(--ink-soft); margin-bottom:0;}
+
+  /* ---------- order ---------- */
+  .order-section{background:var(--paper-raised); border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
+  .order-grid{display:grid; grid-template-columns:.9fr 1.1fr; gap:clamp(2.5rem,5vw,4.5rem); align-items:start;}
+  .address-block{
+    border:1px solid var(--line); padding:1.3em 1.5em; margin-top:1.6em;
+  }
+  .address-block span{display:block; font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); margin-bottom:.4em;}
+  .address-block strong{font-family:"Fraunces",serif; font-weight:500; font-size:1.05rem;}
+
+  .order-form{display:flex; flex-direction:column; gap:1.2rem;}
+  .order-form label{display:flex; flex-direction:column; gap:.5em; font-size:.85rem; color:var(--ink-soft);}
+  .order-form input, .order-form textarea, .order-form select{
+    font:inherit; font-family:"Archivo",sans-serif; color:var(--ink);
+    background:var(--paper); border:1px solid var(--line); padding:.85em .9em; border-radius:0;
+  }
+  .order-form input:focus, .order-form textarea:focus, .order-form select:focus{border-color:var(--teal);}
+  .two{display:grid; grid-template-columns:1fr 1fr; gap:1.1rem;}
+  fieldset{border:1px solid var(--line); padding:1em 1.1em 1.2em;}
+  legend{font-size:.78rem; color:var(--ink-soft); padding:0 .4em; text-transform:uppercase; letter-spacing:.06em;}
+  .chips{display:flex; flex-wrap:wrap; gap:.6em;}
+  .chips label{
+    flex-direction:row; align-items:center; gap:.5em; border:1px solid var(--line);
+    padding:.5em .9em; cursor:pointer; font-size:.85rem; color:var(--ink);
+  }
+  .chips input{accent-color:var(--teal); width:1em; height:1em;}
+  .form-note{font-size:.8rem; color:var(--ink-soft); text-align:center; margin:.6em 0 0;}
+  .form-status{font-size:.85rem; margin-top:-.3em;}
+  .form-status.ok{color:var(--teal-ink);}
+  .form-status.err{color:#B0432E;}
+
+  /* ---------- faq ---------- */
+  .faq{border-top:1px solid var(--line);}
+  details{border-bottom:1px solid var(--line); padding:1.3em 0;}
+  summary{
+    cursor:pointer; list-style:none; display:flex; justify-content:space-between; gap:1em;
+    font-family:"Fraunces",serif; font-size:1.05rem; align-items:center;
+  }
+  summary::-webkit-details-marker{display:none;}
+  summary::after{
+    content:"+"; font-family:"Space Mono",monospace; font-size:1.3rem; color:var(--brass-ink); flex:none;
+    transition:transform .2s ease;
+  }
+  details[open] summary::after{transform:rotate(45deg);}
+  details p{margin-top:.8em; color:var(--ink-soft); font-size:.94rem;}
+
+  /* ---------- cta strip ---------- */
+  .cta-strip{
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1.5em;
+    background:var(--ink); color:var(--paper);
+    padding:clamp(2.5rem,5vw,3.5rem) clamp(1.25rem,4vw,3rem);
+  }
+  .cta-strip h2{color:var(--paper); font-size:clamp(1.4rem,2.6vw,2rem); margin:0;}
+  .cta-strip p{color:color-mix(in srgb, var(--paper) 70%, transparent); margin:0 0 .3em;}
+
+  /* ---------- footer ---------- */
+  footer{
+    padding:2.5rem clamp(1.25rem,4vw,3rem) 6.5rem;
+    display:flex; flex-wrap:wrap; gap:1.5em; justify-content:space-between; align-items:flex-end;
+    font-size:.85rem; color:var(--ink-soft);
+  }
+  footer .brand-word strong{font-size:.95rem;}
+
+  .float-wa{
+    position:fixed; right:1.3rem; bottom:1.3rem; z-index:30;
+    display:flex; align-items:center; gap:.6em;
+    background:var(--ink); color:var(--paper); text-decoration:none;
+    padding:.8em 1.1em; box-shadow:var(--shadow);
+    font-family:"Space Mono",monospace; font-size:.78rem;
+    border:1px solid var(--ink);
+  }
+  .float-wa svg{width:1.1em; height:1.1em; color:#3FBE72;}
+
+  @media (max-width:920px){
+    .hero{grid-template-columns:1fr;}
+    .hero-visual{order:-1;}
+    .trust-row{grid-template-columns:1fr; }
+    .trust-row div{border-left:none; border-top:1px dashed var(--line);}
+    .trust-row div:first-child{border-top:none;}
+    .cards{grid-template-columns:1fr 1fr;}
+    .why-grid{grid-template-columns:1fr 1fr;}
+    .steps{grid-template-columns:1fr 1fr; row-gap:2rem;}
+    .steps::before{display:none;}
+    .order-grid{grid-template-columns:1fr;}
+  }
+  @media (max-width:560px){
+    .cards{grid-template-columns:1fr;}
+    .why-grid{grid-template-columns:1fr;}
+    .steps{grid-template-columns:1fr;}
+    .two{grid-template-columns:1fr;}
+    .hero-actions .btn{width:100%; justify-content:center;}
+    .cta-strip{flex-direction:column; align-items:flex-start;}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="#accueil" aria-label="Accueil D-INNOVATION Pressing">
+    <span class="brand-mark"><span>D·I</span></span>
+    <span class="brand-word"><strong>D-INNOVATION</strong><em>PRESSING</em></span>
+  </a>
+  <a class="nav-cta" href="#commande">Commander →</a>
+</header>
+
+<main>
+
+  <section class="hero" id="accueil">
+    <div class="hero-copy">
+      <div class="opacity-seq">
+        <p class="eyebrow">Atelier de pressing — Songolo, Pointe-Noire</p>
+        <h1>Le soin <em>haute couture</em> de vos vêtements.</h1>
+        <p class="lead">Nettoyage à sec, détachage, lavage et repassage soigné — nous venons chercher vos vêtements chez vous et vous les ramenons impeccables.</p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#commande">Commander maintenant</a>
+          <a class="btn ghost js-wa" href="#" data-wa-text="Bonjour D-INNOVATION Pressing, je souhaite passer une commande.">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.87.5 3.63 1.38 5.15L2 22l4.98-1.3A9.94 9.94 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2Zm0 18a7.9 7.9 0 0 1-4.03-1.1l-.29-.17-3 .78.8-2.93-.19-.3A7.94 7.94 0 1 1 12 20Zm4.4-5.9c-.24-.12-1.4-.7-1.62-.77-.22-.08-.37-.12-.53.12-.16.24-.6.77-.74.93-.14.16-.27.18-.5.06-.24-.12-1-.37-1.9-1.17-.7-.62-1.18-1.4-1.31-1.63-.14-.24-.01-.37.1-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.53-1.28-.73-1.75-.19-.46-.38-.4-.53-.4h-.45c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.7 2.6 4.13 3.64.58.25 1.03.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.4-.57 1.6-1.12.2-.55.2-1.02.14-1.12-.06-.1-.22-.16-.46-.28Z"/></svg>
+            Écrire sur WhatsApp
+          </a>
+        </div>
+        <div class="trust-row">
+          <div><b>Speed Service</b><span>Commande &amp; livraison à domicile</span></div>
+          <div><b>06 979 55 38</b><span>Contact direct</span></div>
+          <div><b>Songolo</b><span>Pointe-Noire</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="badge-ring">
+        <div class="steam s1"></div>
+        <div class="steam s2"></div>
+        <svg class="garment" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+          <path class="fill" d="M70 26 L88 14 L100 24 L112 14 L130 26 L154 46 L138 66 L124 56 L124 200 L76 200 L76 56 L62 66 L46 46 Z"/>
+          <path class="accent" d="M88 14 C 92 30, 108 30, 112 14"/>
+          <line x1="100" y1="24" x2="100" y2="200"/>
+          <circle cx="100" cy="60" r="1.6" fill="var(--ink)"/>
+          <circle cx="100" cy="90" r="1.6" fill="var(--ink)"/>
+          <circle cx="100" cy="120" r="1.6" fill="var(--ink)"/>
+        </svg>
+        <div class="hang-tag">N° 01 — SPEED</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="stitch" />
+
+  <section class="services section" id="services">
+    <div class="section-inner">
+      <div class="section-head">
+        <p class="eyebrow">Nos services</p>
+        <h2>Confiez-nous vos vêtements. Nous nous occupons du reste.</h2>
+      </div>
+      <div class="cards">
+        <article class="card"><span class="tag">01</span><h3>Nettoyage à sec</h3><p>Traitement professionnel pour costumes, robes, pagnes, couvertures et vêtements délicats.</p></article>
+        <article class="card"><span class="tag">02</span><h3>Détachage</h3><p>Prise en charge ciblée des taches, avec attention portée à la matière et aux finitions.</p></article>
+        <article class="card"><span class="tag">03</span><h3>Repassage soigné</h3><p>Finition nette et précise, pour des vêtements prêts à porter dès la livraison.</p></article>
+        <article class="card accent"><span class="tag">04</span><h3>Speed Service</h3><p>Traitement prioritaire, commande et livraison à domicile — tarif double du prix normal.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="pourquoi" style="padding-top:0;">
+    <div class="section-inner">
+      <div class="section-head">
+        <p class="eyebrow">L'atelier, en confiance</p>
+        <h2>Un service pensé pour vous simplifier la vie.</h2>
+      </div>
+      <div class="why-grid">
+        <div class="why-item">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3l-2 3h4l-2-3Z"/><path d="M12 6v3"/><path d="M12 9c-4 2-8 3-8 8h16c0-5-4-6-8-8Z"/></svg></div>
+          <h3>Soin du linge</h3>
+          <p>Chaque matière est traitée selon ses besoins propres — des tissus délicats aux pièces de cérémonie.</p>
+        </div>
+        <div class="why-item">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg></div>
+          <h3>À domicile</h3>
+          <p>Enlèvement et livraison directement chez vous, à l'adresse et au repère que vous indiquez.</p>
+        </div>
+        <div class="why-item">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></div>
+          <h3>Délai maîtrisé</h3>
+          <p>Un besoin urgent ? Le Speed Service accélère la prise en charge, du départ jusqu'au retour.</p>
+        </div>
+        <div class="why-item">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 4h16v12H8l-4 4V4Z"/></svg></div>
+          <h3>Suivi direct</h3>
+          <p>Votre commande est confirmée et suivie par WhatsApp, sans détour ni intermédiaire.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="stitch" />
+
+  <section class="how section" id="comment">
+    <div class="section-inner">
+      <div class="section-head">
+        <p class="eyebrow">Comment ça marche</p>
+        <h2>Une commande simple, du téléphone jusqu'à votre porte.</h2>
+      </div>
+      <div class="steps">
+        <div><span>1</span><h3>Vous commandez</h3><p>Remplissez le formulaire ci-dessous ou écrivez directement sur WhatsApp.</p></div>
+        <div><span>2</span><h3>On récupère</h3><p>Un agent vient chercher vos vêtements à l'adresse que vous avez indiquée.</p></div>
+        <div><span>3</span><h3>On prend soin</h3><p>Nettoyage, détachage et repassage sont réalisés selon votre demande.</p></div>
+        <div><span>4</span><h3>On vous livre</h3><p>Vos vêtements vous sont ramenés chez vous, prêts à porter.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="order-section" id="commande">
+    <div class="section wrap" style="padding-top:clamp(3.5rem,7vw,5rem); padding-bottom:clamp(3.5rem,7vw,5rem);">
+      <div class="order-grid">
+        <div class="order-copy">
+          <p class="eyebrow">Commande à domicile</p>
+          <h2>Préparez votre demande en moins d'une minute.</h2>
+          <p>À l'envoi, WhatsApp s'ouvre automatiquement avec votre commande déjà rédigée. Il ne reste qu'à l'envoyer pour la confirmer.</p>
+          <div class="address-block">
+            <span>Adresse du pressing</span>
+            <strong>Avenue Jacques Opangault, vers le terminus ligne 4</strong>
+            <p style="margin-top:.6em; margin-bottom:0; font-size:.85rem;">Songolo, Pointe-Noire</p>
+          </div>
+        </div>
+
+        <form id="orderForm" class="order-form" novalidate>
+          <label for="name">Nom complet
+            <input id="name" name="name" required placeholder="Ex. Jean M." autocomplete="name" />
+          </label>
+
+          <div class="two">
+            <label for="phone">Téléphone
+              <input id="phone" name="phone" required placeholder="Votre numéro" inputmode="tel" autocomplete="tel" />
+            </label>
+            <label for="district">Quartier
+              <input id="district" name="district" required placeholder="Ex. Songolo" />
+            </label>
+          </div>
+
+          <label for="pickup">Adresse de récupération
+            <textarea id="pickup" name="pickup" required rows="2" placeholder="Indiquez un repère clair pour l'agent"></textarea>
+          </label>
+
+          <fieldset>
+            <legend>Service souhaité</legend>
+            <div class="chips">
+              <label><input type="checkbox" name="service" value="Nettoyage à sec" /><span>Nettoyage à sec</span></label>
+              <label><input type="checkbox" name="service" value="Détachage" /><span>Détachage</span></label>
+              <label><input type="checkbox" name="service" value="Lavage" /><span>Lavage</span></label>
+              <label><input type="checkbox" name="service" value="Repassage soigné" /><span>Repassage</span></label>
+            </div>
+          </fieldset>
+
+          <div class="two">
+            <label for="qty">Nombre approximatif de pièces
+              <input id="qty" name="qty" type="number" min="1" placeholder="Ex. 8" />
+            </label>
+            <label for="speed">Type de délai
+              <select id="speed" name="speed">
+                <option value="Normal">Normal</option>
+                <option value="Speed Service (tarif double du prix normal)">Speed Service</option>
+              </select>
+            </label>
+          </div>
+
+          <label for="details">Précisions utiles
+            <textarea id="details" name="details" rows="3" placeholder="Ex. 2 costumes, 3 chemises, 1 robe..."></textarea>
+          </label>
+
+          <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
+
+          <button class="btn brass full" type="submit">Envoyer ma commande sur WhatsApp</button>
+          <p class="form-note">Contact D-INNOVATION Pressing : <strong>06 979 55 38</strong></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section class="section faq" id="faq">
+    <div class="section-inner">
+      <div class="section-head">
+        <p class="eyebrow">Questions fréquentes</p>
+        <h2>Ce qu'il faut savoir avant de commander.</h2>
+      </div>
+      <details open>
+        <summary>Quels vêtements pouvez-vous traiter ?</summary>
+        <p>Costumes, robes, pagnes, couvertures et vêtements délicats, en nettoyage à sec, lavage ou repassage soigné.</p>
+      </details>
+      <details>
+        <summary>Comment fonctionne le Speed Service ?</summary>
+        <p>Il s'agit d'un traitement prioritaire avec commande et livraison à domicile. Il est facturé au tarif double du prix normal, à indiquer dans le formulaire de commande.</p>
+      </details>
+      <details>
+        <summary>Comment se passe la prise en charge ?</summary>
+        <p>Vous indiquez un repère clair et votre quartier dans le formulaire ; un agent se déplace pour l'enlèvement, puis pour la livraison une fois le service terminé.</p>
+      </details>
+    </div>
+  </section>
+
+  <section class="cta-strip">
+    <div>
+      <p>Vous préférez écrire directement ?</p>
+      <h2>WhatsApp D-INNOVATION Pressing</h2>
+    </div>
+    <a class="btn brass js-wa" href="#" data-wa-text="Bonjour D-INNOVATION Pressing, je souhaite passer une commande.">Contacter le 06 979 55 38</a>
+  </section>
+
+</main>
+
+<footer>
+  <div class="brand">
+    <span class="brand-mark"><span>D·I</span></span>
+    <span class="brand-word"><strong>D-INNOVATION</strong><em>PRESSING</em></span>
+  </div>
+  <div>
+    <p style="margin-bottom:.3em;">Avenue Jacques Opangault, vers le terminus ligne 4 — Songolo, Pointe-Noire</p>
+    <p style="margin-bottom:0;">Commande et livraison à domicile — Speed Service</p>
+  </div>
+</footer>
+
+<a class="float-wa js-wa" href="#" data-wa-text="Bonjour D-INNOVATION Pressing, je souhaite passer une commande." aria-label="Écrire sur WhatsApp">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.87.5 3.63 1.38 5.15L2 22l4.98-1.3A9.94 9.94 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2Zm0 18a7.9 7.9 0 0 1-4.03-1.1l-.29-.17-3 .78.8-2.93-.19-.3A7.94 7.94 0 1 1 12 20Zm4.4-5.9c-.24-.12-1.4-.7-1.62-.77-.22-.08-.37-.12-.53.12-.16.24-.6.77-.74.93-.14.16-.27.18-.5.06-.24-.12-1-.37-1.9-1.17-.7-.62-1.18-1.4-1.31-1.63-.14-.24-.01-.37.1-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.53-1.28-.73-1.75-.19-.46-.38-.4-.53-.4h-.45c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.7 2.6 4.13 3.64.58.25 1.03.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.4-.57 1.6-1.12.2-.55.2-1.02.14-1.12-.06-.1-.22-.16-.46-.28Z"/></svg>
+  <span>WhatsApp</span>
+</a>
+
+<script>
+(function(){
+  var WA_NUMBER = "242" + "069795538".replace(/^0/, "");
+
+  function waLink(text){
+    return "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent(text);
+  }
+
+  document.querySelectorAll(".js-wa").forEach(function(el){
+    el.addEventListener("click", function(e){
+      e.preventDefault();
+      window.open(waLink(el.getAttribute("data-wa-text") || "Bonjour D-INNOVATION Pressing."), "_blank", "noopener");
+    });
+  });
+
+  var form = document.getElementById("orderForm");
+  var status = document.getElementById("formStatus");
+
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+
+    var name = form.name.value.trim();
+    var phone = form.phone.value.trim();
+    var district = form.district.value.trim();
+    var pickup = form.pickup.value.trim();
+    var qty = form.qty.value.trim();
+    var speed = form.speed.value;
+    var details = form.details.value.trim();
+    var services = Array.from(form.querySelectorAll('input[name="service"]:checked')).map(function(i){return i.value;});
+
+    if(!name || !phone || !district || !pickup){
+      status.textContent = "Merci de renseigner votre nom, téléphone, quartier et adresse de récupération.";
+      status.className = "form-status err";
+      return;
+    }
+
+    var lines = [
+      "Nouvelle commande — D-INNOVATION Pressing",
+      "",
+      "Nom : " + name,
+      "Téléphone : " + phone,
+      "Quartier : " + district,
+      "Adresse de récupération : " + pickup,
+      "Service(s) : " + (services.length ? services.join(", ") : "à préciser"),
+      "Nombre de pièces (approx.) : " + (qty || "à préciser"),
+      "Délai : " + speed
+    ];
+    if(details){ lines.push("Précisions : " + details); }
+
+    status.textContent = "Ouverture de WhatsApp avec votre commande...";
+    status.className = "form-status ok";
+    window.open(waLink(lines.join("\n")), "_blank", "noopener");
+  });
+})();
+</script>
+
+</body>
+</html>
