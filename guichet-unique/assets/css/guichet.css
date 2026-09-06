@@ -128,15 +128,21 @@ img{max-width:100%;display:block;}
    HERO
    ============================================================ */
 .hero-photo{margin:4px 16px 14px;border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-soft);position:relative;height:200px;}
-.hero-photo img{width:100%;height:100%;object-fit:cover;object-position:center 30%;}
+.hero-photo > img{width:100%;height:100%;object-fit:cover;object-position:center 30%;}
 .hero-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(20,20,15,0) 72%, rgba(20,20,15,.32));pointer-events:none;}
 .hero-photo-badge{position:absolute;left:14px;bottom:12px;color:#fff;font-size:.7rem;font-weight:700;letter-spacing:.04em;display:flex;align-items:center;gap:6px;text-shadow:0 1px 4px rgba(0,0,0,.4);}
 .hero-photo-badge svg{width:13px;height:13px;flex:none;}
-.hero-card{margin:4px 16px 18px;padding:28px 22px 24px;border-radius:var(--radius-lg);background:var(--paper);border:1px solid var(--line);position:relative;overflow:hidden;box-shadow:var(--shadow-soft);}
+
+.hero-photo--big{height:320px;}
+.hero-photo--big > img{object-position:center 22%;}
+.hero-photo--big::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(120deg, rgba(8,16,32,.72) 0%, rgba(8,16,32,.4) 34%, transparent 62%);pointer-events:none;}
+.hero-photo-title{position:absolute;left:18px;right:18px;top:18px;z-index:2;color:#fff;}
+.hero-photo-emblem{width:38px;height:38px;margin-bottom:10px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35));}
+.hero-photo-title h1{font-size:1.7rem;line-height:1.16;font-weight:600;margin:0;letter-spacing:-.01em;text-shadow:0 2px 12px rgba(0,0,0,.5);max-width:280px;}
+.hero-photo-title h1 em{font-style:italic;font-weight:500;color:var(--gold-light);}
+
+.hero-card{margin:4px 16px 18px;padding:22px 22px 24px;border-radius:var(--radius-lg);background:var(--paper);border:1px solid var(--line);position:relative;overflow:hidden;box-shadow:var(--shadow-soft);}
 .hero-card::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(360px 220px at 100% -10%, rgba(200,148,47,.14), transparent 65%);}
-.hero-emblem{width:56px;height:56px;margin-bottom:16px;}
-.hero-card h1{font-size:1.9rem;line-height:1.14;font-weight:600;margin:0 0 12px;letter-spacing:-.01em;position:relative;}
-.hero-card h1 em{font-style:italic;font-weight:500;color:var(--gold-dark);}
 .hero-card p{color:var(--ink-dim);font-size:.94rem;line-height:1.55;margin:0 0 20px;position:relative;max-width:420px;font-family:"Inter",sans-serif;}
 .hero-stats{display:flex;gap:10px;position:relative;margin-bottom:6px;}
 .hero-stat{flex:1;background:var(--cream-soft);border:1px solid var(--line);border-radius:14px;padding:10px 8px;text-align:center;}
@@ -157,7 +163,7 @@ img{max-width:100%;display:block;}
 .svc-grid{display:flex;flex-direction:column;gap:12px;}
 .svc-card{border-radius:var(--radius-md);border:1px solid var(--line);background:var(--paper);overflow:hidden;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease;position:relative;}
 .svc-card:active{transform:scale(.985);}
-.svc-card-img{height:108px;overflow:hidden;}
+.svc-card-img{height:132px;overflow:hidden;}
 .svc-card-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease;}
 .svc-card:active .svc-card-img img{transform:scale(1.04);}
 .svc-card-body{padding:16px 18px 18px;}
@@ -195,7 +201,7 @@ img{max-width:100%;display:block;}
    ============================================================ */
 .demarche-hero{margin:4px 16px 16px;border-radius:var(--radius-lg);background:var(--navy);color:#fff;position:relative;overflow:hidden;}
 .demarche-hero::before{content:"";position:absolute;inset:0;background:radial-gradient(300px 200px at 100% 0%, rgba(200,148,47,.22), transparent 60%);pointer-events:none;z-index:1;}
-.dh-img{height:130px;position:relative;}
+.dh-img{height:158px;position:relative;}
 .dh-img img{width:100%;height:100%;object-fit:cover;}
 .dh-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(12,25,54,0) 62%, var(--navy) 100%);}
 .demarche-hero .dh-body{padding:20px 20px 24px;position:relative;z-index:1;}
@@ -343,7 +349,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .legal-kicker{font-size:.7rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-dark);margin:0 0 8px;}
 .demo-banner{margin:14px 16px;padding:13px 16px;border-radius:var(--radius-sm);background:#fbf1dc;border:1px solid #ecd8ac;font-size:.8rem;color:var(--gold-dark);font-weight:600;line-height:1.5;}
 
-@media (min-width:600px){ .hero-card h1{font-size:2.1rem;} }
+@media (min-width:600px){ .hero-photo-title h1{font-size:2.1rem;max-width:340px;} }
 
 /* ============================================================
    Effet lumière au toucher — passe sur la surface à chaque tap

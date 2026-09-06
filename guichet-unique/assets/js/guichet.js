@@ -123,12 +123,12 @@ const CATS = [
 ];
 
 const CAT_IMG = {
-  creation: "assets/img/cat-creation.webp",
-  entreprise: "assets/img/cat-entreprise.webp",
-  fiscalite: "assets/img/cat-fiscalite.webp",
-  social: "assets/img/cat-social.webp",
-  foncier: "assets/img/cat-foncier.webp",
-  ressources: "assets/img/cat-ressources.webp",
+  creation: { src: "assets/img/cat-creation.webp", pos: "center 30%" },
+  entreprise: { src: "assets/img/cat-entreprise.webp", pos: "center 38%" },
+  fiscalite: { src: "assets/img/cat-fiscalite.webp", pos: "center 18%" },
+  social: { src: "assets/img/cat-social.webp", pos: "center 48%" },
+  foncier: { src: "assets/img/cat-foncier.webp", pos: "center 46%" },
+  ressources: { src: "assets/img/cat-ressources.webp", pos: "center 50%" },
 };
 
 let activeCat = "tout";
@@ -190,7 +190,7 @@ function renderServiceGrid() {
     .map(
       (d) => `
     <div class="svc-card reveal in" data-key="${d.key}">
-      ${CAT_IMG[d.cat] ? `<div class="svc-card-img"><img src="${CAT_IMG[d.cat]}" alt="${d.catLabel}"></div>` : ""}
+      ${CAT_IMG[d.cat] ? `<div class="svc-card-img"><img src="${CAT_IMG[d.cat].src}" alt="${d.catLabel}" style="object-position:${CAT_IMG[d.cat].pos}"></div>` : ""}
       <div class="svc-card-body">
         <div class="svc-top">
           <span class="svc-code">${d.code}</span>
@@ -281,7 +281,9 @@ function openDemarche(key) {
   $("#dmLede").textContent = d.lede;
   const dmImg = $("#dmImg");
   if (dmImg) {
-    dmImg.src = CAT_IMG[d.cat] || "";
+    const meta = CAT_IMG[d.cat];
+    dmImg.src = meta ? meta.src : "";
+    dmImg.style.objectPosition = meta ? meta.pos : "center";
     dmImg.alt = d.catLabel;
   }
   $("#dmPieces").innerHTML = d.pieces
