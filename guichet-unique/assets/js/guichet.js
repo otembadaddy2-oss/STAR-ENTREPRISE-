@@ -122,6 +122,15 @@ const CATS = [
   { key: "ressources", label: "Ressources" },
 ];
 
+const CAT_IMG = {
+  creation: "assets/img/cat-creation.webp",
+  entreprise: "assets/img/cat-entreprise.webp",
+  fiscalite: "assets/img/cat-fiscalite.webp",
+  social: "assets/img/cat-social.webp",
+  foncier: "assets/img/cat-foncier.webp",
+  ressources: "assets/img/cat-ressources.webp",
+};
+
 let activeCat = "tout";
 let activeSearch = "";
 let currentDemarche = null;
@@ -181,15 +190,18 @@ function renderServiceGrid() {
     .map(
       (d) => `
     <div class="svc-card reveal in" data-key="${d.key}">
-      <div class="svc-top">
-        <span class="svc-code">${d.code}</span>
-        <span class="svc-cat-tag">${d.catLabel}</span>
-      </div>
-      <h4>${d.title}</h4>
-      <p>${d.lede}</p>
-      <div class="svc-foot">
-        <span class="svc-tagline">Checklist guidée</span>
-        <span class="svc-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      ${CAT_IMG[d.cat] ? `<div class="svc-card-img"><img src="${CAT_IMG[d.cat]}" alt="${d.catLabel}"></div>` : ""}
+      <div class="svc-card-body">
+        <div class="svc-top">
+          <span class="svc-code">${d.code}</span>
+          <span class="svc-cat-tag">${d.catLabel}</span>
+        </div>
+        <h4>${d.title}</h4>
+        <p>${d.lede}</p>
+        <div class="svc-foot">
+          <span class="svc-tagline">Checklist guidée</span>
+          <span class="svc-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </div>
       </div>
     </div>`
     )
@@ -267,6 +279,11 @@ function openDemarche(key) {
   $("#dmKicker").textContent = "Démarche " + d.code;
   $("#dmTitle").textContent = d.title;
   $("#dmLede").textContent = d.lede;
+  const dmImg = $("#dmImg");
+  if (dmImg) {
+    dmImg.src = CAT_IMG[d.cat] || "";
+    dmImg.alt = d.catLabel;
+  }
   $("#dmPieces").innerHTML = d.pieces
     .map(
       (p, i) => `<label class="piece-row piece-row--check">

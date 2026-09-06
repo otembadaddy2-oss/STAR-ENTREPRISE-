@@ -127,6 +127,11 @@ img{max-width:100%;display:block;}
 /* ============================================================
    HERO
    ============================================================ */
+.hero-photo{margin:4px 16px 14px;border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-soft);position:relative;height:200px;}
+.hero-photo img{width:100%;height:100%;object-fit:cover;object-position:center 30%;}
+.hero-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(12,25,54,0) 55%, rgba(12,25,54,.55));pointer-events:none;}
+.hero-photo-badge{position:absolute;left:14px;bottom:12px;color:#fff;font-size:.7rem;font-weight:700;letter-spacing:.04em;display:flex;align-items:center;gap:6px;text-shadow:0 1px 4px rgba(0,0,0,.4);}
+.hero-photo-badge svg{width:13px;height:13px;flex:none;}
 .hero-card{margin:4px 16px 18px;padding:28px 22px 24px;border-radius:var(--radius-lg);background:var(--paper);border:1px solid var(--line);position:relative;overflow:hidden;box-shadow:var(--shadow-soft);}
 .hero-card::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(360px 220px at 100% -10%, rgba(200,148,47,.14), transparent 65%);}
 .hero-emblem{width:56px;height:56px;margin-bottom:16px;}
@@ -150,8 +155,12 @@ img{max-width:100%;display:block;}
 
 /* service grid */
 .svc-grid{display:flex;flex-direction:column;gap:12px;}
-.svc-card{border-radius:var(--radius-md);border:1px solid var(--line);background:var(--paper);padding:18px;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease;position:relative;}
+.svc-card{border-radius:var(--radius-md);border:1px solid var(--line);background:var(--paper);overflow:hidden;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease;position:relative;}
 .svc-card:active{transform:scale(.985);}
+.svc-card-img{height:108px;overflow:hidden;}
+.svc-card-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease;}
+.svc-card:active .svc-card-img img{transform:scale(1.04);}
+.svc-card-body{padding:16px 18px 18px;}
 .svc-card .svc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
 .svc-code{font-size:.66rem;font-weight:800;letter-spacing:.06em;color:var(--gold-dark);}
 .svc-cat-tag{font-size:.6rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint);border:1px solid var(--line-strong);padding:3px 9px;border-radius:99px;}
@@ -184,8 +193,12 @@ img{max-width:100%;display:block;}
 /* ============================================================
    Démarche detail
    ============================================================ */
-.demarche-hero{margin:4px 16px 16px;padding:24px 20px;border-radius:var(--radius-lg);background:var(--navy);color:#fff;position:relative;overflow:hidden;}
-.demarche-hero::before{content:"";position:absolute;inset:0;background:radial-gradient(300px 200px at 100% 0%, rgba(200,148,47,.22), transparent 60%);pointer-events:none;}
+.demarche-hero{margin:4px 16px 16px;border-radius:var(--radius-lg);background:var(--navy);color:#fff;position:relative;overflow:hidden;}
+.demarche-hero::before{content:"";position:absolute;inset:0;background:radial-gradient(300px 200px at 100% 0%, rgba(200,148,47,.22), transparent 60%);pointer-events:none;z-index:1;}
+.dh-img{height:130px;position:relative;}
+.dh-img img{width:100%;height:100%;object-fit:cover;}
+.dh-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(12,25,54,.15) 0%, var(--navy) 96%);}
+.demarche-hero .dh-body{padding:20px 20px 24px;position:relative;z-index:1;}
 .demarche-hero .dh-kicker{font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-light);margin-bottom:8px;position:relative;}
 .demarche-hero h2{font-size:1.6rem;margin:0 0 8px;position:relative;font-weight:600;}
 .demarche-hero p{margin:0;font-size:.88rem;color:#c3cadd;line-height:1.55;position:relative;font-family:"Inter",sans-serif;}
