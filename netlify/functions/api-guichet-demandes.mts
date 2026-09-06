@@ -1,4 +1,4 @@
-// KINDIMBOU — dépôt et suivi des demandes administratives du citoyen connecté.
+// KIDIMBOU — dépôt et suivi des demandes administratives du citoyen connecté.
 import type { Context, Config } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 import { randomBytes } from "node:crypto";

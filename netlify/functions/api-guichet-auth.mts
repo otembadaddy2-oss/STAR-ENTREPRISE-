@@ -1,4 +1,4 @@
-// KINDIMBOU — Guichet unique de la République du Congo.
+// KIDIMBOU — Guichet unique de la République du Congo.
 // Comptes citoyens (distincts des comptes staff `accounts`), avec dépôt
 // sécurisé de la pièce d'identité (CNI, passeport ou carte de résident)
 // dans Netlify Blobs — jamais exposée par une URL publique.

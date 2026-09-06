@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vendre — STAR Marketplace</title>
+<meta name="description" content="Déposez votre produit ou service sur STAR Marketplace : inscription, annonce, et paiement Mobile Money de votre espace pour une durée déterminée.">
+<meta name="theme-color" content="#F7F5F0">
+<link rel="icon" href="assets/img/logo-icon.webp" type="image/webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FBF9F5; --bg-soft:#F3EFE7; --card:#FFFFFF;
+    --navy:#0E1B34; --navy-2:#1B3A6B; --blue:#2F6FED; --blue-2:#5B93FF;
+    --green:#2FA36B; --green-2:#7FD9A8; --maroon:#5C2A22; --purple:#6C3FC5;
+    --gold:#C9982F; --gold-2:#E8C468;
+    --ink:#171B26; --mute:#5B6478; --line:#E7E1D6;
+    --ff-head:"Fraunces", Georgia, serif; --ff-body:"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+    --grad-luxe: linear-gradient(115deg, var(--navy) 0%, var(--blue) 48%, var(--purple) 100%);
+    --radius:20px; --shadow: 0 20px 50px -20px rgba(14,27,52,.25);
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ background:var(--bg); color:var(--ink); font-family:var(--ff-body); font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased; }
+  a{ color:inherit; text-decoration:none; }
+  h1{ font-family:var(--ff-head); font-weight:700; letter-spacing:-.01em; line-height:1.12; color:var(--navy); font-size:clamp(2rem,4.4vw,2.9rem); }
+  .container{ max-width:1240px; margin:0 auto; padding:0 24px; }
+
+  .navbar{ position:fixed; top:0; left:0; right:0; z-index:100; padding:18px 0; transition:.3s; }
+  .navbar.scrolled{ padding:12px 0; background:rgba(251,249,245,.85); backdrop-filter:blur(14px) saturate(140%); border-bottom:1px solid var(--line); }
+  .navbar .container{ display:flex; align-items:center; justify-content:space-between; }
+  .brand{ display:flex; align-items:center; gap:10px; font-family:var(--ff-head); font-weight:700; font-size:1.1rem; color:var(--navy); }
+  .brand img{ width:60px; height:auto; }
+  .brand small{ display:block; font-family:var(--ff-body); font-weight:600; font-size:.6rem; letter-spacing:.14em; color:var(--mute); text-transform:uppercase; }
+  .nav-links{ display:flex; align-items:center; gap:4px; }
+  .nav-links a{ padding:10px 16px; border-radius:999px; font-size:.92rem; font-weight:600; color:var(--navy); transition:.2s; }
+  .nav-links a.active, .nav-links a:hover{ background:rgba(47,111,237,.1); color:var(--blue); }
+  .nav-toggle{ display:none; width:44px; height:44px; align-items:center; justify-content:center; border-radius:12px; background:rgba(14,27,52,.05); border:1px solid var(--line); }
+  .nav-toggle span, .nav-toggle span::before, .nav-toggle span::after{ content:""; display:block; width:18px; height:2px; background:var(--navy); position:relative; }
+  .nav-toggle span::before{ position:absolute; top:-6px; } .nav-toggle span::after{ position:absolute; top:6px; }
+  @media (max-width:960px){
+    .nav-links{ position:fixed; top:0; right:0; height:100vh; width:min(78vw,340px); flex-direction:column; align-items:stretch;
+                background:#fff; border-left:1px solid var(--line); padding:100px 24px 30px; transform:translateX(100%); transition:.35s; gap:4px; }
+    .nav-links.open{ transform:translateX(0); }
+    .nav-toggle{ display:flex; }
+  }
+
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:10px; padding:15px 30px; border-radius:999px;
+        font-weight:700; font-size:.96rem; border:1px solid transparent; transition:.25s; font-family:var(--ff-body); cursor:pointer; }
+  .btn-primary{ position:relative; overflow:hidden; background:var(--grad-luxe); color:#fff; box-shadow:0 14px 30px -10px rgba(47,111,237,.45); }
+  .btn-primary:hover{ transform:translateY(-3px); box-shadow:0 20px 40px -10px rgba(47,111,237,.55); }
+  .btn-primary::after{ content:""; position:absolute; top:0; left:-60%; width:40%; height:100%;
+        background:linear-gradient(115deg, transparent, rgba(255,255,255,.5), transparent); transform:skewX(-20deg); animation:shine 3.6s ease-in-out 1.4s infinite; }
+  @keyframes shine{ 0%{ left:-60%; } 35%{ left:130%; } 100%{ left:130%; } }
+  .btn-ghost{ background:#fff; color:var(--navy); border-color:var(--line); }
+  .btn-ghost:hover{ transform:translateY(-3px); box-shadow:var(--shadow); }
+  .btn-block{ width:100%; }
+  .btn.is-loading{ pointer-events:none; opacity:.85; }
+  .btn.is-loading::before{
+    content:""; width:16px; height:16px; border-radius:50%; border:2px solid rgba(255,255,255,.4);
+    border-top-color:#fff; animation:spin .7s linear infinite; margin-right:2px;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  .mk-wrap{ max-width:640px; margin:0 auto; padding:150px 20px 90px; }
+  .back-btn{ position:fixed; top:96px; left:20px; z-index:60; display:inline-flex; align-items:center; gap:8px;
+    padding:10px 16px 10px 12px; border-radius:999px; background:#fff; border:1px solid var(--line);
+    color:var(--navy); font-weight:600; font-size:.88rem; box-shadow:0 6px 18px rgba(14,27,52,.08); transition:.2s; }
+  .back-btn:hover{ background:var(--navy); color:#fff; transform:translateX(-2px); border-color:var(--navy); }
+  .back-btn svg{ width:16px; height:16px; }
+  @media (max-width:640px){ .back-btn{ top:82px; left:14px; padding:8px 14px 8px 10px; font-size:.82rem; } }
+  .mk-step{ display:none; }
+  .mk-step.active{ display:block; animation:fadeUp .5s ease-out; }
+  @keyframes fadeUp{ from{ opacity:0; transform:translateY(14px); } to{ opacity:1; transform:translateY(0); } }
+  .eyebrow{ display:inline-flex; align-items:center; gap:8px; font-size:.78rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+            color:var(--maroon); background:rgba(92,42,34,.08); border:1px solid rgba(92,42,34,.22); padding:7px 16px; border-radius:999px; margin-bottom:20px; }
+  .eyebrow .dot{ width:6px; height:6px; border-radius:50%; background:var(--gold); box-shadow:0 0 10px var(--gold); }
+  .mk-card2{ background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:34px; box-shadow:var(--shadow); }
+  .mk-tabs{ display:flex; gap:8px; margin-bottom:26px; }
+  .mk-tab{ flex:1; padding:12px; text-align:center; border-radius:12px; border:1px solid var(--line);
+           background:var(--bg-soft); font-weight:700; font-size:.88rem; cursor:pointer; color:var(--mute); transition:.2s; }
+  .mk-tab.active{ background:var(--grad-luxe); color:#fff; border-color:transparent; }
+
+  .field{ margin-bottom:18px; }
+  .field label{ display:block; font-size:.84rem; font-weight:700; margin-bottom:8px; color:var(--navy); }
+  .field input, .field select, .field textarea{ width:100%; padding:13px 16px; border-radius:12px; background:var(--bg-soft);
+        border:1px solid var(--line); color:var(--ink); font-size:.95rem; font-family:var(--ff-body); transition:.2s; }
+  .field input:focus, .field select:focus, .field textarea:focus{ outline:0; border-color:var(--blue); background:#fff; }
+  .field textarea{ min-height:120px; resize:vertical; }
+  .field-row{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  @media (max-width:600px){ .field-row{ grid-template-columns:1fr; } }
+  .form-note{ font-size:.78rem; color:var(--mute); margin-top:10px; }
+
+  .mk-msg{ border-radius:12px; padding:14px 16px; margin-bottom:18px; font-size:.88rem; display:none; }
+  .mk-msg.err{ background:rgba(210,60,60,.09); border:1px solid rgba(210,60,60,.3); color:#a02020; display:block; }
+  .mk-msg.ok{ background:rgba(47,163,107,.1); border:1px solid rgba(47,163,107,.32); color:#1c6b3d; display:block; }
+
+  .pay-box{ background:var(--grad-luxe); color:#fff; border-radius:16px; padding:28px; text-align:center; margin:20px 0; position:relative; overflow:hidden; }
+  .pay-box .amount{ font-family:var(--ff-head); font-size:2.3rem; font-weight:800; margin:8px 0; }
+  .mm-row{ display:flex; gap:10px; justify-content:center; margin:18px 0 6px; flex-wrap:wrap; }
+  .mm-chip{ background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.28); padding:9px 16px; border-radius:999px; font-size:.82rem; font-weight:700; }
+  .mm-number{ font-family:var(--ff-head); font-size:1.3rem; font-weight:700; margin-top:6px; }
+  .pay-status{ font-size:.86rem; margin-top:16px; padding:10px; border-radius:10px; background:rgba(255,255,255,.12); }
+  .pay-status.valide{ background:rgba(127,217,168,.28); }
+  .pay-status.invalide{ background:rgba(255,140,140,.28); }
+
+  .confirm-form{ margin-top:22px; }
+  .photo-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+  .photo-row img{ width:70px; height:70px; object-fit:cover; border-radius:8px; border:1px solid var(--line); }
+</style>
+</head>
+<body>
+
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <a href="index.html" class="brand">
+      <img src="assets/img/logo-icon.webp" alt="STAR Marketplace">
+      <span>STAR Marketplace<small>par STAR ENTREPRISE</small></span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Explorer</a>
+      <a href="vendre.html" class="active">Vendre</a>
+      <a href="compte.html">Mon compte</a>
+      <a href="../index.html">Site STAR ENTREPRISE</a>
+    </div>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span></button>
+  </div>
+</nav>
+
+<a href="index.html" class="back-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Retour</a>
+
+<div class="mk-wrap">
+
+  <!-- Étape 1 — connexion / inscription vendeur -->
+  <section class="mk-step active" id="stepAuth">
+    <div class="eyebrow"><span class="dot"></span> Espace vendeur</div>
+    <h1 style="margin-bottom:26px;">Commence à vendre.</h1>
+    <div class="mk-card2">
+      <div class="mk-tabs">
+        <div class="mk-tab active" data-tab="login">Se connecter</div>
+        <div class="mk-tab" data-tab="register">Créer un compte</div>
+      </div>
+      <div class="mk-msg" id="authMsg"></div>
+
+      <form id="loginForm">
+        <div class="field"><label>Email</label><input type="email" id="loginEmail" required></div>
+        <div class="field"><label>Mot de passe</label><input type="password" id="loginPassword" required></div>
+        <button type="submit" class="btn btn-primary btn-block">Se connecter</button>
+      </form>
+
+      <form id="registerForm" style="display:none;">
+        <div class="field-row">
+          <div class="field"><label>Nom complet</label><input type="text" id="regNom" required></div>
+          <div class="field"><label>Téléphone</label><input type="tel" id="regTelephone" required></div>
+        </div>
+        <div class="field"><label>Ville</label><input type="text" id="regVille"></div>
+        <div class="field"><label>Email</label><input type="email" id="regEmail" required></div>
+        <div class="field"><label>Mot de passe (8 caractères min.)</label><input type="password" id="regPassword" minlength="8" required></div>
+        <button type="submit" class="btn btn-primary btn-block">Créer mon compte vendeur</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Étape 2 — dépôt de l'annonce -->
+  <section class="mk-step" id="stepListing">
+    <div class="eyebrow"><span class="dot"></span> Ton annonce</div>
+    <h1 style="margin-bottom:26px;">Décris ton produit ou service.</h1>
+    <div class="mk-card2">
+      <div class="mk-msg" id="listingMsg"></div>
+      <form id="listingForm">
+        <div class="field"><label>Titre</label><input type="text" id="lTitre" maxlength="200" required></div>
+        <div class="field"><label>Description</label><textarea id="lDescription" maxlength="4000"></textarea></div>
+        <div class="field-row">
+          <div class="field">
+            <label>Catégorie</label>
+            <select id="lCategorie">
+              <option value="mode">Mode</option>
+              <option value="electronique">Électronique</option>
+              <option value="maison">Maison</option>
+              <option value="beaute">Beauté</option>
+              <option value="alimentation">Alimentation</option>
+              <option value="services">Services</option>
+              <option value="vehicules">Véhicules</option>
+              <option value="immobilier">Immobilier</option>
+              <option value="autre" selected>Autre</option>
+            </select>
+          </div>
+          <div class="field"><label>Ville</label><input type="text" id="lVille"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Prix (FCFA)</label><input type="number" id="lPrix" min="1" required></div>
+          <div class="field">
+            <label>Durée de l'annonce</label>
+            <select id="lDuree">
+              <option value="7">7 jours — 2 333 FCFA</option>
+              <option value="30" selected>30 jours — 10 000 FCFA</option>
+              <option value="90">90 jours — 30 000 FCFA</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Photos (optionnel)</label>
+          <input type="file" id="lPhotos" accept="image/*" multiple>
+          <div class="photo-row" id="photoPreview"></div>
+          <p class="form-note">6 photos maximum, 2 Mo par photo.</p>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Continuer vers le paiement</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Étape 3 — paiement Mobile Money de l'espace -->
+  <section class="mk-step" id="stepPay">
+    <div class="eyebrow"><span class="dot"></span> Dernière étape</div>
+    <h1 style="margin-bottom:26px;">Dépose via Mobile Money.</h1>
+    <div class="mk-card2">
+      <p style="color:var(--mute);">Ton annonce est enregistrée mais pas encore visible. Elle passe en ligne automatiquement dès que ton dépôt est confirmé.</p>
+      <div class="pay-box">
+        <div style="font-size:.82rem; opacity:.85;">Montant à déposer</div>
+        <div class="amount" id="payAmount">—</div>
+        <div class="mm-row">
+          <span class="mm-chip">🟠 Airtel Money</span>
+          <span class="mm-chip">🟡 MTN Mobile Money</span>
+        </div>
+        <div style="font-size:.82rem; opacity:.85; margin-top:8px;">Numéro de dépôt (Airtel Money &amp; MTN Mobile Money)</div>
+        <div class="mm-number" id="mmNumber">+242 06 656 50 50</div>
+        <div class="pay-status" id="payStatus">En attente de ta confirmation…</div>
+      </div>
+
+      <form class="confirm-form" id="confirmForm">
+        <div class="field-row">
+          <div class="field">
+            <label>Opérateur utilisé</label>
+            <select id="cOperateur">
+              <option value="mobile_money">Airtel Money</option>
+              <option value="mobile_money">MTN Mobile Money</option>
+            </select>
+          </div>
+          <div class="field"><label>Référence de la transaction</label><input type="text" id="cReference" placeholder="Ex : MP240912.1234" required></div>
+        </div>
+        <div class="field"><label>Montant envoyé (FCFA)</label><input type="number" id="cMontant" min="1" required></div>
+        <button type="submit" class="btn btn-primary btn-block">Confirmer mon dépôt</button>
+        <p class="form-note">Le montant doit correspondre exactement à la somme affichée ci-dessus — sinon la confirmation sera rejetée automatiquement.</p>
+      </form>
+
+      <a href="compte.html" class="btn btn-ghost btn-block" style="margin-top:16px;">Voir mon tableau de bord</a>
+      <a href="index.html" class="btn btn-ghost btn-block" style="margin-top:10px;">Retour à l'accueil</a>
+    </div>
+  </section>
+
+</div>
+
+<footer style="border-top:1px solid var(--line); padding:26px 0; background:var(--bg-soft);">
+  <div class="container" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; font-size:.82rem; color:var(--mute);">
+    <span>© STAR ENTREPRISE — STAR Marketplace</span>
+    <a href="https://wa.me/242066565050" target="_blank" rel="noopener" style="color:var(--navy); font-weight:600;">+242 06 656 50 50</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var navToggle = document.getElementById('navToggle');
+  var navLinks = document.getElementById('navLinks');
+  navToggle && navToggle.addEventListener('click', function(){ navLinks.classList.toggle('open'); });
+  window.addEventListener('scroll', function(){
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10);
+  });
+})();
+
+(function(){
+  var TOKEN_KEY = 'mk_token';
+  var token = localStorage.getItem(TOKEN_KEY);
+
+  var stepAuth = document.getElementById('stepAuth');
+  var stepListing = document.getElementById('stepListing');
+  var stepPay = document.getElementById('stepPay');
+
+  function showStep(step){
+    [stepAuth, stepListing, stepPay].forEach(function(s){ s.classList.remove('active'); });
+    step.classList.add('active');
+  }
+
+  function showMsg(el, text, ok){
+    el.textContent = text;
+    el.className = 'mk-msg ' + (ok ? 'ok' : 'err');
+  }
+
+  var tabs = document.querySelectorAll('.mk-tab');
+  var loginForm = document.getElementById('loginForm');
+  var registerForm = document.getElementById('registerForm');
+  tabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      tabs.forEach(function(t){ t.classList.remove('active'); });
+      tab.classList.add('active');
+      var isLogin = tab.dataset.tab === 'login';
+      loginForm.style.display = isLogin ? 'block' : 'none';
+      registerForm.style.display = isLogin ? 'none' : 'block';
+    });
+  });
+
+  function setLoading(form, on){
+    var btn = form.querySelector('button[type="submit"]');
+    if (!btn) return;
+    btn.classList.toggle('is-loading', on);
+    btn.disabled = on;
+  }
+
+  function afterAuth(data){
+    token = data.token;
+    localStorage.setItem(TOKEN_KEY, token);
+    if (!data.user.estVendeur) {
+      showMsg(document.getElementById('authMsg'), "Ce compte n'est pas un compte vendeur. Crée un compte vendeur pour déposer une annonce.", false);
+      return;
+    }
+    showStep(stepListing);
+  }
+
+  loginForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    setLoading(loginForm, true);
+    fetch('/api/marketplace-auth', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        action: 'login',
+        email: document.getElementById('loginEmail').value,
+        password: document.getElementById('loginPassword').value,
+      }),
+    }).then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); })
+      .then(function(res){
+        if (!res.ok) return showMsg(document.getElementById('authMsg'), res.d.error || 'Erreur de connexion', false);
+        afterAuth(res.d);
+      })
+      .finally(function(){ setLoading(loginForm, false); });
+  });
+
+  registerForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    setLoading(registerForm, true);
+    fetch('/api/marketplace-auth', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        action: 'register',
+        nom: document.getElementById('regNom').value,
+        telephone: document.getElementById('regTelephone').value,
+        ville: document.getElementById('regVille').value,
+        email: document.getElementById('regEmail').value,
+        password: document.getElementById('regPassword').value,
+        estVendeur: true,
+      }),
+    }).then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); })
+      .then(function(res){
+        if (!res.ok) return showMsg(document.getElementById('authMsg'), res.d.error || 'Erreur de création de compte', false);
+        afterAuth(res.d);
+      })
+      .finally(function(){ setLoading(registerForm, false); });
+  });
+
+  var photos = [];
+  document.getElementById('lPhotos').addEventListener('change', function(e){
+    var files = Array.from(e.target.files).slice(0, 6);
+    var preview = document.getElementById('photoPreview');
+    preview.innerHTML = '';
+    photos = [];
+    files.forEach(function(file){
+      if (file.size > 2 * 1024 * 1024) return;
+      var reader = new FileReader();
+      reader.onload = function(ev){
+        photos.push(ev.target.result);
+        var img = document.createElement('img');
+        img.src = ev.target.result;
+        preview.appendChild(img);
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+
+  var listingId = null;
+  var expectedAmount = 0;
+  var listingForm = document.getElementById('listingForm');
+  listingForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    setLoading(listingForm, true);
+    fetch('/api/marketplace-listings', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: 'Bearer ' + token },
+      body: JSON.stringify({
+        titre: document.getElementById('lTitre').value,
+        description: document.getElementById('lDescription').value,
+        categorie: document.getElementById('lCategorie').value,
+        ville: document.getElementById('lVille').value,
+        prix: Number(document.getElementById('lPrix').value),
+        dureeJours: Number(document.getElementById('lDuree').value),
+        photos: photos,
+      }),
+    }).then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); })
+      .then(function(res){
+        if (!res.ok) return showMsg(document.getElementById('listingMsg'), res.d.error || 'Erreur lors du dépôt', false);
+        listingId = res.d.listing.id;
+        expectedAmount = res.d.paiementEspace.montantAttendu;
+        document.getElementById('payAmount').textContent = expectedAmount.toLocaleString('fr-FR') + ' ' + res.d.paiementEspace.devise;
+        document.getElementById('cMontant').value = expectedAmount;
+        showStep(stepPay);
+      })
+      .finally(function(){ setLoading(listingForm, false); });
+  });
+
+  var confirmForm = document.getElementById('confirmForm');
+  confirmForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    setLoading(confirmForm, true);
+    var statusEl = document.getElementById('payStatus');
+    statusEl.className = 'pay-status';
+    statusEl.textContent = 'Vérification en cours…';
+    fetch('/api/marketplace-payments', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        kind: 'listing', id: listingId,
+        montantRecu: Number(document.getElementById('cMontant').value),
+        methode: 'mobile_money',
+        reference: document.getElementById('cReference').value,
+      }),
+    }).then(function(r){ return r.json(); })
+      .then(function(d){
+        if (d.statut === 'valide') {
+          statusEl.className = 'pay-status valide';
+          statusEl.textContent = 'Paiement confirmé — ton annonce est en ligne !';
+        } else {
+          statusEl.className = 'pay-status invalide';
+          statusEl.textContent = d.message || 'Montant incorrect — vérifie le montant envoyé et réessaie.';
+        }
+      })
+      .catch(function(){
+        statusEl.className = 'pay-status invalide';
+        statusEl.textContent = 'Impossible de vérifier le paiement pour le moment. Réessaie dans un instant.';
+      })
+      .finally(function(){ setLoading(confirmForm, false); });
+  });
+
+  if (token) {
+    fetch('/api/marketplace-auth', { headers: { authorization: 'Bearer ' + token } })
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(d){ if (d && d.user && d.user.estVendeur) showStep(stepListing); });
+  }
+})();
+</script>
+</body>
+</html>

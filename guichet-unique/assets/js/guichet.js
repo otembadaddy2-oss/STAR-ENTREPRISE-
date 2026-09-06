@@ -1,6 +1,6 @@
 "use strict";
 /* ============================================================
-   KINDIMBOU — Guichet unique de la République du Congo
+   KIDIMBOU — Guichet unique de la République du Congo
    ============================================================ */
 
 const $ = (sel, root = document) => root.querySelector(sel);
@@ -122,6 +122,15 @@ const CATS = [
   { key: "ressources", label: "Ressources" },
 ];
 
+const CAT_IMG = {
+  creation: { src: "assets/img/cat-creation.webp", pos: "center 30%" },
+  entreprise: { src: "assets/img/cat-entreprise.webp", pos: "center 38%" },
+  fiscalite: { src: "assets/img/cat-fiscalite.webp", pos: "center 18%" },
+  social: { src: "assets/img/cat-social.webp", pos: "center 48%" },
+  foncier: { src: "assets/img/cat-foncier.webp", pos: "center 46%" },
+  ressources: { src: "assets/img/cat-ressources.webp", pos: "center 50%" },
+};
+
 let activeCat = "tout";
 let activeSearch = "";
 let currentDemarche = null;
@@ -181,15 +190,18 @@ function renderServiceGrid() {
     .map(
       (d) => `
     <div class="svc-card reveal in" data-key="${d.key}">
-      <div class="svc-top">
-        <span class="svc-code">${d.code}</span>
-        <span class="svc-cat-tag">${d.catLabel}</span>
-      </div>
-      <h4>${d.title}</h4>
-      <p>${d.lede}</p>
-      <div class="svc-foot">
-        <span class="svc-tagline">Checklist guidée</span>
-        <span class="svc-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      ${CAT_IMG[d.cat] ? `<div class="svc-card-img"><img src="${CAT_IMG[d.cat].src}" alt="${d.catLabel}" style="object-position:${CAT_IMG[d.cat].pos}"></div>` : ""}
+      <div class="svc-card-body">
+        <div class="svc-top">
+          <span class="svc-code">${d.code}</span>
+          <span class="svc-cat-tag">${d.catLabel}</span>
+        </div>
+        <h4>${d.title}</h4>
+        <p>${d.lede}</p>
+        <div class="svc-foot">
+          <span class="svc-tagline">Checklist guidée</span>
+          <span class="svc-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </div>
       </div>
     </div>`
     )
@@ -267,6 +279,13 @@ function openDemarche(key) {
   $("#dmKicker").textContent = "Démarche " + d.code;
   $("#dmTitle").textContent = d.title;
   $("#dmLede").textContent = d.lede;
+  const dmImg = $("#dmImg");
+  if (dmImg) {
+    const meta = CAT_IMG[d.cat];
+    dmImg.src = meta ? meta.src : "";
+    dmImg.style.objectPosition = meta ? meta.pos : "center";
+    dmImg.alt = d.catLabel;
+  }
   $("#dmPieces").innerHTML = d.pieces
     .map(
       (p, i) => `<label class="piece-row piece-row--check">
@@ -304,7 +323,7 @@ $("#btnAjouterSuivi")?.addEventListener("click", async () => {
       body: JSON.stringify({
         serviceCode: currentDemarche.key,
         serviceLabel: currentDemarche.title,
-        details: "Checklist préparée via KINDIMBOU — toutes les pièces confirmées par le déclarant",
+        details: "Checklist préparée via KIDIMBOU — toutes les pièces confirmées par le déclarant",
       }),
     });
     const data = await res.json();
