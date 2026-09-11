@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Parlons de votre projet — STAR ENTREPRISE</title>
+<meta name="description" content="Votre idée mérite plus qu'un simple projet. STAR ENTREPRISE transforme votre vision en une expérience qui inspire confiance — sites web, applications mobiles, boutiques en ligne.">
+<meta name="theme-color" content="#070c1a">
+<link rel="icon" href="assets/img/icons/favicon-star-rounded-v1.png" type="image/png">
+<style>
+  :root{
+    --navy:#0d1830; --navy-deep:#070c1a;
+    --gold:#c8942f; --gold-light:#e8b85c;
+    --cream:#fbf9f4; --text-faint:#8a93a8;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--navy-deep); color:#fff;
+    font-family:'Inter',Arial,sans-serif; -webkit-font-smoothing:antialiased;
+    min-height:100vh; display:flex; flex-direction:column;
+  }
+  h1,.disp{font-family:'Sora',Arial,sans-serif;}
+  img{max-width:100%;}
+  a{color:inherit;}
+  .wrap{max-width:640px;margin:0 auto;padding-inline:20px;width:100%;}
+
+  .topbar{padding-block:16px;}
+  .topbar .wrap{display:flex;align-items:center;gap:10px;}
+  .topbar .mark{width:32px;height:32px;border-radius:9px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex:none;}
+  .topbar .mark img{width:100%;height:100%;object-fit:contain;}
+  .topbar .word{font-family:'Sora',sans-serif;font-weight:800;font-size:15px;color:#fff;letter-spacing:.01em;}
+  .topbar .word small{display:block;font-family:'Inter',sans-serif;font-weight:500;font-size:9.5px;color:#8a93a8;letter-spacing:.06em;text-transform:uppercase;margin-top:1px;}
+
+  main{flex:1;display:flex;align-items:center;padding-block:20px 30px;}
+
+  .poster{
+    display:block; position:relative; width:100%;
+    border-radius:18px; overflow:hidden; box-shadow:0 24px 48px -20px rgba(0,0,0,.6);
+    border:1px solid rgba(255,255,255,.1);
+  }
+  .poster img{display:block;width:100%;}
+  .poster-logo{
+    position:absolute; right:16px; bottom:16px; display:flex; align-items:center; justify-content:center;
+    width:64px; height:64px; border-radius:15px; padding:5px;
+    background:rgba(7,12,26,.72); backdrop-filter:blur(2px);
+    border:1.5px solid rgba(232,184,92,.55); box-shadow:0 8px 18px -6px rgba(0,0,0,.5);
+  }
+  .poster-logo img{width:100%;height:100%;object-fit:contain;border-radius:9px;}
+
+  footer{padding-block:22px;}
+  footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;}
+  footer .credit{font-size:10.5px;color:#7d879f;line-height:1.5;}
+  footer .credit b{color:#c3cadd;}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="mark"><img src="assets/img/logo-star-rounded-v1.webp" alt="STAR ENTREPRISE"></div>
+    <div class="word">STAR ENTREPRISE<small>Agence digitale</small></div>
+  </div>
+</div>
+
+<main>
+  <div class="wrap">
+    <a class="poster" href="#" id="posterLink" aria-label="Parler de mon projet avec STAR ENTREPRISE sur WhatsApp">
+      <img src="assets/img/affiche-projet.webp" alt="Votre idée mérite plus qu'un simple projet. STAR ENTREPRISE transforme votre vision en une expérience qui inspire confiance. Vos idées, notre éclat, un diamant.">
+      <span class="poster-logo">
+        <img src="assets/img/logo-star-rounded-v1.webp" alt="STAR ENTREPRISE">
+      </span>
+    </a>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="credit"><b>STAR ENTREPRISE</b> — Créé par Carry OTEMBA, PDG<br>Tous droits réservés.</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var WA_NUMBER = "242066565050";
+  var msg = "Bonjour, je voudrais parler de mon projet avec STAR ENTREPRISE.";
+  document.getElementById('posterLink').href = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent(msg);
+})();
+</script>
+</body>
+</html>
