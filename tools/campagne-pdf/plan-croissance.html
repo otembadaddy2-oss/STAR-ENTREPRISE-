@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>STAR ENTREPRISE — Plan de croissance & campagne publicitaire</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  :root{
+    --bg:#070c1a; --bg-soft:#0b1224; --bg-elevated:#0f1830;
+    --navy:#0d1830; --text:#151b2c; --text-dim:#5b6478; --text-faint:#8a93a8;
+    --blue:#2f5fc4; --blue-dark:#1c3f8f;
+    --gold:#c8942f; --gold-light:#e8b85c; --gold-pale:#f4e2b8;
+    --green:#1a8f52; --red:#c23b30; --purple:#6d4fc9; --teal:#0f8f80;
+    --paper:#fbf9f4;
+    --page-w:210mm; --page-h:297mm;
+  }
+  @page{size:A4;margin:0;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:#e9e9e9;}
+  body{font-family:"Inter",Arial,sans-serif;color:var(--text);}
+  h1,h2,h3,.disp{font-family:"Sora",Arial,sans-serif;}
+  .pg{
+    width:var(--page-w); height:var(--page-h);
+    position:relative; overflow:hidden; background:var(--paper);
+    break-after:page; page-break-after:always;
+  }
+  .pg:last-child{break-after:auto;page-break-after:auto;}
+  .pg-inner{position:absolute;inset:0;padding:18mm 16mm 20mm;}
+  .pg-dark{background:var(--bg);color:#eef1f8;}
+  .pg-dark .dim{color:#a7b0c4;}
+
+  .kicker{
+    display:inline-flex;align-items:center;gap:7px;
+    font-size:9.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--gold);margin-bottom:10px;
+  }
+  .kicker i{width:16px;height:2px;background:var(--gold);display:inline-block;border-radius:2px;}
+  .pg-title{font-size:24px;font-weight:800;letter-spacing:-.01em;margin:0 0 4mm;line-height:1.12;}
+  .pg-dark .pg-title{color:#fff;}
+  .pg-lede{font-size:11.5px;line-height:1.65;color:var(--text-dim);max-width:160mm;margin:0 0 7mm;}
+  .pg-dark .pg-lede{color:#c3cadd;}
+
+  .brandline{
+    position:absolute;top:14mm;left:16mm;right:16mm;
+    display:flex;align-items:center;justify-content:space-between;
+    font-size:8.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--text-faint);
+  }
+  .pg-dark .brandline{color:#5c6784;}
+  .brandline .b-left{display:flex;align-items:center;gap:6px;}
+  .brandline img{width:14px;height:14px;border-radius:3px;}
+
+  p{margin:0 0 3mm;}
+  ul{margin:0;padding:0 0 0 4mm;}
+  li{margin-bottom:2.2mm;font-size:10.5px;line-height:1.55;}
+
+  .card{border-radius:3mm;border:1px solid #e4ded0;background:#fff;padding:6mm;}
+  .pg-dark .card{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1);}
+
+  .stat{border-radius:3mm;padding:5.5mm 5mm;background:#fff;border:1px solid #e4ded0;text-align:left;}
+  .stat b{display:block;font-family:"Sora",sans-serif;font-size:19px;font-weight:800;color:var(--blue);line-height:1.05;}
+  .stat span{display:block;font-size:8.6px;color:var(--text-dim);margin-top:2mm;line-height:1.4;}
+  .pg-dark .stat{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);}
+  .pg-dark .stat span{color:#a7b0c4;}
+
+  .tag{display:inline-block;font-size:7.6px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+    padding:1.3mm 2.8mm;border-radius:99px;background:rgba(200,148,47,.12);color:var(--gold);border:1px solid rgba(200,148,47,.35);}
+  .tag.blue{background:rgba(47,95,196,.1);color:var(--blue);border-color:rgba(47,95,196,.3);}
+  .tag.green{background:rgba(26,143,82,.1);color:var(--green);border-color:rgba(26,143,82,.32);}
+  .tag.note{background:rgba(94,102,120,.12);color:var(--text-dim);border-color:rgba(94,102,120,.3);}
+
+  table.numtable{width:100%;border-collapse:collapse;font-size:10px;}
+  table.numtable th{text-align:left;font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);padding:0 0 2mm;border-bottom:1px solid #e4ded0;}
+  table.numtable td{padding:3mm 0;border-bottom:1px solid #eee6d4;vertical-align:top;}
+  table.numtable td.num{font-family:"Sora",sans-serif;font-weight:800;color:var(--blue);font-size:13px;white-space:nowrap;padding-right:4mm;}
+
+  table.datatable{width:100%;border-collapse:collapse;font-size:9px;}
+  table.datatable th{text-align:left;font-size:7.6px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);padding:0 3mm 2mm 0;border-bottom:1px solid #e4ded0;}
+  table.datatable td{padding:2.6mm 3mm 2.6mm 0;border-bottom:1px solid #eee6d4;vertical-align:top;line-height:1.42;}
+  .pg-dark table.datatable th{color:#7f8ab0;border-color:rgba(255,255,255,.12);}
+  .pg-dark table.datatable td{border-color:rgba(255,255,255,.08);}
+
+  .roadmap-row{display:flex;gap:4mm;align-items:stretch;margin-bottom:4mm;}
+  .roadmap-badge{width:9mm;height:9mm;border-radius:50%;background:var(--gold);color:#241703;font-family:"Sora",sans-serif;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center;flex:none;}
+  .roadmap-body{flex:1;border-radius:3mm;border:1px solid #e4ded0;background:#fff;padding:4mm 5mm;}
+  .roadmap-body h5{margin:0 0 1.4mm;font-size:11.5px;font-weight:800;}
+  .roadmap-body p{font-size:9px;color:var(--text-dim);margin:0;line-height:1.5;}
+
+  .propcard{border-radius:4mm;padding:5.5mm;background:#fff;border:1px solid #e4ded0;}
+  .propcard .pnum{font-family:"Sora",sans-serif;font-weight:800;font-size:9px;color:var(--gold);letter-spacing:.08em;text-transform:uppercase;margin-bottom:1.5mm;}
+  .propcard h4{margin:0 0 2mm;font-size:12.5px;font-weight:800;line-height:1.3;}
+  .propcard p{font-size:9px;line-height:1.5;color:var(--text-dim);margin:0;}
+
+  /* ad mockup */
+  .adcard{border-radius:4mm;border:1px solid #dcd6c6;background:#fff;overflow:hidden;box-shadow:0 4mm 8mm -6mm rgba(0,0,0,.25);}
+  .adcard .adhead{display:flex;align-items:center;gap:2.6mm;padding:3.4mm 4mm;border-bottom:1px solid #eee6d4;}
+  .adcard .adhead img{width:7mm;height:7mm;border-radius:50%;flex:none;}
+  .adcard .adhead .an{font-size:9px;font-weight:800;color:var(--text);}
+  .adcard .adhead .as{font-size:7px;color:var(--text-faint);}
+  .adcard .adbody{padding:4mm;}
+  .adcard .adbody .atxt{font-size:9.5px;line-height:1.5;color:var(--text);margin-bottom:3mm;}
+  .adcard .adimg{height:20mm;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;}
+  .adcard .adimg span{font-family:"Sora",sans-serif;font-weight:800;color:#fff;font-size:11px;text-align:center;padding:0 6mm;line-height:1.3;}
+  .adcard .adfoot{display:flex;justify-content:space-between;align-items:center;padding:3mm 4mm;background:#f7f4ec;}
+  .adcard .adfoot .al{font-size:8px;color:var(--text-dim);}
+  .adcard .adfoot .abtn{font-size:8.4px;font-weight:800;color:#fff;background:var(--text);border-radius:2mm;padding:1.8mm 4mm;}
+  .adfield{margin-bottom:2.4mm;font-size:9px;line-height:1.5;}
+  .adfield b{color:var(--gold);text-transform:uppercase;font-size:7.4px;letter-spacing:.06em;display:block;margin-bottom:.6mm;}
+
+  .wa-bubble{background:#dcf8c6;border-radius:3mm;border-top-left-radius:0;padding:3mm 4mm;font-size:9.5px;line-height:1.5;color:#111b21;max-width:90%;}
+
+  /* cover */
+  .cover{background:
+      radial-gradient(120mm 90mm at 20% -6%, rgba(61,123,240,.25), transparent 60%),
+      radial-gradient(140mm 110mm at 92% 8%, rgba(232,184,92,.16), transparent 55%),
+      var(--bg);
+    color:#fff;
+  }
+  .cover-mark{position:absolute;top:34mm;left:16mm;width:20mm;filter:drop-shadow(0 6mm 10mm rgba(0,0,0,.5));}
+  .cover-title{position:absolute;left:16mm;top:100mm;right:16mm;}
+  .cover-title .t1{font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold-light);font-weight:700;margin-bottom:6mm;}
+  .cover-title h1{font-size:36px;line-height:1.1;font-weight:800;margin:0 0 6mm;letter-spacing:-.01em;}
+  .cover-title h1 span{color:var(--gold-light);}
+  .cover-title .tag2{font-size:12.5px;color:#c3cadd;letter-spacing:.03em;line-height:1.5;max-width:150mm;}
+  .cover-bottom{position:absolute;left:16mm;right:16mm;bottom:16mm;display:flex;justify-content:space-between;align-items:flex-end;}
+  .cover-bottom .meta{font-size:9.5px;color:#93a0bd;line-height:1.7;}
+  .cover-bottom .meta b{color:#fff;display:block;font-size:11px;margin-bottom:1mm;}
+  .cover-line{position:absolute;left:16mm;right:16mm;top:88mm;height:1px;background:linear-gradient(90deg,rgba(232,184,92,.7),transparent);}
+  .cover-pills{position:absolute;left:16mm;top:66mm;display:flex;gap:2mm;flex-wrap:wrap;max-width:170mm;}
+  .cover-pills span{font-size:8.5px;font-weight:700;letter-spacing:.04em;color:#c3cadd;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:99px;padding:1.6mm 3.4mm;}
+
+  .footer-band{position:absolute;left:16mm;right:16mm;bottom:12mm;display:flex;justify-content:space-between;align-items:center;}
+  .footer-band .num{font-size:8px;color:var(--text-faint);letter-spacing:.06em;}
+</style>
+</head>
+<body>
+
+<!-- ============================================================ PAGE 1 — COUVERTURE ============================================================ -->
+<div class="pg cover">
+  <img class="cover-mark" src="logo-star-rounded-v1.webp">
+  <div class="cover-pills">
+    <span>Campagne publicitaire</span><span>Programme d'ambassadeurs</span><span>Offre de lancement</span>
+    <span>Partenariat Mobile Money</span><span>Textes Meta Ads prêts</span><span>Ciblage exact</span>
+  </div>
+  <div class="cover-title">
+    <div class="t1">Plan de croissance — Septembre 2026</div>
+    <h1>Transformer le<br>diagnostic en <span>chiffre<br>d'affaires</span>.</h1>
+    <div class="tag2">Le plan d'action complet pour le Marketplace STAR ENTREPRISE : campagne publicitaire prête
+    à lancer, programme d'ambassadeurs, offre de lancement, nouvelles sources de revenus, textes publicitaires
+    Meta Ads &amp; WhatsApp prêts à coller, et paramètres de ciblage exacts.</div>
+  </div>
+  <div class="cover-line"></div>
+  <div class="cover-bottom">
+    <div class="meta">
+      <b>République du Congo</b>
+      Brazzaville — Septembre 2026
+    </div>
+    <div class="meta" style="text-align:right;">
+      <b>STAR ENTREPRISE</b>
+      Préparé pour Carry OTEMBA, Fondateur
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 2 — SOMMAIRE ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>Plan de croissance & campagne</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>Sommaire</div>
+    <h2 class="pg-title" style="font-size:26px;">Ce que contient ce plan</h2>
+    <table class="numtable" style="margin-top:8mm;">
+      <tr><td class="num">01</td><td><b>La campagne « spéciale » — deux publics</b><br><span style="color:var(--text-dim);">Vendeurs informels &amp; acheteurs méfiants : deux messages, deux stratégies</span></td></tr>
+      <tr><td class="num">02</td><td><b>Programme d'ambassadeurs</b><br><span style="color:var(--text-dim);">La croissance la moins chère, inspirée de Wave et Jumia</span></td></tr>
+      <tr><td class="num">03</td><td><b>Offre de lancement</b><br><span style="color:var(--text-dim);">Créer l'urgence et le bouche-à-oreille dès le premier mois</span></td></tr>
+      <tr><td class="num">04</td><td><b>Partenariat Mobile Money</b><br><span style="color:var(--text-dim);">MTN / Airtel : portée et crédibilité à moindre coût</span></td></tr>
+      <tr><td class="num">05</td><td><b>Plan des 30 premiers jours</b><br><span style="color:var(--text-dim);">Semaine par semaine, prêt à exécuter</span></td></tr>
+      <tr><td class="num">06</td><td><b>Nouvelles sources de revenus</b><br><span style="color:var(--text-dim);">10 leviers concrets pour faire du chiffre d'affaires, au-delà de la commission simple</span></td></tr>
+      <tr><td class="num">07</td><td><b>Textes publicitaires prêts à coller</b><br><span style="color:var(--text-dim);">Meta Ads &amp; WhatsApp — vendeurs et acheteurs</span></td></tr>
+      <tr><td class="num">08</td><td><b>Paramètres de ciblage exacts</b><br><span style="color:var(--text-dim);">Âge, localisation, centres d'intérêt — prêt pour Meta Ads Manager</span></td></tr>
+      <tr><td class="num">09</td><td><b>Budget &amp; indicateurs à suivre</b><br><span style="color:var(--text-dim);">Combien dépenser, et comment savoir si ça marche</span></td></tr>
+      <tr><td class="num">10</td><td><b>Check-list de lancement immédiat</b><br><span style="color:var(--text-dim);">Ce qu'il faut faire aujourd'hui, cette semaine, ce mois-ci</span></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 3 — CAMPAGNE SPÉCIALE ============================================================ -->
+<div class="pg pg-dark">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>01 — La campagne spéciale</div></div>
+  <div class="pg-inner" style="padding-top:32mm;">
+    <div class="kicker"><i></i>01 · Campagne publicitaire</div>
+    <h2 class="pg-title" style="font-size:22px;">Deux publics, pas un seul</h2>
+    <p class="pg-lede">L'erreur classique est de faire une publicité générique « achetez sur notre marketplace ».
+    L'étude de marché montre que le problème n'est pas le même des deux côtés — il faut donc deux campagnes,
+    avec deux messages différents.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5mm;margin-top:5mm;">
+      <div class="card">
+        <span class="tag blue">Public A — Vendeurs</span>
+        <h3 style="font-size:13px;margin:3mm 0 2mm;color:#fff;">Le levier le plus rentable</h3>
+        <p style="color:#c3cadd;font-size:9.5px;line-height:1.55;margin:0 0 3mm;"><b style="color:#fff;">Cible :</b>
+        les vendeurs qui vendent déjà sur WhatsApp/Facebook à Brazzaville et Pointe-Noire.</p>
+        <p style="color:#c3cadd;font-size:9.5px;line-height:1.55;margin:0 0 3mm;"><b style="color:#fff;">Message :</b>
+        « Tu vends déjà sur WhatsApp. Garde tes clients, mais donne-leur un point de retrait, un paiement Mobile Money
+        sécurisé et une vraie visibilité — inscription gratuite. »</p>
+        <p style="color:#c3cadd;font-size:9.5px;line-height:1.55;margin:0;"><b style="color:#fff;">Pourquoi ça rapporte :</b>
+        chaque vendeur recruté amène ses propres clients gratuitement — un effet de levier qu'une publicité classique n'a pas.</p>
+      </div>
+      <div class="card">
+        <span class="tag green">Public B — Acheteurs</span>
+        <h3 style="font-size:13px;margin:3mm 0 2mm;color:#fff;">Construire la confiance, pas la notoriété</h3>
+        <p style="color:#c3cadd;font-size:9.5px;line-height:1.55;margin:0 0 3mm;"><b style="color:#fff;">Cible :</b>
+        les acheteurs urbains 18-40 ans, méfiants du paiement en ligne.</p>
+        <p style="color:#c3cadd;font-size:9.5px;line-height:1.55;margin:0 0 3mm;"><b style="color:#fff;">Message :</b>
+        « Payé en Mobile Money, récupéré à 5 minutes de chez toi, remboursé si le colis n'arrive pas. »
+        Jamais « achetez maintenant » — toujours rassurer d'abord.</p>
+        <p style="color:#c3cadd;font-size:9.5px;line-height:1.55;margin:0;"><b style="color:#fff;">Pourquoi :</b>
+        le Ghana le prouve dans l'étude de marché — la confiance bat le prix comme facteur de conversion N°1.</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:5mm;">
+      <h3 style="font-size:12px;margin:0 0 3mm;color:#fff;">Les canaux, par ordre de priorité</h3>
+      <ul style="color:#c3cadd;">
+        <li><b style="color:#fff;">Facebook / Instagram Ads</b> — CPM bas au Congo, ciblage précis par centre d'intérêt (voir page 8).</li>
+        <li><b style="color:#fff;">Publicités « click-to-WhatsApp »</b> — l'utilisateur clique et atterrit directement dans une conversation WhatsApp avec un vrai agent : taux de conversion bien supérieur à un simple lien vers un site.</li>
+        <li><b style="color:#fff;">Posts sponsorisés dans les groupes Facebook de vente locaux</b> (Congo Marché, Brazza Achat-Vente...) — audience déjà acheteuse, coût très faible.</li>
+        <li><b style="color:#fff;">TikTok / STAR VIBE</b> — pour le public 18-30 ans urbain, format court et joyeux, témoignages réels de vendeurs.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 4 — AMBASSADEURS ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>02 — Programme d'ambassadeurs</div></div>
+  <div class="pg-inner" style="padding-top:32mm;">
+    <div class="kicker"><i></i>02 · Croissance</div>
+    <h2 class="pg-title">Le programme d'ambassadeurs — plus rentable qu'une pub</h2>
+    <p class="pg-lede">C'est la solution qui a fait le succès de Wave et de Jumia (JForce) — et c'est nettement
+    moins cher qu'une campagne publicitaire pure, car le coût n'existe que s'il y a un résultat.</p>
+
+    <table class="numtable" style="margin-top:4mm;">
+      <tr><td class="num">1</td><td><b>Recruter 10 à 20 personnes de confiance par quartier</b><br><span style="color:var(--text-dim);">Bacongo, Poto-Poto, Talangaï, Moungali... — des gens déjà connus et respectés localement, pas forcément des professionnels du digital.</span></td></tr>
+      <tr><td class="num">2</td><td><b>Rémunération à la commission uniquement</b><br><span style="color:var(--text-dim);">Une commission sur chaque vendeur inscrit par l'ambassadeur, et une commission sur la première vente accompagnée — zéro salaire fixe, zéro risque financier si ça ne marche pas.</span></td></tr>
+      <tr><td class="num">3</td><td><b>Elles deviennent aussi des points de retrait informels</b><br><span style="color:var(--text-dim);">Pas besoin d'attendre un vrai réseau de kiosques pour démarrer — l'ambassadeur du quartier peut jouer ce rôle dès le premier mois.</span></td></tr>
+      <tr><td class="num">4</td><td><b>Elles accompagnent le premier achat en personne</b><br><span style="color:var(--text-dim);">L'étude le montre au Kenya et en Côte d'Ivoire : le primo-acheteur a besoin d'un humain pour se lancer, pas seulement d'une application.</span></td></tr>
+    </table>
+
+    <div class="card" style="margin-top:6mm;">
+      <h3 style="font-size:12px;margin:0 0 3mm;">Exemple de structure de commission (à ajuster)</h3>
+      <ul>
+        <li><b>Inscription d'un nouveau vendeur validé</b> — commission fixe versée en Mobile Money dès la première vente du vendeur recruté.</li>
+        <li><b>Première vente accompagnée d'un acheteur</b> — petit pourcentage de la vente, versé immédiatement en Mobile Money.</li>
+        <li><b>Bonus mensuel</b> pour les 3 ambassadeurs les plus actifs du mois, par ville — crée une saine compétition et une visibilité positive pour les meilleurs.</li>
+      </ul>
+    </div>
+    <p class="pg-lede" style="margin-top:5mm;font-size:10px;">Les montants exacts dépendent du budget disponible — l'important est que la dépense soit toujours proportionnelle au résultat obtenu, jamais un coût fixe engagé à l'avance.</p>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 5 — OFFRE DE LANCEMENT ============================================================ -->
+<div class="pg pg-dark">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>03 — Offre de lancement</div></div>
+  <div class="pg-inner" style="padding-top:32mm;">
+    <div class="kicker"><i></i>03 · Urgence &amp; bouche-à-oreille</div>
+    <h2 class="pg-title">L'offre de lancement — créer une raison d'agir maintenant</h2>
+    <p class="pg-lede">Dans un marché où 85 %+ des acheteurs passent par le réseau social avant d'acheter (voir
+    l'étude de marché), le bouche-à-oreille compte plus que la publicité pure. Une offre limitée dans le temps
+    donne une raison de parler du Marketplace dès son lancement.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5mm;margin-top:5mm;">
+      <div class="card">
+        <h3 style="font-size:12.5px;margin:0 0 2.5mm;color:#fff;">Côté vendeurs</h3>
+        <p style="color:#c3cadd;font-size:10px;line-height:1.55;margin:0;"><b style="color:var(--gold-light);">
+        « 0 FCFA de commission pendant 30 jours »</b> pour les 100 premiers vendeurs inscrits. Simple à comprendre,
+        facile à partager, crée un sentiment d'exclusivité (« les 100 premiers »).</p>
+      </div>
+      <div class="card">
+        <h3 style="font-size:12.5px;margin:0 0 2.5mm;color:#fff;">Côté acheteurs</h3>
+        <p style="color:#c3cadd;font-size:10px;line-height:1.55;margin:0;"><b style="color:var(--gold-light);">
+        « Ton premier retrait est offert »</b> — supprime le dernier frein (le coût perçu de la livraison) pour le tout
+        premier achat, le moment où la confiance est la plus fragile.</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:5mm;background:rgba(232,184,92,.08);border-color:rgba(232,184,92,.3);">
+      <h3 style="font-size:11.5px;margin:0 0 2mm;color:var(--gold-light);">Pourquoi ça fonctionne ici précisément</h3>
+      <p style="color:#dfe4f0;font-size:9.5px;line-height:1.55;margin:0;">Une limite dans le temps et dans le nombre
+      (« 30 jours », « 100 premiers ») pousse les ambassadeurs et les vendeurs à agir vite plutôt que remettre à plus
+      tard — et transforme chaque vendeur inscrit en promoteur naturel de l'offre auprès de ses propres contacts.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 6 — PARTENARIAT MOBILE MONEY ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>04 — Partenariat Mobile Money</div></div>
+  <div class="pg-inner" style="padding-top:32mm;">
+    <div class="kicker"><i></i>04 · Partenariat stratégique</div>
+    <h2 class="pg-title">MTN / Airtel — un double bénéfice</h2>
+    <p class="pg-lede">Approcher MTN Congo et/ou Airtel Congo pour un accord de co-marketing autour du Marketplace.</p>
+
+    <div class="card">
+      <h3 style="font-size:12px;margin:0 0 3mm;">Ce que chaque partie y gagne</h3>
+      <ul>
+        <li><b>MTN / Airtel</b> gagnent du volume de transactions Mobile Money — chaque vente sur le Marketplace est une transaction qui passe par leur réseau.</li>
+        <li><b>STAR ENTREPRISE</b> gagne une portée publicitaire potentiellement moins chère qu'une pub Meta classique (SMS, notifications app Mobile Money, affichage en boutique partenaire), et une caution de confiance : « recommandé par MTN Mobile Money » rassure exactement le public méfiant identifié dans l'étude.</li>
+      </ul>
+    </div>
+
+    <div class="card" style="margin-top:5mm;">
+      <h3 style="font-size:12px;margin:0 0 3mm;">Comment aborder la discussion</h3>
+      <ul>
+        <li>Se présenter avec des chiffres concrets : volume de transactions attendu, nombre de vendeurs ciblés en 90 jours.</li>
+        <li>Proposer un test limité (ex. un quartier ou un mois) avant de demander un partenariat national.</li>
+        <li>Mettre en avant que le Marketplace pousse davantage de commerçants informels vers le paiement digital — un objectif que l'opérateur partage déjà (inclusion financière).</li>
+      </ul>
+    </div>
+    <p class="pg-lede" style="margin-top:5mm;font-size:10px;"><b style="color:var(--text);">Note honnêteté :</b> ceci est une recommandation stratégique, pas un accord déjà négocié — la prise de contact et la négociation restent à faire par STAR ENTREPRISE.</p>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 7 — PLAN DES 30 JOURS ============================================================ -->
+<div class="pg pg-dark">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>05 — Plan des 30 premiers jours</div></div>
+  <div class="pg-inner" style="padding-top:32mm;">
+    <div class="kicker"><i></i>05 · Exécution</div>
+    <h2 class="pg-title">Plan des 30 premiers jours</h2>
+    <p class="pg-lede">Semaine par semaine — prêt à exécuter dès aujourd'hui.</p>
+
+    <div class="roadmap-row">
+      <div class="roadmap-badge">1</div>
+      <div class="roadmap-body">
+        <h5>Semaine 1 — Fondations</h5>
+        <p>Recruter 5 à 10 ambassadeurs à Brazzaville. Lancer l'offre « 0 FCFA de commission pendant 30 jours ».
+        Préparer les visuels et textes publicitaires (voir pages 10-11).</p>
+      </div>
+    </div>
+    <div class="roadmap-row">
+      <div class="roadmap-badge">2</div>
+      <div class="roadmap-body">
+        <h5>Semaine 2 — Recrutement vendeurs</h5>
+        <p>Lancer la campagne A (vendeurs) sur Facebook/Instagram avec un budget test (voir page 13). Activer les
+        posts sponsorisés dans les groupes de vente locaux.</p>
+      </div>
+    </div>
+    <div class="roadmap-row">
+      <div class="roadmap-badge">3</div>
+      <div class="roadmap-body">
+        <h5>Semaine 3 — Acquisition acheteurs</h5>
+        <p>Lancer la campagne B (acheteurs) en click-to-WhatsApp. Mesurer le taux de conversion message → premier achat.
+        Prendre contact avec MTN/Airtel pour le partenariat.</p>
+      </div>
+    </div>
+    <div class="roadmap-row">
+      <div class="roadmap-badge">4</div>
+      <div class="roadmap-body">
+        <h5>Semaine 4 — Analyse &amp; ajustement</h5>
+        <p>Comparer les indicateurs (page 14). Couper ce qui ne marche pas, doubler le budget sur ce qui marche.
+        Préparer l'extension vers le Gabon selon la feuille de route de l'étude de marché.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 8 — NOUVELLES SOURCES DE REVENUS (1/2) ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>06 — Nouvelles sources de revenus</div></div>
+  <div class="pg-inner" style="padding-top:32mm;">
+    <div class="kicker"><i></i>06 · Rentabilité</div>
+    <h2 class="pg-title" style="font-size:21px;">Au-delà de la commission simple — 5 premiers leviers</h2>
+    <p class="pg-lede" style="margin-bottom:5mm;">Une seule source de revenu (la commission sur vente) est fragile.
+    Voici cinq leviers additionnels, déjà éprouvés ailleurs en Afrique, applicables au Marketplace.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4mm;">
+      <div class="propcard">
+        <div class="pnum">Levier 1 — Abonnement vendeur Pro</div>
+        <h4>Compte professionnel payant</h4>
+        <p>Un palier gratuit limité (quelques produits) et un palier « Pro » payant mensuel avec plus de publications,
+        une commission réduite et une meilleure visibilité — le même principe que le compte pro déjà prévu pour STAR VIBE.</p>
+      </div>
+      <div class="propcard">
+        <div class="pnum">Levier 2 — Mise en avant payante</div>
+        <h4>Fiches produits sponsorisées</h4>
+        <p>Un vendeur paie un petit montant en Mobile Money pour apparaître en tête des résultats de recherche pendant
+        24-72h — exactement le modèle « Sponsored Products » qui fonctionne chez Jumia.</p>
+      </div>
+      <div class="propcard">
+        <div class="pnum">Levier 3 — Marge logistique</div>
+        <h4>Commission sur la livraison</h4>
+        <p>Une fois le réseau de coursiers formalisé en place (voir l'étude de marché), STAR ENTREPRISE prend une
+        petite marge sur chaque livraison réalisée via son réseau — un revenu récurrent indépendant du prix du produit.</p>
+      </div>
+      <div class="propcard">
+        <div class="pnum">Levier 4 — Confiance payante</div>
+        <h4>Badge « Vendeur vérifié » &amp; assurance livraison en option</h4>
+        <p>Vérification d'identité payante une fois pour le badge de confiance ; option d'assurance livraison payante
+        à l'achat pour l'acheteur qui veut une garantie renforcée — deux frais optionnels que le client choisit lui-même.</p>
+      </div>
+      <div class="propcard">
+        <div class="pnum">Levier 5 — Fidélité qui retient</div>
+        <h4>Programme de fidélité en Mobile Money</h4>
+        <p>Des remises cumulées créditées directement en Mobile Money plutôt qu'en points abstraits — vise le même
+        taux de ré-achat que Jumia Côte d'Ivoire (46 % à 90 jours, cité dans l'étude de marché).</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 9 — NOUVELLES SOURCES DE REVENUS (2/2) ============================================================ -->
+<div class="pg pg-dark">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>06 — Nouvelles sources de revenus (suite)</div></div>
+  <div class="pg-inner" style="padding-top:32mm;">
+    <div class="kicker"><i></i>06 · Rentabilité (suite)</div>
+    <h2 class="pg-title" style="font-size:21px;">Cinq leviers de plus — l'écosystème comme avantage</h2>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4mm;">
+      <div class="propcard" style="background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);">
+        <div class="pnum">Levier 6 — Publicité display interne</div>
+        <h4 style="color:#fff;">Bannières de marques locales dans l'application</h4>
+        <p style="color:#c3cadd;">Des marques et PME congolaises paient pour une bannière ou un encart dans l'application
+        Marketplace — un revenu publicitaire classique une fois qu'il y a assez de trafic.</p>
+      </div>
+      <div class="propcard" style="background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);">
+        <div class="pnum">Levier 7 — Formation payante</div>
+        <h4 style="color:#fff;">Ateliers « Vendre en ligne » pour commerçants</h4>
+        <p style="color:#c3cadd;">STAR ENTREPRISE, en tant qu'agence, propose des sessions payantes (en ligne ou en
+        présentiel) pour apprendre aux commerçants à optimiser leurs fiches produits et leurs ventes — un revenu de
+        service, indépendant des ventes du Marketplace.</p>
+      </div>
+      <div class="propcard" style="background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);">
+        <div class="pnum">Levier 8 — Marque blanche</div>
+        <h4 style="color:#fff;">Marketplace-en-marque-blanche pour PME</h4>
+        <p style="color:#c3cadd;">Certaines PME veulent leur propre boutique en ligne plutôt qu'une fiche parmi
+        d'autres — STAR ENTREPRISE peut leur vendre une version « marque blanche » du Marketplace (logo du client,
+        même infrastructure de paiement/livraison), en abonnement mensuel.</p>
+      </div>
+      <div class="propcard" style="background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);">
+        <div class="pnum">Levier 9 — Cross-sell STAR VIBE</div>
+        <h4 style="color:#fff;">Promotion vidéo payante croisée</h4>
+        <p style="color:#c3cadd;">Un vendeur du Marketplace peut payer pour promouvoir son produit en vidéo courte sur
+        STAR VIBE — chaque produit de l'écosystème STAR ENTREPRISE devient un canal de revenu pour un autre.</p>
+      </div>
+      <div class="propcard" style="background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);grid-column:1 / -1;">
+        <div class="pnum">Levier 10 — Numéro WhatsApp Business géré</div>
+        <h4 style="color:#fff;">Service géré pour les vendeurs qui ne veulent pas gérer leur WhatsApp seuls</h4>
+        <p style="color:#c3cadd;">Pour les vendeurs qui reçoivent trop de messages pour y répondre seuls, STAR ENTREPRISE
+        propose un service payant mensuel de réponse assistée/automatisée via WhatsApp Business API — un revenu récurrent
+        de type SaaS, vendu comme un service premium plutôt qu'imposé.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 10 — TEXTES PUBLICITAIRES VENDEURS ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>07 — Textes publicitaires (vendeurs)</div></div>
+  <div class="pg-inner" style="padding-top:32mm;">
+    <div class="kicker"><i></i>07 · Prêt à coller — Campagne A</div>
+    <h2 class="pg-title" style="font-size:20px;">Textes publicitaires — recrutement des vendeurs</h2>
+    <p class="pg-lede" style="margin-bottom:4mm;">À copier directement dans les champs de Meta Ads Manager (Titre, Texte principal, Description, CTA).</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5mm;">
+      <div>
+        <span class="tag">Variante 1 — Rationnelle</span>
+        <div class="adcard" style="margin-top:2mm;">
+          <div class="adhead"><img src="logo-star-rounded-v1.webp"><div><div class="an">STAR ENTREPRISE</div><div class="as">Sponsorisé</div></div></div>
+          <div class="adbody">
+            <div class="atxt">Tu vends déjà sur WhatsApp ? Rejoins le Marketplace STAR ENTREPRISE : paiement Mobile Money sécurisé, point de retrait proche de tes clients, et 0 FCFA de commission pendant 30 jours pour les 100 premiers inscrits.</div>
+          </div>
+          <div class="adimg"><span>Vends plus, stresse moins</span></div>
+          <div class="adfoot"><span class="al">star-entreprise.cg</span><span class="abtn">Envoyer un message</span></div>
+        </div>
+        <div class="adfield" style="margin-top:3mm;"><b>Titre</b>Vends plus, stresse moins</div>
+        <div class="adfield"><b>Description</b>Inscription gratuite. Sans engagement.</div>
+      </div>
+      <div>
+        <span class="tag">Variante 2 — Émotionnelle</span>
+        <div class="adcard" style="margin-top:2mm;">
+          <div class="adhead"><img src="logo-star-rounded-v1.webp"><div><div class="an">STAR ENTREPRISE</div><div class="as">Sponsorisé</div></div></div>
+          <div class="adbody">
+            <div class="atxt">Chaque jour, des clients cherchent ce que tu vends déjà — sois là où ils regardent. STAR ENTREPRISE Marketplace, le nouvel endroit pour vendre en toute confiance au Congo.</div>
+          </div>
+          <div class="adimg"><span>Ton commerce mérite d'être vu</span></div>
+          <div class="adfoot"><span class="al">star-entreprise.cg</span><span class="abtn">S'inscrire</span></div>
+        </div>
+        <div class="adfield" style="margin-top:3mm;"><b>Titre</b>Ton commerce mérite d'être vu</div>
+        <div class="adfield"><b>Description</b>Rejoins les 100 premiers vendeurs — 0 FCFA de commission le premier mois.</div>
+      </div>
+    </div>
+
+    <div style="margin-top:6mm;">
+      <span class="tag green">WhatsApp — message pré-rempli (click-to-chat)</span>
+      <div style="margin-top:2.5mm;"><div class="wa-bubble">Bonjour, je veux vendre mes produits sur le Marketplace STAR ENTREPRISE 🙌</div></div>
+      <p style="font-size:8.6px;color:var(--text-faint);margin-top:2mm;">Ce texte est celui que Meta pré-remplit automatiquement dans WhatsApp quand l'utilisateur clique sur la publicité — l'écrire tel quel dans le champ « Message par défaut » de la publicité click-to-WhatsApp.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 11 — TEXTES PUBLICITAIRES ACHETEURS ============================================================ -->
+<div class="pg pg-dark">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>07 — Textes publicitaires (acheteurs)</div></div>
+  <div class="pg-inner" style="padding-top:32mm;">
+    <div class="kicker"><i></i>07 · Prêt à coller — Campagne B</div>
+    <h2 class="pg-title" style="font-size:20px;">Textes publicitaires — acquisition des acheteurs</h2>
+    <p class="pg-lede" style="margin-bottom:4mm;">Toujours rassurer avant de vendre — c'est le facteur de conversion N°1 selon l'étude de marché.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5mm;">
+      <div>
+        <span class="tag blue">Variante 1 — Confiance</span>
+        <div class="adcard" style="margin-top:2mm;">
+          <div class="adhead"><img src="logo-star-rounded-v1.webp"><div><div class="an">STAR ENTREPRISE</div><div class="as">Sponsorisé</div></div></div>
+          <div class="adbody">
+            <div class="atxt">Payé en Mobile Money, récupéré à 5 minutes de chez toi, remboursé si le colis n'arrive pas. Découvre le Marketplace STAR ENTREPRISE.</div>
+          </div>
+          <div class="adimg"><span>Achète en confiance, récupère près de chez toi</span></div>
+          <div class="adfoot"><span class="al">star-entreprise.cg</span><span class="abtn">En savoir plus</span></div>
+        </div>
+        <div class="adfield" style="margin-top:3mm;"><b>Titre</b>Achète en confiance, récupère près de chez toi</div>
+        <div class="adfield"><b>Description</b>Paiement Mobile Money. Retrait proche. Garantie remboursement.</div>
+      </div>
+      <div>
+        <span class="tag blue">Variante 2 — Offre de lancement</span>
+        <div class="adcard" style="margin-top:2mm;">
+          <div class="adhead"><img src="logo-star-rounded-v1.webp"><div><div class="an">STAR ENTREPRISE</div><div class="as">Sponsorisé</div></div></div>
+          <div class="adbody">
+            <div class="atxt">STAR ENTREPRISE lance son Marketplace à Brazzaville : commande, paie en Mobile Money, récupère facilement. Offre de lancement : ton premier retrait est offert.</div>
+          </div>
+          <div class="adimg"><span>Ton premier retrait est offert</span></div>
+          <div class="adfoot"><span class="al">star-entreprise.cg</span><span class="abtn">Envoyer un message</span></div>
+        </div>
+        <div class="adfield" style="margin-top:3mm;"><b>Titre</b>Ton premier retrait est offert</div>
+        <div class="adfield"><b>Description</b>Offre de lancement — durée limitée.</div>
+      </div>
+    </div>
+
+    <div style="margin-top:6mm;">
+      <span class="tag green">WhatsApp — message pré-rempli (click-to-chat)</span>
+      <div style="margin-top:2.5mm;"><div class="wa-bubble" style="background:#fff;">Bonjour, je veux savoir comment acheter sur le Marketplace STAR ENTREPRISE 🛍️</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 12 — CIBLAGE EXACT (VENDEURS) ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>08 — Ciblage exact</div></div>
+  <div class="pg-inner" style="padding-top:32mm;">
+    <div class="kicker"><i></i>08 · Meta Ads Manager</div>
+    <h2 class="pg-title" style="font-size:21px;">Campagne A — Recrutement des vendeurs (Congo)</h2>
+    <p class="pg-lede" style="margin-bottom:4mm;">Paramètres à saisir directement dans « Créer une campagne » → objectif <b>Messages</b> (ou Prospects).</p>
+
+    <table class="datatable">
+      <tr><th style="width:26%;">Paramètre</th><th>Valeur à saisir</th></tr>
+      <tr><td><b>Objectif de campagne</b></td><td>Messages (conversion vers WhatsApp) — alternative : Prospects</td></tr>
+      <tr><td><b>Localisation</b></td><td>Brazzaville + Pointe-Noire — rayon de 15 à 20 km autour du centre-ville de chaque ville</td></tr>
+      <tr><td><b>Âge</b></td><td>22 – 45 ans</td></tr>
+      <tr><td><b>Genre</b></td><td>Tous</td></tr>
+      <tr><td><b>Langue</b></td><td>Français</td></tr>
+      <tr><td><b>Centres d'intérêt</b></td><td>Petites entreprises · Entrepreneuriat · Mobile banking · MTN Mobile Money / Airtel Money · Commerce électronique · WhatsApp Business · Vente en ligne · Marketplace Facebook</td></tr>
+      <tr><td><b>Comportements</b></td><td>Administrateurs de Pages Facebook « petite entreprise » · Utilisateurs actifs de Facebook Marketplace</td></tr>
+      <tr><td><b>Placements</b></td><td>Advantage+ (automatique) recommandé au démarrage — ou manuel : Facebook Fil d'actualité, Instagram Fil &amp; Reels, Messenger</td></tr>
+      <tr><td><b>Budget quotidien de test</b></td><td>5 000 – 10 000 FCFA/jour (indicatif, à ajuster selon budget réel disponible)</td></tr>
+      <tr><td><b>Durée du test</b></td><td>7 jours minimum avant d'ajuster quoi que ce soit — Meta a besoin de ce délai pour optimiser la diffusion</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 13 — CIBLAGE EXACT (ACHETEURS + GABON) ============================================================ -->
+<div class="pg pg-dark">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>08 — Ciblage exact (suite)</div></div>
+  <div class="pg-inner" style="padding-top:32mm;">
+    <div class="kicker"><i></i>08 · Meta Ads Manager (suite)</div>
+    <h2 class="pg-title" style="font-size:21px;">Campagne B — Acheteurs (Congo) &amp; Campagne C — Gabon (phase 2)</h2>
+
+    <table class="datatable" style="margin-bottom:6mm;">
+      <tr><th style="width:26%;">Paramètre — Campagne B</th><th>Valeur à saisir</th></tr>
+      <tr><td><b>Objectif</b></td><td>Messages, ou Trafic vers la conversation WhatsApp</td></tr>
+      <tr><td><b>Localisation</b></td><td>Brazzaville, Pointe-Noire (+ zones périurbaines proches)</td></tr>
+      <tr><td><b>Âge</b></td><td>18 – 40 ans</td></tr>
+      <tr><td><b>Genre</b></td><td>Tous</td></tr>
+      <tr><td><b>Centres d'intérêt</b></td><td>Shopping en ligne · Mode · Électronique grand public · Mobile Money · Livraison à domicile · Marketplace Facebook · Jumia (intérêt concurrent, si disponible dans le ciblage)</td></tr>
+      <tr><td><b>Comportements</b></td><td>« Acheteurs engagés » (Engaged Shoppers) · utilisateurs mobile principalement connectés via données mobiles</td></tr>
+      <tr><td><b>Placements</b></td><td>Fil d'actualité + Stories + Reels (Facebook et Instagram)</td></tr>
+      <tr><td><b>Budget quotidien de test</b></td><td>5 000 – 10 000 FCFA/jour (indicatif)</td></tr>
+    </table>
+
+    <table class="datatable">
+      <tr><th style="width:26%;">Paramètre — Campagne C (Gabon, à activer en phase 2)</th><th>Valeur à saisir</th></tr>
+      <tr><td><b>Localisation</b></td><td>Libreville, Port-Gentil</td></tr>
+      <tr><td><b>Reste des paramètres</b></td><td>Identiques aux campagnes A et B — dupliquer les campagnes Congo et changer uniquement la localisation</td></tr>
+      <tr><td><b>Quand l'activer</b></td><td>Une fois la campagne Congo stabilisée et rentable (voir feuille de route de l'étude de marché, page 14)</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 14 — BUDGET & KPI ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>09 — Budget & indicateurs</div></div>
+  <div class="pg-inner" style="padding-top:32mm;">
+    <div class="kicker"><i></i>09 · Suivi de performance</div>
+    <h2 class="pg-title">Budget &amp; indicateurs à suivre</h2>
+
+    <div class="card" style="margin-bottom:5mm;background:rgba(194,59,48,.06);border-color:rgba(194,59,48,.3);">
+      <p style="margin:0;font-size:9.5px;color:var(--text-dim);"><b style="color:var(--red);">Note d'honnêteté :</b>
+      les montants de budget indiqués dans ce document sont des points de départ indicatifs pour un test, pas des
+      chiffres vérifiés par une source externe — le vrai coût par résultat (CPM, coût par message) doit être observé
+      directement dans Meta Ads Manager dès les premiers jours de diffusion, et ajusté en conséquence.</p>
+    </div>
+
+    <table class="numtable">
+      <tr><td class="num">1</td><td><b>Coût par message reçu</b><br><span style="color:var(--text-dim);">L'indicateur le plus immédiat — à comparer entre les variantes d'annonces pour savoir laquelle garder.</span></td></tr>
+      <tr><td class="num">2</td><td><b>Taux de réponse au message</b><br><span style="color:var(--text-dim);">Combien de personnes qui écrivent obtiennent une réponse rapide — un agent doit répondre vite, sinon le budget publicitaire est gaspillé.</span></td></tr>
+      <tr><td class="num">3</td><td><b>Taux de conversion message → inscription/vente</b><br><span style="color:var(--text-dim);">L'indicateur qui compte vraiment — une campagne qui génère beaucoup de messages mais peu d'inscriptions doit être revue.</span></td></tr>
+      <tr><td class="num">4</td><td><b>Coût par vendeur inscrit (Campagne A)</b><br><span style="color:var(--text-dim);">À comparer au revenu moyen attendu par vendeur sur 3 mois pour juger la rentabilité de la campagne.</span></td></tr>
+      <tr><td class="num">5</td><td><b>Coût par premier achat (Campagne B)</b><br><span style="color:var(--text-dim);">Le chiffre qui détermine si l'offre de lancement (page 5) doit être prolongée, ajustée ou arrêtée.</span></td></tr>
+    </table>
+
+    <p class="pg-lede" style="margin-top:5mm;">Règle simple pour la semaine 4 (page 7) : toute campagne dont le coût par
+    résultat dépasse largement les autres est mise en pause, et le budget est redirigé vers celle qui convertit le mieux.</p>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 15 — CHECK-LIST DE LANCEMENT ============================================================ -->
+<div class="pg pg-dark">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>10 — Check-list de lancement</div></div>
+  <div class="pg-inner" style="padding-top:32mm;">
+    <div class="kicker"><i></i>10 · À faire maintenant</div>
+    <h2 class="pg-title">Check-list de lancement immédiat</h2>
+
+    <div class="card" style="margin-bottom:4mm;">
+      <h3 style="font-size:12px;margin:0 0 3mm;color:#fff;">Aujourd'hui</h3>
+      <ul style="color:#c3cadd;">
+        <li>Identifier 5 à 10 premiers ambassadeurs potentiels dans son réseau.</li>
+        <li>Préparer le numéro WhatsApp Business dédié au Marketplace (+242 06 656 50 50 ou un numéro dédié).</li>
+      </ul>
+    </div>
+    <div class="card" style="margin-bottom:4mm;">
+      <h3 style="font-size:12px;margin:0 0 3mm;color:#fff;">Cette semaine</h3>
+      <ul style="color:#c3cadd;">
+        <li>Créer le compte Meta Business Manager (s'il n'existe pas déjà) et la Page Facebook/Instagram du Marketplace.</li>
+        <li>Coller les textes des pages 10-11 dans Meta Ads Manager avec les paramètres des pages 12-13.</li>
+        <li>Lancer l'offre « 0 FCFA de commission pendant 30 jours ».</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 style="font-size:12px;margin:0 0 3mm;color:#fff;">Ce mois-ci</h3>
+      <ul style="color:#c3cadd;">
+        <li>Suivre les indicateurs de la page 14 chaque semaine, ajuster le budget en conséquence.</li>
+        <li>Prendre un premier contact avec MTN Congo ou Airtel Congo pour le partenariat (page 6).</li>
+        <li>Choisir, parmi les 10 leviers de revenus (pages 8-9), les deux premiers à activer.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-band">
+    <span class="num">STAR ENTREPRISE — Plan de croissance & campagne publicitaire — Septembre 2026</span>
+    <span class="num" style="color:var(--gold);font-weight:800;">★ Carry OTEMBA, Fondateur</span>
+  </div>
+</div>
+
+</body>
+</html>
