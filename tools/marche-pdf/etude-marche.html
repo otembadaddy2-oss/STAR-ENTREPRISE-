@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>STAR ENTREPRISE — Étude de marché e-commerce Afrique</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  :root{
+    --bg:#070c1a; --bg-soft:#0b1224; --bg-elevated:#0f1830;
+    --navy:#0d1830; --text:#151b2c; --text-dim:#5b6478; --text-faint:#8a93a8;
+    --blue:#2f5fc4; --blue-dark:#1c3f8f;
+    --gold:#c8942f; --gold-light:#e8b85c; --gold-pale:#f4e2b8;
+    --green:#1a8f52; --red:#c23b30; --purple:#6d4fc9; --teal:#0f8f80;
+    --paper:#fbf9f4;
+    --page-w:210mm; --page-h:297mm;
+  }
+  @page{size:A4;margin:0;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:#e9e9e9;}
+  body{font-family:"Inter",Arial,sans-serif;color:var(--text);}
+  h1,h2,h3,.disp{font-family:"Sora",Arial,sans-serif;}
+  .pg{
+    width:var(--page-w); height:var(--page-h);
+    position:relative; overflow:hidden; background:var(--paper);
+    break-after:page; page-break-after:always;
+  }
+  .pg:last-child{break-after:auto;page-break-after:auto;}
+  .pg-inner{position:absolute;inset:0;padding:18mm 16mm 20mm;}
+  .pg-dark{background:var(--bg);color:#eef1f8;}
+  .pg-dark .dim{color:#a7b0c4;}
+
+  .kicker{
+    display:inline-flex;align-items:center;gap:7px;
+    font-size:9.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--gold);margin-bottom:10px;
+  }
+  .kicker i{width:16px;height:2px;background:var(--gold);display:inline-block;border-radius:2px;}
+  .pg-title{font-size:24px;font-weight:800;letter-spacing:-.01em;margin:0 0 4mm;line-height:1.12;}
+  .pg-dark .pg-title{color:#fff;}
+  .pg-lede{font-size:11.5px;line-height:1.65;color:var(--text-dim);max-width:160mm;margin:0 0 7mm;}
+  .pg-dark .pg-lede{color:#c3cadd;}
+
+  .brandline{
+    position:absolute;top:14mm;left:16mm;right:16mm;
+    display:flex;align-items:center;justify-content:space-between;
+    font-size:8.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--text-faint);
+  }
+  .pg-dark .brandline{color:#5c6784;}
+  .brandline .b-left{display:flex;align-items:center;gap:6px;}
+  .brandline img{width:14px;height:14px;border-radius:3px;}
+
+  p{margin:0 0 3mm;}
+  ul{margin:0;padding:0 0 0 4mm;}
+  li{margin-bottom:2.2mm;font-size:10.5px;line-height:1.55;}
+
+  .card{border-radius:3mm;border:1px solid #e4ded0;background:#fff;padding:6mm;}
+  .pg-dark .card{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1);}
+
+  .stat{border-radius:3mm;padding:5.5mm 5mm;background:#fff;border:1px solid #e4ded0;text-align:left;}
+  .stat b{display:block;font-family:"Sora",sans-serif;font-size:19px;font-weight:800;color:var(--blue);line-height:1.05;}
+  .stat span{display:block;font-size:8.6px;color:var(--text-dim);margin-top:2mm;line-height:1.4;}
+  .pg-dark .stat{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);}
+  .pg-dark .stat span{color:#a7b0c4;}
+
+  .tag{display:inline-block;font-size:7.6px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+    padding:1.3mm 2.8mm;border-radius:99px;background:rgba(200,148,47,.12);color:var(--gold);border:1px solid rgba(200,148,47,.35);}
+  .tag.gap{background:rgba(194,59,48,.1);color:var(--red);border-color:rgba(194,59,48,.35);}
+  .tag.blue{background:rgba(47,95,196,.1);color:var(--blue);border-color:rgba(47,95,196,.3);}
+
+  .shot{border-radius:4mm;border:1px solid #dcd6c6;box-shadow:0 6mm 12mm -8mm rgba(0,0,0,.4);}
+
+  table.numtable{width:100%;border-collapse:collapse;font-size:10px;}
+  table.numtable th{text-align:left;font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);padding:0 0 2mm;border-bottom:1px solid #e4ded0;}
+  table.numtable td{padding:3mm 0;border-bottom:1px solid #eee6d4;vertical-align:top;}
+  table.numtable td.num{font-family:"Sora",sans-serif;font-weight:800;color:var(--blue);font-size:13px;white-space:nowrap;padding-right:4mm;}
+
+  table.datatable{width:100%;border-collapse:collapse;font-size:9px;}
+  table.datatable th{text-align:left;font-size:7.6px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);padding:0 2mm 2mm 0;border-bottom:1px solid #e4ded0;}
+  table.datatable td{padding:2.4mm 2mm 2.4mm 0;border-bottom:1px solid #eee6d4;vertical-align:top;line-height:1.4;}
+  .pg-dark table.datatable th{color:#7f8ab0;border-color:rgba(255,255,255,.12);}
+  .pg-dark table.datatable td{border-color:rgba(255,255,255,.08);}
+
+  .country-card{border-radius:3.5mm;border:1px solid #e4ded0;background:#fff;padding:5.5mm;}
+  .country-card h4{margin:0 0 2mm;font-size:13.5px;font-weight:800;display:flex;align-items:center;gap:2.4mm;color:var(--text);}
+  .country-card h4 .flag-dot{width:2.6mm;height:2.6mm;border-radius:50%;flex:none;}
+  .country-card .mini-stats{display:flex;gap:4mm;margin:3mm 0;}
+  .country-card .mini-stats div{flex:1;}
+  .country-card .mini-stats b{display:block;font-family:"Sora",sans-serif;font-weight:800;font-size:13px;color:var(--blue);}
+  .country-card .mini-stats span{display:block;font-size:7.4px;color:var(--text-dim);margin-top:.6mm;line-height:1.3;}
+  .country-card p{font-size:9px;line-height:1.5;color:var(--text-dim);margin:0 0 2mm;}
+  .country-card p b{color:var(--text);}
+
+  .footer-band{position:absolute;left:16mm;right:16mm;bottom:12mm;display:flex;justify-content:space-between;align-items:center;}
+  .footer-band .num{font-size:8px;color:var(--text-faint);letter-spacing:.06em;}
+
+  .roadmap-row{display:flex;gap:4mm;align-items:stretch;margin-bottom:4mm;}
+  .roadmap-badge{width:9mm;height:9mm;border-radius:50%;background:var(--gold);color:#241703;font-family:"Sora",sans-serif;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center;flex:none;}
+  .roadmap-body{flex:1;border-radius:3mm;border:1px solid #e4ded0;background:#fff;padding:4mm 5mm;}
+  .roadmap-body h5{margin:0 0 1.4mm;font-size:11.5px;font-weight:800;}
+  .roadmap-body p{font-size:9px;color:var(--text-dim);margin:0;line-height:1.5;}
+
+  .propcard{border-radius:4mm;padding:5.5mm;background:#fff;border:1px solid #e4ded0;}
+  .propcard .pnum{font-family:"Sora",sans-serif;font-weight:800;font-size:9px;color:var(--gold);letter-spacing:.08em;text-transform:uppercase;margin-bottom:1.5mm;}
+  .propcard h4{margin:0 0 2mm;font-size:12.5px;font-weight:800;line-height:1.3;}
+  .propcard p{font-size:9px;line-height:1.5;color:var(--text-dim);margin:0;}
+
+  /* cover */
+  .cover{background:
+      radial-gradient(120mm 90mm at 20% -6%, rgba(61,123,240,.25), transparent 60%),
+      radial-gradient(140mm 110mm at 92% 8%, rgba(232,184,92,.16), transparent 55%),
+      var(--bg);
+    color:#fff;
+  }
+  .cover-mark{position:absolute;top:34mm;left:16mm;width:20mm;filter:drop-shadow(0 6mm 10mm rgba(0,0,0,.5));}
+  .cover-title{position:absolute;left:16mm;top:100mm;right:16mm;}
+  .cover-title .t1{font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold-light);font-weight:700;margin-bottom:6mm;}
+  .cover-title h1{font-size:38px;line-height:1.08;font-weight:800;margin:0 0 6mm;letter-spacing:-.01em;}
+  .cover-title h1 span{color:var(--gold-light);}
+  .cover-title .tag2{font-size:12.5px;color:#c3cadd;letter-spacing:.03em;line-height:1.5;max-width:145mm;}
+  .cover-bottom{position:absolute;left:16mm;right:16mm;bottom:16mm;display:flex;justify-content:space-between;align-items:flex-end;}
+  .cover-bottom .meta{font-size:9.5px;color:#93a0bd;line-height:1.7;}
+  .cover-bottom .meta b{color:#fff;display:block;font-size:11px;margin-bottom:1mm;}
+  .cover-line{position:absolute;left:16mm;right:16mm;top:88mm;height:1px;background:linear-gradient(90deg,rgba(232,184,92,.7),transparent);}
+  .cover-flags{position:absolute;left:16mm;top:66mm;display:flex;gap:2mm;flex-wrap:wrap;max-width:170mm;}
+  .cover-flags span{font-size:8.5px;font-weight:700;letter-spacing:.04em;color:#c3cadd;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:99px;padding:1.6mm 3.4mm;}
+</style>
+</head>
+<body>
+
+<!-- ============================================================ PAGE 1 — COUVERTURE ============================================================ -->
+<div class="pg cover">
+  <img class="cover-mark" src="logo-star-rounded-v1.webp">
+  <div class="cover-flags">
+    <span>Congo</span><span>Gabon</span><span>Angola</span><span>Côte d'Ivoire</span><span>Ghana</span>
+    <span>Mali</span><span>Burkina Faso</span><span>Guinée-Bissau</span><span>Guinée-Conakry</span><span>Kenya</span>
+  </div>
+  <div class="cover-title">
+    <div class="t1">Étude de marché — Septembre 2026</div>
+    <h1>Le e-commerce<br>en <span>Afrique</span>, le vrai<br>diagnostic.</h1>
+    <div class="tag2">Congo-Brazzaville, Gabon, Angola, Côte d'Ivoire, Ghana, Mali, Burkina Faso, Guinée-Bissau,
+    Guinée-Conakry, Kenya — pourquoi le commerce en ligne peine à décoller, ce qui marche déjà ailleurs,
+    et ce que STAR ENTREPRISE propose de construire pour gagner ce marché.</div>
+  </div>
+  <div class="cover-line"></div>
+  <div class="cover-bottom">
+    <div class="meta">
+      <b>République du Congo</b>
+      Brazzaville — Septembre 2026
+    </div>
+    <div class="meta" style="text-align:right;">
+      <b>STAR ENTREPRISE</b>
+      Un travail de recherche porté par Carry OTEMBA
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 2 — SOMMAIRE ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>Étude de marché e-commerce</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>Sommaire</div>
+    <h2 class="pg-title" style="font-size:26px;">Ce que contient cette étude</h2>
+    <table class="numtable" style="margin-top:8mm;">
+      <tr><td class="num">01</td><td><b>Résumé exécutif</b><br><span style="color:var(--text-dim);">Le constat en une page, et ce que nous en faisons</span></td></tr>
+      <tr><td class="num">02</td><td><b>Note méthodologique</b><br><span style="color:var(--text-dim);">D'où viennent les chiffres, et où sont les zones d'incertitude</span></td></tr>
+      <tr><td class="num">03</td><td><b>Panorama — Afrique centrale</b><br><span style="color:var(--text-dim);">Congo-Brazzaville, Gabon, Angola</span></td></tr>
+      <tr><td class="num">04</td><td><b>Panorama — Afrique de l'Ouest (marchés stables)</b><br><span style="color:var(--text-dim);">Côte d'Ivoire, Ghana</span></td></tr>
+      <tr><td class="num">05</td><td><b>Panorama — Afrique de l'Ouest (marchés fragiles)</b><br><span style="color:var(--text-dim);">Mali, Burkina Faso, Guinée-Bissau, Guinée-Conakry</span></td></tr>
+      <tr><td class="num">06</td><td><b>Kenya — le benchmark africain</b><br><span style="color:var(--text-dim);">Ce que M-Pesa a rendu possible</span></td></tr>
+      <tr><td class="num">07</td><td><b>Tendances panafricaines</b><br><span style="color:var(--text-dim);">Taille de marché, barrières communes, modèles qui percent</span></td></tr>
+      <tr><td class="num">08</td><td><b>Le diagnostic transversal</b><br><span style="color:var(--text-dim);">Le vrai problème n'est pas la demande</span></td></tr>
+      <tr><td class="num">09</td><td><b>Ce qui marche déjà ailleurs</b><br><span style="color:var(--text-dim);">Wave, M-Pesa, Jumia — trois modèles à étudier</span></td></tr>
+      <tr><td class="num">10</td><td><b>Nos propositions pour STAR ENTREPRISE</b><br><span style="color:var(--text-dim);">Ce qu'il faut construire, concrètement, autour du Marketplace</span></td></tr>
+      <tr><td class="num">11</td><td><b>Feuille de route de déploiement</b><br><span style="color:var(--text-dim);">Par où commencer, et par où ne pas commencer</span></td></tr>
+      <tr><td class="num">12</td><td><b>Risques &amp; limites des données</b><br><span style="color:var(--text-dim);">Ce que nous ne savons pas encore</span></td></tr>
+      <tr><td class="num">13</td><td><b>Conclusion &amp; sources</b><br><span style="color:var(--text-dim);">Bibliographie complète</span></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 3 — RÉSUMÉ EXÉCUTIF ============================================================ -->
+<div class="pg pg-dark">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>01 — Résumé exécutif</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>01 · Résumé exécutif</div>
+    <h2 class="pg-title">Le marché existe déjà. Il est juste invisible.</h2>
+    <p class="pg-lede">Dans les dix pays étudiés, des centaines de millions de personnes achètent et vendent déjà
+    en ligne — sur WhatsApp, sur Facebook, par bouche-à-oreille — et paient déjà par mobile money. Le e-commerce
+    « formel », avec catalogue, paiement intégré et livraison traçable, reste minuscule presque partout : moins de
+    5&nbsp;% du commerce de détail en Angola, un marché « encore extrêmement limité » au Congo-Brazzaville selon
+    Statista. Le problème n'est donc pas l'absence de demande ou d'usage du numérique. Le problème est la confiance,
+    la livraison, et l'absence d'adresses fiables — trois choses qu'une plateforme bien conçue peut résoudre.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5mm;margin:8mm 0;">
+      <div class="stat"><b>91 %</b><span>Taux d'adoption du mobile money au Kenya en juin 2025 (Communications Authority of Kenya) — le rail de paiement qui a rendu M-Pesa incontournable.</span></div>
+      <div class="stat"><b>&lt; 5 %</b><span>Part du e-commerce formel dans le commerce de détail total en Angola, 2024-2025 (africa-press.net / 6Wresearch).</span></div>
+      <div class="stat"><b>85 %+</b><span>Des acheteurs en ligne africains échangent avec un vendeur sur les réseaux sociaux avant d'acheter — le commerce social précède, il ne remplace pas.</span></div>
+    </div>
+
+    <p class="pg-lede" style="margin-top:2mm;">Trois marchés proches de Brazzaville — Gabon, Angola, Côte d'Ivoire — montrent une croissance
+    du e-commerce à deux chiffres malgré ces obstacles. Le Kenya montre où cela peut mener quand le paiement mobile
+    devient l'infrastructure par défaut. Cette étude propose à STAR ENTREPRISE de ne pas essayer de remplacer le
+    commerce informel existant, mais de l'outiller : faire du Marketplace le pont entre le vendeur WhatsApp d'aujourd'hui
+    et le client qui veut payer en confiance et se faire livrer sans connaître d'adresse précise.</p>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 4 — MÉTHODOLOGIE ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>02 — Note méthodologique</div></div>
+  <div class="pg-inner" style="padding-top:34mm;">
+    <div class="kicker"><i></i>02 · Note méthodologique</div>
+    <h2 class="pg-title">D'où viennent ces chiffres, et où ils s'arrêtent</h2>
+    <p class="pg-lede">Cette étude s'appuie sur des sources publiques (DataReportal, GSMA, Statista, ECDB.com,
+    IMARC Group, Communications Authority of Kenya, presse spécialisée africaine, rapports d'entreprises comme
+    Jumia) collectées en septembre 2026. Nous avons délibérément choisi la transparence plutôt que la précision
+    apparente : quand deux sources se contredisent, nous montrons les deux chiffres plutôt que d'en choisir un
+    arbitrairement ; quand aucune donnée fiable n'existe pour un pays, nous le disons plutôt que d'estimer.</p>
+
+    <div class="card" style="margin-top:6mm;">
+      <h3 style="font-size:13px;margin:0 0 3mm;">Ce que le lecteur doit garder en tête</h3>
+      <ul>
+        <li><b>Les définitions varient.</b> « Pénétration internet » peut désigner l'accès théorique (couverture réseau) ou l'usage actif mesuré — au Congo-Brazzaville, Statista annonce 62,5&nbsp;% quand GSMA mesure 19&nbsp;% d'usage mobile actif. Nous citons les deux.</li>
+        <li><b>Les tailles de marché « e-commerce » ne mesurent pas la même chose</b> selon les cabinets : vente au détail B2C uniquement, ou commerce numérique au sens large. L'écart peut être de plusieurs ordres de grandeur — voir la mise en garde sur le chiffre de 272,8 milliards $ pour l'Afrique de l'Ouest en page 12.</li>
+        <li><b>Certains pays n'ont tout simplement pas de chiffre e-commerce publié</b> : c'est le cas du Mali et du Burkina Faso dans les sources consultées. Nous le signalons explicitement plutôt que d'inventer un ordre de grandeur.</li>
+        <li><b>Un chiffre répété sur plusieurs pays sans source primaire claire</b> (comme celui de la Guinée-Bissau, page 6) est signalé comme peu fiable, pas présenté comme un fait établi.</li>
+      </ul>
+    </div>
+    <p class="pg-lede" style="margin-top:6mm;">La liste complète des sources, avec liens, figure en page 13.</p>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 5 — AFRIQUE CENTRALE ============================================================ -->
+<div class="pg pg-dark">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>03 — Afrique centrale</div></div>
+  <div class="pg-inner" style="padding-top:32mm;">
+    <div class="kicker"><i></i>03 · Panorama pays</div>
+    <h2 class="pg-title" style="font-size:21px;">Afrique centrale — notre marché de départ</h2>
+    <p class="pg-lede" style="margin-bottom:5mm;">Trois marchés à la géographie et aux infrastructures proches de Brazzaville, où le mobile money
+    est déjà le vrai rail de paiement et où aucune plateforme panafricaine majeure n'est solidement implantée.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4mm;">
+      <div class="country-card">
+        <h4><span class="flag-dot" style="background:var(--gold);"></span>Congo-Brazzaville</h4>
+        <div class="mini-stats">
+          <div><b>19–62,5 %</b><span>internet (GSMA vs Statista, 2024)</span></div>
+          <div><b>~3 M</b><span>utilisateurs mobile money (03/2023)</span></div>
+        </div>
+        <p><b>MTN Mobile Money 72,5 %</b> / Airtel Money 27,5 % de part de marché. Marché e-commerce ~70 M$ visé
+        d'ici 2027 (+8,3 %/an), qualifié « extrêmement limité » par Statista. Commerce dominé par WhatsApp/Facebook,
+        livraison par coursier moto informel (Yango). <b>Aucun acteur formel majeur implanté.</b></p>
+      </div>
+      <div class="country-card">
+        <h4><span class="flag-dot" style="background:var(--blue);"></span>Gabon</h4>
+        <div class="mini-stats">
+          <div><b>71,9 %</b><span>pénétration internet (Jan. 2025)</span></div>
+          <div><b>68 %</b><span>adultes avec compte mobile money</span></div>
+        </div>
+        <p>Airtel Money 58 %, Moov Money 37 %. E-commerce : 117,5 M$ en 2024 (+16 %), visé 186 M$ en 2028
+        (+12,2 %/an). Frein documenté : <b>absence d'adressage postal standardisé</b> (adresses par repère visuel).
+        Pas de Jumia confirmé sur ce marché.</p>
+      </div>
+      <div class="country-card">
+        <h4><span class="flag-dot" style="background:var(--purple);"></span>Angola</h4>
+        <div class="mini-stats">
+          <div><b>44,8 %</b><span>pénétration internet (Jan. 2025)</span></div>
+          <div><b>9,5 M</b><span>utilisateurs Multicaixa Express</span></div>
+        </div>
+        <p>60 %+ des transactions déjà digitales, mais le e-commerce reste &lt;5 % du commerce de détail.
+        Chiffres de marché contradictoires selon les sources (132 M$ vs 5,7 Md$ — périmètres différents).
+        <b>Jumia prépare une entrée/ré-entrée</b> (annoncée nov. 2025) : fenêtre de temps limitée pour s'implanter avant l'arrivée d'un géant panafricain.</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:6mm;">
+      <p style="margin:0;font-size:9.5px;color:#c3cadd;"><b style="color:#fff;">Ce que cela signifie pour STAR ENTREPRISE&nbsp;:</b>
+      le Congo est notre marché domestique — celui où nous avons la meilleure connaissance et où la barrière à l'entrée est la plus faible (pas de concurrent formel). Le Gabon est le marché voisin le plus mûr économiquement. L'Angola est plus vaste mais plus incertain et bientôt disputé par Jumia — une raison d'agir vite plutôt que d'attendre.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 6 — AFRIQUE DE L'OUEST : MARCHÉS STABLES ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>04 — Afrique de l'Ouest, marchés stables</div></div>
+  <div class="pg-inner" style="padding-top:32mm;">
+    <div class="kicker"><i></i>04 · Panorama pays</div>
+    <h2 class="pg-title" style="font-size:21px;">Côte d'Ivoire &amp; Ghana — la preuve que ça marche</h2>
+    <p class="pg-lede" style="margin-bottom:5mm;">Deux marchés stables, politiquement sûrs, où Jumia et le mobile money
+    prouvent chaque trimestre qu'un e-commerce structuré peut fonctionner en Afrique de l'Ouest francophone et anglophone.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5mm;">
+      <div class="country-card">
+        <h4><span class="flag-dot" style="background:var(--green);"></span>Côte d'Ivoire</h4>
+        <div class="mini-stats">
+          <div><b>39,6 %</b><span>pénétration internet (Jan. 2025)</span></div>
+          <div><b>2,8 Md+</b><span>transactions mobile money en 2024</span></div>
+        </div>
+        <p><b>Wave a bouleversé le marché</b>, jusque-là partagé Orange Money / MTN Money (~30 % chacun), et a lancé
+        une banque commerciale complète depuis Abidjan en 2025. E-commerce estimé ~534 M$ (source à traiter avec prudence,
+        année de référence non précisée). <b>Jumia y réalise l'un de ses meilleurs taux de ré-achat panafricains : 46 % à 90 jours</b> (T1 2024).</p>
+      </div>
+      <div class="country-card">
+        <h4><span class="flag-dot" style="background:var(--teal);"></span>Ghana</h4>
+        <div class="mini-stats">
+          <div><b>69,9 %</b><span>pénétration internet (Jan. 2025)</span></div>
+          <div><b>1 007 M$</b><span>revenu e-commerce 2025 (+10,9 %/an)</span></div>
+        </div>
+        <p>GMV Jumia Ghana +116,4 % sur un an (dernier trimestre publié). Citation clé d'un acteur du secteur :
+        <b>« la confiance est le premier frein à la conversion au Ghana — plus que le prix, plus que la vitesse
+        de livraison »</b>. D'où la place centrale du paiement à la livraison et du mobile money sur ce marché.</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:7mm;">
+      <h3 style="font-size:12.5px;margin:0 0 3mm;">Ce que ces deux marchés confirment</h3>
+      <ul>
+        <li>Un acteur structuré (Jumia) peut atteindre une <b>fidélité réelle</b> (46 % de ré-achat) même dans un marché historiquement informel.</li>
+        <li>La <b>confiance</b>, pas le prix, est le facteur qui bloque la conversion — un signal direct pour la conception produit.</li>
+        <li>Un disrupteur mobile money agile (Wave) peut prendre des parts de marché à des opérateurs télécoms établis en quelques années seulement.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 7 — AFRIQUE DE L'OUEST : MARCHÉS FRAGILES ============================================================ -->
+<div class="pg pg-dark">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>05 — Afrique de l'Ouest, marchés fragiles</div></div>
+  <div class="pg-inner" style="padding-top:32mm;">
+    <div class="kicker"><i></i>05 · Panorama pays</div>
+    <h2 class="pg-title" style="font-size:20px;">Mali, Burkina Faso, Guinée-Bissau, Guinée-Conakry</h2>
+    <p class="pg-lede" style="margin-bottom:5mm;">Quatre marchés où les données sont plus minces et où les contraintes vont
+    bien au-delà du digital — nous le disons clairement plutôt que de forcer une comparaison qui n'a pas de sens.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4mm;">
+      <div class="country-card" style="background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1);">
+        <h4 style="color:#fff;"><span class="flag-dot" style="background:var(--gold);"></span>Mali <span class="tag gap" style="margin-left:auto;">Aucun chiffre e-commerce</span></h4>
+        <p style="color:#c3cadd;">66 % de couverture mobile money, mais <b style="color:#fff;">blocus économique et attaques
+        de convois de carburant par un groupe armé</b> sur Bamako-Kayes-Sikasso depuis septembre 2025 (ACLED). Le Mali a
+        quitté la CEDEAO en janvier 2025. La logistique physique est directement menacée, pas seulement freinée.</p>
+      </div>
+      <div class="country-card" style="background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1);">
+        <h4 style="color:#fff;"><span class="flag-dot" style="background:var(--red);"></span>Burkina Faso <span class="tag gap" style="margin-left:auto;">Aucun chiffre e-commerce</span></h4>
+        <p style="color:#c3cadd;">22,4 % de pénétration internet seulement, 4G limitée à 46 % de couverture.
+        <b style="color:#fff;">~60 % du territoire échapperait au contrôle de l'État</b> (rapports sécurité 2025) —
+        contrainte majeure pour toute livraison physique. A quitté la CEDEAO en janvier 2025.</p>
+      </div>
+      <div class="country-card" style="background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1);">
+        <h4 style="color:#fff;"><span class="flag-dot" style="background:var(--purple);"></span>Guinée-Bissau <span class="tag gap" style="margin-left:auto;">Donnée peu fiable</span></h4>
+        <p style="color:#c3cadd;">32,5 % de pénétration internet. Le chiffre de marché e-commerce circulant (5 M$, +15 %/an)
+        apparaît sous une forme quasi identique sur plusieurs pages génériques non liées — <b style="color:#fff;">nous le signalons
+        comme non vérifié</b>, pas comme un fait.</p>
+      </div>
+      <div class="country-card" style="background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1);">
+        <h4 style="color:#fff;"><span class="flag-dot" style="background:var(--teal);"></span>Guinée-Conakry <span class="tag" style="margin-left:auto;">Cadre légal existe</span></h4>
+        <p style="color:#c3cadd;">26,5 % de pénétration internet ; un forfait de 5 Go coûte 5,16 % du revenu national brut
+        mensuel par habitant (au-delà du seuil d'abordabilité de l'UIT). Une loi e-commerce existe depuis 2016, mais
+        <b style="color:#fff;">« peu d'entreprises complètent effectivement des ventes en ligne »</b> (US Dept. of Commerce).</p>
+      </div>
+    </div>
+
+    <p class="pg-lede" style="margin-top:6mm;font-size:10px;"><b style="color:#fff;">Conclusion pour STAR ENTREPRISE&nbsp;:</b> ces quatre marchés
+    ne sont pas des priorités de déploiement à court terme — l'obstacle n'est pas un problème de produit numérique
+    mais, pour deux d'entre eux, un problème de sécurité physique qu'aucune application ne résout. Voir la feuille de route, page 11.</p>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 8 — KENYA ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>06 — Kenya, le benchmark</div></div>
+  <div class="pg-inner" style="padding-top:32mm;">
+    <div class="kicker"><i></i>06 · Benchmark</div>
+    <h2 class="pg-title">Kenya — ce que devient un marché quand le paiement mobile est partout</h2>
+    <p class="pg-lede">Le Kenya n'est pas un marché que STAR ENTREPRISE vise à court terme — c'est la preuve, chiffrée,
+    de ce que peut devenir un marché structurellement proche du nôtre une fois l'infrastructure de paiement mobile généralisée.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:3.5mm;margin:7mm 0;">
+      <div class="stat"><b>91 %</b><span>pénétration mobile money, juin 2025 (Communications Authority of Kenya)</span></div>
+      <div class="stat"><b>633 000</b><span>commerces acceptant Lipa Na M-Pesa</span></div>
+      <div class="stat"><b>2,6 Md$</b><span>marché e-commerce 2025, visé 3,8 Md$ en 2029</span></div>
+      <div class="stat"><b>60 %</b><span>des achats en ligne viennent désormais des zones rurales/péri-urbaines (Jumia, 2025)</span></div>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size:12.5px;margin:0 0 3mm;">Trois freins qui persistent même au Kenya</h3>
+      <ul>
+        <li>Le paiement à la livraison reste utilisé dans <b>~40 % des transactions</b> — la carte bancaire ne dépasse pas 10 % de pénétration. La confiance ne se construit jamais totalement d'un coup.</li>
+        <li>La logistique hors Nairobi/Mombasa/Kisumu reste le principal problème opérationnel : routes non pavées, forte dépendance aux motos-taxis.</li>
+        <li>Les acheteurs ruraux de première fois restent méfiants et ont besoin d'un <b>intermédiaire humain</b> pour se lancer — d'où le rôle des agents Jumia (JForce).</li>
+      </ul>
+    </div>
+    <p class="pg-lede" style="margin-top:5mm;"><b style="color:var(--text);">Ce que nous en retenons&nbsp;:</b> même le marché le plus avancé
+    d'Afrique n'a pas éliminé le cash ni le besoin d'intermédiaires humains — il les a intégrés au système plutôt que de les combattre.
+    C'est le même choix de conception que nous recommandons pour le Congo (page 10).</p>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 9 — TENDANCES PANAFRICAINES ============================================================ -->
+<div class="pg pg-dark">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>07 — Tendances panafricaines</div></div>
+  <div class="pg-inner" style="padding-top:32mm;">
+    <div class="kicker"><i></i>07 · Vue d'ensemble</div>
+    <h2 class="pg-title">Ce qui est vrai partout sur le continent</h2>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5mm;margin:6mm 0;">
+      <div class="stat"><b>~40,5 Md$</b><span>marché e-commerce africain (vente au détail) estimé en 2025, +8,5 %/an visé jusqu'en 2029. Les définitions plus larges (« commerce numérique ») donnent des chiffres bien plus élevés — voir mise en garde ci-dessous.</span></div>
+      <div class="stat"><b>85 %+</b><span>des acheteurs en ligne africains interagissent avec un vendeur sur un réseau social avant d'acheter — le commerce social est la norme, pas l'exception.</span></div>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size:12.5px;margin:0 0 3mm;color:#fff;">Les quatre obstacles cités dans presque toutes les sources</h3>
+      <ul style="color:#c3cadd;">
+        <li><b style="color:#fff;">Logistique du dernier kilomètre</b> — plus de 35 % des routes d'Afrique subsaharienne ne sont pas pavées ; au Nigeria, ~7 % seulement de l'entreposage est aux normes « fulfillment ».</li>
+        <li><b style="color:#fff;">Confiance dans le paiement</b> — la dépendance au cash à la livraison reste la norme, pas l'exception, même sur les marchés matures.</li>
+        <li><b style="color:#fff;">Fragmentation réglementaire</b> — le commerce transfrontalier reste compliqué pays par pays (UNCTAD, ECOWAS).</li>
+        <li><b style="color:#fff;">Écarts de compétences numériques et cybersécurité</b> — cités par l'UNCTAD comme freins structurels au e-commerce dans les marchés émergents.</li>
+      </ul>
+    </div>
+
+    <div style="margin-top:5mm;padding:4mm 5mm;border-radius:3mm;border:1px solid rgba(194,59,48,.35);background:rgba(194,59,48,.08);">
+      <span class="tag gap">Mise en garde</span>
+      <p style="margin:2mm 0 0;font-size:9px;color:#e8c9c5;">Un chiffre de 272,8 milliards $ pour le seul marché e-commerce
+      ouest-africain (IMARC Group, 2025) circule dans la presse — il est très supérieur à la somme plausible des marchés
+      pays connus de cette étude. Nous le citons car il existe dans les sources, mais le traitons comme un possible
+      changement de périmètre plutôt qu'un chiffre fiable à retenir tel quel.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 10 — DIAGNOSTIC TRANSVERSAL ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>08 — Le diagnostic transversal</div></div>
+  <div class="pg-inner" style="padding-top:32mm;">
+    <div class="kicker"><i></i>08 · Diagnostic</div>
+    <h2 class="pg-title">Le vrai problème n'est pas la demande — c'est la confiance et le dernier kilomètre</h2>
+    <p class="pg-lede">En croisant les dix marchés étudiés, un même schéma revient partout, sous des formes différentes.</p>
+
+    <table class="numtable" style="margin-top:4mm;">
+      <tr><td class="num">1</td><td><b>Pas d'adresse fiable.</b><br><span style="color:var(--text-dim);">Au Gabon comme ailleurs, les adresses se décrivent par repères visuels, pas par un système postal — chaque livraison devient une négociation téléphonique.</span></td></tr>
+      <tr><td class="num">2</td><td><b>Le paiement en ligne inspire encore peu confiance.</b><br><span style="color:var(--text-dim);">Le paiement à la livraison reste dominant même au Kenya (40 % des ventes) ; la carte bancaire dépasse rarement 10 % de pénétration.</span></td></tr>
+      <tr><td class="num">3</td><td><b>Le commerce informel n'est pas un concurrent à éliminer — c'est le marché lui-même.</b><br><span style="color:var(--text-dim);">85 %+ des acheteurs africains passent par WhatsApp/Facebook avant d'acheter. Une plateforme qui ignore cette réalité se construit à côté du marché, pas dedans.</span></td></tr>
+      <tr><td class="num">4</td><td><b>La logistique coûte cher et n'est pas standardisée.</b><br><span style="color:var(--text-dim);">Coursiers moto informels, pas de suivi en temps réel, échecs de livraison fréquents hors des grandes villes — un problème partagé de Brazzaville à Nairobi.</span></td></tr>
+      <tr><td class="num">5</td><td><b>Le premier achat en ligne a besoin d'un humain.</b><br><span style="color:var(--text-dim);">Jumia (JForce) et Wave (agents de terrain) gagnent la confiance des primo-acheteurs avec des personnes, pas seulement avec une application.</span></td></tr>
+    </table>
+
+    <div class="card" style="margin-top:6mm;background:var(--bg);color:#fff;border:none;">
+      <p style="margin:0;font-size:10px;color:#dfe4f0;"><b style="color:var(--gold-light);">Conséquence pour la conception produit&nbsp;:</b>
+      chaque fonctionnalité que STAR ENTREPRISE construit devrait répondre à l'une de ces cinq frictions — pas ajouter des
+      fonctionnalités « e-commerce classique » pensées pour un marché où l'adresse, la carte bancaire et la confiance
+      par défaut existent déjà. C'est l'objet de la section suivante.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 11 — CE QUI MARCHE AILLEURS ============================================================ -->
+<div class="pg pg-dark">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>09 — Ce qui marche ailleurs</div></div>
+  <div class="pg-inner" style="padding-top:32mm;">
+    <div class="kicker"><i></i>09 · Benchmark</div>
+    <h2 class="pg-title" style="font-size:22px;">Trois modèles déjà prouvés en Afrique</h2>
+
+    <div style="display:grid;grid-template-columns:1fr;gap:4mm;margin-top:5mm;">
+      <div class="card">
+        <h3 style="font-size:13px;margin:0 0 2mm;color:#fff;">Wave <span class="tag blue" style="margin-left:2mm;">Sénégal → 11 pays</span></h3>
+        <p style="color:#c3cadd;margin:0;font-size:9.5px;line-height:1.55;">Devenue licorne (1,7 Md$) en ~4 ans avec des frais quasi nuls
+        (1 % fixe), un paiement par QR code, et un réseau d'agents passé de 13 000 à plus de 150 000 personnes dans la région —
+        au point de faire chuter les prix des concurrents de 20 à 40 %. Sert aujourd'hui 20 millions d'utilisateurs mensuels.
+        <b style="color:#fff;">Leçon : les frais bas et un réseau d'agents humains battent la publicité.</b></p>
+      </div>
+      <div class="card">
+        <h3 style="font-size:13px;margin:0 0 2mm;color:#fff;">M-Pesa <span class="tag blue" style="margin-left:2mm;">Kenya</span></h3>
+        <p style="color:#c3cadd;margin:0;font-size:9.5px;line-height:1.55;">N'a pas construit qu'un simple transfert d'argent entre particuliers —
+        a construit un <b style="color:#fff;">rail de paiement marchand</b> (Lipa Na M-Pesa) que 633 000 commerces acceptent aujourd'hui.
+        C'est devenu le moyen de paiement par défaut du e-commerce kényan, pas une option parmi d'autres.
+        <b style="color:#fff;">Leçon : le paiement marchand, pas seulement le transfert P2P, est ce qui débloque le commerce.</b></p>
+      </div>
+      <div class="card">
+        <h3 style="font-size:13px;margin:0 0 2mm;color:#fff;">Jumia <span class="tag blue" style="margin-left:2mm;">Panafricain</span></h3>
+        <p style="color:#c3cadd;margin:0;font-size:9.5px;line-height:1.55;">Résout la confiance ET la logistique en même temps : réseau
+        de ~2 380 points de retrait qui gèrent désormais 74 % des colis expédiés, agents JForce qui accompagnent les primo-acheteurs
+        en personne, paiement propre (JumiaPay). Résultat : 46 % de taux de ré-achat en Côte d'Ivoire, +116 % de GMV au Ghana.
+        <b style="color:#fff;">Leçon : les points de retrait remplacent une adresse qui n'existe pas.</b></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 12 — PROPOSITIONS (1/2) ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>10 — Nos propositions</div></div>
+  <div class="pg-inner" style="padding-top:32mm;">
+    <div class="kicker"><i></i>10 · Propositions concrètes</div>
+    <h2 class="pg-title" style="font-size:21px;">Ce que nous proposons de construire autour du Marketplace</h2>
+    <p class="pg-lede" style="margin-bottom:5mm;">Chaque proposition répond directement à l'une des cinq frictions identifiées page 8 —
+    aucune n'est une fonctionnalité « à la mode » sans lien avec le diagnostic.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4mm;">
+      <div class="propcard">
+        <div class="pnum">Répond à : absence d'adresse</div>
+        <h4>Réseau de points de retrait STAR ENTREPRISE</h4>
+        <p>Boutiques, kiosques et partenaires (comme les points de vente Mobile Money déjà utilisés par 72 %+ de la population) deviennent des points de retrait officiels. Le client choisit un point connu de lui — pas une adresse qu'il doit décrire.</p>
+      </div>
+      <div class="propcard">
+        <div class="pnum">Répond à : confiance au paiement</div>
+        <h4>Paiement hybride Mobile Money + retrait contre paiement</h4>
+        <p>Paiement à la commande par Mobile Money quand le client est prêt, ou paiement au point de retrait pour les primo-acheteurs — comme le fait le Kenya avec 40 % de ses ventes, sans que cela freine sa croissance.</p>
+      </div>
+      <div class="propcard">
+        <div class="pnum">Répond à : le commerce informel EST le marché</div>
+        <h4>Catalogue partageable sur WhatsApp</h4>
+        <p>Chaque produit du Marketplace génère une fiche partageable en un clic sur WhatsApp/Facebook — le vendeur garde ses habitudes de vente sociale, mais le client paie et suit sa commande dans l'application.</p>
+      </div>
+      <div class="propcard">
+        <div class="pnum">Répond à : logistique non standardisée</div>
+        <h4>Réseau de coursiers formalisé, avec suivi</h4>
+        <p>Partenariat ou intégration avec des coursiers moto existants (type Yango), mais avec statut vérifié, notation et position visible par le client — la fiabilité de Jumia sans reconstruire sa flotte de zéro.</p>
+      </div>
+      <div class="propcard">
+        <div class="pnum">Répond à : le premier achat a besoin d'un humain</div>
+        <h4>Programme d'ambassadeurs de quartier</h4>
+        <p>Inspiré de JForce (Jumia) et des agents de terrain de Wave : des ambassadeurs rémunérés à la commission qui recrutent des vendeurs locaux et accompagnent les premiers achats de leurs voisins.</p>
+      </div>
+      <div class="propcard">
+        <div class="pnum">Répond à : accès limité au smartphone/internet</div>
+        <h4>Compatibilité USSD pour la commande de base</h4>
+        <p>Vu l'écart entre couverture 4G et usage internet actif au Congo (86 % de couverture, 19 % d'usage actif — GSMA), un canal USSD pour consulter une commande ou confirmer une livraison touche les téléphones non-smartphone.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 13 — PROPOSITIONS (2/2) ============================================================ -->
+<div class="pg pg-dark">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>10 — Nos propositions (suite)</div></div>
+  <div class="pg-inner" style="padding-top:32mm;">
+    <div class="kicker"><i></i>10 · Propositions concrètes (suite)</div>
+    <h2 class="pg-title" style="font-size:21px;">Construire la confiance comme un produit, pas comme un slogan</h2>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4mm;">
+      <div class="propcard" style="background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);">
+        <div class="pnum">Répond à : confiance dans le vendeur</div>
+        <h4 style="color:#fff;">Badge « Vendeur vérifié » &amp; garantie remboursement</h4>
+        <p style="color:#c3cadd;">Vérification d'identité simple (numéro Mobile Money + pièce d'identité) et garantie de remboursement en cas de non-livraison — le Ghana montre que la confiance, plus que le prix, décide de l'achat.</p>
+      </div>
+      <div class="propcard" style="background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);">
+        <div class="pnum">Répond à : opportunité de marché ouverte</div>
+        <h4 style="color:#fff;">Migration assistée des vendeurs WhatsApp existants</h4>
+        <p style="color:#c3cadd;">Un parcours d'inscription pensé pour un vendeur qui vend déjà sur WhatsApp aujourd'hui : import de son catalogue existant en quelques minutes, pas une refonte de son activité.</p>
+      </div>
+      <div class="propcard" style="background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);">
+        <div class="pnum">Répond à : rétention &amp; répétition d'achat</div>
+        <h4 style="color:#fff;">Programme de fidélité en Mobile Money</h4>
+        <p style="color:#c3cadd;">Jumia Côte d'Ivoire atteint 46 % de ré-achat à 90 jours — un objectif atteignable avec des remises cumulées créditées directement en Mobile Money plutôt qu'en points abstraits.</p>
+      </div>
+      <div class="propcard" style="background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);">
+        <div class="pnum">Répond à : écosystème STAR ENTREPRISE</div>
+        <h4 style="color:#fff;">Un compte, tout l'écosystème</h4>
+        <p style="color:#c3cadd;">Le même compte et le même portefeuille Mobile Money servent le Marketplace, KIDIMBOU et STAR ALERTE — chaque produit STAR ENTREPRISE renforce la confiance dans les autres, un avantage qu'aucun concurrent panafricain n'a localement.</p>
+      </div>
+    </div>
+
+    <div style="margin-top:6mm;padding:5mm 6mm;border-radius:3mm;background:rgba(232,184,92,.1);border:1px solid rgba(232,184,92,.3);">
+      <p style="margin:0;font-size:10px;color:#f4e2b8;"><b>Ce que nous ne recommandons pas&nbsp;:</b> copier un catalogue e-commerce
+      « à l'occidentale » avec paiement carte obligatoire, adresse postale requise et livraison sous-traitée à un tiers
+      sans contrôle qualité. Chacun de ces choix reproduit exactement les frictions que cette étude a identifiées.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 14 — FEUILLE DE ROUTE ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>11 — Feuille de route</div></div>
+  <div class="pg-inner" style="padding-top:32mm;">
+    <div class="kicker"><i></i>11 · Feuille de route</div>
+    <h2 class="pg-title" style="font-size:22px;">Par où commencer — et par où ne pas commencer</h2>
+
+    <div class="roadmap-row">
+      <div class="roadmap-badge">1</div>
+      <div class="roadmap-body">
+        <h5>Congo-Brazzaville — consolider le marché domestique</h5>
+        <p>Aucun concurrent formel installé. Déployer le réseau de points de retrait et le programme d'ambassadeurs ici en premier, où STAR ENTREPRISE a la meilleure connaissance terrain.</p>
+      </div>
+    </div>
+    <div class="roadmap-row">
+      <div class="roadmap-badge">2</div>
+      <div class="roadmap-body">
+        <h5>Gabon — expansion régionale naturelle</h5>
+        <p>Pénétration internet et mobile money plus élevées, croissance e-commerce à deux chiffres, pas de Jumia confirmé. Même contrainte d'adressage que le Congo : le modèle de points de retrait s'y transpose directement.</p>
+      </div>
+    </div>
+    <div class="roadmap-row">
+      <div class="roadmap-badge">3</div>
+      <div class="roadmap-body">
+        <h5>Angola — fenêtre d'opportunité avant l'arrivée de Jumia</h5>
+        <p>Marché plus vaste, mais Jumia a annoncé s'y implanter (nov. 2025). S'implanter avant, ou nouer un partenariat, plutôt qu'affronter Jumia frontalement plus tard.</p>
+      </div>
+    </div>
+    <div class="roadmap-row">
+      <div class="roadmap-badge">4</div>
+      <div class="roadmap-body">
+        <h5>Côte d'Ivoire &amp; Ghana — observer, pas encore entrer</h5>
+        <p>Marchés déjà solides pour Jumia et Wave, avec une concurrence installée et une fidélité client mesurable. À surveiller comme référence produit, pas comme cible d'expansion immédiate.</p>
+      </div>
+    </div>
+    <div class="roadmap-row">
+      <div class="roadmap-badge">—</div>
+      <div class="roadmap-body">
+        <h5>Mali, Burkina Faso, Guinée-Bissau, Guinée-Conakry — hors périmètre à court terme</h5>
+        <p>Contraintes sécuritaires (Mali, Burkina Faso) ou données insuffisantes pour évaluer sérieusement l'opportunité (Guinée-Bissau, Guinée-Conakry). À revisiter si la situation évolue.</p>
+      </div>
+    </div>
+    <div class="roadmap-row">
+      <div class="roadmap-badge" style="background:var(--blue);color:#fff;">K</div>
+      <div class="roadmap-body">
+        <h5>Kenya — benchmark produit, pas marché d'expansion</h5>
+        <p>Trop mature et trop disputé pour une entrée directe. Sert de référence de conception : ce que devient un marché mobile-money-first une fois à maturité.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 15 — RISQUES & LIMITES ============================================================ -->
+<div class="pg pg-dark">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>12 — Risques &amp; limites</div></div>
+  <div class="pg-inner" style="padding-top:32mm;">
+    <div class="kicker"><i></i>12 · Risques &amp; limites des données</div>
+    <h2 class="pg-title">Ce que nous ne savons pas encore</h2>
+
+    <table class="datatable" style="margin-top:5mm;">
+      <tr><th style="width:32%;">Zone d'incertitude</th><th>Détail</th></tr>
+      <tr><td><b style="color:#fff;">Taille de marché Mali &amp; Burkina Faso</b></td><td style="color:#c3cadd;">Aucune source consultée ne fournit de chiffre e-commerce spécifique à ces deux pays — écart explicitement signalé plutôt que comblé par une estimation.</td></tr>
+      <tr><td><b style="color:#fff;">Chiffre Guinée-Bissau (5 M$)</b></td><td style="color:#c3cadd;">Format quasi identique retrouvé sur plusieurs pages génériques non liées entre elles — traité comme non vérifié.</td></tr>
+      <tr><td><b style="color:#fff;">272,8 Md$ pour l'Afrique de l'Ouest</b></td><td style="color:#c3cadd;">Très supérieur à la somme plausible des marchés pays connus — probable changement de périmètre de mesure, pas un chiffre à citer isolément.</td></tr>
+      <tr><td><b style="color:#fff;">Adoption mobile money au Ghana</b></td><td style="color:#c3cadd;">Chiffre de 23,4 millions d'utilisateurs cité sans source primaire clairement identifiée.</td></tr>
+      <tr><td><b style="color:#fff;">Écart de définition « pénétration internet »</b></td><td style="color:#c3cadd;">Couverture réseau théorique vs usage actif mesuré peuvent différer de plus de 40 points (cas du Congo) — toujours vérifier laquelle des deux définitions est utilisée avant de citer un chiffre de cette étude ailleurs.</td></tr>
+    </table>
+
+    <p class="pg-lede" style="margin-top:6mm;">Ces limites ne remettent pas en cause le diagnostic global — les cinq frictions identifiées
+    page 8 sont corroborées par de multiples sources indépendantes sur les dix marchés. Elles signalent où une vérification
+    complémentaire serait utile avant une décision d'investissement précise (ex. avant de fixer un budget logistique pays par pays).</p>
+  </div>
+</div>
+
+<!-- ============================================================ PAGE 16 — CONCLUSION & SOURCES ============================================================ -->
+<div class="pg">
+  <div class="brandline"><div class="b-left"><img src="logo-star-rounded-v1.webp">STAR ENTREPRISE</div><div>13 — Conclusion &amp; sources</div></div>
+  <div class="pg-inner" style="padding-top:32mm;">
+    <div class="kicker"><i></i>13 · Conclusion</div>
+    <h2 class="pg-title" style="font-size:22px;">Le marché n'attend pas d'être créé — il attend d'être outillé</h2>
+    <p class="pg-lede">Dans les dix marchés étudiés, la demande, l'usage du mobile et le paiement digital existent déjà.
+    Ce qui manque est une plateforme qui prend le commerce informel tel qu'il est — WhatsApp, mobile money, coursier moto,
+    bouche-à-oreille — et lui ajoute ce qui manque : confiance vérifiable, adresse résolue par un point de retrait,
+    livraison suivie, et un premier achat accompagné par un humain. C'est exactement la direction que ce document
+    propose pour le Marketplace STAR ENTREPRISE, en commençant par le Congo puis le Gabon et l'Angola.</p>
+
+    <h3 style="font-size:12px;margin:8mm 0 3mm;">Sources principales</h3>
+    <ul style="font-size:8.4px;line-height:1.7;column-count:2;column-gap:8mm;">
+      <li>DataReportal — Digital 2025/2026: Congo, Gabon, Angola, Côte d'Ivoire, Ghana, Mali, Burkina Faso, Guinée-Bissau, Guinée, Kenya</li>
+      <li>GSMA Newsroom — « Digital Reforms Could Unlock FCFA 870 Billion... in the Republic of the Congo », 2024/2025</li>
+      <li>Statista — Digital &amp; Connectivity Outlook / eCommerce Market Forecast, Congo &amp; Gabon</li>
+      <li>ECDB.com (ecommerceDB) — eCommerce Market Gabon &amp; Ghana</li>
+      <li>Communications Authority of Kenya — rapports Mobile, Data &amp; Digital Services, 2025</li>
+      <li>IMARC Group — Kenya Mobile Money Market ; West Africa E-Commerce Market</li>
+      <li>Jumia — communiqués financiers et rapports investisseurs, 2025-2026</li>
+      <li>Business Daily Africa — « Jumia's Kenya sales hit Sh15.8bn », janvier 2026</li>
+      <li>ACLED — « Economic warfare escalates » (blocus Mali), 2025</li>
+      <li>US Department of Commerce — Country Commercial Guides (Gabon, Guinée)</li>
+      <li>Nkafu Policy Institute / International Trade Administration — commerce intra-CEMAC</li>
+      <li>Rest of World, Quartz Africa, Pan African Visions — Wave Mobile Money</li>
+      <li>ScienceDirect — « Bridging logistics and payment to build trust in African E-Retail », 2025</li>
+      <li>africa-press.net, 6Wresearch — E-Commerce Angola</li>
+      <li>Africtelegraph, ecofin Agency — données BEAC mobile money Gabon &amp; Côte d'Ivoire</li>
+    </ul>
+  </div>
+  <div class="footer-band">
+    <span class="num">STAR ENTREPRISE — Étude de marché e-commerce Afrique — Septembre 2026</span>
+    <span class="num" style="color:var(--gold);font-weight:800;">★ Carry OTEMBA, Fondateur</span>
+  </div>
+</div>
+
+</body>
+</html>
