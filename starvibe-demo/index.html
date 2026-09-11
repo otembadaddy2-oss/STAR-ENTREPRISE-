@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>STAR VIBE — Démo cliquable</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0B1223; --navy-deep:#050810; --gold:#D9A93C; --gold-light:#F0CA6B; --text-dim:#93A0BD;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0; background:
+      radial-gradient(700px 500px at 20% 0%, rgba(217,169,60,.10), transparent 60%),
+      radial-gradient(600px 500px at 85% 100%, rgba(47,95,196,.12), transparent 55%),
+      var(--navy-deep);
+    color:#fff; font-family:'Inter',Arial,sans-serif; -webkit-font-smoothing:antialiased;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    min-height:100vh; padding:18px; overflow-x:hidden;
+  }
+  .heading{text-align:center; margin-bottom:16px;}
+  .heading .eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-light);margin-bottom:6px;}
+  .heading h1{font-family:'Sora',sans-serif;font-weight:800;font-size:19px;margin:0;letter-spacing:.01em;}
+  .heading p{font-size:12px;color:var(--text-dim);margin:6px 0 0;max-width:320px;}
+
+  .stage{position:relative;}
+  .bezel{
+    width:390px; height:844px; border-radius:52px; background:#0a0a0a;
+    padding:12px; box-shadow:0 40px 80px -30px rgba(0,0,0,.7), 0 0 0 1.5px rgba(255,255,255,.06);
+    position:relative;
+  }
+  .notch{
+    position:absolute; top:12px; left:50%; transform:translateX(-50%);
+    width:120px; height:26px; background:#0a0a0a; border-radius:0 0 16px 16px; z-index:5;
+  }
+  .screen{
+    width:100%; height:100%; border-radius:40px; overflow:hidden; background:#050B18; position:relative;
+  }
+  .screen iframe{width:390px;height:844px;border:0;display:block;}
+
+  .hint{
+    position:absolute; left:50%; bottom:-46px; transform:translateX(-50%);
+    background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14);
+    border-radius:99px; padding:8px 16px; font-size:11.5px; color:#fff; white-space:nowrap;
+    opacity:1; transition:opacity .6s ease; pointer-events:none;
+  }
+  .hint.hide{opacity:0;}
+
+  .toolbar{
+    display:flex; align-items:center; gap:10px; margin-top:64px;
+    background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
+    border-radius:14px; padding:9px 10px;
+  }
+  .toolbar button{
+    display:flex; align-items:center; gap:6px; border:none; cursor:pointer;
+    background:rgba(255,255,255,.08); color:#fff; font-family:'Inter',sans-serif; font-weight:600;
+    font-size:12px; padding:9px 14px; border-radius:9px;
+  }
+  .toolbar button:hover{background:rgba(255,255,255,.15);}
+  .toolbar button:disabled{opacity:.35;cursor:default;}
+  .toolbar button svg{width:14px;height:14px;flex:none;}
+  .toolbar .label{
+    font-family:'Sora',sans-serif;font-weight:700;font-size:12px;color:var(--gold-light);
+    padding:0 6px; border-left:1px solid rgba(255,255,255,.14); margin-left:2px; padding-left:14px;
+  }
+
+  .toast{
+    position:fixed; left:50%; bottom:36px; transform:translateX(-50%) translateY(20px);
+    background:#12213F; color:#fff; font-family:'Inter',sans-serif; font-weight:600; font-size:13px;
+    padding:12px 20px; border-radius:99px; box-shadow:0 14px 30px -10px rgba(0,0,0,.5);
+    opacity:0; transition:opacity .25s ease, transform .25s ease; pointer-events:none; z-index:50;
+    border:1px solid rgba(217,169,60,.35); max-width:80vw; text-align:center;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  .credit{margin-top:20px;font-size:10.5px;color:#5c6784;text-align:center;}
+
+  @media (max-width:460px){
+    .heading h1{font-size:16px;}
+    .toolbar{margin-top:56px;flex-wrap:wrap;justify-content:center;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="heading">
+    <div class="eyebrow">STAR VIBE — Démo cliquable</div>
+    <h1>Essaie l'application comme si elle était réelle</h1>
+    <p>Rien n'est encore connecté derrière (pas de vrais comptes, pas de vraies vidéos) — mais tu peux naviguer d'écran en écran en cliquant, exactement comme dans l'application.</p>
+  </div>
+
+  <div class="stage">
+    <div class="bezel">
+      <div class="notch"></div>
+      <div class="screen"><iframe id="frame" src="Splash.html" title="STAR VIBE"></iframe></div>
+    </div>
+    <div class="hint" id="hint">👆 Clique où tu veux — tout est cliquable</div>
+  </div>
+
+  <div class="toolbar">
+    <button id="btnBack" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M19 12H5m0 0 7 7m-7-7 7-7"/></svg>
+      Retour
+    </button>
+    <button id="btnRestart">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/></svg>
+      Recommencer
+    </button>
+    <span class="label" id="screenLabel">Démarrage</span>
+  </div>
+
+  <div class="credit">STAR VIBE — Aperçu de démonstration — STAR ENTREPRISE, Carry OTEMBA, Fondateur</div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  var LABELS = {
+    Splash: 'Démarrage',
+    Promo: 'Découverte',
+    Login: 'Inscription',
+    Main: 'Fil de vidéos',
+    CleanCity: 'Campagne Rue Propre',
+    Profile: 'Profil',
+    Upload: 'Publier',
+    KidsHome: 'Espace enfants',
+    KidsLesson: 'Leçon — Rue propre'
+  };
+
+  var frame = document.getElementById('frame');
+  var screenLabel = document.getElementById('screenLabel');
+  var btnBack = document.getElementById('btnBack');
+  var btnRestart = document.getElementById('btnRestart');
+  var hint = document.getElementById('hint');
+  var toastEl = document.getElementById('toast');
+  var toastTimer = null;
+  var history = ['Splash'];
+
+  function render(){
+    var current = history[history.length - 1];
+    screenLabel.textContent = LABELS[current] || current;
+    btnBack.disabled = history.length <= 1;
+  }
+
+  window.go = function(name, opts){
+    opts = opts || {};
+    frame.src = name + '.html';
+    if (opts.replace){
+      history[history.length - 1] = name;
+    } else {
+      history.push(name);
+    }
+    render();
+  };
+
+  window.toast = function(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove('show'); }, 2200);
+  };
+
+  btnBack.addEventListener('click', function(){
+    if (history.length > 1){
+      history.pop();
+      var prev = history[history.length - 1];
+      frame.src = prev + '.html';
+      render();
+    }
+  });
+
+  btnRestart.addEventListener('click', function(){
+    history = ['Splash'];
+    frame.src = 'Splash.html';
+    render();
+  });
+
+  setTimeout(function(){ hint.classList.add('hide'); }, 5000);
+
+  render();
+})();
+</script>
+
+</body>
+</html>

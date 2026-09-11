@@ -1,0 +1,99 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+</head>
+<body>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    @keyframes sv-float-a { 0%, 100% { transform: translateY(0) scale(.86); } 50% { transform: translateY(-10px) scale(.86); } }
+    @keyframes sv-float-b { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-14px) scale(1); } }
+    @keyframes sv-float-c { 0%, 100% { transform: translateY(0) scale(.86); } 50% { transform: translateY(-10px) scale(.86); } }
+    @keyframes sv-shine-sweep {
+      0%, 15% { transform: translateX(-350%) skewX(-16deg); }
+      55%, 100% { transform: translateX(350%) skewX(-16deg); }
+    }
+    .sv-shine { position: relative; overflow: hidden; }
+    .sv-shine::after {
+      content: ""; position: absolute; top: 0; left: 0; width: 60%; height: 100%; pointer-events: none;
+      background: linear-gradient(115deg, transparent 0%, rgba(255,226,163,.4) 45%, rgba(255,255,255,.95) 50%, rgba(255,226,163,.4) 55%, transparent 100%);
+      animation: sv-shine-sweep 3.6s ease-in-out infinite;
+    }
+  </style>
+</helmet>
+
+<div style="width:390px;height:844px;background:radial-gradient(600px 460px at 50% 10%, rgba(217,169,60,.14), transparent 60%), #050B18;position:relative;overflow:hidden;font-family:'Inter',sans-serif;border-radius:36px;">
+
+  <div style="display:flex;justify-content:flex-end;padding:48px 22px 0;">
+    <span style="font-family:'Inter',sans-serif;font-weight:600;font-size:12.5px;color:rgba(255,255,255,.55);cursor:pointer;" id="btnSkip">Passer</span>
+  </div>
+
+  <div style="text-align:center;padding:14px 30px 0;">
+    <div style="font-family:'Sora',sans-serif;font-weight:800;font-size:20px;color:#fff;line-height:1.28;">Découvre l'univers<br>STAR ENTREPRISE</div>
+    <div style="font-size:12.5px;color:rgba(255,255,255,.55);margin-top:9px;line-height:1.5;">Une seule appli mère, plusieurs façons de te simplifier la vie au Congo.</div>
+  </div>
+
+  <div style="position:relative;height:330px;margin-top:26px;">
+
+    <div style="position:absolute;left:18px;top:56px;width:150px;height:200px;border-radius:20px;overflow:hidden;background:#fff;box-shadow:0 14px 30px -14px rgba(0,0,0,.55);opacity:.75;animation:sv-float-a 4.2s ease-in-out infinite;">
+      <img src="feed-family.jpg" alt="" style="width:100%;height:120px;object-fit:cover;">
+      <div style="padding:10px 12px;">
+        <img src="promo-alerte.png" alt="STAR ALERTE" style="width:26px;height:26px;">
+        <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:11.5px;color:#12213F;margin-top:6px;">STAR ALERTE</div>
+        <div style="font-size:9.5px;color:#6B7488;margin-top:2px;">Signaler. Localiser. Secourir.</div>
+      </div>
+    </div>
+
+    <div class="sv-shine" style="position:absolute;left:105px;top:16px;width:180px;height:270px;border-radius:22px;overflow:hidden;background:#fff;box-shadow:0 22px 44px -16px rgba(0,0,0,.65);animation:sv-float-b 4.2s ease-in-out infinite;">
+      <img src="kids-hero.jpg" alt="" style="width:100%;height:150px;object-fit:cover;">
+      <div style="padding:13px 14px;">
+        <img src="promo-kidimbou.png" alt="KIDIMBOU" style="width:34px;height:34px;">
+        <div style="font-family:'Sora',sans-serif;font-weight:800;font-size:14px;color:#12213F;margin-top:8px;">KIDIMBOU</div>
+        <div style="font-size:10.5px;color:#6B7488;margin-top:3px;line-height:1.4;">Le guichet unique de tes démarches</div>
+      </div>
+    </div>
+
+    <div style="position:absolute;right:18px;top:56px;width:150px;height:200px;border-radius:20px;overflow:hidden;background:#fff;box-shadow:0 14px 30px -14px rgba(0,0,0,.55);opacity:.75;animation:sv-float-c 4.2s ease-in-out infinite;">
+      <img src="city-street.jpg" alt="" style="width:100%;height:120px;object-fit:cover;">
+      <div style="padding:10px 12px;">
+        <img src="promo-market.png" alt="STAR Marketplace" style="width:26px;height:26px;">
+        <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:11.5px;color:#12213F;margin-top:6px;">Marketplace</div>
+        <div style="font-size:9.5px;color:#6B7488;margin-top:2px;">Achète et vends au Congo</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="display:flex;justify-content:center;gap:7px;margin-top:14px;">
+    <div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3);"></div>
+    <div style="width:20px;height:6px;border-radius:3px;background:#F0CA6B;"></div>
+    <div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3);"></div>
+  </div>
+
+  <div style="position:absolute;bottom:88px;left:24px;right:24px;cursor:pointer;" id="btnContinue">
+    <div class="sv-shine" style="background:linear-gradient(135deg,#FF7A2E,#D9A93C);border-radius:14px;padding:15px 0;text-align:center;font-family:'Sora',sans-serif;font-weight:800;font-size:14.5px;color:#fff;">Continuer</div>
+  </div>
+
+  <div style="position:absolute;bottom:22px;right:20px;display:flex;align-items:center;gap:7px;">
+    <div style="text-align:right;">
+      <div style="font-size:9.5px;color:rgba(255,255,255,.55);line-height:1.4;">Créé par Carry OTEMBA, PDG</div>
+      <div style="font-size:9.5px;color:rgba(255,255,255,.75);font-weight:700;line-height:1.4;">STAR ENTREPRISE — Tous droits réservés</div>
+    </div>
+    <img src="star-logo.png" alt="STAR ENTREPRISE" style="width:22px;height:22px;flex:none;">
+  </div>
+
+</div>
+
+<script>
+
+document.getElementById('btnSkip').onclick = function(){ parent.go('Login'); };
+document.getElementById('btnContinue').onclick = function(){ parent.go('Login'); };
+
+</script>
+</body>
+</html>

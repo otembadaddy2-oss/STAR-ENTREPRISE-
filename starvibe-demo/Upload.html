@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+</head>
+<body>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    .sv-textarea { width: 100%; border: 1.5px solid #E4DECF; border-radius: 12px; padding: 12px 13px; font-family: 'Inter', sans-serif; font-size: 13.5px; color: #12213F; background: #fff; resize: none; }
+    @keyframes sv-shine-sweep {
+      0%, 15% { transform: translateX(-350%) skewX(-16deg); }
+      55%, 100% { transform: translateX(350%) skewX(-16deg); }
+    }
+    .sv-shine { position: relative; overflow: hidden; }
+    .sv-shine::after {
+      content: ""; position: absolute; top: 0; left: 0; width: 60%; height: 100%; pointer-events: none;
+      background: linear-gradient(115deg, transparent 0%, rgba(255,255,255,.5) 50%, transparent 100%);
+      animation: sv-shine-sweep 3.6s ease-in-out infinite;
+    }
+  </style>
+</helmet>
+
+<div style="width:390px;height:844px;background:#FAF7F1;position:relative;overflow:hidden;font-family:'Inter',sans-serif;border-radius:36px;">
+
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:52px 20px 0;">
+    <svg style="width:22px;height:22px;" viewBox="0 0 24 24" fill="none" stroke="#12213F" stroke-width="2.3" style="cursor:pointer;" id="btnBack"><path d="M19 12H5m0 0 7 7m-7-7 7-7"/></svg>
+    <span style="font-family:'Sora',sans-serif;font-weight:800;font-size:15px;color:#12213F;">Nouvelle publication</span>
+    <span style="width:22px;"></span>
+  </div>
+
+  <div style="display:flex;gap:12px;padding:20px 20px 0;">
+    <div style="width:96px;height:150px;border-radius:12px;overflow:hidden;flex:none;position:relative;">
+      <img src="feed-family.jpg" alt="" style="width:100%;height:100%;object-fit:cover;">
+      <div style="position:absolute;inset:0;background:rgba(5,11,24,.18);display:flex;align-items:center;justify-content:center;">
+        <svg style="width:26px;height:26px;" viewBox="0 0 24 24" fill="rgba(255,255,255,.92)"><path d="M8 5v14l11-7z"/></svg>
+      </div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:10px;">
+      <textarea class="sv-textarea" rows="4" placeholder="Écris une légende…">On danse même un mardi soir, en famille, à Brazzaville.</textarea>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <svg style="width:14px;height:14px;flex:none;" viewBox="0 0 24 24" fill="none" stroke="#6B7488" stroke-width="2.1"><path d="M9 18V5l12-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM21 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg>
+        <span style="font-size:11.5px;color:#6B7488;">Choisir un son</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:22px 20px 0;">
+    <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;color:#12213F;margin-bottom:9px;">Qui peut voir cette vidéo ?</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;border:1.5px solid #12213F;background:#12213F;border-radius:10px;padding:10px 13px;">
+        <span style="font-size:12.5px;color:#fff;font-weight:600;">Public — tout le monde</span>
+        <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="#F0CA6B" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;border:1.5px solid #E4DECF;border-radius:10px;padding:10px 13px;background:#fff;">
+        <span style="font-size:12.5px;color:#12213F;">Abonnés uniquement</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin:18px 20px 0;background:#FBF3E1;border:1px solid #EDD8A0;border-radius:12px;padding:12px 13px;display:flex;gap:9px;align-items:flex-start;">
+    <svg style="width:16px;height:16px;flex:none;margin-top:1px;" viewBox="0 0 24 24" fill="none" stroke="#8A6318" stroke-width="2.2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+    <span style="font-size:11.3px;color:#5C4712;line-height:1.5;">Pas de propos racistes, injurieux ou humiliants — les publications sont vérifiées et peuvent être signalées par la communauté. Les comptes de 13 à 17 ans ne voient que du contenu adapté à leur âge.</span>
+  </div>
+
+  <div style="position:absolute;bottom:28px;left:20px;right:20px;">
+    <div class="sv-shine" style="background:linear-gradient(135deg,#FF7A2E,#D9A93C);border-radius:14px;padding:15px 0;text-align:center;font-family:'Sora',sans-serif;font-weight:800;font-size:14.5px;color:#fff;cursor:pointer;" id="btnPublish">Publier</div>
+  </div>
+
+</div>
+
+<script>
+
+document.getElementById('btnBack').onclick = function(){ parent.go('Main'); };
+document.getElementById('btnPublish').onclick = function(){
+  parent.toast('Publication envoyee !');
+  setTimeout(function(){ parent.go('Main'); }, 700);
+};
+
+</script>
+</body>
+</html>

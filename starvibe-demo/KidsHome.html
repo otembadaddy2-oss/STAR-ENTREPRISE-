@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+</head>
+<body>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@500;600;700&display=swap" rel="stylesheet"></noscript>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    @keyframes sv-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+    .sv-tile-icon { animation: sv-bob 2.6s ease-in-out infinite; }
+  </style>
+</helmet>
+
+<div style="width:390px;height:844px;background:#FFF9EC;position:relative;overflow:hidden;font-family:'Inter',sans-serif;border-radius:36px;">
+
+  <div style="background:linear-gradient(135deg,#12213F,#1E3568);padding:46px 22px 18px;border-radius:0 0 26px 26px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div style="display:flex;align-items:center;gap:9px;">
+        <img src="app-icon.png" alt="" style="width:28px;height:28px;">
+        <span style="font-family:'Sora',sans-serif;font-weight:800;font-size:14.5px;color:#fff;">Espace enfants</span>
+      </div>
+      <div style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;cursor:pointer;" id="btnLock">
+        <svg style="width:15px;height:15px;" viewBox="0 0 24 24" fill="none" stroke="#F0CA6B" stroke-width="2.2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+      </div>
+    </div>
+    <div style="font-family:'Sora',sans-serif;font-weight:800;font-size:19px;color:#fff;margin-top:13px;">Salut Divine !</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.65);margin-top:3px;">On apprend un mot nouveau aujourd'hui ?</div>
+  </div>
+
+  <div style="padding:16px 20px 0;display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:10px;">
+
+    <div style="background:#fff;border-radius:15px;padding:11px 8px 12px;display:flex;flex-direction:column;align-items:center;box-shadow:0 8px 18px -12px rgba(18,33,63,.2);cursor:pointer;" id="tileAlphabet">
+      <div class="sv-tile-icon" style="width:48px;height:48px;border-radius:12px;overflow:hidden;">
+        <img src="alphabet-blocks.jpg" alt="" style="width:100%;height:100%;object-fit:cover;">
+      </div>
+      <span style="font-family:'Sora',sans-serif;font-weight:700;font-size:11px;color:#12213F;margin-top:8px;text-align:center;">Alphabet</span>
+    </div>
+
+    <div style="background:#fff;border-radius:15px;padding:11px 8px 12px;display:flex;flex-direction:column;align-items:center;box-shadow:0 8px 18px -12px rgba(18,33,63,.2);cursor:pointer;" id="tileChiffres">
+      <div class="sv-tile-icon" style="width:48px;height:48px;border-radius:12px;background:#FBF0D2;display:flex;align-items:center;justify-content:center;animation-delay:.2s;">
+        <span style="font-family:'Sora',sans-serif;font-weight:800;font-size:18px;color:#D9A93C;">123</span>
+      </div>
+      <span style="font-family:'Sora',sans-serif;font-weight:700;font-size:11px;color:#12213F;margin-top:8px;text-align:center;">Chiffres</span>
+    </div>
+
+    <div style="background:#fff;border-radius:15px;padding:11px 8px 12px;display:flex;flex-direction:column;align-items:center;box-shadow:0 8px 18px -12px rgba(18,33,63,.2);cursor:pointer;" id="tileAnimaux">
+      <div class="sv-tile-icon" style="width:48px;height:48px;border-radius:12px;background:#E7F3E9;display:flex;align-items:center;justify-content:center;animation-delay:.4s;">
+        <svg style="width:23px;height:23px;" viewBox="0 0 24 24" fill="none" stroke="#2F7D4F" stroke-width="2"><path d="M4 15c0-3 2-6 8-6s8 3 8 6-3 5-8 5-8-2-8-5Z"/><circle cx="9" cy="10" r="1"/><path d="M2 10c1-1 2-1 3 0M22 10c-1-1-2-1-3 0"/></svg>
+      </div>
+      <span style="font-family:'Sora',sans-serif;font-weight:700;font-size:11px;color:#12213F;margin-top:8px;text-align:center;">Animaux</span>
+    </div>
+
+    <div style="background:#fff;border-radius:15px;padding:11px 8px 12px;display:flex;flex-direction:column;align-items:center;box-shadow:0 8px 18px -12px rgba(18,33,63,.2);cursor:pointer;" id="tileBonjour">
+      <div class="sv-tile-icon" style="width:48px;height:48px;border-radius:12px;background:#E9EEFB;display:flex;align-items:center;justify-content:center;animation-delay:.6s;">
+        <svg style="width:23px;height:23px;" viewBox="0 0 24 24" fill="none" stroke="#3D5FC4" stroke-width="2"><path d="M8 12h8M12 8v8"/><circle cx="12" cy="12" r="9"/></svg>
+      </div>
+      <span style="font-family:'Sora',sans-serif;font-weight:700;font-size:11px;color:#12213F;margin-top:8px;text-align:center;">Bonjour &amp; merci</span>
+    </div>
+
+    <div style="background:#fff;border-radius:15px;padding:11px 8px 12px;display:flex;flex-direction:column;align-items:center;box-shadow:0 8px 18px -12px rgba(18,33,63,.2);position:relative;cursor:pointer;" id="tileRue">
+      <div style="position:absolute;top:6px;right:6px;background:#FF7A2E;border-radius:6px;padding:1.5px 5px;font-family:'Sora',sans-serif;font-weight:800;font-size:8px;color:#fff;">NOUVEAU</div>
+      <div class="sv-tile-icon" style="width:48px;height:48px;border-radius:12px;background:#E6F6F1;display:flex;align-items:center;justify-content:center;animation-delay:.8s;">
+        <svg style="width:24px;height:24px;" viewBox="0 0 24 24" fill="none" stroke="#1C8A6B" stroke-width="2"><path d="M6 8h12l-1 12a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 8Z"/><path d="M9 8V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3M4 8h16"/><path d="M12 12v5"/></svg>
+      </div>
+      <span style="font-family:'Sora',sans-serif;font-weight:700;font-size:11px;color:#12213F;margin-top:8px;text-align:center;">Rue propre</span>
+    </div>
+
+    <div style="background:linear-gradient(135deg,#12213F,#1E3568);border-radius:15px;padding:11px 8px 12px;display:flex;flex-direction:column;align-items:center;cursor:pointer;" id="tileHymne">
+      <div class="sv-tile-icon" style="width:48px;height:48px;border-radius:12px;background:rgba(240,202,107,.16);display:flex;align-items:center;justify-content:center;animation-delay:1s;">
+        <svg style="width:22px;height:22px;" viewBox="0 0 24 24" fill="none" stroke="#F0CA6B" stroke-width="2"><path d="M12 3v9m0 0-3-3m3 3 3-3M5 15c0 3.3 3.1 6 7 6s7-2.7 7-6"/></svg>
+      </div>
+      <span style="font-family:'Sora',sans-serif;font-weight:700;font-size:11px;color:#fff;margin-top:8px;text-align:center;">Hymne</span>
+    </div>
+
+  </div>
+
+  <div style="padding:16px 20px 0;">
+    <div style="border-radius:16px;overflow:hidden;height:118px;position:relative;">
+      <img src="kids-hero.jpg" alt="" style="width:100%;height:100%;object-fit:cover;">
+      <div style="position:absolute;inset:0;background:linear-gradient(0deg, rgba(18,33,63,.6), transparent 55%);"></div>
+      <div style="position:absolute;left:14px;bottom:11px;color:#fff;font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;">Aucun contenu extérieur ici — juste pour apprendre.</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+
+document.getElementById('btnLock').onclick = function(){ parent.toast('Controle parental'); };
+document.getElementById('tileAlphabet').onclick = function(){ parent.toast('Lecon bientot disponible dans la version complete'); };
+document.getElementById('tileChiffres').onclick = function(){ parent.toast('Lecon bientot disponible dans la version complete'); };
+document.getElementById('tileAnimaux').onclick = function(){ parent.toast('Lecon bientot disponible dans la version complete'); };
+document.getElementById('tileBonjour').onclick = function(){ parent.toast('Lecon bientot disponible dans la version complete'); };
+document.getElementById('tileRue').onclick = function(){ parent.go('KidsLesson'); };
+document.getElementById('tileHymne').onclick = function(){ parent.toast('Lecon bientot disponible dans la version complete'); };
+
+</script>
+</body>
+</html>
