@@ -1,0 +1,311 @@
+<title>Inscription Marketplace</title>
+<style>
+  :root{
+    --navy:#0d1830; --navy-deep:#070c1a; --navy-soft:#12213f;
+    --gold:#c8942f; --gold-light:#e8b85c; --gold-pale:#f4e2b8;
+    --cream:#fbf9f4; --cream-dim:#f1ebdd;
+    --text:#151b2c; --text-dim:#5b6478; --text-faint:#8a93a8;
+    --green:#1a8f52; --line:#e4ded0;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--cream); color:var(--text);
+    font-family:'Inter',Arial,sans-serif; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.disp{font-family:'Sora',Arial,sans-serif;}
+  h1,h2,h3{text-wrap:balance;}
+  img{max-width:100%;}
+  a{color:inherit;}
+  .wrap{max-width:920px;margin:0 auto;padding-inline:20px;}
+
+  /* ---------- top bar ---------- */
+  .topbar{background:var(--navy-deep);padding-block:16px;}
+  .topbar .wrap{display:flex;align-items:center;gap:10px;}
+  .topbar .mark{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--gold),var(--gold-light));display:flex;align-items:center;justify-content:center;flex:none;}
+  .topbar .mark svg{width:16px;height:16px;}
+  .topbar .word{font-family:'Sora',sans-serif;font-weight:800;font-size:15px;color:#fff;letter-spacing:.01em;}
+  .topbar .word small{display:block;font-family:'Inter',sans-serif;font-weight:500;font-size:9.5px;color:#8a93a8;letter-spacing:.06em;text-transform:uppercase;margin-top:1px;}
+
+  /* ---------- hero ---------- */
+  .hero{
+    background:
+      radial-gradient(560px 380px at 14% -10%, rgba(232,184,92,.16), transparent 60%),
+      radial-gradient(520px 420px at 96% 6%, rgba(47,95,196,.16), transparent 55%),
+      var(--navy-deep);
+    color:#fff; padding-block:56px 60px; position:relative; overflow:hidden;
+  }
+  .hero::after{
+    content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+    background-image:
+      linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+    background-size:38px 38px;
+    mask-image:radial-gradient(700px 420px at 50% 0%, #000 40%, transparent 85%);
+  }
+  .hero .inner{position:relative;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--gold-light);margin-bottom:18px;
+  }
+  .eyebrow i{width:18px;height:2px;background:var(--gold-light);display:inline-block;border-radius:2px;}
+  .hero h1{font-size:clamp(28px,5vw,44px);line-height:1.08;font-weight:800;margin:0 0 16px;max-width:640px;}
+  .hero h1 span{color:var(--gold-light);}
+  .hero p.lead{font-size:15.5px;line-height:1.6;color:#c3cadd;max-width:520px;margin:0 0 26px;}
+
+  .offer{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    background:rgba(232,184,92,.1);border:1px solid rgba(232,184,92,.32);
+    border-radius:12px;padding:12px 16px;margin-bottom:30px;max-width:640px;
+  }
+  .offer b{color:var(--gold-light);font-family:'Sora',sans-serif;font-weight:700;font-size:13px;}
+  .offer span{font-size:12.5px;color:#dfe4f0;line-height:1.5;}
+
+  .choice-row{display:flex;gap:12px;flex-wrap:wrap;}
+  .choice{
+    flex:1 1 220px; min-width:220px; display:flex; align-items:center; gap:12px;
+    border-radius:14px; padding:16px 18px; cursor:pointer; border:1.5px solid rgba(255,255,255,.14);
+    background:rgba(255,255,255,.04); transition:border-color .15s,background .15s;
+  }
+  .choice:hover{border-color:rgba(232,184,92,.5);}
+  .choice.active{border-color:var(--gold-light);background:rgba(232,184,92,.1);}
+  .choice .ic{width:38px;height:38px;border-radius:10px;background:rgba(232,184,92,.16);display:flex;align-items:center;justify-content:center;flex:none;}
+  .choice .ic svg{width:19px;height:19px;stroke:var(--gold-light);}
+  .choice .tt{font-family:'Sora',sans-serif;font-weight:700;font-size:14.5px;color:#fff;}
+  .choice .ds{font-size:11.5px;color:#a7b0c4;margin-top:1px;}
+
+  /* ---------- form section ---------- */
+  .formsec{padding-block:52px 60px;}
+  .formcard{
+    background:#fff;border:1px solid var(--line);border-radius:18px;
+    padding:32px 30px 30px;box-shadow:0 18px 40px -22px rgba(13,24,48,.22);
+    margin-top:-64px; position:relative; z-index:2;
+  }
+  .formcard h2{font-size:20px;margin:0 0 6px;}
+  .formcard .sub{font-size:12.5px;color:var(--text-dim);margin:0 0 24px;}
+
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px;}
+  .field label .req{color:var(--gold);}
+  .field input, .field select, .field textarea{
+    width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 13px;
+    font-family:'Inter',sans-serif;font-size:14px;color:var(--text);background:var(--cream);
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{outline:2px solid var(--gold-light);outline-offset:1px;border-color:var(--gold-light);}
+  .field textarea{resize:vertical;min-height:64px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:520px){.row2{grid-template-columns:1fr;}}
+
+  .type-toggle{display:flex;gap:10px;}
+  .type-toggle button{
+    flex:1;border:1.5px solid var(--line);background:var(--cream);border-radius:10px;
+    padding:11px 0;font-family:'Inter',sans-serif;font-weight:700;font-size:13px;color:var(--text-dim);
+    cursor:pointer;
+  }
+  .type-toggle button.active{border-color:var(--navy);background:var(--navy);color:#fff;}
+
+  .errmsg{display:none;font-size:12px;color:#b3261e;background:#fdecea;border:1px solid #f3c2bd;border-radius:8px;padding:9px 12px;margin-bottom:16px;}
+  .errmsg.show{display:block;}
+
+  .submitbtn{
+    width:100%;border:none;border-radius:12px;padding:15px 0;
+    background:linear-gradient(135deg,#FF7A2E,var(--gold));color:#fff;
+    font-family:'Sora',sans-serif;font-weight:800;font-size:14.5px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:9px;
+  }
+  .submitbtn:hover{filter:brightness(1.04);}
+  .submitbtn svg{width:17px;height:17px;}
+  .trustnote{font-size:11px;color:var(--text-faint);text-align:center;margin-top:12px;line-height:1.5;}
+
+  /* ---------- how it works ---------- */
+  .how{padding-block:8px 56px;}
+  .how h3{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);text-align:center;margin:0 0 26px;}
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  @media (max-width:640px){.steps{grid-template-columns:1fr;}}
+  .step{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;}
+  .step .n{width:26px;height:26px;border-radius:50%;background:var(--navy);color:var(--gold-light);font-family:'Sora',sans-serif;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
+  .step h4{font-size:13.5px;margin:0 0 5px;}
+  .step p{font-size:12px;color:var(--text-dim);line-height:1.55;margin:0;}
+
+  /* ---------- footer ---------- */
+  footer{background:var(--navy-deep);padding-block:26px;}
+  footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;}
+  footer .credit{font-size:10.5px;color:#7d879f;line-height:1.5;}
+  footer .credit b{color:#c3cadd;}
+  footer .flogo{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,var(--gold),var(--gold-light));flex:none;display:flex;align-items:center;justify-content:center;}
+  footer .flogo svg{width:14px;height:14px;}
+  footer .fright{display:flex;align-items:center;gap:9px;}
+
+  [hidden]{display:none!important;}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="#0d1830" stroke-width="2.4"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 6.9L12 17.3 5.7 20.8l1.7-6.9L2 9.2l7.1-.6z"/></svg></div>
+    <div class="word">STAR ENTREPRISE<small>Marketplace</small></div>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="wrap inner">
+    <div class="eyebrow"><i></i>Inscription Marketplace</div>
+    <h1>Vends. Achète.<br>En toute <span>confiance</span>.</h1>
+    <p class="lead">Paiement Mobile Money sécurisé, retrait près de chez toi, et une vraie communauté
+    d'acheteurs et de vendeurs au Congo. Inscris-toi en 30 secondes.</p>
+
+    <div class="offer">
+      <b>Offre de lancement</b>
+      <span>0 FCFA de commission pendant 30 jours pour les 100 premiers vendeurs · Premier retrait offert pour les acheteurs.</span>
+    </div>
+
+    <div class="choice-row">
+      <div class="choice" data-type="Vendeur" id="choiceVendeur">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 3h18v4H3zM5 7v13a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V7M9 11a3 3 0 0 0 6 0"/></svg></div>
+        <div><div class="tt">Je veux vendre</div><div class="ds">Publie tes produits, gratuit à l'inscription</div></div>
+      </div>
+      <div class="choice" data-type="Acheteur" id="choiceAcheteur">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="9" cy="21" r="1.4"/><circle cx="18" cy="21" r="1.4"/><path d="M2 3h2l2.6 12.4a2 2 0 0 0 2 1.6h8.8a2 2 0 0 0 2-1.6L21 7H6"/></svg></div>
+        <div><div class="tt">Je veux acheter</div><div class="ds">Premier retrait offert pour ta première commande</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="formsec">
+  <div class="wrap">
+    <div class="formcard">
+      <h2>Inscris-toi en 30 secondes</h2>
+      <p class="sub">Une fois envoyé, tu seras redirigé vers WhatsApp pour finaliser directement avec notre équipe.</p>
+
+      <div class="errmsg" id="errBox"></div>
+
+      <form id="regForm" novalidate>
+        <div class="field">
+          <label>Je veux <span class="req">*</span></label>
+          <div class="type-toggle">
+            <button type="button" data-type="Vendeur" id="btnVendeur">Vendre</button>
+            <button type="button" data-type="Acheteur" id="btnAcheteur">Acheter</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="fNom">Nom complet <span class="req">*</span></label>
+          <input type="text" id="fNom" placeholder="Ex : Divine MAKOSSO" autocomplete="name">
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label for="fTel">Numéro WhatsApp <span class="req">*</span></label>
+            <input type="tel" id="fTel" placeholder="+242 06 ..." autocomplete="tel">
+          </div>
+          <div class="field">
+            <label for="fVille">Ville <span class="req">*</span></label>
+            <select id="fVille">
+              <option value="">Choisir...</option>
+              <option>Brazzaville</option>
+              <option>Pointe-Noire</option>
+              <option>Autre ville</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="fNotes">Qu'est-ce que tu vends, ou que cherches-tu ? <span style="color:var(--text-faint);font-weight:500;">(optionnel)</span></label>
+          <textarea id="fNotes" placeholder="Ex : vêtements, électronique, produits alimentaires..."></textarea>
+        </div>
+
+        <button type="submit" class="submitbtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          Continuer sur WhatsApp
+        </button>
+        <p class="trustnote">Tes informations sont envoyées directement à notre équipe par WhatsApp — jamais partagées ailleurs.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="how">
+  <div class="wrap">
+    <h3>Comment ça marche</h3>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><h4>Remplis tes infos</h4><p>Nom, numéro WhatsApp, ville — ça prend 30 secondes.</p></div>
+      <div class="step"><div class="n">2</div><h4>Continue sur WhatsApp</h4><p>Un message pré-rempli s'ouvre directement avec notre équipe.</p></div>
+      <div class="step"><div class="n">3</div><h4>On te recontacte</h4><p>Activation de ton compte et, selon ta ville, ton point de retrait le plus proche.</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="credit"><b>STAR ENTREPRISE</b> — Créé par Carry OTEMBA, PDG<br>Tous droits réservés.</div>
+    <div class="fright">
+      <div class="flogo"><svg viewBox="0 0 24 24" fill="none" stroke="#0d1830" stroke-width="2.4"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 6.9L12 17.3 5.7 20.8l1.7-6.9L2 9.2l7.1-.6z"/></svg></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var WA_NUMBER = "242066565050";
+  var selectedType = null;
+
+  var heroVendeur = document.getElementById('choiceVendeur');
+  var heroAcheteur = document.getElementById('choiceAcheteur');
+  var btnVendeur = document.getElementById('btnVendeur');
+  var btnAcheteur = document.getElementById('btnAcheteur');
+  var form = document.getElementById('regForm');
+  var errBox = document.getElementById('errBox');
+
+  function setType(t){
+    selectedType = t;
+    heroVendeur.classList.toggle('active', t === 'Vendeur');
+    heroAcheteur.classList.toggle('active', t === 'Acheteur');
+    btnVendeur.classList.toggle('active', t === 'Vendeur');
+    btnAcheteur.classList.toggle('active', t === 'Acheteur');
+  }
+
+  heroVendeur.addEventListener('click', function(){ setType('Vendeur'); form.scrollIntoView({behavior:'smooth', block:'start'}); });
+  heroAcheteur.addEventListener('click', function(){ setType('Acheteur'); form.scrollIntoView({behavior:'smooth', block:'start'}); });
+  btnVendeur.addEventListener('click', function(){ setType('Vendeur'); });
+  btnAcheteur.addEventListener('click', function(){ setType('Acheteur'); });
+
+  function showError(msg){
+    errBox.textContent = msg;
+    errBox.classList.add('show');
+    errBox.scrollIntoView({behavior:'smooth', block:'center'});
+  }
+  function clearError(){ errBox.classList.remove('show'); errBox.textContent=''; }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    clearError();
+
+    var nom = document.getElementById('fNom').value.trim();
+    var tel = document.getElementById('fTel').value.trim();
+    var ville = document.getElementById('fVille').value;
+    var notes = document.getElementById('fNotes').value.trim();
+
+    if (!selectedType){ showError("Choisis d'abord si tu veux vendre ou acheter."); return; }
+    if (!nom){ showError('Merci de renseigner ton nom complet.'); return; }
+    if (!tel || tel.replace(/[^0-9]/g,'').length < 8){ showError('Merci de renseigner un numéro WhatsApp valide.'); return; }
+    if (!ville){ showError('Merci de choisir ta ville.'); return; }
+
+    var lines = [
+      "Bonjour, je viens de m'inscrire sur le Marketplace STAR ENTREPRISE.",
+      "",
+      "Nom : " + nom,
+      "Téléphone : " + tel,
+      "Ville : " + ville,
+      "Je veux : " + (selectedType === 'Vendeur' ? 'Vendre des produits' : 'Acheter des produits')
+    ];
+    if (notes){ lines.push("Détails : " + notes); }
+
+    var msg = lines.join("\n");
+    var url = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent(msg);
+    window.location.href = url;
+  });
+})();
+</script>
