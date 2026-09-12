@@ -58,6 +58,9 @@
   .state p{font-size:13px;color:rgba(255,255,255,.7);line-height:1.6;}
   .state a{color:var(--gold-light);font-weight:700;}
 
+  .feed-empty{height:100dvh;display:flex;align-items:center;justify-content:center;text-align:center;padding:30px;scroll-snap-align:start;}
+  .feed-empty p{font-size:13px;color:rgba(255,255,255,.7);line-height:1.7;}
+
   /* Upload modal */
   .modal-backdrop{position:fixed;inset:0;background:rgba(5,11,24,.7);z-index:50;display:flex;align-items:flex-end;}
   .modal{background:#fff;color:#151b2c;width:100%;border-radius:20px 20px 0 0;padding:20px;max-width:480px;margin:0 auto;}
@@ -73,6 +76,10 @@
     font-size:13px;padding:13px 16px;border-radius:12px;cursor:pointer;}
   .modal .errmsg{display:none;font-size:12px;color:#b3261e;background:#fdecea;border:1px solid #f3c2bd;border-radius:8px;padding:9px 12px;margin-bottom:12px;}
   .modal .errmsg.show{display:block;}
+  .modal .infomsg{display:none;font-size:12px;color:#8A6318;background:#FBF3E1;border:1px solid #EDD8A0;border-radius:8px;padding:9px 12px;margin-bottom:12px;}
+  .modal .infomsg.show{display:block;}
+  .kids-check{display:flex;align-items:flex-start;gap:8px;font-size:11.5px;color:#5b6478;line-height:1.4;margin-bottom:16px;font-weight:600;}
+  .kids-check input{margin-top:2px;flex:none;}
 </style>
 </head>
 <body>
@@ -81,9 +88,6 @@
 <div id="loggedOutState" class="state" hidden><p>Tu n'es pas connecté.<br><a href="inscription.html">Se connecter / Créer un compte</a></p></div>
 <div id="noPersonalState" class="state" hidden>
   <p>Le fil vidéo est réservé au profil personnel.<br>Ajoute un profil pour toi-même depuis ton espace.<br><a href="accueil.html">Retour à mon espace</a></p>
-</div>
-<div id="emptyState" class="state" hidden>
-  <p>Aucune vidéo pour le moment.<br>Sois le premier à publier !</p>
 </div>
 
 <div id="feedWrap" hidden>
@@ -103,10 +107,15 @@
   <div class="modal">
     <h2>Publier une vidéo</h2>
     <div class="errmsg" id="modalErr"></div>
+    <div class="infomsg" id="modalInfo"></div>
     <label for="videoFile">Choisis une vidéo</label>
     <input type="file" id="videoFile" accept="video/*">
     <label for="legendeInput">Légende</label>
     <textarea id="legendeInput" placeholder="Raconte ta vidéo..." maxlength="300"></textarea>
+    <label class="kids-check">
+      <input type="checkbox" id="pourEnfants">
+      Vidéo adaptée aux enfants (espace PIOUPIOU) — sera vérifiée avant publication
+    </label>
     <div class="row">
       <button class="cancel" id="btnCancel">Annuler</button>
       <button class="publish" id="btnPublish">Publier</button>
@@ -124,11 +133,10 @@
   var loadingState = document.getElementById('loadingState');
   var loggedOutState = document.getElementById('loggedOutState');
   var noPersonalState = document.getElementById('noPersonalState');
-  var emptyState = document.getElementById('emptyState');
   var feedWrap = document.getElementById('feedWrap');
   var feed = document.getElementById('feed');
 
-  function show(el){ [loadingState, loggedOutState, noPersonalState, emptyState, feedWrap].forEach(function(e){ e.hidden = (e !== el); }); }
+  function show(el){ [loadingState, loggedOutState, noPersonalState, feedWrap].forEach(function(e){ e.hidden = (e !== el); }); }
 
   if (!token){ show(loggedOutState); return; }
 
@@ -209,9 +217,12 @@
   function loadFeed(){
     authFetch(API_VIDEOS).then(function(res){ return res.json(); }).then(function(data){
       var videos = data.videos || [];
-      if (!videos.length){ show(emptyState); return; }
       feed.innerHTML = '';
-      videos.forEach(function(v){ feed.appendChild(renderVideo(v)); });
+      if (!videos.length){
+        feed.innerHTML = '<div class="feed-empty"><p>Aucune vidéo pour le moment.<br>Sois le premier à publier !</p></div>';
+      } else {
+        videos.forEach(function(v){ feed.appendChild(renderVideo(v)); });
+      }
       show(feedWrap);
     });
   }
@@ -235,11 +246,15 @@
   var videoFile = document.getElementById('videoFile');
   var legendeInput = document.getElementById('legendeInput');
   var modalErr = document.getElementById('modalErr');
+  var modalInfo = document.getElementById('modalInfo');
+  var pourEnfants = document.getElementById('pourEnfants');
 
   btnAdd.addEventListener('click', function(){
     modalErr.classList.remove('show');
+    modalInfo.classList.remove('show');
     videoFile.value = '';
     legendeInput.value = '';
+    pourEnfants.checked = false;
     uploadModal.hidden = false;
   });
   btnCancel.addEventListener('click', function(){ uploadModal.hidden = true; });
@@ -261,7 +276,8 @@
           profileId: personalProfileId,
           legende: legendeInput.value.trim(),
           typeMime: file.type || 'video/mp4',
-          fileBase64: reader.result
+          fileBase64: reader.result,
+          pourEnfants: pourEnfants.checked
         })
       }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
         .then(function(result){
@@ -270,6 +286,12 @@
           if (!result.ok){
             modalErr.textContent = result.data.error || 'Erreur lors de la publication.';
             modalErr.classList.add('show');
+            return;
+          }
+          if (result.data.video && result.data.video.moderationStatut === 'en_attente'){
+            modalInfo.textContent = 'Vidéo envoyée ! Elle sera vérifiée avant d\'apparaître dans l\'espace PIOUPIOU.';
+            modalInfo.classList.add('show');
+            loadFeed();
             return;
           }
           uploadModal.hidden = true;

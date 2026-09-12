@@ -158,6 +158,10 @@
         '<div class="profile-avatar">' + initials(p.nom) + '</div>' +
         '<div class="name">' + p.nom + '</div>' +
         '<div class="tag">' + (p.type_profil === 'enfant' ? 'PIOUPIOU' : 'Profil perso') + '</div>';
+      if (p.type_profil === 'enfant'){
+        chip.style.cursor = 'pointer';
+        chip.addEventListener('click', function(){ window.location.href = 'pioupiou.html'; });
+      }
       profileList.appendChild(chip);
     });
     var addBtn = document.createElement('button');

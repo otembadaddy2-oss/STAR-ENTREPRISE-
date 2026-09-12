@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PIOUPIOU — Vidéos pour enfants</title>
+<meta name="theme-color" content="#0f4a37">
+<link rel="icon" href="../assets/img/icons/favicon-star-rounded-v1.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@500;600;700&display=swap" rel="stylesheet"></noscript>
+<style>
+  :root{--kids:#2f8f6e;--kids-deep:#0f4a37;--kids-light:#6fd6ab;--cream:#fffdf5;--sun:#ffb648;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;background:var(--kids-deep);color:#fff;font-family:'Inter',Arial,sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none;}
+  h1,h2,.disp{font-family:'Sora',Arial,sans-serif;}
+  [hidden]{display:none!important;}
+  button{font-family:inherit;}
+
+  body{background:radial-gradient(120% 100% at 50% 0%, #16624b 0%, var(--kids-deep) 60%);}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;}
+  .badge{font-family:'Sora',sans-serif;font-weight:800;font-size:17px;background:var(--sun);color:#5c3200;
+    padding:6px 16px;border-radius:20px;display:inline-flex;align-items:center;gap:6px;}
+  .back{color:#fff;font-size:12.5px;font-weight:700;border:1.5px solid rgba(255,255,255,.35);padding:7px 14px;border-radius:20px;text-decoration:none;}
+
+  .stage{display:flex;flex-direction:column;align-items:center;padding:10px 18px 30px;}
+  .player{position:relative;width:100%;max-width:340px;aspect-ratio:9/16;border-radius:28px;overflow:hidden;
+    box-shadow:0 20px 50px -12px rgba(0,0,0,.5);border:5px solid rgba(255,255,255,.15);background:#000;}
+  .player video{width:100%;height:100%;object-fit:cover;}
+  .player .tapzone{position:absolute;inset:0;}
+  .mute-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.45);
+    width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;pointer-events:none;}
+  .mute-hint.show{opacity:1;}
+  .mute-hint svg{width:28px;height:28px;}
+
+  .caption-box{max-width:340px;width:100%;margin-top:16px;text-align:center;}
+  .caption-box .auteur{font-family:'Sora',sans-serif;font-weight:800;font-size:14px;color:var(--kids-light);margin-bottom:4px;}
+  .caption-box .legende{font-size:13px;color:rgba(255,255,255,.85);line-height:1.5;}
+
+  .controls{display:flex;gap:14px;margin-top:22px;width:100%;max-width:340px;}
+  .btn-next{flex:1;background:linear-gradient(135deg,var(--sun),#ff8f3d);color:#5c3200;border:none;font-family:'Sora',sans-serif;
+    font-weight:800;font-size:15px;padding:16px 0;border-radius:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .btn-next svg{width:20px;height:20px;}
+
+  .state{min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;}
+  .state .emoji{font-size:44px;margin-bottom:14px;}
+  .state h2{font-size:18px;margin:0 0 8px;}
+  .state p{font-size:13px;color:rgba(255,255,255,.7);line-height:1.6;max-width:280px;}
+  .state a{color:var(--kids-light);font-weight:700;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="badge">🐣 PIOUPIOU</span>
+  <a class="back" href="accueil.html">← Retour</a>
+</div>
+
+<div id="loadingState" class="state"><div class="emoji">🐥</div><p>Chargement...</p></div>
+<div id="loggedOutState" class="state" hidden><div class="emoji">🔒</div><p>Connecte-toi d'abord.<br><a href="inscription.html">Se connecter</a></p></div>
+<div id="emptyState" class="state" hidden>
+  <div class="emoji">🌟</div>
+  <h2>Bientôt de nouvelles vidéos !</h2>
+  <p>Nos petites histoires sont en cours de préparation. Reviens bientôt sur PIOUPIOU.</p>
+</div>
+<div id="doneState" class="state" hidden>
+  <div class="emoji">🎉</div>
+  <h2>Bravo, tu as tout regardé !</h2>
+  <p>De nouvelles vidéos arrivent bientôt.</p>
+</div>
+
+<div id="stageWrap" class="stage" hidden>
+  <div class="player">
+    <video id="videoEl" loop muted playsinline preload="metadata"></video>
+    <div class="tapzone" id="tapZone"></div>
+    <div class="mute-hint" id="muteHint"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M19 9a5 5 0 0 1 0 6M22 6a9 9 0 0 1 0 12"/></svg></div>
+  </div>
+  <div class="caption-box">
+    <div class="auteur" id="auteurEl"></div>
+    <div class="legende" id="legendeEl"></div>
+  </div>
+  <div class="controls">
+    <button class="btn-next" id="btnNext">Vidéo suivante <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="m9 6 6 6-6 6"/></svg></button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var API_VIDEOS = '/api/starvibe-videos?espace=pioupiou';
+  var API_AUTH = '/api/starvibe-auth';
+  var token = localStorage.getItem('starvibe_token');
+
+  var loadingState = document.getElementById('loadingState');
+  var loggedOutState = document.getElementById('loggedOutState');
+  var emptyState = document.getElementById('emptyState');
+  var doneState = document.getElementById('doneState');
+  var stageWrap = document.getElementById('stageWrap');
+  var videoEl = document.getElementById('videoEl');
+  var tapZone = document.getElementById('tapZone');
+  var muteHint = document.getElementById('muteHint');
+  var auteurEl = document.getElementById('auteurEl');
+  var legendeEl = document.getElementById('legendeEl');
+  var btnNext = document.getElementById('btnNext');
+
+  function show(el){ [loadingState, loggedOutState, emptyState, doneState, stageWrap].forEach(function(e){ e.hidden = (e !== el); }); }
+
+  if (!token){ show(loggedOutState); return; }
+
+  function authFetch(url, opts){
+    opts = opts || {};
+    opts.headers = Object.assign({}, opts.headers, { 'Authorization': 'Bearer ' + token });
+    return fetch(url, opts);
+  }
+
+  var videos = [];
+  var index = 0;
+
+  function playCurrent(){
+    if (index >= videos.length){ show(doneState); return; }
+    var v = videos[index];
+    videoEl.src = v.videoUrl;
+    videoEl.play().catch(function(){});
+    auteurEl.textContent = '@' + v.auteur;
+    legendeEl.textContent = v.legende || '';
+    show(stageWrap);
+  }
+
+  btnNext.addEventListener('click', function(){
+    index++;
+    playCurrent();
+  });
+
+  tapZone.addEventListener('click', function(){
+    videoEl.muted = !videoEl.muted;
+    muteHint.classList.add('show');
+    setTimeout(function(){ muteHint.classList.remove('show'); }, 500);
+  });
+
+  authFetch(API_AUTH).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
+    .then(function(result){
+      if (!result.ok){ localStorage.removeItem('starvibe_token'); show(loggedOutState); return; }
+      return authFetch(API_VIDEOS).then(function(res){ return res.json(); });
+    })
+    .then(function(data){
+      if (!data) return;
+      videos = data.videos || [];
+      if (!videos.length){ show(emptyState); return; }
+      playCurrent();
+    })
+    .catch(function(){ show(loggedOutState); });
+})();
+</script>
+</body>
+</html>

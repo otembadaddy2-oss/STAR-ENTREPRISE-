@@ -293,7 +293,10 @@ export async function ensureSchema() {
   // Vidéos du fil STAR VIBE — publiées uniquement depuis un profil
   // personnel (les profils enfant/PIOUPIOU restent hors du fil principal
   // en attendant leur espace dédié). Fichier stocké dans Netlify Blobs,
-  // seule la clé est gardée en base.
+  // seule la clé est gardée en base. Une vidéo marquée "pour_enfants"
+  // n'apparaît dans l'espace PIOUPIOU qu'après validation d'un compte
+  // staff STAR ENTREPRISE (moderation_statut = 'approuve') — c'est le
+  // vrai filtre de sécurité de l'espace enfants.
   await sql`
     CREATE TABLE IF NOT EXISTS starvibe_videos (
       id SERIAL PRIMARY KEY,
@@ -304,9 +307,13 @@ export async function ensureSchema() {
       blob_key TEXT NOT NULL,
       likes_count INTEGER NOT NULL DEFAULT 0,
       vues_count INTEGER NOT NULL DEFAULT 0,
+      pour_enfants BOOLEAN NOT NULL DEFAULT false,
+      moderation_statut TEXT NOT NULL DEFAULT 'approuve',
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     )
   `;
+  await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS pour_enfants BOOLEAN NOT NULL DEFAULT false`;
+  await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS moderation_statut TEXT NOT NULL DEFAULT 'approuve'`;
 
   await sql`
     CREATE TABLE IF NOT EXISTS starvibe_likes (
