@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KOMYO — Mon abonnement</title>
+<meta name="theme-color" content="#050B18">
+<link rel="icon" href="../assets/img/icons/favicon-star-rounded-v1.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+<style>
+  :root{--navy:#0d1830;--navy-deep:#050B18;--gold:#c8942f;--gold-light:#e8b85c;--cream:#fbf9f4;--text-dim:#5b6478;--text-faint:#8a93a8;--line:#e4ded0;--kids:#2f8f6e;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cream);color:#151b2c;font-family:'Inter',Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3,.disp{font-family:'Sora',Arial,sans-serif;}
+  img{max-width:100%;display:block;}
+  a{color:inherit;}
+  .wrap{max-width:480px;margin:0 auto;padding-inline:20px;}
+  [hidden]{display:none!important;}
+
+  .topbar{background:var(--navy-deep);color:#fff;padding:18px 20px 44px;border-radius:0 0 26px 26px;}
+  .topbar .row{display:flex;align-items:center;justify-content:space-between;}
+  .topbar h1{font-size:16px;margin:0;}
+  .topbar a.back{font-size:11.5px;font-weight:700;color:#fff;border:1.5px solid rgba(255,255,255,.25);padding:7px 13px;border-radius:20px;text-decoration:none;}
+  .topbar p{font-size:12px;color:rgba(255,255,255,.6);margin:4px 0 0;}
+
+  .content{margin-top:-26px;}
+  .plan-card{background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:20px;margin-bottom:14px;position:relative;}
+  .plan-card.active{border-color:var(--gold);box-shadow:0 8px 24px -10px rgba(200,148,47,.35);}
+  .plan-card.famille{border-color:rgba(47,143,110,.35);}
+  .plan-card.famille.active{border-color:var(--kids);}
+  .plan-badge{position:absolute;top:-10px;right:16px;background:var(--gold);color:#fff;font-family:'Sora',sans-serif;font-weight:800;
+    font-size:10px;padding:4px 10px;border-radius:20px;}
+  .plan-card.famille .plan-badge{background:var(--kids);}
+  .plan-name{font-size:15px;font-weight:800;margin:0 0 4px;}
+  .plan-price{font-family:'Sora',sans-serif;font-weight:800;font-size:22px;color:var(--navy);margin-bottom:4px;}
+  .plan-price span{font-size:12px;font-weight:600;color:var(--text-faint);}
+  .plan-desc{font-size:12.5px;color:var(--text-dim);line-height:1.5;margin-bottom:14px;}
+  .plan-btn{width:100%;border:none;border-radius:12px;padding:12px 0;font-family:'Sora',sans-serif;font-weight:800;font-size:13.5px;cursor:pointer;}
+  .plan-btn.gratuit{background:#f3ede0;color:#151b2c;}
+  .plan-btn.famille{background:linear-gradient(135deg,#3fae82,var(--kids));color:#fff;}
+  .plan-btn.business{background:linear-gradient(135deg,#FF7A2E,var(--gold));color:#fff;}
+  .plan-btn:disabled{opacity:.55;cursor:default;}
+  .current-tag{font-size:11px;font-weight:700;color:var(--gold);text-align:center;padding:10px 0;}
+  .current-tag.famille{color:var(--kids);}
+
+  .pay-box{background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:20px;margin-bottom:16px;}
+  .pay-box h2{font-size:15px;margin:0 0 10px;}
+  .pay-box .amount{font-family:'Sora',sans-serif;font-weight:800;font-size:26px;color:var(--navy);margin-bottom:12px;}
+  .pay-row{display:flex;justify-content:space-between;font-size:12.5px;padding:9px 0;border-bottom:1px solid var(--line);}
+  .pay-row:last-of-type{border-bottom:none;}
+  .pay-row b{color:var(--navy);}
+  .pay-note{font-size:11.5px;color:var(--text-dim);line-height:1.6;background:#FBF3E1;border:1px solid #EDD8A0;border-radius:10px;padding:10px 12px;margin-top:12px;}
+  .btn-refresh{width:100%;border:1.5px solid var(--line);background:#fff;color:var(--navy);font-family:'Sora',sans-serif;font-weight:700;
+    font-size:13px;padding:12px 0;border-radius:12px;cursor:pointer;margin-top:12px;}
+
+  .state{text-align:center;padding:60px 20px;}
+  .state p{font-size:13px;color:var(--text-dim);}
+  .state a{color:var(--navy);font-weight:700;}
+
+  footer{padding:20px;text-align:center;}
+  footer .credit{font-size:10px;color:#8a93a8;}
+  footer .credit b{color:#5b6478;}
+</style>
+</head>
+<body>
+
+<div id="loadingState" class="state"><p>Chargement…</p></div>
+<div id="loggedOutState" class="state" hidden><p>Tu n'es pas connecté.<br><a href="inscription.html">Se connecter / Créer un compte</a></p></div>
+
+<div id="appState" hidden>
+  <div class="topbar">
+    <div class="row">
+      <h1>Mon abonnement KOMYO</h1>
+      <a class="back" href="accueil.html">← Mon espace</a>
+    </div>
+    <p>Choisis la formule adaptée à ta famille ou à ton activité.</p>
+  </div>
+
+  <div class="wrap content">
+    <div id="payBox" hidden></div>
+    <div id="plansList"></div>
+  </div>
+</div>
+
+<footer>
+  <div class="credit"><b>STAR ENTREPRISE</b> — Tous droits réservés.</div>
+</footer>
+
+<script>
+(function(){
+  var API = '/api/starvibe-subscription';
+  var token = localStorage.getItem('starvibe_token');
+
+  var loadingState = document.getElementById('loadingState');
+  var loggedOutState = document.getElementById('loggedOutState');
+  var appState = document.getElementById('appState');
+  var plansList = document.getElementById('plansList');
+  var payBox = document.getElementById('payBox');
+
+  if (!token){ loadingState.hidden = true; loggedOutState.hidden = false; return; }
+
+  function authFetch(url, opts){
+    opts = opts || {};
+    opts.headers = Object.assign({}, opts.headers, { 'Authorization': 'Bearer ' + token });
+    return fetch(url, opts);
+  }
+
+  var PLAN_ORDER = ['gratuit', 'famille', 'business'];
+
+  function renderPayBox(sub){
+    if (sub.statut !== 'en_attente_paiement'){ payBox.hidden = true; payBox.innerHTML = ''; return; }
+    payBox.hidden = false;
+    payBox.innerHTML =
+      '<div class="pay-box">' +
+        '<h2>Paiement en attente</h2>' +
+        '<div class="amount">' + sub.montantAttendu.toLocaleString('fr-FR') + ' FCFA</div>' +
+        '<div class="pay-row"><span>Envoyer via Mobile Money au</span><b>' + sub.numeroReception + '</b></div>' +
+        '<div class="pay-row"><span>Référence à indiquer</span><b>' + sub.referencePaiement + '</b></div>' +
+        '<div class="pay-note">Envoie le montant exact avec la référence ci-dessus. Un compte STAR ENTREPRISE confirme la réception et active ton plan pour 30 jours.</div>' +
+        '<button class="btn-refresh" id="btnRefresh">Actualiser mon statut</button>' +
+      '</div>';
+    document.getElementById('btnRefresh').addEventListener('click', load);
+  }
+
+  function renderPlans(current, plans){
+    plansList.innerHTML = '';
+    PLAN_ORDER.forEach(function(key){
+      var p = plans[key];
+      var isActive = current.plan === key && current.statut === 'actif';
+      var isPending = current.plan === key && current.statut === 'en_attente_paiement';
+      var card = document.createElement('div');
+      card.className = 'plan-card ' + key + (isActive ? ' active' : '');
+      var priceLabel = p.montant === 0 ? 'Gratuit' : p.montant.toLocaleString('fr-FR') + ' <span>FCFA / mois</span>';
+      card.innerHTML =
+        (isActive ? '<div class="plan-badge">Plan actuel</div>' : '') +
+        '<div class="plan-name">' + p.label + '</div>' +
+        '<div class="plan-price">' + priceLabel + '</div>' +
+        '<div class="plan-desc">' + p.description + '</div>';
+
+      if (isActive){
+        var tag = document.createElement('div');
+        tag.className = 'current-tag ' + key;
+        tag.textContent = key === 'gratuit' ? 'Ton plan actuel' : 'Actif jusqu\'au ' + new Date(current.expiresAt).toLocaleDateString('fr-FR');
+        card.appendChild(tag);
+      } else {
+        var btn = document.createElement('button');
+        btn.className = 'plan-btn ' + key;
+        btn.textContent = isPending ? 'Paiement en attente...' : (key === 'gratuit' ? 'Revenir au plan gratuit' : 'Choisir — ' + p.montant.toLocaleString('fr-FR') + ' FCFA');
+        btn.disabled = isPending;
+        btn.addEventListener('click', function(){ choisirPlan(key); });
+        card.appendChild(btn);
+      }
+      plansList.appendChild(card);
+    });
+  }
+
+  function choisirPlan(plan){
+    authFetch(API, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'choisir_plan', plan: plan })
+    }).then(function(res){ return res.json(); }).then(function(){ load(); });
+  }
+
+  function load(){
+    authFetch(API).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
+      .then(function(result){
+        if (!result.ok){ localStorage.removeItem('starvibe_token'); loadingState.hidden = true; loggedOutState.hidden = false; return; }
+        renderPayBox(result.data.abonnement);
+        renderPlans(result.data.abonnement, result.data.plans);
+        loadingState.hidden = true;
+        appState.hidden = false;
+      });
+  }
+
+  load();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KOMYO — Paiements en attente</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#050B18">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+<style>
+  :root{--navy:#0d1830;--navy-deep:#050B18;--gold:#c8942f;--gold-light:#e8b85c;--line:rgba(255,255,255,.1);--err:#b3261e;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--navy-deep);color:#fff;font-family:'Inter',Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  h1,h2,.disp{font-family:'Sora',Arial,sans-serif;}
+  [hidden]{display:none!important;}
+  .wrap{max-width:520px;margin:0 auto;padding:20px;}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;}
+  .topbar h1{font-size:16px;margin:0;}
+  .topbar .tag{font-size:11px;color:var(--gold-light);font-weight:700;}
+  .logout{border:1.5px solid rgba(255,255,255,.22);color:#fff;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;
+    padding:7px 12px;border-radius:20px;background:none;cursor:pointer;}
+
+  .login-card{background:#12213F;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:24px;margin-top:12vh;}
+  .login-card h2{font-size:17px;margin:0 0 4px;}
+  .login-card p{font-size:12.5px;color:rgba(255,255,255,.55);margin:0 0 18px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:11.5px;font-weight:700;color:rgba(255,255,255,.8);margin-bottom:5px;}
+  .field input{width:100%;border:1.5px solid rgba(255,255,255,.18);border-radius:10px;padding:11px 13px;
+    font-family:'Inter',sans-serif;font-size:14px;color:#fff;background:rgba(255,255,255,.05);}
+  .btn-primary{width:100%;border:none;border-radius:12px;padding:14px 0;background:linear-gradient(135deg,#FF7A2E,var(--gold));
+    color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:14px;cursor:pointer;}
+  .btn-primary:disabled{opacity:.6;}
+  .errmsg{display:none;font-size:12px;color:#ff8a80;background:rgba(179,38,30,.15);border:1px solid rgba(179,38,30,.4);
+    border-radius:8px;padding:9px 12px;margin-bottom:14px;}
+  .errmsg.show{display:block;}
+
+  .empty{text-align:center;padding:60px 20px;color:rgba(255,255,255,.6);font-size:13px;}
+  .item{background:#12213F;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px;margin-bottom:14px;}
+  .item .top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+  .item .plan{font-family:'Sora',sans-serif;font-weight:800;font-size:14px;}
+  .item .amount{font-family:'Sora',sans-serif;font-weight:800;font-size:16px;color:var(--gold-light);}
+  .item .meta{font-size:11.5px;color:rgba(255,255,255,.5);margin-bottom:12px;}
+  .item .meta b{color:rgba(255,255,255,.8);}
+  .item .confirm-row{display:flex;gap:8px;}
+  .item input{flex:1;border:1.5px solid rgba(255,255,255,.18);border-radius:10px;padding:9px 11px;
+    font-family:'Inter',sans-serif;font-size:12.5px;color:#fff;background:rgba(255,255,255,.05);}
+  .item button{border:none;border-radius:10px;padding:9px 14px;font-family:'Sora',sans-serif;font-weight:700;font-size:12px;cursor:pointer;
+    background:rgba(47,143,110,.25);color:#6fd6ab;white-space:nowrap;}
+  .item.processing{opacity:.4;pointer-events:none;}
+  .item .itemerr{display:none;font-size:11px;color:#ff8a80;margin-top:8px;}
+  .item .itemerr.show{display:block;}
+</style>
+</head>
+<body>
+
+<div id="loginView" class="wrap">
+  <div class="login-card">
+    <h2>Paiements KOMYO</h2>
+    <p>Connexion staff STAR ENTREPRISE.</p>
+    <div class="errmsg" id="loginErr"></div>
+    <div class="field"><label for="fUser">Identifiant</label><input type="text" id="fUser" autocomplete="username"></div>
+    <div class="field"><label for="fPass">Mot de passe</label><input type="password" id="fPass" autocomplete="current-password"></div>
+    <button class="btn-primary" id="btnLogin">Se connecter</button>
+  </div>
+</div>
+
+<div id="queueView" class="wrap" hidden>
+  <div class="topbar">
+    <div><h1>Paiements KOMYO</h1><div class="tag">En attente de confirmation</div></div>
+    <button class="logout" id="btnLogout">Déconnexion</button>
+  </div>
+  <div id="queueList"></div>
+  <div class="empty" id="emptyQueue" hidden>Aucun paiement en attente.</div>
+</div>
+
+<script>
+(function(){
+  var TOKEN_KEY = 'starvibe_admin_token';
+  var API_AUTH = '/api/auth';
+  var API_SUB = '/api/starvibe-subscription';
+
+  var loginView = document.getElementById('loginView');
+  var queueView = document.getElementById('queueView');
+  var loginErr = document.getElementById('loginErr');
+  var fUser = document.getElementById('fUser');
+  var fPass = document.getElementById('fPass');
+  var btnLogin = document.getElementById('btnLogin');
+  var btnLogout = document.getElementById('btnLogout');
+  var queueList = document.getElementById('queueList');
+  var emptyQueue = document.getElementById('emptyQueue');
+
+  function getToken(){ try{ return localStorage.getItem(TOKEN_KEY) || ''; }catch(e){ return ''; } }
+  function setToken(t){ try{ if (t) localStorage.setItem(TOKEN_KEY, t); else localStorage.removeItem(TOKEN_KEY); }catch(e){} }
+
+  function authFetch(url, opts){
+    opts = opts || {};
+    opts.headers = Object.assign({}, opts.headers, { 'Authorization': 'Bearer ' + getToken() });
+    return fetch(url, opts);
+  }
+
+  function showLogin(){ loginView.hidden = false; queueView.hidden = true; }
+  function showQueue(){ loginView.hidden = true; queueView.hidden = false; loadQueue(); }
+
+  btnLogin.addEventListener('click', function(){
+    loginErr.classList.remove('show');
+    var username = fUser.value.trim();
+    var password = fPass.value;
+    if (!username || !password){ loginErr.textContent = 'Identifiant et mot de passe requis.'; loginErr.classList.add('show'); return; }
+
+    btnLogin.disabled = true;
+    btnLogin.textContent = 'Connexion...';
+    fetch(API_AUTH, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'login', username: username, password: password })
+    }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
+      .then(function(result){
+        btnLogin.disabled = false;
+        btnLogin.textContent = 'Se connecter';
+        if (!result.ok){
+          loginErr.textContent = result.data.error || 'Connexion impossible.';
+          loginErr.classList.add('show');
+          return;
+        }
+        setToken(result.data.token);
+        showQueue();
+      })
+      .catch(function(){
+        btnLogin.disabled = false;
+        btnLogin.textContent = 'Se connecter';
+        loginErr.textContent = 'Impossible de contacter le serveur.';
+        loginErr.classList.add('show');
+      });
+  });
+
+  btnLogout.addEventListener('click', function(){ setToken(''); showLogin(); });
+
+  function renderItem(d){
+    var item = document.createElement('div');
+    item.className = 'item';
+    item.innerHTML =
+      '<div class="top"><div class="plan">' + d.plan + '</div><div class="amount">' + d.montantAttendu.toLocaleString('fr-FR') + ' FCFA</div></div>' +
+      '<div class="meta"><b>' + d.auteur + '</b> — ' + d.telephone + ' — réf. ' + d.referencePaiement + '</div>' +
+      '<div class="confirm-row">' +
+        '<input type="number" placeholder="Montant reçu (FCFA)" id="montant-' + d.id + '">' +
+        '<button data-approve>Confirmer</button>' +
+      '</div>' +
+      '<div class="itemerr" id="err-' + d.id + '"></div>';
+
+    item.querySelector('[data-approve]').addEventListener('click', function(){
+      var input = document.getElementById('montant-' + d.id);
+      var montant = Number(input.value);
+      var errBox = document.getElementById('err-' + d.id);
+      errBox.classList.remove('show');
+      if (!montant){ errBox.textContent = 'Indique le montant reçu.'; errBox.classList.add('show'); return; }
+
+      item.classList.add('processing');
+      authFetch(API_SUB, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'confirmer_paiement', subscriptionId: Number(d.id), montantRecu: montant, methode: 'mobile_money', reference: d.referencePaiement })
+      }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
+        .then(function(result){
+          item.classList.remove('processing');
+          if (!result.ok || result.data.statut !== 'actif'){
+            errBox.textContent = result.data.message || result.data.error || 'Paiement rejeté (montant différent).';
+            errBox.classList.add('show');
+            return;
+          }
+          item.remove();
+          if (!queueList.children.length) emptyQueue.hidden = false;
+        });
+    });
+
+    return item;
+  }
+
+  function loadQueue(){
+    authFetch(API_SUB + '?admin=1').then(function(res){
+      if (res.status === 403){ setToken(''); showLogin(); return null; }
+      return res.json();
+    }).then(function(data){
+      if (!data) return;
+      var demandes = data.demandes || [];
+      queueList.innerHTML = '';
+      emptyQueue.hidden = demandes.length > 0;
+      demandes.forEach(function(d){ queueList.appendChild(renderItem(d)); });
+    });
+  }
+
+  if (getToken()) showQueue(); else showLogin();
+})();
+</script>
+</body>
+</html>

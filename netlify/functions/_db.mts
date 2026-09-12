@@ -325,6 +325,30 @@ export async function ensureSchema() {
     )
   `;
 
+  // Abonnements KOMYO — un compte peut passer par plusieurs lignes au fil du
+  // temps (historique) ; la ligne la plus récente fait foi pour le plan
+  // actif. Même règle que les paiements Marketplace : un paiement n'est
+  // validé QUE si montant_recu correspond EXACTEMENT à montant_attendu.
+  // Tant qu'aucun webhook Mobile Money réel n'est branché, la confirmation
+  // se fait manuellement par un compte staff STAR ENTREPRISE (voir
+  // api-starvibe-subscription.mts, action "confirmer_paiement").
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_subscriptions (
+      id SERIAL PRIMARY KEY,
+      account_id INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      plan TEXT NOT NULL DEFAULT 'gratuit',
+      montant_attendu INTEGER NOT NULL DEFAULT 0,
+      montant_recu INTEGER,
+      methode TEXT DEFAULT '',
+      reference_transaction TEXT DEFAULT '',
+      statut TEXT NOT NULL DEFAULT 'actif',
+      started_at TIMESTAMPTZ,
+      expires_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
   await sql`
     CREATE TABLE IF NOT EXISTS jardis_log (
       id SERIAL PRIMARY KEY,
