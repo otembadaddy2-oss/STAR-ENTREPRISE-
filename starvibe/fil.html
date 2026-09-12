@@ -11,13 +11,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
 <style>
-  :root{--navy:#0d1830;--navy-deep:#050B18;--gold:#c8942f;--gold-light:#e8b85c;--kids:#2f8f6e;}
+  :root{--navy:#241536;--coral:#FF6B4A;--gold:#E8A93D;--gold-light:#f0c47a;--kids:#2f8f6e;}
   *{box-sizing:border-box;}
-  html,body{margin:0;height:100%;background:#000;color:#fff;font-family:'Inter',Arial,sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none;}
+  html,body{margin:0;height:100%;background:#0f0a18;color:#fff;font-family:'Inter',Arial,sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none;}
   .disp,h2,h3{font-family:'Sora',Arial,sans-serif;}
   [hidden]{display:none!important;}
   button{font-family:inherit;}
 
+  /* Le fond des vidéos reste sombre à dessein — c'est le noir de la vidéo
+     elle-même qui doit ressortir, pas un choix "site sombre". Les écrans
+     sans vidéo (chargement, messages, modale) restent clairs. */
   .feed{height:100dvh;overflow-y:scroll;scroll-snap-type:y mandatory;}
   .slide{height:100dvh;scroll-snap-align:start;position:relative;display:flex;align-items:flex-end;background:#000;}
   .slide video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
@@ -27,7 +30,9 @@
     padding:14px 16px;background:linear-gradient(180deg, rgba(0,0,0,.55), transparent);}
   .topbar .brand{font-family:'Sora',sans-serif;font-weight:800;font-size:15px;display:flex;align-items:center;gap:7px;}
   .topbar .brand img{width:24px;height:24px;border-radius:7px;}
-  .topbar a.home{font-size:11.5px;font-weight:700;color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.28);padding:6px 12px;border-radius:20px;text-decoration:none;}
+  .topbar a.home{font-size:11.5px;font-weight:700;color:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.3);padding:6px 12px;border-radius:20px;
+    text-decoration:none;background:rgba(255,255,255,.08);transition:background .2s ease, transform .2s ease;}
+  .topbar a.home:hover{background:rgba(255,255,255,.2);transform:translateY(-1px);}
 
   .meta{position:relative;z-index:5;padding:0 16px 90px;max-width:78%;}
   .meta .auteur{font-family:'Sora',sans-serif;font-weight:800;font-size:14.5px;margin-bottom:6px;}
@@ -35,11 +40,15 @@
 
   .actions{position:absolute;right:12px;bottom:100px;z-index:5;display:flex;flex-direction:column;align-items:center;gap:20px;}
   .actions button{background:none;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
-  .actions .icon{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;}
+  .actions .icon{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;
+    transition:transform .2s ease, background .2s ease;}
+  .actions button:hover .icon{transform:scale(1.1);background:rgba(255,255,255,.22);}
+  .actions button:active .icon{transform:scale(.92);}
   .actions svg{width:23px;height:23px;}
   .actions .count{font-size:11px;font-weight:700;}
-  .like-btn.liked .icon{background:rgba(255,79,109,.25);}
+  .like-btn.liked .icon{background:rgba(255,79,109,.25);animation:pop .3s ease;}
   .like-btn.liked svg{fill:#ff4f6d;stroke:#ff4f6d;}
+  @keyframes pop{0%{transform:scale(1);}40%{transform:scale(1.28);}100%{transform:scale(1);}}
 
   .mute-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:6;background:rgba(0,0,0,.45);
     width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity .2s;}
@@ -49,31 +58,41 @@
   .bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;align-items:center;justify-content:space-around;
     padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(0deg, rgba(0,0,0,.8), rgba(0,0,0,0));}
   .bottomnav a, .bottomnav button{background:none;border:none;color:rgba(255,255,255,.7);display:flex;flex-direction:column;align-items:center;
-    gap:3px;font-size:10px;font-weight:600;cursor:pointer;text-decoration:none;}
+    gap:3px;font-size:10px;font-weight:600;cursor:pointer;text-decoration:none;transition:color .2s ease, transform .2s ease;}
+  .bottomnav a:hover, .bottomnav button:hover{color:#fff;transform:translateY(-2px);}
   .bottomnav svg{width:22px;height:22px;}
-  .bottomnav .add-icon{width:44px;height:30px;border-radius:9px;background:linear-gradient(135deg,#FF7A2E,var(--gold));display:flex;align-items:center;justify-content:center;}
+  .bottomnav .add-icon{width:44px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--coral),var(--gold));display:flex;
+    align-items:center;justify-content:center;transition:transform .25s ease, box-shadow .25s ease;box-shadow:0 6px 14px -6px rgba(232,169,61,.6);}
+  .bottomnav button:hover .add-icon{transform:scale(1.1) rotate(90deg);}
   .bottomnav .add-icon svg{width:18px;height:18px;stroke:#fff;}
 
-  .state{height:100dvh;display:flex;align-items:center;justify-content:center;text-align:center;padding:30px;}
-  .state p{font-size:13px;color:rgba(255,255,255,.7);line-height:1.6;}
+  .state{height:100dvh;display:flex;align-items:center;justify-content:center;text-align:center;padding:30px;
+    background:linear-gradient(160deg,#2a1a42,#0f0a18);}
+  .state p{font-size:13px;color:rgba(255,255,255,.75);line-height:1.6;}
   .state a{color:var(--gold-light);font-weight:700;}
 
   .feed-empty{height:100dvh;display:flex;align-items:center;justify-content:center;text-align:center;padding:30px;scroll-snap-align:start;}
   .feed-empty p{font-size:13px;color:rgba(255,255,255,.7);line-height:1.7;}
 
   /* Upload modal */
-  .modal-backdrop{position:fixed;inset:0;background:rgba(5,11,24,.7);z-index:50;display:flex;align-items:flex-end;}
-  .modal{background:#fff;color:#151b2c;width:100%;border-radius:20px 20px 0 0;padding:20px;max-width:480px;margin:0 auto;}
+  @keyframes slideUp{from{transform:translateY(30px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+  .modal-backdrop{position:fixed;inset:0;background:rgba(36,21,54,.55);z-index:50;display:flex;align-items:flex-end;}
+  .modal{background:#fff;color:#241536;width:100%;border-radius:20px 20px 0 0;padding:20px;max-width:480px;margin:0 auto;
+    animation:slideUp .35s ease both;}
   .modal h2{font-size:17px;margin:0 0 14px;}
   .modal label{display:block;font-size:12px;font-weight:700;margin-bottom:6px;}
   .modal input[type=file]{width:100%;margin-bottom:14px;font-size:12.5px;}
-  .modal textarea{width:100%;border:1.5px solid #e4ded0;border-radius:10px;padding:10px 12px;font-family:'Inter',sans-serif;
-    font-size:13.5px;resize:none;min-height:70px;margin-bottom:14px;}
+  .modal textarea{width:100%;border:1.5px solid #eee2cc;border-radius:10px;padding:10px 12px;font-family:'Inter',sans-serif;
+    font-size:13.5px;resize:none;min-height:70px;margin-bottom:14px;transition:border-color .2s ease, box-shadow .2s ease;}
+  .modal textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(232,169,61,.2);}
   .modal .row{display:flex;gap:10px;}
-  .modal button.publish{flex:1;border:none;background:linear-gradient(135deg,#FF7A2E,var(--gold));color:#fff;font-family:'Sora',sans-serif;
-    font-weight:800;font-size:14px;padding:13px 0;border-radius:12px;cursor:pointer;}
-  .modal button.cancel{border:1.5px solid #e4ded0;background:#fff;color:#151b2c;font-family:'Sora',sans-serif;font-weight:700;
-    font-size:13px;padding:13px 16px;border-radius:12px;cursor:pointer;}
+  .modal button.publish{flex:1;border:none;background:linear-gradient(135deg,var(--coral),var(--gold));color:#fff;font-family:'Sora',sans-serif;
+    font-weight:800;font-size:14px;padding:13px 0;border-radius:12px;cursor:pointer;transition:transform .2s ease, box-shadow .2s ease;
+    box-shadow:0 10px 20px -10px rgba(232,169,61,.55);}
+  .modal button.publish:hover{transform:translateY(-2px);box-shadow:0 14px 24px -10px rgba(232,169,61,.7);}
+  .modal button.cancel{border:1.5px solid #eee2cc;background:#fff;color:#241536;font-family:'Sora',sans-serif;font-weight:700;
+    font-size:13px;padding:13px 16px;border-radius:12px;cursor:pointer;transition:border-color .2s ease, transform .2s ease;}
+  .modal button.cancel:hover{border-color:var(--gold);transform:translateY(-1px);}
   .modal .errmsg{display:none;font-size:12px;color:#b3261e;background:#fdecea;border:1px solid #f3c2bd;border-radius:8px;padding:9px 12px;margin-bottom:12px;}
   .modal .errmsg.show{display:block;}
   .modal .infomsg{display:none;font-size:12px;color:#8A6318;background:#FBF3E1;border:1px solid #EDD8A0;border-radius:8px;padding:9px 12px;margin-bottom:12px;}
