@@ -290,6 +290,34 @@ export async function ensureSchema() {
     )
   `;
 
+  // Vidéos du fil STAR VIBE — publiées uniquement depuis un profil
+  // personnel (les profils enfant/PIOUPIOU restent hors du fil principal
+  // en attendant leur espace dédié). Fichier stocké dans Netlify Blobs,
+  // seule la clé est gardée en base.
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_videos (
+      id SERIAL PRIMARY KEY,
+      account_id INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      profile_id INTEGER NOT NULL REFERENCES starvibe_profiles(id) ON DELETE CASCADE,
+      legende TEXT DEFAULT '',
+      type_mime TEXT NOT NULL,
+      blob_key TEXT NOT NULL,
+      likes_count INTEGER NOT NULL DEFAULT 0,
+      vues_count INTEGER NOT NULL DEFAULT 0,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_likes (
+      id SERIAL PRIMARY KEY,
+      video_id INTEGER NOT NULL REFERENCES starvibe_videos(id) ON DELETE CASCADE,
+      account_id INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      UNIQUE(video_id, account_id)
+    )
+  `;
+
   await sql`
     CREATE TABLE IF NOT EXISTS jardis_log (
       id SERIAL PRIMARY KEY,

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>STAR VIBE — Fil</title>
+<meta name="theme-color" content="#050B18">
+<link rel="icon" href="../assets/img/icons/favicon-star-rounded-v1.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+<style>
+  :root{--navy:#0d1830;--navy-deep:#050B18;--gold:#c8942f;--gold-light:#e8b85c;--kids:#2f8f6e;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;background:#000;color:#fff;font-family:'Inter',Arial,sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none;}
+  .disp,h2,h3{font-family:'Sora',Arial,sans-serif;}
+  [hidden]{display:none!important;}
+  button{font-family:inherit;}
+
+  .feed{height:100dvh;overflow-y:scroll;scroll-snap-type:y mandatory;}
+  .slide{height:100dvh;scroll-snap-align:start;position:relative;display:flex;align-items:flex-end;background:#000;}
+  .slide video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .slide::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg, rgba(0,0,0,.75) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,.35) 100%);pointer-events:none;}
+
+  .topbar{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;justify-content:space-between;
+    padding:14px 16px;background:linear-gradient(180deg, rgba(0,0,0,.55), transparent);}
+  .topbar .brand{font-family:'Sora',sans-serif;font-weight:800;font-size:15px;display:flex;align-items:center;gap:7px;}
+  .topbar .brand img{width:24px;height:24px;border-radius:7px;}
+  .topbar a.home{font-size:11.5px;font-weight:700;color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.28);padding:6px 12px;border-radius:20px;text-decoration:none;}
+
+  .meta{position:relative;z-index:5;padding:0 16px 90px;max-width:78%;}
+  .meta .auteur{font-family:'Sora',sans-serif;font-weight:800;font-size:14.5px;margin-bottom:6px;}
+  .meta .legende{font-size:13px;line-height:1.5;color:rgba(255,255,255,.92);}
+
+  .actions{position:absolute;right:12px;bottom:100px;z-index:5;display:flex;flex-direction:column;align-items:center;gap:20px;}
+  .actions button{background:none;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
+  .actions .icon{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;}
+  .actions svg{width:23px;height:23px;}
+  .actions .count{font-size:11px;font-weight:700;}
+  .like-btn.liked .icon{background:rgba(255,79,109,.25);}
+  .like-btn.liked svg{fill:#ff4f6d;stroke:#ff4f6d;}
+
+  .mute-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:6;background:rgba(0,0,0,.45);
+    width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity .2s;}
+  .mute-hint.show{opacity:1;}
+  .mute-hint svg{width:26px;height:26px;}
+
+  .bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;align-items:center;justify-content:space-around;
+    padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(0deg, rgba(0,0,0,.8), rgba(0,0,0,0));}
+  .bottomnav a, .bottomnav button{background:none;border:none;color:rgba(255,255,255,.7);display:flex;flex-direction:column;align-items:center;
+    gap:3px;font-size:10px;font-weight:600;cursor:pointer;text-decoration:none;}
+  .bottomnav svg{width:22px;height:22px;}
+  .bottomnav .add-icon{width:44px;height:30px;border-radius:9px;background:linear-gradient(135deg,#FF7A2E,var(--gold));display:flex;align-items:center;justify-content:center;}
+  .bottomnav .add-icon svg{width:18px;height:18px;stroke:#fff;}
+
+  .state{height:100dvh;display:flex;align-items:center;justify-content:center;text-align:center;padding:30px;}
+  .state p{font-size:13px;color:rgba(255,255,255,.7);line-height:1.6;}
+  .state a{color:var(--gold-light);font-weight:700;}
+
+  /* Upload modal */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(5,11,24,.7);z-index:50;display:flex;align-items:flex-end;}
+  .modal{background:#fff;color:#151b2c;width:100%;border-radius:20px 20px 0 0;padding:20px;max-width:480px;margin:0 auto;}
+  .modal h2{font-size:17px;margin:0 0 14px;}
+  .modal label{display:block;font-size:12px;font-weight:700;margin-bottom:6px;}
+  .modal input[type=file]{width:100%;margin-bottom:14px;font-size:12.5px;}
+  .modal textarea{width:100%;border:1.5px solid #e4ded0;border-radius:10px;padding:10px 12px;font-family:'Inter',sans-serif;
+    font-size:13.5px;resize:none;min-height:70px;margin-bottom:14px;}
+  .modal .row{display:flex;gap:10px;}
+  .modal button.publish{flex:1;border:none;background:linear-gradient(135deg,#FF7A2E,var(--gold));color:#fff;font-family:'Sora',sans-serif;
+    font-weight:800;font-size:14px;padding:13px 0;border-radius:12px;cursor:pointer;}
+  .modal button.cancel{border:1.5px solid #e4ded0;background:#fff;color:#151b2c;font-family:'Sora',sans-serif;font-weight:700;
+    font-size:13px;padding:13px 16px;border-radius:12px;cursor:pointer;}
+  .modal .errmsg{display:none;font-size:12px;color:#b3261e;background:#fdecea;border:1px solid #f3c2bd;border-radius:8px;padding:9px 12px;margin-bottom:12px;}
+  .modal .errmsg.show{display:block;}
+</style>
+</head>
+<body>
+
+<div id="loadingState" class="state"><p>Chargement du fil…</p></div>
+<div id="loggedOutState" class="state" hidden><p>Tu n'es pas connecté.<br><a href="inscription.html">Se connecter / Créer un compte</a></p></div>
+<div id="noPersonalState" class="state" hidden>
+  <p>Le fil vidéo est réservé au profil personnel.<br>Ajoute un profil pour toi-même depuis ton espace.<br><a href="accueil.html">Retour à mon espace</a></p>
+</div>
+<div id="emptyState" class="state" hidden>
+  <p>Aucune vidéo pour le moment.<br>Sois le premier à publier !</p>
+</div>
+
+<div id="feedWrap" hidden>
+  <div class="topbar">
+    <div class="brand"><img src="assets/img/app-icon.png" alt="">STAR VIBE</div>
+    <a class="home" href="accueil.html">Mon espace</a>
+  </div>
+  <div class="feed" id="feed"></div>
+  <div class="bottomnav">
+    <a href="accueil.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 11 12 4l8 7M6 10v9h12v-9"/></svg>Accueil</a>
+    <button id="btnAdd"><span class="add-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></span></button>
+    <a href="#" style="color:#fff;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 4v16M4 12h16"/></svg>Fil</a>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="uploadModal" hidden>
+  <div class="modal">
+    <h2>Publier une vidéo</h2>
+    <div class="errmsg" id="modalErr"></div>
+    <label for="videoFile">Choisis une vidéo</label>
+    <input type="file" id="videoFile" accept="video/*">
+    <label for="legendeInput">Légende</label>
+    <textarea id="legendeInput" placeholder="Raconte ta vidéo..." maxlength="300"></textarea>
+    <div class="row">
+      <button class="cancel" id="btnCancel">Annuler</button>
+      <button class="publish" id="btnPublish">Publier</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var API_VIDEOS = '/api/starvibe-videos';
+  var API_AUTH = '/api/starvibe-auth';
+  var token = localStorage.getItem('starvibe_token');
+  var personalProfileId = null;
+
+  var loadingState = document.getElementById('loadingState');
+  var loggedOutState = document.getElementById('loggedOutState');
+  var noPersonalState = document.getElementById('noPersonalState');
+  var emptyState = document.getElementById('emptyState');
+  var feedWrap = document.getElementById('feedWrap');
+  var feed = document.getElementById('feed');
+
+  function show(el){ [loadingState, loggedOutState, noPersonalState, emptyState, feedWrap].forEach(function(e){ e.hidden = (e !== el); }); }
+
+  if (!token){ show(loggedOutState); return; }
+
+  function authFetch(url, opts){
+    opts = opts || {};
+    opts.headers = Object.assign({}, opts.headers, { 'Authorization': 'Bearer ' + token });
+    return fetch(url, opts);
+  }
+
+  function initials(name){
+    if (!name) return '?';
+    var parts = name.trim().split(/\s+/);
+    return (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
+  }
+
+  function heartIcon(filled){
+    return '<svg viewBox="0 0 24 24" fill="' + (filled ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="2.2"><path d="M12 21s-7.5-4.6-10-9.3C.4 8 2 4.5 5.6 4c2-.3 3.9.6 6.4 3 2.5-2.4 4.4-3.3 6.4-3C22 4.5 23.6 8 22 11.7 19.5 16.4 12 21 12 21z"/></svg>';
+  }
+
+  function renderVideo(v){
+    var slide = document.createElement('div');
+    slide.className = 'slide';
+    slide.innerHTML =
+      '<video src="' + v.videoUrl + '" loop muted playsinline preload="metadata"></video>' +
+      '<div class="mute-hint"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M19 9a5 5 0 0 1 0 6M22 6a9 9 0 0 1 0 12"/></svg></div>' +
+      '<div class="actions">' +
+        '<button class="like-btn' + (v.likedByMe ? ' liked' : '') + '" data-id="' + v.id + '">' +
+          '<span class="icon">' + heartIcon(v.likedByMe) + '</span><span class="count">' + v.likes + '</span>' +
+        '</button>' +
+      '</div>' +
+      '<div class="meta"><div class="auteur">@' + v.auteur + '</div><div class="legende">' + (v.legende || '') + '</div></div>';
+
+    var videoEl = slide.querySelector('video');
+    var hint = slide.querySelector('.mute-hint');
+    var viewed = false;
+
+    slide.addEventListener('click', function(e){
+      if (e.target.closest('.like-btn')) return;
+      videoEl.muted = !videoEl.muted;
+      hint.classList.add('show');
+      setTimeout(function(){ hint.classList.remove('show'); }, 500);
+    });
+
+    slide.querySelector('.like-btn').addEventListener('click', function(){
+      var liked = slide.querySelector('.like-btn').classList.contains('liked');
+      authFetch(API_VIDEOS, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: liked ? 'unlike' : 'like', videoId: Number(v.id) })
+      }).then(function(res){ return res.json(); }).then(function(data){
+        var btn = slide.querySelector('.like-btn');
+        btn.classList.toggle('liked', !liked);
+        btn.querySelector('.icon').innerHTML = heartIcon(!liked);
+        btn.querySelector('.count').textContent = data.likes;
+      });
+    });
+
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if (entry.isIntersecting && entry.intersectionRatio > 0.6){
+          videoEl.play().catch(function(){});
+          if (!viewed){
+            viewed = true;
+            authFetch(API_VIDEOS, {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ action: 'vue', videoId: Number(v.id) })
+            });
+          }
+        } else {
+          videoEl.pause();
+        }
+      });
+    }, { threshold: [0, 0.6] });
+    io.observe(slide);
+
+    return slide;
+  }
+
+  function loadFeed(){
+    authFetch(API_VIDEOS).then(function(res){ return res.json(); }).then(function(data){
+      var videos = data.videos || [];
+      if (!videos.length){ show(emptyState); return; }
+      feed.innerHTML = '';
+      videos.forEach(function(v){ feed.appendChild(renderVideo(v)); });
+      show(feedWrap);
+    });
+  }
+
+  authFetch(API_AUTH).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
+    .then(function(result){
+      if (!result.ok){ localStorage.removeItem('starvibe_token'); show(loggedOutState); return; }
+      var profiles = result.data.profiles || [];
+      var personal = profiles.find(function(p){ return p.type_profil === 'personnel'; });
+      if (!personal){ show(noPersonalState); return; }
+      personalProfileId = personal.id;
+      loadFeed();
+    })
+    .catch(function(){ show(loggedOutState); });
+
+  // Upload modal
+  var uploadModal = document.getElementById('uploadModal');
+  var btnAdd = document.getElementById('btnAdd');
+  var btnCancel = document.getElementById('btnCancel');
+  var btnPublish = document.getElementById('btnPublish');
+  var videoFile = document.getElementById('videoFile');
+  var legendeInput = document.getElementById('legendeInput');
+  var modalErr = document.getElementById('modalErr');
+
+  btnAdd.addEventListener('click', function(){
+    modalErr.classList.remove('show');
+    videoFile.value = '';
+    legendeInput.value = '';
+    uploadModal.hidden = false;
+  });
+  btnCancel.addEventListener('click', function(){ uploadModal.hidden = true; });
+
+  btnPublish.addEventListener('click', function(){
+    var file = videoFile.files[0];
+    if (!file){ modalErr.textContent = 'Choisis une vidéo.'; modalErr.classList.add('show'); return; }
+    if (!personalProfileId){ modalErr.textContent = 'Profil personnel introuvable.'; modalErr.classList.add('show'); return; }
+
+    btnPublish.disabled = true;
+    btnPublish.textContent = 'Publication...';
+
+    var reader = new FileReader();
+    reader.onload = function(){
+      authFetch(API_VIDEOS, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'publier',
+          profileId: personalProfileId,
+          legende: legendeInput.value.trim(),
+          typeMime: file.type || 'video/mp4',
+          fileBase64: reader.result
+        })
+      }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
+        .then(function(result){
+          btnPublish.disabled = false;
+          btnPublish.textContent = 'Publier';
+          if (!result.ok){
+            modalErr.textContent = result.data.error || 'Erreur lors de la publication.';
+            modalErr.classList.add('show');
+            return;
+          }
+          uploadModal.hidden = true;
+          loadFeed();
+        })
+        .catch(function(){
+          btnPublish.disabled = false;
+          btnPublish.textContent = 'Publier';
+          modalErr.textContent = 'Impossible de contacter le serveur.';
+          modalErr.classList.add('show');
+        });
+    };
+    reader.readAsDataURL(file);
+  });
+})();
+</script>
+</body>
+</html>
