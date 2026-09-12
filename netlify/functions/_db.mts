@@ -263,6 +263,33 @@ export async function ensureSchema() {
     )
   `;
 
+  // STAR VIBE — un compte par téléphone (protégé par un code PIN à 4
+  // chiffres, comme un compte Mobile Money), qui peut porter plusieurs
+  // profils : le profil personnel du titulaire, et un ou plusieurs profils
+  // enfant (3-6 ans) créés et supervisés par ce même compte.
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_accounts (
+      id SERIAL PRIMARY KEY,
+      telephone TEXT UNIQUE NOT NULL,
+      pin_hash TEXT NOT NULL,
+      ville TEXT DEFAULT '',
+      failed_attempts INTEGER NOT NULL DEFAULT 0,
+      locked_until TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_profiles (
+      id SERIAL PRIMARY KEY,
+      account_id INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      nom TEXT NOT NULL,
+      date_naissance TEXT NOT NULL,
+      type_profil TEXT NOT NULL DEFAULT 'personnel',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
   await sql`
     CREATE TABLE IF NOT EXISTS jardis_log (
       id SERIAL PRIMARY KEY,
