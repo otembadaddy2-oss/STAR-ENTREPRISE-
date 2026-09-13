@@ -58,8 +58,9 @@ h1,h2,h3{font-family:var(--serif); font-weight:700; color:var(--navy);}
 .nav-links a:hover{color:var(--navy);}
 .nav-cta{background:var(--navy); color:var(--white); padding:10px 20px; border-radius:100px; font-size:13px; font-weight:700; text-decoration:none; white-space:nowrap;}
 .nav-cta-mobile{display:none;}
-.nav-scrim{display:none; position:fixed; inset:0; background:rgba(11,23,48,.4); z-index:40;}
+.nav-scrim{display:none; position:fixed; inset:0; background:rgba(11,23,48,.55); z-index:40;}
 .nav-scrim.show{display:block;}
+body.nav-open{overflow:hidden;}
 
 @media (max-width:860px){
   .nav-toggle{display:flex;}
@@ -479,11 +480,12 @@ footer{background:var(--navy-deep); color:#B9C1D6; padding:52px 0 26px; margin-t
   var navToggle = document.getElementById('navToggle');
   var navLinks = document.getElementById('navLinks');
   var navScrim = document.getElementById('navScrim');
-  function closeNav(){ navLinks.classList.remove('open'); navScrim.classList.remove('show'); }
+  function closeNav(){ navLinks.classList.remove('open'); navScrim.classList.remove('show'); document.body.classList.remove('nav-open'); }
   navToggle.addEventListener('click', function(){
     var willOpen = !navLinks.classList.contains('open');
     navLinks.classList.toggle('open', willOpen);
     navScrim.classList.toggle('show', willOpen);
+    document.body.classList.toggle('nav-open', willOpen);
   });
   navScrim.addEventListener('click', closeNav);
   navLinks.querySelectorAll('a').forEach(function(a){
