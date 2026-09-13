@@ -336,6 +336,22 @@
 
     var msg = lines.join("\n");
     var url = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent(msg);
+
+    try {
+      fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        keepalive: true,
+        body: JSON.stringify({
+          type: 'marketplace',
+          nom: nom,
+          telephone: tel,
+          service: selectedType + ' — ' + ville,
+          message: notes
+        })
+      }).catch(function(){});
+    } catch (e) {}
+
     window.location.href = url;
   });
 })();

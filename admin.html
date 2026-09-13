@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{
   --navy:#0B0A09; --navy-2:#141311; --gold:#D9B75C; --gold-deep:#B8912E;
@@ -55,6 +56,8 @@ button{cursor:pointer;border:0;font-family:var(--sans)}
 .badge.devis{background:#F1E6D3;color:var(--gold-deep)}
 .badge.contact{background:#E4F2F0;color:#2f7a6f}
 .badge.document{background:#E7E5F7;color:#5a4bb8}
+.badge.marketplace{background:#E1F0E5;color:#1f7a44}
+.export-btn{background:rgba(217,183,92,.16);color:var(--gold-deep);padding:8px 16px;border-radius:100px;font-size:12.5px;font-weight:700;border:1px solid rgba(217,183,92,.4)}
 select.statut{font-size:12px;padding:6px 10px;border-radius:100px;font-weight:700}
 .icon-btn{background:var(--cream);border:1px solid var(--line);border-radius:9px;padding:7px 11px;font-size:12px;color:var(--ink-soft);font-weight:700;margin-top:8px}
 .icon-btn.danger{color:var(--red)}
@@ -72,12 +75,14 @@ select.statut{font-size:12px;padding:6px 10px;border-radius:100px;font-weight:70
     <h1>💎 Espace direction — STAR ENTREPRISE</h1>
     <div style="display:flex;align-items:center;gap:14px">
       <span class="who" id="whoLabel"></span>
+      <button class="export-btn" id="exportBtn">📥 Exporter en Excel</button>
       <button class="logout-btn" id="logoutBtn">Déconnexion</button>
     </div>
   </div>
   <div class="wrap">
     <div class="tabs">
       <button class="tab active" data-filter="all">Tout</button>
+      <button class="tab" data-filter="marketplace">Marketplace</button>
       <button class="tab" data-filter="devis">Devis</button>
       <button class="tab" data-filter="document">Documents</button>
       <button class="tab" data-filter="contact">Contact</button>
@@ -156,7 +161,7 @@ select.statut{font-size:12px;padding:6px 10px;border-radius:100px;font-weight:70
       var date = l.createdAt ? new Date(l.createdAt).toLocaleDateString("fr-FR", {day:"2-digit",month:"short",year:"numeric"}) : "";
       return '<div class="item" data-id="' + l.id + '">' +
         '<div class="row1">' +
-          '<div><span class="badge ' + esc(l.type) + '">' + (l.type === "devis" ? "Devis" : l.type === "document" ? "Document" : "Contact") + '</span><br>' +
+          '<div><span class="badge ' + esc(l.type) + '">' + (l.type === "devis" ? "Devis" : l.type === "document" ? "Document" : l.type === "marketplace" ? "Marketplace" : "Contact") + '</span><br>' +
           '<b style="margin-top:6px;display:inline-block">' + esc(l.nom || "(sans nom)") + (l.entreprise ? " — " + esc(l.entreprise) : "") + '</b>' +
           '<div class="meta">' + [l.email, l.telephone, l.service, date].filter(Boolean).map(esc).join(" · ") + '</div></div>' +
           (l.type === "devis"
@@ -197,6 +202,30 @@ select.statut{font-size:12px;padding:6px 10px;border-radius:100px;font-weight:70
   });
 
   document.getElementById("logoutBtn").addEventListener("click", function(){ clearAuth(); boot(); });
+
+  document.getElementById("exportBtn").addEventListener("click", function(){
+    var items = state.leads.filter(function(l){ return state.filter === "all" || l.type === state.filter; });
+    if (!items.length) { alert("Aucune donnée à exporter pour le moment."); return; }
+    var typeLabels = { devis: "Devis", document: "Document", marketplace: "Marketplace", contact: "Contact" };
+    var rows = items.map(function(l){
+      return {
+        "Type": typeLabels[l.type] || l.type,
+        "Nom": l.nom || "",
+        "Entreprise": l.entreprise || "",
+        "Téléphone": l.telephone || "",
+        "Email": l.email || "",
+        "Ville / Service": l.service || "",
+        "Message / Détails": l.message || "",
+        "Statut": l.statut || "",
+        "Date": l.createdAt ? new Date(l.createdAt).toLocaleString("fr-FR") : ""
+      };
+    });
+    var ws = XLSX.utils.json_to_sheet(rows);
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Inscriptions");
+    var fname = "star-entreprise-" + (state.filter === "all" ? "toutes-demandes" : state.filter) + "-" + new Date().toISOString().slice(0,10) + ".xlsx";
+    XLSX.writeFile(wb, fname);
+  });
 
   function devisToLead(d){
     var formulaLabels = { essentiel: "Essentiel — Site vitrine", croissance: "Croissance — Boutique en ligne", "sur-mesure": "Sur-mesure — Application" };

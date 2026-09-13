@@ -2,7 +2,7 @@
 
 Document de suivi interne, mis à jour à chaque nouvelle création. Ne contient **aucun mot de passe réel** — voir la note de sécurité en bas de page pour comprendre pourquoi, et où les garder à la place.
 
-Dernière mise à jour : 13 septembre 2026.
+Dernière mise à jour : 13 septembre 2026 (ajout : inscriptions Marketplace visibles en temps réel + export Excel dans `admin.html`).
 
 ---
 
@@ -22,7 +22,7 @@ Une page publique liste déjà tous les projets avec leurs liens : **`diamant.ht
 
 | Site | URL | Dossier | Rôle | Connexion / accès |
 |---|---|---|---|---|
-| **STAR ENTREPRISE** (vitrine agence) | `star-entreprise.netlify.app` | racine | Site vitrine de l'agence, business plan, services, portfolio | Aucune connexion — public. Espace direction : `admin.html` |
+| **STAR ENTREPRISE** (vitrine agence) | `star-entreprise.netlify.app` | racine | Site vitrine de l'agence, business plan, services, portfolio | Aucune connexion — public. Espace direction : `admin.html` (login staff partagé, voir §4) |
 | **Répertoire des sites** | `/diamant.html` | racine | Page liens vers tous les projets du groupe | Public |
 | **JARDIS** | `/jardis.html` | racine | Assistant personnel (documentation/manifeste) | Public |
 | **STAR CRÉAT** | `/star-creat/` | `star-creat/` | Sous-marque création | Public |
@@ -33,15 +33,15 @@ Une page publique liste déjà tous les projets avec leurs liens : **`diamant.ht
 | **La Maison de la Drépanocytose** | `/maison-drepanocytose/` | `maison-drepanocytose/` | Dépistage, accompagnement familles, sensibilisation (Pointe-Noire) | Public. Espace membres : `espace.html`, messagerie : `discussion.html` |
 | **Pili-Pili Events** | `/pilipili-events/` | `pilipili-events/` | Partenaire événementiel, PWA | Public. Espace : `espace.html`, messagerie : `discussion.html` |
 | **S.O — Gestion des membres** | `/so-membres/` | `so-membres/` | Gestion d'une organisation/association | `setup.html` — configuration initiale, identifiants à définir |
-| **STAR Marketplace** | `/marketplace/` | `marketplace/` | Achat/vente Congo, paiement Mobile Money | Inscription vendeur/acheteur → relais WhatsApp Business (pas de mot de passe). Espace compte : `compte.html` |
+| **STAR Marketplace** | `/marketplace/` | `marketplace/` | Achat/vente Congo, paiement Mobile Money | Inscription vendeur/acheteur → relais WhatsApp Business **et** enregistrement en base (table `leads`, visible dans `admin.html`). Espace compte : `compte.html` |
 | **KOMYO** (ex STAR VIBE) | `/starvibe/` | `starvibe/` | App vidéo verticale + PIOUPIOU (espace enfants séparé) + abonnements Mobile Money | Compte utilisateur : numéro de téléphone + code PIN à 4 chiffres choisi à l'inscription (`inscription.html`). Org technique : `star_vibe` |
 | — Modération KOMYO | `/starvibe/moderation.html` | idem | Validation des vidéos avant diffusion | Login staff partagé (voir §4) |
 | — Paiements KOMYO | `/starvibe/paiements.html` | idem | Confirmation manuelle des paiements Mobile Money | Login staff partagé (voir §4) |
 | **STAR VIBE — Démo cliquable** | `/starvibe-demo/` | `starvibe-demo/` | Maquette de démonstration (sans backend réel) | Aucune vraie connexion, écrans de démo |
 
-## 4. Comptes « staff » internes (modération / paiements)
+## 4. Comptes « staff » internes (modération / paiements / direction)
 
-Les panneaux d'administration `moderation.html` et `paiements.html` de KOMYO partagent un **même système de connexion staff** :
+Les panneaux `admin.html` (Espace direction — toutes les demandes/inscriptions du groupe, dont désormais le **Marketplace**, avec export Excel), `moderation.html` et `paiements.html` de KOMYO partagent un **même système de connexion staff** :
 
 - Organisation technique : `star_entreprise`
 - Table de comptes : `accounts` (base Netlify DB / Neon PostgreSQL)
