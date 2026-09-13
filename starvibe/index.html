@@ -105,8 +105,9 @@
   .kids-banner:hover img{transform:scale(1.08);}
   .kids-banner::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg, rgba(15,74,55,.88) 8%, rgba(15,74,55,.05) 75%);}
   .kids-banner-body{position:absolute;left:0;right:0;bottom:0;padding:18px 20px;}
-  .kids-badge{display:inline-block;font-family:'Baloo 2',sans-serif;background:#fff;color:var(--kids);font-weight:800;font-size:13px;
-    padding:5px 14px;border-radius:20px;margin-bottom:8px;animation:floaty 3s ease-in-out infinite;}
+  .kids-badge{display:inline-block;margin-bottom:8px;animation:floaty 3s ease-in-out infinite;
+    filter:drop-shadow(0 6px 12px rgba(0,0,0,.35));}
+  .kids-badge img{height:30px;width:auto;display:block;border-radius:7px;}
   .kids-banner-body h3{font-size:18px;font-weight:800;margin:0 0 4px;color:#fff;font-family:'Baloo 2',sans-serif;}
   .kids-banner-body p{font-size:12px;color:rgba(255,255,255,.88);margin:0;max-width:280px;line-height:1.5;}
 
@@ -193,7 +194,7 @@
   <div class="kids-banner reveal">
     <img src="assets/img/kids-hero.jpg" alt="">
     <div class="kids-banner-body">
-      <span class="kids-badge">🐣 PIOUPIOU</span>
+      <span class="kids-badge"><img src="assets/img/pioupiou-wordmark.jpg" alt="PIOUPIOU"></span>
       <h3>Un monde à part pour les tout-petits</h3>
       <p>Un espace éducatif et amusant réservé aux 3-6 ans — supervisé par un parent, jamais mélangé avec le reste de KOMYO.</p>
     </div>

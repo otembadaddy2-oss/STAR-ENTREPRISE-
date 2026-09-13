@@ -24,9 +24,9 @@
   body{background:radial-gradient(130% 110% at 50% 0%, #4fc48a 0%, #1e9866 45%, var(--kids-deep) 85%);}
 
   .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;}
-  .badge{font-family:'Sora',sans-serif;font-weight:800;font-size:17px;background:var(--sun);color:#5c3200;
-    padding:6px 16px;border-radius:20px;display:inline-flex;align-items:center;gap:6px;animation:floaty 3s ease-in-out infinite;
-    box-shadow:0 8px 18px -8px rgba(255,182,72,.6);}
+  .badge{display:inline-flex;align-items:center;animation:floaty 3s ease-in-out infinite;
+    filter:drop-shadow(0 8px 14px rgba(0,0,0,.35));}
+  .badge img{height:34px;width:auto;display:block;}
   .back{color:#fff;font-size:12.5px;font-weight:700;border:1.5px solid rgba(255,255,255,.4);padding:7px 14px;border-radius:20px;
     text-decoration:none;background:rgba(255,255,255,.1);transition:background .2s ease, transform .2s ease;}
   .back:hover{background:rgba(255,255,255,.24);transform:translateY(-1px);}
@@ -63,7 +63,7 @@
 <body>
 
 <div class="topbar">
-  <span class="badge">🐣 PIOUPIOU</span>
+  <span class="badge"><img src="assets/img/pioupiou-wordmark.jpg" alt="PIOUPIOU" style="border-radius:8px;"></span>
   <a class="back" href="accueil.html">← Retour</a>
 </div>
 
