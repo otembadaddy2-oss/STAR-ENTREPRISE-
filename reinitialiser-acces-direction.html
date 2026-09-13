@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Réinitialiser l'accès — Espace direction</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  :root{--navy:#0B0A09;--navy-2:#141311;--gold:#D9B75C;--gold-deep:#B8912E;--cream:#FBF8F3;--ink:#231F1A;--ink-soft:#5B564E;--line:#E7DFD2;--red:#B3202C;--green:#1f7a44;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:ui-sans-serif,system-ui,sans-serif;background:linear-gradient(160deg,var(--navy-2),var(--navy));color:var(--ink);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .card{width:100%;max-width:420px;background:#fff;border-radius:22px;padding:32px 26px;box-shadow:0 30px 60px rgba(0,0,0,.35);}
+  h1{font-size:18px;margin-bottom:6px;}
+  .sub{font-size:12.5px;color:var(--ink-soft);margin-bottom:22px;line-height:1.5;}
+  label{display:block;font-size:12px;color:var(--ink-soft);font-weight:600;margin:14px 0 6px;}
+  input{width:100%;padding:11px 13px;border-radius:10px;border:1.5px solid var(--line);background:var(--cream);font-size:14px;color:var(--ink);}
+  input:focus{outline:none;border-color:var(--gold-deep);}
+  button{width:100%;margin-top:22px;padding:13px;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#241a02;font-weight:800;font-size:14px;border:0;cursor:pointer;}
+  button:disabled{opacity:.6;}
+  .msg{border-radius:10px;padding:10px 12px;font-size:12.5px;margin-top:16px;display:none;}
+  .msg.show{display:block;}
+  .msg.error{background:#FBE6E2;border:1px solid #E7B4AA;color:var(--red);}
+  .msg.ok{background:#E1F0E5;border:1px solid #A9D9B9;color:var(--green);}
+  .hint{font-size:11.5px;color:var(--ink-soft);margin-top:18px;line-height:1.5;border-top:1px solid var(--line);padding-top:14px;}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>🔑 Réinitialiser l'accès direction</h1>
+  <p class="sub">Crée ou remplace l'identifiant/mot de passe utilisé pour <b>admin.html</b>, <b>moderation.html</b> et <b>paiements.html</b> (compte staff partagé). Réservé à Carry OTEMBA.</p>
+
+  <label>Jeton de configuration (SETUP_TOKEN Netlify)</label>
+  <input type="password" id="fToken" autocomplete="off">
+
+  <label>Nouvel identifiant</label>
+  <input type="text" id="fUser" autocomplete="off">
+
+  <label>Nouveau mot de passe (8 caractères minimum)</label>
+  <input type="password" id="fPass" autocomplete="new-password">
+
+  <button id="btnSubmit">Définir cet accès</button>
+  <div class="msg" id="msgBox"></div>
+
+  <div class="hint">
+    Le jeton se trouve dans Netlify → ton site → Site configuration → Environment variables → <b>SETUP_TOKEN</b>. S'il n'existe pas encore, crées-en un (n'importe quelle chaîne longue et secrète) puis redéploie le site avant d'utiliser cet outil.
+  </div>
+</div>
+
+<script>
+(function(){
+  var btn = document.getElementById('btnSubmit');
+  var msgBox = document.getElementById('msgBox');
+  function showMsg(text, kind){
+    msgBox.textContent = text;
+    msgBox.className = 'msg show ' + kind;
+  }
+  btn.addEventListener('click', function(){
+    var setupToken = document.getElementById('fToken').value.trim();
+    var username = document.getElementById('fUser').value.trim();
+    var password = document.getElementById('fPass').value;
+
+    if (!setupToken){ showMsg('Renseigne le jeton de configuration.', 'error'); return; }
+    if (!username){ showMsg('Renseigne un identifiant.', 'error'); return; }
+    if (!password || password.length < 8){ showMsg('Le mot de passe doit faire au moins 8 caractères.', 'error'); return; }
+
+    btn.disabled = true; btn.textContent = 'Enregistrement...';
+    fetch('/api/auth', {
+      method: 'POST',
+      headers: {'content-type':'application/json'},
+      body: JSON.stringify({ action:'bootstrap', setupToken:setupToken, username:username, password:password, displayName:username, org:'star_entreprise', role:'admin' })
+    })
+    .then(function(r){ return r.json().then(function(data){ return {ok:r.ok, data:data}; }); })
+    .then(function(res){
+      btn.disabled = false; btn.textContent = 'Définir cet accès';
+      if (!res.ok){ showMsg(res.data.error || 'Échec — jeton invalide ?', 'error'); return; }
+      showMsg('✅ Accès défini ! Tu peux maintenant te connecter sur admin.html, moderation.html et paiements.html avec cet identifiant et ce mot de passe.', 'ok');
+    })
+    .catch(function(){
+      btn.disabled = false; btn.textContent = 'Définir cet accès';
+      showMsg('Connexion impossible — vérifie ta connexion internet.', 'error');
+    });
+  });
+})();
+</script>
+</body>
+</html>
