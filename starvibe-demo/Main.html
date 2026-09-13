@@ -1,0 +1,134 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+</head>
+<body>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    a { color: #F0CA6B; text-decoration: none; }
+    a:hover { color: #FF7A2E; }
+    .sv-icon { width: 27px; height: 27px; }
+    .sv-rail-label { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 11px; color: #fff; margin-top: 4px; }
+    @keyframes sv-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes sv-shine-sweep {
+      0%, 15% { transform: translateX(-350%) skewX(-16deg); }
+      55%, 100% { transform: translateX(350%) skewX(-16deg); }
+    }
+    .sv-shine { position: relative; overflow: hidden; }
+    .sv-shine::after {
+      content: ""; position: absolute; top: 0; left: 0; width: 60%; height: 100%; pointer-events: none;
+      background: linear-gradient(115deg, transparent 0%, rgba(255,226,163,.4) 45%, rgba(255,255,255,.95) 50%, rgba(255,226,163,.4) 55%, transparent 100%);
+      animation: sv-shine-sweep 3.6s ease-in-out infinite;
+    }
+  </style>
+</helmet>
+
+<div style="width:390px;height:844px;background:#050B18;position:relative;overflow:hidden;font-family:'Inter',sans-serif;border-radius:36px;cursor:pointer;" id="scr">
+
+  <img src="feed-family.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+
+  <div style="position:absolute;top:0;left:0;right:0;height:150px;background:linear-gradient(180deg, rgba(5,11,24,.6), transparent);pointer-events:none;"></div>
+  <div style="position:absolute;bottom:0;left:0;right:0;height:320px;background:linear-gradient(0deg, rgba(5,11,24,.92) 10%, rgba(5,11,24,.55) 55%, transparent);pointer-events:none;"></div>
+
+  <div style="position:absolute;top:56px;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:26px;">
+    <span style="font-family:'Sora',sans-serif;font-weight:700;font-size:15px;color:rgba(255,255,255,.6);">Abonnements</span>
+    <div style="display:flex;flex-direction:column;align-items:center;">
+      <span style="font-family:'Sora',sans-serif;font-weight:800;font-size:16px;color:#fff;">Pour toi</span>
+      <div style="width:22px;height:3px;background:#FF7A2E;border-radius:2px;margin-top:6px;"></div>
+    </div>
+  </div>
+
+  <div style="position:absolute;top:54px;left:20px;display:flex;align-items:center;gap:7px;">
+    <img src="app-icon.png" alt="STAR VIBE" style="width:26px;height:26px;">
+  </div>
+
+  <div style="position:absolute;right:12px;bottom:168px;display:flex;flex-direction:column;align-items:center;gap:20px;">
+
+    <div style="display:flex;flex-direction:column;align-items:center;">
+      <div style="width:46px;height:46px;border-radius:50%;overflow:hidden;border:2px solid #F0CA6B;">
+        <img src="feed-creator.jpg" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center 15%;">
+      </div>
+      <div style="width:19px;height:19px;border-radius:50%;background:#FF7A2E;display:flex;align-items:center;justify-content:center;margin-top:-11px;border:2px solid #050B18;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" style="width:11px;height:11px;"><path d="M12 5v14M5 12h14"/></svg>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;align-items:center;">
+      <svg class="sv-icon" viewBox="0 0 24 24" fill="#FF7A2E" stroke="#FF7A2E" stroke-width="1.5"><path d="M12 21s-7.5-4.6-10-9.1C.5 8.8 2 5 6 5c2.2 0 3.7 1.3 4.5 2.6C11.3 6.3 12.8 5 15 5c4 0 5.5 3.8 4 6.9C19.5 16.4 12 21 12 21z"/></svg>
+      <span class="sv-rail-label">128 K</span>
+    </div>
+
+    <div style="display:flex;flex-direction:column;align-items:center;">
+      <svg class="sv-icon" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      <span class="sv-rail-label">3 041</span>
+    </div>
+
+    <div style="display:flex;flex-direction:column;align-items:center;">
+      <svg class="sv-icon" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7M16 6l-4-4-4 4M12 2v14"/></svg>
+      <span class="sv-rail-label">862</span>
+    </div>
+
+    <div style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;animation:sv-spin 5s linear infinite;">
+      <img src="app-icon.png" alt="" style="width:20px;height:20px;">
+    </div>
+  </div>
+
+  <div style="position:absolute;left:18px;right:92px;bottom:96px;color:#fff;">
+    <div style="font-family:'Sora',sans-serif;font-weight:800;font-size:15px;">@aicha_bzv</div>
+    <div style="font-size:13px;line-height:1.45;margin-top:6px;color:rgba(255,255,255,.92);">On danse même un mardi soir, en famille, à Brazzaville.</div>
+    <div style="display:flex;align-items:center;gap:6px;margin-top:10px;">
+      <svg style="width:13px;height:13px;" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M9 18V5l12-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM21 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg>
+      <span style="font-size:11.5px;color:rgba(255,255,255,.85);">Son original — aicha_bzv</span>
+    </div>
+  </div>
+
+  <div style="position:absolute;bottom:0;left:0;right:0;height:70px;background:#080F1F;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-around;padding-bottom:6px;">
+
+    <div id="navHome" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <svg style="width:23px;height:23px;" viewBox="0 0 24 24" fill="none" stroke="#F0CA6B" stroke-width="2.3"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><path d="M9 22V12h6v10"/></svg>
+      <span style="font-family:'Inter',sans-serif;font-weight:600;font-size:10px;color:#F0CA6B;">Accueil</span>
+    </div>
+
+    <div id="navDiscover" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <svg style="width:23px;height:23px;" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2.3"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <span style="font-family:'Inter',sans-serif;font-weight:600;font-size:10px;color:rgba(255,255,255,.55);">Découvrir</span>
+    </div>
+
+    <div id="btnUpload" class="sv-shine" style="cursor:pointer;width:44px;height:32px;border-radius:9px;background:linear-gradient(135deg,#FF7A2E,#D9A93C);display:flex;align-items:center;justify-content:center;">
+      <svg style="width:19px;height:19px;" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6"><path d="M12 5v14M5 12h14"/></svg>
+    </div>
+
+    <div id="navMessages" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <svg style="width:23px;height:23px;" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2.3"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      <span style="font-family:'Inter',sans-serif;font-weight:600;font-size:10px;color:rgba(255,255,255,.55);">Messages</span>
+    </div>
+
+    <div id="navProfile" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <div style="width:23px;height:23px;border-radius:50%;overflow:hidden;border:1.5px solid rgba(255,255,255,.55);">
+        <img src="feed-family.jpg" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center 20%;">
+      </div>
+      <span style="font-family:'Inter',sans-serif;font-weight:600;font-size:10px;color:rgba(255,255,255,.55);">Profil</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+
+document.getElementById('navHome').onclick = function(e){ e.stopPropagation(); };
+document.getElementById('navDiscover').onclick = function(e){ e.stopPropagation(); parent.toast('Bientot disponible dans la version complete'); };
+document.getElementById('btnUpload').onclick = function(e){ e.stopPropagation(); parent.go('Upload'); };
+document.getElementById('navMessages').onclick = function(e){ e.stopPropagation(); parent.toast('Bientot disponible dans la version complete'); };
+document.getElementById('navProfile').onclick = function(e){ e.stopPropagation(); parent.go('Profile'); };
+
+document.getElementById('scr').addEventListener('click', function(){ parent.go('CleanCity'); });
+
+</script>
+</body>
+</html>

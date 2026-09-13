@@ -263,6 +263,92 @@ export async function ensureSchema() {
     )
   `;
 
+  // STAR VIBE — un compte par téléphone (protégé par un code PIN à 4
+  // chiffres, comme un compte Mobile Money), qui peut porter plusieurs
+  // profils : le profil personnel du titulaire, et un ou plusieurs profils
+  // enfant (3-6 ans) créés et supervisés par ce même compte.
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_accounts (
+      id SERIAL PRIMARY KEY,
+      telephone TEXT UNIQUE NOT NULL,
+      pin_hash TEXT NOT NULL,
+      ville TEXT DEFAULT '',
+      failed_attempts INTEGER NOT NULL DEFAULT 0,
+      locked_until TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_profiles (
+      id SERIAL PRIMARY KEY,
+      account_id INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      nom TEXT NOT NULL,
+      date_naissance TEXT NOT NULL,
+      type_profil TEXT NOT NULL DEFAULT 'personnel',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
+  // Vidéos du fil STAR VIBE — publiées uniquement depuis un profil
+  // personnel (les profils enfant/PIOUPIOU restent hors du fil principal
+  // en attendant leur espace dédié). Fichier stocké dans Netlify Blobs,
+  // seule la clé est gardée en base. Une vidéo marquée "pour_enfants"
+  // n'apparaît dans l'espace PIOUPIOU qu'après validation d'un compte
+  // staff STAR ENTREPRISE (moderation_statut = 'approuve') — c'est le
+  // vrai filtre de sécurité de l'espace enfants.
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_videos (
+      id SERIAL PRIMARY KEY,
+      account_id INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      profile_id INTEGER NOT NULL REFERENCES starvibe_profiles(id) ON DELETE CASCADE,
+      legende TEXT DEFAULT '',
+      type_mime TEXT NOT NULL,
+      blob_key TEXT NOT NULL,
+      likes_count INTEGER NOT NULL DEFAULT 0,
+      vues_count INTEGER NOT NULL DEFAULT 0,
+      pour_enfants BOOLEAN NOT NULL DEFAULT false,
+      moderation_statut TEXT NOT NULL DEFAULT 'approuve',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+  await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS pour_enfants BOOLEAN NOT NULL DEFAULT false`;
+  await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS moderation_statut TEXT NOT NULL DEFAULT 'approuve'`;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_likes (
+      id SERIAL PRIMARY KEY,
+      video_id INTEGER NOT NULL REFERENCES starvibe_videos(id) ON DELETE CASCADE,
+      account_id INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      UNIQUE(video_id, account_id)
+    )
+  `;
+
+  // Abonnements KOMYO — un compte peut passer par plusieurs lignes au fil du
+  // temps (historique) ; la ligne la plus récente fait foi pour le plan
+  // actif. Même règle que les paiements Marketplace : un paiement n'est
+  // validé QUE si montant_recu correspond EXACTEMENT à montant_attendu.
+  // Tant qu'aucun webhook Mobile Money réel n'est branché, la confirmation
+  // se fait manuellement par un compte staff STAR ENTREPRISE (voir
+  // api-starvibe-subscription.mts, action "confirmer_paiement").
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_subscriptions (
+      id SERIAL PRIMARY KEY,
+      account_id INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      plan TEXT NOT NULL DEFAULT 'gratuit',
+      montant_attendu INTEGER NOT NULL DEFAULT 0,
+      montant_recu INTEGER,
+      methode TEXT DEFAULT '',
+      reference_transaction TEXT DEFAULT '',
+      statut TEXT NOT NULL DEFAULT 'actif',
+      started_at TIMESTAMPTZ,
+      expires_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
   await sql`
     CREATE TABLE IF NOT EXISTS jardis_log (
       id SERIAL PRIMARY KEY,
