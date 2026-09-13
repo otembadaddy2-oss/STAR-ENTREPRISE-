@@ -135,9 +135,21 @@
   footer{padding:26px 22px 34px;text-align:center;}
   footer .credit{font-size:10px;color:var(--text-faint);}
   footer .credit b{color:var(--text-dim);}
+
+  .voice-hint{position:fixed;right:18px;bottom:18px;z-index:30;width:54px;height:54px;border-radius:50%;
+    background:linear-gradient(135deg,var(--coral),var(--gold));border:none;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 12px 26px -8px rgba(232,169,61,.65);cursor:pointer;animation:floaty 2.4s ease-in-out infinite;
+    transition:transform .25s ease;}
+  .voice-hint:hover{transform:scale(1.08);}
+  .voice-hint svg{width:24px;height:24px;}
 </style>
 </head>
 <body>
+
+<audio id="introVoice" preload="auto" src="assets/audio/komyo-intro-voix.mp3"></audio>
+<button id="voiceHint" class="voice-hint" type="button" aria-label="Écouter le message de bienvenue" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>
+</button>
 
 <nav class="nav">
   <div class="wrap">
@@ -235,6 +247,24 @@
     });
   }, { threshold: 0.15 });
   els.forEach(function(e){ io.observe(e); });
+})();
+
+(function(){
+  var audio = document.getElementById('introVoice');
+  var hint = document.getElementById('voiceHint');
+  if (!audio || !hint) return;
+  var KEY = 'komyo_intro_played';
+  var already = false;
+  try { already = !!sessionStorage.getItem(KEY); } catch(e){}
+  if (already) return;
+  function markPlayed(){ try{ sessionStorage.setItem(KEY, '1'); }catch(e){} }
+  audio.play().then(markPlayed).catch(function(){
+    hint.hidden = false;
+    hint.addEventListener('click', function(){
+      audio.play().then(markPlayed).catch(function(){});
+      hint.hidden = true;
+    });
+  });
 })();
 </script>
 
