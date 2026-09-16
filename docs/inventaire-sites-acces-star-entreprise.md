@@ -2,11 +2,24 @@
 
 Document de suivi interne, mis à jour à chaque nouvelle création. Ne contient **aucun mot de passe réel** — voir la note de sécurité en bas de page pour comprendre pourquoi, et où les garder à la place.
 
-Dernière mise à jour : 13 septembre 2026 (ajout : inscriptions Marketplace visibles en temps réel + export Excel dans `admin.html`).
+Dernière mise à jour : 16 septembre 2026 (ajout : immatriculation RCCM officielle de STAR ENTREPRISE).
 
 ---
 
-## 1. Hébergement — vue d'ensemble
+## 1. Informations légales — immatriculation
+
+D'après l'extrait officiel du Registre du Commerce et du Crédit Mobilier (Tribunal de Commerce de Brazzaville) :
+
+- **N° RCCM** : `CG-BZV-01-2026-A10-01950`
+- **Immatriculation au RCCM le** : 03/09/2026
+- **Nom commercial** : STAR ENTREPRISE
+- **Enseigne** : Ets STAR ENTREPRISE
+- **Lien juridique** : Immatriculation principale d'une personne physique
+- **Titulaire** : OTEMBA KIBANGOU Daddyh Cariany (Carry OTEMBA)
+- **Activité exercée** : Programmation informatique — J620001 (Conception site web)
+- **Adresse du principal établissement** : 30, Avenue Mbemba Théophile, Makélékélé, Brazzaville
+
+## 2. Hébergement — vue d'ensemble
 
 Tous les sites de ce dépôt (`otembadaddy2-oss/STAR-ENTREPRISE-`) sont des sites statiques HTML/CSS/JS (+ quelques fonctions serverless Netlify pour les parties avec base de données). Le déploiement se fait via **Netlify**, connecté à ce dépôt GitHub.
 
@@ -14,15 +27,15 @@ Tous les sites de ce dépôt (`otembadaddy2-oss/STAR-ENTREPRISE-`) sont des site
 - **Sous-domaines Netlify séparés repérés dans le code** : `sos-doc.netlify.app` et `alpha-star-creat.netlify.app` — à confirmer avec toi s'il s'agit de déploiements Netlify distincts ou d'alias du même site.
 - **Connexion à Netlify/GitHub** : gérée par ton compte personnel (accès e-mail `otembadaddy2@gmail.com`). Je n'ai jamais eu et ne stocke pas ton mot de passe Netlify ni GitHub — je travaille uniquement via les autorisations que tu m'accordes dans la session.
 
-## 2. Répertoire public des sites
+## 3. Répertoire public des sites
 
 Une page publique liste déjà tous les projets avec leurs liens : **`diamant.html`** sur le site principal (`https://star-entreprise.netlify.app/diamant.html`). Ce document-ci est son complément **technique et interne**, avec le détail de fonctionnement de chaque brique.
 
-## 3. Détail par site / application
+## 4. Détail par site / application
 
 | Site | URL | Dossier | Rôle | Connexion / accès |
 |---|---|---|---|---|
-| **STAR ENTREPRISE** (vitrine agence) | `star-entreprise.netlify.app` | racine | Site vitrine de l'agence, business plan, services, portfolio | Aucune connexion — public. Espace direction : `admin.html` (login staff partagé, voir §4) |
+| **STAR ENTREPRISE** (vitrine agence) | `star-entreprise.netlify.app` | racine | Site vitrine de l'agence, business plan, services, portfolio | Aucune connexion — public. Espace direction : `admin.html` (login staff partagé, voir §5) |
 | **Répertoire des sites** | `/diamant.html` | racine | Page liens vers tous les projets du groupe | Public |
 | **JARDIS** | `/jardis.html` | racine | Assistant personnel (documentation/manifeste) | Public |
 | **STAR CRÉAT** | `/star-creat/` | `star-creat/` | Sous-marque création | Public |
@@ -35,11 +48,11 @@ Une page publique liste déjà tous les projets avec leurs liens : **`diamant.ht
 | **S.O — Gestion des membres** | `/so-membres/` | `so-membres/` | Gestion d'une organisation/association | `setup.html` — configuration initiale, identifiants à définir |
 | **STAR Marketplace** | `/marketplace/` | `marketplace/` | Achat/vente Congo, paiement Mobile Money | Inscription vendeur/acheteur → relais WhatsApp Business **et** enregistrement en base (table `leads`, visible dans `admin.html`). Espace compte : `compte.html` |
 | **KOMYO** (ex STAR VIBE) | `/starvibe/` | `starvibe/` | App vidéo verticale + PIOUPIOU (espace enfants séparé) + abonnements Mobile Money | Compte utilisateur : numéro de téléphone + code PIN à 4 chiffres choisi à l'inscription (`inscription.html`). Org technique : `star_vibe` |
-| — Modération KOMYO | `/starvibe/moderation.html` | idem | Validation des vidéos avant diffusion | Login staff partagé (voir §4) |
-| — Paiements KOMYO | `/starvibe/paiements.html` | idem | Confirmation manuelle des paiements Mobile Money | Login staff partagé (voir §4) |
+| — Modération KOMYO | `/starvibe/moderation.html` | idem | Validation des vidéos avant diffusion | Login staff partagé (voir §5) |
+| — Paiements KOMYO | `/starvibe/paiements.html` | idem | Confirmation manuelle des paiements Mobile Money | Login staff partagé (voir §5) |
 | **STAR VIBE — Démo cliquable** | `/starvibe-demo/` | `starvibe-demo/` | Maquette de démonstration (sans backend réel) | Aucune vraie connexion, écrans de démo |
 
-## 4. Comptes « staff » internes (modération / paiements / direction)
+## 5. Comptes « staff » internes (modération / paiements / direction)
 
 Les panneaux `admin.html` (Espace direction — toutes les demandes/inscriptions du groupe, dont désormais le **Marketplace**, avec export Excel), `moderation.html` et `paiements.html` de KOMYO partagent un **même système de connexion staff** :
 
@@ -47,7 +60,7 @@ Les panneaux `admin.html` (Espace direction — toutes les demandes/inscriptions
 - Table de comptes : `accounts` (base Netlify DB / Neon PostgreSQL)
 - Le mot de passe de chaque compte staff est celui que **tu as choisi** au moment de la création du compte — il est stocké **chiffré (haché)** dans la base de données, donc même moi je ne peux pas le relire une fois créé. Si tu l'oublies, il faut le réinitialiser directement en base, pas le « retrouver ».
 
-## 5. Comptes et clés externes (connecteurs)
+## 6. Comptes et clés externes (connecteurs)
 
 Ces services sont connectés à ta session Claude directement par toi (via les paramètres de connecteurs claude.ai) — je ne vois ni ne stocke les mots de passe ou clés API, seulement le fait qu'ils sont connectés :
 
@@ -56,7 +69,7 @@ Ces services sont connectés à ta session Claude directement par toi (via les p
 - **GitHub** — accès au dépôt `otembadaddy2-oss/STAR-ENTREPRISE-`
 - **Netlify** — hébergement (déduit du domaine `star-entreprise.netlify.app`, accès direct à confirmer)
 
-## 6. Note de sécurité — pourquoi pas de vrais mots de passe ici
+## 7. Note de sécurité — pourquoi pas de vrais mots de passe ici
 
 Je ne mets **volontairement aucun mot de passe réel** dans ce document, pour deux raisons :
 1. **Je n'y ai pas accès** — tes mots de passe Netlify, GitHub, Mobile Money, e-mail, etc. ne me sont jamais communiqués ; je ne peux donc pas les stocker même en le voulant.
