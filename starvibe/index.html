@@ -97,6 +97,34 @@
   .feat-card.disc .feat-icon{background:rgba(232,169,61,.16);}
   .feat-card.disc svg{stroke:var(--gold-deep);}
 
+  /* UNIVERS KOMYO */
+  .universe-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .universe-card{position:relative;background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px 14px;text-align:center;
+    box-shadow:0 8px 22px -14px rgba(36,21,54,.18);transition:transform .3s ease, box-shadow .3s ease, border-color .3s ease;}
+  .universe-card:hover{transform:translateY(-4px);box-shadow:0 16px 28px -14px rgba(36,21,54,.26);border-color:var(--gold);}
+  .universe-card .u-icon{width:44px;height:44px;border-radius:13px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,var(--coral),var(--gold));}
+  .universe-card .u-icon svg{width:22px;height:22px;stroke:#fff;}
+  .universe-card.kids .u-icon{background:linear-gradient(135deg,#3fae82,var(--kids));}
+  .universe-card h3{font-size:13.5px;font-weight:800;margin:0 0 3px;}
+  .universe-card .age{display:inline-block;font-size:9.5px;font-weight:700;color:var(--text-faint);background:var(--cream-2);
+    border-radius:20px;padding:2px 9px;margin-bottom:6px;}
+  .universe-card p{font-size:11px;color:var(--text-dim);margin:0;line-height:1.5;}
+  .universe-card .soon{position:absolute;top:10px;right:10px;font-size:8.5px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;
+    color:var(--gold-deep);background:#FBF0DA;border-radius:20px;padding:3px 8px;}
+  .universe-tagline{text-align:center;font-size:13px;font-weight:700;color:var(--ink);margin:-6px 0 22px;font-family:'Sora',sans-serif;}
+
+  /* WHATSAPP CTA */
+  .wa-box{display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:16px;
+    transition:transform .25s ease, box-shadow .25s ease;}
+  .wa-box:hover{transform:translateY(-3px);box-shadow:0 14px 26px -16px rgba(36,21,54,.28);}
+  .wa-box .wa-icon{width:42px;height:42px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;flex:none;}
+  .wa-box .wa-icon svg{width:22px;height:22px;fill:#fff;}
+  .wa-box .wa-text{flex:1;}
+  .wa-box h4{font-size:13px;margin:0 0 2px;}
+  .wa-box p{font-size:11.5px;color:var(--text-dim);margin:0;}
+  .wa-box .wa-num{font-family:'Sora',sans-serif;font-weight:800;color:#128C4A;}
+
   /* PIOUPIOU BANNER */
   .kids-banner{position:relative;border-radius:22px;overflow:hidden;margin-top:6px;box-shadow:0 14px 30px -16px rgba(47,143,110,.4);
     transition:transform .35s ease;}
@@ -202,6 +230,50 @@
   </div>
 </section>
 
+<section class="wrap">
+  <div class="sec-head reveal">
+    <div class="sec-tag">L'univers KOMYO</div>
+    <h2>Une seule marque, plusieurs mondes</h2>
+    <p>KOMYO grandit avec toi — de l'espace enfants aux opportunités business, en passant par la découverte de l'Afrique.</p>
+  </div>
+  <div class="universe-grid">
+    <a class="universe-card kids reveal" href="pioupiou.html">
+      <div class="u-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.3"><path d="M12 3 4 6.5V12c0 5 3.5 8.5 8 9 4.5-.5 8-4 8-9V6.5L12 3z"/></svg></div>
+      <span class="age">3–7 ans</span>
+      <h3>PIOUPIOU</h3>
+      <p>Espace vidéo éducatif pour enfants, 100% séparé et sécurisé.</p>
+    </a>
+    <div class="universe-card reveal">
+      <span class="soon">Bientôt</span>
+      <div class="u-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.3"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 21c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><path d="M16.5 14.5c2.8.4 5 2.9 5 6.5"/><circle cx="16.5" cy="7.5" r="2.6"/></svg></div>
+      <span class="age">8–17 ans</span>
+      <h3>KOMYO Jeunes</h3>
+      <p>Découvrir, créer et partager entre ados, en toute sécurité.</p>
+    </div>
+    <div class="universe-card reveal">
+      <span class="soon">Bientôt</span>
+      <div class="u-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.3"><path d="M3 9h18M8 9V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v3M4 9h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9z"/></svg></div>
+      <span class="age">18 ans et +</span>
+      <h3>KOMYO Business</h3>
+      <p>Vendre, entreprendre et développer ton activité sur toute l'Afrique.</p>
+    </div>
+    <div class="universe-card reveal">
+      <span class="soon">Bientôt</span>
+      <div class="u-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.3"><path d="m12 2 2.9 6.3 6.9.7-5.2 4.7 1.6 6.8L12 17l-6.2 3.5 1.6-6.8L2.2 9l6.9-.7L12 2z"/></svg></div>
+      <span class="age">Créateurs &amp; talents</span>
+      <h3>KOMYO Talents</h3>
+      <p>Mettre en valeur les savoir-faire et talents africains.</p>
+    </div>
+    <div class="universe-card reveal" style="grid-column:1/-1;">
+      <span class="soon">Bientôt</span>
+      <div class="u-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.3"><circle cx="12" cy="12" r="9"/><path d="m14.5 9.5-2 5-3 2 2-5 3-2z"/></svg></div>
+      <span class="age">Toute l'Afrique</span>
+      <h3>KOMYO Découverte</h3>
+      <p>Explorer l'Afrique et sa richesse culturelle, à travers des vidéos de la communauté.</p>
+    </div>
+  </div>
+</section>
+
 <section class="wrap" style="padding-top:0;">
   <div class="kids-banner reveal">
     <img src="https://images.unsplash.com/photo-1778894926879-07308f00c4a9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="">
@@ -231,6 +303,16 @@
     <p>Rejoins KOMYO aujourd'hui — c'est gratuit, et ça prend moins d'une minute.</p>
     <a class="btn-primary" href="inscription.html" style="display:block;">Créer mon compte</a>
   </div>
+</section>
+
+<section class="wrap" style="padding-top:0;">
+  <a class="wa-box reveal" href="https://wa.me/242066565050?text=Bonjour%20KOMYO%2C%20je%20souhaite%20en%20savoir%20plus." target="_blank" rel="noopener">
+    <div class="wa-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.7 1.5 5.3L2 22l4.8-1.5c1.5.8 3.3 1.3 5.2 1.3 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg></div>
+    <div class="wa-text">
+      <h4>Une question sur KOMYO ?</h4>
+      <p>Écris-nous sur WhatsApp — <span class="wa-num">+242 06 656 50 50</span></p>
+    </div>
+  </a>
 </section>
 
 <footer>
