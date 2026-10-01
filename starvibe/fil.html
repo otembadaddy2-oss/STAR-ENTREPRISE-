@@ -288,6 +288,18 @@
     var videoEl = slide.querySelector('video');
     var hint = slide.querySelector('.mute-hint');
     var viewed = false;
+    var watchStart = null;
+    var watchSecondsTotal = 0;
+
+    function sendViewSession(){
+      if (watchSecondsTotal <= 0) return;
+      var percent = videoEl.duration ? Math.min(100, Math.round(watchSecondsTotal / videoEl.duration * 100)) : 0;
+      authFetch(API_VIDEOS, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'fin_vue', videoId: Number(v.id), watchSeconds: Math.round(watchSecondsTotal), percent: percent })
+      }).catch(function(){});
+      watchSecondsTotal = 0;
+    }
 
     slide.addEventListener('click', function(e){
       if (e.target.closest('.like-btn')) return;
@@ -331,6 +343,7 @@
       entries.forEach(function(entry){
         if (entry.isIntersecting && entry.intersectionRatio > 0.6){
           videoEl.play().catch(function(){});
+          if (!watchStart) watchStart = Date.now();
           if (!viewed){
             viewed = true;
             authFetch(API_VIDEOS, {
@@ -344,6 +357,7 @@
           }
         } else {
           videoEl.pause();
+          if (watchStart){ watchSecondsTotal += (Date.now() - watchStart) / 1000; watchStart = null; sendViewSession(); }
           if (activityTimer){ clearInterval(activityTimer); activityTimer = null; }
         }
       });

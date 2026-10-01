@@ -207,6 +207,21 @@ export default async (req: Request, _context: Context) => {
       return json({ ok: true });
     }
 
+    // Fin de visionnage : durée réelle regardée + % de la vidéo vu. Envoyé
+    // par le client quand la vidéo sort de l'écran. Jamais de vues_count ici
+    // (déjà compté par l'action "vue") — uniquement la donnée d'analyse.
+    if (action === "fin_vue") {
+      const videoId = Number(earlyBody.videoId);
+      const watchSeconds = Math.max(0, Math.round(Number(earlyBody.watchSeconds) || 0));
+      const percent = Math.max(0, Math.min(100, Math.round(Number(earlyBody.percent) || 0)));
+      if (!videoId || watchSeconds <= 0) return json({ ok: true }); // rien à enregistrer
+      await sql`
+        INSERT INTO starvibe_view_sessions (video_id, account_id, watch_seconds, percent_watched)
+        VALUES (${videoId}, ${accountId}, ${watchSeconds}, ${percent})
+      `;
+      return json({ ok: true });
+    }
+
     if (action === "commenter") {
       const videoId = Number(earlyBody.videoId);
       const profileId = Number(earlyBody.profileId);
@@ -250,6 +265,44 @@ export default async (req: Request, _context: Context) => {
   }
 
   if (req.method !== "GET") return json({ error: "Method not allowed" }, 405);
+
+  // --- Statistiques du créateur : uniquement SES vidéos, jamais celles des
+  //     autres. Durée moyenne regardée, % moyen vu, j'aime, commentaires,
+  //     vues — pour une vraie lecture de performance, pas qu'un chiffre. ---
+  if (url.searchParams.get("statistiques") === "1") {
+    const session = await requireAuth(req);
+    if (!session || session.org !== ORG) return json({ error: "Non authentifié" }, 401);
+    const accountId = Number(session.sub);
+
+    const rows = (await sql`
+      SELECT v.id, v.legende, v.likes_count, v.vues_count, v.comments_count, v.created_at,
+        COALESCE(AVG(s.watch_seconds), 0) AS watch_moyen,
+        COALESCE(AVG(s.percent_watched), 0) AS pourcent_moyen,
+        COUNT(s.id) AS sessions_mesurees
+      FROM starvibe_videos v
+      LEFT JOIN starvibe_view_sessions s ON s.video_id = v.id
+      WHERE v.account_id = ${accountId}
+      GROUP BY v.id
+      ORDER BY v.id DESC LIMIT 100
+    `) as Array<{
+      id: number; legende: string; likes_count: number; vues_count: number; comments_count: number;
+      created_at: string; watch_moyen: string; pourcent_moyen: string; sessions_mesurees: string;
+    }>;
+
+    return json({
+      videos: rows.map((r) => ({
+        id: String(r.id),
+        legende: r.legende,
+        likes: r.likes_count,
+        vues: r.vues_count,
+        commentaires: r.comments_count,
+        createdAt: r.created_at,
+        dureeRegardeeMoyenne: Math.round(Number(r.watch_moyen)),
+        pourcentRegardeMoyen: Math.round(Number(r.pourcent_moyen)),
+        sessionsMesurees: Number(r.sessions_mesurees),
+      })),
+    });
+  }
 
   // --- Liste des commentaires d'une vidéo (bottom sheet) ---
   if (url.searchParams.get("commentaires") === "1") {

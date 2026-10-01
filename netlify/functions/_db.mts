@@ -338,6 +338,20 @@ export async function ensureSchema() {
     )
   `;
 
+  // Statistiques de visionnage réelles (durée + % regardé), pour donner aux
+  // créateurs KOMYO une vraie analyse — pas qu'un compteur qui monte comme
+  // sur la plupart des apps vidéo grand public.
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_view_sessions (
+      id SERIAL PRIMARY KEY,
+      video_id INTEGER NOT NULL REFERENCES starvibe_videos(id) ON DELETE CASCADE,
+      account_id INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      watch_seconds INTEGER NOT NULL DEFAULT 0,
+      percent_watched INTEGER NOT NULL DEFAULT 0,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
   // Abonnements KOMYO — un compte peut passer par plusieurs lignes au fil du
   // temps (historique) ; la ligne la plus récente fait foi pour le plan
   // actif. Même règle que les paiements Marketplace : un paiement n'est

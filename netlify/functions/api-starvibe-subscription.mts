@@ -66,6 +66,59 @@ export default async (req: Request, _context: Context) => {
   const { sql } = db();
   const url = new URL(req.url);
 
+  // --- Webhook Mobile Money (agrégateur) : confirmation AUTOMATIQUE,
+  //     sans staff. Contrairement aux autres actions de ce fichier, celle-ci
+  //     exige STARVIBE_PAYMENT_WEBHOOK_SECRET configurée — tant que Carry n'a
+  //     pas de compte marchand chez un agrégateur (CinetPay, Flutterwave…),
+  //     cette variable reste vide et l'action refuse systématiquement, pour
+  //     qu'aucun paiement ne puisse jamais s'auto-valider sans vraie preuve
+  //     signée par l'agrégateur. Même règle de validation que
+  //     "confirmer_paiement" : montant EXACT, sinon rejeté.
+  if (req.method === "POST" && url.searchParams.get("webhook") === "1") {
+    const secret = process.env.STARVIBE_PAYMENT_WEBHOOK_SECRET;
+    const given = req.headers.get("x-webhook-secret") || "";
+    if (!secret || given !== secret) {
+      return json({ error: "Webhook non configuré ou secret invalide — voir STARVIBE_PAYMENT_WEBHOOK_SECRET" }, 401);
+    }
+
+    let body: Record<string, unknown>;
+    try { body = await req.json(); } catch { return json({ error: "Invalid JSON" }, 400); }
+
+    const reference = clean(body.reference, 60);
+    const montantRecu = Math.round(Number(body.montantRecu));
+    const methode = clean(body.methode, 30) || "mobile_money_auto";
+    const transactionId = clean(body.transactionId, 200);
+    const m = /^KOMYO-(\d+)$/.exec(reference);
+    if (!m || !Number.isFinite(montantRecu)) {
+      return json({ error: "reference (format KOMYO-123) et montantRecu requis" }, 400);
+    }
+    const subscriptionId = Number(m[1]);
+
+    const rows = (await sql`SELECT * FROM starvibe_subscriptions WHERE id = ${subscriptionId} LIMIT 1`) as SubRow[];
+    const sub = rows[0];
+    if (!sub) return json({ error: "Demande introuvable" }, 404);
+    if (sub.statut !== "en_attente_paiement") {
+      return json({ error: `Cette demande est déjà "${sub.statut}"` }, 409);
+    }
+
+    const valide = montantRecu === sub.montant_attendu;
+    await sql`
+      UPDATE starvibe_subscriptions
+      SET montant_recu = ${montantRecu}, methode = ${methode}, reference_transaction = ${transactionId},
+          statut = ${valide ? "actif" : "paiement_invalide"},
+          started_at = ${valide ? sql`now()` : null},
+          expires_at = ${valide ? sql`now() + interval '30 days'` : null},
+          updated_at = now()
+      WHERE id = ${subscriptionId}
+    `;
+
+    return json({
+      statut: valide ? "actif" : "paiement_invalide",
+      montantAttendu: sub.montant_attendu,
+      montantRecu,
+    });
+  }
+
   // --- File des paiements en attente (staff STAR ENTREPRISE) ---
   if (req.method === "GET" && url.searchParams.get("admin") === "1") {
     const staff = await requireAuth(req);

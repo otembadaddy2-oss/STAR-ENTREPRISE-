@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KOMYO — Mes statistiques</title>
+<meta name="theme-color" content="#FFFBF3">
+<link rel="icon" href="../assets/img/icons/favicon-star-rounded-v1.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+<style>
+  :root{
+    --ink:#241536; --gold:#E8A93D; --gold-deep:#C8942F; --coral:#FF6B4A;
+    --cream:#FFFBF3; --text-dim:#6b5f80; --text-faint:#a49bb8; --line:#eee2cc;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Inter',Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3,.disp{font-family:'Sora',Arial,sans-serif;}
+  [hidden]{display:none!important;}
+  .wrap{max-width:480px;margin:0 auto;padding-inline:20px;padding-bottom:40px;}
+
+  .topbar{background:linear-gradient(120deg,var(--coral),var(--gold));color:#fff;padding:18px 20px 40px;border-radius:0 0 26px 26px;}
+  .topbar .row{display:flex;align-items:center;justify-content:space-between;}
+  .topbar a.back{color:#fff;text-decoration:none;font-size:12px;font-weight:700;border:1.5px solid rgba(255,255,255,.4);
+    padding:7px 13px;border-radius:20px;background:rgba(255,255,255,.12);}
+  .topbar h1{font-size:19px;margin:14px 0 2px;}
+  .topbar p{font-size:12px;margin:0;color:rgba(255,255,255,.85);}
+
+  .content{margin-top:-24px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 10px 24px -18px rgba(36,21,54,.25);}
+  .vid-title{font-size:13.5px;font-weight:700;margin:0 0 3px;}
+  .vid-date{font-size:10.5px;color:var(--text-faint);margin:0 0 12px;}
+  .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
+  .stat{text-align:center;background:#FBF6EA;border-radius:10px;padding:8px 4px;}
+  .stat b{display:block;font-family:'Sora',sans-serif;font-size:15px;color:var(--ink);}
+  .stat span{font-size:9px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.3px;}
+  .watchbar-wrap{display:flex;align-items:center;gap:8px;}
+  .watchbar{flex:1;height:8px;border-radius:5px;background:var(--line);overflow:hidden;}
+  .watchbar i{display:block;height:100%;background:linear-gradient(90deg,var(--coral),var(--gold));border-radius:5px;}
+  .watchbar-wrap b{font-size:11px;color:var(--text-dim);white-space:nowrap;}
+  .note{font-size:10px;color:var(--text-faint);margin-top:8px;line-height:1.4;}
+
+  .state{text-align:center;padding:60px 20px;}
+  .state p{font-size:13px;color:var(--text-dim);line-height:1.6;}
+  .state a{color:var(--ink);font-weight:700;border-bottom:1.5px solid var(--gold);}
+</style>
+</head>
+<body>
+
+<div id="loadingState" class="state"><p>Chargement de tes statistiques…</p></div>
+<div id="loggedOutState" class="state" hidden><p>Tu n'es pas connecté.<br><a href="inscription.html">Se connecter</a></p></div>
+
+<div id="pageWrap" hidden>
+  <div class="topbar">
+    <div class="row">
+      <a class="back" href="accueil.html">← Mon espace</a>
+    </div>
+    <h1>Mes statistiques</h1>
+    <p>Vues, durée réellement regardée et engagement, vidéo par vidéo.</p>
+  </div>
+  <div class="content">
+    <div class="wrap">
+      <div id="videosList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var API_VIDEOS = '/api/starvibe-videos';
+  var token = localStorage.getItem('starvibe_token');
+  var loadingState = document.getElementById('loadingState');
+  var loggedOutState = document.getElementById('loggedOutState');
+  var pageWrap = document.getElementById('pageWrap');
+  var videosList = document.getElementById('videosList');
+
+  if (!token){ loadingState.hidden = true; loggedOutState.hidden = false; return; }
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function fmtDuree(sec){
+    if (sec < 60) return sec + ' s';
+    return Math.floor(sec / 60) + ' min ' + (sec % 60) + ' s';
+  }
+
+  function cardHTML(v){
+    var sansMesure = v.sessionsMesurees === 0;
+    return '<div class="card">' +
+      '<p class="vid-title">' + (v.legende ? esc(v.legende) : '<i style="color:var(--text-faint)">Sans légende</i>') + '</p>' +
+      '<p class="vid-date">Publiée le ' + new Date(v.createdAt).toLocaleDateString('fr-FR') + '</p>' +
+      '<div class="stat-grid">' +
+        '<div class="stat"><b>' + v.vues + '</b><span>Vues</span></div>' +
+        '<div class="stat"><b>' + v.likes + '</b><span>J\'aime</span></div>' +
+        '<div class="stat"><b>' + v.commentaires + '</b><span>Comment.</span></div>' +
+      '</div>' +
+      (sansMesure
+        ? '<p class="note">Pas encore assez de données de visionnage pour mesurer la durée regardée.</p>'
+        : '<div class="watchbar-wrap"><div class="watchbar"><i style="width:' + v.pourcentRegardeMoyen + '%"></i></div>' +
+          '<b>' + v.pourcentRegardeMoyen + '% vu</b></div>' +
+          '<p class="note">En moyenne, les spectateurs regardent ' + fmtDuree(v.dureeRegardeeMoyenne) + ' de cette vidéo (' + v.sessionsMesurees + ' visionnage' + (v.sessionsMesurees > 1 ? 's' : '') + ' mesuré' + (v.sessionsMesurees > 1 ? 's' : '') + ').</p>') +
+    '</div>';
+  }
+
+  fetch(API_VIDEOS + '?statistiques=1', { headers: { 'Authorization': 'Bearer ' + token } })
+    .then(function(res){
+      if (res.status === 401){ localStorage.removeItem('starvibe_token'); loadingState.hidden = true; loggedOutState.hidden = false; throw new Error('401'); }
+      return res.json();
+    })
+    .then(function(data){
+      var videos = data.videos || [];
+      videosList.innerHTML = videos.length
+        ? videos.map(cardHTML).join('')
+        : '<div class="state"><p>Tu n\'as pas encore publié de vidéo.<br><a href="fil.html">Aller au fil KOMYO</a></p></div>';
+      loadingState.hidden = true;
+      pageWrap.hidden = false;
+    })
+    .catch(function(){});
+})();
+</script>
+</body>
+</html>
