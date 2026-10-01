@@ -50,6 +50,44 @@
   .like-btn.liked svg{fill:#ff4f6d;stroke:#ff4f6d;}
   @keyframes pop{0%{transform:scale(1);}40%{transform:scale(1.28);}100%{transform:scale(1);}}
 
+  /* Notification d'activité (j'aime / commentaire) — façon TikTok, mais
+     avec l'avatar bien visible au lieu d'une vignette minuscule. */
+  .activity-wrap{position:fixed;top:64px;left:0;right:0;z-index:25;display:flex;flex-direction:column;
+    align-items:center;gap:8px;pointer-events:none;padding:0 16px;}
+  .activity-toast{display:flex;align-items:center;gap:10px;max-width:420px;width:100%;background:rgba(15,10,24,.86);
+    backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:8px 14px 8px 8px;
+    box-shadow:0 10px 24px -10px rgba(0,0,0,.6);opacity:0;transform:translateY(-10px);
+    animation:toastIn .35s ease forwards, toastOut .35s ease forwards 3.4s;}
+  @keyframes toastIn{to{opacity:1;transform:translateY(0);}}
+  @keyframes toastOut{to{opacity:0;transform:translateY(-10px);}}
+  .activity-toast .avatar{flex:none;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--coral),var(--gold));
+    display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:13px;color:#fff;
+    border:2px solid rgba(255,255,255,.5);}
+  .activity-toast .txt{font-size:12.5px;line-height:1.4;color:#fff;}
+  .activity-toast .txt b{font-family:'Sora',sans-serif;font-weight:800;}
+  .activity-toast .emoji{margin-left:2px;}
+
+  /* Bouton + volet commentaires */
+  .comment-btn .count{font-size:11px;font-weight:700;}
+  .comments-sheet{position:fixed;inset:0;z-index:40;display:flex;align-items:flex-end;background:rgba(0,0,0,.5);}
+  .comments-panel{background:#17101f;color:#fff;width:100%;max-width:480px;margin:0 auto;border-radius:20px 20px 0 0;
+    max-height:72vh;display:flex;flex-direction:column;animation:slideUp .3s ease both;}
+  .comments-panel h2{font-size:14.5px;margin:0;padding:16px 18px 10px;border-bottom:1px solid rgba(255,255,255,.1);}
+  .comments-list{flex:1;overflow-y:auto;padding:10px 16px;display:flex;flex-direction:column;gap:14px;}
+  .comment-row{display:flex;gap:10px;align-items:flex-start;}
+  .comment-row .avatar{flex:none;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--coral),var(--gold));
+    display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:11.5px;color:#fff;}
+  .comment-row .body b{font-family:'Sora',sans-serif;font-size:12.5px;display:block;margin-bottom:2px;}
+  .comment-row .body span{font-size:13px;color:rgba(255,255,255,.88);line-height:1.4;}
+  .comments-empty{text-align:center;padding:30px 10px;font-size:12.5px;color:rgba(255,255,255,.5);}
+  .comment-form{display:flex;gap:8px;padding:12px 14px calc(12px + env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,.1);}
+  .comment-form input{flex:1;border:none;border-radius:20px;padding:11px 15px;background:rgba(255,255,255,.1);color:#fff;font-size:13px;}
+  .comment-form input::placeholder{color:rgba(255,255,255,.4);}
+  .comment-form input:focus{outline:2px solid var(--gold);}
+  .comment-form button{flex:none;border:none;border-radius:50%;width:40px;height:40px;background:linear-gradient(135deg,var(--coral),var(--gold));
+    color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+  .comment-form button svg{width:18px;height:18px;}
+
   .mute-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:6;background:rgba(0,0,0,.45);
     width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity .2s;}
   .mute-hint.show{opacity:1;}
@@ -115,10 +153,22 @@
     <a class="home" href="accueil.html">Mon espace</a>
   </div>
   <div class="feed" id="feed"></div>
+  <div class="activity-wrap" id="activityWrap"></div>
   <div class="bottomnav">
     <a href="accueil.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 11 12 4l8 7M6 10v9h12v-9"/></svg>Accueil</a>
     <button id="btnAdd"><span class="add-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></span></button>
     <a href="#" style="color:#fff;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 4v16M4 12h16"/></svg>Fil</a>
+  </div>
+</div>
+
+<div class="comments-sheet" id="commentsSheet" hidden>
+  <div class="comments-panel">
+    <h2>Commentaires</h2>
+    <div class="comments-list" id="commentsList"></div>
+    <div class="comment-form">
+      <input type="text" id="commentInput" placeholder="Ajouter un commentaire..." maxlength="300">
+      <button id="btnSendComment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
+    </div>
   </div>
 </div>
 
@@ -148,6 +198,7 @@
   var API_AUTH = '/api/starvibe-auth';
   var token = localStorage.getItem('starvibe_token');
   var personalProfileId = null;
+  var myAccountId = null;
 
   var loadingState = document.getElementById('loadingState');
   var loggedOutState = document.getElementById('loggedOutState');
@@ -175,6 +226,49 @@
     return '<svg viewBox="0 0 24 24" fill="' + (filled ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="2.2"><path d="M12 21s-7.5-4.6-10-9.3C.4 8 2 4.5 5.6 4c2-.3 3.9.6 6.4 3 2.5-2.4 4.4-3.3 6.4-3C22 4.5 23.6 8 22 11.7 19.5 16.4 12 21 12 21z"/></svg>';
   }
 
+  function commentIcon(){
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.4 8.4 0 0 1-8.9 8.4A9 9 0 0 1 4 18.3L2 21l1.3-4.2A8.4 8.4 0 1 1 21 11.5z"/></svg>';
+  }
+
+  // ---- Notifications d'activité (j'aime / commentaire), façon TikTok ----
+  var activityWrap = document.getElementById('activityWrap');
+  var activityQueue = [];
+  var activityShowing = false;
+
+  function avatarCircle(nom, size){
+    return '<span class="avatar" style="' + (size ? 'width:' + size + 'px;height:' + size + 'px;font-size:' + Math.round(size * 0.36) + 'px;' : '') + '">' + initials(nom) + '</span>';
+  }
+
+  function queueActivity(ev){
+    if (ev.accountId === myAccountId) return; // on ne se notifie pas soi-même
+    activityQueue.push(ev);
+    drainActivityQueue();
+  }
+
+  function drainActivityQueue(){
+    if (activityShowing || !activityQueue.length) return;
+    activityShowing = true;
+    var ev = activityQueue.shift();
+    var txt = ev.type === 'like'
+      ? '<b>' + esc(ev.auteur) + '</b> a aimé cette vidéo <span class="emoji">❤️</span>'
+      : '<b>' + esc(ev.auteur) + '</b> a commenté : ' + esc(ev.texte.length > 60 ? ev.texte.slice(0, 58) + '…' : ev.texte);
+    var toast = document.createElement('div');
+    toast.className = 'activity-toast';
+    toast.innerHTML = avatarCircle(ev.auteur, 36) + '<span class="txt">' + txt + '</span>';
+    activityWrap.appendChild(toast);
+    setTimeout(function(){
+      toast.remove();
+      activityShowing = false;
+      drainActivityQueue();
+    }, 3900);
+  }
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
   function renderVideo(v){
     var slide = document.createElement('div');
     slide.className = 'slide';
@@ -184,6 +278,9 @@
       '<div class="actions">' +
         '<button class="like-btn' + (v.likedByMe ? ' liked' : '') + '" data-id="' + v.id + '">' +
           '<span class="icon">' + heartIcon(v.likedByMe) + '</span><span class="count">' + v.likes + '</span>' +
+        '</button>' +
+        '<button class="comment-btn" data-id="' + v.id + '">' +
+          '<span class="icon">' + commentIcon() + '</span><span class="count">' + (v.commentaires || 0) + '</span>' +
         '</button>' +
       '</div>' +
       '<div class="meta"><div class="auteur">@' + v.auteur + '</div><div class="legende">' + (v.legende || '') + '</div></div>';
@@ -212,6 +309,24 @@
       });
     });
 
+    slide.querySelector('.comment-btn').addEventListener('click', function(){
+      openComments(v.id, slide);
+    });
+
+    // Activité récente (j'aime / commentaires d'autres personnes) : on ne
+    // sonde QUE pendant que cette vidéo est visible, jamais en arrière-plan.
+    var activitySince = v.createdAt || new Date().toISOString();
+    var activityTimer = null;
+    function pollActivity(){
+      authFetch(API_VIDEOS + '?activite=1&videoId=' + v.id + '&since=' + encodeURIComponent(activitySince))
+        .then(function(res){ return res.json(); })
+        .then(function(data){
+          activitySince = data.now || activitySince;
+          (data.evenements || []).forEach(queueActivity);
+        })
+        .catch(function(){});
+    }
+
     var io = new IntersectionObserver(function(entries){
       entries.forEach(function(entry){
         if (entry.isIntersecting && entry.intersectionRatio > 0.6){
@@ -223,8 +338,13 @@
               body: JSON.stringify({ action: 'vue', videoId: Number(v.id) })
             });
           }
+          if (!activityTimer){
+            pollActivity();
+            activityTimer = setInterval(pollActivity, 6000);
+          }
         } else {
           videoEl.pause();
+          if (activityTimer){ clearInterval(activityTimer); activityTimer = null; }
         }
       });
     }, { threshold: [0, 0.6] });
@@ -249,6 +369,7 @@
   authFetch(API_AUTH).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
     .then(function(result){
       if (!result.ok){ localStorage.removeItem('starvibe_token'); show(loggedOutState); return; }
+      myAccountId = result.data.account ? result.data.account.id : null;
       var profiles = result.data.profiles || [];
       var personal = profiles.find(function(p){ return p.type_profil === 'personnel'; });
       if (!personal){ show(noPersonalState); return; }
@@ -256,6 +377,62 @@
       loadFeed();
     })
     .catch(function(){ show(loggedOutState); });
+
+  // ---- Volet commentaires ----
+  var commentsSheet = document.getElementById('commentsSheet');
+  var commentsList = document.getElementById('commentsList');
+  var commentInput = document.getElementById('commentInput');
+  var btnSendComment = document.getElementById('btnSendComment');
+  var currentCommentVideoId = null;
+  var currentCommentSlide = null;
+
+  function commentRowHTML(c){
+    return '<div class="comment-row">' + avatarCircle(c.auteur, 32) +
+      '<div class="body"><b>' + esc(c.auteur) + '</b><span>' + esc(c.texte) + '</span></div></div>';
+  }
+
+  function openComments(videoId, slide){
+    currentCommentVideoId = videoId;
+    currentCommentSlide = slide;
+    commentInput.value = '';
+    commentsList.innerHTML = '<div class="comments-empty">Chargement…</div>';
+    commentsSheet.hidden = false;
+    authFetch(API_VIDEOS + '?commentaires=1&videoId=' + videoId)
+      .then(function(res){ return res.json(); })
+      .then(function(data){
+        var list = data.commentaires || [];
+        commentsList.innerHTML = list.length
+          ? list.map(commentRowHTML).join('')
+          : '<div class="comments-empty">Aucun commentaire pour l\'instant.<br>Sois le premier !</div>';
+      })
+      .catch(function(){ commentsList.innerHTML = '<div class="comments-empty">Impossible de charger les commentaires.</div>'; });
+  }
+
+  commentsSheet.addEventListener('click', function(e){
+    if (e.target === commentsSheet) commentsSheet.hidden = true;
+  });
+
+  function sendComment(){
+    var texte = commentInput.value.trim();
+    if (!texte || !currentCommentVideoId || !personalProfileId) return;
+    btnSendComment.disabled = true;
+    authFetch(API_VIDEOS, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'commenter', videoId: Number(currentCommentVideoId), profileId: personalProfileId, texte: texte })
+    }).then(function(res){ return res.json(); }).then(function(data){
+      btnSendComment.disabled = false;
+      if (!data.comment) return;
+      commentInput.value = '';
+      var empty = commentsList.querySelector('.comments-empty');
+      if (empty) empty.remove();
+      commentsList.insertAdjacentHTML('afterbegin', commentRowHTML(data.comment));
+      if (currentCommentSlide){
+        currentCommentSlide.querySelector('.comment-btn .count').textContent = data.commentaires;
+      }
+    }).catch(function(){ btnSendComment.disabled = false; });
+  }
+  btnSendComment.addEventListener('click', sendComment);
+  commentInput.addEventListener('keydown', function(e){ if (e.key === 'Enter') sendComment(); });
 
   // Upload modal
   var uploadModal = document.getElementById('uploadModal');

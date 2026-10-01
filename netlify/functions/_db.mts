@@ -325,6 +325,19 @@ export async function ensureSchema() {
     )
   `;
 
+  await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS comments_count INTEGER NOT NULL DEFAULT 0`;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_comments (
+      id SERIAL PRIMARY KEY,
+      video_id INTEGER NOT NULL REFERENCES starvibe_videos(id) ON DELETE CASCADE,
+      account_id INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      profile_id INTEGER NOT NULL REFERENCES starvibe_profiles(id) ON DELETE CASCADE,
+      texte TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
   // Abonnements KOMYO — un compte peut passer par plusieurs lignes au fil du
   // temps (historique) ; la ligne la plus récente fait foi pour le plan
   // actif. Même règle que les paiements Marketplace : un paiement n'est

@@ -31,6 +31,7 @@ interface VideoRow {
   blob_key: string;
   likes_count: number;
   vues_count: number;
+  comments_count: number;
   pour_enfants: boolean;
   moderation_statut: string;
   created_at: string;
@@ -45,12 +46,23 @@ function toApi(row: VideoRow, likedByMe: boolean) {
     auteur: row.auteur_nom || "",
     likes: row.likes_count,
     vues: row.vues_count,
+    commentaires: row.comments_count || 0,
     pourEnfants: row.pour_enfants,
     moderationStatut: row.moderation_statut,
     createdAt: row.created_at,
     likedByMe,
     videoUrl: `/api/starvibe-video-file?key=${encodeURIComponent(row.blob_key)}`,
   };
+}
+
+// Initiales d'un nom, pour l'avatar rond affiché dans les notifications
+// d'activité — même logique que côté client (fil.html), gardée en
+// cohérence ici pour l'éventuelle réutilisation serveur.
+function initials(nom: string): string {
+  const parts = String(nom || "").trim().split(/\s+/);
+  const a = parts[0]?.[0] || "?";
+  const b = parts[1]?.[0] || "";
+  return (a + b).toUpperCase();
 }
 
 function toModerationApi(row: VideoRow) {
@@ -195,10 +207,127 @@ export default async (req: Request, _context: Context) => {
       return json({ ok: true });
     }
 
+    if (action === "commenter") {
+      const videoId = Number(earlyBody.videoId);
+      const profileId = Number(earlyBody.profileId);
+      const texte = clean(earlyBody.texte, 300);
+      if (!videoId || !profileId || !texte) {
+        return json({ error: "videoId, profileId et texte requis" }, 400);
+      }
+
+      const profRows = (await sql`
+        SELECT id, nom FROM starvibe_profiles WHERE id = ${profileId} AND account_id = ${accountId} LIMIT 1
+      `) as { id: number; nom: string }[];
+      const profile = profRows[0];
+      if (!profile) return json({ error: "Profil introuvable" }, 404);
+
+      const rows = (await sql`
+        INSERT INTO starvibe_comments (video_id, account_id, profile_id, texte)
+        VALUES (${videoId}, ${accountId}, ${profileId}, ${texte})
+        RETURNING id, texte, created_at
+      `) as { id: number; texte: string; created_at: string }[];
+      const created = rows[0];
+      if (!created) return json({ error: "Vidéo introuvable" }, 404);
+
+      const countRows = (await sql`
+        UPDATE starvibe_videos SET comments_count = comments_count + 1 WHERE id = ${videoId} RETURNING comments_count
+      `) as { comments_count: number }[];
+
+      return json({
+        comment: {
+          id: String(created.id),
+          texte: created.texte,
+          auteur: profile.nom,
+          initiales: initials(profile.nom),
+          createdAt: created.created_at,
+          accountId,
+        },
+        commentaires: countRows[0]?.comments_count ?? 0,
+      }, 201);
+    }
+
     return json({ error: "Action inconnue" }, 400);
   }
 
   if (req.method !== "GET") return json({ error: "Method not allowed" }, 405);
+
+  // --- Liste des commentaires d'une vidéo (bottom sheet) ---
+  if (url.searchParams.get("commentaires") === "1") {
+    const session = await requireAuth(req);
+    if (!session || session.org !== ORG) return json({ error: "Non authentifié" }, 401);
+
+    const videoId = Number(url.searchParams.get("videoId"));
+    if (!videoId) return json({ error: "videoId requis" }, 400);
+
+    const rows = (await sql`
+      SELECT c.id, c.texte, c.created_at, c.account_id, p.nom AS auteur_nom
+      FROM starvibe_comments c
+      JOIN starvibe_profiles p ON p.id = c.profile_id
+      WHERE c.video_id = ${videoId}
+      ORDER BY c.id DESC LIMIT 100
+    `) as { id: number; texte: string; created_at: string; account_id: number; auteur_nom: string }[];
+
+    return json({
+      commentaires: rows.map((r) => ({
+        id: String(r.id),
+        texte: r.texte,
+        auteur: r.auteur_nom,
+        initiales: initials(r.auteur_nom),
+        createdAt: r.created_at,
+        accountId: r.account_id,
+      })),
+    });
+  }
+
+  // --- Activité récente d'une vidéo (j'aime + commentaires), pour la
+  //     petite notification façon TikTok qui apparaît au-dessus du fil
+  //     pendant qu'on regarde. Jamais d'invention : uniquement les vrais
+  //     événements survenus depuis "since". ---
+  if (url.searchParams.get("activite") === "1") {
+    const session = await requireAuth(req);
+    if (!session || session.org !== ORG) return json({ error: "Non authentifié" }, 401);
+
+    const videoId = Number(url.searchParams.get("videoId"));
+    const since = url.searchParams.get("since") || "1970-01-01T00:00:00Z";
+    if (!videoId) return json({ error: "videoId requis" }, 400);
+
+    const likeRows = (await sql`
+      SELECT l.id, l.created_at, l.account_id, p.nom AS auteur_nom
+      FROM starvibe_likes l
+      JOIN starvibe_profiles p ON p.account_id = l.account_id AND p.type_profil = 'personnel'
+      WHERE l.video_id = ${videoId} AND l.created_at > ${since}
+      ORDER BY l.id DESC LIMIT 10
+    `) as { id: number; created_at: string; account_id: number; auteur_nom: string }[];
+
+    const commentRows = (await sql`
+      SELECT c.id, c.texte, c.created_at, c.account_id, p.nom AS auteur_nom
+      FROM starvibe_comments c
+      JOIN starvibe_profiles p ON p.id = c.profile_id
+      WHERE c.video_id = ${videoId} AND c.created_at > ${since}
+      ORDER BY c.id DESC LIMIT 10
+    `) as { id: number; texte: string; created_at: string; account_id: number; auteur_nom: string }[];
+
+    const evenements = [
+      ...likeRows.map((r) => ({
+        type: "like" as const,
+        auteur: r.auteur_nom,
+        initiales: initials(r.auteur_nom),
+        texte: "",
+        accountId: r.account_id,
+        createdAt: r.created_at,
+      })),
+      ...commentRows.map((r) => ({
+        type: "comment" as const,
+        auteur: r.auteur_nom,
+        initiales: initials(r.auteur_nom),
+        texte: r.texte,
+        accountId: r.account_id,
+        createdAt: r.created_at,
+      })),
+    ].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+    return json({ evenements, now: new Date().toISOString() });
+  }
 
   // --- Lecture du fil (utilisateur STAR VIBE) ---
   const session = await requireAuth(req);
