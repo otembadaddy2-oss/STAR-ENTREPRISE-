@@ -69,7 +69,7 @@ Ces services sont connectés à ta session Claude directement par toi (via les p
 - **GitHub** — accès au dépôt `otembadaddy2-oss/STAR-ENTREPRISE-`
 - **Netlify** — hébergement (déduit du domaine `star-entreprise.netlify.app`, accès direct à confirmer)
 
-- **Voix officielle des spots** — Clémence (ElevenLabs, voice ID `LFo5X4P9PhYaOLBA9Hyh`), seule voix utilisée pour tous les spots du groupe. Détails et fichier de référence : `docs/voix-officielle-star-entreprise.md`.
+- **Voix officielle des spots** — Clémence (ElevenLabs, voice ID `LFo5X4P9PhYaOLBA9Hyh`), seule voix utilisée pour toutes les vidéos du groupe. Détails et fichier de référence : `docs/voix-officielle-star-entreprise.md`.
 
 ## 7. Note de sécurité — pourquoi pas de vrais mots de passe ici
 

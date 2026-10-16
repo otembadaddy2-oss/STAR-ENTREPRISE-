@@ -1,6 +1,6 @@
-# STAR ENTREPRISE — Voix officielle des spots
+# STAR ENTREPRISE — Voix officielle de toutes les vidéos
 
-Décision de Carry OTEMBA, 16 octobre 2026 : **la voix de la présentatrice du spot STAR ENTREPRISE est désormais la seule voix utilisée pour tous les spots du groupe.**
+Décision de Carry OTEMBA, 16 octobre 2026 : **la voix de la présentatrice du spot STAR ENTREPRISE (Clémence) est désormais la seule voix utilisée pour toutes les vidéos du groupe.**
 
 ## Identité de la voix
 
@@ -31,9 +31,8 @@ Texte de ce fichier de référence :
 
 ## Règles
 
-- **Une seule voix féminine officielle** : Clémence, pour tous les spots, publicités, vidéos réseaux sociaux et présentations du groupe STAR ENTREPRISE et de ses filiales.
+- **Une seule voix officielle** : Clémence, pour toutes les vidéos — spots, publicités, vidéos réseaux sociaux, présentations — du groupe STAR ENTREPRISE et de ses filiales. Aucune autre voix n'est utilisée.
 - **Garder la voix disponible** : si la voix venait à disparaître de la bibliothèque ElevenLabs, l'ajouter dès maintenant à « My Voices » dans le compte ElevenLabs de Carry pour la conserver.
-- Exception : les répliques jouées par Carry OTEMBA en personne (ex. « Et ce qu'elle vous dit… n'est pas tout. Suivez-nous. », fichier `assets/video/spot-star/voix-finale-suivez-nous.mp3`) restent sa voix à lui, distincte de celle de la présentatrice.
 
 ---
 *Document maintenu par Claude à la demande de Carry OTEMBA.*
