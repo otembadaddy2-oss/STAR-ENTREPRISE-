@@ -32,6 +32,7 @@ Texte de ce fichier de référence :
 ## Règles
 
 - **Une seule voix officielle** : Clémence, pour toutes les vidéos — spots, publicités, vidéos réseaux sociaux, présentations — du groupe STAR ENTREPRISE et de ses filiales. Aucune autre voix n'est utilisée.
+- **Signature de fin obligatoire** : chaque vidéo du groupe (spot, bande-annonce, film) se termine par le carton lumineux « RÉALISÉ PAR STAR ENTREPRISE », suivi du logo STAR — comme à la fin du film *Combat KRAVOSS vs Calpros* et de la bande-annonce X SAPHIR.
 - **Garder la voix disponible** : si la voix venait à disparaître de la bibliothèque ElevenLabs, l'ajouter dès maintenant à « My Voices » dans le compte ElevenLabs de Carry pour la conserver.
 
 ---
