@@ -1,6 +1,7 @@
 // KOMYO — bulle flottante de notifications, façon "bulles de discussion"
 // de Messenger. Dès qu'un abonné reçoit un j'aime ou un commentaire sur
-// ses vidéos, une bulle ronde (initiales de la personne + pastille rouge
+// ses vidéos, une bulle ronde (photo de la personne — ou ses initiales si
+// elle n'en a pas mis — + pastille rouge
 // avec le nombre de non lus) flotte doucement de haut en bas, comme le
 // logo ALPHA. L'aperçu du message sort de la bulle puis y rentre.
 //
@@ -61,9 +62,10 @@
     '.kb-float{width:100%;height:100%;animation:kbFloat 6s ease-in-out infinite;}' +
     '.kb-bubble.dragging .kb-float{animation-play-state:paused;}' +
     '@keyframes kbFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}' +
-    '.kb-face{width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;' +
+    '.kb-face{position:relative;overflow:hidden;width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;' +
       'background:linear-gradient(135deg,#FF6B4A,#E8A93D);border:3px solid #fff;color:#fff;' +
       'font:800 20px/1 Sora,Arial,sans-serif;box-shadow:0 10px 24px -6px rgba(36,21,54,.55);}' +
+    '.kb-face img,.kb-item .av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%;}' +
     '.kb-badge{position:absolute;top:-3px;right:-3px;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:#e5243b;' +
       'color:#fff;font:800 12px/22px Inter,Arial,sans-serif;text-align:center;border:2px solid #fff;}' +
     '.kb-mark{position:absolute;bottom:-2px;right:-2px;width:22px;height:22px;border-radius:7px;border:2px solid #fff;background:#241536;}' +
@@ -89,7 +91,7 @@
     '.kb-head button{background:rgba(255,255,255,.1);border:none;color:#fff;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:16px;}' +
     '.kb-list{overflow-y:auto;padding:8px 14px calc(14px + env(safe-area-inset-bottom,0px));}' +
     '.kb-item{display:flex;gap:11px;align-items:flex-start;padding:10px 6px;border-bottom:1px solid rgba(255,255,255,.07);}' +
-    '.kb-item .av{flex:none;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#FF6B4A,#E8A93D);display:flex;' +
+    '.kb-item .av{position:relative;overflow:hidden;flex:none;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#FF6B4A,#E8A93D);display:flex;' +
       'align-items:center;justify-content:center;font:800 14px Sora,Arial,sans-serif;}' +
     '.kb-item .tx{font-size:13px;line-height:1.45;color:rgba(255,255,255,.9);}' +
     '.kb-item .tx b{font-family:Sora,Arial,sans-serif;color:#fff;}' +
@@ -109,12 +111,15 @@
   bubble.hidden = true;
   bubble.innerHTML =
     '<div class="kb-float">' +
-      '<div class="kb-face" role="button" tabindex="0" aria-label="Notifications KOMYO"><span class="kb-ini"></span></div>' +
+      '<div class="kb-face" role="button" tabindex="0" aria-label="Notifications KOMYO"><span class="kb-ini"></span><img alt="" hidden></div>' +
       '<img class="kb-mark" src="assets/img/komyo-icon.png" alt="">' +
       '<span class="kb-badge"></span>' +
     '</div>';
   var face = bubble.querySelector('.kb-face');
   var iniEl = bubble.querySelector('.kb-ini');
+  var photoEl = bubble.querySelector('.kb-face img');
+  // Photo introuvable : on retombe sur les initiales.
+  photoEl.addEventListener('error', function(){ photoEl.hidden = true; });
   var badgeEl = bubble.querySelector('.kb-badge');
 
   var pop = document.createElement('div');
@@ -143,7 +148,7 @@
   // ---------- Position (mémorisée : côté gauche/droit + hauteur) ----------
   var SIZE = 62, MARGIN = 10;
   var side = store('komyo_bulle_cote') === 'droite' ? 'droite' : 'gauche';
-  var topPos = Number(store('komyo_bulle_haut')) || 110;
+  var topPos = Number(store('komyo_bulle_haut')) || Math.round(window.innerHeight * 0.42);
 
   function clampTop(t){ return Math.min(Math.max(t, 70), window.innerHeight - SIZE - 120); }
   function placeAtSide(){
@@ -176,6 +181,12 @@
       return;
     }
     iniEl.textContent = top.initiales || '?';
+    if (top.photoUrl){
+      if (photoEl.getAttribute('src') !== top.photoUrl){ photoEl.hidden = false; photoEl.src = top.photoUrl; }
+    } else {
+      photoEl.hidden = true;
+      photoEl.removeAttribute('src');
+    }
     badgeEl.textContent = nonLues > 99 ? '99+' : String(nonLues);
     face.setAttribute('aria-label', nonLues + ' notification' + (nonLues > 1 ? 's' : '') + ' non lue' + (nonLues > 1 ? 's' : '') + ' — ouvrir');
     if (bubble.hidden){
@@ -238,7 +249,8 @@
     }
     list.innerHTML = evenements.map(function(e){
       return '<div class="kb-item' + (e.nonLu ? ' new' : '') + '">' +
-        '<span class="av">' + esc(e.initiales || '?') + '</span>' +
+        '<span class="av">' + esc(e.initiales || '?') +
+          (e.photoUrl ? '<img src="' + esc(e.photoUrl) + '" alt="" onerror="this.remove()">' : '') + '</span>' +
         '<div><div class="tx">' + phrase(e, false) + '</div>' +
         '<div class="meta">' + quand(e.createdAt) + (e.legende ? ' · « ' + esc(e.legende.slice(0, 40)) + ' »' : '') + '</div></div>' +
       '</div>';

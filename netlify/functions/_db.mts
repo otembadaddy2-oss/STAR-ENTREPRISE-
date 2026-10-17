@@ -312,6 +312,12 @@ export async function ensureSchema() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     )
   `;
+  // Photo de profil KOMYO (profils personnels uniquement — jamais pour un
+  // profil enfant PIOUPIOU). Fichier dans Netlify Blobs "starvibe-photos",
+  // seule la clé est gardée ici. Affichée dans la bulle flottante, les
+  // notifications et les commentaires.
+  await sql`ALTER TABLE starvibe_profiles ADD COLUMN IF NOT EXISTS photo_key TEXT`;
+
   // Dernière ouverture de la liste des notifications KOMYO (bulle flottante) :
   // tout ce qui est arrivé après est "non lu". Fermer la bulle ne touche pas
   // à cette date — les notifications restent là, seule la bulle disparaît.

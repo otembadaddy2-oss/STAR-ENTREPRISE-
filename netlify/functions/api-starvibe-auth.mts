@@ -6,6 +6,8 @@
 // d'échec de connexion, code PIN toujours haché (jamais stocké en clair).
 import type { Context, Config } from "@netlify/functions";
 import bcrypt from "bcryptjs";
+import { getStore } from "@netlify/blobs";
+import { randomBytes } from "node:crypto";
 import { ensureSchema, db, json } from "./_db.mts";
 import { issueToken, requireAuth } from "./_auth.mts";
 
@@ -17,6 +19,16 @@ const PIN_RE = /^\d{4}$/;
 const MAX_FAILED_ATTEMPTS = 5;
 const LOCKOUT_MINUTES = 15;
 const ORG = "star_vibe";
+const MAX_PHOTO_BYTES = 1_500_000; // le navigateur la réduit avant envoi (~30 Ko)
+const PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+function photoUrl(key: string | null | undefined): string | null {
+  return key ? `/api/starvibe-photo?key=${encodeURIComponent(key)}` : null;
+}
+
+function withPhoto(rows: any[]) {
+  return rows.map(({ photo_key, ...p }) => ({ ...p, photoUrl: photoUrl(photo_key) }));
+}
 
 function ageFromDate(dateStr: string): number | null {
   const d = new Date(dateStr);
@@ -43,12 +55,12 @@ export default async (req: Request, _context: Context) => {
     const account = accRows[0] as any;
     if (!account) return json({ error: "Compte introuvable" }, 404);
     const profiles = await sql`
-      SELECT id, nom, date_naissance, type_profil, created_at
+      SELECT id, nom, date_naissance, type_profil, photo_key, created_at
       FROM starvibe_profiles WHERE account_id = ${accountId} ORDER BY id ASC
     `;
     return json({
       account: { id: account.id, telephone: account.telephone, ville: account.ville, createdAt: account.created_at },
-      profiles,
+      profiles: withPhoto(profiles as any[]),
     });
   }
 
@@ -190,6 +202,43 @@ export default async (req: Request, _context: Context) => {
       RETURNING id, nom, date_naissance, type_profil
     `;
     return json({ profile: rows[0] }, 201);
+  }
+
+  // Photo de profil : remplace l'ancienne (supprimée du stockage). Réservée
+  // au profil personnel du compte connecté — jamais un profil enfant.
+  if (action === "photo-profil") {
+    const session = await requireAuth(req);
+    if (!session || session.org !== ORG) return json({ error: "Non authentifié" }, 401);
+    const accountId = Number(session.sub);
+    const profileId = Number(body.profileId);
+    const typeMime = clean(body.typeMime, 40) || "image/jpeg";
+    const fileBase64 = String(body.fileBase64 ?? "");
+
+    if (!profileId || !fileBase64) return json({ error: "Profil et photo requis" }, 400);
+    if (!PHOTO_TYPES.includes(typeMime)) return json({ error: "La photo doit être en JPEG, PNG ou WebP" }, 400);
+
+    const rows = (await sql`
+      SELECT id, type_profil, photo_key FROM starvibe_profiles
+      WHERE id = ${profileId} AND account_id = ${accountId} LIMIT 1
+    `) as { id: number; type_profil: string; photo_key: string | null }[];
+    const profile = rows[0];
+    if (!profile) return json({ error: "Profil introuvable" }, 404);
+    if (profile.type_profil !== "personnel") {
+      return json({ error: "Seul le profil personnel peut avoir une photo" }, 403);
+    }
+
+    const raw = fileBase64.includes(",") ? fileBase64.split(",")[1] : fileBase64;
+    const bytes = Buffer.from(raw, "base64");
+    if (bytes.byteLength === 0) return json({ error: "Photo vide" }, 400);
+    if (bytes.byteLength > MAX_PHOTO_BYTES) return json({ error: "Photo trop lourde (limite 1,5 Mo)" }, 400);
+
+    const store = getStore("starvibe-photos");
+    const key = `${profileId}-${Date.now()}-${randomBytes(4).toString("hex")}`;
+    await store.set(key, bytes, { metadata: { typeMime } });
+    await sql`UPDATE starvibe_profiles SET photo_key = ${key} WHERE id = ${profileId}`;
+    if (profile.photo_key) await store.delete(profile.photo_key).catch(() => {});
+
+    return json({ photoUrl: photoUrl(key) });
   }
 
   return json({ error: "Action inconnue" }, 400);

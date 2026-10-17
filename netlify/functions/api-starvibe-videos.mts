@@ -65,6 +65,12 @@ function initials(nom: string): string {
   return (a + b).toUpperCase();
 }
 
+// Photo de profil (Netlify Blobs "starvibe-photos"), ou null : le client
+// affiche alors les initiales.
+function photoUrl(key: string | null | undefined): string | null {
+  return key ? `/api/starvibe-photo?key=${encodeURIComponent(key)}` : null;
+}
+
 function toModerationApi(row: VideoRow) {
   return {
     id: String(row.id),
@@ -231,8 +237,8 @@ export default async (req: Request, _context: Context) => {
       }
 
       const profRows = (await sql`
-        SELECT id, nom FROM starvibe_profiles WHERE id = ${profileId} AND account_id = ${accountId} LIMIT 1
-      `) as { id: number; nom: string }[];
+        SELECT id, nom, photo_key FROM starvibe_profiles WHERE id = ${profileId} AND account_id = ${accountId} LIMIT 1
+      `) as { id: number; nom: string; photo_key: string | null }[];
       const profile = profRows[0];
       if (!profile) return json({ error: "Profil introuvable" }, 404);
 
@@ -254,6 +260,7 @@ export default async (req: Request, _context: Context) => {
           texte: created.texte,
           auteur: profile.nom,
           initiales: initials(profile.nom),
+          photoUrl: photoUrl(profile.photo_key),
           createdAt: created.created_at,
           accountId,
         },
@@ -320,12 +327,12 @@ export default async (req: Request, _context: Context) => {
     if (!videoId) return json({ error: "videoId requis" }, 400);
 
     const rows = (await sql`
-      SELECT c.id, c.texte, c.created_at, c.account_id, p.nom AS auteur_nom
+      SELECT c.id, c.texte, c.created_at, c.account_id, p.nom AS auteur_nom, p.photo_key
       FROM starvibe_comments c
       JOIN starvibe_profiles p ON p.id = c.profile_id
       WHERE c.video_id = ${videoId}
       ORDER BY c.id DESC LIMIT 100
-    `) as { id: number; texte: string; created_at: string; account_id: number; auteur_nom: string }[];
+    `) as { id: number; texte: string; created_at: string; account_id: number; auteur_nom: string; photo_key: string | null }[];
 
     return json({
       commentaires: rows.map((r) => ({
@@ -333,6 +340,7 @@ export default async (req: Request, _context: Context) => {
         texte: r.texte,
         auteur: r.auteur_nom,
         initiales: initials(r.auteur_nom),
+        photoUrl: photoUrl(r.photo_key),
         createdAt: r.created_at,
         accountId: r.account_id,
       })),
@@ -352,26 +360,27 @@ export default async (req: Request, _context: Context) => {
     if (!videoId) return json({ error: "videoId requis" }, 400);
 
     const likeRows = (await sql`
-      SELECT l.id, l.created_at, l.account_id, p.nom AS auteur_nom
+      SELECT l.id, l.created_at, l.account_id, p.nom AS auteur_nom, p.photo_key
       FROM starvibe_likes l
       JOIN starvibe_profiles p ON p.account_id = l.account_id AND p.type_profil = 'personnel'
       WHERE l.video_id = ${videoId} AND l.created_at > ${since}
       ORDER BY l.id DESC LIMIT 10
-    `) as { id: number; created_at: string; account_id: number; auteur_nom: string }[];
+    `) as { id: number; created_at: string; account_id: number; auteur_nom: string; photo_key: string | null }[];
 
     const commentRows = (await sql`
-      SELECT c.id, c.texte, c.created_at, c.account_id, p.nom AS auteur_nom
+      SELECT c.id, c.texte, c.created_at, c.account_id, p.nom AS auteur_nom, p.photo_key
       FROM starvibe_comments c
       JOIN starvibe_profiles p ON p.id = c.profile_id
       WHERE c.video_id = ${videoId} AND c.created_at > ${since}
       ORDER BY c.id DESC LIMIT 10
-    `) as { id: number; texte: string; created_at: string; account_id: number; auteur_nom: string }[];
+    `) as { id: number; texte: string; created_at: string; account_id: number; auteur_nom: string; photo_key: string | null }[];
 
     const evenements = [
       ...likeRows.map((r) => ({
         type: "like" as const,
         auteur: r.auteur_nom,
         initiales: initials(r.auteur_nom),
+        photoUrl: photoUrl(r.photo_key),
         texte: "",
         accountId: r.account_id,
         createdAt: r.created_at,
@@ -380,6 +389,7 @@ export default async (req: Request, _context: Context) => {
         type: "comment" as const,
         auteur: r.auteur_nom,
         initiales: initials(r.auteur_nom),
+        photoUrl: photoUrl(r.photo_key),
         texte: r.texte,
         accountId: r.account_id,
         createdAt: r.created_at,
@@ -404,22 +414,22 @@ export default async (req: Request, _context: Context) => {
     const vuesAt = accRows[0]?.notifs_vues_at || "1970-01-01T00:00:00Z";
 
     const likeRows = (await sql`
-      SELECT l.id, l.created_at, l.account_id, l.video_id, v.legende, p.nom AS auteur_nom
+      SELECT l.id, l.created_at, l.account_id, l.video_id, v.legende, p.nom AS auteur_nom, p.photo_key
       FROM starvibe_likes l
       JOIN starvibe_videos v ON v.id = l.video_id
       JOIN starvibe_profiles p ON p.account_id = l.account_id AND p.type_profil = 'personnel'
       WHERE v.account_id = ${accountId} AND l.account_id <> ${accountId}
       ORDER BY l.created_at DESC LIMIT 30
-    `) as { id: number; created_at: string; account_id: number; video_id: number; legende: string; auteur_nom: string }[];
+    `) as { id: number; created_at: string; account_id: number; video_id: number; legende: string; auteur_nom: string; photo_key: string | null }[];
 
     const commentRows = (await sql`
-      SELECT c.id, c.texte, c.created_at, c.account_id, c.video_id, v.legende, p.nom AS auteur_nom
+      SELECT c.id, c.texte, c.created_at, c.account_id, c.video_id, v.legende, p.nom AS auteur_nom, p.photo_key
       FROM starvibe_comments c
       JOIN starvibe_videos v ON v.id = c.video_id
       JOIN starvibe_profiles p ON p.id = c.profile_id
       WHERE v.account_id = ${accountId} AND c.account_id <> ${accountId}
       ORDER BY c.created_at DESC LIMIT 30
-    `) as { id: number; texte: string; created_at: string; account_id: number; video_id: number; legende: string; auteur_nom: string }[];
+    `) as { id: number; texte: string; created_at: string; account_id: number; video_id: number; legende: string; auteur_nom: string; photo_key: string | null }[];
 
     const countRows = (await sql`
       SELECT
@@ -438,6 +448,7 @@ export default async (req: Request, _context: Context) => {
         type: "like" as const,
         auteur: r.auteur_nom,
         initiales: initials(r.auteur_nom),
+        photoUrl: photoUrl(r.photo_key),
         texte: "",
         videoId: String(r.video_id),
         legende: r.legende,
@@ -448,6 +459,7 @@ export default async (req: Request, _context: Context) => {
         type: "comment" as const,
         auteur: r.auteur_nom,
         initiales: initials(r.auteur_nom),
+        photoUrl: photoUrl(r.photo_key),
         texte: r.texte,
         videoId: String(r.video_id),
         legende: r.legende,

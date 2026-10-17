@@ -235,8 +235,10 @@
   var activityQueue = [];
   var activityShowing = false;
 
-  function avatarCircle(nom, size){
-    return '<span class="avatar" style="' + (size ? 'width:' + size + 'px;height:' + size + 'px;font-size:' + Math.round(size * 0.36) + 'px;' : '') + '">' + initials(nom) + '</span>';
+  // Photo de profil si la personne en a mis une, sinon ses initiales.
+  function avatarCircle(nom, size, photoUrl){
+    return '<span class="avatar" style="position:relative;overflow:hidden;' + (size ? 'width:' + size + 'px;height:' + size + 'px;font-size:' + Math.round(size * 0.36) + 'px;' : '') + '">' + initials(nom) +
+      (photoUrl ? '<img src="' + esc(photoUrl) + '" alt="" onerror="this.remove()" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">' : '') + '</span>';
   }
 
   function queueActivity(ev){
@@ -254,7 +256,7 @@
       : '<b>' + esc(ev.auteur) + '</b> a commenté : ' + esc(ev.texte.length > 60 ? ev.texte.slice(0, 58) + '…' : ev.texte);
     var toast = document.createElement('div');
     toast.className = 'activity-toast';
-    toast.innerHTML = avatarCircle(ev.auteur, 36) + '<span class="txt">' + txt + '</span>';
+    toast.innerHTML = avatarCircle(ev.auteur, 36, ev.photoUrl) + '<span class="txt">' + txt + '</span>';
     activityWrap.appendChild(toast);
     setTimeout(function(){
       toast.remove();
@@ -401,7 +403,7 @@
   var currentCommentSlide = null;
 
   function commentRowHTML(c){
-    return '<div class="comment-row">' + avatarCircle(c.auteur, 32) +
+    return '<div class="comment-row">' + avatarCircle(c.auteur, 32, c.photoUrl) +
       '<div class="body"><b>' + esc(c.auteur) + '</b><span>' + esc(c.texte) + '</span></div></div>';
   }
 
