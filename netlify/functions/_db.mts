@@ -312,6 +312,11 @@ export async function ensureSchema() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     )
   `;
+  // Dernière ouverture de la liste des notifications KOMYO (bulle flottante) :
+  // tout ce qui est arrivé après est "non lu". Fermer la bulle ne touche pas
+  // à cette date — les notifications restent là, seule la bulle disparaît.
+  await sql`ALTER TABLE starvibe_accounts ADD COLUMN IF NOT EXISTS notifs_vues_at TIMESTAMPTZ`;
+
   await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS pour_enfants BOOLEAN NOT NULL DEFAULT false`;
   await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS moderation_statut TEXT NOT NULL DEFAULT 'approuve'`;
 
