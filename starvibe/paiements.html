@@ -75,6 +75,9 @@
   </div>
   <div id="queueList"></div>
   <div class="empty" id="emptyQueue" hidden>Aucun paiement en attente.</div>
+  <div class="topbar" style="margin-top:26px"><div><h1>Demandes Keydou</h1><div class="tag">1 000 FCFA par service</div></div></div>
+  <div id="kdList"></div>
+  <div class="empty" id="kdEmpty" hidden>Aucune demande Keydou en cours.</div>
 </div>
 
 <script>
@@ -82,6 +85,7 @@
   var TOKEN_KEY = 'starvibe_admin_token';
   var API_AUTH = '/api/auth';
   var API_SUB = '/api/starvibe-subscription';
+  var API_KD = '/api/starvibe-keydou';
 
   var loginView = document.getElementById('loginView');
   var queueView = document.getElementById('queueView');
@@ -177,7 +181,58 @@
     return item;
   }
 
+
+  function esc(x){ return String(x == null ? '' : x).replace(/[&<>"']/g, function(c){ return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]; }); }
+
+  // Demandes Keydou : à confirmer (paiement) puis à traiter (coordonnées reçues)
+  function kdItem(d, aTraiter){
+    var item = document.createElement('div');
+    item.className = 'item';
+    var det = d.details || {};
+    var html =
+      '<div class="top"><div class="plan">' + esc(d.serviceLabel) + (d.paiementDeclare && !aTraiter ? ' <span style="color:#6fd6ab;font-size:11px">· « j\'ai payé »</span>' : '') + '</div><div class="amount">' + d.montantAttendu.toLocaleString('fr-FR') + ' FCFA</div></div>' +
+      '<div class="meta"><b>' + esc(d.auteur) + '</b> — ' + esc(d.telephone) + ' — réf. ' + esc(d.referencePaiement) + (d.demandeVocale ? '<br>Dit : « ' + esc(d.demandeVocale) + ' »' : '') + '</div>';
+    if (aTraiter){
+      html += '<div class="meta">' +
+        (det.nom ? '<b>' + esc(det.nom) + '</b> — ' + esc(det.contact) + '<br>' + esc(det.ville) + (det.lieu ? ', ' + esc(det.lieu) : '') + '<br>Date : ' + esc(det.date || '—') + ' · Budget : ' + esc(det.budget || '—') + (det.precisions ? '<br>' + esc(det.precisions) : '') : '<i>Payé, coordonnées pas encore saisies par le client.</i>') +
+        '</div><div class="confirm-row"><button data-done>Marquer comme traité</button></div>';
+    } else {
+      html += '<div class="confirm-row"><input type="number" placeholder="Montant reçu (FCFA)" data-m><button data-ok>Confirmer</button></div><div class="itemerr"></div>';
+    }
+    item.innerHTML = html;
+    var err = item.querySelector('.itemerr');
+    var ok = item.querySelector('[data-ok]');
+    if (ok) ok.addEventListener('click', function(){
+      var m = Number(item.querySelector('[data-m]').value);
+      if (!m){ err.textContent = 'Indique le montant reçu.'; err.classList.add('show'); return; }
+      item.classList.add('processing');
+      authFetch(API_KD, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'confirmer_paiement', requestId:Number(d.id), montantRecu:m, reference:d.referencePaiement }) })
+        .then(function(r){ return r.json(); }).then(function(res){
+          item.classList.remove('processing');
+          if (res.statut !== 'paye'){ err.textContent = res.message || res.error || 'Paiement rejeté.'; err.classList.add('show'); return; }
+          loadKd();
+        });
+    });
+    var dn = item.querySelector('[data-done]');
+    if (dn) dn.addEventListener('click', function(){
+      item.classList.add('processing');
+      authFetch(API_KD, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'marquer_traite', requestId:Number(d.id) }) }).then(function(){ loadKd(); });
+    });
+    return item;
+  }
+  function loadKd(){
+    authFetch(API_KD + '?admin=1').then(function(r){ return r.status === 403 ? null : r.json(); }).then(function(data){
+      var box = document.getElementById('kdList'); box.innerHTML = '';
+      if (!data){ return; }
+      var a = data.aConfirmer || [], t = data.aTraiter || [];
+      document.getElementById('kdEmpty').hidden = (a.length + t.length) > 0;
+      a.forEach(function(d){ box.appendChild(kdItem(d, false)); });
+      t.forEach(function(d){ box.appendChild(kdItem(d, true)); });
+    });
+  }
+
   function loadQueue(){
+    loadKd();
     authFetch(API_SUB + '?admin=1').then(function(res){
       if (res.status === 403){ setToken(''); showLogin(); return null; }
       return res.json();

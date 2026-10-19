@@ -327,6 +327,26 @@ export async function ensureSchema() {
   await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS moderation_statut TEXT NOT NULL DEFAULT 'approuve'`;
   await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS premium BOOLEAN NOT NULL DEFAULT false`;
 
+  // Keydou, assistant multiservices : une demande = un service payant (1 000 FCFA).
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_keydou_requests (
+      id SERIAL PRIMARY KEY,
+      account_id INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      service TEXT NOT NULL,
+      demande_vocale TEXT NOT NULL DEFAULT '',
+      montant_attendu INTEGER NOT NULL DEFAULT 1000,
+      montant_recu INTEGER,
+      reference_transaction TEXT NOT NULL DEFAULT '',
+      paiement_declare_at TIMESTAMPTZ,
+      statut TEXT NOT NULL DEFAULT 'en_attente_paiement',
+      details JSONB NOT NULL DEFAULT '{}'::jsonb,
+      traite BOOLEAN NOT NULL DEFAULT false,
+      paid_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
   await sql`
     CREATE TABLE IF NOT EXISTS starvibe_likes (
       id SERIAL PRIMARY KEY,
