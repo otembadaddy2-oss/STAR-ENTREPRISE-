@@ -35,23 +35,27 @@
   /* NAV */
   .nav{position:sticky;top:0;z-index:20;background:rgba(255,251,243,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
   .nav .wrap{display:flex;align-items:center;justify-content:space-between;padding-block:12px;max-width:480px;}
-  .brand{display:flex;align-items:center;gap:9px;font-family:'Sora',sans-serif;font-weight:800;font-size:15px;color:var(--ink);}
-  .brand img{width:30px;height:30px;border-radius:9px;transition:transform .3s ease;}
+  .brand{display:flex;align-items:center;gap:11px;font-family:'Sora',sans-serif;font-weight:800;font-size:21px;letter-spacing:.3px;color:var(--ink);}
+  .brand img{width:58px;height:58px;margin-block:-8px;object-fit:contain;transition:transform .3s ease;}
   .brand:hover img{transform:rotate(-8deg) scale(1.08);}
   .nav a.cta{background:linear-gradient(135deg,var(--coral),var(--gold));color:#fff;font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;
     padding:9px 16px;border-radius:20px;transition:transform .25s ease, box-shadow .25s ease;box-shadow:0 6px 16px -8px rgba(232,169,61,.6);}
   .nav a.cta:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 10px 22px -8px rgba(232,169,61,.8);}
 
   /* HERO */
-  .hero{position:relative;min-height:76vh;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;}
-  .hero-imgs{position:absolute;inset:0;display:grid;grid-template-columns:1.1fr 1fr .9fr;}
-  .hero-imgs img{width:100%;height:100%;object-fit:cover;filter:saturate(1.15) brightness(1.02);transform:scale(1.04);
-    transition:transform 8s ease;}
-  .hero:hover .hero-imgs img{transform:scale(1.1);}
-  .hero-imgs::after{content:"";position:absolute;inset:0;background:
-    linear-gradient(180deg, rgba(36,21,54,.18) 0%, rgba(232,169,61,.22) 45%, var(--cream) 92%);
-  }
-  .hero-body{position:relative;padding:0 22px 40px;text-align:center;}
+  .hero{position:relative;display:flex;flex-direction:column;overflow:hidden;}
+  .mosaic{position:relative;height:330px;max-width:480px;width:100%;margin:0 auto;padding-inline:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;overflow:hidden;
+    -webkit-mask-image:linear-gradient(180deg,#000 0,#000 72%,transparent 100%);mask-image:linear-gradient(180deg,#000 0,#000 72%,transparent 100%);}
+  .mcol{overflow:hidden;}
+  .mtrack{display:flex;flex-direction:column;gap:10px;will-change:transform;animation:mscroll 46s linear infinite;}
+  .mcol.up .mtrack{animation-direction:reverse;animation-duration:54s;}
+  .mcol:nth-child(3) .mtrack{animation-duration:40s;}
+  .mtrack img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:18px;background:var(--cream-2);flex:none;
+    box-shadow:0 10px 24px -14px rgba(36,21,54,.45);filter:saturate(1.12) brightness(1.03);}
+  @keyframes mscroll{from{transform:translateY(0);}to{transform:translateY(calc(-50% - 5px));}}
+  @media (prefers-reduced-motion:reduce){.mtrack{animation:none;}}
+  .hero-body{position:relative;padding:0 22px 40px;margin-top:-34px;text-align:center;}
+  .hero-logo{width:min(260px,70vw);height:auto;margin:0 auto 6px;filter:drop-shadow(0 10px 18px rgba(200,148,47,.35));animation:fadeUp .7s ease both;}
   .eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.85);border:1px solid rgba(232,169,61,.4);
     padding:6px 13px;border-radius:20px;font-size:11px;font-weight:700;color:var(--gold-deep);margin-bottom:18px;letter-spacing:.3px;
     animation:fadeUp .7s ease both;box-shadow:0 6px 16px -10px rgba(36,21,54,.25);}
@@ -187,12 +191,13 @@
 </nav>
 
 <div class="hero">
-  <div class="hero-imgs">
-    <img src="https://images.unsplash.com/photo-1600682806492-b2a020079ae0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="">
-    <img src="https://images.unsplash.com/photo-1751580471264-7f8cd53d82d8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="">
-    <img src="https://images.unsplash.com/photo-1778894926879-07308f00c4a9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="">
+  <div class="mosaic">
+    <div class="mcol down"><div class="mtrack"><img src="https://images.unsplash.com/photo-1770842655322-bcfd1c4be229?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Enfant qui rit aux éclats" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1643818657367-491080baeece?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Famille qui saute de joie" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1768244016603-7a8f46acc462?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Jeune homme qui éclate de rire" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1719086249857-4e6b77012f1e?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Enfants complices et rieurs" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1770842655322-bcfd1c4be229?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1643818657367-491080baeece?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1768244016603-7a8f46acc462?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1719086249857-4e6b77012f1e?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"></div></div>
+    <div class="mcol up"><div class="mtrack"><img src="https://images.unsplash.com/photo-1764145177622-8317fbfe1877?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Fillette au grand sourire" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1643818653783-2f818a205bb6?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Famille bras ouverts dans l'herbe" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1633539656332-d0861676473a?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Garçon hilare" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1596768453551-c1e07b6fc1b6?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Amies qui rient devant un téléphone" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1764145177622-8317fbfe1877?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1643818653783-2f818a205bb6?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1633539656332-d0861676473a?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1596768453551-c1e07b6fc1b6?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"></div></div>
+    <div class="mcol down"><div class="mtrack"><img src="https://images.unsplash.com/photo-1643818656778-714d7ba6b420?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Fillette sur les épaules de son papa" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1571417800906-5a5058dbd45d?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Cinq garçons souriants" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1751580471264-7f8cd53d82d8?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Maman et ses trois enfants" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1596510914965-9ae08acae566?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Parents et bébé heureux" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1643818656778-714d7ba6b420?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1571417800906-5a5058dbd45d?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1751580471264-7f8cd53d82d8?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1596510914965-9ae08acae566?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"></div></div>
   </div>
   <div class="hero-body">
+    <img class="hero-logo" src="assets/img/komyo-logo-full.png" alt="KOMYO — L'Afrique en mouvement" width="260" height="175">
     <div class="eyebrow"><span class="dot"></span>Nouveau — ouvert à Brazzaville &amp; Pointe-Noire</div>
     <h1>Apprendre.<br>Créer.<br>Partager.</h1>
     <p>L'application vidéo verticale pensée pour le Congo et l'Afrique — avec un vrai espace séparé et sécurisé pour les enfants.</p>
