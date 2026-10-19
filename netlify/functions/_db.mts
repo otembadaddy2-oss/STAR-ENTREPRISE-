@@ -312,6 +312,17 @@ export async function ensureSchema() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     )
   `;
+  // Photo de profil KOMYO (profils personnels uniquement — jamais pour un
+  // profil enfant PIOUPIOU). Fichier dans Netlify Blobs "starvibe-photos",
+  // seule la clé est gardée ici. Affichée dans la bulle flottante, les
+  // notifications et les commentaires.
+  await sql`ALTER TABLE starvibe_profiles ADD COLUMN IF NOT EXISTS photo_key TEXT`;
+
+  // Dernière ouverture de la liste des notifications KOMYO (bulle flottante) :
+  // tout ce qui est arrivé après est "non lu". Fermer la bulle ne touche pas
+  // à cette date — les notifications restent là, seule la bulle disparaît.
+  await sql`ALTER TABLE starvibe_accounts ADD COLUMN IF NOT EXISTS notifs_vues_at TIMESTAMPTZ`;
+
   await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS pour_enfants BOOLEAN NOT NULL DEFAULT false`;
   await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS moderation_statut TEXT NOT NULL DEFAULT 'approuve'`;
 
@@ -322,6 +333,33 @@ export async function ensureSchema() {
       account_id INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
       created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
       UNIQUE(video_id, account_id)
+    )
+  `;
+
+  await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS comments_count INTEGER NOT NULL DEFAULT 0`;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_comments (
+      id SERIAL PRIMARY KEY,
+      video_id INTEGER NOT NULL REFERENCES starvibe_videos(id) ON DELETE CASCADE,
+      account_id INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      profile_id INTEGER NOT NULL REFERENCES starvibe_profiles(id) ON DELETE CASCADE,
+      texte TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
+  // Statistiques de visionnage réelles (durée + % regardé), pour donner aux
+  // créateurs KOMYO une vraie analyse — pas qu'un compteur qui monte comme
+  // sur la plupart des apps vidéo grand public.
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_view_sessions (
+      id SERIAL PRIMARY KEY,
+      video_id INTEGER NOT NULL REFERENCES starvibe_videos(id) ON DELETE CASCADE,
+      account_id INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      watch_seconds INTEGER NOT NULL DEFAULT 0,
+      percent_watched INTEGER NOT NULL DEFAULT 0,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     )
   `;
 

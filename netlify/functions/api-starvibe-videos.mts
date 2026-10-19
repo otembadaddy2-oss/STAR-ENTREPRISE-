@@ -31,6 +31,7 @@ interface VideoRow {
   blob_key: string;
   likes_count: number;
   vues_count: number;
+  comments_count: number;
   pour_enfants: boolean;
   moderation_statut: string;
   created_at: string;
@@ -45,12 +46,29 @@ function toApi(row: VideoRow, likedByMe: boolean) {
     auteur: row.auteur_nom || "",
     likes: row.likes_count,
     vues: row.vues_count,
+    commentaires: row.comments_count || 0,
     pourEnfants: row.pour_enfants,
     moderationStatut: row.moderation_statut,
     createdAt: row.created_at,
     likedByMe,
     videoUrl: `/api/starvibe-video-file?key=${encodeURIComponent(row.blob_key)}`,
   };
+}
+
+// Initiales d'un nom, pour l'avatar rond affiché dans les notifications
+// d'activité — même logique que côté client (fil.html), gardée en
+// cohérence ici pour l'éventuelle réutilisation serveur.
+function initials(nom: string): string {
+  const parts = String(nom || "").trim().split(/\s+/);
+  const a = parts[0]?.[0] || "?";
+  const b = parts[1]?.[0] || "";
+  return (a + b).toUpperCase();
+}
+
+// Photo de profil (Netlify Blobs "starvibe-photos"), ou null : le client
+// affiche alors les initiales.
+function photoUrl(key: string | null | undefined): string | null {
+  return key ? `/api/starvibe-photo?key=${encodeURIComponent(key)}` : null;
 }
 
 function toModerationApi(row: VideoRow) {
@@ -195,10 +213,265 @@ export default async (req: Request, _context: Context) => {
       return json({ ok: true });
     }
 
+    // Fin de visionnage : durée réelle regardée + % de la vidéo vu. Envoyé
+    // par le client quand la vidéo sort de l'écran. Jamais de vues_count ici
+    // (déjà compté par l'action "vue") — uniquement la donnée d'analyse.
+    if (action === "fin_vue") {
+      const videoId = Number(earlyBody.videoId);
+      const watchSeconds = Math.max(0, Math.round(Number(earlyBody.watchSeconds) || 0));
+      const percent = Math.max(0, Math.min(100, Math.round(Number(earlyBody.percent) || 0)));
+      if (!videoId || watchSeconds <= 0) return json({ ok: true }); // rien à enregistrer
+      await sql`
+        INSERT INTO starvibe_view_sessions (video_id, account_id, watch_seconds, percent_watched)
+        VALUES (${videoId}, ${accountId}, ${watchSeconds}, ${percent})
+      `;
+      return json({ ok: true });
+    }
+
+    if (action === "commenter") {
+      const videoId = Number(earlyBody.videoId);
+      const profileId = Number(earlyBody.profileId);
+      const texte = clean(earlyBody.texte, 300);
+      if (!videoId || !profileId || !texte) {
+        return json({ error: "videoId, profileId et texte requis" }, 400);
+      }
+
+      const profRows = (await sql`
+        SELECT id, nom, photo_key FROM starvibe_profiles WHERE id = ${profileId} AND account_id = ${accountId} LIMIT 1
+      `) as { id: number; nom: string; photo_key: string | null }[];
+      const profile = profRows[0];
+      if (!profile) return json({ error: "Profil introuvable" }, 404);
+
+      const rows = (await sql`
+        INSERT INTO starvibe_comments (video_id, account_id, profile_id, texte)
+        VALUES (${videoId}, ${accountId}, ${profileId}, ${texte})
+        RETURNING id, texte, created_at
+      `) as { id: number; texte: string; created_at: string }[];
+      const created = rows[0];
+      if (!created) return json({ error: "Vidéo introuvable" }, 404);
+
+      const countRows = (await sql`
+        UPDATE starvibe_videos SET comments_count = comments_count + 1 WHERE id = ${videoId} RETURNING comments_count
+      `) as { comments_count: number }[];
+
+      return json({
+        comment: {
+          id: String(created.id),
+          texte: created.texte,
+          auteur: profile.nom,
+          initiales: initials(profile.nom),
+          photoUrl: photoUrl(profile.photo_key),
+          createdAt: created.created_at,
+          accountId,
+        },
+        commentaires: countRows[0]?.comments_count ?? 0,
+      }, 201);
+    }
+
+    // Ouverture de la liste des notifications : tout devient "lu". Rien
+    // n'est supprimé — la liste reste consultable.
+    if (action === "notifs_vues") {
+      await sql`UPDATE starvibe_accounts SET notifs_vues_at = now() WHERE id = ${accountId}`;
+      return json({ ok: true });
+    }
+
     return json({ error: "Action inconnue" }, 400);
   }
 
   if (req.method !== "GET") return json({ error: "Method not allowed" }, 405);
+
+  // --- Statistiques du créateur : uniquement SES vidéos, jamais celles des
+  //     autres. Durée moyenne regardée, % moyen vu, j'aime, commentaires,
+  //     vues — pour une vraie lecture de performance, pas qu'un chiffre. ---
+  if (url.searchParams.get("statistiques") === "1") {
+    const session = await requireAuth(req);
+    if (!session || session.org !== ORG) return json({ error: "Non authentifié" }, 401);
+    const accountId = Number(session.sub);
+
+    const rows = (await sql`
+      SELECT v.id, v.legende, v.likes_count, v.vues_count, v.comments_count, v.created_at,
+        COALESCE(AVG(s.watch_seconds), 0) AS watch_moyen,
+        COALESCE(AVG(s.percent_watched), 0) AS pourcent_moyen,
+        COUNT(s.id) AS sessions_mesurees
+      FROM starvibe_videos v
+      LEFT JOIN starvibe_view_sessions s ON s.video_id = v.id
+      WHERE v.account_id = ${accountId}
+      GROUP BY v.id
+      ORDER BY v.id DESC LIMIT 100
+    `) as Array<{
+      id: number; legende: string; likes_count: number; vues_count: number; comments_count: number;
+      created_at: string; watch_moyen: string; pourcent_moyen: string; sessions_mesurees: string;
+    }>;
+
+    return json({
+      videos: rows.map((r) => ({
+        id: String(r.id),
+        legende: r.legende,
+        likes: r.likes_count,
+        vues: r.vues_count,
+        commentaires: r.comments_count,
+        createdAt: r.created_at,
+        dureeRegardeeMoyenne: Math.round(Number(r.watch_moyen)),
+        pourcentRegardeMoyen: Math.round(Number(r.pourcent_moyen)),
+        sessionsMesurees: Number(r.sessions_mesurees),
+      })),
+    });
+  }
+
+  // --- Liste des commentaires d'une vidéo (bottom sheet) ---
+  if (url.searchParams.get("commentaires") === "1") {
+    const session = await requireAuth(req);
+    if (!session || session.org !== ORG) return json({ error: "Non authentifié" }, 401);
+
+    const videoId = Number(url.searchParams.get("videoId"));
+    if (!videoId) return json({ error: "videoId requis" }, 400);
+
+    const rows = (await sql`
+      SELECT c.id, c.texte, c.created_at, c.account_id, p.nom AS auteur_nom, p.photo_key
+      FROM starvibe_comments c
+      JOIN starvibe_profiles p ON p.id = c.profile_id
+      WHERE c.video_id = ${videoId}
+      ORDER BY c.id DESC LIMIT 100
+    `) as { id: number; texte: string; created_at: string; account_id: number; auteur_nom: string; photo_key: string | null }[];
+
+    return json({
+      commentaires: rows.map((r) => ({
+        id: String(r.id),
+        texte: r.texte,
+        auteur: r.auteur_nom,
+        initiales: initials(r.auteur_nom),
+        photoUrl: photoUrl(r.photo_key),
+        createdAt: r.created_at,
+        accountId: r.account_id,
+      })),
+    });
+  }
+
+  // --- Activité récente d'une vidéo (j'aime + commentaires), pour la
+  //     petite notification façon TikTok qui apparaît au-dessus du fil
+  //     pendant qu'on regarde. Jamais d'invention : uniquement les vrais
+  //     événements survenus depuis "since". ---
+  if (url.searchParams.get("activite") === "1") {
+    const session = await requireAuth(req);
+    if (!session || session.org !== ORG) return json({ error: "Non authentifié" }, 401);
+
+    const videoId = Number(url.searchParams.get("videoId"));
+    const since = url.searchParams.get("since") || "1970-01-01T00:00:00Z";
+    if (!videoId) return json({ error: "videoId requis" }, 400);
+
+    const likeRows = (await sql`
+      SELECT l.id, l.created_at, l.account_id, p.nom AS auteur_nom, p.photo_key
+      FROM starvibe_likes l
+      JOIN starvibe_profiles p ON p.account_id = l.account_id AND p.type_profil = 'personnel'
+      WHERE l.video_id = ${videoId} AND l.created_at > ${since}
+      ORDER BY l.id DESC LIMIT 10
+    `) as { id: number; created_at: string; account_id: number; auteur_nom: string; photo_key: string | null }[];
+
+    const commentRows = (await sql`
+      SELECT c.id, c.texte, c.created_at, c.account_id, p.nom AS auteur_nom, p.photo_key
+      FROM starvibe_comments c
+      JOIN starvibe_profiles p ON p.id = c.profile_id
+      WHERE c.video_id = ${videoId} AND c.created_at > ${since}
+      ORDER BY c.id DESC LIMIT 10
+    `) as { id: number; texte: string; created_at: string; account_id: number; auteur_nom: string; photo_key: string | null }[];
+
+    const evenements = [
+      ...likeRows.map((r) => ({
+        type: "like" as const,
+        auteur: r.auteur_nom,
+        initiales: initials(r.auteur_nom),
+        photoUrl: photoUrl(r.photo_key),
+        texte: "",
+        accountId: r.account_id,
+        createdAt: r.created_at,
+      })),
+      ...commentRows.map((r) => ({
+        type: "comment" as const,
+        auteur: r.auteur_nom,
+        initiales: initials(r.auteur_nom),
+        photoUrl: photoUrl(r.photo_key),
+        texte: r.texte,
+        accountId: r.account_id,
+        createdAt: r.created_at,
+      })),
+    ].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+    return json({ evenements, now: new Date().toISOString() });
+  }
+
+  // --- Notifications de l'abonné (bulle flottante KOMYO) : j'aime et
+  //     commentaires reçus sur SES vidéos, par d'autres que lui. Les 30
+  //     plus récents + le nombre de non lus depuis la dernière ouverture
+  //     de la liste (notifs_vues_at). ---
+  if (url.searchParams.get("notifications") === "1") {
+    const session = await requireAuth(req);
+    if (!session || session.org !== ORG) return json({ error: "Non authentifié" }, 401);
+    const accountId = Number(session.sub);
+
+    const accRows = (await sql`
+      SELECT notifs_vues_at FROM starvibe_accounts WHERE id = ${accountId} LIMIT 1
+    `) as { notifs_vues_at: string | null }[];
+    const vuesAt = accRows[0]?.notifs_vues_at || "1970-01-01T00:00:00Z";
+
+    const likeRows = (await sql`
+      SELECT l.id, l.created_at, l.account_id, l.video_id, v.legende, p.nom AS auteur_nom, p.photo_key
+      FROM starvibe_likes l
+      JOIN starvibe_videos v ON v.id = l.video_id
+      JOIN starvibe_profiles p ON p.account_id = l.account_id AND p.type_profil = 'personnel'
+      WHERE v.account_id = ${accountId} AND l.account_id <> ${accountId}
+      ORDER BY l.created_at DESC LIMIT 30
+    `) as { id: number; created_at: string; account_id: number; video_id: number; legende: string; auteur_nom: string; photo_key: string | null }[];
+
+    const commentRows = (await sql`
+      SELECT c.id, c.texte, c.created_at, c.account_id, c.video_id, v.legende, p.nom AS auteur_nom, p.photo_key
+      FROM starvibe_comments c
+      JOIN starvibe_videos v ON v.id = c.video_id
+      JOIN starvibe_profiles p ON p.id = c.profile_id
+      WHERE v.account_id = ${accountId} AND c.account_id <> ${accountId}
+      ORDER BY c.created_at DESC LIMIT 30
+    `) as { id: number; texte: string; created_at: string; account_id: number; video_id: number; legende: string; auteur_nom: string; photo_key: string | null }[];
+
+    const countRows = (await sql`
+      SELECT
+        (SELECT COUNT(*) FROM starvibe_likes l JOIN starvibe_videos v ON v.id = l.video_id
+          WHERE v.account_id = ${accountId} AND l.account_id <> ${accountId} AND l.created_at > ${vuesAt})
+        +
+        (SELECT COUNT(*) FROM starvibe_comments c JOIN starvibe_videos v ON v.id = c.video_id
+          WHERE v.account_id = ${accountId} AND c.account_id <> ${accountId} AND c.created_at > ${vuesAt})
+        AS n
+    `) as { n: string }[];
+
+    const vuesTime = new Date(vuesAt).getTime();
+    const evenements = [
+      ...likeRows.map((r) => ({
+        id: `like-${r.id}`,
+        type: "like" as const,
+        auteur: r.auteur_nom,
+        initiales: initials(r.auteur_nom),
+        photoUrl: photoUrl(r.photo_key),
+        texte: "",
+        videoId: String(r.video_id),
+        legende: r.legende,
+        createdAt: r.created_at,
+      })),
+      ...commentRows.map((r) => ({
+        id: `comment-${r.id}`,
+        type: "comment" as const,
+        auteur: r.auteur_nom,
+        initiales: initials(r.auteur_nom),
+        photoUrl: photoUrl(r.photo_key),
+        texte: r.texte,
+        videoId: String(r.video_id),
+        legende: r.legende,
+        createdAt: r.created_at,
+      })),
+    ]
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 30)
+      .map((e) => ({ ...e, nonLu: new Date(e.createdAt).getTime() > vuesTime }));
+
+    return json({ evenements, nonLues: Number(countRows[0]?.n || 0), now: new Date().toISOString() });
+  }
 
   // --- Lecture du fil (utilisateur STAR VIBE) ---
   const session = await requireAuth(req);

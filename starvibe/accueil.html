@@ -42,6 +42,16 @@
   .profile-chip.active{border-color:var(--gold);}
   .profile-avatar{width:44px;height:44px;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;
     font-family:'Sora',sans-serif;font-weight:800;font-size:16px;color:#fff;background:linear-gradient(135deg,var(--coral),var(--gold));}
+  .profile-avatar{position:relative;}
+  .profile-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%;}
+  .profile-avatar .cam{position:absolute;right:-4px;bottom:-4px;width:20px;height:20px;border-radius:50%;background:var(--ink);
+    border:2px solid #fff;display:flex;align-items:center;justify-content:center;}
+  .profile-avatar .cam svg{width:11px;height:11px;}
+  .profile-chip.perso{cursor:pointer;}
+  .profile-chip.perso:hover{transform:translateY(-4px);box-shadow:0 10px 20px -12px rgba(232,169,61,.55);border-color:var(--gold);}
+  .profile-chip.busy{opacity:.6;pointer-events:none;}
+  .photo-msg{font-size:11.5px;margin:10px 0 0;color:var(--text-dim);}
+  .photo-msg.err{color:#b3261e;}
   .profile-chip.enfant .profile-avatar{background:linear-gradient(135deg,#3fae82,var(--kids));}
   .profile-chip .name{font-size:11.5px;font-weight:700;line-height:1.3;}
   .profile-chip .tag{font-size:9px;color:var(--text-faint);margin-top:2px;}
@@ -102,6 +112,8 @@
     <div class="card">
       <div class="profiles-title">Mes profils</div>
       <div class="profile-list" id="profileList"></div>
+      <input type="file" id="photoInput" accept="image/*" hidden>
+      <p class="photo-msg" id="photoMsg" hidden></p>
     </div>
 
     <a href="fil.html" class="feed-card" style="display:block;">
@@ -130,6 +142,11 @@
           <div class="qi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
           <h4>Mon abonnement</h4>
           <p>Gratuit, Famille, Business</p>
+        </a>
+        <a class="quick-item" href="statistiques.html" style="text-decoration:none;color:inherit;display:block;">
+          <div class="qi-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.2"><path d="M4 19V10M11 19V5M18 19v-7"/></svg></div>
+          <h4>Mes statistiques</h4>
+          <p>Vues, durée regardée, j'aime</p>
         </a>
       </div>
     </div>
@@ -165,16 +182,33 @@
     return (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
   }
 
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  var camIcon = '<span class="cam"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span>';
+
   function renderProfiles(profiles){
     profileList.innerHTML = '';
     (profiles || []).forEach(function(p){
+      var perso = p.type_profil !== 'enfant';
       var chip = document.createElement('div');
-      chip.className = 'profile-chip' + (p.type_profil === 'enfant' ? ' enfant' : '');
+      chip.className = 'profile-chip' + (perso ? ' perso' : ' enfant');
+      // Photo uniquement pour le profil personnel — jamais pour un enfant.
       chip.innerHTML =
-        '<div class="profile-avatar">' + initials(p.nom) + '</div>' +
-        '<div class="name">' + p.nom + '</div>' +
-        '<div class="tag">' + (p.type_profil === 'enfant' ? 'PIOUPIOU' : 'Profil perso') + '</div>';
-      if (p.type_profil === 'enfant'){
+        '<div class="profile-avatar">' + esc(initials(p.nom)) +
+          (perso && p.photoUrl ? '<img src="' + esc(p.photoUrl) + '" alt="" onerror="this.remove()">' : '') +
+          (perso ? camIcon : '') + '</div>' +
+        '<div class="name">' + esc(p.nom) + '</div>' +
+        '<div class="tag">' + (perso ? (p.photoUrl ? 'Changer ma photo' : 'Ajouter ma photo') : 'PIOUPIOU') + '</div>';
+      if (perso){
+        chip.setAttribute('role', 'button');
+        chip.tabIndex = 0;
+        chip.addEventListener('click', function(){ choisirPhoto(p.id, chip); });
+        chip.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); choisirPhoto(p.id, chip); } });
+      } else {
         chip.style.cursor = 'pointer';
         chip.addEventListener('click', function(){ window.location.href = 'pioupiou.html'; });
       }
@@ -186,6 +220,69 @@
     addBtn.title = 'Bientôt disponible';
     profileList.appendChild(addBtn);
   }
+
+  // ---- Photo de profil : réduite à 320 × 320 px sur le téléphone avant
+  //      l'envoi (rapide même en 3G), puis affichée dans la bulle KOMYO. ----
+  var photoInput = document.getElementById('photoInput');
+  var photoMsg = document.getElementById('photoMsg');
+  var photoCible = null;
+
+  function message(txt, err){
+    photoMsg.textContent = txt;
+    photoMsg.className = 'photo-msg' + (err ? ' err' : '');
+    photoMsg.hidden = !txt;
+  }
+
+  function choisirPhoto(profileId, chip){
+    photoCible = { id: profileId, chip: chip };
+    photoInput.value = '';
+    photoInput.click();
+  }
+
+  function carre320(file){
+    return new Promise(function(resolve, reject){
+      var img = new Image();
+      var url = URL.createObjectURL(file);
+      img.onload = function(){
+        var side = Math.min(img.naturalWidth, img.naturalHeight);
+        var canvas = document.createElement('canvas');
+        canvas.width = canvas.height = 320;
+        canvas.getContext('2d').drawImage(img,
+          (img.naturalWidth - side) / 2, (img.naturalHeight - side) / 2, side, side, 0, 0, 320, 320);
+        URL.revokeObjectURL(url);
+        resolve(canvas.toDataURL('image/jpeg', 0.85));
+      };
+      img.onerror = function(){ URL.revokeObjectURL(url); reject(new Error('image')); };
+      img.src = url;
+    });
+  }
+
+  photoInput.addEventListener('change', function(){
+    var file = photoInput.files[0];
+    if (!file || !photoCible) return;
+    var cible = photoCible;
+    cible.chip.classList.add('busy');
+    message('Envoi de ta photo…');
+    carre320(file).then(function(dataUrl){
+      return fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ action: 'photo-profil', profileId: cible.id, typeMime: 'image/jpeg', fileBase64: dataUrl })
+      }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); });
+    }).then(function(result){
+      cible.chip.classList.remove('busy');
+      if (!result.ok){ message(result.data.error || 'Impossible d\'enregistrer la photo.', true); return; }
+      var av = cible.chip.querySelector('.profile-avatar');
+      var old = av.querySelector('img');
+      if (old) old.remove();
+      av.insertAdjacentHTML('afterbegin', '<img src="' + esc(result.data.photoUrl) + '" alt="">');
+      cible.chip.querySelector('.tag').textContent = 'Changer ma photo';
+      message('Photo enregistrée. Elle apparaît maintenant dans les bulles et les commentaires.');
+    }).catch(function(){
+      cible.chip.classList.remove('busy');
+      message('Cette image ne peut pas être lue. Choisis une photo JPEG ou PNG.', true);
+    });
+  });
 
   if (!token){
     showLoggedOut();
@@ -216,5 +313,6 @@
   });
 })();
 </script>
+<script src="assets/bulle-komyo.js" defer></script>
 </body>
 </html>
