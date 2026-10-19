@@ -172,6 +172,7 @@
     background:linear-gradient(135deg,var(--coral),var(--gold));border:none;display:flex;align-items:center;justify-content:center;
     box-shadow:0 12px 26px -8px rgba(232,169,61,.65);cursor:pointer;animation:floaty 2.4s ease-in-out infinite;
     transition:transform .25s ease;}
+  .voice-hint[hidden]{display:none;}
   .voice-hint:hover{transform:scale(1.08);}
   .voice-hint svg{width:24px;height:24px;}
 </style>
@@ -345,6 +346,7 @@
   try { already = !!sessionStorage.getItem(KEY); } catch(e){}
   if (already) return;
   function markPlayed(){ try{ sessionStorage.setItem(KEY, '1'); }catch(e){} }
+  audio.addEventListener('ended', function(){ hint.hidden = true; });
   audio.play().then(markPlayed).catch(function(){
     hint.hidden = false;
     hint.addEventListener('click', function(){
