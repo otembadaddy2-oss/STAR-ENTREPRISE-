@@ -13,6 +13,7 @@ import { getStore } from "@netlify/blobs";
 import { randomBytes } from "node:crypto";
 import { ensureSchema, db, json } from "./_db.mts";
 import { requireAuth } from "./_auth.mts";
+import { signedVideoUrl, hasActiveFamille } from "./_premium.mts";
 
 const ORG = "star_vibe";
 const STAFF_ORG = "star_entreprise";
@@ -34,12 +35,16 @@ interface VideoRow {
   comments_count: number;
   pour_enfants: boolean;
   moderation_statut: string;
+  premium: boolean;
   created_at: string;
   auteur_nom?: string;
   telephone?: string;
 }
 
-function toApi(row: VideoRow, likedByMe: boolean) {
+// Une vidéo premium n'expose son lien (signé) qu'aux abonnés Famille actifs ;
+// pour les autres, "verrouille" est vrai et aucun lien n'est donné.
+function toApi(row: VideoRow, likedByMe: boolean, canWatchPremium = false) {
+  const locked = row.premium && !canWatchPremium;
   return {
     id: String(row.id),
     legende: row.legende,
@@ -51,7 +56,13 @@ function toApi(row: VideoRow, likedByMe: boolean) {
     moderationStatut: row.moderation_statut,
     createdAt: row.created_at,
     likedByMe,
-    videoUrl: `/api/starvibe-video-file?key=${encodeURIComponent(row.blob_key)}`,
+    premium: row.premium,
+    verrouille: locked,
+    videoUrl: locked
+      ? null
+      : row.premium
+        ? signedVideoUrl(row.blob_key)
+        : `/api/starvibe-video-file?key=${encodeURIComponent(row.blob_key)}`,
   };
 }
 
@@ -78,7 +89,7 @@ function toModerationApi(row: VideoRow) {
     auteur: row.auteur_nom || "",
     telephone: row.telephone || "",
     createdAt: row.created_at,
-    videoUrl: `/api/starvibe-video-file?key=${encodeURIComponent(row.blob_key)}`,
+    videoUrl: signedVideoUrl(row.blob_key),
   };
 }
 
@@ -123,11 +134,28 @@ export default async (req: Request, _context: Context) => {
         return json({ error: "videoId et decision (approuve|rejete) requis" }, 400);
       }
 
+      const premium = decision === "approuve" && Boolean(earlyBody.premium);
       const rows = (await sql`
-        UPDATE starvibe_videos SET moderation_statut = ${decision} WHERE id = ${videoId} RETURNING id
+        UPDATE starvibe_videos SET moderation_statut = ${decision}, premium = ${premium}
+        WHERE id = ${videoId} RETURNING id
       `) as { id: number }[];
       if (!rows[0]) return json({ error: "Vidéo introuvable" }, 404);
-      return json({ ok: true, moderationStatut: decision });
+      return json({ ok: true, moderationStatut: decision, premium });
+    }
+
+    // Le staff peut aussi passer une vidéo déjà approuvée en premium (ou la
+    // rendre gratuite) sans la remodérer.
+    if (clean(earlyBody.action, 20) === "definir_premium") {
+      const staff = await requireAuth(req);
+      if (!staff || staff.org !== STAFF_ORG) return json({ error: "Non autorisé" }, 403);
+      const videoId = Number(earlyBody.videoId);
+      if (!videoId) return json({ error: "videoId requis" }, 400);
+      const premium = Boolean(earlyBody.premium);
+      const rows = (await sql`
+        UPDATE starvibe_videos SET premium = ${premium} WHERE id = ${videoId} RETURNING id
+      `) as { id: number }[];
+      if (!rows[0]) return json({ error: "Vidéo introuvable" }, 404);
+      return json({ ok: true, premium });
     }
 
     // --- Toute autre action passe par le compte STAR VIBE de l'utilisateur ---
@@ -174,6 +202,7 @@ export default async (req: Request, _context: Context) => {
         RETURNING *
       `) as VideoRow[];
       const created = rows[0];
+      created.premium = false;
       created.auteur_nom = (await sql`SELECT nom FROM starvibe_profiles WHERE id = ${profileId}`)[0]?.nom || "";
 
       return json({ video: toApi(created, false) }, 201);
@@ -490,14 +519,14 @@ export default async (req: Request, _context: Context) => {
         SELECT v.*, p.nom AS auteur_nom
         FROM starvibe_videos v
         JOIN starvibe_profiles p ON p.id = v.profile_id
-        WHERE v.pour_enfants = ${wantKids} AND v.moderation_statut = 'approuve' AND v.id < ${before}
+        WHERE v.pour_enfants = ${wantKids} AND v.moderation_statut = 'approuve' AND (v.premium = false OR ${wantKids}) AND v.id < ${before}
         ORDER BY v.id DESC LIMIT 10
       `
     : await sql`
         SELECT v.*, p.nom AS auteur_nom
         FROM starvibe_videos v
         JOIN starvibe_profiles p ON p.id = v.profile_id
-        WHERE v.pour_enfants = ${wantKids} AND v.moderation_statut = 'approuve'
+        WHERE v.pour_enfants = ${wantKids} AND v.moderation_statut = 'approuve' AND (v.premium = false OR ${wantKids})
         ORDER BY v.id DESC LIMIT 10
       `) as VideoRow[];
 
@@ -509,7 +538,8 @@ export default async (req: Request, _context: Context) => {
     : [];
   const likedSet = new Set(likedRows.map((r) => r.video_id));
 
-  return json({ videos: rows.map((r) => toApi(r, likedSet.has(r.id))) });
+  const canWatchPremium = await hasActiveFamille(sql, accountId);
+  return json({ videos: rows.map((r) => toApi(r, likedSet.has(r.id), canWatchPremium)), abonneFamille: canWatchPremium });
 };
 
 export const config: Config = {

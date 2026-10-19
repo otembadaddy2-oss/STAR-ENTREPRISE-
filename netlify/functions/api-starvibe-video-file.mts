@@ -3,11 +3,24 @@
 // <video> puisse lire/avancer une vidéo correctement sur mobile).
 import type { Context, Config } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
+import { ensureSchema, db } from "./_db.mts";
+import { verifySignature } from "./_premium.mts";
 
 export default async (req: Request, _context: Context) => {
   const url = new URL(req.url);
   const key = url.searchParams.get("key") || "";
   if (!key) return new Response("Missing key", { status: 400 });
+
+  // Vidéo premium : le fichier n'est servi qu'avec un lien signé valide,
+  // délivré seulement aux abonnés Famille actifs (voir _premium.mts).
+  await ensureSchema();
+  const { sql } = db();
+  const meta = (await sql`SELECT premium FROM starvibe_videos WHERE blob_key = ${key} LIMIT 1`) as { premium: boolean }[];
+  const premium = Boolean(meta[0]?.premium);
+  if (premium && !verifySignature(key, url.searchParams.get("exp"), url.searchParams.get("sig"))) {
+    return new Response("Contenu réservé aux abonnés", { status: 403 });
+  }
+  const cacheControl = premium ? "private, max-age=3600" : "public, max-age=31536000, immutable";
 
   const store = getStore("starvibe-videos");
   const blob = await store.getWithMetadata(key, { type: "arrayBuffer" });
@@ -25,7 +38,7 @@ export default async (req: Request, _context: Context) => {
         "content-type": typeMime,
         "content-length": String(total),
         "accept-ranges": "bytes",
-        "cache-control": "public, max-age=31536000, immutable",
+        "cache-control": cacheControl,
       },
     });
   }
@@ -42,7 +55,7 @@ export default async (req: Request, _context: Context) => {
       "content-length": String(chunk.byteLength),
       "content-range": `bytes ${start}-${end}/${total}`,
       "accept-ranges": "bytes",
-      "cache-control": "public, max-age=31536000, immutable",
+      "cache-control": cacheControl,
     },
   });
 };

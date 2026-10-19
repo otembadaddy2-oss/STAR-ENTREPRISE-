@@ -58,6 +58,16 @@
   .state h2{font-size:18px;margin:0 0 8px;}
   .state p{font-size:13px;color:rgba(255,255,255,.7);line-height:1.6;max-width:280px;}
   .state a{color:var(--kids-light);font-weight:700;}
+  .lock{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:24px;
+    background:linear-gradient(160deg,rgba(15,74,55,.92),rgba(30,152,102,.9));z-index:3;}
+  .lock.show{display:flex;}
+  .lock .cadenas{font-size:44px;}
+  .lock h3{margin:0;font-family:'Sora',sans-serif;font-size:17px;}
+  .lock p{margin:0;font-size:12.5px;color:rgba(255,255,255,.85);line-height:1.5;}
+  .lock a{margin-top:6px;background:linear-gradient(135deg,var(--sun),#ff8f3d);color:#5c3200;font-family:'Sora',sans-serif;font-weight:800;
+    font-size:13.5px;padding:12px 20px;border-radius:16px;text-decoration:none;}
+  .premium-tag{position:absolute;top:10px;left:10px;z-index:2;background:linear-gradient(135deg,var(--sun),#ff8f3d);color:#5c3200;
+    font-family:'Sora',sans-serif;font-weight:800;font-size:11px;padding:4px 10px;border-radius:12px;}
 </style>
 </head>
 <body>
@@ -84,6 +94,13 @@
   <div class="player">
     <video id="videoEl" loop muted playsinline preload="metadata"></video>
     <div class="tapzone" id="tapZone"></div>
+    <span class="premium-tag" id="premiumTag" hidden>⭐ Famille</span>
+    <div class="lock" id="lockEl">
+      <div class="cadenas">🔒</div>
+      <h3>Dessin animé réservé aux abonnés Famille</h3>
+      <p>Abonne-toi pour 1 500 FCFA par mois et regarde tous les dessins animés PIOUPIOU.</p>
+      <a href="abonnement.html">Découvrir l'abonnement Famille</a>
+    </div>
     <div class="mute-hint" id="muteHint"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M19 9a5 5 0 0 1 0 6M22 6a9 9 0 0 1 0 12"/></svg></div>
   </div>
   <div class="caption-box">
@@ -112,6 +129,8 @@
   var auteurEl = document.getElementById('auteurEl');
   var legendeEl = document.getElementById('legendeEl');
   var btnNext = document.getElementById('btnNext');
+  var lockEl = document.getElementById('lockEl');
+  var premiumTag = document.getElementById('premiumTag');
 
   function show(el){ [loadingState, loggedOutState, emptyState, doneState, stageWrap].forEach(function(e){ e.hidden = (e !== el); }); }
 
@@ -131,8 +150,14 @@
   function playCurrent(){
     if (index >= videos.length){ show(doneState); return; }
     var v = videos[index];
-    videoEl.src = v.videoUrl;
-    videoEl.play().catch(function(){});
+    premiumTag.hidden = !v.premium;
+    lockEl.classList.toggle('show', !!v.verrouille);
+    if (v.verrouille || !v.videoUrl){
+      videoEl.pause(); videoEl.removeAttribute('src'); videoEl.load();
+    } else {
+      videoEl.src = v.videoUrl;
+      videoEl.play().catch(function(){});
+    }
     auteurEl.textContent = '@' + v.auteur;
     legendeEl.textContent = v.legende || '';
     show(stageWrap);

@@ -53,6 +53,7 @@
   .btn-approve{background:rgba(47,143,110,.22);color:#6fd6ab;}
   .btn-reject{background:rgba(179,38,30,.18);color:#ff8a80;}
   .item.processing{opacity:.4;pointer-events:none;}
+.prem{display:flex;align-items:center;gap:8px;font-size:12.5px;margin:8px 0;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -147,6 +148,7 @@
         '<div class="auteur">' + v.auteur + '</div>' +
         '<div class="tel">' + v.telephone + '</div>' +
         '<div class="legende">' + (v.legende || '<em>Sans légende</em>') + '</div>' +
+        '<label class="prem"><input type="checkbox" class="chk-premium"> ⭐ Réservé aux abonnés Famille (premium)</label>' +
         '<div class="actions">' +
           '<button class="btn-approve">Approuver</button>' +
           '<button class="btn-reject">Refuser</button>' +
@@ -160,7 +162,7 @@
       item.classList.add('processing');
       authFetch(API_VIDEOS, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'moderer', videoId: Number(v.id), decision: decision })
+        body: JSON.stringify({ action: 'moderer', videoId: Number(v.id), decision: decision, premium: item.querySelector('.chk-premium').checked })
       }).then(function(){ item.remove(); if (!queueList.children.length) emptyQueue.hidden = false; });
     }
     item.querySelector('.btn-approve').addEventListener('click', function(){ decide('approuve'); });

@@ -325,6 +325,7 @@ export async function ensureSchema() {
 
   await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS pour_enfants BOOLEAN NOT NULL DEFAULT false`;
   await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS moderation_statut TEXT NOT NULL DEFAULT 'approuve'`;
+  await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS premium BOOLEAN NOT NULL DEFAULT false`;
 
   await sql`
     CREATE TABLE IF NOT EXISTS starvibe_likes (
