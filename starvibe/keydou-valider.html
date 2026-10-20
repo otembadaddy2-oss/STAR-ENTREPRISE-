@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KOMYO — Valider un dépôt</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#050B18">
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#050B18;color:#fff;font-family:Inter,Arial,sans-serif;-webkit-font-smoothing:antialiased;display:flex;min-height:100vh;align-items:center;justify-content:center;padding:18px;}
+  [hidden]{display:none!important;}
+  .card{background:#12213F;border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:24px;max-width:440px;width:100%;}
+  h1{font-size:18px;margin:0 0 4px;font-family:Sora,Arial,sans-serif;}
+  .sub{font-size:12.5px;color:rgba(255,255,255,.6);margin:0 0 16px;}
+  .amount{font-family:Sora,Arial,sans-serif;font-weight:800;font-size:34px;color:#e8b85c;margin:6px 0 12px;}
+  .row{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.08);}
+  .row b{text-align:right;}
+  .btn{display:block;width:100%;border:none;border-radius:14px;padding:16px;font-family:Sora,Arial,sans-serif;font-weight:800;font-size:15px;cursor:pointer;margin-top:12px;color:#fff;}
+  .ok{background:linear-gradient(135deg,#3fae82,#2f8f6e);} .no{background:rgba(179,38,30,.35);color:#ff8a80;}
+  .note{font-size:11.5px;color:rgba(255,255,255,.55);line-height:1.6;margin-top:14px;}
+  .res{text-align:center;font-family:Sora,Arial,sans-serif;font-weight:800;font-size:18px;padding:18px 0;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div id="loading" class="sub">Chargement…</div>
+  <div id="err" hidden class="res" style="color:#ff8a80"></div>
+  <div id="main" hidden>
+    <h1>Valider le dépôt ?</h1>
+    <p class="sub">Regarde ton MTN Money / Airtel Money avant de répondre.</p>
+    <div class="amount" id="amount"></div>
+    <div class="row"><span>Pour</span><b id="objet"></b></div>
+    <div class="row"><span>Client</span><b id="nom"></b></div>
+    <div class="row"><span>Numéro</span><b id="tel"></b></div>
+    <div class="row"><span>Référence</span><b id="ref"></b></div>
+    <button class="btn ok" id="yes">✅ J'ai bien reçu ce montant — Valider</button>
+    <button class="btn no" id="no">❌ Je n'ai rien reçu</button>
+    <div class="note">En validant, Keydou répond tout de suite au client. Ne valide que si le montant exact est arrivé sur ton téléphone.</div>
+  </div>
+  <div id="done" hidden class="res"></div>
+</div>
+<script>
+(function(){
+  var q = new URLSearchParams(location.search), API = '/api/starvibe-keydou';
+  var k = q.get('k'), r = q.get('r'), exp = q.get('exp'), t = q.get('t');
+  function $(id){ return document.getElementById(id); }
+  function show(id){ ['loading','err','main','done'].forEach(function(x){ $(x).hidden = x !== id; }); }
+  fetch(API + '?decide_info=1&k=' + encodeURIComponent(k) + '&r=' + encodeURIComponent(r) + '&exp=' + encodeURIComponent(exp) + '&t=' + encodeURIComponent(t))
+    .then(function(res){ return res.json().then(function(d){ return { ok:res.ok, d:d }; }); })
+    .then(function(x){
+      if (!x.ok){ $('err').textContent = x.d.error || 'Lien invalide.'; show('err'); return; }
+      var d = x.d;
+      if (d.statut !== 'en_attente_paiement'){ $('done').textContent = d.statut === 'paye' || d.statut === 'actif' ? '✅ Déjà validé.' : 'Déjà traité (' + d.statut + ').'; show('done'); return; }
+      $('amount').textContent = Number(d.montant).toLocaleString('fr-FR') + ' FCFA';
+      $('objet').textContent = d.objet + (d.ville ? ' · ' + d.ville : '');
+      $('nom').textContent = d.nom || '—'; $('tel').textContent = d.telephone || '—'; $('ref').textContent = d.reference;
+      show('main');
+    }).catch(function(){ $('err').textContent = 'Impossible de contacter le serveur.'; show('err'); });
+  function decide(dec){
+    $('yes').disabled = $('no').disabled = true;
+    fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'decider', k:k, r:Number(r), exp:Number(exp), t:t, d:dec }) })
+      .then(function(res){ return res.json(); })
+      .then(function(d){ $('done').textContent = d.ok ? (dec === 'oui' ? '✅ Validé ! Keydou répond au client.' : '❌ Refusé.') : 'Déjà traité ou lien expiré.'; show('done'); })
+      .catch(function(){ $('yes').disabled = $('no').disabled = false; alert('Connexion impossible, réessaie.'); });
+  }
+  $('yes').addEventListener('click', function(){ decide('oui'); });
+  $('no').addEventListener('click', function(){ if (confirm('Confirmer : aucun dépôt reçu ?')) decide('non'); });
+})();
+</script>
+</body>
+</html>

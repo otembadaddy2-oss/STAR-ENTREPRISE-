@@ -76,6 +76,7 @@
   <div class="tabs">
     <button class="tab on" id="tabContacts">Contacts en direct</button>
     <button class="tab" id="tabAnnuaire">Annuaire de Keydou</button>
+    <button class="tab" id="tabPhone">Mon téléphone (validation)</button>
   </div>
 
   <!-- CONTACTS -->
@@ -88,6 +89,33 @@
     </div>
     <div class="muted" id="lastRefresh" style="margin-bottom:8px"></div>
     <div class="tablewrap"><table><thead><tr><th>Date</th><th>Heure</th><th>Nom</th><th>Téléphone</th><th>Événement</th><th>Détail</th><th>Service</th><th>Ville</th><th>Réf.</th></tr></thead><tbody id="rows"></tbody></table></div>
+  </div>
+
+
+  <!-- TÉLÉPHONE -->
+  <div id="panePhone" hidden>
+    <div class="formcard">
+      <h3 style="margin:0 0 4px;font-size:14px">1. Recevoir « Valider le dépôt ? Oui / Non » sur ce téléphone</h3>
+      <p class="muted" style="margin:0 0 10px">Quand un client touche « J'ai payé », une notification apparaît sur ton téléphone avec deux boutons. Tu regardes ton MTN Money, tu touches « Reçu, valider » : Keydou répond tout de suite au client. Ouvre cette page <b>sur le téléphone qui reçoit les dépôts</b> (+242 06 656 50 50).</p>
+      <div class="bar"><button class="btn main" id="btnPushOn">🔔 Activer les notifications sur ce téléphone</button><button class="btn" id="btnPushTest">Envoyer un test</button></div>
+      <div class="msg" id="pushMsg" hidden></div>
+      <p class="muted" style="margin:10px 0 0">iPhone : d'abord « Partager » puis « Sur l'écran d'accueil », ouvre l'icône, puis active. Sur iPhone les boutons Oui/Non s'ouvrent dans une page au lieu de s'afficher dans la notification.</p>
+    </div>
+    <div class="formcard">
+      <h3 style="margin:0 0 4px;font-size:14px">2. Reconnaissance automatique des dépôts (SMS)</h3>
+      <p class="muted" style="margin:0 0 10px">Une application Android de transfert de SMS (par exemple « SmsForwarder », « MacroDroid » ou « Tasker ») envoie à Keydou chaque SMS de dépôt reçu d'MTN/Airtel. Si le montant est exact <b>et</b> que le numéro de l'expéditeur est celui du client, le dépôt est validé tout seul. Sinon tu reçois la notification Oui/Non.</p>
+      <div class="field"><label>Adresse du webhook (à coller dans l'application, méthode POST)</label><input id="hookUrl" readonly style="width:100%"></div>
+      <div class="bar"><button class="btn" id="btnCopyHook">Copier l'adresse</button>
+        <label style="font-size:13px;display:flex;align-items:center;gap:8px"><input type="checkbox" id="autoOn" checked> Validation automatique quand tout correspond</label></div>
+      <ol class="muted" style="margin:6px 0 0;padding-left:18px;line-height:1.8">
+        <li>Installe l'application de transfert de SMS sur le téléphone qui reçoit les dépôts.</li>
+        <li>Règle : « si le SMS vient d'MTN / MobileMoney (et Airtel Money) » → « envoyer vers le webhook ci-dessus ».</li>
+        <li>Corps de la requête : <code>{"message":"[corps du SMS]","from":"[expéditeur]"}</code> (le mot entre crochets est la variable de l'application).</li>
+        <li>Filtre l'expéditeur : seuls les SMS d'MTN / Airtel doivent partir.</li>
+      </ol>
+      <div class="muted" style="margin-top:12px">Les 20 derniers SMS reçus (pour vérifier que ça marche) :</div>
+      <div class="tablewrap" style="margin-top:6px"><table style="min-width:600px"><thead><tr><th>Date</th><th>Montant</th><th>Numéro</th><th>Résultat</th><th>SMS</th></tr></thead><tbody id="smsRows"></tbody></table></div>
+    </div>
   </div>
 
   <!-- ANNUAIRE -->
@@ -155,8 +183,13 @@
       .catch(function(){ err.textContent = 'Impossible de contacter le serveur.'; err.classList.add('show'); });
   });
   $('btnLogout').addEventListener('click', function(){ setToken(''); showLogin(); });
-  $('tabContacts').addEventListener('click', function(){ $('tabContacts').classList.add('on'); $('tabAnnuaire').classList.remove('on'); $('paneContacts').hidden = false; $('paneAnnuaire').hidden = true; });
-  $('tabAnnuaire').addEventListener('click', function(){ $('tabAnnuaire').classList.add('on'); $('tabContacts').classList.remove('on'); $('paneContacts').hidden = true; $('paneAnnuaire').hidden = false; });
+  function tab(name){
+    ['Contacts','Annuaire','Phone'].forEach(function(n){ $('tab' + n).classList.toggle('on', n === name); $('pane' + n).hidden = (n !== name); });
+    if (name === 'Phone') loadPhone();
+  }
+  $('tabContacts').addEventListener('click', function(){ tab('Contacts'); });
+  $('tabAnnuaire').addEventListener('click', function(){ tab('Annuaire'); });
+  $('tabPhone').addEventListener('click', function(){ tab('Phone'); });
 
   /* ---------- contacts en direct ---------- */
   var contacts = [], seen = {};
@@ -287,6 +320,36 @@
     };
     rd.readAsArrayBuffer(f); this.value = '';
   });
+
+
+  /* ---------- téléphone : notifications + SMS ---------- */
+  var RES = { valide_auto:'✅ Validé automatiquement', a_confirmer:'Notification Oui/Non envoyée', non_rapproche:'Non rapproché', numero_different:'Montant trouvé, numéro différent', plusieurs_correspondances:'Plusieurs demandes possibles', deja_traite:'Déjà traité', ignore:'Ignoré (pas un dépôt)' };
+  function pmsg(t, bad){ var m = $('pushMsg'); m.hidden = false; m.style.color = bad ? '#ff8a80' : ''; m.textContent = t; }
+  function b64ToU8(b){ var p = '='.repeat((4 - b.length % 4) % 4), s = (b + p).replace(/-/g,'+').replace(/_/g,'/'), r = atob(s), o = new Uint8Array(r.length); for (var i=0;i<r.length;i++) o[i] = r.charCodeAt(i); return o; }
+  function loadPhone(){
+    authFetch(API + '?sms_info=1').then(function(r){ return r.status === 403 ? null : r.json(); }).then(function(d){
+      if (!d) return;
+      $('hookUrl').value = location.origin + '/api/starvibe-keydou?sms=1&s=' + d.secret;
+      $('autoOn').checked = d.auto;
+      $('smsRows').innerHTML = (d.journal || []).map(function(l){ var p = dateParts(l.created_at); return '<tr><td>' + p.date + ' ' + p.heure + '</td><td>' + (l.montant || '—') + '</td><td>' + esc(l.numero || '—') + '</td><td>' + esc(RES[l.resultat] || l.resultat) + '</td><td class="muted">' + esc(String(l.message).slice(0, 90)) + '</td></tr>'; }).join('') || '<tr><td colspan="5" class="muted" style="padding:16px;text-align:center">Aucun SMS reçu pour le moment.</td></tr>';
+      if (d.telephonesNotifies) pmsg('✅ ' + d.telephonesNotifies + ' téléphone(s) reçoivent déjà les notifications.');
+    });
+  }
+  $('btnCopyHook').addEventListener('click', function(){ var i = $('hookUrl'); i.select(); try{ navigator.clipboard.writeText(i.value); }catch(e){ document.execCommand('copy'); } this.textContent = 'Copié ✔'; });
+  $('autoOn').addEventListener('change', function(){ post({ action:'sms_auto', on:this.checked }); });
+  $('btnPushOn').addEventListener('click', function(){
+    if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)){ pmsg('Ce navigateur ne gère pas les notifications. Sur iPhone : ajoute d\'abord la page à l\'écran d\'accueil, puis rouvre-la depuis l\'icône.', true); return; }
+    pmsg('Activation en cours…');
+    navigator.serviceWorker.register('/starvibe/sw-staff.js').then(function(){ return navigator.serviceWorker.ready; }).then(function(reg){
+      return Notification.requestPermission().then(function(perm){
+        if (perm !== 'granted') throw new Error('Autorisation refusée : active les notifications pour ce site dans les réglages du téléphone.');
+        return fetch(API + '?pushkey=1').then(function(r){ return r.json(); }).then(function(k){ return reg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey:b64ToU8(k.publicKey) }); });
+      });
+    }).then(function(sub){ return post({ action:'push_subscribe', subscription: sub.toJSON(), label: navigator.userAgent.slice(0, 50) }); })
+      .then(function(res){ if (!res.ok) throw new Error(res.data.error || 'Enregistrement impossible.'); pmsg('✅ Notifications activées. Touche « Envoyer un test ».'); })
+      .catch(function(e){ pmsg(e.message || 'Activation impossible.', true); });
+  });
+  $('btnPushTest').addEventListener('click', function(){ post({ action:'push_test' }).then(function(res){ pmsg(res.ok ? (res.data.envoyes ? 'Test envoyé (' + res.data.envoyes + ' téléphone). Regarde ton écran.' : 'Aucun téléphone enregistré : touche d\'abord « Activer ».') : (res.data.error || 'Échec.'), !res.ok || !res.data.envoyes); }); });
 
   if (getToken()) showMain(); else showLogin();
 })();

@@ -486,15 +486,16 @@
       '<div class="pay-row"><span>Montant</span><b>1 000 FCFA</b></div>' +
       '<div class="pay-row"><span>Envoyer au numéro</span><b>' + esc(current.numeroReception) + '</b></div>' +
       '<div class="pay-row"><span>Référence à indiquer</span><b>' + esc(current.referencePaiement) + '</b></div>' +
-      '<div class="field" style="margin-top:12px"><label for="txnRef">Code de la transaction (facultatif)</label><input id="txnRef" type="text" maxlength="60" placeholder="ex. MP2610…"></div>' +
+      '<div class="field" style="margin-top:12px"><label for="payNum">Numéro avec lequel vous payez</label><input id="payNum" type="tel" maxlength="20" placeholder="ex. 06 123 4567" autocomplete="tel"></div>' +
+      '<div class="field"><label for="txnRef">Code de la transaction (facultatif)</label><input id="txnRef" type="text" maxlength="60" placeholder="ex. MP2610…"></div>' +
       '<button class="btn ok block" id="btnPaid">J\'ai payé</button>' +
       '<div class="status" id="payStatus" hidden><span class="dots"><i></i><i></i><i></i></span><span>Keydou attend la confirmation de votre paiement…</span></div>' +
-      '<div class="note">Un compte STAR ENTREPRISE confirme la réception. Dès la validation, Keydou vous répond.</div>';
+      '<div class="note">Dès que votre dépôt est reconnu, Keydou vous répond automatiquement (en général en quelques secondes ; l\'équipe STAR ENTREPRISE confirme sinon à la main). Mettez la référence ci-dessus en message si votre opérateur le permet.</div>';
     showPanel('stepPay');
     $('btnPaid').addEventListener('click', function(){
       this.disabled = true; this.textContent = 'Paiement déclaré';
       $('payStatus').hidden = false;
-      post({ action:'paiement_declare', requestId:Number(current.id), reference:$('txnRef').value }).then(function(){ attendre(); });
+      post({ action:'paiement_declare', requestId:Number(current.id), reference:$('txnRef').value, numeroPaiement:$('payNum').value }).then(function(){ attendre(); });
     });
   }
 
@@ -507,6 +508,10 @@
       authFetch(API + '?id=' + current.id).then(function(r){ return r.json(); }).then(function(d){
         if (!d.demande) return;
         if (d.demande.statut === 'paye'){ clearInterval(pollTimer); paiementValide(); }
+        else if (d.demande.statut === 'paiement_refuse'){
+          clearInterval(pollTimer); setState('idle'); say("Je n'ai pas trouvé votre dépôt. Contactez l'équipe STAR ENTREPRISE.");
+          $('payStatus').innerHTML = '<span style="color:#b3261e">Dépôt non trouvé. Vérifiez le numéro et le montant, ou contactez l\'équipe.</span>';
+        }
         else if (d.demande.statut === 'paiement_invalide'){
           clearInterval(pollTimer); setState('idle'); say("Le montant reçu ne correspond pas à 1 000 FCFA. Contactez l'équipe STAR ENTREPRISE.");
           $('payStatus').innerHTML = '<span style="color:#b3261e">Montant différent de 1 000 FCFA : paiement non validé. Contactez l\'équipe.</span>';

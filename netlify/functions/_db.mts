@@ -380,6 +380,36 @@ export async function ensureSchema() {
     )
   `;
   await sql`CREATE INDEX IF NOT EXISTS idx_keydou_events_created ON starvibe_keydou_events (created_at DESC)`;
+  await sql`ALTER TABLE starvibe_keydou_requests ADD COLUMN IF NOT EXISTS numero_paiement TEXT NOT NULL DEFAULT ''`;
+  // Notifications "Valider le dépôt ? Oui / Non" sur le téléphone du staff (Web Push).
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_push_subs (
+      id SERIAL PRIMARY KEY,
+      endpoint TEXT UNIQUE NOT NULL,
+      p256dh TEXT NOT NULL,
+      auth TEXT NOT NULL,
+      label TEXT NOT NULL DEFAULT '',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+  // Journal des SMS de dépôt transférés depuis le téléphone de réception (reconnaissance automatique).
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_sms_log (
+      id SERIAL PRIMARY KEY,
+      expediteur TEXT NOT NULL DEFAULT '',
+      message TEXT NOT NULL DEFAULT '',
+      montant INTEGER,
+      numero TEXT NOT NULL DEFAULT '',
+      resultat TEXT NOT NULL DEFAULT '',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL DEFAULT ''
+    )
+  `;
 
   await sql`
     CREATE TABLE IF NOT EXISTS starvibe_likes (
