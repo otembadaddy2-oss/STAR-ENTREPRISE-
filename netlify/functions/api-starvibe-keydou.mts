@@ -265,14 +265,17 @@ export default async (req: Request, _context: Context) => {
     const { message, from } = await lireSms(req);
     const p = parseSms(message);
     const auto = ((await sql`SELECT value FROM starvibe_settings WHERE key = 'sms_auto'`) as { value: string }[])[0]?.value !== "off";
+    const repliMontant = ((await sql`SELECT value FROM starvibe_settings WHERE key = 'sms_montant_seul'`) as { value: string }[])[0]?.value !== "off";
     let resultat = "ignore";
     let valeur: { kind: string; id: number } | null = null;
 
     if (p.depot && p.montant) {
       const kd = (await sql`
-        SELECT k.id, k.numero_paiement, a.telephone FROM starvibe_keydou_requests k JOIN starvibe_accounts a ON a.id = k.account_id
+        SELECT k.id, k.numero_paiement, a.telephone,
+               (k.paiement_declare_at IS NOT NULL AND k.paiement_declare_at > now() - interval '20 minutes') AS recent
+        FROM starvibe_keydou_requests k JOIN starvibe_accounts a ON a.id = k.account_id
         WHERE k.statut = 'en_attente_paiement' AND k.montant_attendu = ${p.montant} AND k.created_at > now() - interval '48 hours'
-      `) as { id: number; numero_paiement: string; telephone: string }[];
+      `) as { id: number; numero_paiement: string; telephone: string; recent: boolean }[];
       const ab = (await sql`
         SELECT s.id, a.telephone FROM starvibe_subscriptions s JOIN starvibe_accounts a ON a.id = s.account_id
         WHERE s.statut = 'en_attente_paiement' AND s.montant_attendu = ${p.montant} AND s.created_at > now() - interval '48 hours'
@@ -283,14 +286,21 @@ export default async (req: Request, _context: Context) => {
       ];
       const sure = cands.filter((c) => c.byRef || c.byPhone);
       const byRef = sure.filter((c) => c.byRef);
-      const unique = byRef.length === 1 ? byRef : (sure.length === 1 ? sure : []);
+      let unique = byRef.length === 1 ? byRef : (sure.length === 1 ? sure : []);
+      // Repli : le client a payé depuis un autre numéro. Si UNE SEULE demande de ce montant attend
+      // (et que le client a touché "J'ai payé" il y a moins de 20 min), le dépôt lui revient.
+      let repli = false;
+      if (!unique.length && !sure.length && repliMontant) {
+        const recents = kd.filter((r) => r.recent);
+        if (recents.length === 1 && cands.length === 1) { unique = [{ kind: "keydou", id: recents[0].id, byRef: false, byPhone: false }]; repli = true; }
+      }
       if (unique.length === 1) {
         valeur = { kind: unique[0].kind, id: unique[0].id };
         if (auto) {
-          const v = await validerDepot(sql, valeur.kind, valeur.id, "mobile_money_sms", `SMS ${p.numero}`);
-          resultat = v.ok ? "valide_auto" : "deja_traite";
+          const v = await validerDepot(sql, valeur.kind, valeur.id, repli ? "mobile_money_sms_montant" : "mobile_money_sms", `SMS ${p.numero}`);
+          resultat = v.ok ? (repli ? "valide_auto_montant" : "valide_auto") : "deja_traite";
           if (v.ok) {
-            try { await pushAll(sql, { title: "✅ Dépôt reconnu et validé", body: `${p.montant} FCFA de ${p.numero || "?"} — ${KIND_LABEL[valeur.kind]} n°${valeur.id}. Keydou répond au client.`, tag: `${valeur.kind}-${valeur.id}`, url: "/starvibe/keydou-admin.html" }); } catch { /* ignore */ }
+            try { await pushAll(sql, { title: "✅ Dépôt reconnu et validé", body: `${p.montant} FCFA de ${p.numero || "?"} — ${KIND_LABEL[valeur.kind]} n°${valeur.id}${repli ? " (numéro différent de celui du compte, seule demande en attente)" : ""}. Keydou répond au client.`, tag: `${valeur.kind}-${valeur.id}`, url: "/starvibe/keydou-admin.html" }); } catch { /* ignore */ }
           }
         } else {
           resultat = "a_confirmer";
@@ -312,7 +322,8 @@ export default async (req: Request, _context: Context) => {
     const auto = ((await sql`SELECT value FROM starvibe_settings WHERE key = 'sms_auto'`) as { value: string }[])[0]?.value !== "off";
     const subs = (await sql`SELECT COUNT(*) AS n FROM starvibe_push_subs`) as { n: string }[];
     const log = (await sql`SELECT id, expediteur, message, montant, numero, resultat, created_at FROM starvibe_sms_log ORDER BY id DESC LIMIT 20`) as unknown[];
-    return json({ secret: smsSecret(), auto, telephonesNotifies: Number(subs[0]?.n || 0), journal: log });
+    const repli = ((await sql`SELECT value FROM starvibe_settings WHERE key = 'sms_montant_seul'`) as { value: string }[])[0]?.value !== "off";
+    return json({ secret: smsSecret(), auto, repli, telephonesNotifies: Number(subs[0]?.n || 0), journal: log });
   }
 
   // --- Staff : journal des contacts, en direct ---
@@ -411,11 +422,15 @@ export default async (req: Request, _context: Context) => {
     }
 
     // --- Staff : activer les notifications sur ce téléphone, test, mode automatique ---
-    if (action === "push_subscribe" || action === "push_test" || action === "sms_auto") {
+    if (action === "push_subscribe" || action === "push_test" || action === "sms_auto" || action === "sms_repli") {
       const staff = await requireAuth(req);
       if (!staff || staff.org !== STAFF_ORG) return json({ error: "Non autorisé" }, 403);
       if (action === "sms_auto") {
         await sql`INSERT INTO starvibe_settings (key, value) VALUES ('sms_auto', ${body.on ? "on" : "off"}) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`;
+        return json({ ok: true });
+      }
+      if (action === "sms_repli") {
+        await sql`INSERT INTO starvibe_settings (key, value) VALUES ('sms_montant_seul', ${body.on ? "on" : "off"}) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`;
         return json({ ok: true });
       }
       if (action === "push_test") {

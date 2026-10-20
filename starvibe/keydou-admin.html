@@ -107,6 +107,7 @@
       <div class="field"><label>Adresse du webhook (à coller dans l'application, méthode POST)</label><input id="hookUrl" readonly style="width:100%"></div>
       <div class="bar"><button class="btn" id="btnCopyHook">Copier l'adresse</button>
         <label style="font-size:13px;display:flex;align-items:center;gap:8px"><input type="checkbox" id="autoOn" checked> Validation automatique quand tout correspond</label></div>
+      <div class="bar"><label style="font-size:13px;display:flex;align-items:center;gap:8px"><input type="checkbox" id="repliOn" checked> Valider aussi si le client paie depuis un autre numéro (une seule demande de ce montant en attente, « J'ai payé » touché il y a moins de 20 min)</label></div>
       <ol class="muted" style="margin:6px 0 0;padding-left:18px;line-height:1.8">
         <li>Installe l'application de transfert de SMS sur le téléphone qui reçoit les dépôts.</li>
         <li>Règle : « si le SMS vient d'MTN / MobileMoney (et Airtel Money) » → « envoyer vers le webhook ci-dessus ».</li>
@@ -323,20 +324,21 @@
 
 
   /* ---------- téléphone : notifications + SMS ---------- */
-  var RES = { valide_auto:'✅ Validé automatiquement', a_confirmer:'Notification Oui/Non envoyée', non_rapproche:'Non rapproché', numero_different:'Montant trouvé, numéro différent', plusieurs_correspondances:'Plusieurs demandes possibles', deja_traite:'Déjà traité', ignore:'Ignoré (pas un dépôt)' };
+  var RES = { valide_auto:'✅ Validé automatiquement', valide_auto_montant:'✅ Validé (autre numéro, seule demande)', a_confirmer:'Notification Oui/Non envoyée', non_rapproche:'Non rapproché', numero_different:'Montant trouvé, numéro différent', plusieurs_correspondances:'Plusieurs demandes possibles', deja_traite:'Déjà traité', ignore:'Ignoré (pas un dépôt)' };
   function pmsg(t, bad){ var m = $('pushMsg'); m.hidden = false; m.style.color = bad ? '#ff8a80' : ''; m.textContent = t; }
   function b64ToU8(b){ var p = '='.repeat((4 - b.length % 4) % 4), s = (b + p).replace(/-/g,'+').replace(/_/g,'/'), r = atob(s), o = new Uint8Array(r.length); for (var i=0;i<r.length;i++) o[i] = r.charCodeAt(i); return o; }
   function loadPhone(){
     authFetch(API + '?sms_info=1').then(function(r){ return r.status === 403 ? null : r.json(); }).then(function(d){
       if (!d) return;
       $('hookUrl').value = location.origin + '/api/starvibe-keydou?sms=1&s=' + d.secret;
-      $('autoOn').checked = d.auto;
+      $('autoOn').checked = d.auto; $('repliOn').checked = d.repli !== false;
       $('smsRows').innerHTML = (d.journal || []).map(function(l){ var p = dateParts(l.created_at); return '<tr><td>' + p.date + ' ' + p.heure + '</td><td>' + (l.montant || '—') + '</td><td>' + esc(l.numero || '—') + '</td><td>' + esc(RES[l.resultat] || l.resultat) + '</td><td class="muted">' + esc(String(l.message).slice(0, 90)) + '</td></tr>'; }).join('') || '<tr><td colspan="5" class="muted" style="padding:16px;text-align:center">Aucun SMS reçu pour le moment.</td></tr>';
       if (d.telephonesNotifies) pmsg('✅ ' + d.telephonesNotifies + ' téléphone(s) reçoivent déjà les notifications.');
     });
   }
   $('btnCopyHook').addEventListener('click', function(){ var i = $('hookUrl'); i.select(); try{ navigator.clipboard.writeText(i.value); }catch(e){ document.execCommand('copy'); } this.textContent = 'Copié ✔'; });
   $('autoOn').addEventListener('change', function(){ post({ action:'sms_auto', on:this.checked }); });
+  $('repliOn').addEventListener('change', function(){ post({ action:'sms_repli', on:this.checked }); });
   $('btnPushOn').addEventListener('click', function(){
     if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)){ pmsg('Ce navigateur ne gère pas les notifications. Sur iPhone : ajoute d\'abord la page à l\'écran d\'accueil, puis rouvre-la depuis l\'icône.', true); return; }
     pmsg('Activation en cours…');
