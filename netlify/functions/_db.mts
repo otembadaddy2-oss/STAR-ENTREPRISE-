@@ -346,6 +346,40 @@ export async function ensureSchema() {
       updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
     )
   `;
+  await sql`ALTER TABLE starvibe_keydou_requests ADD COLUMN IF NOT EXISTS ville TEXT NOT NULL DEFAULT ''`;
+  // Mémoire de Keydou : l'annuaire des lieux (modifiable par le staff).
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_keydou_lieux (
+      id SERIAL PRIMARY KEY,
+      service TEXT NOT NULL,
+      ville TEXT NOT NULL,
+      nom TEXT NOT NULL,
+      adresse TEXT NOT NULL DEFAULT '',
+      telephone TEXT NOT NULL DEFAULT '',
+      whatsapp TEXT NOT NULL DEFAULT '',
+      description TEXT NOT NULL DEFAULT '',
+      source_url TEXT NOT NULL DEFAULT '',
+      source_note TEXT NOT NULL DEFAULT '',
+      verifie BOOLEAN NOT NULL DEFAULT false,
+      actif BOOLEAN NOT NULL DEFAULT true,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+  // Journal de tous les contacts avec Keydou (affiché en direct côté staff, exportable en Excel).
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_keydou_events (
+      id SERIAL PRIMARY KEY,
+      account_id INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      type TEXT NOT NULL,
+      texte TEXT NOT NULL DEFAULT '',
+      service TEXT NOT NULL DEFAULT '',
+      ville TEXT NOT NULL DEFAULT '',
+      request_id INTEGER,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_keydou_events_created ON starvibe_keydou_events (created_at DESC)`;
 
   await sql`
     CREATE TABLE IF NOT EXISTS starvibe_likes (

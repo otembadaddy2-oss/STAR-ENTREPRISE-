@@ -115,6 +115,24 @@
   .state a{color:var(--navy);font-weight:700;border-bottom:1.5px solid var(--gold);}
   footer{padding:20px;text-align:center;font-size:10px;color:var(--text-faint);}
 
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+  .chip{border:1.5px solid var(--line);background:#fff;border-radius:20px;padding:10px 16px;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;color:var(--navy);cursor:pointer;transition:border-color .2s ease, transform .2s ease;}
+  .chip:hover{border-color:var(--gold);transform:translateY(-2px);}
+  .preview{margin:8px 0 2px;padding:10px 12px;background:#faf5ea;border-radius:10px;font-size:12px;color:var(--text-dim);line-height:1.6;}
+  .preview b{color:var(--navy);}
+  .lieu{border:1px solid var(--line);border-radius:14px;padding:13px 14px;margin-top:10px;background:#fff;}
+  .lieu h3{font-size:14px;margin:0 0 2px;}
+  .lieu .adr{font-size:12px;color:var(--text-dim);margin-bottom:5px;}
+  .lieu .desc{font-size:12px;line-height:1.5;color:var(--text-dim);margin-bottom:8px;}
+  .lieu .badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 9px;border-radius:12px;background:#FBF0DA;color:#8a6410;margin-bottom:6px;}
+  .lieu .badge.ok{background:#e1f5ec;color:#1f7a57;}
+  .lieu .acts{display:flex;flex-wrap:wrap;gap:8px;}
+  .lieu a.call{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-family:'Sora',sans-serif;font-weight:800;font-size:12.5px;color:#fff;background:linear-gradient(135deg,#3fae82,var(--ok));padding:9px 13px;border-radius:11px;}
+  .lieu a.wa{text-decoration:none;font-family:'Sora',sans-serif;font-weight:800;font-size:12.5px;color:#075e54;background:#dff6e8;padding:9px 13px;border-radius:11px;}
+  .lieu .nonum{font-size:11.5px;color:var(--text-faint);font-style:italic;}
+  .privacy{font-size:10.5px;color:var(--text-faint);line-height:1.5;margin-top:10px;text-align:center;}
+
   @media (prefers-reduced-motion: reduce){.kd-body.dance,.kd-body.walk,.kd-body.idle{animation:none;} .kd-pos{transition:none;}}
 </style>
 </head>
@@ -133,7 +151,7 @@
 
   <div class="wrap content">
     <div class="stage" id="stage" aria-live="polite">
-      <div class="bubble" id="bubble"><b>Keydou</b><span id="bubbleText">Touche l'écran pour que je te dise bonjour !</span></div>
+      <div class="bubble" id="bubble"><b>Keydou</b><span id="bubbleText">Touchez l'écran pour que je vous dise bonjour !</span></div>
       <div class="floor"></div>
       <div class="kd-pos" id="kdPos" style="left:50%">
         <div class="kd-flip" id="kdFlip">
@@ -160,6 +178,7 @@
         <button class="btn main" id="btnSend">Envoyer</button>
       </div>
       <div class="next"><button class="btn" id="btnNext">Suivant →</button></div>
+      <div class="privacy">Vos échanges avec Keydou sont enregistrés par STAR ENTREPRISE pour traiter votre demande.</div>
     </div>
 
     <!-- Étape 2 : la liste -->
@@ -170,11 +189,21 @@
       <div class="next" style="justify-content:flex-start"><button class="btn" id="btnBackVoice">← Parler à Keydou</button></div>
     </div>
 
+    <!-- Ville -->
+    <div class="panel" id="stepVille" hidden>
+      <h2>Dans quelle ville ?</h2>
+      <p>Keydou connaît les adresses de ces quatre villes.</p>
+      <div class="chips" id="villeChips"></div>
+    </div>
+
     <!-- Formule -->
     <div class="panel" id="stepFormule" hidden></div>
 
     <!-- Paiement -->
     <div class="panel" id="stepPay" hidden></div>
+
+    <!-- Adresses -->
+    <div class="panel" id="stepResults" hidden></div>
 
     <!-- Coordonnées -->
     <div class="panel" id="stepDetails" hidden></div>
@@ -195,17 +224,19 @@
   var token = localStorage.getItem('starvibe_token');
   var $ = function(id){ return document.getElementById(id); };
 
+  var VILLES = ['Brazzaville','Pointe-Noire','Dolisie','Nkayi'];
   var SERVICES = [
-    { id:'hotel',     label:"Un hôtel",                                   phrase:"un hôtel",                                   keys:['hotel','chambre','hebergement','logement','dormir','nuitee'] },
-    { id:'restaurant',label:"Une table au restaurant",                    phrase:"une table au restaurant",                    keys:['restaurant','table','manger','repas','diner','dejeuner','resto'] },
-    { id:'coiffure',  label:"Un salon de coiffure (homme)",               phrase:"un salon de coiffure pour homme",            keys:['coiffure','coiffeur','coupe','barbe','cheveux','barbier'] },
-    { id:'sport',     label:"Une salle de sport",                         phrase:"une salle de sport",                         keys:['salle de sport','sport','gym','musculation','fitness'] },
-    { id:'mariage',   label:"Une salle de mariage ou d'événement",        phrase:"une salle de mariage ou d'événement",        keys:['mariage','evenement','fete','anniversaire','ceremonie','reception','salle'] },
-    { id:'spa',       label:"Un salon de spa",                            phrase:"un salon de spa",                            keys:['spa','massage','detente','bien-etre','bien etre','soin'] },
-    { id:'voiture',   label:"La location d'un véhicule pour la journée",  phrase:"la location d'un véhicule pour la journée",  keys:['voiture','vehicule','location','louer','taxi','chauffeur','auto'] },
-    { id:'cafe',      label:"Un rendez-vous dans un café",                phrase:"un rendez-vous dans un café",                keys:['cafe','rendez-vous','rendez vous','rencontre','rdv'] },
-    { id:'mecanique', label:"Un dépannage mécanique ou une orientation",  phrase:"un dépannage mécanique ou une orientation",  keys:['panne','mecanicien','mecanique','depannage','garage','moteur','orientation','orienter'] }
+    { id:'hotel',     label:"Un hôtel",                                   phrase:"un hôtel",                                   keys:['hotel','hotels','chambre','hebergement','logement','dormir','nuitee','auberge','residence'] },
+    { id:'restaurant',label:"Une table au restaurant",                    phrase:"une table au restaurant",                    keys:['restaurant','restaurants','table','manger','repas','diner','dejeuner','resto','gastronomie'] },
+    { id:'coiffure',  label:"Un salon de coiffure (homme)",               phrase:"un salon de coiffure pour homme",            keys:['coiffure','coiffeur','coupe','barbe','cheveux','barbier','barber','degrade'] },
+    { id:'sport',     label:"Une salle de sport",                         phrase:"une salle de sport",                         keys:['salle de sport','sport','gym','musculation','fitness','entrainement'] },
+    { id:'mariage',   label:"Une salle de mariage ou d'événement",        phrase:"une salle de mariage ou d'événement",        keys:['mariage','evenement','fete','anniversaire','ceremonie','reception','salle','banquet','conference'] },
+    { id:'spa',       label:"Un salon de spa",                            phrase:"un salon de spa",                            keys:['spa','massage','detente','bien-etre','bien etre','soin','hammam','sauna'] },
+    { id:'voiture',   label:"La location d'un véhicule pour la journée",  phrase:"la location d'un véhicule pour la journée",  keys:['voiture','vehicule','location','louer','taxi','chauffeur','auto','4x4'] },
+    { id:'cafe',      label:"Un rendez-vous dans un café",                phrase:"un rendez-vous dans un café",                keys:['cafe','rendez-vous','rendez vous','rencontre','rdv','salon de the','patisserie'] },
+    { id:'mecanique', label:"Un dépannage mécanique ou une orientation",  phrase:"un dépannage mécanique ou une orientation",  keys:['panne','mecanicien','mecanique','depannage','garage','moteur','orientation','orienter','pneu','batterie','remorquage'] }
   ];
+  var VILLE_KEYS = { 'Brazzaville':['brazzaville','brazza','bzv'], 'Pointe-Noire':['pointe noire','pointe-noire','pointenoire','ponton'], 'Dolisie':['dolisie','dolisy'], 'Nkayi':['nkayi','nkaye'] };
   function byId(id){ for (var i=0;i<SERVICES.length;i++) if (SERVICES[i].id===id) return SERVICES[i]; return null; }
 
   if (!token){ $('loadingState').hidden = true; $('loggedOutState').hidden = false; return; }
@@ -218,9 +249,18 @@
     return authFetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) })
       .then(function(r){ return r.json().then(function(d){ return { ok:r.ok, data:d }; }); });
   }
+  function track(type, texte, service, ville){ post({ action:'evenement', type:type, texte:texte||'', service:service||'', ville:ville||'', requestId: current ? Number(current.id) : 0 }).catch(function(){}); }
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
   function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
   function norm(t){ return String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9\- ]/g,' ').replace(/\s+/g,' ').trim(); }
+  function lev(a,b){
+    if (Math.abs(a.length-b.length) > 2) return 3;
+    var d=[], i, j;
+    for (i=0;i<=a.length;i++){ d[i]=[i]; }
+    for (j=0;j<=b.length;j++){ d[0][j]=j; }
+    for (i=1;i<=a.length;i++) for (j=1;j<=b.length;j++) d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+    return d[a.length][b.length];
+  }
 
   /* ------------------------------------------------------------------
      Keydou — personnage et voix
@@ -245,8 +285,6 @@
     return sleep(ms).then(function(){ setState('idle'); });
   }
 
-  // Voix : les phrases sont enregistrées (voix officielle Clémence). Le petit
-  // rebond de Keydou suit le volume réel de la voix quand le navigateur le permet.
   var ctx = null, analyser = null, data = null, raf = null, srcNode = null;
   function setupAnalyser(){
     if (analyser || !(window.AudioContext || window.webkitAudioContext)) return;
@@ -271,10 +309,9 @@
   }
   var audioOK = true;
   function speak(name, text){
-    // text : sous-titre affiché dans la bulle, toujours visible (même sans son)
     if (text) say(text);
     return new Promise(function(resolve){
-      if (!audioOK){ setTimeout(resolve, Math.min(6000, 600 + (text||'').length * 45)); return; }
+      if (!audioOK){ setTimeout(resolve, Math.min(7000, 600 + (text||'').length * 45)); return; }
       var prev = state;
       aud.src = 'assets/audio/keydou/' + name + '.mp3';
       var done = false;
@@ -286,83 +323,154 @@
       var p = aud.play();
       if (p && p.then){
         p.then(function(){ setState('talk'); cancelAnimationFrame(raf); animateTalk(); })
-         .catch(function(){ // lecture bloquée : on garde le sous-titre
-           audioOK = false; end(); });
+         .catch(function(){ audioOK = false; end(); });
       } else { setState('talk'); animateTalk(); }
     });
   }
 
   /* ------------------------------------------------------------------
-     Parcours
+     Les paroles de Keydou (sous-titres = ce qu'on entend)
   ------------------------------------------------------------------ */
-  var busy = false, current = null, pollTimer = null, repeats = 0;
-  var panels = ['stepVoice','stepList','stepFormule','stepPay','stepDetails','stepEnd'];
-  function showPanel(id){ panels.forEach(function(p){ $(p).hidden = (p !== id); }); window.scrollTo({ top: $(id).offsetTop - 12, behavior: 'smooth' }); }
-
   var TXT = {
-    hello: "Bonjour, bienvenue chez KOMYO. Je suis Keydou, agent chez STAR ENTREPRISE et votre assistant multiservices. Que puis-je faire pour vous aider ?",
-    noheard: "Je n'ai pas bien entendu. Appuyez sur le micro et parlez à nouveau, ou choisissez dans la liste.",
-    noanswer: "Désolé, je n'ai pas de réponse à cette question. Si votre besoin est dans la liste, je vous réponds. Choisissez-le ci-dessous.",
-    ackend: "Une solution est possible. Choisissez votre formule juste en dessous, puis réglez par Mobile Money ou Airtel Money.",
-    page2: "Vous n'avez pas fini ? Choisissez votre besoin dans la liste. Chaque service de Keydou est payant.",
-    waiting: "J'attends la confirmation de votre paiement. Merci de patienter quelques instants.",
-    paid: "Merci, votre paiement est bien reçu. Indiquez maintenant votre nom, vos coordonnées, le lieu, la date souhaitée et votre budget.",
-    done: "C'est noté. Notre équipe vous présente les disponibilités et les conditions avant de confirmer votre demande avec vous. Les frais d'assistance sont distincts du prix de la prestation. Voulez-vous que je répète ?",
-    repeat: "Je répète. Notre équipe vous présente les disponibilités et les conditions avant de confirmer votre demande avec vous. Les frais d'assistance sont distincts du prix de l'hôtel, du restaurant ou de toute autre prestation réservée. Voulez-vous que je répète encore ?",
-    bye: "Merci pour votre visite, à bientôt !"
+    hello: "Bonjour, et bienvenue chez KOMYO ! Moi, c'est Keydou, agent chez STAR ENTREPRISE et votre assistant multiservices. Dites-moi tout : que puis-je faire pour vous ?",
+    ville: "Dans quelle ville ? Brazzaville, Pointe-Noire, Dolisie ou Nkayi ?",
+    ackend: "Parfait, j'ai ce qu'il faut ! Choisissez votre formule juste en dessous, puis réglez par Mobile Money ou Airtel Money.",
+    noanswer: "Oups ! Désolé, je n'ai pas de réponse à cette question. Si votre besoin est dans la liste, je vous réponds avec plaisir. Choisissez-le ci-dessous.",
+    noheard: "Pardon, je n'ai pas bien entendu. Appuyez sur le micro et parlez à nouveau, ou choisissez dans la liste.",
+    page2: "Vous n'avez pas fini ? Pas de souci ! Choisissez votre besoin dans la liste. Chaque service de Keydou est payant.",
+    waiting: "J'attends la confirmation de votre paiement. Merci de patienter quelques instants, j'arrive tout de suite !",
+    paid: "Merci, votre paiement est bien reçu ! Voici les adresses que j'ai pour vous. Touchez un numéro pour appeler directement.",
+    paidnone: "Merci, votre paiement est bien reçu ! Pour cette ville, je n'ai pas encore d'adresse enregistrée. Laissez-moi vos coordonnées, et mon équipe cherche pour vous.",
+    details: "Et si vous voulez, je contacte les établissements pour vous. Indiquez votre nom, vos coordonnées, le lieu, la date souhaitée et votre budget.",
+    done: "C'est noté, merci ! Notre équipe vous présente les disponibilités et les conditions avant de confirmer votre demande avec vous. Les frais d'assistance sont distincts du prix de la prestation. Voulez-vous que je répète ?",
+    repeat: "Avec plaisir, je répète ! Notre équipe vous présente les disponibilités et les conditions avant de confirmer votre demande avec vous. Les frais d'assistance sont distincts du prix de l'hôtel, du restaurant ou de toute autre prestation réservée. Voulez-vous que je répète encore ?",
+    bye: "Merci pour votre visite, à bientôt ! Passez une très belle journée !",
+    'sm-greet': "Bonjour à vous aussi ! Dites-moi ce que vous cherchez, je vous écoute.",
+    'sm-thanks': "Avec plaisir ! C'est mon métier, et surtout ma joie.",
+    'sm-who': "Je suis Keydou, l'assistant multiservices de STAR ENTREPRISE. Je connais les bonnes adresses de Brazzaville, Pointe-Noire, Dolisie et Nkayi, et je vous aide dans vos démarches, avec le sourire !",
+    'sm-price': "Mon service coûte mille francs CFA. Les prix des hôtels, des restaurants et des autres prestations sont donnés par les établissements : moi, je ne les annonce pas.",
+    'sm-bye': "Au revoir, et à très bientôt !",
+    'sm-help': "Je peux vous aider à trouver un hôtel, un restaurant, un salon de coiffure pour homme, une salle de sport, une salle de mariage, un spa, une voiture pour la journée, un café ou un dépannage. Dites-moi simplement ce qu'il vous faut !"
+  };
+  var SVC_INTRO = {
+    hotel:"Super ! ", restaurant:"Miam ! ", coiffure:"Très bien ! ", sport:"Bravo, la forme ! ", mariage:"Oh, la belle fête ! ",
+    spa:"Quelle bonne idée ! ", voiture:"Parfait ! ", cafe:"Avec plaisir ! ", mecanique:"Ne vous inquiétez pas, je suis là ! "
   };
 
+  /* ------------------------------------------------------------------
+     Compréhension : service + ville + petites conversations
+  ------------------------------------------------------------------ */
+  function detectVille(text){
+    var t = ' ' + norm(text) + ' ';
+    for (var v in VILLE_KEYS){ for (var i=0;i<VILLE_KEYS[v].length;i++){ if (t.indexOf(' ' + VILLE_KEYS[v][i] + ' ') !== -1) return v; } }
+    var toks = norm(text).split(' ');
+    for (var v2 in VILLE_KEYS){ for (var j=0;j<VILLE_KEYS[v2].length;j++){ var k = VILLE_KEYS[v2][j]; if (k.indexOf(' ') !== -1 || k.length < 6) continue; for (var m=0;m<toks.length;m++){ if (toks[m].length >= 6 && lev(toks[m], k) <= (k.length >= 8 ? 2 : 1)) return v2; } } }
+    return '';
+  }
   function matchService(text){
-    var t = ' ' + norm(text) + ' ', best = null, bestScore = 0;
+    var n = norm(text), t = ' ' + n + ' ', toks = n.split(' '), best = null, bestScore = 0;
     SERVICES.forEach(function(s){
       var score = 0;
-      s.keys.forEach(function(k){ if (t.indexOf(' ' + norm(k) + ' ') !== -1 || t.indexOf(norm(k)) !== -1) score += (k.indexOf(' ') !== -1 ? 3 : 1); });
+      s.keys.forEach(function(k){
+        var nk = norm(k);
+        if (nk.indexOf(' ') !== -1 || nk.indexOf('-') !== -1){ if (t.indexOf(nk) !== -1) score += 3; return; }
+        if (toks.indexOf(nk) !== -1){ score += 2; return; }
+        // fautes de frappe tolérées seulement sur les mots longs (évite « coûte » ≈ « coupe »)
+        var tol = nk.length >= 8 ? 2 : (nk.length >= 6 ? 1 : 0);
+        if (tol) for (var i=0;i<toks.length;i++){ if (toks[i].length >= nk.length - 2 && lev(toks[i], nk) <= tol){ score += 1; break; } }
+      });
       if (score > bestScore){ bestScore = score; best = s; }
     });
     return best;
   }
+  function smalltalk(text){
+    var t = ' ' + norm(text) + ' ';
+    function has(list){ for (var i=0;i<list.length;i++) if (t.indexOf(' ' + list[i] + ' ') !== -1 || t.indexOf(list[i]) !== -1) return true; return false; }
+    if (has(['au revoir','a bientot','bye','ciao','a plus'])) return 'sm-bye';
+    if (has(['merci','thanks'])) return 'sm-thanks';
+    if (has(['qui es tu','qui etes vous','qui es-tu','tu es qui','vous etes qui','comment tu t appelles','comment vous vous appelez','presente'])) return 'sm-who';
+    if (has(['combien','prix','tarif','cout','coute','gratuit','payer'])) return 'sm-price';
+    if (has(['aide','aider','que peux','que sais','que fais','quoi faire','services','propose','que pouvez'])) return 'sm-help';
+    if (has(['bonjour','bonsoir','salut','coucou','hello','allo'])) return 'sm-greet';
+    return '';
+  }
 
-  // Keydou "réfléchit" : il marche d'un coin à l'autre pendant ~4 s
+  /* ------------------------------------------------------------------
+     Parcours
+  ------------------------------------------------------------------ */
+  var busy = false, current = null, pollTimer = null, repeats = 0, choice = { service:null, ville:'' }, lastSaid = '';
+  var panels = ['stepVoice','stepList','stepVille','stepFormule','stepPay','stepResults','stepDetails','stepEnd'];
+  function showPanel(id){ panels.forEach(function(p){ $(p).hidden = (p !== id); }); window.scrollTo({ top: $(id).offsetTop - 12, behavior: 'smooth' }); }
+
   function think(){
     return walkTo(X_RIGHT, 1300).then(function(){ return walkTo(X_LEFT, 1500); }).then(function(){ return walkTo(X_CENTER, 1200); }).then(function(){ face(false); });
   }
 
   function answerFor(text){
     if (busy) return; busy = true;
+    lastSaid = text;
     $('heard').hidden = false;
     $('heard').textContent = 'Vous avez dit : « ' + text + ' »';
+    track('parole', text);
     say('Je réfléchis…');
     think().then(function(){
-      var s = matchService(text);
-      if (!s){
-        return speak('noanswer', TXT.noanswer).then(function(){ busy = false; setState('dance'); });
-      }
-      return speak('svc-' + s.id, "D'accord, si j'ai bien compris, vous cherchez " + s.phrase + ".")
-        .then(function(){ return speak('ackend', TXT.ackend); })
-        .then(function(){ busy = false; showFormule(s); setState('idle'); });
+      var s = matchService(text), v = detectVille(text);
+      if (s) return chooseService(s, v);
+      var st = smalltalk(text);
+      if (st) return speak(st, TXT[st]).then(function(){ busy = false; setState('dance'); });
+      return speak('noanswer', TXT.noanswer).then(function(){ busy = false; setState('dance'); });
     });
   }
 
-  function showFormule(s){
+  function chooseService(s, ville){
+    choice = { service:s, ville: ville || '' };
+    track('choix_service', s.label, s.id, ville || '');
+    return speak('svc-' + s.id, SVC_INTRO[s.id] + "Si j'ai bien compris, vous cherchez " + s.phrase + ".")
+      .then(function(){
+        if (choice.ville){ busy = false; return afterVille(); }
+        showPanel('stepVille'); busy = false;
+        return speak('ville', TXT.ville);
+      });
+  }
+
+  function afterVille(){
+    track('choix_ville', choice.ville, choice.service.id, choice.ville);
+    authFetch(API + '?apercu=1&service=' + choice.service.id + '&ville=' + encodeURIComponent(choice.ville)).then(function(r){ return r.json(); })
+      .then(function(ap){ showFormule(choice.service, choice.ville, ap || { total:0, noms:[] }); })
+      .catch(function(){ showFormule(choice.service, choice.ville, { total:0, noms:[] }); });
+    return speak('ackend', TXT.ackend);
+  }
+
+  VILLES.forEach(function(v){
+    var b = document.createElement('button'); b.className = 'chip'; b.textContent = v;
+    b.addEventListener('click', function(){ if (!choice.service) return; choice.ville = v; afterVille(); });
+    $('villeChips').appendChild(b);
+  });
+
+  function showFormule(s, ville, ap){
     var f = $('stepFormule');
+    var preview = ap.total > 0
+      ? '<div class="preview"><b>' + ap.total + ' adresse' + (ap.total > 1 ? 's' : '') + ' référencée' + (ap.total > 1 ? 's' : '') + ' à ' + esc(ville) + '</b> : ' + ap.noms.map(esc).join(', ') + (ap.total > ap.noms.length ? '…' : '') + '.<br>Les numéros s\'affichent dès que votre paiement est confirmé.</div>'
+      : '<div class="preview"><b>Pas encore d\'adresse enregistrée pour ' + esc(ville) + '.</b> Keydou et son équipe cherchent pour vous : laissez vos coordonnées après le paiement. Vous pouvez aussi <a href="#" id="lnkOtherVille">choisir une autre ville</a>.</div>';
     f.innerHTML =
       '<div class="formule">' +
-        '<div class="tag">Formule Assistance</div>' +
+        '<div class="tag">Formule Assistance · ' + esc(ville) + '</div>' +
         '<h3>' + esc(s.label) + '</h3>' +
-        '<div class="price">1 000 FCFA <span>par service</span></div>' +
-        '<ul><li>Keydou recherche une solution adaptée à votre besoin</li><li>Il prend contact avec les établissements ou professionnels concernés, selon vos instructions</li><li>Vous recevez les disponibilités et les conditions avant toute confirmation</li></ul>' +
+        '<div class="price">1 000 FCFA <span>par service</span></div>' + preview +
+        '<ul><li>Les adresses et numéros à contacter, un par un</li><li>Keydou peut aussi contacter les établissements pour vous, selon vos instructions</li><li>Vous recevez les disponibilités et les conditions avant toute confirmation</li></ul>' +
         '<button class="btn main block" id="btnPay">Payer 1 000 FCFA — Mobile Money / Airtel Money</button>' +
         '<div class="note">Les frais d\'assistance sont distincts du prix de l\'hôtel, du restaurant ou de toute autre prestation réservée. Les réservations restent soumises aux disponibilités et à la confirmation de l\'établissement.</div>' +
         '<button class="btn block" id="btnOther" style="margin-top:10px">Choisir un autre besoin</button>' +
       '</div>';
     showPanel('stepFormule');
-    $('btnPay').addEventListener('click', function(){ creerDemande(s); });
+    $('btnPay').addEventListener('click', function(){ creerDemande(s, ville); });
     $('btnOther').addEventListener('click', function(){ showPanel('stepList'); });
+    var lk = $('lnkOtherVille'); if (lk) lk.addEventListener('click', function(e){ e.preventDefault(); showPanel('stepVille'); });
   }
 
-  function creerDemande(s){
+  function creerDemande(s, ville){
     var b = $('btnPay'); b.disabled = true; b.textContent = 'Un instant…';
-    post({ action:'demande', service:s.id, demandeVocale: $('heard').hidden ? '' : $('heard').textContent.replace(/^Vous avez dit : « |» ?$/g,'') }).then(function(res){
+    post({ action:'demande', service:s.id, ville:ville, demandeVocale: lastSaid }).then(function(res){
       if (!res.ok){ b.disabled = false; b.textContent = 'Payer 1 000 FCFA — Mobile Money / Airtel Money'; alert(res.data.error || 'Impossible de créer la demande.'); return; }
       current = res.data.demande; showPay(s);
     });
@@ -374,6 +482,7 @@
       '<h2>Paiement de 1 000 FCFA</h2>' +
       '<p>Envoyez le montant exact par Mobile Money ou Airtel Money, puis touchez « J\'ai payé ».</p>' +
       '<div class="pay-row"><span>Service</span><b>' + esc(s.label) + '</b></div>' +
+      '<div class="pay-row"><span>Ville</span><b>' + esc(current.ville || '—') + '</b></div>' +
       '<div class="pay-row"><span>Montant</span><b>1 000 FCFA</b></div>' +
       '<div class="pay-row"><span>Envoyer au numéro</span><b>' + esc(current.numeroReception) + '</b></div>' +
       '<div class="pay-row"><span>Référence à indiquer</span><b>' + esc(current.referencePaiement) + '</b></div>' +
@@ -389,8 +498,6 @@
     });
   }
 
-  // Pendant l'attente : Keydou marche, s'assoit. À la validation : il se lève,
-  // se retourne et revient au centre pour répondre.
   function attendre(){
     walkTo(X_LEFT, 1600).then(function(){ face(false); setState('sit'); say(TXT.waiting); return speak('waiting', TXT.waiting).then(function(){ setState('sit'); }); });
     var tries = 0;
@@ -411,11 +518,41 @@
 
   function paiementValide(){
     setState('idle');
-    sleep(400).then(function(){ return walkTo(X_RIGHT, 1000); })   // se lève et se retourne
-      .then(function(){ face(true); return sleep(500); })
-      .then(function(){ return walkTo(X_CENTER, 1300); })
-      .then(function(){ face(false); setState('dance'); return speak('paid', TXT.paid); })
-      .then(function(){ setState('idle'); showDetails(); });
+    authFetch(API + '?resultats=1&requestId=' + current.id).then(function(r){ return r.json(); }).catch(function(){ return { lieux:[] }; }).then(function(res){
+      var lieux = (res && res.lieux) || [];
+      sleep(400).then(function(){ return walkTo(X_RIGHT, 1000); })
+        .then(function(){ face(true); return sleep(500); })
+        .then(function(){ return walkTo(X_CENTER, 1300); })
+        .then(function(){ face(false); setState('dance'); showResults(lieux); return speak(lieux.length ? 'paid' : 'paidnone', lieux.length ? TXT.paid : TXT.paidnone); })
+        .then(function(){ setState('idle'); if (!lieux.length) showDetails(); });
+    });
+  }
+
+  function telLinks(txt){
+    return String(txt||'').split('/').map(function(x){ return x.trim(); }).filter(Boolean).map(function(num){
+      var d = num.replace(/[^0-9+]/g,'');
+      var href = d.charAt(0) === '+' ? d : (d.indexOf('242') === 0 ? '+' + d : '+242' + d);
+      return '<a class="call" href="tel:' + esc(href) + '" data-n="' + esc(num) + '">📞 ' + esc(num) + '</a>';
+    }).join('');
+  }
+  function showResults(lieux){
+    var r = $('stepResults');
+    var html = '<h2>Les adresses de Keydou</h2><p>' + esc(current.serviceLabel || choice.service.label) + (current.ville ? ' · ' + esc(current.ville) : '') + '. Touchez un numéro pour appeler. Numéros relevés sur des sources publiques : confirmez-les avant de vous déplacer.</p>';
+    if (!lieux.length) html += '<div class="preview">Aucune adresse enregistrée pour le moment. Keydou et son équipe cherchent pour vous : laissez vos coordonnées juste après.</div>';
+    lieux.forEach(function(l){
+      var wa = l.whatsapp ? '<a class="wa" target="_blank" rel="noopener" href="https://wa.me/' + esc(String(l.whatsapp).replace(/[^0-9]/g,'')) + '">WhatsApp</a>' : '';
+      html += '<div class="lieu"><span class="badge ' + (l.verifie ? 'ok' : '') + '">' + (l.verifie ? 'Numéro vérifié' : 'À confirmer') + (l.sourceNote && !l.verifie ? ' · ' + esc(l.sourceNote) : '') + '</span>' +
+        '<h3>' + esc(l.nom) + '</h3>' +
+        '<div class="adr">' + esc(l.ville) + (l.adresse ? ' · ' + esc(l.adresse) : '') + '</div>' +
+        (l.description ? '<div class="desc">' + esc(l.description) + '</div>' : '') +
+        '<div class="acts">' + (l.telephone ? telLinks(l.telephone) : '<span class="nonum">Numéro pas encore trouvé : Keydou peut le chercher pour vous.</span>') + wa + '</div></div>';
+    });
+    html += '<button class="btn main block" id="btnWantDetails" style="margin-top:14px">Keydou, contacte pour moi</button><button class="btn block" id="btnNoThanks">Non merci, ça me suffit</button>';
+    r.innerHTML = html;
+    showPanel('stepResults');
+    r.querySelectorAll('a.call').forEach(function(a){ a.addEventListener('click', function(){ track('appel_lieu', a.getAttribute('data-n'), current.service, current.ville); }); });
+    $('btnWantDetails').addEventListener('click', function(){ showDetails(); });
+    $('btnNoThanks').addEventListener('click', function(){ repeats = 0; bye(true); });
   }
 
   function showDetails(){
@@ -431,6 +568,8 @@
       '<div class="field"><label for="dPrec">Précisions</label><textarea id="dPrec" maxlength="400"></textarea></div>' +
       '<button class="btn main block" id="btnSendDetails">Envoyer ma demande</button><div class="errmsg" id="dErr" hidden></div>';
     showPanel('stepDetails');
+    if (current && current.ville) $('dVille').value = current.ville;
+    speak('details', TXT.details);
     $('btnSendDetails').addEventListener('click', function(){
       var err = $('dErr'); err.hidden = true;
       var body = { action:'details', requestId:Number(current.id), nom:$('dNom').value, contact:$('dContact').value, ville:$('dVille').value, lieu:$('dLieu').value, date:$('dDate').value, budget:$('dBudget').value, precisions:$('dPrec').value };
@@ -463,7 +602,8 @@
     });
     $('no').addEventListener('click', function(){ a.innerHTML = ''; bye(); });
   }
-  function bye(){
+  function bye(fromResults){
+    if (fromResults){ var e = $('stepEnd'); e.innerHTML = '<div id="askRepeat"></div>'; showPanel('stepEnd'); }
     $('askRepeat').innerHTML = '<div class="okbox"><a class="btn main" href="accueil.html" style="display:inline-block;text-decoration:none">Retour à mon espace</a></div>';
     speak('bye', TXT.bye).then(function(){ setState('dance'); });
   }
@@ -505,31 +645,25 @@
     var b = document.createElement('button');
     b.className = 'svc';
     b.innerHTML = '<span>' + esc(s.label) + '</span><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="m9 6 6 6-6 6"/></svg>';
-    b.addEventListener('click', function(){
-      if (busy) return; busy = true;
-      speak('svc-' + s.id, "D'accord, si j'ai bien compris, vous cherchez " + s.phrase + ".")
-        .then(function(){ return speak('ackend', TXT.ackend); })
-        .then(function(){ busy = false; showFormule(s); });
-    });
+    b.addEventListener('click', function(){ if (busy) return; busy = true; lastSaid = s.label; chooseService(s, ''); });
     $('svcList').appendChild(b);
   });
   $('btnNext').addEventListener('click', function(){ showPanel('stepList'); setState('idle'); speak('page2', TXT.page2); });
   $('btnBackVoice').addEventListener('click', function(){ showPanel('stepVoice'); });
 
   /* ------------------------------------------------------------------
-     Démarrage : Keydou danse comme un enfant de 3 ans, puis dit bonjour
-     (le navigateur exige un geste de l'utilisateur pour jouer un son)
+     Démarrage
   ------------------------------------------------------------------ */
   authFetch(AUTH).then(function(r){ if (!r.ok){ localStorage.removeItem('starvibe_token'); $('loadingState').hidden = true; $('loggedOutState').hidden = false; return; }
     $('loadingState').hidden = true; $('appState').hidden = false;
-    setState('dance'); say("Touche l'écran pour que je te dise bonjour !");
+    track('ouverture');
+    setState('dance'); say("Touchez l'écran pour que je vous dise bonjour !");
     var started = false;
     function hello(){
       if (started) return; started = true;
       document.removeEventListener('pointerdown', hello, true);
       speak('hello', TXT.hello).then(function(){ setState('idle'); });
     }
-    // essai de lecture automatique ; sinon, au premier toucher
     aud.src = 'assets/audio/keydou/hello.mp3';
     var p = aud.play();
     if (p && p.then){ p.then(function(){ aud.pause(); aud.currentTime = 0; hello(); }).catch(function(){ document.addEventListener('pointerdown', hello, true); }); }

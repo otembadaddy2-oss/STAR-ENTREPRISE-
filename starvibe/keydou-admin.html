@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KOMYO — Espace Keydou</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#050B18">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+<style>
+  :root{--navy:#0d1830;--navy-deep:#050B18;--card:#12213F;--gold:#c8942f;--gold-light:#e8b85c;--ok:#6fd6ab;--err:#ff8a80;--dim:rgba(255,255,255,.55);}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--navy-deep);color:#fff;font-family:'Inter',Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:'Sora',Arial,sans-serif;}
+  [hidden]{display:none!important;}
+  .wrap{max-width:980px;margin:0 auto;padding:18px;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+  .topbar h1{font-size:17px;margin:0;}
+  .live{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--ok);margin-left:8px;}
+  .live i{width:8px;height:8px;border-radius:50%;background:var(--ok);animation:blink 1.4s infinite;}
+  @keyframes blink{0%,100%{opacity:.3;}50%{opacity:1;}}
+  .linkbtn{border:1.5px solid rgba(255,255,255,.22);color:#fff;font-size:11.5px;font-weight:700;font-family:'Sora',sans-serif;padding:8px 13px;border-radius:20px;background:none;cursor:pointer;text-decoration:none;}
+  .tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+  .tab{border:none;border-radius:12px;padding:10px 16px;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;cursor:pointer;background:rgba(255,255,255,.07);color:#fff;}
+  .tab.on{background:linear-gradient(135deg,#FF7A2E,var(--gold));}
+  .btn{border:none;border-radius:11px;padding:10px 15px;font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;background:rgba(255,255,255,.1);color:#fff;}
+  .btn.main{background:linear-gradient(135deg,#FF7A2E,var(--gold));}
+  .btn.ok{background:rgba(47,143,110,.3);color:var(--ok);}
+  .btn.del{background:rgba(179,38,30,.25);color:var(--err);}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center;}
+  input,select,textarea{border:1.5px solid rgba(255,255,255,.18);border-radius:10px;padding:9px 11px;font-family:'Inter',sans-serif;font-size:13px;color:#fff;background:rgba(255,255,255,.05);}
+  select option{color:#000;}
+  .login-card{background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:24px;margin:12vh auto 0;max-width:420px;}
+  .login-card h2{font-size:17px;margin:0 0 4px;} .login-card p{font-size:12.5px;color:var(--dim);margin:0 0 16px;}
+  .field{margin-bottom:12px;} .field label{display:block;font-size:11.5px;font-weight:700;margin-bottom:5px;} .field input{width:100%;}
+  .err{display:none;font-size:12px;color:var(--err);margin-bottom:10px;} .err.show{display:block;}
+  .tablewrap{overflow-x:auto;border:1px solid rgba(255,255,255,.08);border-radius:14px;}
+  table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:760px;}
+  th{position:sticky;top:0;background:#0b1a36;text-align:left;font-family:'Sora',sans-serif;font-size:11px;letter-spacing:.4px;text-transform:uppercase;color:var(--gold-light);padding:9px 10px;white-space:nowrap;}
+  td{padding:8px 10px;border-top:1px solid rgba(255,255,255,.06);vertical-align:top;}
+  tr.new td{animation:flash 2.5s ease;}
+  @keyframes flash{from{background:rgba(232,184,92,.25);}to{background:transparent;}}
+  .pill{display:inline-block;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:12px;background:rgba(255,255,255,.1);white-space:nowrap;}
+  .pill.pay{background:rgba(47,143,110,.3);color:var(--ok);} .pill.warn{background:rgba(232,184,92,.2);color:var(--gold-light);}
+  .muted{color:var(--dim);font-size:12px;}
+  .stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+  .stat{background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 14px;min-width:120px;}
+  .stat b{display:block;font-family:'Sora',sans-serif;font-size:20px;} .stat span{font-size:11px;color:var(--dim);}
+  .formcard{background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;margin-bottom:14px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;}
+  .grid .field input,.grid .field select,.grid .field textarea{width:100%;}
+  .msg{font-size:12px;margin-top:8px;color:var(--ok);}
+</style>
+</head>
+<body>
+
+<div id="loginView" class="wrap">
+  <div class="login-card">
+    <h2>Espace Keydou</h2>
+    <p>Connexion staff STAR ENTREPRISE.</p>
+    <div class="err" id="loginErr"></div>
+    <div class="field"><label for="fUser">Identifiant</label><input type="text" id="fUser" autocomplete="username"></div>
+    <div class="field"><label for="fPass">Mot de passe</label><input type="password" id="fPass" autocomplete="current-password"></div>
+    <button class="btn main" id="btnLogin" style="width:100%;padding:13px">Se connecter</button>
+  </div>
+</div>
+
+<div id="mainView" class="wrap" hidden>
+  <div class="topbar">
+    <h1>Keydou — suivi<span class="live"><i></i>en direct</span></h1>
+    <div style="display:flex;gap:8px"><a class="linkbtn" href="paiements.html">Paiements</a><button class="linkbtn" id="btnLogout">Déconnexion</button></div>
+  </div>
+  <div class="tabs">
+    <button class="tab on" id="tabContacts">Contacts en direct</button>
+    <button class="tab" id="tabAnnuaire">Annuaire de Keydou</button>
+  </div>
+
+  <!-- CONTACTS -->
+  <div id="paneContacts">
+    <div class="stats" id="stats"></div>
+    <div class="bar">
+      <input type="search" id="q" placeholder="Rechercher (nom, téléphone, texte…)" style="flex:1;min-width:200px">
+      <button class="btn main" id="btnExcel">⬇ Télécharger l'Excel du jour</button>
+      <button class="btn" id="btnExcelAll">⬇ Excel complet</button>
+    </div>
+    <div class="muted" id="lastRefresh" style="margin-bottom:8px"></div>
+    <div class="tablewrap"><table><thead><tr><th>Date</th><th>Heure</th><th>Nom</th><th>Téléphone</th><th>Événement</th><th>Détail</th><th>Service</th><th>Ville</th><th>Réf.</th></tr></thead><tbody id="rows"></tbody></table></div>
+  </div>
+
+  <!-- ANNUAIRE -->
+  <div id="paneAnnuaire" hidden>
+    <div class="formcard">
+      <h3 style="margin:0 0 4px;font-size:14px">Mémoire de Keydou : les adresses qu'il connaît</h3>
+      <p class="muted" style="margin:0 0 10px">Ajoutez, corrigez ou supprimez une adresse. Vous pouvez aussi remplir un fichier Excel et l'importer. Cochez « Vérifié » seulement quand le numéro a été confirmé par un appel.</p>
+      <div class="bar">
+        <button class="btn main" id="btnNew">+ Ajouter une adresse</button>
+        <button class="btn" id="btnExport">⬇ Télécharger l'annuaire (Excel)</button>
+        <label class="btn ok" style="cursor:pointer">⬆ Importer un Excel<input type="file" id="fileImport" accept=".xlsx,.xls,.csv" hidden></label>
+        <select id="fService"></select><select id="fVille"></select>
+      </div>
+      <div class="msg" id="impMsg" hidden></div>
+    </div>
+    <div class="formcard" id="editCard" hidden>
+      <h3 id="editTitle" style="margin:0 0 10px;font-size:14px">Adresse</h3>
+      <div class="grid">
+        <div class="field"><label>Service</label><select id="eService"></select></div>
+        <div class="field"><label>Ville</label><select id="eVille"></select></div>
+        <div class="field"><label>Nom</label><input id="eNom" maxlength="120"></div>
+        <div class="field"><label>Adresse / quartier</label><input id="eAdr" maxlength="200"></div>
+        <div class="field"><label>Téléphone(s) (séparés par « / »)</label><input id="eTel" maxlength="80"></div>
+        <div class="field"><label>WhatsApp (chiffres)</label><input id="eWa" maxlength="40"></div>
+        <div class="field" style="grid-column:1/-1"><label>Description</label><textarea id="eDesc" maxlength="400" rows="2"></textarea></div>
+        <div class="field"><label>Source (lien)</label><input id="eSrc" maxlength="300"></div>
+        <div class="field"><label>Note sur la source</label><input id="eNote" maxlength="200"></div>
+        <div class="field"><label><input type="checkbox" id="eVer"> Numéro vérifié par appel</label></div>
+        <div class="field"><label><input type="checkbox" id="eActif" checked> Visible par les clients</label></div>
+      </div>
+      <div class="bar"><button class="btn main" id="btnSave">Enregistrer</button><button class="btn" id="btnCancel">Annuler</button></div>
+      <div class="err" id="editErr"></div>
+    </div>
+    <div class="tablewrap"><table><thead><tr><th>Service</th><th>Ville</th><th>Nom</th><th>Téléphone</th><th>État</th><th></th></tr></thead><tbody id="lieuxRows"></tbody></table></div>
+  </div>
+</div>
+
+<script src="assets/vendor/xlsx.full.min.js"></script>
+<script>
+(function(){
+  var TOKEN_KEY = 'starvibe_admin_token';
+  var API_AUTH = '/api/auth', API = '/api/starvibe-keydou';
+  var $ = function(id){ return document.getElementById(id); };
+  function getToken(){ try{ return localStorage.getItem(TOKEN_KEY) || ''; }catch(e){ return ''; } }
+  function setToken(t){ try{ if (t) localStorage.setItem(TOKEN_KEY, t); else localStorage.removeItem(TOKEN_KEY); }catch(e){} }
+  function authFetch(url, opts){ opts = opts || {}; opts.headers = Object.assign({}, opts.headers, { 'Authorization': 'Bearer ' + getToken() }); return fetch(url, opts); }
+  function post(body){ return authFetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) }).then(function(r){ return r.json().then(function(d){ return { ok:r.ok, data:d }; }); }); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+  function pad(n){ return (n<10?'0':'') + n; }
+
+  var EV = { ouverture:'A ouvert Keydou', parole:'A dit', choix_service:'Service choisi', choix_ville:'Ville choisie', demande:'Demande créée (paiement attendu)', paiement_declare:'A déclaré avoir payé', paiement_valide:'Paiement confirmé', paiement_invalide:'Paiement refusé (montant)', coordonnees:'Coordonnées envoyées', appel_lieu:'A appelé une adresse' };
+  var SERVICES = {}, VILLES = [];
+
+  /* ---------- connexion ---------- */
+  function showLogin(){ $('loginView').hidden = false; $('mainView').hidden = true; clearInterval(timer); }
+  function showMain(){ $('loginView').hidden = true; $('mainView').hidden = false; loadContacts(true); loadAnnuaire(); clearInterval(timer); timer = setInterval(function(){ if (!$('paneContacts').hidden) loadContacts(false); }, 6000); }
+  var timer = null;
+  $('btnLogin').addEventListener('click', function(){
+    var err = $('loginErr'); err.classList.remove('show');
+    var u = $('fUser').value.trim(), p = $('fPass').value;
+    if (!u || !p){ err.textContent = 'Identifiant et mot de passe requis.'; err.classList.add('show'); return; }
+    fetch(API_AUTH, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'login', username:u, password:p }) })
+      .then(function(r){ return r.json().then(function(d){ return { ok:r.ok, data:d }; }); })
+      .then(function(res){ if (!res.ok){ err.textContent = res.data.error || 'Connexion impossible.'; err.classList.add('show'); return; } setToken(res.data.token); showMain(); })
+      .catch(function(){ err.textContent = 'Impossible de contacter le serveur.'; err.classList.add('show'); });
+  });
+  $('btnLogout').addEventListener('click', function(){ setToken(''); showLogin(); });
+  $('tabContacts').addEventListener('click', function(){ $('tabContacts').classList.add('on'); $('tabAnnuaire').classList.remove('on'); $('paneContacts').hidden = false; $('paneAnnuaire').hidden = true; });
+  $('tabAnnuaire').addEventListener('click', function(){ $('tabAnnuaire').classList.add('on'); $('tabContacts').classList.remove('on'); $('paneContacts').hidden = true; $('paneAnnuaire').hidden = false; });
+
+  /* ---------- contacts en direct ---------- */
+  var contacts = [], seen = {};
+  function dateParts(iso){ var d = new Date(iso); return { date: d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()), heure: pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()) }; }
+  function todayStr(){ var d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()); }
+
+  function loadContacts(first){
+    authFetch(API + '?contacts=1&limit=1000').then(function(r){ if (r.status === 403){ setToken(''); showLogin(); return null; } return r.json(); }).then(function(d){
+      if (!d) return;
+      var fresh = {};
+      d.contacts.forEach(function(c){ if (!first && !seen[c.id]) fresh[c.id] = true; seen[c.id] = true; });
+      contacts = d.contacts;
+      render(fresh);
+      var t = new Date(); $('lastRefresh').textContent = 'Mis à jour à ' + pad(t.getHours()) + ':' + pad(t.getMinutes()) + ':' + pad(t.getSeconds()) + ' — rafraîchi automatiquement toutes les 6 secondes.';
+    });
+  }
+  function filtered(){
+    var q = $('q').value.trim().toLowerCase();
+    if (!q) return contacts;
+    return contacts.filter(function(c){ return [c.nom, c.telephone, c.texte, c.serviceLabel, c.ville, EV[c.type], c.reference].join(' ').toLowerCase().indexOf(q) !== -1; });
+  }
+  function render(fresh){
+    var list = filtered();
+    var people = {}, paid = 0, today = todayStr(), nToday = 0;
+    contacts.forEach(function(c){ people[c.telephone] = 1; if (c.type === 'paiement_valide') paid++; if (dateParts(c.date).date === today) nToday++; });
+    $('stats').innerHTML =
+      '<div class="stat"><b>' + Object.keys(people).length + '</b><span>personnes ont contacté Keydou</span></div>' +
+      '<div class="stat"><b>' + nToday + '</b><span>échanges aujourd\'hui</span></div>' +
+      '<div class="stat"><b>' + paid + '</b><span>paiements confirmés</span></div>';
+    $('rows').innerHTML = list.map(function(c){
+      var p = dateParts(c.date), cls = c.type.indexOf('paiement_valide') === 0 ? 'pay' : (c.type === 'demande' || c.type === 'paiement_declare' ? 'warn' : '');
+      return '<tr class="' + (fresh && fresh[c.id] ? 'new' : '') + '"><td>' + p.date + '</td><td>' + p.heure + '</td><td>' + esc(c.nom || '—') + '</td><td>' + esc(c.telephone) + '</td><td><span class="pill ' + cls + '">' + esc(EV[c.type] || c.type) + '</span></td><td>' + esc(c.texte) + '</td><td>' + esc(c.serviceLabel) + '</td><td>' + esc(c.ville) + '</td><td>' + esc(c.reference) + '</td></tr>';
+    }).join('') || '<tr><td colspan="9" class="muted" style="padding:22px;text-align:center">Aucun contact pour le moment.</td></tr>';
+  }
+  $('q').addEventListener('input', function(){ render(null); });
+
+  function excelContacts(onlyToday){
+    var rows = contacts.filter(function(c){ return !onlyToday || dateParts(c.date).date === todayStr(); }).slice().reverse();
+    var main = [['Date','Heure','Nom','Téléphone','Événement','Détail','Service','Ville','Référence demande']];
+    rows.forEach(function(c){ var p = dateParts(c.date); main.push([p.date, p.heure, c.nom, c.telephone, EV[c.type] || c.type, c.texte, c.serviceLabel, c.ville, c.reference]); });
+    var byPhone = {};
+    rows.forEach(function(c){ var k = c.telephone; var o = byPhone[k] || (byPhone[k] = { nom:c.nom, tel:k, n:0, last:c.date, services:{}, paye:0 }); o.n++; if (c.date > o.last) o.last = c.date; if (c.serviceLabel) o.services[c.serviceLabel] = 1; if (c.type === 'paiement_valide') o.paye++; if (c.nom) o.nom = c.nom; });
+    var sum = [['Nom','Téléphone','Nombre d\'échanges','Dernier contact','Services demandés','Paiements confirmés']];
+    Object.keys(byPhone).forEach(function(k){ var o = byPhone[k], p = dateParts(o.last); sum.push([o.nom, o.tel, o.n, p.date + ' ' + p.heure, Object.keys(o.services).join(', '), o.paye]); });
+    var wb = XLSX.utils.book_new();
+    var ws1 = XLSX.utils.aoa_to_sheet(main); ws1['!cols'] = [{wch:11},{wch:9},{wch:22},{wch:16},{wch:30},{wch:42},{wch:34},{wch:14},{wch:12}];
+    var ws2 = XLSX.utils.aoa_to_sheet(sum); ws2['!cols'] = [{wch:22},{wch:16},{wch:16},{wch:18},{wch:50},{wch:18}];
+    XLSX.utils.book_append_sheet(wb, ws1, 'Contacts'); XLSX.utils.book_append_sheet(wb, ws2, 'Par personne');
+    XLSX.writeFile(wb, 'Keydou-contacts-' + (onlyToday ? todayStr() : 'complet-' + todayStr()) + '.xlsx');
+  }
+  $('btnExcel').addEventListener('click', function(){ excelContacts(true); });
+  $('btnExcelAll').addEventListener('click', function(){ excelContacts(false); });
+
+  /* ---------- annuaire ---------- */
+  var lieux = [], editId = 0;
+  function fillSelect(sel, opts, first){ sel.innerHTML = (first ? '<option value="">' + first + '</option>' : '') + opts.map(function(o){ return '<option value="' + esc(o[0]) + '">' + esc(o[1]) + '</option>'; }).join(''); }
+  function loadAnnuaire(){
+    authFetch(API + '?lieux_admin=1').then(function(r){ return r.status === 403 ? null : r.json(); }).then(function(d){
+      if (!d) return;
+      lieux = d.lieux; SERVICES = d.services; VILLES = d.villes;
+      var svcOpts = Object.keys(SERVICES).map(function(k){ return [k, SERVICES[k]]; });
+      var vOpts = VILLES.map(function(v){ return [v, v]; });
+      var cs = $('fService').value, cv = $('fVille').value;
+      fillSelect($('fService'), svcOpts, 'Tous les services'); fillSelect($('fVille'), vOpts, 'Toutes les villes');
+      $('fService').value = cs; $('fVille').value = cv;
+      fillSelect($('eService'), svcOpts); fillSelect($('eVille'), vOpts);
+      renderLieux();
+    });
+  }
+  function renderLieux(){
+    var s = $('fService').value, v = $('fVille').value;
+    $('lieuxRows').innerHTML = lieux.filter(function(l){ return (!s || l.service === s) && (!v || l.ville === v); }).map(function(l){
+      return '<tr><td>' + esc(SERVICES[l.service] || l.service) + '</td><td>' + esc(l.ville) + '</td><td><b>' + esc(l.nom) + '</b><div class="muted">' + esc(l.adresse) + '</div></td><td>' + (l.telephone ? esc(l.telephone) : '<span class="muted">— à trouver</span>') + '</td><td>' +
+        '<span class="pill ' + (l.verifie ? 'pay' : 'warn') + '">' + (l.verifie ? 'Vérifié' : 'À confirmer') + '</span>' + (l.actif ? '' : ' <span class="pill">Masqué</span>') + '</td><td style="white-space:nowrap"><button class="btn" data-edit="' + l.id + '">Modifier</button> <button class="btn del" data-del="' + l.id + '">Supprimer</button></td></tr>';
+    }).join('') || '<tr><td colspan="6" class="muted" style="padding:22px;text-align:center">Aucune adresse.</td></tr>';
+  }
+  $('fService').addEventListener('change', renderLieux); $('fVille').addEventListener('change', renderLieux);
+  $('lieuxRows').addEventListener('click', function(ev){
+    var e = ev.target.getAttribute('data-edit'), d = ev.target.getAttribute('data-del');
+    if (e) openEdit(lieux.filter(function(l){ return l.id === e; })[0]);
+    if (d && confirm('Supprimer cette adresse ?')) post({ action:'lieu_delete', id:Number(d) }).then(loadAnnuaire);
+  });
+  function openEdit(l){
+    l = l || { service:'hotel', ville:'Brazzaville', nom:'', adresse:'', telephone:'', whatsapp:'', description:'', sourceUrl:'', sourceNote:'', verifie:false, actif:true };
+    editId = l.id ? Number(l.id) : 0;
+    $('editTitle').textContent = editId ? 'Modifier une adresse' : 'Nouvelle adresse';
+    $('eService').value = l.service; $('eVille').value = l.ville; $('eNom').value = l.nom; $('eAdr').value = l.adresse; $('eTel').value = l.telephone; $('eWa').value = l.whatsapp;
+    $('eDesc').value = l.description; $('eSrc').value = l.sourceUrl || ''; $('eNote').value = l.sourceNote || ''; $('eVer').checked = !!l.verifie; $('eActif').checked = l.actif !== false;
+    $('editErr').classList.remove('show'); $('editCard').hidden = false; $('editCard').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+  $('btnNew').addEventListener('click', function(){ openEdit(null); });
+  $('btnCancel').addEventListener('click', function(){ $('editCard').hidden = true; });
+  $('btnSave').addEventListener('click', function(){
+    var err = $('editErr'); err.classList.remove('show');
+    var body = { action:'lieu_save', id:editId, service:$('eService').value, ville:$('eVille').value, nom:$('eNom').value, adresse:$('eAdr').value, telephone:$('eTel').value, whatsapp:$('eWa').value, description:$('eDesc').value, sourceUrl:$('eSrc').value, sourceNote:$('eNote').value, verifie:$('eVer').checked, actif:$('eActif').checked };
+    if (!body.nom.trim()){ err.textContent = 'Le nom est requis.'; err.classList.add('show'); return; }
+    post(body).then(function(res){ if (!res.ok){ err.textContent = res.data.error || 'Enregistrement impossible.'; err.classList.add('show'); return; } $('editCard').hidden = true; loadAnnuaire(); });
+  });
+
+  var COLS = ['Service','Ville','Nom','Adresse','Téléphone','WhatsApp','Description','Source (lien)','Note sur la source','Vérifié (oui/non)','Visible (oui/non)'];
+  $('btnExport').addEventListener('click', function(){
+    var rows = [COLS];
+    lieux.forEach(function(l){ rows.push([SERVICES[l.service] || l.service, l.ville, l.nom, l.adresse, l.telephone, l.whatsapp, l.description, l.sourceUrl, l.sourceNote, l.verifie ? 'oui' : 'non', l.actif ? 'oui' : 'non']); });
+    var ws = XLSX.utils.aoa_to_sheet(rows); ws['!cols'] = [{wch:34},{wch:14},{wch:34},{wch:34},{wch:26},{wch:16},{wch:50},{wch:40},{wch:30},{wch:12},{wch:12}];
+    var wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Annuaire Keydou');
+    XLSX.writeFile(wb, 'Annuaire-Keydou-' + todayStr() + '.xlsx');
+  });
+  $('fileImport').addEventListener('change', function(){
+    var f = this.files[0]; if (!f) return;
+    var msg = $('impMsg'); msg.hidden = false; msg.style.color = ''; msg.textContent = 'Lecture du fichier…';
+    var rd = new FileReader();
+    rd.onload = function(){
+      try{
+        var wb = XLSX.read(rd.result, { type:'array' });
+        var rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval:'' });
+        var byLabel = {}; Object.keys(SERVICES).forEach(function(k){ byLabel[SERVICES[k].toLowerCase()] = k; byLabel[k] = k; });
+        var yes = function(v){ return /^(oui|yes|true|1|x)$/i.test(String(v).trim()); };
+        var out = rows.map(function(r){
+          var svc = byLabel[String(r['Service']).trim().toLowerCase()] || '';
+          return { service:svc, ville:String(r['Ville']).trim(), nom:String(r['Nom']).trim(), adresse:r['Adresse'], telephone:r['Téléphone'], whatsapp:r['WhatsApp'], description:r['Description'], sourceUrl:r['Source (lien)'], sourceNote:r['Note sur la source'], verifie:yes(r['Vérifié (oui/non)']), actif: r['Visible (oui/non)'] === '' ? true : yes(r['Visible (oui/non)']) };
+        });
+        post({ action:'lieux_import', lieux:out }).then(function(res){
+          msg.style.color = res.ok ? '' : '#ff8a80';
+          msg.textContent = res.ok ? ('Import terminé : ' + res.data.ajoutes + ' ajoutée(s), ' + res.data.misAJour + ' mise(s) à jour, ' + res.data.ignores + ' ligne(s) ignorée(s) (service, ville ou nom manquant).') : (res.data.error || 'Import impossible.');
+          loadAnnuaire();
+        });
+      }catch(e){ msg.style.color = '#ff8a80'; msg.textContent = 'Fichier illisible : ' + e.message; }
+    };
+    rd.readAsArrayBuffer(f); this.value = '';
+  });
+
+  if (getToken()) showMain(); else showLogin();
+})();
+</script>
+</body>
+</html>
