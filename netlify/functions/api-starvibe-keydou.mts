@@ -12,6 +12,8 @@ import type { Context, Config } from "@netlify/functions";
 import { ensureSchema, db, json } from "./_db.mts";
 import { requireAuth } from "./_auth.mts";
 import annuaireSeed from "./keydou-annuaire.json";
+import annuaire2026 from "./keydou-annuaire-2026.json";
+import urgences from "./keydou-urgences.json";
 import { vapidKeys, smsSecret, checkSmsSecret, decisionToken, checkDecisionToken, pushAll, parseSms, last9 } from "./_push.mts";
 
 const ORG = "star_vibe";
@@ -19,7 +21,9 @@ const STAFF_ORG = "star_entreprise";
 const NUMERO_RECEPTION = "+242 06 656 50 50";
 const MONTANT = 1000;
 const MAX_ATTENTE = 5;
-const VILLES = ["Brazzaville", "Pointe-Noire", "Dolisie", "Nkayi"];
+const MAX_SERVICES = 3; // une seule demande de 1 000 FCFA couvre jusqu'à 3 besoins cochés
+const VILLES = ["Brazzaville", "Pointe-Noire", "Dolisie", "Nkayi", "Oyo", "Ouesso"];
+const AUTRES = "Autres"; // petites villes et routes RN1 / RN2
 
 type LieuSeed = {
   service: string; ville: string; nom: string; adresse: string; telephone: string;
@@ -41,7 +45,42 @@ async function seedAnnuaire(sql: any) {
       `;
     }
   }
+  await importAnnuaire2026(sql);
   seeded = true;
+}
+
+type Lieu2026 = {
+  service: string; ville: string; nom: string; adresse: string; telephone: string; whatsapp: string;
+  description: string; source_url: string; source_note: string;
+};
+// Annuaire KEYDOU du 21/10/2026 (277 fiches du PDF fourni par Carry) : intégré une seule fois à la
+// mémoire de Keydou. Les fiches déjà présentes (même nom, ou même numéro) sont complétées, jamais doublées.
+// deno-lint-ignore no-explicit-any
+async function importAnnuaire2026(sql: any) {
+  const done = ((await sql`SELECT value FROM starvibe_settings WHERE key = 'annuaire_2026'`) as { value: string }[])[0]?.value;
+  if (done === "ok") return;
+  const liste = (annuaire2026 as Lieu2026[]).map((l) => ({ ...l, tel9: last9(l.telephone) }));
+  const j = JSON.stringify(liste);
+  await sql`
+    UPDATE starvibe_keydou_lieux l SET
+      adresse = CASE WHEN x.adresse <> '' THEN x.adresse ELSE l.adresse END,
+      telephone = CASE WHEN x.telephone <> '' THEN x.telephone ELSE l.telephone END,
+      whatsapp = CASE WHEN x.whatsapp <> '' THEN x.whatsapp ELSE l.whatsapp END,
+      description = x.description, source_note = x.source_note, actif = true, updated_at = now()
+    FROM jsonb_to_recordset(${j}::jsonb) AS x(service text, ville text, nom text, adresse text, telephone text, whatsapp text, description text, source_url text, source_note text, tel9 text)
+    WHERE l.service = x.service AND l.ville = x.ville AND lower(l.nom) = lower(x.nom)
+  `;
+  await sql`
+    INSERT INTO starvibe_keydou_lieux (service, ville, nom, adresse, telephone, whatsapp, description, source_url, source_note, verifie)
+    SELECT x.service, x.ville, x.nom, x.adresse, x.telephone, x.whatsapp, x.description, x.source_url, x.source_note, false
+    FROM jsonb_to_recordset(${j}::jsonb) AS x(service text, ville text, nom text, adresse text, telephone text, whatsapp text, description text, source_url text, source_note text, tel9 text)
+    WHERE NOT EXISTS (
+      SELECT 1 FROM starvibe_keydou_lieux l WHERE l.service = x.service AND (
+        (l.ville = x.ville AND lower(l.nom) = lower(x.nom))
+        OR (x.tel9 <> '' AND RIGHT(regexp_replace(l.telephone, '[^0-9]', '', 'g'), 9) = x.tel9))
+    )
+  `;
+  await sql`INSERT INTO starvibe_settings (key, value) VALUES ('annuaire_2026', 'ok') ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`;
 }
 
 // Journal : chaque contact avec Keydou est enregistré (jamais bloquant pour le client).
@@ -70,16 +109,48 @@ function lieuApi(l: LieuRow, staff = false) {
 }
 
 const SERVICES: Record<string, string> = {
-  hotel: "Un hôtel",
+  hotel: "Un hôtel ou une résidence",
   restaurant: "Une table au restaurant",
-  coiffure: "Un salon de coiffure (homme)",
-  sport: "Une salle de sport",
-  mariage: "Une salle de mariage ou d'événement",
-  spa: "Un salon de spa",
-  voiture: "La location d'un véhicule pour la journée",
+  patisserie: "Une boulangerie ou une pâtisserie",
   cafe: "Un rendez-vous dans un café",
-  mecanique: "Un dépannage mécanique ou une orientation",
+  coiffure: "Un salon de coiffure ou de beauté",
+  spa: "Un salon de spa",
+  sport: "Une salle de sport",
+  voiture: "La location d'un véhicule",
+  vente_auto: "Acheter ou vendre une voiture",
+  mecanique: "Un garage, un dépannage ou un remorquage",
+  station: "Une station-service",
+  voyage: "Une agence de voyages ou un billet",
+  mariage: "Une salle de mariage ou de réception",
+  evenement: "Une agence événementielle",
+  bureau: "Un bureau ou un espace de coworking",
+  tourisme: "Une agence de tourisme ou un parc naturel",
+  enfants: "Un parc ou des loisirs pour enfants",
+  banque: "Une banque",
+  supermarche: "Un supermarché",
 };
+
+// Une demande peut regrouper plusieurs besoins cochés : "hotel,restaurant".
+function parseServices(value: unknown): string[] {
+  const list = Array.isArray(value) ? value : String(value ?? "").split(",");
+  const out: string[] = [];
+  for (const v of list) {
+    const id = clean(v, 20);
+    if (SERVICES[id] && !out.includes(id)) out.push(id);
+  }
+  return out;
+}
+function labelOf(service: string): string {
+  return service.split(",").map((s) => SERVICES[s] || s).join(" + ");
+}
+function villeOk(v: string): string {
+  return VILLES.includes(v) || v === AUTRES ? v : "";
+}
+function villeMatch(villeLieu: string, demande: string): boolean {
+  if (!demande) return true;
+  if (demande === AUTRES) return !VILLES.includes(villeLieu);
+  return villeLieu === demande;
+}
 
 function clean(value: unknown, maxLen: number): string {
   return String(value ?? "").trim().slice(0, maxLen);
@@ -110,7 +181,7 @@ function toApi(r: Row) {
     id: String(r.id),
     service: r.service,
     ville: r.ville,
-    serviceLabel: SERVICES[r.service] || r.service,
+    serviceLabel: labelOf(r.service),
     demandeVocale: r.demande_vocale,
     montantAttendu: r.montant_attendu,
     statut: r.statut,
@@ -253,7 +324,7 @@ export default async (req: Request, _context: Context) => {
       LEFT JOIN starvibe_profiles p ON p.account_id = a.id AND p.type_profil = 'personnel' WHERE k.id = ${id}
     `) as Row[];
     if (!r[0]) return json({ error: "Introuvable" }, 404);
-    return json({ kind, id, objet: SERVICES[r[0].service] || r[0].service, montant: r[0].montant_attendu, statut: r[0].statut, nom: r[0].auteur_nom || "", telephone: r[0].numero_paiement || r[0].telephone, ville: r[0].ville, reference: `KDU-${id}` });
+    return json({ kind, id, objet: labelOf(r[0].service), montant: r[0].montant_attendu, statut: r[0].statut, nom: r[0].auteur_nom || "", telephone: r[0].numero_paiement || r[0].telephone, ville: r[0].ville, reference: `KDU-${id}` });
   }
 
   // --- Webhook SMS : l'application de transfert de SMS du téléphone de réception envoie ici
@@ -343,7 +414,7 @@ export default async (req: Request, _context: Context) => {
       now: new Date().toISOString(),
       contacts: rows.map((r) => ({
         id: String(r.id), date: r.created_at, nom: r.nom || "", telephone: r.telephone, type: r.type,
-        texte: r.texte, service: r.service, serviceLabel: SERVICES[r.service] || r.service,
+        texte: r.texte, service: r.service, serviceLabel: labelOf(r.service),
         ville: r.ville, reference: r.request_id ? `KDU-${r.request_id}` : "",
       })),
     });
@@ -354,7 +425,8 @@ export default async (req: Request, _context: Context) => {
     const staff = await requireAuth(req);
     if (!staff || staff.org !== STAFF_ORG) return json({ error: "Non autorisé" }, 403);
     const rows = (await sql`SELECT * FROM starvibe_keydou_lieux ORDER BY service, ville, nom`) as LieuRow[];
-    return json({ lieux: rows.map((l) => lieuApi(l, true)), services: SERVICES, villes: VILLES });
+    const autres = [...new Set(rows.map((l) => l.ville))].filter((v) => !VILLES.includes(v)).sort();
+    return json({ lieux: rows.map((l) => lieuApi(l, true)), services: SERVICES, villes: [...VILLES, ...autres] });
   }
 
   // --- Staff : paiements à confirmer + demandes payées à traiter ---
@@ -515,21 +587,27 @@ export default async (req: Request, _context: Context) => {
     const accountId = Number(session.sub);
 
     if (action === "demande") {
-      const service = clean(body.service, 20);
-      if (!SERVICES[service]) return json({ error: "Service inconnu" }, 400);
-      const ville = VILLES.includes(clean(body.ville, 40)) ? clean(body.ville, 40) : "";
+      const services = parseServices(body.services ?? body.service);
+      if (!services.length) return json({ error: "Cochez au moins un besoin" }, 400);
+      if (services.length > MAX_SERVICES) return json({ error: `Un paiement de 1 000 FCFA couvre jusqu'à ${MAX_SERVICES} besoins à la fois.` }, 400);
+      const ville = villeOk(clean(body.ville, 40));
+      if (!ville) return json({ error: "Choisissez une ville" }, 400);
+      const nom = clean(body.nom, 80);
+      const contact = clean(body.contact, 30);
+      if (nom.length < 3 || contact.replace(/\D/g, "").length < 8) return json({ error: "Indiquez votre nom et prénom et votre numéro de téléphone" }, 400);
       const pending = (await sql`
         SELECT COUNT(*) AS n FROM starvibe_keydou_requests WHERE account_id = ${accountId} AND statut = 'en_attente_paiement'
       `) as { n: string }[];
       if (Number(pending[0]?.n) >= MAX_ATTENTE) {
         return json({ error: "Trop de demandes en attente de paiement. Règle ou attends la confirmation des précédentes." }, 429);
       }
+      const details = JSON.stringify({ nom, contact, ville });
       const rows = (await sql`
-        INSERT INTO starvibe_keydou_requests (account_id, service, ville, demande_vocale, montant_attendu)
-        VALUES (${accountId}, ${service}, ${ville}, ${clean(body.demandeVocale, 300)}, ${MONTANT})
+        INSERT INTO starvibe_keydou_requests (account_id, service, ville, demande_vocale, montant_attendu, details)
+        VALUES (${accountId}, ${services.join(",")}, ${ville}, ${clean(body.demandeVocale, 300)}, ${MONTANT}, ${details}::jsonb)
         RETURNING *
       `) as Row[];
-      await logEvent(sql, accountId, "demande", clean(body.demandeVocale, 300), service, ville, rows[0].id);
+      await logEvent(sql, accountId, "demande", `${nom} · ${contact}`, services.join(","), ville, rows[0].id);
       return json({ demande: toApi(rows[0]) }, 201);
     }
 
@@ -537,8 +615,8 @@ export default async (req: Request, _context: Context) => {
     if (action === "evenement") {
       const type = clean(body.type, 30);
       if (!["ouverture", "parole", "choix_service", "choix_ville", "appel_lieu"].includes(type)) return json({ error: "Type inconnu" }, 400);
-      const svc = SERVICES[clean(body.service, 20)] ? clean(body.service, 20) : "";
-      const vil = VILLES.includes(clean(body.ville, 40)) ? clean(body.ville, 40) : "";
+      const svc = parseServices(body.service).join(",");
+      const vil = villeOk(clean(body.ville, 40));
       await logEvent(sql, accountId, type, clean(body.texte, 300), svc, vil, Number(body.requestId) || null);
       return json({ ok: true });
     }
@@ -562,7 +640,7 @@ export default async (req: Request, _context: Context) => {
       if (own[0].statut === "en_attente_paiement") {
         const who = (await sql`SELECT a.telephone, p.nom FROM starvibe_accounts a LEFT JOIN starvibe_profiles p ON p.account_id = a.id AND p.type_profil = 'personnel' WHERE a.id = ${accountId}`) as { telephone: string; nom: string | null }[];
         await demanderValidation(sql, "keydou", requestId, `Valider le dépôt de ${own[0].montant_attendu} FCFA ?`,
-          `${who[0]?.nom || "Un client"} (${numero || who[0]?.telephone}) dit avoir payé pour « ${SERVICES[own[0].service] || own[0].service} » — réf. KDU-${requestId}. Vérifie ton MTN Money.`);
+          `${who[0]?.nom || "Un client"} (${numero || who[0]?.telephone}) dit avoir payé pour « ${labelOf(own[0].service)} » — réf. KDU-${requestId}. Vérifie ton MTN Money.`);
       }
       return json({ ok: true });
     }
@@ -594,20 +672,6 @@ export default async (req: Request, _context: Context) => {
 
   if (req.method !== "GET") return json({ error: "Method not allowed" }, 405);
 
-  // --- Aperçu gratuit : combien d'adresses et leurs noms (jamais les numéros) ---
-  if (url.searchParams.get("apercu") === "1") {
-    const session = await requireAuth(req);
-    if (!session || session.org !== ORG) return json({ error: "Non authentifié" }, 401);
-    const service = clean(url.searchParams.get("service"), 20);
-    const ville = clean(url.searchParams.get("ville"), 40);
-    const rows = (await sql`
-      SELECT nom FROM starvibe_keydou_lieux
-      WHERE actif = true AND service = ${service} AND (${ville} = '' OR ville = ${ville})
-      ORDER BY nom
-    `) as { nom: string }[];
-    return json({ total: rows.length, noms: rows.slice(0, 12).map((r) => r.nom) });
-  }
-
   // --- Adresses complètes (avec numéros) : uniquement après paiement confirmé ---
   if (url.searchParams.get("resultats") === "1") {
     const session = await requireAuth(req);
@@ -618,13 +682,20 @@ export default async (req: Request, _context: Context) => {
     `) as Row[];
     if (!own[0]) return json({ error: "Demande introuvable" }, 404);
     if (own[0].statut !== "paye") return json({ error: "Paiement non confirmé" }, 402);
-    const rows = (await sql`
-      SELECT * FROM starvibe_keydou_lieux
-      WHERE actif = true AND service = ${own[0].service} AND (${own[0].ville} = '' OR ville = ${own[0].ville})
-      ORDER BY ville, verifie DESC, (telephone <> '') DESC, nom
-    `) as LieuRow[];
-    return json({ lieux: rows.map((l) => lieuApi(l)), service: own[0].service, ville: own[0].ville });
+    const groupes: { service: string; label: string; lieux: ReturnType<typeof lieuApi>[] }[] = [];
+    for (const svc of parseServices(own[0].service)) {
+      const rows = (await sql`
+        SELECT * FROM starvibe_keydou_lieux WHERE actif = true AND service = ${svc}
+        ORDER BY ville, verifie DESC, (telephone <> '') DESC, nom
+      `) as LieuRow[];
+      groupes.push({ service: svc, label: SERVICES[svc], lieux: rows.filter((l) => villeMatch(l.ville, own[0].ville)).map((l) => lieuApi(l)) });
+    }
+    const dt = (own[0].details || {}) as Record<string, string>;
+    return json({ groupes, ville: own[0].ville, nom: dt.nom || "" });
   }
+
+  // --- SOS : numéros d'urgence et péages RN1, GRATUITS (sécurité), sans connexion ---
+  if (url.searchParams.get("sos") === "1") return json(urgences);
 
   // --- Statut d'une demande (le client attend la validation de son paiement) ---
   const session = await requireAuth(req);

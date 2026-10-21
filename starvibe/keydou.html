@@ -133,11 +133,33 @@
   .lieu .nonum{font-size:11.5px;color:var(--text-faint);font-style:italic;}
   .privacy{font-size:10.5px;color:var(--text-faint);line-height:1.5;margin-top:10px;text-align:center;}
 
-  @media (prefers-reduced-motion: reduce){.kd-body.dance,.kd-body.walk,.kd-body.idle{animation:none;} .kd-pos{transition:none;}}
+
+  /* ----- inscription simplifiée ----- */
+  .kd-body.stand{animation:standup 1.1s ease-out 1;}
+  @keyframes standup{0%{transform:translateY(22px) scale(1.04,.8) rotate(-3deg);}35%{transform:translateY(-34px) scale(.96,1.08);}60%{transform:translateY(0) scale(1.04,.94);}80%{transform:translateY(-10px) scale(.99,1.02);}100%{transform:translateY(0) scale(1,1);}}
+  .sosbtn{display:inline-flex;align-items:center;gap:6px;font-family:'Sora',sans-serif;font-weight:800;font-size:12px;color:#fff;background:#d92d20;border:none;border-radius:20px;padding:8px 14px;cursor:pointer;}
+  .grp{margin-top:12px;}
+  .grp h3{font-size:11px;letter-spacing:.7px;text-transform:uppercase;color:var(--gold-deep);margin:0 0 6px;}
+  .chk{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:6px;font-size:13px;font-weight:600;cursor:pointer;background:#fff;transition:border-color .2s ease,background .2s ease;}
+  .chk input{width:20px;height:20px;accent-color:var(--coral);flex:none;margin:0;}
+  .chk.on{border-color:var(--coral);background:#fff5f1;}
+  .count{font-size:12px;font-weight:700;color:var(--text-dim);margin:8px 0 2px;}
+  .steps{margin:8px 0 4px;padding-left:20px;font-size:12.5px;color:var(--text-dim);line-height:1.7;}
+  .steps b{color:var(--navy);}
+  .warn{font-size:11.5px;line-height:1.55;background:#fdecea;border:1px solid #f3b8b2;color:#8c1d14;border-radius:10px;padding:10px 12px;margin-top:10px;}
+  .more{width:100%;margin-top:8px;}
+  .sosrow{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:8px;}
+  .sosrow .nb{font-family:'Sora',sans-serif;font-weight:800;font-size:18px;}
+  .sosrow .mt{font-size:12px;color:var(--text-dim);line-height:1.4;flex:1;}
+  .sosrow a{text-decoration:none;background:#d92d20;color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:12px;border-radius:10px;padding:9px 12px;}
+  table.pg{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px;}
+  table.pg td,table.pg th{border-bottom:1px solid var(--line);padding:6px 4px;text-align:left;}
+  table.pg td:nth-child(n+2),table.pg th:nth-child(n+2){text-align:right;white-space:nowrap;}
+
+  @media (prefers-reduced-motion: reduce){.kd-body.dance,.kd-body.walk,.kd-body.idle,.kd-body.stand{animation:none;} .kd-pos{transition:none;}}
 </style>
 </head>
 <body>
-
 <div id="loadingState" class="state">Keydou arrive…</div>
 <div id="loggedOutState" class="state" hidden>Connecte-toi pour parler à Keydou.<br><br><a href="inscription.html">Se connecter / Créer un compte</a></div>
 
@@ -162,54 +184,35 @@
       <div class="nameplate">KEYDOU · AGENT ET ASSISTANT MULTISERVICES</div>
     </div>
 
-    <!-- Étape 1 : je parle -->
-    <div class="panel" id="stepVoice">
-      <h2>Que puis-je faire pour vous aider ?</h2>
-      <p>Appuyez sur le micro, <b>gardez le doigt appuyé</b> pendant que vous parlez, puis lâchez. Dites par exemple : « je cherche un hôtel à Pointe-Noire ».</p>
-      <div class="mic-wrap">
-        <button class="mic" id="btnMic" aria-label="Appuyer et parler à Keydou">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
-        </button>
-        <div class="mic-label" id="micLabel">Appuyez et parlez</div>
-        <div class="heard" id="heard" hidden></div>
+    <!-- Inscription -->
+    <div class="panel" id="stepForm">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <h2 style="margin:0">Mon inscription Keydou</h2>
+        <button class="sosbtn" id="btnSos" type="button">🆘 SOS gratuit</button>
       </div>
-      <div class="row-input">
-        <input type="text" id="txtIn" placeholder="ou écrivez votre besoin ici" maxlength="200">
-        <button class="btn main" id="btnSend">Envoyer</button>
+      <p style="margin-top:6px">Remplissez, cochez votre besoin, validez le paiement de 1 000 FCFA : Keydou se lève, vous dit merci et vous donne les informations.</p>
+      <div class="field"><label for="fNom">Nom et prénom</label><input id="fNom" type="text" maxlength="80" autocomplete="name" placeholder="ex. Carry Otemba"></div>
+      <div class="field"><label for="fTel">Numéro de téléphone</label><input id="fTel" type="tel" maxlength="30" autocomplete="tel" inputmode="tel" placeholder="ex. 06 123 45 67"></div>
+      <div class="field"><label for="fVille">Ville</label><select id="fVille"></select></div>
+      <div class="count" id="count">Cochez votre besoin (jusqu'à 3)</div>
+      <div id="svcGroups"></div>
+      <div class="formule" style="margin-top:14px">
+        <div class="tag">Formule Assistance</div>
+        <div class="price">1 000 FCFA <span>une seule fois pour vos besoins cochés</span></div>
+        <button class="btn main block" id="btnValider">Valider et payer 1 000 FCFA</button>
+        <div class="errmsg" id="fErr" hidden></div>
       </div>
-      <div class="next"><button class="btn" id="btnNext">Suivant →</button></div>
-      <div class="privacy">Vos échanges avec Keydou sont enregistrés par STAR ENTREPRISE pour traiter votre demande.</div>
+      <div class="note">Les frais d'assistance sont distincts du prix de l'hôtel, du restaurant ou de toute autre prestation. Les numéros viennent d'annuaires publics : confirmez-les par appel avant de vous déplacer. Vos échanges avec Keydou sont enregistrés par STAR ENTREPRISE pour traiter votre demande.</div>
     </div>
 
-    <!-- Étape 2 : la liste -->
-    <div class="panel" id="stepList" hidden>
-      <h2>Choisissez votre besoin</h2>
-      <p>Chaque service de Keydou est payant (1 000 FCFA). Sélectionnez, Keydou vous répond.</p>
-      <div class="svc-list" id="svcList"></div>
-      <div class="next" style="justify-content:flex-start"><button class="btn" id="btnBackVoice">← Parler à Keydou</button></div>
-    </div>
-
-    <!-- Ville -->
-    <div class="panel" id="stepVille" hidden>
-      <h2>Dans quelle ville ?</h2>
-      <p>Keydou connaît les adresses de ces quatre villes.</p>
-      <div class="chips" id="villeChips"></div>
-    </div>
-
-    <!-- Formule -->
-    <div class="panel" id="stepFormule" hidden></div>
+    <!-- SOS -->
+    <div class="panel" id="stepSos" hidden></div>
 
     <!-- Paiement -->
     <div class="panel" id="stepPay" hidden></div>
 
-    <!-- Adresses -->
+    <!-- Informations -->
     <div class="panel" id="stepResults" hidden></div>
-
-    <!-- Coordonnées -->
-    <div class="panel" id="stepDetails" hidden></div>
-
-    <!-- Fin -->
-    <div class="panel" id="stepEnd" hidden></div>
   </div>
 </div>
 
@@ -224,20 +227,15 @@
   var token = localStorage.getItem('starvibe_token');
   var $ = function(id){ return document.getElementById(id); };
 
-  var VILLES = ['Brazzaville','Pointe-Noire','Dolisie','Nkayi'];
-  var SERVICES = [
-    { id:'hotel',     label:"Un hôtel",                                   phrase:"un hôtel",                                   keys:['hotel','hotels','chambre','hebergement','logement','dormir','nuitee','auberge','residence'] },
-    { id:'restaurant',label:"Une table au restaurant",                    phrase:"une table au restaurant",                    keys:['restaurant','restaurants','table','manger','repas','diner','dejeuner','resto','gastronomie'] },
-    { id:'coiffure',  label:"Un salon de coiffure (homme)",               phrase:"un salon de coiffure pour homme",            keys:['coiffure','coiffeur','coupe','barbe','cheveux','barbier','barber','degrade'] },
-    { id:'sport',     label:"Une salle de sport",                         phrase:"une salle de sport",                         keys:['salle de sport','sport','gym','musculation','fitness','entrainement'] },
-    { id:'mariage',   label:"Une salle de mariage ou d'événement",        phrase:"une salle de mariage ou d'événement",        keys:['mariage','evenement','fete','anniversaire','ceremonie','reception','salle','banquet','conference'] },
-    { id:'spa',       label:"Un salon de spa",                            phrase:"un salon de spa",                            keys:['spa','massage','detente','bien-etre','bien etre','soin','hammam','sauna'] },
-    { id:'voiture',   label:"La location d'un véhicule pour la journée",  phrase:"la location d'un véhicule pour la journée",  keys:['voiture','vehicule','location','louer','taxi','chauffeur','auto','4x4'] },
-    { id:'cafe',      label:"Un rendez-vous dans un café",                phrase:"un rendez-vous dans un café",                keys:['cafe','rendez-vous','rendez vous','rencontre','rdv','salon de the','patisserie'] },
-    { id:'mecanique', label:"Un dépannage mécanique ou une orientation",  phrase:"un dépannage mécanique ou une orientation",  keys:['panne','mecanicien','mecanique','depannage','garage','moteur','orientation','orienter','pneu','batterie','remorquage'] }
+  var MAX = 3;
+  var VILLES = [['Brazzaville','Brazzaville'],['Pointe-Noire','Pointe-Noire'],['Dolisie','Dolisie'],['Nkayi','Nkayi'],['Oyo','Oyo'],['Ouesso','Ouesso'],['Autres','Autres villes et routes (RN1, RN2)']];
+  var GROUPES = [
+    ['Se loger et se restaurer', [['hotel','Un hôtel ou une résidence'],['restaurant','Une table au restaurant'],['patisserie','Une boulangerie ou une pâtisserie'],['cafe','Un rendez-vous dans un café']]],
+    ['Beauté et forme', [['coiffure','Un salon de coiffure ou de beauté'],['spa','Un salon de spa'],['sport','Une salle de sport']]],
+    ['Se déplacer', [['voiture','La location d\'un véhicule'],['vente_auto','Acheter ou vendre une voiture'],['mecanique','Un garage, un dépannage ou un remorquage'],['station','Une station-service'],['voyage','Une agence de voyages ou un billet']]],
+    ['Événements et affaires', [['mariage','Une salle de mariage ou de réception'],['evenement','Une agence événementielle'],['bureau','Un bureau ou un espace de coworking'],['tourisme','Une agence de tourisme ou un parc naturel'],['enfants','Un parc ou des loisirs pour enfants']]],
+    ['Argent et courses', [['banque','Une banque'],['supermarche','Un supermarché']]]
   ];
-  var VILLE_KEYS = { 'Brazzaville':['brazzaville','brazza','bzv'], 'Pointe-Noire':['pointe noire','pointe-noire','pointenoire','ponton'], 'Dolisie':['dolisie','dolisy'], 'Nkayi':['nkayi','nkaye'] };
-  function byId(id){ for (var i=0;i<SERVICES.length;i++) if (SERVICES[i].id===id) return SERVICES[i]; return null; }
 
   if (!token){ $('loadingState').hidden = true; $('loggedOutState').hidden = false; return; }
   function authFetch(url, opts){
@@ -249,18 +247,10 @@
     return authFetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) })
       .then(function(r){ return r.json().then(function(d){ return { ok:r.ok, data:d }; }); });
   }
+  var current = null;
   function track(type, texte, service, ville){ post({ action:'evenement', type:type, texte:texte||'', service:service||'', ville:ville||'', requestId: current ? Number(current.id) : 0 }).catch(function(){}); }
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
   function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
-  function norm(t){ return String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9\- ]/g,' ').replace(/\s+/g,' ').trim(); }
-  function lev(a,b){
-    if (Math.abs(a.length-b.length) > 2) return 3;
-    var d=[], i, j;
-    for (i=0;i<=a.length;i++){ d[i]=[i]; }
-    for (j=0;j<=b.length;j++){ d[0][j]=j; }
-    for (i=1;i<=a.length;i++) for (j=1;j<=b.length;j++) d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
-    return d[a.length][b.length];
-  }
 
   /* ------------------------------------------------------------------
      Keydou — personnage et voix
@@ -328,172 +318,88 @@
     });
   }
 
-  /* ------------------------------------------------------------------
-     Les paroles de Keydou (sous-titres = ce qu'on entend)
-  ------------------------------------------------------------------ */
   var TXT = {
-    hello: "Bonjour, et bienvenue chez KOMYO ! Moi, c'est Keydou, agent chez STAR ENTREPRISE et votre assistant multiservices. Dites-moi tout : que puis-je faire pour vous ?",
-    ville: "Dans quelle ville ? Brazzaville, Pointe-Noire, Dolisie ou Nkayi ?",
-    ackend: "Parfait, j'ai ce qu'il faut ! Choisissez votre formule juste en dessous, puis réglez par Mobile Money ou Airtel Money.",
-    noanswer: "Oups ! Désolé, je n'ai pas de réponse à cette question. Si votre besoin est dans la liste, je vous réponds avec plaisir. Choisissez-le ci-dessous.",
-    noheard: "Pardon, je n'ai pas bien entendu. Appuyez sur le micro et parlez à nouveau, ou choisissez dans la liste.",
-    page2: "Vous n'avez pas fini ? Pas de souci ! Choisissez votre besoin dans la liste. Chaque service de Keydou est payant.",
+    hello: "Bonjour, et bienvenue chez KOMYO ! Moi, c'est Keydou, agent chez STAR ENTREPRISE et votre assistant multiservices. Écrivez votre nom et votre numéro, cochez ce dont vous avez besoin, et je m'occupe du reste !",
+    pay: "Parfait ! Faites maintenant votre dépôt de mille francs sur le numéro affiché, puis touchez le bouton pour valider. Et surtout, ne donnez jamais votre code secret à personne !",
     waiting: "J'attends la confirmation de votre paiement. Merci de patienter quelques instants, j'arrive tout de suite !",
-    paid: "Merci, votre paiement est bien reçu ! Voici les adresses que j'ai pour vous. Touchez un numéro pour appeler directement.",
-    paidnone: "Merci, votre paiement est bien reçu ! Pour cette ville, je n'ai pas encore d'adresse enregistrée. Laissez-moi vos coordonnées, et mon équipe cherche pour vous.",
-    details: "Et si vous voulez, je contacte les établissements pour vous. Indiquez votre nom, vos coordonnées, le lieu, la date souhaitée et votre budget.",
-    done: "C'est noté, merci ! Notre équipe vous présente les disponibilités et les conditions avant de confirmer votre demande avec vous. Les frais d'assistance sont distincts du prix de la prestation. Voulez-vous que je répète ?",
-    repeat: "Avec plaisir, je répète ! Notre équipe vous présente les disponibilités et les conditions avant de confirmer votre demande avec vous. Les frais d'assistance sont distincts du prix de l'hôtel, du restaurant ou de toute autre prestation réservée. Voulez-vous que je répète encore ?",
+    paid: "Merci beaucoup ! Votre paiement est bien reçu. Voici les informations que vous souhaitez. Touchez un numéro pour appeler directement.",
+    paidnone: "Merci, votre paiement est bien reçu ! Pour cette ville, je n'ai pas encore d'adresse enregistrée. Mon équipe cherche pour vous, et vous contacte très vite !",
     bye: "Merci pour votre visite, à bientôt ! Passez une très belle journée !",
-    'sm-greet': "Bonjour à vous aussi ! Dites-moi ce que vous cherchez, je vous écoute.",
-    'sm-thanks': "Avec plaisir ! C'est mon métier, et surtout ma joie.",
-    'sm-who': "Je suis Keydou, l'assistant multiservices de STAR ENTREPRISE. Je connais les bonnes adresses de Brazzaville, Pointe-Noire, Dolisie et Nkayi, et je vous aide dans vos démarches, avec le sourire !",
-    'sm-price': "Mon service coûte mille francs CFA. Les prix des hôtels, des restaurants et des autres prestations sont donnés par les établissements : moi, je ne les annonce pas.",
-    'sm-bye': "Au revoir, et à très bientôt !",
-    'sm-help': "Je peux vous aider à trouver un hôtel, un restaurant, un salon de coiffure pour homme, une salle de sport, une salle de mariage, un spa, une voiture pour la journée, un café ou un dépannage. Dites-moi simplement ce qu'il vous faut !"
-  };
-  var SVC_INTRO = {
-    hotel:"Super ! ", restaurant:"Miam ! ", coiffure:"Très bien ! ", sport:"Bravo, la forme ! ", mariage:"Oh, la belle fête ! ",
-    spa:"Quelle bonne idée ! ", voiture:"Parfait ! ", cafe:"Avec plaisir ! ", mecanique:"Ne vous inquiétez pas, je suis là ! "
+    sos: "En cas d'urgence, appelez tout de suite. Voici les numéros importants. Gardez votre calme, les secours sont là pour vous aider."
   };
 
-  /* ------------------------------------------------------------------
-     Compréhension : service + ville + petites conversations
-  ------------------------------------------------------------------ */
-  function detectVille(text){
-    var t = ' ' + norm(text) + ' ';
-    for (var v in VILLE_KEYS){ for (var i=0;i<VILLE_KEYS[v].length;i++){ if (t.indexOf(' ' + VILLE_KEYS[v][i] + ' ') !== -1) return v; } }
-    var toks = norm(text).split(' ');
-    for (var v2 in VILLE_KEYS){ for (var j=0;j<VILLE_KEYS[v2].length;j++){ var k = VILLE_KEYS[v2][j]; if (k.indexOf(' ') !== -1 || k.length < 6) continue; for (var m=0;m<toks.length;m++){ if (toks[m].length >= 6 && lev(toks[m], k) <= (k.length >= 8 ? 2 : 1)) return v2; } } }
-    return '';
-  }
-  function matchService(text){
-    var n = norm(text), t = ' ' + n + ' ', toks = n.split(' '), best = null, bestScore = 0;
-    SERVICES.forEach(function(s){
-      var score = 0;
-      s.keys.forEach(function(k){
-        var nk = norm(k);
-        if (nk.indexOf(' ') !== -1 || nk.indexOf('-') !== -1){ if (t.indexOf(nk) !== -1) score += 3; return; }
-        if (toks.indexOf(nk) !== -1){ score += 2; return; }
-        // fautes de frappe tolérées seulement sur les mots longs (évite « coûte » ≈ « coupe »)
-        var tol = nk.length >= 8 ? 2 : (nk.length >= 6 ? 1 : 0);
-        if (tol) for (var i=0;i<toks.length;i++){ if (toks[i].length >= nk.length - 2 && lev(toks[i], nk) <= tol){ score += 1; break; } }
-      });
-      if (score > bestScore){ bestScore = score; best = s; }
-    });
-    return best;
-  }
-  function smalltalk(text){
-    var t = ' ' + norm(text) + ' ';
-    function has(list){ for (var i=0;i<list.length;i++) if (t.indexOf(' ' + list[i] + ' ') !== -1 || t.indexOf(list[i]) !== -1) return true; return false; }
-    if (has(['au revoir','a bientot','bye','ciao','a plus'])) return 'sm-bye';
-    if (has(['merci','thanks'])) return 'sm-thanks';
-    if (has(['qui es tu','qui etes vous','qui es-tu','tu es qui','vous etes qui','comment tu t appelles','comment vous vous appelez','presente'])) return 'sm-who';
-    if (has(['combien','prix','tarif','cout','coute','gratuit','payer'])) return 'sm-price';
-    if (has(['aide','aider','que peux','que sais','que fais','quoi faire','services','propose','que pouvez'])) return 'sm-help';
-    if (has(['bonjour','bonsoir','salut','coucou','hello','allo'])) return 'sm-greet';
-    return '';
-  }
-
-  /* ------------------------------------------------------------------
-     Parcours
-  ------------------------------------------------------------------ */
-  var busy = false, current = null, pollTimer = null, repeats = 0, choice = { service:null, ville:'' }, lastSaid = '';
-  var panels = ['stepVoice','stepList','stepVille','stepFormule','stepPay','stepResults','stepDetails','stepEnd'];
+  var panels = ['stepForm','stepSos','stepPay','stepResults'];
   function showPanel(id){ panels.forEach(function(p){ $(p).hidden = (p !== id); }); window.scrollTo({ top: $(id).offsetTop - 12, behavior: 'smooth' }); }
 
-  function think(){
-    return walkTo(X_RIGHT, 1300).then(function(){ return walkTo(X_LEFT, 1500); }).then(function(){ return walkTo(X_CENTER, 1200); }).then(function(){ face(false); });
-  }
-
-  function answerFor(text){
-    if (busy) return; busy = true;
-    lastSaid = text;
-    $('heard').hidden = false;
-    $('heard').textContent = 'Vous avez dit : « ' + text + ' »';
-    track('parole', text);
-    say('Je réfléchis…');
-    think().then(function(){
-      var s = matchService(text), v = detectVille(text);
-      if (s) return chooseService(s, v);
-      var st = smalltalk(text);
-      if (st) return speak(st, TXT[st]).then(function(){ busy = false; setState('dance'); });
-      return speak('noanswer', TXT.noanswer).then(function(){ busy = false; setState('dance'); });
-    });
-  }
-
-  function chooseService(s, ville){
-    choice = { service:s, ville: ville || '' };
-    track('choix_service', s.label, s.id, ville || '');
-    return speak('svc-' + s.id, SVC_INTRO[s.id] + "Si j'ai bien compris, vous cherchez " + s.phrase + ".")
-      .then(function(){
-        if (choice.ville){ busy = false; return afterVille(); }
-        showPanel('stepVille'); busy = false;
-        return speak('ville', TXT.ville);
+  /* ------------------------------------------------------------------
+     Formulaire d'inscription
+  ------------------------------------------------------------------ */
+  var picked = [];
+  VILLES.forEach(function(v){ var o = document.createElement('option'); o.value = v[0]; o.textContent = v[1]; $('fVille').appendChild(o); });
+  var labels = {};
+  GROUPES.forEach(function(g){
+    var box = document.createElement('div'); box.className = 'grp';
+    box.innerHTML = '<h3>' + esc(g[0]) + '</h3>';
+    g[1].forEach(function(s){
+      labels[s[0]] = s[1];
+      var l = document.createElement('label'); l.className = 'chk';
+      l.innerHTML = '<input type="checkbox" value="' + s[0] + '"><span>' + esc(s[1]) + '</span>';
+      var cb = l.querySelector('input');
+      cb.addEventListener('change', function(){
+        if (cb.checked){
+          if (picked.length >= MAX){ cb.checked = false; $('count').textContent = 'Vous pouvez cocher ' + MAX + ' besoins au maximum pour 1 000 FCFA.'; return; }
+          picked.push(s[0]);
+        } else { picked = picked.filter(function(x){ return x !== s[0]; }); }
+        l.classList.toggle('on', cb.checked);
+        $('count').textContent = picked.length ? picked.length + ' besoin' + (picked.length > 1 ? 's' : '') + ' coché' + (picked.length > 1 ? 's' : '') + ' sur ' + MAX : 'Cochez votre besoin (jusqu\'à ' + MAX + ')';
+        if (cb.checked) track('choix_service', labels[s[0]], picked.join(','), $('fVille').value);
       });
-  }
-
-  function afterVille(){
-    track('choix_ville', choice.ville, choice.service.id, choice.ville);
-    authFetch(API + '?apercu=1&service=' + choice.service.id + '&ville=' + encodeURIComponent(choice.ville)).then(function(r){ return r.json(); })
-      .then(function(ap){ showFormule(choice.service, choice.ville, ap || { total:0, noms:[] }); })
-      .catch(function(){ showFormule(choice.service, choice.ville, { total:0, noms:[] }); });
-    return speak('ackend', TXT.ackend);
-  }
-
-  VILLES.forEach(function(v){
-    var b = document.createElement('button'); b.className = 'chip'; b.textContent = v;
-    b.addEventListener('click', function(){ if (!choice.service) return; choice.ville = v; afterVille(); });
-    $('villeChips').appendChild(b);
+      box.appendChild(l);
+    });
+    $('svcGroups').appendChild(box);
   });
 
-  function showFormule(s, ville, ap){
-    var f = $('stepFormule');
-    var preview = ap.total > 0
-      ? '<div class="preview"><b>' + ap.total + ' adresse' + (ap.total > 1 ? 's' : '') + ' référencée' + (ap.total > 1 ? 's' : '') + ' à ' + esc(ville) + '</b> : ' + ap.noms.map(esc).join(', ') + (ap.total > ap.noms.length ? '…' : '') + '.<br>Les numéros s\'affichent dès que votre paiement est confirmé.</div>'
-      : '<div class="preview"><b>Pas encore d\'adresse enregistrée pour ' + esc(ville) + '.</b> Keydou et son équipe cherchent pour vous : laissez vos coordonnées après le paiement. Vous pouvez aussi <a href="#" id="lnkOtherVille">choisir une autre ville</a>.</div>';
-    f.innerHTML =
-      '<div class="formule">' +
-        '<div class="tag">Formule Assistance · ' + esc(ville) + '</div>' +
-        '<h3>' + esc(s.label) + '</h3>' +
-        '<div class="price">1 000 FCFA <span>par service</span></div>' + preview +
-        '<ul><li>Les adresses et numéros à contacter, un par un</li><li>Keydou peut aussi contacter les établissements pour vous, selon vos instructions</li><li>Vous recevez les disponibilités et les conditions avant toute confirmation</li></ul>' +
-        '<button class="btn main block" id="btnPay">Payer 1 000 FCFA — Mobile Money / Airtel Money</button>' +
-        '<div class="note">Les frais d\'assistance sont distincts du prix de l\'hôtel, du restaurant ou de toute autre prestation réservée. Les réservations restent soumises aux disponibilités et à la confirmation de l\'établissement.</div>' +
-        '<button class="btn block" id="btnOther" style="margin-top:10px">Choisir un autre besoin</button>' +
-      '</div>';
-    showPanel('stepFormule');
-    $('btnPay').addEventListener('click', function(){ creerDemande(s, ville); });
-    $('btnOther').addEventListener('click', function(){ showPanel('stepList'); });
-    var lk = $('lnkOtherVille'); if (lk) lk.addEventListener('click', function(e){ e.preventDefault(); showPanel('stepVille'); });
-  }
+  $('btnValider').addEventListener('click', function(){
+    var err = $('fErr'); err.hidden = true;
+    var nom = $('fNom').value.trim(), tel = $('fTel').value.trim(), ville = $('fVille').value;
+    if (nom.length < 3){ err.textContent = 'Écrivez votre nom et prénom.'; err.hidden = false; $('fNom').focus(); return; }
+    if (tel.replace(/\D/g,'').length < 8){ err.textContent = 'Écrivez votre numéro de téléphone.'; err.hidden = false; $('fTel').focus(); return; }
+    if (!picked.length){ err.textContent = 'Cochez au moins un besoin dans la liste.'; err.hidden = false; return; }
+    var btn = this; btn.disabled = true; btn.textContent = 'Un instant…';
+    post({ action:'demande', nom:nom, contact:tel, ville:ville, services:picked }).then(function(res){
+      btn.disabled = false; btn.textContent = 'Valider et payer 1 000 FCFA';
+      if (!res.ok){ err.textContent = res.data.error || 'Impossible de créer la demande.'; err.hidden = false; return; }
+      current = res.data.demande; track('choix_ville', ville, picked.join(','), ville);
+      showPay(nom, tel);
+    }).catch(function(){ btn.disabled = false; btn.textContent = 'Valider et payer 1 000 FCFA'; err.textContent = 'Connexion impossible, réessayez.'; err.hidden = false; });
+  });
 
-  function creerDemande(s, ville){
-    var b = $('btnPay'); b.disabled = true; b.textContent = 'Un instant…';
-    post({ action:'demande', service:s.id, ville:ville, demandeVocale: lastSaid }).then(function(res){
-      if (!res.ok){ b.disabled = false; b.textContent = 'Payer 1 000 FCFA — Mobile Money / Airtel Money'; alert(res.data.error || 'Impossible de créer la demande.'); return; }
-      current = res.data.demande; showPay(s);
-    });
-  }
-
-  function showPay(s){
+  /* ------------------------------------------------------------------
+     Paiement
+  ------------------------------------------------------------------ */
+  var pollTimer = null;
+  function showPay(nom, tel){
     var p = $('stepPay');
     p.innerHTML =
       '<h2>Paiement de 1 000 FCFA</h2>' +
-      '<p>Envoyez le montant exact par Mobile Money ou Airtel Money, puis touchez « J\'ai payé ».</p>' +
-      '<div class="pay-row"><span>Service</span><b>' + esc(s.label) + '</b></div>' +
-      '<div class="pay-row"><span>Ville</span><b>' + esc(current.ville || '—') + '</b></div>' +
-      '<div class="pay-row"><span>Montant</span><b>1 000 FCFA</b></div>' +
-      '<div class="pay-row"><span>Envoyer au numéro</span><b>' + esc(current.numeroReception) + '</b></div>' +
-      '<div class="pay-row"><span>Référence à indiquer</span><b>' + esc(current.referencePaiement) + '</b></div>' +
-      '<div class="field" style="margin-top:12px"><label for="payNum">Numéro avec lequel vous payez</label><input id="payNum" type="tel" maxlength="20" placeholder="ex. 06 123 4567" autocomplete="tel"></div>' +
+      '<div class="pay-row"><span>Nom</span><b>' + esc(nom) + '</b></div>' +
+      '<div class="pay-row"><span>Téléphone</span><b>' + esc(tel) + '</b></div>' +
+      '<div class="pay-row"><span>Besoins</span><b>' + esc(current.serviceLabel) + '</b></div>' +
+      '<div class="pay-row"><span>Ville</span><b>' + esc($('fVille').selectedOptions[0].textContent) + '</b></div>' +
+      '<div class="pay-row"><span>Montant exact</span><b>1 000 FCFA</b></div>' +
+      '<div class="pay-row"><span>Dépôt Mobile Money au</span><b>' + esc(current.numeroReception) + '</b></div>' +
+      '<div class="pay-row"><span>Référence</span><b>' + esc(current.referencePaiement) + '</b></div>' +
+      '<ol class="steps"><li>Faites <b>votre dépôt de 1 000 FCFA</b> (MTN Mobile Money ou Airtel Money) au numéro ci-dessus.</li><li>Tapez <b>votre code secret Mobile Money</b> (4 ou 5 chiffres) sur votre téléphone, jamais ici.</li><li>Quand le dépôt est terminé, touchez <b>« Valider mon dépôt »</b>.</li></ol>' +
+      '<div class="field" style="margin-top:12px"><label for="payNum">Numéro avec lequel vous avez payé</label><input id="payNum" type="tel" maxlength="20" value="' + esc(tel) + '" autocomplete="tel"></div>' +
       '<div class="field"><label for="txnRef">Code de la transaction (facultatif)</label><input id="txnRef" type="text" maxlength="60" placeholder="ex. MP2610…"></div>' +
-      '<button class="btn ok block" id="btnPaid">J\'ai payé</button>' +
+      '<button class="btn ok block" id="btnPaid">Valider mon dépôt</button>' +
       '<div class="status" id="payStatus" hidden><span class="dots"><i></i><i></i><i></i></span><span>Keydou attend la confirmation de votre paiement…</span></div>' +
-      '<div class="note">Dès que votre dépôt est reconnu, Keydou vous répond automatiquement (en général en quelques secondes ; l\'équipe STAR ENTREPRISE confirme sinon à la main). Mettez la référence ci-dessus en message si votre opérateur le permet.</div>';
+      '<div class="warn"><b>Ne donnez jamais votre code secret</b> à Keydou, à STAR ENTREPRISE ni à personne. Keydou ne le demande jamais.</div>' +
+      '<div class="note">Dès que votre dépôt est reconnu, Keydou se lève et vous répond (en général en quelques secondes ; l\'équipe confirme à la main sinon). Montant différent de 1 000 FCFA : paiement refusé.</div>';
     showPanel('stepPay');
+    speak('pay', TXT.pay).then(function(){ setState('idle'); });
     $('btnPaid').addEventListener('click', function(){
-      this.disabled = true; this.textContent = 'Paiement déclaré';
+      this.disabled = true; this.textContent = 'Dépôt déclaré';
       $('payStatus').hidden = false;
       post({ action:'paiement_declare', requestId:Number(current.id), reference:$('txnRef').value, numeroPaiement:$('payNum').value }).then(function(){ attendre(); });
     });
@@ -521,146 +427,92 @@
     }, 4000);
   }
 
+  /* ------------------------------------------------------------------
+     Paiement validé : Keydou se lève, dit merci et donne les informations
+  ------------------------------------------------------------------ */
   function paiementValide(){
-    setState('idle');
-    authFetch(API + '?resultats=1&requestId=' + current.id).then(function(r){ return r.json(); }).catch(function(){ return { lieux:[] }; }).then(function(res){
-      var lieux = (res && res.lieux) || [];
-      sleep(400).then(function(){ return walkTo(X_RIGHT, 1000); })
-        .then(function(){ face(true); return sleep(500); })
-        .then(function(){ return walkTo(X_CENTER, 1300); })
-        .then(function(){ face(false); setState('dance'); showResults(lieux); return speak(lieux.length ? 'paid' : 'paidnone', lieux.length ? TXT.paid : TXT.paidnone); })
-        .then(function(){ setState('idle'); if (!lieux.length) showDetails(); });
+    authFetch(API + '?resultats=1&requestId=' + current.id).then(function(r){ return r.json(); }).catch(function(){ return { groupes:[] }; }).then(function(res){
+      var groupes = (res && res.groupes) || [];
+      var total = groupes.reduce(function(n, g){ return n + g.lieux.length; }, 0);
+      walkTo(X_CENTER, 900).then(function(){ face(false); setState('stand'); say(total ? TXT.paid : TXT.paidnone); showResults(groupes, total); return speak(total ? 'paid' : 'paidnone', total ? TXT.paid : TXT.paidnone); })
+        .then(function(){ setState('dance'); });
     });
   }
 
   function telLinks(txt){
     return String(txt||'').split('/').map(function(x){ return x.trim(); }).filter(Boolean).map(function(num){
       var d = num.replace(/[^0-9+]/g,'');
-      var href = d.charAt(0) === '+' ? d : (d.indexOf('242') === 0 ? '+' + d : '+242' + d);
+      var href = d.charAt(0) === '+' ? d : (d.indexOf('242') === 0 ? '+' + d : (d.length <= 5 ? d : '+242' + d));
       return '<a class="call" href="tel:' + esc(href) + '" data-n="' + esc(num) + '">📞 ' + esc(num) + '</a>';
     }).join('');
   }
-  function showResults(lieux){
+  function lieuHtml(l){
+    var wa = l.whatsapp ? '<a class="wa" target="_blank" rel="noopener" href="https://wa.me/' + esc(String(l.whatsapp).replace(/[^0-9]/g,'')) + '">WhatsApp</a>' : '';
+    return '<div class="lieu"><span class="badge ' + (l.verifie ? 'ok' : '') + '">' + (l.verifie ? 'Numéro vérifié' : 'À confirmer par appel') + '</span>' +
+      '<h3>' + esc(l.nom) + '</h3>' +
+      '<div class="adr">' + esc(l.ville) + (l.adresse ? ' · ' + esc(l.adresse) : '') + '</div>' +
+      (l.description ? '<div class="desc">' + esc(l.description) + '</div>' : '') +
+      '<div class="acts">' + (l.telephone ? telLinks(l.telephone) : '<span class="nonum">Numéro pas encore trouvé : Keydou le cherche pour vous.</span>') + wa + '</div></div>';
+  }
+  var SHOW = 8;
+  function showResults(groupes, total){
     var r = $('stepResults');
-    var html = '<h2>Les adresses de Keydou</h2><p>' + esc(current.serviceLabel || choice.service.label) + (current.ville ? ' · ' + esc(current.ville) : '') + '. Touchez un numéro pour appeler. Numéros relevés sur des sources publiques : confirmez-les avant de vous déplacer.</p>';
-    if (!lieux.length) html += '<div class="preview">Aucune adresse enregistrée pour le moment. Keydou et son équipe cherchent pour vous : laissez vos coordonnées juste après.</div>';
-    lieux.forEach(function(l){
-      var wa = l.whatsapp ? '<a class="wa" target="_blank" rel="noopener" href="https://wa.me/' + esc(String(l.whatsapp).replace(/[^0-9]/g,'')) + '">WhatsApp</a>' : '';
-      html += '<div class="lieu"><span class="badge ' + (l.verifie ? 'ok' : '') + '">' + (l.verifie ? 'Numéro vérifié' : 'À confirmer') + (l.sourceNote && !l.verifie ? ' · ' + esc(l.sourceNote) : '') + '</span>' +
-        '<h3>' + esc(l.nom) + '</h3>' +
-        '<div class="adr">' + esc(l.ville) + (l.adresse ? ' · ' + esc(l.adresse) : '') + '</div>' +
-        (l.description ? '<div class="desc">' + esc(l.description) + '</div>' : '') +
-        '<div class="acts">' + (l.telephone ? telLinks(l.telephone) : '<span class="nonum">Numéro pas encore trouvé : Keydou peut le chercher pour vous.</span>') + wa + '</div></div>';
+    var html = '<h2>Merci ' + esc(((window.__kdNom||'').split(' ')[0]) || '') + ' ! Voici vos informations</h2><p>Touchez un numéro pour appeler. Les numéros viennent d\'annuaires publics (édition du 21 octobre 2026) : confirmez-les avant de vous déplacer.</p>';
+    if (!total) html += '<div class="preview">Aucune adresse enregistrée pour cette ville pour le moment. Mon équipe vous contacte avec le numéro que vous avez donné.</div>';
+    groupes.forEach(function(g, gi){
+      html += '<div class="grp"><h3>' + esc(g.label) + ' · ' + g.lieux.length + '</h3><div id="g' + gi + '">' + g.lieux.slice(0, SHOW).map(lieuHtml).join('') + '</div>' +
+        (g.lieux.length > SHOW ? '<button class="btn more" data-g="' + gi + '">Voir les ' + (g.lieux.length - SHOW) + ' autres</button>' : '') +
+        (!g.lieux.length ? '<div class="preview">Rien d\'enregistré pour ce besoin dans cette ville : mon équipe cherche pour vous.</div>' : '') + '</div>';
     });
-    html += '<button class="btn main block" id="btnWantDetails" style="margin-top:14px">Keydou, contacte pour moi</button><button class="btn block" id="btnNoThanks">Non merci, ça me suffit</button>';
+    html += '<button class="btn main block" id="btnFin" style="margin-top:14px">Terminer</button>';
     r.innerHTML = html;
     showPanel('stepResults');
-    r.querySelectorAll('a.call').forEach(function(a){ a.addEventListener('click', function(){ track('appel_lieu', a.getAttribute('data-n'), current.service, current.ville); }); });
-    $('btnWantDetails').addEventListener('click', function(){ showDetails(); });
-    $('btnNoThanks').addEventListener('click', function(){ repeats = 0; bye(true); });
-  }
-
-  function showDetails(){
-    var d = $('stepDetails');
-    d.innerHTML =
-      '<h2>Votre demande</h2><p>Ces informations sont transmises à l\'équipe STAR ENTREPRISE.</p>' +
-      '<div class="field"><label for="dNom">Votre nom</label><input id="dNom" type="text" maxlength="80" autocomplete="name"></div>' +
-      '<div class="field"><label for="dContact">Vos coordonnées (téléphone ou WhatsApp)</label><input id="dContact" type="tel" maxlength="80" autocomplete="tel"></div>' +
-      '<div class="field"><label for="dVille">Ville</label><select id="dVille"><option value="">Choisir…</option><option>Brazzaville</option><option>Pointe-Noire</option><option>Dolisie</option><option>Nkayi</option><option>Autre</option></select></div>' +
-      '<div class="field"><label for="dLieu">Lieu ou quartier souhaité</label><input id="dLieu" type="text" maxlength="120"></div>' +
-      '<div class="field"><label for="dDate">Date souhaitée</label><input id="dDate" type="text" maxlength="60" placeholder="ex. samedi 25 octobre, 19 h"></div>' +
-      '<div class="field"><label for="dBudget">Votre budget (FCFA)</label><input id="dBudget" type="text" maxlength="60" inputmode="numeric"></div>' +
-      '<div class="field"><label for="dPrec">Précisions</label><textarea id="dPrec" maxlength="400"></textarea></div>' +
-      '<button class="btn main block" id="btnSendDetails">Envoyer ma demande</button><div class="errmsg" id="dErr" hidden></div>';
-    showPanel('stepDetails');
-    if (current && current.ville) $('dVille').value = current.ville;
-    speak('details', TXT.details);
-    $('btnSendDetails').addEventListener('click', function(){
-      var err = $('dErr'); err.hidden = true;
-      var body = { action:'details', requestId:Number(current.id), nom:$('dNom').value, contact:$('dContact').value, ville:$('dVille').value, lieu:$('dLieu').value, date:$('dDate').value, budget:$('dBudget').value, precisions:$('dPrec').value };
-      if (!body.nom.trim() || !body.contact.trim() || !body.ville){ err.textContent = 'Indiquez au moins votre nom, vos coordonnées et la ville.'; err.hidden = false; return; }
-      this.disabled = true;
-      var btn = this;
-      post(body).then(function(res){
-        if (!res.ok){ btn.disabled = false; err.textContent = res.data.error || 'Envoi impossible.'; err.hidden = false; return; }
-        fin();
-      });
+    r.querySelectorAll('button.more').forEach(function(b){ b.addEventListener('click', function(){
+      var gi = Number(b.getAttribute('data-g')); $('g' + gi).innerHTML = groupes[gi].lieux.map(lieuHtml).join(''); b.remove(); bindCalls();
+    }); });
+    function bindCalls(){ r.querySelectorAll('a.call').forEach(function(a){ a.onclick = function(){ track('appel_lieu', a.getAttribute('data-n'), current.service, current.ville); }; }); }
+    bindCalls();
+    $('btnFin').addEventListener('click', function(){
+      r.innerHTML = '<div class="okbox"><div class="big">Merci pour votre visite !</div><p>À bientôt chez KOMYO.</p><a class="btn main" href="accueil.html" style="display:inline-block;text-decoration:none">Retour à mon espace</a></div>';
+      speak('bye', TXT.bye).then(function(){ setState('dance'); });
     });
-  }
-
-  function fin(){
-    repeats = 0;
-    var e = $('stepEnd');
-    e.innerHTML = '<div class="okbox"><div class="big">C\'est noté, merci !</div><p>Notre équipe vous présente les disponibilités et les conditions avant de confirmer votre demande avec vous.</p></div>' +
-      '<div class="note">Les frais d\'assistance sont distincts du prix de l\'hôtel, du restaurant ou de toute autre prestation réservée. Les réservations restent soumises aux disponibilités et à la confirmation de l\'établissement.</div>' +
-      '<div id="askRepeat" style="margin-top:12px"></div>';
-    showPanel('stepEnd');
-    setState('dance');
-    speak('done', TXT.done).then(function(){ setState('idle'); askRepeat(); });
-  }
-  function askRepeat(){
-    var a = $('askRepeat');
-    a.innerHTML = '<p style="margin:0 0 8px"><b>Voulez-vous que Keydou répète ?</b></p><div style="display:flex;gap:8px"><button class="btn ok" id="yes" style="flex:1">Oui, répète</button><button class="btn" id="no" style="flex:1">Non, merci</button></div>';
-    $('yes').addEventListener('click', function(){
-      repeats++; a.innerHTML = '';
-      speak('repeat', TXT.repeat).then(function(){ if (repeats >= 2) return bye(); askRepeat(); });
-    });
-    $('no').addEventListener('click', function(){ a.innerHTML = ''; bye(); });
-  }
-  function bye(fromResults){
-    if (fromResults){ var e = $('stepEnd'); e.innerHTML = '<div id="askRepeat"></div>'; showPanel('stepEnd'); }
-    $('askRepeat').innerHTML = '<div class="okbox"><a class="btn main" href="accueil.html" style="display:inline-block;text-decoration:none">Retour à mon espace</a></div>';
-    speak('bye', TXT.bye).then(function(){ setState('dance'); });
   }
 
   /* ------------------------------------------------------------------
-     Entrées : micro (appui prolongé), texte, liste
+     SOS : gratuit, sans paiement
   ------------------------------------------------------------------ */
-  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  var rec = null, heardText = '', listening = false;
-  var btnMic = $('btnMic'), micLabel = $('micLabel');
-  if (!SR){ micLabel.textContent = "Micro non disponible sur ce navigateur : écrivez ou choisissez dans la liste."; btnMic.style.opacity = .45; }
-
-  function startListening(){
-    if (!SR || busy || listening) return;
-    if (aud && !aud.paused){ aud.pause(); }
-    heardText = ''; listening = true;
-    rec = new SR(); rec.lang = 'fr-FR'; rec.interimResults = true; rec.continuous = true; rec.maxAlternatives = 1;
-    rec.onresult = function(ev){
-      var t = ''; for (var i=0;i<ev.results.length;i++) t += ev.results[i][0].transcript + ' ';
-      heardText = t.trim(); $('heard').hidden = false; $('heard').textContent = '« ' + heardText + ' »';
-    };
-    rec.onerror = function(){ };
-    rec.onend = function(){
-      listening = false; btnMic.classList.remove('live'); micLabel.textContent = 'Appuyez et parlez';
-      if (heardText) answerFor(heardText);
-      else speak('noheard', TXT.noheard);
-    };
-    try{ rec.start(); btnMic.classList.add('live'); micLabel.textContent = 'Je vous écoute… lâchez quand vous avez fini'; setState('idle'); say("Je vous écoute…"); }catch(e){ listening = false; }
-  }
-  function stopListening(){ if (rec && listening){ try{ rec.stop(); }catch(e){} } }
-  btnMic.addEventListener('pointerdown', function(e){ e.preventDefault(); try{ btnMic.setPointerCapture(e.pointerId); }catch(x){} startListening(); });
-  ['pointerup','pointercancel'].forEach(function(ev){ btnMic.addEventListener(ev, stopListening); });
-  btnMic.addEventListener('contextmenu', function(e){ e.preventDefault(); });
-
-  $('btnSend').addEventListener('click', function(){ var v = $('txtIn').value.trim(); if (v) answerFor(v); });
-  $('txtIn').addEventListener('keydown', function(e){ if (e.key === 'Enter'){ var v = this.value.trim(); if (v) answerFor(v); } });
-
-  SERVICES.forEach(function(s){
-    var b = document.createElement('button');
-    b.className = 'svc';
-    b.innerHTML = '<span>' + esc(s.label) + '</span><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="m9 6 6 6-6 6"/></svg>';
-    b.addEventListener('click', function(){ if (busy) return; busy = true; lastSaid = s.label; chooseService(s, ''); });
-    $('svcList').appendChild(b);
+  function telHref(n){ var d = String(n).replace(/[^0-9+]/g,''); return 'tel:' + (d.length <= 4 ? d : (d.charAt(0)==='+' ? d : '+242' + d)); }
+  $('btnSos').addEventListener('click', function(){
+    track('parole', 'SOS ouvert');
+    fetch(API + '?sos=1').then(function(r){ return r.json(); }).then(function(d){
+      var h = '<h2>🆘 SOS — gratuit</h2><p>En cas de danger, appelez d\'abord. Ces numéros sont toujours gratuits chez Keydou.</p>';
+      d.numeros.forEach(function(n){ h += '<div class="sosrow"><div class="nb">' + esc(n.numero) + '</div><div class="mt"><b>' + esc(n.motif) + '</b><br>' + esc(n.note) + '</div><a href="' + telHref(n.numero) + '">Appeler</a></div>'; });
+      d.ong.forEach(function(n){ h += '<div class="sosrow"><div class="mt"><b>' + esc(n.nom) + '</b></div><a href="' + telHref(n.tel) + '">' + esc(n.tel) + '</a></div>'; });
+      h += '<div class="note">' + esc(d.avertissement) + '</div>';
+      h += '<div class="grp"><h3>Accident ou panne : que faire</h3><ul class="steps" style="list-style:disc">' + d.protocole.map(function(x){ return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></div>';
+      h += '<div class="grp"><h3>' + esc(d.peages.titre) + '</h3><div style="font-size:12px;color:var(--text-dim)">Gares : ' + d.peages.gares.map(esc).join(' · ') + '</div><table class="pg"><tr><th>Véhicule</th><th>Par gare</th><th>7 gares</th></tr>' +
+        d.peages.tarifs.map(function(t){ return '<tr><td>' + esc(t.classe) + '</td><td>' + t.gare.toLocaleString('fr-FR') + '</td><td>' + t.total.toLocaleString('fr-FR') + '</td></tr>'; }).join('') + '</table><div class="note">' + esc(d.peages.note) + '</div></div>';
+      h += '<button class="btn block" id="btnSosBack" style="margin-top:12px">← Retour à mon inscription</button>';
+      $('stepSos').innerHTML = h; showPanel('stepSos');
+      $('btnSosBack').addEventListener('click', function(){ showPanel('stepForm'); });
+      speak('sos', TXT.sos).then(function(){ setState('idle'); });
+    }).catch(function(){ alert('SOS : appelez le 117 (police), le 118 (pompiers) ou le 10 10 (assistance RN1).'); });
   });
-  $('btnNext').addEventListener('click', function(){ showPanel('stepList'); setState('idle'); speak('page2', TXT.page2); });
-  $('btnBackVoice').addEventListener('click', function(){ showPanel('stepVoice'); });
 
   /* ------------------------------------------------------------------
      Démarrage
   ------------------------------------------------------------------ */
-  authFetch(AUTH).then(function(r){ if (!r.ok){ localStorage.removeItem('starvibe_token'); $('loadingState').hidden = true; $('loggedOutState').hidden = false; return; }
+  authFetch(AUTH).then(function(r){ if (!r.ok){ localStorage.removeItem('starvibe_token'); $('loadingState').hidden = true; $('loggedOutState').hidden = false; return null; } return r.json(); })
+  .then(function(me){
+    if (!me) return;
     $('loadingState').hidden = true; $('appState').hidden = false;
+    try{
+      var pf = (me.profiles || []).filter(function(x){ return x.type_profil === 'personnel' || x.typeProfil === 'personnel'; })[0] || (me.profiles || [])[0];
+      if (pf && pf.nom){ $('fNom').value = pf.nom; window.__kdNom = pf.nom; }
+      if (me.account && me.account.telephone) $('fTel').value = me.account.telephone;
+      if (me.account && me.account.ville){ var vv = VILLES.filter(function(v){ return v[0].toLowerCase() === String(me.account.ville).toLowerCase(); })[0]; if (vv) $('fVille').value = vv[0]; }
+    }catch(e){}
+    $('fNom').addEventListener('input', function(){ window.__kdNom = this.value; });
     track('ouverture');
     setState('dance'); say("Touchez l'écran pour que je vous dise bonjour !");
     var started = false;

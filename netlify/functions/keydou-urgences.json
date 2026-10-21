@@ -1,0 +1,103 @@
+{
+ "numeros": [
+  {
+   "numero": "10 10",
+   "motif": "Assistance routière RN1 (LCR)",
+   "note": "Gratuit, 24 h/24, 7 j/7. Aussi : +242 06 702 16 76"
+  },
+  {
+   "numero": "117",
+   "motif": "Police",
+   "note": "Numéro mentionné par UNFPA Congo"
+  },
+  {
+   "numero": "118",
+   "motif": "Sapeurs-pompiers",
+   "note": "Portée exacte à confirmer localement"
+  },
+  {
+   "numero": "1444",
+   "motif": "Violences et harcèlement (femmes et filles)",
+   "note": "Ligne nationale d'écoute et d'orientation"
+  },
+  {
+   "numero": "112",
+   "motif": "Numéro d'urgence secondaire",
+   "note": "Opérationnalité à revalider"
+  },
+  {
+   "numero": "116",
+   "motif": "Protection / aide à l'enfance",
+   "note": "Service actif non confirmé"
+  }
+ ],
+ "ong": [
+  {
+   "nom": "Actions de Solidarité Internationale (ASI) – Pointe-Noire",
+   "tel": "+242 05 576 72 40"
+  },
+  {
+   "nom": "Actions de Solidarité Internationale (ASI) – Brazzaville",
+   "tel": "+242 06 457 25 72"
+  }
+ ],
+ "avertissement": "Pour une ambulance, appelez l'assistance LCR (RN1) ou un établissement de santé local : aucun numéro SAMU national n'est confirmé.",
+ "protocole": [
+  "Mettez-vous à l'abri et activez les feux de détresse.",
+  "Donnez la route (RN1 ou RN2), le sens, le PK ou le village voisin.",
+  "Indiquez le nombre de victimes et la nature du danger.",
+  "N'écartez un blessé que s'il y a un danger immédiat.",
+  "Évitez de vous exposer à la circulation et guidez les secours sans obstruer la chaussée."
+ ],
+ "peages": {
+  "titre": "Péages de la RN1 (Brazzaville → Pointe-Noire)",
+  "gares": [
+   "Lifoula",
+   "Yié",
+   "Ngamanzambala",
+   "Kieni",
+   "Louadi",
+   "Moukondo",
+   "Mengo"
+  ],
+  "tarifs": [
+   {
+    "classe": "Véhicule léger / taxi (hauteur < 1,6 m)",
+    "gare": 1000,
+    "total": 7000
+   },
+   {
+    "classe": "4×4 / véhicule particulier classe 2",
+    "gare": 1500,
+    "total": 10500
+   },
+   {
+    "classe": "Minibus ≤ 32 places / fourgonnette",
+    "gare": 2000,
+    "total": 14000
+   },
+   {
+    "classe": "Autobus / autocar > 32 places",
+    "gare": 10000,
+    "total": 70000
+   },
+   {
+    "classe": "Poids lourd > 3,5 t, 2 essieux",
+    "gare": 15000,
+    "total": 105000
+   },
+   {
+    "classe": "Poids lourd > 3,5 t, plus de 2 essieux",
+    "gare": 30000,
+    "total": 210000
+   },
+   {
+    "classe": "Moto 2 roues / vélo",
+    "gare": 0,
+    "total": 0
+   }
+  ],
+  "note": "Grille LCR en vigueur depuis le 9 septembre 2019. Totaux : 7 gares, aller simple. À reconfirmer au 10 10."
+ },
+ "source": "Annuaire KEYDOU Congo-Brazzaville, 21 octobre 2026"
+}
