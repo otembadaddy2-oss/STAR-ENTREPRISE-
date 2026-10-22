@@ -7,8 +7,11 @@
    l'appareil), sinon la langue du téléphone. En français, ce script ne touche à rien. */
 (function () {
   'use strict';
-  var KEY = 'komyo_lang';
   var script = document.currentScript;
+  // Options (balise <script>) : data-key = clé de mémorisation de la langue, data-dicts = dictionnaires à charger,
+  // data-switch="off" = pas de bouton FR | EN (le site a déjà le sien), et dans ce cas la page se recharge quand sa langue change.
+  var KEY = (script && script.getAttribute('data-key')) || 'komyo_lang';
+  var PROPRE = !!(script && script.getAttribute('data-key'));
   var base = script && script.src ? script.src.replace(/[^\/]*$/, '') : 'assets/';
 
   function lire(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -21,7 +24,7 @@
     else {
       var saved = lire(KEY);
       if (saved === 'fr' || saved === 'en') lang = saved;
-      else lang = /^en\b/i.test(navigator.language || '') ? 'en' : 'fr';
+      else lang = !PROPRE && /^en\b/i.test(navigator.language || '') ? 'en' : 'fr';
     }
   } catch (e) { lang = 'fr'; }
 
@@ -33,7 +36,7 @@
 
   // ---- bouton FR | EN (présent dans les deux langues) ----
   function bouton() {
-    if (document.getElementById('komyoLang') || document.documentElement.hasAttribute('data-no-lang-switch')) return;
+    if (document.getElementById('komyoLang') || document.documentElement.hasAttribute('data-no-lang-switch') || (script && script.getAttribute('data-switch') === 'off')) return;
     var css = document.createElement('style');
     css.textContent =
       '#komyoLang{position:fixed;z-index:2147483000;top:env(safe-area-inset-top,0px);left:50%;transform:translateX(-50%);display:flex;border-radius:0 0 12px 12px;overflow:hidden;' +
@@ -64,7 +67,7 @@
   // =====================================================================
   //  Mode anglais
   // =====================================================================
-  var FILES = ['common', 'public', 'keydou', 'staff', 'staff-blocks', 'data'];
+  var FILES = ((script && script.getAttribute('data-dicts')) || 'common,public,keydou,staff,staff-blocks,data').split(',');
   FILES.forEach(function (f) { document.write('<script src="' + base + 'i18n/en-' + f + '-v1.js"><\/script>'); });
 
   var D = I18N.D, P = I18N.P, OUT = {};
@@ -217,6 +220,11 @@
     obs.observe(document.documentElement, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATTRS.concat(['value', 'content', 'src']) });
   }
   pret(demarre);
+  // Site qui a son propre bouton de langue : quand il change la langue de la page, on recharge pour que tout suive.
+  if (PROPRE) pret(function () {
+    new MutationObserver(function () { if (document.documentElement.lang !== lang) location.reload(); })
+      .observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+  });
 
   // ---- fenêtres d'alerte du navigateur ----
   ['alert', 'confirm', 'prompt'].forEach(function (nom) {
