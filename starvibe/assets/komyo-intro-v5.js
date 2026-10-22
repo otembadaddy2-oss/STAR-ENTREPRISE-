@@ -6,7 +6,8 @@
 //   3. cinq étoiles arrivent de tous les côtés et font apparaître les lettres K-O-M-Y-O, une étoile balaie
 //      le slogan, deux autres ouvrent la ligne dorée depuis le centre ;
 //   4. la grande lumière éclate : elle fait apparaître le point au-dessus du K et le logo est parfait ;
-//      un éclat le traverse, il bat comme un cœur, puis l'application s'ouvre.
+//   5. un scanner de lumière balaie le logo (aller, puis retour plus fort, ≈ 1,6 s), il bat comme un cœur,
+//      puis l'application s'ouvre.
 // Une seule fois par visite et à chaque lancement de l'application installée ; un toucher passe l'animation ;
 // rien du tout si la personne a demandé moins d'animations. Une seule image est chargée (le logo officiel).
 (function(){
@@ -20,13 +21,13 @@
 
   var LOGO = '/starvibe/assets/img/icons/komyo-logo-officiel-v1.png';
   var BW = 900, BH = 721;                                   // repère de l'image du logo
-  var DUREE = 6.4, SORTIE = 500;                            // secondes / millisecondes
+  var DUREE = 7.3, SORTIE = 500;                            // secondes / millisecondes
   var BALL = { x: 500, y: 113, r: 68 }, TROU = BALL.r + 14; // la « tête » du K (le point)
   var K_BAS = 468, MOT_HAUT = 468, MOT_BAS = 624, SLO_HAUT = 626, SLO_BAS = 676, LIG_HAUT = 676;
   var COUPES = [0, 165, 350, 558, 692, 900];                // colonnes entre les lettres de KOMYO
   var PATH = [[205,505],[262,440],[300,398],[350,352],[425,293],[500,238],[560,196],[620,152],[690,114],[735,92]];
   var STAR = { x: 741, y: 89 };
-  var T_BALL = 4.6, T_SHINE = 5.25;
+  var T_BALL = 4.6, T_SC = 5.2;                              // T_SC : début du scanner de lumière
 
   var css =
     '.ki{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#050509;overflow:hidden;touch-action:manipulation;' +
@@ -36,9 +37,6 @@
       'background:radial-gradient(circle,rgba(255,196,64,.30) 0,rgba(255,150,0,.09) 14%,rgba(0,0,0,0) 32%);}' +
     '.ki-cv{position:absolute;inset:0;width:100%;height:100%;}' +
     '.ki-cam{position:relative;width:min(84vw,500px);aspect-ratio:' + BW + '/' + BH + ';will-change:transform;pointer-events:none;}' +
-    '.ki-shine{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;opacity:0;' +
-      'background:linear-gradient(105deg,rgba(255,255,255,0) 43%,rgba(255,243,200,.85) 50%,rgba(255,255,255,0) 57%) 160% 0/260% 100% no-repeat;' +
-      '-webkit-mask:url(' + LOGO + ') center/contain no-repeat;mask:url(' + LOGO + ') center/contain no-repeat;}' +
     '.ki-star{position:absolute;left:' + (STAR.x / BW * 100) + '%;top:' + (STAR.y / BH * 100) + '%;width:0;height:0;pointer-events:none;}' +
     '.ki-star::before,.ki-star::after{content:"";position:absolute;left:0;top:0;border-radius:2px;opacity:0;transform:translate(-50%,-50%) scale(0);}' +
     '.ki-star::before{width:min(40vw,230px);height:3px;background:linear-gradient(90deg,rgba(255,220,120,0),#fff,rgba(255,220,120,0));}' +
@@ -54,14 +52,14 @@
   var box = document.createElement('div');
   box.className = 'ki';
   box.setAttribute('aria-hidden', 'true');
-  box.innerHTML = '<div class="ki-glow"></div><canvas class="ki-cv"></canvas><div class="ki-cam"><div class="ki-shine"></div><div class="ki-star"></div></div>';
+  box.innerHTML = '<div class="ki-glow"></div><canvas class="ki-cv"></canvas><div class="ki-cam"><div class="ki-star"></div></div>';
   (document.body || document.documentElement).appendChild(box);
   var prevOverflow = document.documentElement.style.overflow;
   document.documentElement.style.overflow = 'hidden';
 
   var $ = function(s){ return box.querySelector(s); };
   var elCam = $('.ki-cam'), elGlow = $('.ki-glow'), cv = $('.ki-cv'), g = cv.getContext && cv.getContext('2d');
-  var elShine = $('.ki-shine'), elStar = $('.ki-star');
+  var elStar = $('.ki-star');
 
   // ---------- Courbes ----------
   function c01(x){ return x < 0 ? 0 : x > 1 ? 1 : x; }
@@ -209,7 +207,7 @@
     var cxL = ox + BW / 2 * ss, cyL = oy + BH * 0.42 * ss;
 
     // caméra : avance doucement, bat comme un cœur après l'éclat final
-    var pouls = 0.03 * Math.exp(-Math.pow((t - (T_SHINE + 0.45)) / 0.2, 2)) + 0.02 * Math.exp(-Math.pow((t - (T_SHINE + 1.0)) / 0.2, 2));
+    var pouls = 0.03 * Math.exp(-Math.pow((t - (T_SC + 1.72)) / 0.2, 2)) + 0.02 * Math.exp(-Math.pow((t - (T_SC + 2.1)) / 0.2, 2));
     elCam.style.transform = 'scale(' + (0.95 + 0.07 * outCubic(t / (DUREE - 0.3)) + pouls).toFixed(4) + ')';
     var flash = Math.exp(-Math.pow((t - (T_BALL + 0.05)) / 0.28, 2));        // la grande lumière
     elGlow.style.opacity = String(c01(t / 0.9) * (0.8 + 0.2 * Math.sin(t * 3.1)) * (1 + pouls * 8 + flash * 0.6));
@@ -269,10 +267,30 @@
       if (!bumm){ bumm = true; etincelle(bx, by, t, 34, 150); }
     }
 
-    // l'éclat de lumière final qui traverse le logo
-    var pe = (t - T_SHINE) / 0.95;
-    if (pe > 0 && pe < 1.05){ elShine.style.opacity = '1'; elShine.style.backgroundPosition = (160 - 220 * c01(pe)).toFixed(1) + '% 0'; }
-    else if (pe >= 1.05) elShine.style.opacity = '0';
+    // le scanner de lumière : un faisceau balaie le logo (aller, puis retour plus fort) et l'éclaire derrière lui
+    if (pret){
+      var passes = [{ d: 0.88, p: (t - T_SC) / 0.88, dir: 1, f: 0.75 }, { d: 0.68, p: (t - (T_SC + 0.98)) / 0.68, dir: -1, f: 1 }];
+      for (var ps = 0; ps < passes.length; ps++){
+        var P2 = passes[ps];
+        if (P2.p <= 0 || P2.p >= 1) continue;
+        var e2 = P2.dir > 0 ? inOutCubic(P2.p) : 1 - inOutCubic(P2.p);          // 0 → 1 (aller) ou 1 → 0 (retour)
+        var bx2 = ox + (-0.06 + 1.12 * e2) * A, bw = A * 0.30, h2 = A * BH / BW, y0 = oy - 14, y1 = oy + h2 + 14;
+        // le logo plus lumineux dans la zone que le faisceau vient de quitter
+        g.save(); g.beginPath();
+        if (P2.dir > 0) g.rect(bx2 - bw, oy, bw, h2); else g.rect(bx2, oy, bw, h2);
+        g.clip(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.85 * P2.f * Math.sin(Math.PI * c01(P2.p) * 0.9 + 0.2);
+        g.drawImage(tmp, ox, oy, A, h2); g.drawImage(tmp, ox, oy, A, h2); g.restore();
+        // le faisceau
+        var gr = g.createLinearGradient(bx2 - 36, 0, bx2 + 36, 0);
+        gr.addColorStop(0, 'rgba(255,200,80,0)'); gr.addColorStop(0.38, 'rgba(255,205,90,0.12)'); gr.addColorStop(0.47, 'rgba(255,232,160,0.6)');
+        gr.addColorStop(0.5, 'rgba(255,255,245,1)'); gr.addColorStop(0.53, 'rgba(255,232,160,0.6)'); gr.addColorStop(0.62, 'rgba(255,205,90,0.12)'); gr.addColorStop(1, 'rgba(255,200,80,0)');
+        g.fillStyle = gr; var hs = (y1 - y0) / 10;
+        for (var sg = 0; sg < 10; sg++){ g.globalAlpha = Math.sin((sg + 0.5) / 10 * Math.PI); g.fillRect(bx2 - 36, y0 + sg * hs, 72, hs + 0.5); }
+        g.globalAlpha = 1;
+        halo(bx2, oy + h2 * 0.5, h2 * 0.5, 0.3 * P2.f, 0.16 * P2.f);
+        for (var q3 = 0; q3 < 2; q3++) etincelle(bx2, y0 + 16 + Math.random() * (y1 - y0 - 32), t, 1, 90);
+      }
+    }
 
     // étincelles
     for (var j = etincelles.length - 1; j >= 0; j--){

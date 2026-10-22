@@ -1,6 +1,7 @@
 // KOMYO — Keydou flottant : la mascotte-assistant respire en bas à gauche de
 // chaque page, avec une petite bulle « Besoin d'un service ? ». Un toucher
-// ouvre l'espace Keydou. Le petit « × » la range pour la journée.
+// ouvre l'espace Keydou. Le petit « × » range seulement la bulle de texte pour la journée :
+// Keydou, lui, reste toujours là.
 //
 // - Léger : l'image s'affiche tout de suite, la vidéo (fond vert détouré en
 //   direct sur un petit canevas) n'est chargée qu'après le chargement de la page.
@@ -9,7 +10,7 @@
 (function(){
   if (window.__keydouBulle) return;
   window.__keydouBulle = true;
-  var KEY = 'keydou_bulle_off';
+  var KEY = 'keydou_bulle_texte_off';
   function store(k, v){
     try {
       if (v === undefined) return localStorage.getItem(k);
@@ -17,7 +18,7 @@
     } catch (e) { return null; }
   }
   var jour = new Date().toISOString().slice(0, 10);
-  if (store(KEY) === jour) return;
+  var texteRange = store(KEY) === jour;
 
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   var avecVideo = true; // « économie de données » ne bloque plus (≈ 170 Ko) ; « moins d'animations » → quelques secondes puis il se fige
@@ -54,18 +55,16 @@
       '<canvas width="' + SZ + '" height="' + SZ + '" aria-hidden="true"></canvas>' +
     '</a>' +
     '<div class="kdb-say" role="note">Salut, je suis <b>Keydou</b> ! 👋<small>Un service ? Je m\'en occupe.</small>' +
-      '<button class="kdb-x" type="button" aria-label="Ranger Keydou pour aujourd\'hui">×</button></div>';
+      '<button class="kdb-x" type="button" aria-label="Ranger la bulle pour aujourd\'hui">×</button></div>';
   document.body.appendChild(box);
 
   var say = box.querySelector('.kdb-say');
+  if (texteRange) box.classList.add('mini');
   say.addEventListener('click', function(e){
     if (e.target.closest('.kdb-x')) {
       e.preventDefault();
       store(KEY, jour);
-      box.style.transition = 'opacity .25s, transform .25s';
-      box.style.opacity = '0';
-      box.style.transform = 'translateY(16px)';
-      setTimeout(function(){ box.remove(); }, 260);
+      box.classList.add('mini');
       return;
     }
     location.href = BASE + 'keydou.html';
