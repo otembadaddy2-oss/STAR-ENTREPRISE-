@@ -36,7 +36,7 @@
     radial-gradient(circle at 70% 12%,rgba(255,255,255,.8) 0 1.5px,transparent 2.5px),
     radial-gradient(circle at 30% 60%,rgba(255,255,255,.7) 0 2px,transparent 3px);}
   .floor{position:absolute;left:0;right:0;bottom:0;height:46px;background:linear-gradient(180deg,rgba(200,148,47,0),rgba(200,148,47,.28));}
-  .kd-pos{position:absolute;bottom:30px;left:50%;width:170px;margin-left:-85px;transition:left 1.4s ease-in-out;z-index:2;}
+  .kd-pos{position:absolute;bottom:30px;left:50%;width:270px;margin-left:-135px;transition:left 1.4s ease-in-out;z-index:2;}
   .kd-flip{transition:transform .5s ease;transform-origin:50% 100%;}
   .kd-flip.left{transform:scaleX(-1);}
   .kd-shadow{position:absolute;left:50%;bottom:-4px;width:120px;height:16px;margin-left:-60px;border-radius:50%;background:rgba(36,21,54,.22);filter:blur(4px);}
@@ -195,15 +195,20 @@
   @media (max-width:760px){
     .layout{grid-template-columns:1fr;gap:10px;margin-top:-26px;}
     .side{top:0;z-index:30;margin-inline:-16px;padding:6px 10px 0;background:var(--cream);}
-    .stage{height:auto;min-height:118px;display:flex;align-items:center;gap:8px;padding:8px 10px 8px 6px;border-radius:18px;}
+    .stage{height:auto;min-height:140px;display:flex;align-items:center;gap:8px;padding:8px 10px 8px 6px;border-radius:18px;}
     .stage::before,.floor,.nameplate{display:none;}
-    .kd-pos{position:relative;bottom:auto;left:auto!important;margin:0;width:96px;flex:none;order:1;}
+    .kd-pos{position:relative;bottom:auto;left:auto!important;margin:0;width:136px;flex:none;order:1;}
     .kd-shadow{width:70px;margin-left:-35px;}
     .bubble{position:relative;left:auto;right:auto;top:auto;order:2;flex:1;min-height:0;max-height:128px;overflow:auto;font-size:12px;padding:9px 11px;}
     .bubble::after{left:-8px;bottom:auto;top:50%;margin:-7px 0 0 0;transform:rotate(135deg);}
     .think-dots{left:auto;right:-4px;top:-6px;}
   }
 
+  /* Keydou vidéo : détouré en direct (fond vert retiré), sans aucune déformation CSS */
+  .kd-body canvas{width:100%;height:auto;display:block;filter:drop-shadow(0 6px 8px rgba(36,21,54,.18));}
+  .kd-body .kd-img{width:62%;margin:0 auto;}
+  .kd-body.vid{animation:none!important;transform:none!important;}
+  .vidhold{position:absolute;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none;}
   @media (prefers-reduced-motion: reduce){.kd-body.dance,.kd-body.walk,.kd-body.idle,.kd-body.stand{animation:none;} .kd-pos{transition:none;}}
 </style>
 </head>
@@ -225,9 +230,10 @@
         <div class="floor"></div>
         <div class="kd-pos" id="kdPos" style="left:50%">
           <div class="kd-flip" id="kdFlip">
-            <div class="kd-body dance" id="kdBody"><img src="assets/img/keydou.webp" alt="Keydou, la mascotte-assistant de STAR ENTREPRISE" width="170" height="212"></div>
+            <div class="kd-body dance" id="kdBody"><img class="kd-img" id="kdImg" src="assets/img/keydou.webp" alt="Keydou, la mascotte-assistant de STAR ENTREPRISE" width="170" height="212"><canvas id="kdCanvas" width="360" height="360" hidden></canvas></div>
             <div class="kd-shadow"></div>
           </div>
+          <video id="kdVid" class="vidhold" muted playsinline preload="auto" aria-hidden="true"></video>
           <div class="think-dots" aria-hidden="true"><i></i><i></i><i></i></div>
         </div>
         <div class="nameplate">KEYDOU · AGENT ET ASSISTANT MULTISERVICES</div>
@@ -368,7 +374,58 @@
   var state = 'dance', speaking = false;
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  function setState(s){ state = s; kdBody.className = 'kd-body ' + s; kdPos.classList.toggle('thinking', s === 'think'); if (s !== 'talk'){ kdBody.style.removeProperty('--talk'); kdBody.style.removeProperty('--talk-y'); } }
+  /* ---- Keydou vivant : séquences vidéo détourées en direct (fond vert). Si elles ne chargent pas, l'image fixe + animations CSS prennent le relais. ---- */
+  var VBASE = 'assets/video/keydou/', SZ = 360;
+  var vid = $('kdVid'), cv = $('kdCanvas'), kdImg = $('kdImg');
+  var g2 = cv.getContext ? cv.getContext('2d', { willReadFrequently:true }) : null;
+  var useVideo = !!g2 && !reduce, videoShown = false, curClip = '';
+  var CLIPS = {
+    idle:{ f:'idle', loop:true }, dance:{ f:'dance', loop:true }, talk:{ f:'talk', loop:true }, think:{ f:'think', loop:true }, walk:{ f:'walk', loop:true },
+    sit:{ f:'sitdown', next:'sitloop' }, stand:{ f:'stand' }, look:{ f:'look' }, wave:{ f:'wave' }, hop:{ f:'jump' }, spin:{ f:'spin' }, celebrate:{ f:'celebrate' }
+  };
+  function lancer(f, loop, fin){
+    curClip = f; vid.loop = !!loop; vid.onended = fin || null;
+    vid.src = VBASE + f + '.mp4';
+    var p = vid.play(); if (p && p.catch) p.catch(function(){});
+  }
+  function applyClip(s){
+    if (!useVideo) return;
+    var c = CLIPS[s] || CLIPS.idle;
+    if (c.loop && curClip === c.f && vid.loop) return;
+    if (c.loop) return lancer(c.f, true);
+    lancer(c.f, false, function(){
+      if (state !== s) return;
+      if (c.next) lancer(c.next, true); else setState('idle');
+    });
+    if (c.next) curClip = c.f;
+  }
+  // détourage : le fond vert devient transparent, le vert sur les bords est neutralisé
+  function dessiner(){
+    if (!useVideo || vid.readyState < 2) return;
+    g2.drawImage(vid, 0, 0, SZ, SZ);
+    var im = g2.getImageData(0, 0, SZ, SZ), d = im.data;
+    for (var i = 0; i < d.length; i += 4){
+      var r = d[i], g = d[i+1], b = d[i+2], m = r > b ? r : b, k = g - m;
+      if (k > 28){ d[i+3] = k >= 95 ? 0 : 255 * (1 - (k - 28) / 67); d[i+1] = m; }
+      else if (k > 0){ d[i+1] = g - k * 0.7; }
+    }
+    g2.putImageData(im, 0, 0);
+    if (!videoShown){ videoShown = true; cv.hidden = false; kdImg.style.display = 'none'; kdBody.className = kdBody.className + ' vid'; prechauffer(); }
+  }
+  function boucleVideo(){
+    dessiner();
+    if (vid.requestVideoFrameCallback) vid.requestVideoFrameCallback(boucleVideo); else requestAnimationFrame(boucleVideo);
+  }
+  function prechauffer(){
+    ['talk','walk','sitdown','sitloop','stand','look','wave','jump','spin','celebrate','think','dance'].forEach(function(n, i){ setTimeout(function(){ fetch(VBASE + n + '.mp4').catch(function(){}); }, 700 * (i + 1)); });
+  }
+  if (useVideo){
+    vid.onerror = function(){ useVideo = false; videoShown = false; cv.hidden = true; kdImg.style.display = ''; kdBody.className = 'kd-body ' + state; };
+    boucleVideo();
+  }
+  function pulse(cls, ms){ setState(cls); if (!videoShown || (CLIPS[cls] && CLIPS[cls].loop)) setTimeout(function(){ if (state === cls) setState('idle'); }, ms); }
+
+  function setState(s){ state = s; kdBody.className = 'kd-body ' + s + (videoShown ? ' vid' : ''); applyClip(s); kdPos.classList.toggle('thinking', s === 'think'); if (s !== 'talk'){ kdBody.style.removeProperty('--talk'); kdBody.style.removeProperty('--talk-y'); } }
   function say(text){ bubbleText.textContent = text; }
   function face(left){ kdFlip.classList.toggle('left', !!left); }
   function walkTo(x, ms){
@@ -383,8 +440,7 @@
   }
   function playOnce(cls, ms){
     if (reduce || speaking || state !== 'idle') return;
-    setState(cls);
-    setTimeout(function(){ if (state === cls) setState('idle'); }, ms);
+    pulse(cls, ms);
   }
   // Il a sa propre vie : de temps en temps il regarde autour, fait coucou, saute de joie, tourne sur lui-même ou fait quelques pas.
   var lifeActs = [
@@ -455,6 +511,7 @@
     var my = ++seqId;
     var prev = (state === 'talk' || state === 'walk') ? 'idle' : state;
     speaking = true;
+    if (!names.length && text && state !== 'sit') setState('talk');
     var chain = Promise.resolve();
     names.forEach(function(n, i){ chain = chain.then(function(){ return my === seqId ? speakOne(n) : null; }).then(function(){ return sleep(i < names.length - 1 ? 60 : 0); }); });
     return chain.then(function(){
@@ -653,7 +710,7 @@
       return speakSeq([], d.reponse).then(function(){
         release();
         if (stage === 'ready' && intent.services.length && !d.sos){
-          setState('wave'); setTimeout(function(){ if (state === 'wave') setState('idle'); }, 1800);
+          pulse('wave', 1800);
           $('stepForm').scrollIntoView({ behavior:'smooth', block:'start' });
           setTimeout(function(){ window.scrollBy(0, window.innerWidth <= 760 ? -150 : -12); }, 500);
         }
@@ -670,7 +727,7 @@
       stage = 'ready'; $('villeAsk').hidden = true;
       names.push('v-' + intent.ville);
       return speakSeq(names, txt).then(function(){ return speak('ready', TXT.ready); }).then(function(){
-        release(); setState('wave'); setTimeout(function(){ if (state === 'wave') setState('idle'); }, 1800);
+        release(); pulse('wave', 1800);
         $('stepForm').scrollIntoView({ behavior:'smooth', block:'start' });
         setTimeout(function(){ window.scrollBy(0, window.innerWidth <= 760 ? -150 : -12); }, 500);
       });
@@ -748,14 +805,15 @@
       var total = groupes.reduce(function(n, g){ return n + g.lieux.length; }, 0);
       var ids = String(current.service || '').split(',').filter(Boolean);
       var v = current.ville || 'Autres';
-      setState('hop'); face(false);
-      var happy = sleep(1800);
+      var etaitAssis = state === 'sit';
+      face(false); setState(etaitAssis ? 'stand' : 'celebrate');
+      var happy = sleep(etaitAssis ? 1800 : 2600).then(function(){ if (etaitAssis){ setState('celebrate'); return sleep(2800); } });
       showView('results'); renderResults(groupes, total, false);
       happy.then(function(){ setState('idle'); return walkTo(X_CENTER, 900); }).then(function(){
         if (!total) return speak('paidnone', TXT.paidnone);
         var txt = 'Merci, votre paiement est bien reçu, et je suis très content ! Vous cherchiez ' + listPhrases(ids) + ' ' + VPHRASE[v] + '. Voici ce que j\'ai pour vous.';
         return speakSeq(['thanks'].concat(listClips(ids)).concat(['v-' + v, 'voici']), txt, { names:['paid'], text:TXT.paid });
-      }).then(function(){ setState('dance'); setTimeout(function(){ if (state === 'dance') setState('idle'); }, 2600); });
+      }).then(function(){ pulse('dance', 2600); });
     });
   }
 
