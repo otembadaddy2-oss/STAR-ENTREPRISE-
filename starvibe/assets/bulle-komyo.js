@@ -103,7 +103,7 @@
     '.kb-item .tx b{font-family:Sora,Arial,sans-serif;color:#fff;}' +
     '.kb-item .meta{font-size:11px;color:rgba(255,255,255,.5);margin-top:2px;}' +
     '.kb-item.new{background:rgba(232,169,61,.1);border-radius:12px;}' +
-    '.kb-item.new .meta::after{content:" · nouveau";color:#f0c47a;font-weight:700;}' +
+    '.kb-item.new .meta::after{content:" · ' + (window.KOMYO_LANG === 'en' ? 'new' : 'nouveau') + '";color:#f0c47a;font-weight:700;}' +
     '.kb-empty{text-align:center;padding:30px 10px;font-size:13px;color:rgba(255,255,255,.55);line-height:1.6;}' +
     '.kb-env{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;width:38px;height:38px;padding:0;border-radius:50%;' +
       'border:1.5px solid rgba(255,255,255,.45);background:rgba(36,21,54,.55);color:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;}' +

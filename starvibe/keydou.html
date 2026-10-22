@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="assets/i18n-v1.js"></script>
 <title>KOMYO — Keydou, assistant multiservices</title>
 <meta name="theme-color" content="#FFFBF3">
 <link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">
@@ -338,6 +339,31 @@
       ['banque','Une banque',['banque','banques','argent','compte bancaire','retrait','retirer','agence bancaire','credit']],
       ['supermarche','Un supermarché',['supermarche','courses','grande surface','magasin','alimentation','super u']]]]
   ];
+  // Version anglaise : les clients comprennent aussi les mots anglais (le « cerveau » de Keydou, lui, comprend toute phrase).
+  var EN = window.KOMYO_LANG === 'en';
+  var EN_KEYS = {
+    hotel:['room','rooms','accommodation','lodging','lodge','guesthouse','guest house','stay','bed','resort','inn'],
+    restaurant:['eat','food','meal','dinner','lunch','dining','breakfast','cuisine','bistro','takeaway','take away'],
+    patisserie:['bakery','bakeries','pastry','pastries','bread','cake','cakes','baker','dessert'],
+    cafe:['coffee','coffeeshop','coffee shop','tea room','tea','drink','drinks','bar'],
+    coiffure:['hair','haircut','hairdresser','hairdressers','beauty','salon','nails','braids','braiding','barbershop','makeup','make up'],
+    spa:['relax','relaxation','sauna','wellness','treatment','steam room'],
+    sport:['gym','gyms','fitness','workout','training','exercise','weights'],
+    voiture:['car','cars','rent','rental','hire','vehicle','vehicles','driver','car hire','rent a car'],
+    vente_auto:['buy','sell','sale','purchase','used car','second hand','secondhand','dealership','dealer','broker'],
+    mecanique:['breakdown','broke down','broken down','mechanic','repair','tow','towing','tyre','tyres','tire','tires','battery','engine','flat tyre'],
+    station:['petrol','gas station','fuel','diesel','filling station','petrol station'],
+    voyage:['travel','trip','tickets','flight','flights','plane','airline','airlines','travel agency','airfare'],
+    mariage:['wedding','party','birthday','ceremony','venue','event hall','hall','wedding hall'],
+    evenement:['event','events','organiser','organizer','catering','caterer','decor','planner','event planner'],
+    bureau:['office','offices','co working','meeting room','workspace','desk'],
+    tourisme:['tourism','tourist','tourists','tour','tours','national park','park','sightseeing','holiday','vacation'],
+    enfants:['kids','child','children','play','playground','bouncy castle','bouncy castles','amusement','fun park'],
+    banque:['bank','banks','money','withdraw','withdrawal','account','loan','atm','cash'],
+    supermarche:['supermarket','supermarkets','groceries','grocery','shopping','shop','market','store','food shop']
+  };
+  if (EN) GROUPES.forEach(function(g){ g[1].forEach(function(sv){ if (EN_KEYS[sv[0]]) sv[2] = sv[2].concat(EN_KEYS[sv[0]]); }); });
+  if (EN) VILLE_KEYS.Autres = VILLE_KEYS.Autres.concat(['other city','other town','other towns','other cities','elsewhere','on the road','along the road','another city']);
   var SERVICES = [], labels = {};
   GROUPES.forEach(function(g){ g[1].forEach(function(s){ SERVICES.push({ id:s[0], label:s[1], keys:s[2] }); labels[s[0]] = s[1]; }); });
   var PHRASE = { hotel:"un hôtel ou une résidence", restaurant:"une table au restaurant", patisserie:"une boulangerie ou une pâtisserie", cafe:"un rendez-vous dans un café", coiffure:"un salon de coiffure ou de beauté", spa:"un salon de spa", sport:"une salle de sport", voiture:"la location d'un véhicule", vente_auto:"l'achat ou la vente d'une voiture", mecanique:"un garage, un dépannage ou un remorquage", station:"une station-service", voyage:"une agence de voyages ou un billet", mariage:"une salle de mariage ou de réception", evenement:"une agence événementielle", bureau:"un bureau ou un espace de coworking", tourisme:"une agence de tourisme ou un parc naturel", enfants:"un parc ou des loisirs pour enfants", banque:"une banque", supermarche:"un supermarché" };
@@ -510,8 +536,25 @@
     });
   }
   // Une phrase = un ou plusieurs petits enregistrements mis bout à bout (la voix reste celle de Keydou).
+  // En anglais, pas d'enregistrement : la voix du téléphone lit la phrase (le texte reste affiché dans la bulle).
+  function parlerEn(text){
+    return new Promise(function(resolve){
+      var tx = (window.I18N && I18N.t) ? I18N.t(text) : text, done = false;
+      function fin(){ if (done) return; done = true; resolve(); }
+      var attente = Math.min(6500, 600 + tx.length * 42);
+      try{
+        if (!('speechSynthesis' in window)){ setTimeout(fin, attente); return; }
+        speechSynthesis.cancel();
+        var u = new SpeechSynthesisUtterance(tx);
+        u.lang = 'en-GB'; u.rate = 1; u.pitch = 1.1; u.onend = fin; u.onerror = fin;
+        speechSynthesis.speak(u);
+        setTimeout(fin, 15000);
+      }catch(e){ setTimeout(fin, attente); }
+    });
+  }
   function speakSeq(names, text, alt){
-    if (names.some(function(n){ return !HAVE[n]; })){
+    if (EN) names = [];
+    else if (names.some(function(n){ return !HAVE[n]; })){
       if (alt){ names = alt.names; text = alt.text; } else names = [];
     }
     if (text) say(text);
@@ -523,6 +566,7 @@
     names.forEach(function(n, i){ chain = chain.then(function(){ return my === seqId ? speakOne(n) : null; }).then(function(){ return sleep(i < names.length - 1 ? 60 : 0); }); });
     return chain.then(function(){
       if (my !== seqId) return;
+      if (EN && text) return parlerEn(text);
       if (!audioOK || !names.length){ return sleep(Math.min(6500, 600 + (text||'').length * 42)); }
     }).then(function(){
       if (my !== seqId) return;
@@ -650,18 +694,20 @@
   }
   function wantsSos(text){
     var t = ' ' + norm(text) + ' ';
-    return [' sos ',' urgence',' police ',' pompier',' ambulance',' accident',' au secours',' danger',' peage',' harcelement',' violence'].some(function(k){ return t.indexOf(k) !== -1; });
+    var keys = [' sos ',' urgence',' police ',' pompier',' ambulance',' accident',' au secours',' danger',' peage',' harcelement',' violence'];
+    if (EN) keys = keys.concat([' emergency',' firefighter',' fire brigade',' toll',' harassment',' help me',' rescue',' attacked',' assault']);
+    return keys.some(function(k){ return t.indexOf(k) !== -1; });
   }
-  function wantsNumbers(text){ var t = norm(text); return /(numero|telephone|adresse|contact|donne|donnez|dis moi|dites moi)/.test(t); }
+  function wantsNumbers(text){ var t = norm(text); return /(numero|telephone|adresse|contact|donne|donnez|dis moi|dites moi|number|phone|address)/.test(t); }
   function smalltalk(text){
     var t = ' ' + norm(text) + ' ';
     function has(list){ for (var i=0;i<list.length;i++) if (t.indexOf(' ' + list[i] + ' ') !== -1 || t.indexOf(list[i]) !== -1) return true; return false; }
-    if (has(['au revoir','a bientot','bye','ciao','a plus'])) return 'sm-bye';
-    if (has(['merci','thanks'])) return 'sm-thanks';
-    if (has(['qui es tu','qui etes vous','qui es-tu','tu es qui','vous etes qui','comment tu t appelles','comment vous vous appelez','presente'])) return 'sm-who';
-    if (has(['combien','prix','tarif','cout','coute','gratuit','payer'])) return 'sm-price';
-    if (has(['aide','aider','que peux','que sais','que fais','quoi faire','services','propose','que pouvez'])) return 'sm-help';
-    if (has(['bonjour','bonsoir','salut','coucou','hello','allo'])) return 'sm-greet';
+    if (has(['au revoir','a bientot','bye','ciao','a plus'].concat(EN ? ['goodbye','see you','good night'] : []))) return 'sm-bye';
+    if (has(['merci','thanks'].concat(EN ? ['thank you','thank'] : []))) return 'sm-thanks';
+    if (has(['qui es tu','qui etes vous','qui es-tu','tu es qui','vous etes qui','comment tu t appelles','comment vous vous appelez','presente'].concat(EN ? ['who are you','your name','what are you','who is keydou'] : []))) return 'sm-who';
+    if (has(['combien','prix','tarif','cout','coute','gratuit','payer'].concat(EN ? ['how much','price','prices','cost','free','pay'] : []))) return 'sm-price';
+    if (has(['aide','aider','que peux','que sais','que fais','quoi faire','services','propose','que pouvez'].concat(EN ? ['help','what can you','what do you do','what can i','services'] : []))) return 'sm-help';
+    if (has(['bonjour','bonsoir','salut','coucou','hello','allo'].concat(EN ? [' hi ','hey','good morning','good evening','good afternoon'] : []))) return 'sm-greet';
     return '';
   }
 
@@ -894,8 +940,9 @@
   function startListening(){
     if (!SR || busy || listening) return;
     if (aud && !aud.paused){ aud.pause(); speaking = false; }
+    if (EN){ try{ speechSynthesis.cancel(); }catch(e){} }
     heardText = ''; listening = true;
-    rec = new SR(); rec.lang = 'fr-FR'; rec.interimResults = true; rec.continuous = true; rec.maxAlternatives = 1;
+    rec = new SR(); rec.lang = EN ? 'en-GB' : 'fr-FR'; rec.interimResults = true; rec.continuous = true; rec.maxAlternatives = 1;
     rec.onresult = function(ev){
       var t = ''; for (var i=0;i<ev.results.length;i++) t += ev.results[i][0].transcript + ' ';
       heardText = t.trim(); $('heard').hidden = false; $('heard').textContent = '« ' + heardText + ' »';

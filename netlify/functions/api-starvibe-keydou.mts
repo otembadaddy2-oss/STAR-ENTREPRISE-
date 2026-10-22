@@ -265,7 +265,7 @@ async function resumeAnnuaire(sql: any): Promise<string> {
   return txt;
 }
 
-function promptKeydou(resume: string): string {
+function promptKeydou(resume: string, en = false): string {
   return `Tu es KEYDOU, la mascotte-assistant jovial de KOMYO, l'application de STAR ENTREPRISE (groupe congolais dirigé par Carry OTEMBA, Pointe-Noire / Brazzaville, République du Congo). Tu es « agent chez STAR ENTREPRISE et assistant multiservices ». Tu parles français, avec chaleur, humour léger et intelligence, en 1 à 3 phrases courtes (jamais de listes longues).
 
 CE QUE TU FAIS
@@ -285,7 +285,9 @@ RÈGLES D'OR
 9. Si le besoin est clair (jusqu'à 3 services), remplis "services" avec les identifiants exacts ci-dessus. Si la ville manque, demande-la ; sinon remplis "ville" avec exactement l'une de : Brazzaville, Pointe-Noire, Dolisie, Nkayi, Oyo, Ouesso, Autres.
 
 FORMAT DE SORTIE : réponds UNIQUEMENT avec un objet JSON valide, sans texte autour :
-{"reponse":"ta réponse parlée","services":[],"ville":"","sos":false}`;
+{"reponse":"ta réponse parlée","services":[],"ville":"","sos":false}${en ? `
+
+LANGUE : le client utilise la version ANGLAISE de l'application. Rédige "reponse" en anglais simple, chaleureux et court (même si le client écrit en français, réponds-lui dans sa langue). Les identifiants de services et les noms de villes du JSON restent exactement ceux de la liste ci-dessus. Pour l'instant Keydou couvre uniquement le Congo-Brazzaville : si on te parle d'une autre ville ou d'un autre pays (Abidjan, Accra…), explique gentiment que d'autres villes sont en préparation, sans inventer d'adresse ni de numéro. Les numéros d'urgence que tu peux donner restent ceux du Congo.` : ""}`;
 }
 
 // deno-lint-ignore no-explicit-any
@@ -326,7 +328,7 @@ async function chatKeydou(sql: any, req: Request, body: Record<string, unknown>)
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
-      body: JSON.stringify({ model: process.env.KEYDOU_MODEL || "claude-haiku-5-5", max_tokens: 500, system: promptKeydou(await resumeAnnuaire(sql)), messages: propres }),
+      body: JSON.stringify({ model: process.env.KEYDOU_MODEL || "claude-haiku-5-5", max_tokens: 500, system: promptKeydou(await resumeAnnuaire(sql), req.headers.get("x-komyo-lang") === "en"), messages: propres }),
     });
     if (!r.ok) return json({ fallback: true });
     const data = (await r.json()) as { content?: { type: string; text?: string }[] };

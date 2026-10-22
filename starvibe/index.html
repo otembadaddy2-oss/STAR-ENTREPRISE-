@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="assets/i18n-v1.js"></script>
 <title>KOMYO — Apprendre • Créer • Partager</title>
 <meta name="description" content="KOMYO : l'application vidéo verticale pensée pour le Congo et l'Afrique. Un vrai compte, un espace enfants séparé (PIOUPIOU), 100% sécurisé.">
 <meta name="theme-color" content="#FFFBF3">
@@ -187,7 +188,7 @@
   .voice-hint svg{width:24px;height:24px;}
 </style>
 <link rel="manifest" href="manifest-komyo.json">
-<link rel="preload" as="image" href="assets/img/icons/komyo-logo-officiel-v1.png">
+<script>document.write('<link rel="preload" as="image" href="assets/img/icons/komyo-logo-officiel' + (window.KOMYO_LANG === 'en' ? '-en' : '') + '-v1.png">');</script>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="KOMYO">
@@ -372,6 +373,8 @@
   var audio = document.getElementById('introVoice');
   var hint = document.getElementById('voiceHint');
   if (!audio || !hint) return;
+  // Le message de bienvenue est enregistré en français : pas de voix en version anglaise.
+  if (window.KOMYO_LANG === 'en'){ audio.removeAttribute('src'); try{ audio.load(); }catch(e){} return; }
   var KEY = 'komyo_intro_played';
   var already = false;
   try { already = !!sessionStorage.getItem(KEY); } catch(e){}

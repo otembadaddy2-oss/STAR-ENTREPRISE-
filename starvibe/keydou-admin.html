@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="assets/i18n-v1.js"></script>
 <title>KOMYO — Espace Keydou</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#050B18">
@@ -596,7 +597,7 @@
       btn.disabled = false;
       if (!res.ok){ window.alert(res.data.error || 'Impossible de générer le code.'); return; }
       $('pinModalTel').textContent = res.data.telephone; $('pinModalCode').textContent = res.data.code;
-      var msg = 'Bonjour, voici ton code temporaire KOMYO : ' + res.data.code + ' (valable 24 h). Ouvre KOMYO, touche « Se connecter » puis « Code PIN oublié ? », saisis ton numéro, ce code et ton nouveau PIN (4 ou 5 chiffres). Ne le partage avec personne.';
+      var msg = (window.I18N ? I18N.t : function(x){ return x; })('Bonjour, voici ton code temporaire KOMYO : ' + res.data.code + ' (valable 24 h). Ouvre KOMYO, touche « Se connecter » puis « Code PIN oublié ? », saisis ton numéro, ce code et ton nouveau PIN (4 ou 5 chiffres). Ne le partage avec personne.');
       $('pinModalWa').href = 'https://wa.me/' + waNum(res.data.telephone) + '?text=' + encodeURIComponent(msg);
       if (cur.ov !== 'pin') pousser({ ov:'pin' }); $('pinModal').hidden = false; loadPins(false);
     });

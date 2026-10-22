@@ -19,7 +19,7 @@
   if (reduce) return;
   try { if (sessionStorage.getItem('komyo_intro_vu') === '1') return; sessionStorage.setItem('komyo_intro_vu', '1'); } catch (e) {}
 
-  var LOGO = '/starvibe/assets/img/icons/komyo-logo-officiel-v1.png';
+  var LOGO = '/starvibe/assets/img/icons/komyo-logo-officiel' + (window.KOMYO_LANG === 'en' ? '-en' : '') + '-v1.png';
   var BW = 900, BH = 721;                                   // repère de l'image du logo
   var DUREE = 7.3, VITESSE = 1.55, SORTIE = 500;           // la séquence (7,3 s « d'écriture ») se joue 1,55× plus vite : ≈ 4,7 s réelles                            // secondes / millisecondes
   var BALL = { x: 500, y: 113, r: 68 }, TROU = BALL.r + 14; // la « tête » du K (le point)
