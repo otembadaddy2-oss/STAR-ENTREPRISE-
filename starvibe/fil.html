@@ -26,6 +26,10 @@
   .slide video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
   .slide::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg, rgba(0,0,0,.75) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,.35) 100%);pointer-events:none;}
 
+  .deskNav{display:none;position:fixed;left:calc(50% + 270px);top:50%;transform:translateY(-50%);z-index:35;flex-direction:column;gap:14px;}
+  .deskNav button{width:52px;height:52px;border-radius:50%;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font-size:18px;cursor:pointer;transition:background .2s ease,transform .2s ease;}
+  .deskNav button:hover{background:rgba(255,255,255,.24);transform:scale(1.08);}
+  @media (max-width:999px){.deskNav{display:none!important;}}
   .topbar{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;justify-content:space-between;
     padding:14px 16px;background:linear-gradient(180deg, rgba(0,0,0,.55), transparent);}
   .topbar .brand{font-family:'Sora',sans-serif;font-weight:800;font-size:15px;display:flex;align-items:center;gap:7px;}
@@ -144,8 +148,9 @@
 <meta name="apple-mobile-web-app-title" content="KOMYO">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="apple-touch-icon" href="assets/img/icons/komyo-apple-180-v2.png">
+<link rel="stylesheet" href="assets/komyo-bureau-v1.css" media="(min-width:1000px)">
 </head>
-<body>
+<body class="pg-fil">
 
 <div id="loadingState" class="state"><p>Chargement du fil…</p></div>
 <div id="loggedOutState" class="state" hidden><p>Tu n'es pas connecté.<br><a href="inscription.html">Se connecter / Créer un compte</a></p></div>
@@ -160,6 +165,7 @@
   </div>
   <div class="feed" id="feed"></div>
   <div class="activity-wrap" id="activityWrap"></div>
+  <div class="deskNav" aria-label="Vidéo précédente ou suivante"><button type="button" id="dnUp" aria-label="Vidéo précédente">▲</button><button type="button" id="dnDown" aria-label="Vidéo suivante">▼</button></div>
   <div class="bottomnav">
     <a href="accueil.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 11 12 4l8 7M6 10v9h12v-9"/></svg>Accueil</a>
     <button id="btnAdd"><span class="add-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></span></button>
@@ -290,6 +296,7 @@
         '<button class="comment-btn" data-id="' + v.id + '">' +
           '<span class="icon">' + commentIcon() + '</span><span class="count">' + (v.commentaires || 0) + '</span>' +
         '</button>' +
+        (v.estMoi ? '<button class="del-btn" data-id="' + v.id + '" aria-label="Supprimer ma vidéo"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2m-9 0 1 14h8l1-14M10 11v6M14 11v6"/></svg></span><span class="count">Suppr.</span></button>' : '') +
       '</div>' +
       '<div class="meta"><div class="auteur">@' + v.auteur + '</div><div class="legende">' + (v.legende || '') + '</div></div>';
 
@@ -310,7 +317,7 @@
     }
 
     slide.addEventListener('click', function(e){
-      if (e.target.closest('.like-btn')) return;
+      if (e.target.closest('.like-btn') || e.target.closest('.del-btn')) return;
       videoEl.muted = !videoEl.muted;
       hint.classList.add('show');
       setTimeout(function(){ hint.classList.remove('show'); }, 500);
@@ -331,6 +338,20 @@
 
     slide.querySelector('.comment-btn').addEventListener('click', function(){
       openComments(v.id, slide);
+    });
+
+    var del = slide.querySelector('.del-btn');
+    if (del) del.addEventListener('click', function(){
+      if (!window.confirm('Supprimer cette vidéo ? Elle disparaîtra pour tout le monde, avec ses j\'aime et ses commentaires. Cette action est définitive.')) return;
+      del.disabled = true;
+      authFetch(API_VIDEOS, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'supprimer', videoId: Number(v.id) })
+      }).then(function(res){ return res.json().then(function(d){ return { ok: res.ok, d: d }; }); }).then(function(r){
+        if (!r.ok){ del.disabled = false; window.alert(r.d.error || 'Suppression impossible.'); return; }
+        slide.remove();
+        if (!feed.querySelector('.slide')) feed.innerHTML = '<div class="feed-empty"><p>Aucune vidéo pour le moment.<br>Sois le premier à publier !</p></div>';
+      }).catch(function(){ del.disabled = false; window.alert('Connexion interrompue. Réessaie.'); });
     });
 
     // Activité récente (j'aime / commentaires d'autres personnes) : on ne
@@ -475,21 +496,96 @@
     pourEnfants.checked = false;
     uploadModal.hidden = false;
   });
-  btnCancel.addEventListener('click', function(){ uploadModal.hidden = true; });
+
+  // Ordinateur : flèches ▲ ▼ et touches du clavier pour passer d'une vidéo à l'autre
+  (function(){
+    var f = document.getElementById('feed');
+    function aller(sens){ if (f) f.scrollBy({ top: sens * f.clientHeight, behavior: 'smooth' }); }
+    var up = document.getElementById('dnUp'), dn = document.getElementById('dnDown');
+    if (up) up.addEventListener('click', function(){ aller(-1); });
+    if (dn) dn.addEventListener('click', function(){ aller(1); });
+    document.addEventListener('keydown', function(e){
+      var t = e.target && e.target.tagName; if (t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT') return;
+      if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === 'j'){ e.preventDefault(); aller(1); }
+      else if (e.key === 'ArrowUp' || e.key === 'PageUp' || e.key === 'k'){ e.preventDefault(); aller(-1); }
+    });
+  })();
+  var annulerCompression = null;
+  btnCancel.addEventListener('click', function(){ if (annulerCompression) annulerCompression(); uploadModal.hidden = true; });
+
+  // ---------- Réduction de la vidéo sur le téléphone avant l'envoi (si elle est lourde) ----------
+  // La vidéo est relue en 720 p maximum et réenregistrée (≈ la durée de la vidéo), avec un débit calculé pour tenir sous 36 Mo.
+  var SEUIL = 25000000, LIMITE = 40000000, DUREE_MAX = 300;
+  function peutCompresser(){
+    return !!(window.MediaRecorder && HTMLCanvasElement.prototype.captureStream && (window.AudioContext || window.webkitAudioContext));
+  }
+  function compresser(file, onPct){
+    return new Promise(function(resolve, reject){
+      var url = URL.createObjectURL(file), v = document.createElement('video'), fin = false, raf = 0, ac = null, rec = null;
+      function nettoyer(){ fin = true; cancelAnimationFrame(raf); try { v.pause(); } catch (e) {} try { URL.revokeObjectURL(url); } catch (e) {} try { if (ac) ac.close(); } catch (e) {} }
+      annulerCompression = function(){ if (fin) return; nettoyer(); try { if (rec && rec.state !== 'inactive') rec.stop(); } catch (e) {} reject(new Error('annule')); };
+      v.playsInline = true; v.setAttribute('playsinline', ''); v.preload = 'auto'; v.src = url;
+      v.onerror = function(){ nettoyer(); reject(new Error('lecture')); };
+      v.onloadedmetadata = function(){
+        var dur = v.duration;
+        if (!isFinite(dur) || dur <= 0){ nettoyer(); reject(new Error('lecture')); return; }
+        if (dur > DUREE_MAX){ nettoyer(); reject(new Error('trop_longue')); return; }
+        var k = Math.min(1, 720 / Math.min(v.videoWidth, v.videoHeight)), cw = Math.max(2, Math.round(v.videoWidth * k / 2) * 2), ch = Math.max(2, Math.round(v.videoHeight * k / 2) * 2);
+        var cv = document.createElement('canvas'); cv.width = cw; cv.height = ch; var cx = cv.getContext('2d');
+        var AC = window.AudioContext || window.webkitAudioContext, stream, mime;
+        try {
+          ac = new AC(); var src = ac.createMediaElementSource(v), dest = ac.createMediaStreamDestination(); src.connect(dest);   // le son part dans l'enregistrement, pas dans les haut-parleurs
+          stream = cv.captureStream(24); dest.stream.getAudioTracks().forEach(function(t){ stream.addTrack(t); });
+          mime = ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'].filter(function(t){ return MediaRecorder.isTypeSupported(t); })[0];
+          if (!mime) throw new Error('format');
+          var bits = Math.max(900000, Math.min(3000000, Math.floor(36e6 * 8 / dur) - 100000));
+          rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: bits, audioBitsPerSecond: 96000 });
+        } catch (e){ nettoyer(); reject(e); return; }
+        var parts = [];
+        rec.ondataavailable = function(e){ if (e.data && e.data.size) parts.push(e.data); };
+        rec.onstop = function(){ if (fin && !parts.length) return; nettoyer(); resolve(new Blob(parts, { type: mime.split(';')[0] })); };
+        function dessiner(){
+          if (fin) return;
+          cx.drawImage(v, 0, 0, cw, ch); onPct(Math.min(99, Math.round(v.currentTime / dur * 100)));
+          raf = requestAnimationFrame(dessiner);
+        }
+        v.onended = function(){ setTimeout(function(){ try { if (rec.state !== 'inactive') rec.stop(); } catch (e) {} }, 300); };
+        try { rec.start(1000); if (ac.state === 'suspended') ac.resume(); } catch (e){ nettoyer(); reject(e); return; }
+        v.play().then(dessiner).catch(function(e){ nettoyer(); reject(e); });
+      };
+    });
+  }
 
   btnPublish.addEventListener('click', function(){
     var file = videoFile.files[0];
     if (!file){ modalErr.textContent = 'Choisis une vidéo.'; modalErr.classList.add('show'); return; }
     if (!personalProfileId){ modalErr.textContent = 'Profil personnel introuvable.'; modalErr.classList.add('show'); return; }
 
+    modalErr.classList.remove('show'); modalInfo.classList.remove('show');
     btnPublish.disabled = true;
     btnPublish.textContent = 'Publication...';
+    function echec(msg){ btnPublish.disabled = false; btnPublish.textContent = 'Publier'; modalInfo.classList.remove('show'); modalErr.textContent = msg; modalErr.classList.add('show'); }
 
-    if (file.size > 40000000){
-      btnPublish.disabled = false; btnPublish.textContent = 'Publier';
-      modalErr.textContent = 'Vidéo trop volumineuse (limite 40 Mo).'; modalErr.classList.add('show'); return;
-    }
+    var prete;
+    if (file.size > SEUIL && peutCompresser()){
+      modalInfo.textContent = 'Vidéo lourde : je la réduis pour qu\'elle parte vite. Garde l\'écran allumé et ne quitte pas cette page.'; modalInfo.classList.add('show');
+      prete = compresser(file, function(p){ btnPublish.textContent = 'Préparation ' + p + ' %'; }).then(function(b){ modalInfo.classList.remove('show'); return b; }).catch(function(e){
+        modalInfo.classList.remove('show');
+        if (e && e.message === 'annule') throw e;
+        if (e && e.message === 'trop_longue') throw new Error('Vidéo trop longue (5 minutes maximum).');
+        if (file.size <= LIMITE) return file;                                   // la réduction a échoué mais la vidéo passe telle quelle
+        throw new Error('Impossible de réduire cette vidéo sur ton téléphone. Choisis une vidéo plus courte.');
+      });
+    } else if (file.size > LIMITE){
+      echec('Vidéo trop volumineuse (limite 40 Mo). Choisis une vidéo plus courte.'); return;
+    } else prete = Promise.resolve(file);
 
+    prete.then(function(f){ televerser(f, echec); }).catch(function(e){ if (e && e.message !== 'annule') echec(e.message || 'Préparation impossible.'); else { btnPublish.disabled = false; btnPublish.textContent = 'Publier'; } });
+  });
+
+  function televerser(file, echecFn){
+    if (file.size > LIMITE){ echecFn('Vidéo trop volumineuse (limite 40 Mo) même après réduction. Choisis une vidéo plus courte.'); return; }
+    btnPublish.disabled = true;
     // La vidéo part en morceaux de 3 Mo (un seul envoi dépasserait la limite du serveur), chaque morceau est retenté si le réseau flanche.
     var CH = 3000000, n = Math.max(1, Math.ceil(file.size / CH));
     var id = Math.random().toString(36).slice(2, 12) + Date.now().toString(36);
@@ -550,7 +646,7 @@
         modalErr.textContent = (e && e.serveur) ? e.message : 'Connexion interrompue. Vérifie ton réseau puis réessaie.';
         modalErr.classList.add('show');
       });
-  });
+  }
 })();
 </script>
 <script src="assets/bulle-komyo.js" defer></script>

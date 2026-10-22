@@ -48,7 +48,7 @@ interface VideoRow {
 
 // Une vidéo premium n'expose son lien (signé) qu'aux abonnés Famille actifs ;
 // pour les autres, "verrouille" est vrai et aucun lien n'est donné.
-function toApi(row: VideoRow, likedByMe: boolean, canWatchPremium = false) {
+function toApi(row: VideoRow, likedByMe: boolean, canWatchPremium = false, viewerAccountId = 0) {
   const locked = row.premium && !canWatchPremium;
   return {
     id: String(row.id),
@@ -61,6 +61,7 @@ function toApi(row: VideoRow, likedByMe: boolean, canWatchPremium = false) {
     moderationStatut: row.moderation_statut,
     createdAt: row.created_at,
     likedByMe,
+    estMoi: viewerAccountId > 0 && row.account_id === viewerAccountId,   // c'est ma vidéo : je peux la supprimer
     premium: row.premium,
     verrouille: locked,
     videoUrl: locked
@@ -247,6 +248,18 @@ export default async (req: Request, _context: Context) => {
       created.auteur_nom = (await sql`SELECT nom FROM starvibe_profiles WHERE id = ${profileId}`)[0]?.nom || "";
 
       return json({ video: toApi(created, false) }, 201);
+    }
+
+    // --- Supprimer sa propre vidéo (la vidéo, ses j'aime, ses commentaires et son fichier) ---
+    if (action === "supprimer") {
+      const videoId = Number(earlyBody.videoId);
+      if (!videoId) return json({ error: "videoId requis" }, 400);
+      const gone = (await sql`
+        DELETE FROM starvibe_videos WHERE id = ${videoId} AND account_id = ${accountId} RETURNING blob_key
+      `) as { blob_key: string }[];
+      if (!gone[0]) return json({ error: "Vidéo introuvable, ou ce n'est pas la tienne." }, 404);
+      try { await getStore("starvibe-videos").delete(gone[0].blob_key); } catch { /* le fichier orphelin ne gêne personne */ }
+      return json({ ok: true });
     }
 
     if (action === "like" || action === "unlike") {
@@ -580,7 +593,7 @@ export default async (req: Request, _context: Context) => {
   const likedSet = new Set(likedRows.map((r) => r.video_id));
 
   const canWatchPremium = await hasActiveFamille(sql, accountId);
-  return json({ videos: rows.map((r) => toApi(r, likedSet.has(r.id), canWatchPremium)), abonneFamille: canWatchPremium });
+  return json({ videos: rows.map((r) => toApi(r, likedSet.has(r.id), canWatchPremium, accountId)), abonneFamille: canWatchPremium });
 };
 
 export const config: Config = {
