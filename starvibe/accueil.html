@@ -88,7 +88,7 @@
     box-shadow:0 12px 26px -16px rgba(200,148,47,.6);transition:transform .3s ease, box-shadow .3s ease;}
   .keydou-card:hover{transform:translateY(-4px);box-shadow:0 18px 32px -16px rgba(200,148,47,.7);}
   .keydou-card .kd-dance{flex:none;width:104px;height:112px;display:flex;align-items:flex-end;justify-content:center;}
-  .keydou-card .kd-dance img{width:92px;height:auto;transform-origin:50% 100%;animation:kdHop .8s ease-in-out infinite;filter:drop-shadow(0 5px 6px rgba(36,21,54,.2));}
+  .keydou-card .kd-dance img{width:92px;height:auto;filter:drop-shadow(0 5px 6px rgba(36,21,54,.2));}
   @keyframes kdHop{0%{transform:translateY(0) rotate(-6deg) scale(1.03,.95);}25%{transform:translateY(-14px) rotate(0) scale(.97,1.05);}50%{transform:translateY(0) rotate(6deg) scale(1.03,.95);}75%{transform:translateY(-14px) rotate(0) scale(.97,1.05);}100%{transform:translateY(0) rotate(-6deg) scale(1.03,.95);}}
   .keydou-card .kd-text .pill{display:inline-block;background:linear-gradient(135deg,var(--coral),var(--gold));color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:5px;}
   .keydou-card h3{font-size:16px;margin:0 0 2px;}
@@ -137,7 +137,7 @@
     </div>
 
     <a href="keydou.html" class="keydou-card" aria-label="Parler à Keydou, agent et assistant multiservices">
-      <div class="kd-dance"><img src="assets/img/keydou.webp" alt="Keydou" width="92" height="115"></div>
+      <div class="kd-dance" data-keydou-anim data-keydou-w="100"><img src="assets/img/keydou.webp" alt="Keydou" width="92" height="115"></div>
       <div class="kd-text">
         <span class="pill">Nouveau</span>
         <h3>Keydou</h3>
@@ -346,6 +346,7 @@
 </script>
 <script src="assets/bulle-komyo.js" defer></script>
 <script src="assets/keydou-bulle-v1.js" defer></script>
+<script src="assets/keydou-vignette-v1.js" defer></script>
 <script src="assets/komyo-installer-v2.js" defer></script>
 </body>
 </html>
