@@ -328,6 +328,8 @@
     postPin({ action:'pin_reset', telephone:tel, code:code, newPin:p1 }).then(function(res){
       if (!res.ok){ pinShowErr(res.data.error || 'Changement impossible.'); return; }
       localStorage.setItem('starvibe_token', res.data.token);
+      window.location.replace('accueil.html');   // nouveau PIN validé : on entre directement
+      return;
       var profiles = res.data.profiles || [];
       successName.textContent = profiles.length ? profiles[0].nom : tel;
       pinView.hidden = true; successView.classList.add('show');
@@ -375,10 +377,15 @@
         btnSubmit.disabled = false;
         setMode(mode);
         if (!result.ok){
-          showError(result.data.error || 'Une erreur est survenue.');
+          var msg = result.data.error || 'Une erreur est survenue.';
+          if (msg === 'Numéro ou code PIN incorrect') msg += '. Vérifie ton numéro (avec ou sans espaces, avec ou sans l\'indicatif) et ton code PIN. Pas encore de compte ? Touche « Créer un compte ».';
+          showError(msg);
           return;
         }
         localStorage.setItem('starvibe_token', result.data.token);
+        // Dès que le code est validé, on entre directement dans KOMYO : pas d'écran intermédiaire.
+        window.location.replace('accueil.html');
+        return;
         var profiles = result.data.profiles || [];
         var displayName = profiles.length ? profiles[0].nom : (mode === 'register' ? document.getElementById('fNom').value : telephone);
         successName.textContent = displayName;

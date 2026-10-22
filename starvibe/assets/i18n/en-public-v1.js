@@ -389,3 +389,6 @@ I18N.add({
   "Sur iPhone / iPad (Chrome)": "On iPhone / iPad (Chrome)", "Sur iPhone / iPad (Firefox)": "On iPhone / iPad (Firefox)",
   "Sur iPhone / iPad (ce navigateur)": "On iPhone / iPad (this browser)", "Sur Android (Firefox)": "On Android (Firefox)"
 });
+I18N.pat([
+  [/^Numéro ou code PIN incorrect\. Vérifie ton numéro \(avec ou sans espaces, avec ou sans l'indicatif\) et ton code PIN\. Pas encore de compte \? Touche « Créer un compte »\.$/, "Wrong phone number or PIN code. Check your number (with or without spaces, with or without the country code) and your PIN code. No account yet? Tap “Create an account”."]
+]);

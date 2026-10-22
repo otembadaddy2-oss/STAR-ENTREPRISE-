@@ -100,7 +100,9 @@ export default async (req: Request, _context: Context) => {
   const action = clean(body.action, 20);
 
   // ---------- Code PIN oublié (réinitialisation assistée) ----------
-  const tel9 = (t: string) => t.replace(/\D/g, "").slice(-9);
+  // Les 8 derniers chiffres : le même numéro est reconnu collé ou espacé, avec « + », « 00 » ou l'indicatif, avec ou sans le 0 du début
+  // (+242 06 608 71 42, 0666087142, 6 608 71 42, +2420 06 608 71 42…). Le code PIN départage les rares numéros qui se ressemblent.
+  const tel9 = (t: string) => t.replace(/\D/g, "").slice(-8);
 
   // Membre : demande. Réponse toujours identique (on ne dit jamais si un numéro a un compte).
   if (action === "pin_demande") {
@@ -113,7 +115,7 @@ export default async (req: Request, _context: Context) => {
     if (tel9(telephone).length < 8) return json({ error: "Écris ton numéro de téléphone." }, 400);
     await echec(sql, kIp, 4, 60, 60);     // 3 demandes par heure et par connexion
     await echec(sql, kTel, 4, 1440, 240); // 3 demandes par jour et par numéro
-    const rows = await sql`SELECT id FROM starvibe_accounts WHERE RIGHT(regexp_replace(telephone, '[^0-9]', '', 'g'), 9) = ${tel9(telephone)} AND guest = false ORDER BY id LIMIT 1`;
+    const rows = await sql`SELECT id FROM starvibe_accounts WHERE RIGHT(regexp_replace(telephone, '[^0-9]', '', 'g'), 8) = ${tel9(telephone)} AND guest = false ORDER BY id LIMIT 1`;
     const acc = rows[0] as any;
     if (acc) {
       const deja = await sql`SELECT 1 FROM starvibe_pin_resets WHERE account_id = ${acc.id} AND statut = 'en_attente' AND created_at > now() - interval '6 hours' LIMIT 1`;
@@ -138,7 +140,7 @@ export default async (req: Request, _context: Context) => {
     const rows = await sql`
       SELECT r.id, r.account_id, r.code_hash, r.tries
       FROM starvibe_pin_resets r JOIN starvibe_accounts a ON a.id = r.account_id
-      WHERE RIGHT(regexp_replace(a.telephone, '[^0-9]', '', 'g'), 9) = ${tel9(telephone)} AND r.statut = 'code_envoye' AND r.code_expire > now()
+      WHERE RIGHT(regexp_replace(a.telephone, '[^0-9]', '', 'g'), 8) = ${tel9(telephone)} AND r.statut = 'code_envoye' AND r.code_expire > now()
       ORDER BY r.id DESC LIMIT 1
     `;
     const r = rows[0] as any;
@@ -189,7 +191,7 @@ export default async (req: Request, _context: Context) => {
     // Le numéro est reconnu quelle que soit son écriture : 066565050, 06 656 50 50 ou +242 06 656 50 50.
     const rows = await sql`
       SELECT id, telephone, pin_hash, ville, failed_attempts, locked_until
-      FROM starvibe_accounts WHERE RIGHT(regexp_replace(telephone, '[^0-9]', '', 'g'), 9) = ${tel9(telephone)}
+      FROM starvibe_accounts WHERE RIGHT(regexp_replace(telephone, '[^0-9]', '', 'g'), 8) = ${tel9(telephone)}
       ORDER BY id LIMIT 5
     `;
     let acc = rows[0] as any;
@@ -264,7 +266,7 @@ export default async (req: Request, _context: Context) => {
       if (age < 13) return json({ error: "STAR VIBE est réservé aux 13 ans et plus (sauf profil enfant 3-6 ans)" }, 400);
     }
 
-    const exists = await sql`SELECT id FROM starvibe_accounts WHERE RIGHT(regexp_replace(telephone, '[^0-9]', '', 'g'), 9) = ${tel9(telephone)} LIMIT 1`;
+    const exists = await sql`SELECT id FROM starvibe_accounts WHERE RIGHT(regexp_replace(telephone, '[^0-9]', '', 'g'), 8) = ${tel9(telephone)} LIMIT 1`;
     if (exists.length) {
       return json({ error: "Un compte existe déjà avec ce numéro — connecte-toi plutôt" }, 409);
     }
