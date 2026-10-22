@@ -44,7 +44,7 @@ function appareil(ua: string): { platform: string; navigateur: string } {
 
 export default async (req: Request, _context: Context) => {
   await ensureSchema();
-  const sql = db();
+  const { sql } = db();
   const url = new URL(req.url);
 
   // --- Staff : le tableau de bord des abonnés, en direct ---
@@ -124,14 +124,14 @@ export default async (req: Request, _context: Context) => {
   await sql`
     UPDATE starvibe_installs SET
       last_seen = now(),
-      launches = launches + ${event === "launch" ? 1 : 0},
-      source = CASE WHEN ${event} = 'installed' THEN 'installed' ELSE source END,
-      platform = ${platform}, navigateur = ${navigateur},
-      account_id = COALESCE(${accountId}, account_id),
-      invite = CASE WHEN ${accountId}::int IS NULL THEN invite ELSE ${invite} END,
-      nom = CASE WHEN ${nom} <> '' THEN ${nom} ELSE nom END,
-      telephone = CASE WHEN ${telephone} <> '' THEN ${telephone} ELSE telephone END,
-      ville = CASE WHEN ${ville} <> '' THEN ${ville} ELSE ville END
+      launches = launches + ${event === "launch" ? 1 : 0}::int,
+      source = CASE WHEN ${event}::text = 'installed' THEN 'installed' ELSE source END,
+      platform = ${platform}::text, navigateur = ${navigateur}::text,
+      account_id = COALESCE(${accountId}::int, account_id),
+      invite = CASE WHEN ${accountId}::int IS NULL THEN invite ELSE ${invite}::boolean END,
+      nom = CASE WHEN ${nom}::text <> '' THEN ${nom}::text ELSE nom END,
+      telephone = CASE WHEN ${telephone}::text <> '' THEN ${telephone}::text ELSE telephone END,
+      ville = CASE WHEN ${ville}::text <> '' THEN ${ville}::text ELSE ville END
     WHERE install_id = ${installId}
   `;
   return json({ ok: true });
