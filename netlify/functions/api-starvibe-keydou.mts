@@ -451,6 +451,36 @@ export default async (req: Request, _context: Context) => {
     });
   }
 
+  // --- Staff : le "fichier clients" (une ligne par client et par demande), mis à jour en direct ---
+  if (req.method === "GET" && url.searchParams.get("clients") === "1") {
+    const staff = await requireAuth(req);
+    if (!staff || staff.org !== STAFF_ORG) return json({ error: "Non autorisé" }, 403);
+    const limit = Math.min(5000, Math.max(1, Number(url.searchParams.get("limit")) || 2000));
+    const rows = (await sql`
+      SELECT k.*, COALESCE(NULLIF(a.guest_tel, ''), a.telephone) AS telephone, COALESCE(NULLIF(a.guest_nom, ''), p.nom) AS auteur_nom, a.guest AS invite
+      FROM starvibe_keydou_requests k
+      JOIN starvibe_accounts a ON a.id = k.account_id
+      LEFT JOIN starvibe_profiles p ON p.account_id = a.id AND p.type_profil = 'personnel'
+      ORDER BY k.id DESC LIMIT ${limit}
+    `) as (Row & { invite: boolean })[];
+    return json({
+      now: new Date().toISOString(),
+      clients: rows.map((r) => {
+        const d = (r.details || {}) as Record<string, string>;
+        return {
+          id: String(r.id), reference: `KDU-${r.id}`, date: r.created_at,
+          nom: d.nom || r.auteur_nom || "", telephone: d.contact || r.telephone || "",
+          ville: r.ville, besoins: labelOf(r.service), services: r.service,
+          statut: r.statut, montantAttendu: r.montant_attendu, montantRecu: r.montant_recu,
+          numeroPaiement: r.numero_paiement || "", transaction: r.reference_transaction || "",
+          paiementDeclare: r.paiement_declare_at, payeLe: r.paid_at, traite: r.traite,
+          origine: r.invite ? "Sans compte" : "Compte KOMYO",
+          demande: r.demande_vocale || "",
+        };
+      }),
+    });
+  }
+
   // --- Staff : annuaire complet ---
   if (req.method === "GET" && url.searchParams.get("lieux_admin") === "1") {
     const staff = await requireAuth(req);
@@ -495,7 +525,7 @@ export default async (req: Request, _context: Context) => {
       if (!rows[0]) return json({ error: "Demande introuvable" }, 404);
 
       if (action === "marquer_traite") {
-        await sql`UPDATE starvibe_keydou_requests SET traite = true, updated_at = now() WHERE id = ${requestId}`;
+        await sql`UPDATE starvibe_keydou_requests SET traite = ${body.traite === false ? false : true}, updated_at = now() WHERE id = ${requestId}`;
         return json({ ok: true });
       }
 

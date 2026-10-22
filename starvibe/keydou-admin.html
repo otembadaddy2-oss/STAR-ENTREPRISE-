@@ -74,13 +74,30 @@
     <div style="display:flex;gap:8px"><a class="linkbtn" href="paiements.html">Paiements</a><button class="linkbtn" id="btnLogout">Déconnexion</button></div>
   </div>
   <div class="tabs">
-    <button class="tab on" id="tabContacts">Contacts en direct</button>
+    <button class="tab on" id="tabClients">Fichier clients (Excel)</button>
+    <button class="tab" id="tabContacts">Contacts en direct</button>
     <button class="tab" id="tabAnnuaire">Annuaire de Keydou</button>
     <button class="tab" id="tabPhone">Mon téléphone (validation)</button>
   </div>
 
+  <!-- CLIENTS : le fichier Excel, en direct -->
+  <div id="paneClients">
+    <div class="stats" id="cStats"></div>
+    <div class="bar">
+      <input type="search" id="cq" placeholder="Rechercher (nom, téléphone, ville, besoin, référence…)" style="flex:1;min-width:200px">
+      <select id="cStatut"><option value="">Tous les statuts</option><option value="paye">Payés</option><option value="en_attente_paiement">En attente de paiement</option><option value="paiement_invalide">Montant refusé</option><option value="paiement_refuse">Dépôt non trouvé</option></select>
+      <select id="cJour"><option value="">Toutes les dates</option><option value="today">Aujourd'hui</option></select>
+    </div>
+    <div class="bar">
+      <button class="btn main" id="btnCExcel">⬇ Télécharger l'Excel (clients)</button>
+      <button class="btn" id="btnCExcelDay">⬇ Excel du jour</button>
+      <span class="muted" id="cRefresh"></span>
+    </div>
+    <div class="tablewrap"><table style="min-width:1100px"><thead><tr><th>N°</th><th>Date</th><th>Heure</th><th>Nom et prénom</th><th>Téléphone</th><th>Ville</th><th>Besoins</th><th>Paiement</th><th>Montant reçu</th><th>Payé avec</th><th>Référence</th><th>Origine</th><th>Traité</th></tr></thead><tbody id="cRows"></tbody></table></div>
+  </div>
+
   <!-- CONTACTS -->
-  <div id="paneContacts">
+  <div id="paneContacts" hidden>
     <div class="stats" id="stats"></div>
     <div class="bar">
       <input type="search" id="q" placeholder="Rechercher (nom, téléphone, texte…)" style="flex:1;min-width:200px">
@@ -172,7 +189,7 @@
 
   /* ---------- connexion ---------- */
   function showLogin(){ $('loginView').hidden = false; $('mainView').hidden = true; clearInterval(timer); }
-  function showMain(){ $('loginView').hidden = true; $('mainView').hidden = false; loadContacts(true); loadAnnuaire(); clearInterval(timer); timer = setInterval(function(){ if (!$('paneContacts').hidden) loadContacts(false); }, 6000); }
+  function showMain(){ $('loginView').hidden = true; $('mainView').hidden = false; loadClients(true); loadContacts(true); loadAnnuaire(); clearInterval(timer); timer = setInterval(function(){ if (!$('paneClients').hidden) loadClients(false); if (!$('paneContacts').hidden) loadContacts(false); }, 6000); }
   var timer = null;
   $('btnLogin').addEventListener('click', function(){
     var err = $('loginErr'); err.classList.remove('show');
@@ -185,12 +202,78 @@
   });
   $('btnLogout').addEventListener('click', function(){ setToken(''); showLogin(); });
   function tab(name){
-    ['Contacts','Annuaire','Phone'].forEach(function(n){ $('tab' + n).classList.toggle('on', n === name); $('pane' + n).hidden = (n !== name); });
+    ['Clients','Contacts','Annuaire','Phone'].forEach(function(n){ $('tab' + n).classList.toggle('on', n === name); $('pane' + n).hidden = (n !== name); });
     if (name === 'Phone') loadPhone();
   }
+  $('tabClients').addEventListener('click', function(){ tab('Clients'); });
   $('tabContacts').addEventListener('click', function(){ tab('Contacts'); });
   $('tabAnnuaire').addEventListener('click', function(){ tab('Annuaire'); });
   $('tabPhone').addEventListener('click', function(){ tab('Phone'); });
+
+
+  /* ---------- fichier clients (une ligne par client), en direct ---------- */
+  var clients = [], seenC = {};
+  var STATUT = { paye:'Payé', en_attente_paiement:'En attente de paiement', paiement_invalide:'Montant refusé', paiement_refuse:'Dépôt non trouvé' };
+  function fcfa(n){ return (n == null ? '' : Number(n).toLocaleString('fr-FR') + ' FCFA'); }
+  function loadClients(first){
+    authFetch(API + '?clients=1&limit=3000').then(function(r){ if (r.status === 403){ setToken(''); showLogin(); return null; } return r.json(); }).then(function(d){
+      if (!d || !d.clients) return;
+      var fresh = {};
+      d.clients.forEach(function(c){ var k = c.id + ':' + c.statut + ':' + c.traite; if (!first && !seenC[k]) fresh[c.id] = true; seenC[k] = true; });
+      clients = d.clients; renderClients(fresh);
+      var t = new Date(); $('cRefresh').textContent = 'Mis à jour à ' + pad(t.getHours()) + ':' + pad(t.getMinutes()) + ':' + pad(t.getSeconds()) + ' — automatique, toutes les 6 secondes.';
+    });
+  }
+  function cFiltered(onlyToday){
+    var q = $('cq').value.trim().toLowerCase(), st = $('cStatut').value, jour = onlyToday || $('cJour').value === 'today';
+    return clients.filter(function(c){
+      if (st && c.statut !== st) return false;
+      if (jour && dateParts(c.date).date !== todayStr()) return false;
+      return !q || [c.nom, c.telephone, c.ville, c.besoins, c.reference, c.numeroPaiement, STATUT[c.statut]].join(' ').toLowerCase().indexOf(q) !== -1;
+    });
+  }
+  function renderClients(fresh){
+    var today = todayStr(), nPaye = 0, nAtt = 0, recette = 0, nToday = 0;
+    clients.forEach(function(c){ if (c.statut === 'paye'){ nPaye++; recette += (c.montantRecu || c.montantAttendu || 0); } if (c.statut === 'en_attente_paiement') nAtt++; if (dateParts(c.date).date === today) nToday++; });
+    $('cStats').innerHTML =
+      '<div class="stat"><b>' + clients.length + '</b><span>clients (demandes) au total</span></div>' +
+      '<div class="stat"><b>' + nToday + '</b><span>aujourd\'hui</span></div>' +
+      '<div class="stat"><b>' + nPaye + '</b><span>payés</span></div>' +
+      '<div class="stat"><b>' + nAtt + '</b><span>en attente de paiement</span></div>' +
+      '<div class="stat"><b>' + recette.toLocaleString('fr-FR') + '</b><span>FCFA encaissés</span></div>';
+    var list = cFiltered(false);
+    $('cRows').innerHTML = list.map(function(c){
+      var p = dateParts(c.date), cls = c.statut === 'paye' ? 'pay' : (c.statut === 'en_attente_paiement' ? 'warn' : '');
+      return '<tr class="' + (fresh && fresh[c.id] ? 'new' : '') + '"><td>' + esc(c.id) + '</td><td>' + p.date + '</td><td>' + p.heure + '</td><td><b>' + esc(c.nom || '—') + '</b></td><td>' + esc(c.telephone) + '</td><td>' + esc(c.ville) + '</td><td>' + esc(c.besoins) + '</td>' +
+        '<td><span class="pill ' + cls + '">' + esc(STATUT[c.statut] || c.statut) + '</span></td><td>' + (c.statut === 'paye' ? esc(fcfa(c.montantRecu || c.montantAttendu)) : '') + '</td><td>' + esc(c.numeroPaiement) + '</td><td>' + esc(c.reference) + '</td><td class="muted">' + esc(c.origine) + '</td>' +
+        '<td>' + (c.statut === 'paye' ? '<input type="checkbox" data-traite="' + esc(c.id) + '" ' + (c.traite ? 'checked' : '') + ' aria-label="Dossier traité">' : '') + '</td></tr>';
+    }).join('') || '<tr><td colspan="13" class="muted" style="padding:22px;text-align:center">Aucun client pour le moment : dès qu\'une personne s\'inscrit auprès de Keydou, elle apparaît ici.</td></tr>';
+    $('cRows').querySelectorAll('input[data-traite]').forEach(function(cb){ cb.addEventListener('change', function(){ post({ action:'marquer_traite', requestId:Number(cb.getAttribute('data-traite')), traite:cb.checked }); }); });
+  }
+  ['cq'].forEach(function(id){ $(id).addEventListener('input', function(){ renderClients(null); }); });
+  ['cStatut','cJour'].forEach(function(id){ $(id).addEventListener('change', function(){ renderClients(null); }); });
+
+  function excelClients(onlyToday){
+    var rows = cFiltered(onlyToday).slice().reverse();
+    var main = [['N°','Date','Heure','Nom et prénom','Téléphone','Ville','Besoins','Statut du paiement','Montant reçu (FCFA)','Payé avec le numéro','Code transaction','Référence','Origine','Dossier traité','Date du paiement']];
+    rows.forEach(function(c){ var p = dateParts(c.date), pp = c.payeLe ? dateParts(c.payeLe) : null; main.push([Number(c.id), p.date, p.heure, c.nom, c.telephone, c.ville, c.besoins, STATUT[c.statut] || c.statut, c.statut === 'paye' ? (c.montantRecu || c.montantAttendu) : '', c.numeroPaiement, c.transaction, c.reference, c.origine, c.traite ? 'oui' : 'non', pp ? pp.date + ' ' + pp.heure : '']); });
+    var days = {};
+    rows.forEach(function(c){ var d = dateParts(c.date).date, o = days[d] || (days[d] = { n:0, paye:0, att:0, fcfa:0 }); o.n++; if (c.statut === 'paye'){ o.paye++; o.fcfa += (c.montantRecu || c.montantAttendu || 0); } if (c.statut === 'en_attente_paiement') o.att++; });
+    var jour = [['Date','Demandes','Payées','En attente','Encaissé (FCFA)']];
+    Object.keys(days).sort().reverse().forEach(function(d){ var o = days[d]; jour.push([d, o.n, o.paye, o.att, o.fcfa]); });
+    var tel = {};
+    rows.forEach(function(c){ var k = c.telephone || c.nom; var o = tel[k] || (tel[k] = { nom:c.nom, tel:c.telephone, n:0, paye:0, besoins:{}, last:c.date }); o.n++; if (c.statut === 'paye') o.paye++; c.besoins.split(' + ').forEach(function(b){ if (b) o.besoins[b] = 1; }); if (c.date > o.last) o.last = c.date; });
+    var pers = [['Nom et prénom','Téléphone','Demandes','Dont payées','Besoins demandés','Dernière demande']];
+    Object.keys(tel).forEach(function(k){ var o = tel[k], p = dateParts(o.last); pers.push([o.nom, o.tel, o.n, o.paye, Object.keys(o.besoins).join(', '), p.date + ' ' + p.heure]); });
+    var wb = XLSX.utils.book_new();
+    var w1 = XLSX.utils.aoa_to_sheet(main); w1['!cols'] = [{wch:6},{wch:11},{wch:9},{wch:26},{wch:17},{wch:14},{wch:44},{wch:22},{wch:16},{wch:18},{wch:16},{wch:11},{wch:14},{wch:12},{wch:18}]; w1['!autofilter'] = { ref: 'A1:O' + main.length }; w1['!freeze'] = { xSplit:0, ySplit:1 };
+    var w2 = XLSX.utils.aoa_to_sheet(jour); w2['!cols'] = [{wch:12},{wch:10},{wch:10},{wch:11},{wch:16}];
+    var w3 = XLSX.utils.aoa_to_sheet(pers); w3['!cols'] = [{wch:26},{wch:17},{wch:10},{wch:11},{wch:50},{wch:18}];
+    XLSX.utils.book_append_sheet(wb, w1, 'Clients'); XLSX.utils.book_append_sheet(wb, w2, 'Par jour'); XLSX.utils.book_append_sheet(wb, w3, 'Par personne');
+    XLSX.writeFile(wb, 'Keydou-clients-' + (onlyToday ? todayStr() : 'complet-' + todayStr()) + '.xlsx');
+  }
+  $('btnCExcel').addEventListener('click', function(){ excelClients(false); });
+  $('btnCExcelDay').addEventListener('click', function(){ excelClients(true); });
 
   /* ---------- contacts en direct ---------- */
   var contacts = [], seen = {};
