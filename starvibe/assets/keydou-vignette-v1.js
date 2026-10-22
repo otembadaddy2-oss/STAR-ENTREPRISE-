@@ -6,8 +6,8 @@
 (function(){
   var BASE = '/starvibe/assets/video/keydou/', SZ = 240;
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var conn = navigator.connection || {};
-  if (reduce || conn.saveData) return;
+  // Le mode « économie de données » ne bloque plus l'animation (≈ 300 Ko pour tout Keydou) ;
+  // « moins d'animations » → un seul bonjour, puis Keydou se fige.
 
   function init(host){
     var img = host.querySelector('img');
@@ -32,6 +32,7 @@
     function bonjour(){
       clearTimeout(timer);
       clip('wave', false, function(){
+        if (reduce){ actif = false; cancelAnimationFrame(raf); vid.pause(); return; }
         clip('idle', true);
         timer = setTimeout(bonjour, 6500);
       });

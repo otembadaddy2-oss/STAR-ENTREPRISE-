@@ -20,8 +20,7 @@
   if (store(KEY) === jour) return;
 
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var conn = navigator.connection || {};
-  var avecVideo = !reduce && !conn.saveData;
+  var avecVideo = true; // « économie de données » ne bloque plus (≈ 170 Ko) ; « moins d'animations » → quelques secondes puis il se fige
   var BASE = '/starvibe/';
   var SZ = 180;
 
@@ -82,8 +81,10 @@
     vid.muted = true; vid.defaultMuted = true; vid.loop = true; vid.playsInline = true;
     vid.setAttribute('playsinline', ''); vid.setAttribute('muted', '');
     vid.preload = 'auto';
-    var ok = false, raf = 0, last = 0;
+    var ok = false, raf = 0, last = 0, t0 = 0;
     function dessiner(t){
+      if (!t0) t0 = t;
+      if (reduce && t - t0 > 4500){ cancelAnimationFrame(raf); vid.pause(); return; }
       raf = requestAnimationFrame(dessiner);
       if (document.hidden || vid.readyState < 2 || t - last < 55) return; // ~18 images/s, suffisant pour une petite vignette
       last = t;
