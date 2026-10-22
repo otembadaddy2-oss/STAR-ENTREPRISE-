@@ -20,11 +20,11 @@
   var lang = 'fr';
   try {
     var q = /[?&]lang=(fr|en)\b/i.exec(location.search);
-    if (q) { lang = q[1].toLowerCase(); ecrire(KEY, lang); }
+    if (q) { lang = q[1].toLowerCase(); ecrire(KEY, lang); ecrire(KEY + '_bouton', '1'); }
     else {
       var saved = lire(KEY);
       if (saved === 'fr' || saved === 'en') lang = saved;
-      else lang = !PROPRE && /^en\b/i.test(navigator.language || '') ? 'en' : 'fr';
+      else lang = 'fr'; // le site reste en français tant que l'anglais n'est pas ouvert au public
     }
   } catch (e) { lang = 'fr'; }
 
@@ -36,6 +36,8 @@
 
   // ---- bouton FR | EN (présent dans les deux langues) ----
   function bouton() {
+    // Le bouton FR | EN n'apparaît pas pour le public : seulement après un lien ?lang=en ou ?lang=fr (pour les essais).
+    if (lire(KEY + '_bouton') !== '1') return;
     if (document.getElementById('komyoLang') || document.documentElement.hasAttribute('data-no-lang-switch') || (script && script.getAttribute('data-switch') === 'off')) return;
     var css = document.createElement('style');
     css.textContent =
