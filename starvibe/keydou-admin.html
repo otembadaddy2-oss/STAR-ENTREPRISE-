@@ -425,7 +425,7 @@
   $('btnPushOn').addEventListener('click', function(){
     if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)){ pmsg('Ce navigateur ne gère pas les notifications. Sur iPhone : ajoute d\'abord la page à l\'écran d\'accueil, puis rouvre-la depuis l\'icône.', true); return; }
     pmsg('Activation en cours…');
-    navigator.serviceWorker.register('/starvibe/sw-staff.js').then(function(){ return navigator.serviceWorker.ready; }).then(function(reg){
+    navigator.serviceWorker.register('/starvibe/sw-komyo.js').then(function(){ return navigator.serviceWorker.ready; }).then(function(reg){
       return Notification.requestPermission().then(function(perm){
         if (perm !== 'granted') throw new Error('Autorisation refusée : active les notifications pour ce site dans les réglages du téléphone.');
         return fetch(API + '?pushkey=1').then(function(r){ return r.json(); }).then(function(k){ return reg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey:b64ToU8(k.publicKey) }); });

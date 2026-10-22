@@ -1,0 +1,22 @@
+{
+  "id": "/starvibe/",
+  "name": "KOMYO — Vidéos, Keydou et bons plans du Congo",
+  "short_name": "KOMYO",
+  "description": "KOMYO : partage tes vidéos et trouve tous les services du Congo avec Keydou, l'assistant.",
+  "start_url": "/starvibe/index.html?source=app",
+  "scope": "/starvibe/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#08080c",
+  "theme_color": "#08080c",
+  "lang": "fr",
+  "icons": [
+    { "src": "/starvibe/assets/img/icons/komyo-192-v1.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/starvibe/assets/img/icons/komyo-512-v1.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/starvibe/assets/img/icons/komyo-192-maskable-v1.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/starvibe/assets/img/icons/komyo-512-maskable-v1.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Parler à Keydou", "url": "/starvibe/keydou.html", "icons": [ { "src": "/starvibe/assets/img/icons/komyo-192-v1.png", "sizes": "192x192" } ] }
+  ]
+}
