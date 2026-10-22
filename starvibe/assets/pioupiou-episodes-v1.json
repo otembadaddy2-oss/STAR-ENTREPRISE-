@@ -1,0 +1,266 @@
+{
+ "familles": [
+  {
+   "lettre": "A",
+   "emoji": "🧼",
+   "nom": "Les bonnes habitudes",
+   "episodes": [
+    {
+     "id": "A1",
+     "titre": "Bonjour papa, bonjour maman",
+     "duree": "60 s",
+     "objectif": "Dire bonjour à ses parents dès le réveil."
+    },
+    {
+     "id": "A2",
+     "titre": "Les dents du matin",
+     "duree": "75 s",
+     "objectif": "Se brosser les dents 2 minutes, en haut, en bas, devant, derrière."
+    },
+    {
+     "id": "A3",
+     "titre": "Les mains propres avant de manger",
+     "duree": "60 s",
+     "objectif": "Se laver les mains avant chaque repas (savon, 20 secondes, rinçage, séchage)."
+    },
+    {
+     "id": "A4",
+     "titre": "Les mains propres après le repas",
+     "duree": "60 s",
+     "objectif": "Se laver les mains après le repas, les toilettes, le jeu."
+    },
+    {
+     "id": "A5",
+     "titre": "Merci !",
+     "duree": "60 s",
+     "objectif": "Dire merci quand on reçoit quelque chose."
+    },
+    {
+     "id": "A6",
+     "titre": "S'il te plaît",
+     "duree": "60 s",
+     "objectif": "Demander poliment."
+    },
+    {
+     "id": "A7",
+     "titre": "Au revoir",
+     "duree": "60 s",
+     "objectif": "Dire au revoir en regardant la personne."
+    },
+    {
+     "id": "A8",
+     "titre": "Les dents du soir",
+     "duree": "60 s",
+     "objectif": "Se brosser les dents avant de dormir."
+    },
+    {
+     "id": "A9",
+     "titre": "Bonne nuit papa, bonne nuit maman",
+     "duree": "60 s",
+     "objectif": "Dire bonne nuit avant d'aller se coucher."
+    },
+    {
+     "id": "A10",
+     "titre": "Bravo, quelle belle journée !",
+     "duree": "90 s",
+     "objectif": "Récapituler toute la journée en chanson (fête de fin de thème)."
+    }
+   ]
+  },
+  {
+   "lettre": "B",
+   "emoji": "🎵",
+   "nom": "Les hymnes d'Afrique et du monde",
+   "episodes": [
+    {
+     "id": "B1",
+     "titre": "Hymne : le Congo-Brazzaville",
+     "duree": "90 s",
+     "objectif": "Apprendre l'hymne national de le Congo-Brazzaville (La Congolaise) avec respect."
+    },
+    {
+     "id": "B2",
+     "titre": "Hymne : la RDC (Congo-Kinshasa)",
+     "duree": "90 s",
+     "objectif": "Apprendre l'hymne national de la RDC (Congo-Kinshasa) (Debout Congolais) avec respect."
+    },
+    {
+     "id": "B3",
+     "titre": "Hymne : le Cameroun",
+     "duree": "90 s",
+     "objectif": "Apprendre l'hymne national de le Cameroun (Ô Cameroun, berceau de nos ancêtres) avec respect."
+    },
+    {
+     "id": "B4",
+     "titre": "Hymne : le Gabon",
+     "duree": "90 s",
+     "objectif": "Apprendre l'hymne national de le Gabon (La Concorde) avec respect."
+    },
+    {
+     "id": "B5",
+     "titre": "Hymne : le Mali",
+     "duree": "90 s",
+     "objectif": "Apprendre l'hymne national de le Mali (Le Mali) avec respect."
+    },
+    {
+     "id": "B6",
+     "titre": "Hymne : la Guinée-Bissau",
+     "duree": "90 s",
+     "objectif": "Apprendre l'hymne national de la Guinée-Bissau (Esta é a nossa pátria bem amada) avec respect."
+    },
+    {
+     "id": "B7",
+     "titre": "Hymne : la Guinée (Conakry)",
+     "duree": "90 s",
+     "objectif": "Apprendre l'hymne national de la Guinée (Conakry) (Liberté) avec respect."
+    },
+    {
+     "id": "B8",
+     "titre": "Hymne : la Côte d'Ivoire",
+     "duree": "90 s",
+     "objectif": "Apprendre l'hymne national de la Côte d'Ivoire (L'Abidjanaise) avec respect."
+    },
+    {
+     "id": "B9",
+     "titre": "Hymne : le Burkina Faso",
+     "duree": "90 s",
+     "objectif": "Apprendre l'hymne national de le Burkina Faso (Ditanyè (Une seule nuit)) avec respect."
+    },
+    {
+     "id": "B10",
+     "titre": "Hymne : le Ghana",
+     "duree": "90 s",
+     "objectif": "Apprendre l'hymne national de le Ghana (God Bless Our Homeland Ghana) avec respect."
+    },
+    {
+     "id": "B11",
+     "titre": "Hymne : le Togo",
+     "duree": "90 s",
+     "objectif": "Apprendre l'hymne national de le Togo (Terre de nos aïeux) avec respect."
+    },
+    {
+     "id": "B12",
+     "titre": "Hymne : le Niger",
+     "duree": "90 s",
+     "objectif": "Apprendre l'hymne national de le Niger (La Nigérienne) avec respect."
+    },
+    {
+     "id": "B13",
+     "titre": "Hymne : le Maroc",
+     "duree": "90 s",
+     "objectif": "Apprendre l'hymne national de le Maroc (Hymne chérifien) avec respect."
+    },
+    {
+     "id": "B14",
+     "titre": "Hymne : le Canada",
+     "duree": "90 s",
+     "objectif": "Apprendre l'hymne national de le Canada (Ô Canada) avec respect."
+    },
+    {
+     "id": "B15",
+     "titre": "Chaque semaine, un nouveau pays",
+     "duree": "60 s",
+     "objectif": "Présenter la série et le calendrier d'hymnes."
+    }
+   ]
+  },
+  {
+   "lettre": "C",
+   "emoji": "🔢",
+   "nom": "Compter avec PIOUPIOU",
+   "episodes": [
+    {
+     "id": "C1",
+     "titre": "La chanson de 1 à 10",
+     "duree": "75 s",
+     "objectif": "Compter de 1 à 10."
+    },
+    {
+     "id": "C2",
+     "titre": "Comptons les poussins",
+     "duree": "75 s",
+     "objectif": "Dénombrer de 1 à 10."
+    },
+    {
+     "id": "C3",
+     "titre": "La chanson de 10 à 20",
+     "duree": "75 s",
+     "objectif": "Compter de 10 à 20."
+    },
+    {
+     "id": "C4",
+     "titre": "Comptons les fruits du marché",
+     "duree": "75 s",
+     "objectif": "Compter de 10 à 20 avec des mangues, bananes, ananas."
+    },
+    {
+     "id": "C5",
+     "titre": "Compter de deux en deux",
+     "duree": "60 s",
+     "objectif": "2, 4, 6, 8... 20 (les chaussures par paires)."
+    },
+    {
+     "id": "C6",
+     "titre": "Le grand jeu : de 1 à 20",
+     "duree": "90 s",
+     "objectif": "Quiz chronométré de fin de thème."
+    }
+   ]
+  },
+  {
+   "lettre": "D",
+   "emoji": "🔤",
+   "nom": "L'alphabet",
+   "episodes": [
+    {
+     "id": "D1",
+     "titre": "La chanson de l'alphabet",
+     "duree": "90 s",
+     "objectif": "Découvrir les 26 lettres en chanson."
+    },
+    {
+     "id": "D2",
+     "titre": "L'alphabet de A à E",
+     "duree": "60 s",
+     "objectif": "Apprendre les lettres A à E avec des mots familiers."
+    },
+    {
+     "id": "D3",
+     "titre": "L'alphabet de F à J",
+     "duree": "60 s",
+     "objectif": "Apprendre les lettres F à J avec des mots familiers."
+    },
+    {
+     "id": "D4",
+     "titre": "L'alphabet de K à O",
+     "duree": "60 s",
+     "objectif": "Apprendre les lettres K à O avec des mots familiers."
+    },
+    {
+     "id": "D5",
+     "titre": "L'alphabet de P à T",
+     "duree": "60 s",
+     "objectif": "Apprendre les lettres P à T avec des mots familiers."
+    },
+    {
+     "id": "D6",
+     "titre": "L'alphabet de U à Z",
+     "duree": "60 s",
+     "objectif": "Apprendre les lettres U à Z avec des mots familiers."
+    },
+    {
+     "id": "D7",
+     "titre": "Cherche la lettre",
+     "duree": "75 s",
+     "objectif": "Jeu : retrouver une lettre parmi plusieurs."
+    },
+    {
+     "id": "D8",
+     "titre": "Ton prénom en lettres",
+     "duree": "75 s",
+     "objectif": "Épeler son prénom."
+    }
+   ]
+  }
+ ]
+}

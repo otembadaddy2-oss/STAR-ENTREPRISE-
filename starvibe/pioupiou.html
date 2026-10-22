@@ -58,6 +58,18 @@
   .state h2{font-size:18px;margin:0 0 8px;}
   .state p{font-size:13px;color:rgba(255,255,255,.7);line-height:1.6;max-width:280px;}
   .state a{color:var(--kids-light);font-weight:700;}
+  .avenir{width:100%;max-width:360px;margin-top:18px;text-align:left;}
+  .avenir h3{font-family:'Sora',Arial,sans-serif;font-size:14px;margin:0 0 10px;text-align:center;color:var(--kids-light);}
+  .avenir details{background:rgba(255,255,255,.13);border:1.5px solid rgba(255,255,255,.22);border-radius:16px;margin-bottom:10px;overflow:hidden;}
+  .avenir summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:13px 14px;font-weight:700;font-size:14px;}
+  .avenir summary::-webkit-details-marker{display:none;}
+  .avenir summary .n{margin-left:auto;font-size:11.5px;font-weight:600;color:rgba(255,255,255,.75);}
+  .avenir summary::after{content:"+";font-weight:800;font-size:18px;line-height:1;margin-left:6px;}
+  .avenir details[open] summary::after{content:"–";}
+  .avenir ul{list-style:none;margin:0;padding:0 14px 12px;}
+  .avenir li{display:flex;gap:10px;justify-content:space-between;align-items:baseline;padding:8px 0;border-top:1px solid rgba(255,255,255,.14);font-size:13px;line-height:1.4;}
+  .avenir li small{color:rgba(255,255,255,.72);white-space:nowrap;}
+  .avenir li .bientot{display:block;font-size:11px;color:#ffe08a;font-weight:700;}
   .lock{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:24px;
     background:linear-gradient(160deg,rgba(15,74,55,.92),rgba(30,152,102,.9));z-index:3;}
   .lock.show{display:flex;}
@@ -82,12 +94,14 @@
 <div id="emptyState" class="state" hidden>
   <div class="emoji">🌟</div>
   <h2>Bientôt de nouvelles vidéos !</h2>
-  <p>Nos petites histoires sont en cours de préparation. Reviens bientôt sur PIOUPIOU.</p>
+  <p>Nos petites histoires sont en cours de préparation. Voici ce qui t'attend 👇</p>
+  <div class="avenir" data-avenir></div>
 </div>
 <div id="doneState" class="state" hidden>
   <div class="emoji">🎉</div>
   <h2>Bravo, tu as tout regardé !</h2>
   <p>De nouvelles vidéos arrivent bientôt.</p>
+  <div class="avenir" data-avenir></div>
 </div>
 
 <div id="stageWrap" class="stage" hidden>
@@ -132,7 +146,25 @@
   var lockEl = document.getElementById('lockEl');
   var premiumTag = document.getElementById('premiumTag');
 
-  function show(el){ [loadingState, loggedOutState, emptyState, doneState, stageWrap].forEach(function(e){ e.hidden = (e !== el); }); }
+  // La liste des petites histoires à venir (39 épisodes), affichée tant qu'il n'y a pas (ou plus) de vidéo à regarder.
+  function esc(t){ return String(t).replace(/[&<>"]/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  var aVenirHtml = null;
+  function remplirAVenir(){
+    var hotes = document.querySelectorAll('[data-avenir]');
+    if (aVenirHtml !== null){ Array.prototype.forEach.call(hotes, function(h){ h.innerHTML = aVenirHtml; }); return; }
+    fetch('/starvibe/assets/pioupiou-episodes-v1.json').then(function(r){ return r.json(); }).then(function(d){
+      var total = d.familles.reduce(function(n, f){ return n + f.episodes.length; }, 0);
+      var h = '<h3>' + total + ' petites histoires arrivent</h3>';
+      d.familles.forEach(function(f){
+        h += '<details><summary><span>' + f.emoji + '</span> ' + esc(f.nom) + '<span class="n">' + f.episodes.length + ' épisodes</span></summary><ul>';
+        f.episodes.forEach(function(e){ h += '<li><span>' + esc(e.titre) + '<span class="bientot">Bientôt</span></span><small>' + esc(e.duree) + '</small></li>'; });
+        h += '</ul></details>';
+      });
+      aVenirHtml = h; Array.prototype.forEach.call(hotes, function(x){ x.innerHTML = h; });
+    }).catch(function(){});
+  }
+
+  function show(el){ if (el === emptyState || el === doneState) remplirAVenir(); [loadingState, loggedOutState, emptyState, doneState, stageWrap].forEach(function(e){ e.hidden = (e !== el); }); }
 
   if (!token){ show(loggedOutState); return; }
 
