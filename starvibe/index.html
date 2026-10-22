@@ -134,7 +134,7 @@
   .keydou-banner{display:flex;align-items:center;gap:8px;border-radius:22px;overflow:hidden;margin-top:6px;text-decoration:none;color:var(--ink,#241536);
     background:radial-gradient(120% 120% at 0% 0%,#fffaf0 0%,#ffecc2 60%,#f8d98c 100%);border:1px solid #eee2cc;padding:8px 18px 8px 8px;box-shadow:0 14px 30px -16px rgba(200,148,47,.55);transition:transform .3s ease;}
   .keydou-banner:hover{transform:translateY(-4px);}
-  .keydou-banner img{flex:none;width:104px;height:auto;animation:kdHopL .8s ease-in-out infinite;transform-origin:50% 100%;filter:drop-shadow(0 5px 6px rgba(36,21,54,.2));}
+  .keydou-banner img{flex:none;width:104px;height:auto;filter:drop-shadow(0 5px 6px rgba(36,21,54,.2));}
   @keyframes kdHopL{0%{transform:translateY(0) rotate(-6deg);}25%{transform:translateY(-14px) rotate(0);}50%{transform:translateY(0) rotate(6deg);}75%{transform:translateY(-14px) rotate(0);}100%{transform:translateY(0) rotate(-6deg);}}
   .keydou-banner h3{font-size:18px;margin:0 0 3px;font-family:'Sora',sans-serif;}
   .keydou-banner p{font-size:12px;line-height:1.5;margin:0 0 6px;color:#6b5f80;}
@@ -297,7 +297,7 @@
 </section>
 
 <section class="wrap" style="padding-top:0;">
-  <a class="keydou-banner reveal" href="keydou.html">
+  <a class="keydou-banner reveal" href="keydou.html" data-keydou-anim data-keydou-w="116">
     <img src="assets/img/keydou.webp" alt="Keydou, la mascotte-assistant de STAR ENTREPRISE" width="104" height="130">
     <div>
       <h3>Keydou, votre assistant multiservices</h3>
@@ -386,6 +386,7 @@
 </script>
 
 <script src="assets/keydou-bulle-v1.js" defer></script>
+<script src="assets/keydou-vignette-v1.js" defer></script>
 <script src="assets/komyo-installer-v2.js" defer></script>
 </body>
 </html>
