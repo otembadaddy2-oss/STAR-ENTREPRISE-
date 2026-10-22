@@ -32,7 +32,7 @@ Texte de ce fichier de référence :
 ## Où la voix Clémence est déjà utilisée
 
 - Spot STAR ENTREPRISE (octobre 2026).
-- **KOMYO — voix-off d'accueil** (19 octobre 2026) : `starvibe/assets/audio/komyo-intro-voix.mp3` (10,6 s). Texte : « Avec KOMYO, vibre plus que du bonheur ! Toi, moi, nos enfants : un bonheur sans pareil. Rapide, simple à utiliser, facile à télécharger. KOMYO, l'Afrique en mouvement. » (ancien slogan : à régénérer avec « Le monde en mouvement ») Voix ElevenLabs « Clémence - Advertising », modèle eleven_v4.
+- **KOMYO — voix-off d'accueil** (19 octobre 2026, slogan mis à jour le 22 octobre 2026 : « KOMYO, le monde en mouvement » — phrase finale régénérée avec la même voix et raccordée à l'enregistrement d'origine) : `starvibe/assets/audio/komyo-intro-voix-monde-v1.mp3` (11,4 s ; l'ancien `komyo-intro-voix.mp3` n'est plus utilisé). Texte : « Avec KOMYO, vibre plus que du bonheur ! Toi, moi, nos enfants : un bonheur sans pareil. Rapide, simple à utiliser, facile à télécharger. KOMYO, le monde en mouvement. » Voix ElevenLabs « Clémence - Advertising », modèle eleven_v4.
 
 ## Règles
 

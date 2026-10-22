@@ -47,6 +47,11 @@
   .why li::before{content:"✓";flex:none;color:var(--ok);font-weight:800}
   .share{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
   .share a,.share button{flex:1 1 150px;min-height:46px;display:flex;align-items:center;justify-content:center;border-radius:13px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.07);color:var(--ink);font:inherit;font-size:14.5px;font-weight:700;text-decoration:none;cursor:pointer}
+  .diag{background:var(--card);border:1px solid rgba(255,255,255,.09);border-radius:14px;padding:12px 14px;font-size:13.5px;color:#e7e1f1}
+  .diag dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0 0 10px}
+  .diag dt{color:var(--dim)} .diag dd{margin:0;font-weight:600}
+  .diag .ok{color:var(--ok)} .diag .ko{color:#ffb86b}
+  .tips{margin:0;padding-left:20px;font-size:14.5px;color:#e7e1f1} .tips li+li{margin-top:7px}
   .foot{margin-top:30px;text-align:center;font-size:12.5px;color:var(--dim)}
   .foot a{color:var(--gold)}
 </style>
@@ -114,6 +119,26 @@
     </ol>
   </div>
 
+  <h2 id="probleme">Ça ne s'installe pas ?</h2>
+  <div class="dev">
+    <h3>🔎 Ce que voit ton téléphone</h3>
+    <div class="diag" id="diag" aria-live="polite">Analyse en cours…</div>
+    <div class="share" style="margin-top:10px">
+      <a id="waDiag" href="#" target="_blank" rel="noopener">Envoyer ce diagnostic par WhatsApp</a>
+    </div>
+  </div>
+  <div class="dev">
+    <h3>✅ Essaie dans cet ordre</h3>
+    <ol class="tips">
+      <li>Dans le menu <b>⋮</b> de Chrome, cherche <b>Installer l'application</b> ou <b>Ajouter à l'écran d'accueil</b>.</li>
+      <li>Rien ? Touche <b>Partager…</b> et regarde la rangée d'actions (fais-la glisser).</li>
+      <li><b>Mets Chrome à jour</b> dans le Play Store, puis rouvre cette page.</li>
+      <li>Ouvre cette page dans <b>un autre navigateur</b> : Edge, Samsung Internet, Firefox ou Opera.</li>
+      <li>Lien reçu par WhatsApp, Facebook ou TikTok ? Choisis <b>Ouvrir dans le navigateur</b>.</li>
+    </ol>
+    <p>Certains téléphones plus anciens ou limités ne savent pas installer les applications web, quel que soit le site. <b>KOMYO fonctionne alors très bien dans le navigateur</b> : garde simplement la page dans tes favoris ⭐.</p>
+  </div>
+
   <h2>Donne-la à un proche</h2>
   <div class="share">
     <a id="wa" href="#" target="_blank" rel="noopener">Envoyer sur WhatsApp</a>
@@ -124,7 +149,7 @@
   <p class="foot">Une question ? Demande à <a href="keydou.html">Keydou</a>, il t'aide en direct.</p>
 </main>
 
-<script src="assets/komyo-installer-v3.js" defer></script>
+<script src="assets/komyo-installer-v4.js" defer></script>
 <script>
 (function(){
   var btn = document.getElementById('goBtn'), state = document.getElementById('state');
@@ -154,6 +179,21 @@
   window.addEventListener('load', function(){ moi(); maj(); setTimeout(maj, 1500); setTimeout(maj, 4000); });
   document.addEventListener('komyo:installe', maj);
   btn.addEventListener('click', function(){ var k = window.__komyoInstaller; if (k) k.installer(); });
+
+
+  // Diagnostic : ce que le navigateur offre vraiment, utile pour aider quelqu'un à distance
+  function diag(){
+    var k = window.__komyoInstaller; if (!k || !k.diagnostic) return;
+    var d = k.diagnostic(), el = document.getElementById('diag');
+    function badge(v, oui, non){ return '<span class="' + (v ? 'ok' : 'ko') + '">' + (v ? oui : non) + '</span>'; }
+    el.innerHTML = '<dl><dt>Appareil</dt><dd>' + d.appareil + '</dd><dt>Navigateur</dt><dd>' + d.navigateur + '</dd><dt>Installation en un bouton</dt><dd>' +
+      badge(d.dejaInstallee || d.installationAuto, d.dejaInstallee ? 'déjà installée ✓' : 'proposée ✓', d.appareil === 'iPhone/iPad' ? 'non (normal sur iPhone : utilise Partager)' : 'non proposée par ce navigateur') +
+      '</dd><dt>Fonctionnement hors ligne</dt><dd>' + badge(d.serviceWorker, 'oui ✓', 'non') + '</dd></dl>' +
+      (d.dejaInstallee ? '' : (d.installationAuto ? '<span class="ok">Tout est prêt : touche « Installer maintenant » en haut.</span>' : 'Suis la liste ci-dessous : ton navigateur ne propose pas le bouton, mais l\'installation manuelle peut marcher.'));
+    var txt = 'Diagnostic KOMYO — ' + d.appareil + ', ' + d.navigateur + ', installation en un bouton : ' + (d.installationAuto ? 'oui' : 'non') + ', écran ' + d.ecran;
+    document.getElementById('waDiag').href = 'https://wa.me/?text=' + encodeURIComponent(txt);
+  }
+  window.addEventListener('load', function(){ setTimeout(diag, 800); setTimeout(diag, 3500); });
 
   document.getElementById('wa').href = 'https://wa.me/?text=' + encodeURIComponent('Installe KOMYO sur ton téléphone, c\'est gratuit : ' + LIEN);
   document.getElementById('copy').addEventListener('click', function(){
