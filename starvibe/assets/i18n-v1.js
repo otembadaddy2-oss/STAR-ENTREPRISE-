@@ -75,6 +75,11 @@
   // =====================================================================
   //  Mode anglais
   // =====================================================================
+  // En anglais, la page est déjà traduite par KOMYO : on empêche le navigateur (Chrome, Edge…) de la « retraduire » en français
+  // à sa façon, ce qui mélangeait l'anglais et le français et changeait certains titres.
+  document.documentElement.setAttribute('translate', 'no');
+  document.documentElement.classList.add('notranslate');
+  (function () { var m = document.createElement('meta'); m.name = 'google'; m.content = 'notranslate'; (document.head || document.documentElement).appendChild(m); })();
   var FILES = ((script && script.getAttribute('data-dicts')) || 'common,public,keydou,staff,staff-blocks,data').split(',');
   FILES.forEach(function (f) { document.write('<script src="' + base + 'i18n/en-' + f + '-v1.js"><\/script>'); });
 
