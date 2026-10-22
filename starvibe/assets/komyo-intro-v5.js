@@ -1,4 +1,4 @@
-// KOMYO — générique d'ouverture « étoiles filantes » : le logo est DESSINÉ par des étoiles (≈ 6,4 s).
+// KOMYO — générique d'ouverture « étoiles filantes » : le logo est DESSINÉ par des étoiles (≈ 4,7 s).
 //
 //   1. des étoiles filantes traversent l'écran, chacune avec un fin trait blanc qui disparaît aussitôt ;
 //   2. trois étoiles dessinent le K : la barre, la grande courbe, puis la jambe — là où une étoile est passée,
@@ -6,9 +6,9 @@
 //   3. cinq étoiles arrivent de tous les côtés et font apparaître les lettres K-O-M-Y-O, une étoile balaie
 //      le slogan, deux autres ouvrent la ligne dorée depuis le centre ;
 //   4. la grande lumière éclate : elle fait apparaître le point au-dessus du K et le logo est parfait ;
-//   5. un scanner de lumière balaie le logo (aller, puis retour plus fort, ≈ 1,6 s), il bat comme un cœur,
+//   5. un scanner de lumière balaie le logo (aller, puis retour plus fort), il bat comme un cœur,
 //      puis l'application s'ouvre.
-// Une seule fois par visite et à chaque lancement de l'application installée ; un toucher passe l'animation ;
+// Tout se joue en moins de 5 secondes. Une seule fois par visite et à chaque lancement de l'application installée ; un toucher passe l'animation ;
 // rien du tout si la personne a demandé moins d'animations. Une seule image est chargée (le logo officiel).
 (function(){
   'use strict';
@@ -21,7 +21,7 @@
 
   var LOGO = '/starvibe/assets/img/icons/komyo-logo-officiel-v1.png';
   var BW = 900, BH = 721;                                   // repère de l'image du logo
-  var DUREE = 7.3, SORTIE = 500;                            // secondes / millisecondes
+  var DUREE = 7.3, VITESSE = 1.55, SORTIE = 500;           // la séquence (7,3 s « d'écriture ») se joue 1,55× plus vite : ≈ 4,7 s réelles                            // secondes / millisecondes
   var BALL = { x: 500, y: 113, r: 68 }, TROU = BALL.r + 14; // la « tête » du K (le point)
   var K_BAS = 468, MOT_HAUT = 468, MOT_BAS = 624, SLO_HAUT = 626, SLO_BAS = 676, LIG_HAUT = 676;
   var COUPES = [0, 165, 350, 558, 692, 900];                // colonnes entre les lettres de KOMYO
@@ -305,7 +305,7 @@
     if (!vivant) return;
     raf = requestAnimationFrame(boucle);
     if (!t0) t0 = now;
-    var t = (now - t0) / 1000;
+    var t = (now - t0) / 1000 * VITESSE;
     if (g && !fini) image(t);
     if (t >= DUREE) terminer();
   }
