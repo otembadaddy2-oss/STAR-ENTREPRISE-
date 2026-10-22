@@ -246,6 +246,7 @@ export default async (req: Request, _context: Context) => {
     const nom = clean(body.nom, 120);
     const dateNaissance = clean(body.dateNaissance, 20);
     const ville = clean(body.ville, 80);
+    const pays = clean(body.pays, 2).toUpperCase().replace(/[^A-Z]/g, "");   // pays détecté (code à 2 lettres), pour les prix et l'annuaire de Keydou
     const typeProfil = clean(body.typeProfil, 20) === "enfant" ? "enfant" : "personnel";
 
     if (telephone.replace(/\D/g, "").length < 8) {
@@ -270,8 +271,8 @@ export default async (req: Request, _context: Context) => {
 
     const pinHash = await bcrypt.hash(pin, 12);
     const accRows = await sql`
-      INSERT INTO starvibe_accounts (telephone, pin_hash, ville)
-      VALUES (${telephone}, ${pinHash}, ${ville})
+      INSERT INTO starvibe_accounts (telephone, pin_hash, ville, pays)
+      VALUES (${telephone}, ${pinHash}, ${ville}, ${pays})
       RETURNING id, telephone, ville
     `;
     const acc = accRows[0] as any;

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script src="assets/i18n-v1.js"></script>
 <title>KOMYO — Créer mon compte</title>
-<meta name="description" content="Crée ton vrai compte KOMYO — numéro de téléphone et code PIN, comme ton Mobile Money.">
+<meta name="description" content="Crée ton vrai compte KOMYO — numéro de téléphone et code PIN, comme le code de ta carte bancaire.">
 <meta name="theme-color" content="#FFFBF3">
 <link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -152,7 +152,7 @@
       <form id="regForm">
         <div class="field">
           <label for="fTelephone">Numéro de téléphone</label>
-          <input type="tel" id="fTelephone" placeholder="+242 06 ..." autocomplete="tel" required>
+          <input type="tel" id="fTelephone" placeholder="Avec l'indicatif, ex. +33 6 12 34 56 78" autocomplete="tel" required>
         </div>
 
         <div id="registerOnlyFields">
@@ -168,12 +168,7 @@
 
           <div class="field">
             <label for="fVille">Ville</label>
-            <select id="fVille">
-              <option value="">Choisir...</option>
-              <option>Brazzaville</option>
-              <option>Pointe-Noire</option>
-              <option>Autre ville</option>
-            </select>
+            <input type="text" id="fVille" maxlength="80" placeholder="Ta ville" autocomplete="address-level2">
           </div>
 
           <div class="field">
@@ -190,7 +185,7 @@
         </div>
 
         <div class="field">
-          <label for="fPin">Code PIN (4 ou 5 chiffres) — comme ton Mobile Money</label>
+          <label for="fPin">Code PIN (4 ou 5 chiffres) — comme le code de ta carte</label>
           <div class="pin-row">
             <input type="password" id="fPin" inputmode="numeric" pattern="[0-9]*" maxlength="5" placeholder="•••••" autocomplete="off">
           </div>
@@ -210,7 +205,7 @@
       <div class="errmsg" id="pinErr"></div>
 
       <div id="pinStep1">
-        <div class="field"><label for="pTel">1. Ton numéro de téléphone</label><input type="tel" id="pTel" placeholder="+242 06 ..." autocomplete="tel"></div>
+        <div class="field"><label for="pTel">1. Ton numéro de téléphone</label><input type="tel" id="pTel" placeholder="Avec l'indicatif, ex. +33 6 12 34 56 78" autocomplete="tel"></div>
         <div class="field"><label for="pNom">Ton nom (pour qu'on te reconnaisse)</label><input type="text" id="pNom" placeholder="Ton nom" autocomplete="name"></div>
         <button type="button" class="submitbtn" id="pDemander">Demander un code</button>
         <div class="note" id="pDemandeOk" hidden style="margin-top:12px"><span>Demande envoyée ✅ L'équipe KOMYO vérifie que c'est bien toi, puis t'envoie un <b>code temporaire par WhatsApp</b> (en général dans la journée). Reviens ensuite ici, étape 2.</span></div>
@@ -361,6 +356,7 @@
       payload.nom = nom;
       payload.dateNaissance = dateNaissance;
       payload.ville = ville;
+      payload.pays = window.KOMYO_PAYS || '';
       payload.typeProfil = profileType;
     } else {
       payload.action = 'login';
@@ -399,6 +395,7 @@
 </script>
 <script src="/assets/js/oeil-mdp-v2.js" defer></script>
 <script src="/assets/js/date-roue-v1.js" defer></script>
+<script src="assets/komyo-prix-v1.js" defer></script>
 <script src="assets/keydou-bulle-v1.js" defer></script>
 <script src="assets/komyo-installer-v4.js" defer></script>
 </body>

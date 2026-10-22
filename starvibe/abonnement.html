@@ -42,6 +42,8 @@
   .plan-name{font-size:15px;font-weight:800;margin:0 0 4px;}
   .plan-price{font-family:'Sora',sans-serif;font-weight:800;font-size:22px;color:var(--navy);margin-bottom:4px;}
   .plan-price span{font-size:12px;font-weight:600;color:var(--text-faint);}
+  .plan-price .eq{display:block;font-size:12px;font-weight:600;color:var(--text-faint);margin-top:2px;}
+  .plan-price .eq:empty{display:none;}
   .plan-desc{font-size:12.5px;color:var(--text-dim);line-height:1.5;margin-bottom:14px;}
   .plan-btn{width:100%;border:none;border-radius:12px;padding:12px 0;font-family:'Sora',sans-serif;font-weight:800;font-size:13.5px;cursor:pointer;
     transition:transform .2s ease, box-shadow .2s ease;}
@@ -150,7 +152,7 @@
       var isPending = current.plan === key && current.statut === 'en_attente_paiement';
       var card = document.createElement('div');
       card.className = 'plan-card ' + key + (isActive ? ' active' : '');
-      var priceLabel = p.montant === 0 ? 'Gratuit' : p.montant.toLocaleString('fr-FR') + ' <span>FCFA / mois</span>';
+      var priceLabel = p.montant === 0 ? 'Gratuit' : p.montant.toLocaleString('fr-FR') + ' <span>FCFA / mois</span> <small class="eq" data-fcfa="' + p.montant + '"></small>';
       card.innerHTML =
         (isActive ? '<div class="plan-badge">Plan actuel</div>' : '') +
         '<div class="plan-name">' + p.label + '</div>' +
@@ -195,6 +197,7 @@
   load();
 })();
 </script>
+<script src="assets/komyo-prix-v1.js" defer></script>
 <script src="assets/bulle-komyo.js" defer></script>
 <script src="assets/keydou-bulle-v1.js" defer></script>
 <script src="assets/komyo-installer-v4.js" defer></script>

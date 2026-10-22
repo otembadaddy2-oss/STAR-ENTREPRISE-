@@ -12,6 +12,10 @@
   // data-switch="off" = pas de bouton FR | EN (le site a déjà le sien), et dans ce cas la page se recharge quand sa langue change.
   var KEY = (script && script.getAttribute('data-key')) || 'komyo_lang';
   var PROPRE = !!(script && script.getAttribute('data-key'));
+  // INTERRUPTEUR GÉNÉRAL : tant que c'est false, KOMYO reste en français pour tout le monde (l'anglais ne s'ouvre qu'avec ?lang=en,
+  // pour les essais). Passer à true le jour où l'anglais est ouvert : la langue suit alors celle du téléphone (français sinon anglais),
+  // et un petit sélecteur apparaît en bas des pages.
+  var ANGLAIS_OUVERT = false;
   var base = script && script.src ? script.src.replace(/[^\/]*$/, '') : 'assets/';
 
   function lire(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -24,7 +28,7 @@
     else {
       var saved = lire(KEY);
       if (saved === 'fr' || saved === 'en') lang = saved;
-      else lang = 'fr'; // le site reste en français tant que l'anglais n'est pas ouvert au public
+      else lang = (ANGLAIS_OUVERT && !PROPRE && !/^fr\b/i.test(navigator.language || 'fr')) ? 'en' : 'fr';
     }
   } catch (e) { lang = 'fr'; }
 
@@ -34,32 +38,34 @@
   I18N.t = function (s) { return s; };
   I18N.set = function (l) { ecrire(KEY, l); location.href = location.pathname + location.search.replace(/([?&])lang=[^&]*&?/i, '$1').replace(/[?&]$/, '') + location.hash; };
 
-  // ---- bouton FR | EN (présent dans les deux langues) ----
+  // ---- petit sélecteur de langue, discret, en bas de page : Français · English ----
   function bouton() {
-    // Le bouton FR | EN n'apparaît pas pour le public : seulement après un lien ?lang=en ou ?lang=fr (pour les essais).
-    if (lire(KEY + '_bouton') !== '1') return;
+    if (!ANGLAIS_OUVERT && lire(KEY + '_bouton') !== '1') return;      // pas encore ouvert au public
     if (document.getElementById('komyoLang') || document.documentElement.hasAttribute('data-no-lang-switch') || (script && script.getAttribute('data-switch') === 'off')) return;
+    var pied = document.querySelector('footer');
+    if (!pied && (document.body.classList.contains('pg-fil') || !document.body)) return;
     var css = document.createElement('style');
     css.textContent =
-      '#komyoLang{position:fixed;z-index:2147483000;top:env(safe-area-inset-top,0px);left:50%;transform:translateX(-50%);display:flex;border-radius:0 0 12px 12px;overflow:hidden;' +
-      'background:rgba(255,255,255,.94);box-shadow:0 2px 8px rgba(0,0,0,.28);font:700 10px/1 Arial,sans-serif;-webkit-tap-highlight-color:transparent}' +
-      '#komyoLang button{all:unset;box-sizing:border-box;cursor:pointer;padding:5px 9px 6px;color:#241536;min-width:26px;text-align:center}' +
-      '#komyoLang button[aria-pressed=true]{background:#241536;color:#fff}' +
-      '#komyoLang button:focus-visible{outline:2px solid #E8A93D;outline-offset:-2px}' +
-      'html[data-lang-pos=tl] #komyoLang{left:8px;transform:none}' +
-      'html[data-lang-pos=tr] #komyoLang{left:auto;right:8px;transform:none}';
+      '#komyoLang{display:inline-flex;align-items:center;gap:6px;font:600 12px/1 Arial,sans-serif;color:inherit;opacity:.75;margin-top:10px;-webkit-tap-highlight-color:transparent}' +
+      '#komyoLang button{all:unset;box-sizing:border-box;cursor:pointer;padding:5px 3px;text-decoration:underline;text-underline-offset:3px;color:inherit}' +
+      '#komyoLang button[aria-pressed=true]{text-decoration:none;font-weight:800;opacity:1;cursor:default}' +
+      '#komyoLang button:focus-visible{outline:2px solid #E8A93D;outline-offset:2px;border-radius:4px}' +
+      '#komyoLang i{font-style:normal;opacity:.5}' +
+      '#komyoLang.flottant{position:fixed;z-index:2147483000;right:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);margin:0;padding:3px 8px;border-radius:14px;background:rgba(36,21,54,.72);color:#fff;opacity:.8}';
     document.head.appendChild(css);
     var box = document.createElement('div');
     box.id = 'komyoLang'; box.setAttribute('role', 'group'); box.setAttribute('aria-label', 'Langue / Language');
-    box.className = 'notranslate'; box.setAttribute('translate', 'no');
-    [['fr', 'FR', 'Français'], ['en', 'EN', 'English']].forEach(function (o) {
+    box.className = 'notranslate' + (pied ? '' : ' flottant'); box.setAttribute('translate', 'no');
+    [['fr', 'Français'], ['en', 'English']].forEach(function (o, i) {
+      if (i) { var sep = document.createElement('i'); sep.textContent = '·'; box.appendChild(sep); }
       var b = document.createElement('button');
-      b.type = 'button'; b.textContent = o[1]; b.lang = o[0]; b.setAttribute('aria-label', o[2]);
+      b.type = 'button'; b.textContent = o[1]; b.lang = o[0]; b.setAttribute('aria-label', o[1]);
       b.setAttribute('aria-pressed', lang === o[0] ? 'true' : 'false');
       b.addEventListener('click', function () { if (lang !== o[0]) I18N.set(o[0]); });
       box.appendChild(b);
     });
-    document.body.appendChild(box);
+    if (pied) { var ligne = document.createElement('div'); ligne.style.cssText = 'text-align:center'; ligne.appendChild(box); pied.appendChild(ligne); }
+    else document.body.appendChild(box);
   }
   function pret(f) { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', f); else f(); }
   pret(bouton);
