@@ -198,7 +198,7 @@
     box.setAttribute('aria-label', 'Installer l\'application KOMYO');
     box.innerHTML =
       '<div class="kin-top">' +
-        '<img class="kin-logo" src="/starvibe/assets/img/icons/komyo-192-v1.png" alt="Logo KOMYO" width="58" height="58">' +
+        '<img class="kin-logo" src="/starvibe/assets/img/icons/komyo-192-v2.png" alt="Logo KOMYO" width="58" height="58">' +
         '<div><div class="kin-t">📱 Installer KOMYO</div><div class="kin-s">Application officielle · gratuite</div></div>' +
       '</div>' +
       '<p class="kin-p">Garde <b>KOMYO</b> et <b>Keydou</b> sur ton écran d\'accueil : un seul toucher pour tes vidéos et tous les services du Congo, en plein écran, même quand le réseau est lent.</p>' +
@@ -215,7 +215,7 @@
 
   function montrerEtapes(){
     clearTimeout(timer);
-    if (!box) { style(); box = document.createElement('div'); box.className = 'kin'; document.body.appendChild(box); box.innerHTML = '<div class="kin-top"><img class="kin-logo" src="/starvibe/assets/img/icons/komyo-192-v1.png" alt="Logo KOMYO" width="58" height="58"><div><div class="kin-t">📱 Installer KOMYO</div><div class="kin-s">Application officielle · gratuite</div></div></div><div id="kinZone"></div>'; }
+    if (!box) { style(); box = document.createElement('div'); box.className = 'kin'; document.body.appendChild(box); box.innerHTML = '<div class="kin-top"><img class="kin-logo" src="/starvibe/assets/img/icons/komyo-192-v2.png" alt="Logo KOMYO" width="58" height="58"><div><div class="kin-t">📱 Installer KOMYO</div><div class="kin-s">Application officielle · gratuite</div></div></div><div id="kinZone"></div>'; }
     var e = etapes();
     var bar = box.querySelector('.kin-bar'); if (bar) bar.remove();
     var zone = box.querySelector('#kinZone');

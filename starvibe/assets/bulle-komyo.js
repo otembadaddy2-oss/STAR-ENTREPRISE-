@@ -125,7 +125,7 @@
   bubble.innerHTML =
     '<div class="kb-float">' +
       '<div class="kb-face" role="button" tabindex="0" aria-label="Notifications KOMYO"><span class="kb-ini"></span><img alt="" hidden></div>' +
-      '<img class="kb-mark" src="assets/img/komyo-icon.png" alt="">' +
+      '<img class="kb-mark" src="assets/img/icons/komyo-192-v2.png" alt="">' +
       '<span class="kb-badge"></span>' +
     '</div>';
   var face = bubble.querySelector('.kb-face');
