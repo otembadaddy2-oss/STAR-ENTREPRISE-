@@ -18,6 +18,11 @@ import { signedVideoUrl, hasActiveFamille } from "./_premium.mts";
 const ORG = "star_vibe";
 const STAFF_ORG = "star_entreprise";
 const MAX_VIDEO_BYTES = 40_000_000; // 40 Mo — court format vertical
+// Une fonction Netlify n'accepte pas plus de ~6 Mo par requête : la vidéo arrive donc en morceaux de 3 Mo,
+// puis la publication les rassemble (14 morceaux de 3 Mo ≥ 40 Mo).
+const CHUNK_MAX = 4_500_000;
+const MAX_CHUNKS = 14;
+const UPLOAD_ID_RE = /^[a-z0-9]{10,24}$/;
 
 function clean(value: unknown, maxLen: number): string {
   return String(value ?? "").trim().slice(0, maxLen);
@@ -115,6 +120,21 @@ export default async (req: Request, _context: Context) => {
     return json({ videos: rows.map(toModerationApi) });
   }
 
+  // --- Envoi d'un morceau de vidéo (binaire brut, compte STAR VIBE) ---
+  if (req.method === "POST" && url.searchParams.get("chunk") === "1") {
+    const session = await requireAuth(req);
+    if (!session || session.org !== ORG) return json({ error: "Non authentifié" }, 401);
+    const up = url.searchParams.get("id") || "";
+    const i = Number(url.searchParams.get("i")), n = Number(url.searchParams.get("n"));
+    if (!UPLOAD_ID_RE.test(up) || !Number.isInteger(i) || !Number.isInteger(n) || i < 0 || i >= n || n > MAX_CHUNKS) {
+      return json({ error: "Morceau de vidéo invalide" }, 400);
+    }
+    const part = await req.arrayBuffer();
+    if (part.byteLength === 0 || part.byteLength > CHUNK_MAX) return json({ error: "Morceau de vidéo invalide" }, 400);
+    await getStore("starvibe-videos-tmp").set(`${session.sub}/${up}/${i}`, part);
+    return json({ ok: true });
+  }
+
   // --- Décision de modération (staff) ---
   if (req.method === "POST") {
     let earlyBody: Record<string, unknown>;
@@ -169,9 +189,11 @@ export default async (req: Request, _context: Context) => {
       const legende = clean(earlyBody.legende, 300);
       const typeMime = clean(earlyBody.typeMime, 100) || "video/mp4";
       const fileBase64 = String(earlyBody.fileBase64 ?? "");
+      const uploadId = clean(earlyBody.uploadId, 30);
+      const nChunks = Number(earlyBody.nChunks);
       const pourEnfants = Boolean(earlyBody.pourEnfants);
 
-      if (!profileId || !fileBase64) return json({ error: "Profil et vidéo requis" }, 400);
+      if (!profileId || (!fileBase64 && !uploadId)) return json({ error: "Profil et vidéo requis" }, 400);
       if (!typeMime.startsWith("video/")) return json({ error: "Le fichier doit être une vidéo" }, 400);
 
       const profRows = (await sql`
@@ -183,8 +205,26 @@ export default async (req: Request, _context: Context) => {
         return json({ error: "Seul un profil personnel peut publier une vidéo" }, 403);
       }
 
-      const raw = fileBase64.includes(",") ? fileBase64.split(",")[1] : fileBase64;
-      const bytes = Buffer.from(raw, "base64");
+      let bytes: Buffer;
+      const tmpKeys: string[] = [];
+      const tmp = getStore("starvibe-videos-tmp");
+      if (uploadId) {
+        if (!UPLOAD_ID_RE.test(uploadId) || !Number.isInteger(nChunks) || nChunks < 1 || nChunks > MAX_CHUNKS) {
+          return json({ error: "Envoi incomplet, réessaie." }, 400);
+        }
+        const parts: Buffer[] = [];
+        for (let k = 0; k < nChunks; k++) {
+          const key = `${accountId}/${uploadId}/${k}`;
+          const part = await tmp.get(key, { type: "arrayBuffer" });
+          if (!part) return json({ error: "Envoi incomplet, réessaie." }, 400);
+          parts.push(Buffer.from(part));
+          tmpKeys.push(key);
+        }
+        bytes = Buffer.concat(parts);
+      } else {
+        const raw = fileBase64.includes(",") ? fileBase64.split(",")[1] : fileBase64;
+        bytes = Buffer.from(raw, "base64");
+      }
       if (bytes.byteLength > MAX_VIDEO_BYTES) {
         return json({ error: "Vidéo trop volumineuse (limite 40 Mo)" }, 400);
       }
@@ -202,6 +242,7 @@ export default async (req: Request, _context: Context) => {
         RETURNING *
       `) as VideoRow[];
       const created = rows[0];
+      for (const key of tmpKeys) { try { await tmp.delete(key); } catch { /* sans gravité : ménage seulement */ } }
       created.premium = false;
       created.auteur_nom = (await sql`SELECT nom FROM starvibe_profiles WHERE id = ${profileId}`)[0]?.nom || "";
 

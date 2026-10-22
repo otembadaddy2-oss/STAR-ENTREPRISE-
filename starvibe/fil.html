@@ -485,44 +485,71 @@
     btnPublish.disabled = true;
     btnPublish.textContent = 'Publication...';
 
-    var reader = new FileReader();
-    reader.onload = function(){
-      authFetch(API_VIDEOS, {
+    if (file.size > 40000000){
+      btnPublish.disabled = false; btnPublish.textContent = 'Publier';
+      modalErr.textContent = 'Vidéo trop volumineuse (limite 40 Mo).'; modalErr.classList.add('show'); return;
+    }
+
+    // La vidéo part en morceaux de 3 Mo (un seul envoi dépasserait la limite du serveur), chaque morceau est retenté si le réseau flanche.
+    var CH = 3000000, n = Math.max(1, Math.ceil(file.size / CH));
+    var id = Math.random().toString(36).slice(2, 12) + Date.now().toString(36);
+    function morceau(i, essai){
+      return authFetch(API_VIDEOS + '?chunk=1&id=' + id + '&i=' + i + '&n=' + n, {
+        method: 'POST', headers: { 'Content-Type': 'application/octet-stream' }, body: file.slice(i * CH, (i + 1) * CH)
+      }).then(function(res){
+        return res.json().catch(function(){ return {}; }).then(function(d){
+          if (!res.ok){ var e = new Error(d.error || 'Envoi interrompu.'); e.serveur = true; throw e; }
+        });
+      }).catch(function(e){
+        if (e && e.serveur) throw e;
+        if (essai < 3) return new Promise(function(r){ setTimeout(r, 800 * essai); }).then(function(){ return morceau(i, essai + 1); });
+        throw e;
+      });
+    }
+    function envoyer(i){
+      if (i >= n) return Promise.resolve();
+      btnPublish.textContent = 'Envoi ' + Math.round(i * 100 / n) + ' %';
+      return morceau(i, 1).then(function(){ return envoyer(i + 1); });
+    }
+
+    envoyer(0).then(function(){
+      btnPublish.textContent = 'Publication...';
+      return authFetch(API_VIDEOS, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'publier',
           profileId: personalProfileId,
           legende: legendeInput.value.trim(),
           typeMime: file.type || 'video/mp4',
-          fileBase64: reader.result,
+          uploadId: id,
+          nChunks: n,
           pourEnfants: pourEnfants.checked
         })
-      }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
-        .then(function(result){
-          btnPublish.disabled = false;
-          btnPublish.textContent = 'Publier';
-          if (!result.ok){
-            modalErr.textContent = result.data.error || 'Erreur lors de la publication.';
-            modalErr.classList.add('show');
-            return;
-          }
-          if (result.data.video && result.data.video.moderationStatut === 'en_attente'){
-            modalInfo.textContent = 'Vidéo envoyée ! Elle sera vérifiée avant d\'apparaître dans l\'espace PIOUPIOU.';
-            modalInfo.classList.add('show');
-            loadFeed();
-            return;
-          }
-          uploadModal.hidden = true;
-          loadFeed();
-        })
-        .catch(function(){
-          btnPublish.disabled = false;
-          btnPublish.textContent = 'Publier';
-          modalErr.textContent = 'Impossible de contacter le serveur.';
+      });
+    }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
+      .then(function(result){
+        btnPublish.disabled = false;
+        btnPublish.textContent = 'Publier';
+        if (!result.ok){
+          modalErr.textContent = result.data.error || 'Erreur lors de la publication.';
           modalErr.classList.add('show');
-        });
-    };
-    reader.readAsDataURL(file);
+          return;
+        }
+        if (result.data.video && result.data.video.moderationStatut === 'en_attente'){
+          modalInfo.textContent = 'Vidéo envoyée ! Elle sera vérifiée avant d\'apparaître dans l\'espace PIOUPIOU.';
+          modalInfo.classList.add('show');
+          loadFeed();
+          return;
+        }
+        uploadModal.hidden = true;
+        loadFeed();
+      })
+      .catch(function(e){
+        btnPublish.disabled = false;
+        btnPublish.textContent = 'Publier';
+        modalErr.textContent = (e && e.serveur) ? e.message : 'Connexion interrompue. Vérifie ton réseau puis réessaie.';
+        modalErr.classList.add('show');
+      });
   });
 })();
 </script>
