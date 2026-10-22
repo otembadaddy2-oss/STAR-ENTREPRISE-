@@ -87,6 +87,7 @@
     '.kb-trash.show{opacity:1;transform:none;}' +
     '.kb-trash.hot{background:#e5243b;transform:scale(1.15);}' +
     '.kb-trash svg{width:24px;height:24px;}' +
+    '.kb-sheet[hidden],.kb-bubble[hidden],.kb-env[hidden]{display:none!important;}' +
     '.kb-sheet{position:fixed;inset:0;z-index:60;display:flex;align-items:flex-end;background:rgba(0,0,0,.5);}' +
     '.kb-panel{background:#17101f;color:#fff;width:100%;max-width:480px;margin:0 auto;border-radius:20px 20px 0 0;max-height:75vh;' +
       'display:flex;flex-direction:column;animation:kbUp .3s ease both;font-family:Inter,Arial,sans-serif;}' +
