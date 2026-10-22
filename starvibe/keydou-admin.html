@@ -315,8 +315,8 @@
   /* ---------- mot de passe oublié ---------- */
   var fgMode = 'phone';
   function carte(nom){ ['cardLogin','cardForgot','cardSecours'].forEach(function(c){ $(c).hidden = (c !== nom); }); }
-  $('lnkForgot').addEventListener('click', function(e){ e.preventDefault(); hideErr('fgErr'); carte('cardForgot'); });
-  $('lnkBack').addEventListener('click', function(e){ e.preventDefault(); carte('cardLogin'); });
+  $('lnkForgot').addEventListener('click', function(e){ e.preventDefault(); hideErr('fgErr'); pousser({ card:'cardForgot' }); carte('cardForgot'); });
+  $('lnkBack').addEventListener('click', function(e){ e.preventDefault(); if (cur.card === 'cardForgot') history.back(); else carte('cardLogin'); });
   function fgMethode(m){ fgMode = m; $('fgTabPhone').classList.toggle('on', m === 'phone'); $('fgTabRec').classList.toggle('on', m === 'rec'); $('fgPhone').hidden = (m !== 'phone'); $('fgRec').hidden = (m !== 'rec'); hideErr('fgErr'); }
   $('fgTabPhone').addEventListener('click', function(){ fgMethode('phone'); });
   $('fgTabRec').addEventListener('click', function(){ fgMethode('rec'); });
@@ -357,16 +357,42 @@
       });
   });
   $('btnLogout').addEventListener('click', function(){ setToken(''); showLogin(); });
+  /* ---------- bouton « retour » du téléphone : revient à l'écran d'avant, comme une vraie application ---------- */
+  var cur = { tab:'Clients', ov:'', card:'cardLogin' }, S0 = { tab:'Clients', ov:'', card:'cardLogin' }, dernierRetour = 0, toastEl = null;
+  function pousser(patch){ cur = Object.assign({}, cur, patch); history.pushState({ k:'app', s:cur }, ''); }
+  function appliquer(s){
+    cur = s; tab(s.tab);
+    $('pinModal').hidden = (s.ov !== 'pin'); if (s.ov !== 'pin') $('pinModalCode').textContent = '';
+    $('editCard').hidden = (s.ov !== 'edit');
+    if (!$('loginView').hidden && $('cardSecours').hidden) carte(s.card);
+  }
+  function goTab(n){ if (cur.tab !== n){ pousser({ tab:n, ov:'' }); } tab(n); }
+  function fermerOv(){ if (cur.ov) history.back(); else appliquer(Object.assign({}, cur, { ov:'' })); }
+  function toastQuitter(){
+    if (!toastEl){ toastEl = document.createElement('div'); toastEl.setAttribute('role', 'status'); toastEl.style.cssText = 'position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:90;padding:11px 18px;border-radius:999px;background:#1b2542;color:#fff;border:1px solid var(--gold-light);font-weight:700;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.5);max-width:88vw;text-align:center'; toastEl.textContent = 'Appuie encore sur retour pour quitter'; document.body.appendChild(toastEl); }
+    toastEl.hidden = false; clearTimeout(toastEl._t); toastEl._t = setTimeout(function(){ toastEl.hidden = true; }, 2300);
+  }
+  window.addEventListener('popstate', function(e){
+    if (!$('cardSecours').hidden){ history.pushState({ k:'app', s:cur }, ''); return; } // le code de secours doit d'abord être noté
+    var st = e.state;
+    if (st && st.k === 'app' && st.s){ appliquer(st.s); return; }
+    // retour tout en bas de l'historique : on prévient, puis un 2e retour rapide quitte vraiment
+    if (Date.now() - dernierRetour < 2500){ history.back(); return; }
+    dernierRetour = Date.now(); toastQuitter();
+    appliquer(S0); history.pushState({ k:'app', s:S0 }, '');
+  });
+  try { history.replaceState({ k:'root' }, ''); history.pushState({ k:'app', s:S0 }, ''); } catch (er) {}
+
   function tab(name){
     ['Clients','Subs','Pins','Contacts','Annuaire','Phone'].forEach(function(n){ $('tab' + n).classList.toggle('on', n === name); $('pane' + n).hidden = (n !== name); });
     if (name === 'Phone') loadPhone();
   }
-  $('tabClients').addEventListener('click', function(){ tab('Clients'); });
-  $('tabSubs').addEventListener('click', function(){ tab('Subs'); loadSubs(false); });
-  $('tabPins').addEventListener('click', function(){ tab('Pins'); loadPins(false); });
-  $('tabContacts').addEventListener('click', function(){ tab('Contacts'); });
-  $('tabAnnuaire').addEventListener('click', function(){ tab('Annuaire'); });
-  $('tabPhone').addEventListener('click', function(){ tab('Phone'); });
+  $('tabClients').addEventListener('click', function(){ goTab('Clients'); });
+  $('tabSubs').addEventListener('click', function(){ goTab('Subs'); loadSubs(false); });
+  $('tabPins').addEventListener('click', function(){ goTab('Pins'); loadPins(false); });
+  $('tabContacts').addEventListener('click', function(){ goTab('Contacts'); });
+  $('tabAnnuaire').addEventListener('click', function(){ goTab('Annuaire'); });
+  $('tabPhone').addEventListener('click', function(){ goTab('Phone'); });
 
 
   /* ---------- fichier clients (une ligne par client), en direct ---------- */
@@ -572,10 +598,10 @@
       $('pinModalTel').textContent = res.data.telephone; $('pinModalCode').textContent = res.data.code;
       var msg = 'Bonjour, voici ton code temporaire KOMYO : ' + res.data.code + ' (valable 24 h). Ouvre KOMYO, touche « Se connecter » puis « Code PIN oublié ? », saisis ton numéro, ce code et ton nouveau PIN (4 ou 5 chiffres). Ne le partage avec personne.';
       $('pinModalWa').href = 'https://wa.me/' + waNum(res.data.telephone) + '?text=' + encodeURIComponent(msg);
-      $('pinModal').hidden = false; loadPins(false);
+      if (cur.ov !== 'pin') pousser({ ov:'pin' }); $('pinModal').hidden = false; loadPins(false);
     });
   }
-  $('pinModalClose').addEventListener('click', function(){ $('pinModal').hidden = true; $('pinModalCode').textContent = ''; });
+  $('pinModalClose').addEventListener('click', function(){ fermerOv(); });
 
   $('btnCExcel').addEventListener('click', function(){ excelClients(false); });
   $('btnCExcelDay').addEventListener('click', function(){ excelClients(true); });
@@ -667,15 +693,15 @@
     $('editTitle').textContent = editId ? 'Modifier une adresse' : 'Nouvelle adresse';
     $('eService').value = l.service; $('eVille').value = l.ville; $('eNom').value = l.nom; $('eAdr').value = l.adresse; $('eTel').value = l.telephone; $('eWa').value = l.whatsapp;
     $('eDesc').value = l.description; $('eSrc').value = l.sourceUrl || ''; $('eNote').value = l.sourceNote || ''; $('eVer').checked = !!l.verifie; $('eActif').checked = l.actif !== false;
-    $('editErr').classList.remove('show'); $('editCard').hidden = false; $('editCard').scrollIntoView({ behavior:'smooth', block:'start' });
+    $('editErr').classList.remove('show'); if (cur.ov !== 'edit') pousser({ ov:'edit' }); $('editCard').hidden = false; $('editCard').scrollIntoView({ behavior:'smooth', block:'start' });
   }
   $('btnNew').addEventListener('click', function(){ openEdit(null); });
-  $('btnCancel').addEventListener('click', function(){ $('editCard').hidden = true; });
+  $('btnCancel').addEventListener('click', function(){ fermerOv(); });
   $('btnSave').addEventListener('click', function(){
     var err = $('editErr'); err.classList.remove('show');
     var body = { action:'lieu_save', id:editId, service:$('eService').value, ville:$('eVille').value, nom:$('eNom').value, adresse:$('eAdr').value, telephone:$('eTel').value, whatsapp:$('eWa').value, description:$('eDesc').value, sourceUrl:$('eSrc').value, sourceNote:$('eNote').value, verifie:$('eVer').checked, actif:$('eActif').checked };
     if (!body.nom.trim()){ err.textContent = 'Le nom est requis.'; err.classList.add('show'); return; }
-    post(body).then(function(res){ if (!res.ok){ err.textContent = res.data.error || 'Enregistrement impossible.'; err.classList.add('show'); return; } $('editCard').hidden = true; loadAnnuaire(); });
+    post(body).then(function(res){ if (!res.ok){ err.textContent = res.data.error || 'Enregistrement impossible.'; err.classList.add('show'); return; } fermerOv(); loadAnnuaire(); });
   });
 
   var COLS = ['Service','Ville','Nom','Adresse','Téléphone','WhatsApp','Description','Source (lien)','Note sur la source','Vérifié (oui/non)','Visible (oui/non)'];
