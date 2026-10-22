@@ -36,7 +36,7 @@
     radial-gradient(circle at 70% 12%,rgba(255,255,255,.8) 0 1.5px,transparent 2.5px),
     radial-gradient(circle at 30% 60%,rgba(255,255,255,.7) 0 2px,transparent 3px);}
   .floor{position:absolute;left:0;right:0;bottom:0;height:46px;background:linear-gradient(180deg,rgba(200,148,47,0),rgba(200,148,47,.28));}
-  .kd-pos{position:absolute;bottom:30px;left:50%;width:270px;margin-left:-135px;transition:left 1.4s ease-in-out;z-index:2;}
+  .kd-pos{position:absolute;bottom:30px;left:50%;width:250px;margin-left:-125px;transition:left 1.4s ease-in-out;z-index:2;}
   .kd-flip{transition:transform .5s ease;transform-origin:50% 100%;}
   .kd-flip.left{transform:scaleX(-1);}
   .kd-shadow{position:absolute;left:50%;bottom:-4px;width:120px;height:16px;margin-left:-60px;border-radius:50%;background:rgba(36,21,54,.22);filter:blur(4px);}
@@ -162,7 +162,7 @@
   .side{position:sticky;top:12px;}
   .main{min-width:0;}
   .main .panel:first-child{margin-top:0;}
-  .stage{height:430px;}
+  .stage{height:470px;}
   .kd-pos{perspective:700px;}
   .think-dots{position:absolute;left:62%;top:-4px;display:none;gap:4px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:6px 9px;}
   .think-dots i{width:6px;height:6px;border-radius:50%;background:var(--gold-deep);animation:blink 1.2s infinite;}
@@ -423,6 +423,7 @@
     vid.onerror = function(){ useVideo = false; videoShown = false; cv.hidden = true; kdImg.style.display = ''; kdBody.className = 'kd-body ' + state; };
     boucleVideo();
   }
+  window.__keydou = { setState: function(x){ setState(x); }, walkTo: function(x, ms){ return walkTo(x, ms); } }; // pour les essais
   function pulse(cls, ms){ setState(cls); if (!videoShown || (CLIPS[cls] && CLIPS[cls].loop)) setTimeout(function(){ if (state === cls) setState('idle'); }, ms); }
 
   function setState(s){ state = s; kdBody.className = 'kd-body ' + s + (videoShown ? ' vid' : ''); applyClip(s); kdPos.classList.toggle('thinking', s === 'think'); if (s !== 'talk'){ kdBody.style.removeProperty('--talk'); kdBody.style.removeProperty('--talk-y'); } }
