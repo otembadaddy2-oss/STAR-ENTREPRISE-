@@ -10,10 +10,15 @@
 //   Les notifications ne sont pas supprimées, elles restent dans la liste
 //   et la bulle revient au prochain nouveau message.
 //
+// La bulle reste 30 secondes à l'écran (quelle que soit la page où l'on se trouve), puis
+// disparaît d'elle-même. Dans tous les cas le message reste dans la boîte de messages :
+// toucher une enveloppe ✉ (éléments portant data-komyo-messages) l'ouvre à tout moment.
+//
 // Inclus sur les pages KOMYO d'un abonné connecté (pas dans PIOUPIOU).
 (function(){
   var API = '/api/starvibe-videos';
   var POLL_MS = 15000;
+  var VIE_BULLE = 30000; // la bulle disparaît 30 s après son apparition
   var token = null;
   try { token = localStorage.getItem('starvibe_token'); } catch (e) {}
   if (!token) return;
@@ -99,6 +104,13 @@
     '.kb-item.new{background:rgba(232,169,61,.1);border-radius:12px;}' +
     '.kb-item.new .meta::after{content:" · nouveau";color:#f0c47a;font-weight:700;}' +
     '.kb-empty{text-align:center;padding:30px 10px;font-size:13px;color:rgba(255,255,255,.55);line-height:1.6;}' +
+    '.kb-env{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;width:38px;height:38px;padding:0;border-radius:50%;' +
+      'border:1.5px solid rgba(255,255,255,.45);background:rgba(36,21,54,.55);color:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;}' +
+    '.kb-env svg{width:19px;height:19px;}' +
+    '.kb-env .kb-n{position:absolute;top:-5px;right:-5px;min-width:19px;height:19px;padding:0 5px;border-radius:10px;background:#e5243b;border:2px solid #fff;' +
+      'font:800 10.5px/15px Inter,Arial,sans-serif;text-align:center;box-sizing:border-box;}' +
+    '.kb-env .kb-n[hidden]{display:none;}' +
+    '.kb-env:focus-visible{outline:3px solid #f0c47a;outline-offset:2px;}' +
     '.kb-bubble :focus-visible,.kb-head button:focus-visible{outline:3px solid #f0c47a;outline-offset:2px;}' +
     '@media (prefers-reduced-motion: reduce){.kb-float{animation:none;}.kb-bubble,.kb-pop{transition:opacity .2s ease;}}';
   var styleEl = document.createElement('style');
@@ -171,10 +183,44 @@
     return null;
   }
 
+  // Heure à laquelle la bulle a été montrée pour ce message pour la première fois (mémorisée :
+  // elle compte aussi quand on change de page, la bulle ne repart pas de zéro).
+  function debutPour(id){
+    var v = String(store('komyo_bulle_debut') || ''), i = v.indexOf('|');
+    if (i > 0 && v.slice(0, i) === String(id)){ var t = Number(v.slice(i + 1)); if (t) return t; }
+    var now = Date.now();
+    store('komyo_bulle_debut', id + '|' + now);
+    return now;
+  }
+  var finTimer = null;
+
+  function majEnveloppes(){
+    var txt = nonLues > 99 ? '99+' : String(nonLues);
+    Array.prototype.forEach.call(document.querySelectorAll('[data-komyo-messages]'), function(b){
+      b.hidden = false;
+      if (!b.classList.contains('kb-env')){
+        b.classList.add('kb-env');
+        b.type = 'button';
+        b.setAttribute('aria-label', 'Mes messages');
+        b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7.5 8 6 8-6"/></svg><span class="kb-n" hidden></span>';
+        b.addEventListener('click', ouvrirListe);
+      }
+      var n = b.querySelector('.kb-n');
+      n.textContent = txt;
+      n.hidden = nonLues < 1;
+      b.setAttribute('aria-label', nonLues > 0 ? 'Mes messages : ' + nonLues + ' non lu' + (nonLues > 1 ? 's' : '') : 'Mes messages');
+    });
+  }
+
   function render(){
+    majEnveloppes();
     var top = plusRecentNonLu();
     var masqueJusqua = store('komyo_bulle_masquee');
-    var visible = nonLues > 0 && top && top.id !== masqueJusqua && sheet.hidden;
+    clearTimeout(finTimer);
+    var ecoule = top ? Date.now() - debutPour(top.id) : 0;
+    var expiree = top && ecoule >= VIE_BULLE;
+    if (top && !expiree && sheet.hidden) finTimer = setTimeout(render, VIE_BULLE - ecoule + 60);
+    var visible = nonLues > 0 && top && !expiree && top.id !== masqueJusqua && sheet.hidden;
     if (!visible){
       bubble.classList.add('out');
       setTimeout(function(){ if (bubble.classList.contains('out')) bubble.hidden = true; }, 320);
@@ -338,6 +384,8 @@
   bubble.addEventListener('pointercancel', finDrag);
 
   // ---------- Démarrage ----------
+  window.komyoMessages = { ouvrir: ouvrirListe };
+  majEnveloppes();
   poll();
   setInterval(function(){ if (token) poll(); }, POLL_MS);
   document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'visible' && token) poll(); });

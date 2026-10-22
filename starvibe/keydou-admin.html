@@ -53,6 +53,16 @@
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;}
   .grid .field input,.grid .field select,.grid .field textarea{width:100%;}
   .msg{font-size:12px;margin-top:8px;color:var(--ok);}
+  .charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-bottom:14px;}
+  .chartcard{background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px 14px 10px;position:relative;}
+  .chartcard h3{font-size:13px;margin:0 0 2px;} .chartcard .sub{font-size:11px;color:var(--dim);margin-bottom:8px;}
+  .chartcard svg{display:block;width:100%;height:auto;overflow:visible;}
+  .chartcard .gl{stroke:rgba(255,255,255,.10);stroke-width:1;} .chartcard .ax{fill:var(--dim);font-size:10px;font-family:'Inter',sans-serif;}
+  .chartcard .bar-m{fill:var(--gold-light);} .chartcard .hit:hover + .bar-m,.chartcard .hit.on + .bar-m{fill:#ffd98a;}
+  .devrow{display:grid;grid-template-columns:minmax(90px,1.1fr) 3fr auto;gap:10px;align-items:center;font-size:12.5px;margin:7px 0;}
+  .devrow .trk{height:10px;border-radius:5px;background:rgba(255,255,255,.07);overflow:hidden;} .devrow .trk i{display:block;height:100%;border-radius:5px;background:var(--gold-light);}
+  .devrow b{font-variant-numeric:tabular-nums;font-family:'Sora',sans-serif;font-size:12.5px;}
+  .tip{position:absolute;z-index:5;pointer-events:none;background:#050B18;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:6px 9px;font-size:11.5px;white-space:nowrap;transform:translate(-50%,-110%);}
 </style>
 </head>
 <body>
@@ -75,6 +85,7 @@
   </div>
   <div class="tabs">
     <button class="tab on" id="tabClients">Fichier clients (Excel)</button>
+    <button class="tab" id="tabSubs">Abonnés (app installée)</button>
     <button class="tab" id="tabContacts">Contacts en direct</button>
     <button class="tab" id="tabAnnuaire">Annuaire de Keydou</button>
     <button class="tab" id="tabPhone">Mon téléphone (validation)</button>
@@ -94,6 +105,26 @@
       <span class="muted" id="cRefresh"></span>
     </div>
     <div class="tablewrap"><table style="min-width:1100px"><thead><tr><th>N°</th><th>Date</th><th>Heure</th><th>Nom et prénom</th><th>Téléphone</th><th>Ville</th><th>Besoins</th><th>Paiement</th><th>Montant reçu</th><th>Payé avec</th><th>Référence</th><th>Origine</th><th>Traité</th></tr></thead><tbody id="cRows"></tbody></table></div>
+  </div>
+
+  <!-- ABONNÉS : appareils où l'application KOMYO est installée, en direct -->
+  <div id="paneSubs" hidden>
+    <div class="stats" id="sStats"></div>
+    <div class="charts">
+      <div class="chartcard"><h3>Installations par jour</h3><div class="sub">30 derniers jours</div><div id="sDays"></div></div>
+      <div class="chartcard"><h3>Appareils</h3><div class="sub" id="sDevSub"></div><div id="sDev"></div></div>
+    </div>
+    <div class="bar">
+      <input type="search" id="sq" placeholder="Rechercher (nom, téléphone, ville, appareil…)" style="flex:1;min-width:200px">
+      <select id="sOrig"><option value="">Toutes les origines</option><option value="Compte KOMYO">Compte KOMYO</option><option value="Client Keydou (sans compte)">Client Keydou (sans compte)</option><option value="Pas encore identifié">Pas encore identifié</option></select>
+    </div>
+    <div class="bar">
+      <button class="btn main" id="btnSExcel">⬇ Télécharger l'Excel (abonnés)</button>
+      <button class="btn" id="btnSExcelDay">⬇ Excel du jour</button>
+      <span class="muted" id="sRefresh"></span>
+    </div>
+    <div class="tablewrap"><table style="min-width:980px"><thead><tr><th>N°</th><th>Date</th><th>Heure</th><th>Nom et prénom</th><th>Téléphone</th><th>Ville</th><th>Appareil</th><th>Navigateur</th><th>Origine</th><th>Ouvertures</th><th>Dernière ouverture</th></tr></thead><tbody id="sRows"></tbody></table></div>
+    <p class="muted" style="margin-top:10px">Une ligne = un appareil où KOMYO est installée. Le nom et le numéro apparaissent dès que la personne se connecte à KOMYO ou écrit ses coordonnées à Keydou ; « Pas encore identifié » = installée, mais personne n'est encore connecté dessus.</p>
   </div>
 
   <!-- CONTACTS -->
@@ -189,7 +220,7 @@
 
   /* ---------- connexion ---------- */
   function showLogin(){ $('loginView').hidden = false; $('mainView').hidden = true; clearInterval(timer); }
-  function showMain(){ $('loginView').hidden = true; $('mainView').hidden = false; loadClients(true); loadContacts(true); loadAnnuaire(); clearInterval(timer); timer = setInterval(function(){ if (!$('paneClients').hidden) loadClients(false); if (!$('paneContacts').hidden) loadContacts(false); }, 6000); }
+  function showMain(){ $('loginView').hidden = true; $('mainView').hidden = false; loadClients(true); loadContacts(true); loadSubs(true); loadAnnuaire(); clearInterval(timer); timer = setInterval(function(){ if (!$('paneClients').hidden) loadClients(false); if (!$('paneContacts').hidden) loadContacts(false); if (!$('paneSubs').hidden) loadSubs(false); }, 6000); }
   var timer = null;
   $('btnLogin').addEventListener('click', function(){
     var err = $('loginErr'); err.classList.remove('show');
@@ -202,10 +233,11 @@
   });
   $('btnLogout').addEventListener('click', function(){ setToken(''); showLogin(); });
   function tab(name){
-    ['Clients','Contacts','Annuaire','Phone'].forEach(function(n){ $('tab' + n).classList.toggle('on', n === name); $('pane' + n).hidden = (n !== name); });
+    ['Clients','Subs','Contacts','Annuaire','Phone'].forEach(function(n){ $('tab' + n).classList.toggle('on', n === name); $('pane' + n).hidden = (n !== name); });
     if (name === 'Phone') loadPhone();
   }
   $('tabClients').addEventListener('click', function(){ tab('Clients'); });
+  $('tabSubs').addEventListener('click', function(){ tab('Subs'); loadSubs(false); });
   $('tabContacts').addEventListener('click', function(){ tab('Contacts'); });
   $('tabAnnuaire').addEventListener('click', function(){ tab('Annuaire'); });
   $('tabPhone').addEventListener('click', function(){ tab('Phone'); });
@@ -272,6 +304,107 @@
     XLSX.utils.book_append_sheet(wb, w1, 'Clients'); XLSX.utils.book_append_sheet(wb, w2, 'Par jour'); XLSX.utils.book_append_sheet(wb, w3, 'Par personne');
     XLSX.writeFile(wb, 'Keydou-clients-' + (onlyToday ? todayStr() : 'complet-' + todayStr()) + '.xlsx');
   }
+
+  /* ---------- abonnés : installations de l'application, en direct ---------- */
+  var subs = [], seenS = {}, subsMeta = { comptes:0, invites:0 };
+  function loadSubs(first){
+    authFetch('/api/starvibe-installs?stats=1&limit=5000').then(function(r){ if (r.status === 403){ setToken(''); showLogin(); return null; } return r.json(); }).then(function(d){
+      if (!d || !d.installs) return;
+      var fresh = {};
+      d.installs.forEach(function(c){ if (!first && !seenS[c.id]) fresh[c.id] = true; seenS[c.id] = true; });
+      subs = d.installs; subsMeta = { comptes: d.comptesKomyo || 0, invites: d.clientsKeydouSansCompte || 0 };
+      renderSubs(fresh);
+      var t = new Date(); $('sRefresh').textContent = 'Mis à jour à ' + pad(t.getHours()) + ':' + pad(t.getMinutes()) + ':' + pad(t.getSeconds()) + ' — automatique, toutes les 6 secondes.';
+    });
+  }
+  function sFiltered(onlyToday){
+    var q = $('sq').value.trim().toLowerCase(), o = $('sOrig').value;
+    return subs.filter(function(c){
+      if (o && c.origine !== o) return false;
+      if (onlyToday && dateParts(c.date).date !== todayStr()) return false;
+      return !q || [c.nom, c.telephone, c.ville, c.appareil, c.navigateur, c.origine].join(' ').toLowerCase().indexOf(q) !== -1;
+    });
+  }
+  function renderSubs(fresh){
+    var today = todayStr(), now = Date.now(), week = 0, nToday = 0, ident = 0, actifs = 0;
+    subs.forEach(function(c){
+      var age = (now - new Date(c.date).getTime()) / 86400000;
+      if (dateParts(c.date).date === today) nToday++;
+      if (age <= 7) week++;
+      if (c.telephone) ident++;
+      if (now - new Date(c.derniere).getTime() <= 86400000) actifs++;
+    });
+    $('sStats').innerHTML =
+      '<div class="stat"><b>' + subs.length + '</b><span>appareils avec l\'application</span></div>' +
+      '<div class="stat"><b>' + nToday + '</b><span>installés aujourd\'hui</span></div>' +
+      '<div class="stat"><b>' + week + '</b><span>sur les 7 derniers jours</span></div>' +
+      '<div class="stat"><b>' + ident + '</b><span>avec nom et numéro</span></div>' +
+      '<div class="stat"><b>' + actifs + '</b><span>ouverts ces 24 h</span></div>' +
+      '<div class="stat"><b>' + subsMeta.comptes + '</b><span>comptes KOMYO au total</span></div>';
+    drawDays(); drawDevices();
+    var list = sFiltered(false);
+    $('sRows').innerHTML = list.map(function(c){
+      var p = dateParts(c.date), l = dateParts(c.derniere), cls = c.telephone ? 'pay' : 'warn';
+      return '<tr class="' + (fresh && fresh[c.id] ? 'new' : '') + '"><td>' + esc(c.id) + '</td><td>' + p.date + '</td><td>' + p.heure + '</td><td><b>' + esc(c.nom || '—') + '</b></td><td>' + esc(c.telephone || '—') + '</td><td>' + esc(c.ville || '') + '</td><td>' + esc(c.appareil) + '</td><td>' + esc(c.navigateur) + '</td><td><span class="pill ' + cls + '">' + esc(c.origine) + '</span></td><td>' + c.ouvertures + '</td><td>' + l.date + ' ' + l.heure + '</td></tr>';
+    }).join('') || '<tr><td colspan="11" class="muted" style="padding:22px;text-align:center">Aucune installation pour le moment : dès qu\'une personne installe KOMYO sur son appareil, elle apparaît ici.</td></tr>';
+  }
+  ['sq'].forEach(function(id){ $(id).addEventListener('input', function(){ renderSubs(null); }); });
+  $('sOrig').addEventListener('change', function(){ renderSubs(null); });
+
+  var tipEl = null;
+  function tip(host, x, html){
+    if (!tipEl){ tipEl = document.createElement('div'); tipEl.className = 'tip'; }
+    if (!html){ if (tipEl.parentNode) tipEl.parentNode.removeChild(tipEl); return; }
+    host.appendChild(tipEl); tipEl.innerHTML = html; tipEl.style.left = x + 'px'; tipEl.style.top = '58px';
+  }
+  function drawDays(){
+    var host = $('sDays'), days = [], i, d, byDay = {};
+    subs.forEach(function(c){ var k = dateParts(c.date).date; byDay[k] = (byDay[k] || 0) + 1; });
+    for (i = 29; i >= 0; i--){ d = new Date(); d.setDate(d.getDate() - i); var k = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); days.push({ k: k, n: byDay[k] || 0, lab: pad(d.getDate()) + '/' + pad(d.getMonth() + 1) }); }
+    var max = Math.max(1, Math.max.apply(null, days.map(function(x){ return x.n; })));
+    var top = max <= 4 ? max : Math.ceil(max / 4) * 4, W = 600, H = 190, L = 28, R = 4, T = 8, B = 22, pw = W - L - R, ph = H - T - B, bw = pw / 30;
+    var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Installations par jour sur 30 jours">';
+    var steps = top <= 4 ? top : 4;
+    for (i = 0; i <= steps; i++){ var v = Math.round(top * i / steps), y = T + ph - ph * v / top; svg += '<line class="gl" x1="' + L + '" x2="' + (W - R) + '" y1="' + y + '" y2="' + y + '"/><text class="ax" x="' + (L - 6) + '" y="' + (y + 3) + '" text-anchor="end">' + v + '</text>'; }
+    days.forEach(function(x, j){
+      var h = ph * x.n / top, bx = L + j * bw + bw * 0.18, w = bw * 0.64, by = T + ph - h;
+      svg += '<rect class="hit" data-i="' + j + '" x="' + (L + j * bw) + '" y="' + T + '" width="' + bw + '" height="' + ph + '" fill="transparent"/>';
+      if (x.n) svg += '<path class="bar-m" d="M' + bx + ' ' + (T + ph) + 'V' + (by + 4) + 'Q' + bx + ' ' + by + ' ' + (bx + 4) + ' ' + by + 'H' + (bx + w - 4) + 'Q' + (bx + w) + ' ' + by + ' ' + (bx + w) + ' ' + (by + 4) + 'V' + (T + ph) + 'Z"/>';
+      else svg += '<rect class="bar-m" x="' + bx + '" y="' + (T + ph - 1.5) + '" width="' + w + '" height="1.5" opacity=".35"/>';
+      if (j % 5 === 0 || j === 29) svg += '<text class="ax" x="' + (L + j * bw + bw / 2) + '" y="' + (H - 6) + '" text-anchor="middle">' + x.lab + '</text>';
+    });
+    host.innerHTML = svg + '</svg>';
+    var card = host.parentNode;
+    host.querySelectorAll('.hit').forEach(function(r){
+      function on(){ var x = days[Number(r.getAttribute('data-i'))]; var rect = r.getBoundingClientRect(), cr = card.getBoundingClientRect(); tip(card, rect.left - cr.left + rect.width / 2, '<b>' + x.lab + '</b> : ' + x.n + ' installation' + (x.n > 1 ? 's' : '')); }
+      r.addEventListener('mouseenter', on); r.addEventListener('focus', on); r.addEventListener('click', on); r.addEventListener('mouseleave', function(){ tip(card, 0, ''); });
+    });
+  }
+  function countBy(key){ var o = {}; subs.forEach(function(c){ o[c[key]] = (o[c[key]] || 0) + 1; }); return Object.keys(o).map(function(k){ return { k: k, n: o[k] }; }).sort(function(a, b){ return b.n - a.n; }); }
+  function drawDevices(){
+    var rows = countBy('appareil'), tot = subs.length;
+    $('sDevSub').textContent = tot ? 'Répartition des ' + tot + ' installation' + (tot > 1 ? 's' : '') : '';
+    $('sDev').innerHTML = rows.map(function(r){ var pc = Math.round(100 * r.n / tot); return '<div class="devrow"><span>' + esc(r.k) + '</span><span class="trk" role="img" aria-label="' + pc + ' %"><i style="width:' + Math.max(2, pc) + '%"></i></span><b>' + r.n + ' <span class="muted" style="font-weight:400">· ' + pc + ' %</span></b></div>'; }).join('') || '<div class="muted" style="padding:12px 0">Pas encore d\'installation.</div>';
+  }
+  function excelSubs(onlyToday){
+    var rows = sFiltered(onlyToday).slice().reverse();
+    var main = [['N°','Date','Heure','Nom et prénom','Téléphone','Ville','Appareil','Navigateur','Origine','Comment repérée','Ouvertures','Dernière ouverture']];
+    rows.forEach(function(c){ var p = dateParts(c.date), l = dateParts(c.derniere); main.push([Number(c.id), p.date, p.heure, c.nom, c.telephone, c.ville, c.appareil, c.navigateur, c.origine, c.via, c.ouvertures, l.date + ' ' + l.heure]); });
+    var days = {}; rows.forEach(function(c){ var k = dateParts(c.date).date; days[k] = (days[k] || 0) + 1; });
+    var ks = Object.keys(days).sort(), cum = 0, jour = [['Date','Installations','Cumul']];
+    ks.forEach(function(k){ cum += days[k]; jour.push([k, days[k], cum]); });
+    var dev = {}; rows.forEach(function(c){ dev[c.appareil] = (dev[c.appareil] || 0) + 1; });
+    var app = [['Appareil','Installations']]; Object.keys(dev).sort(function(a, b){ return dev[b] - dev[a]; }).forEach(function(k){ app.push([k, dev[k]]); });
+    var wb = XLSX.utils.book_new();
+    var w1 = XLSX.utils.aoa_to_sheet(main); w1['!cols'] = [{wch:6},{wch:11},{wch:9},{wch:26},{wch:17},{wch:14},{wch:20},{wch:16},{wch:28},{wch:24},{wch:11},{wch:18}]; w1['!autofilter'] = { ref: 'A1:L' + main.length };
+    var w2 = XLSX.utils.aoa_to_sheet(jour); w2['!cols'] = [{wch:12},{wch:13},{wch:9}];
+    var w3 = XLSX.utils.aoa_to_sheet(app); w3['!cols'] = [{wch:22},{wch:13}];
+    XLSX.utils.book_append_sheet(wb, w1, 'Abonnés'); XLSX.utils.book_append_sheet(wb, w2, 'Par jour'); XLSX.utils.book_append_sheet(wb, w3, 'Par appareil');
+    XLSX.writeFile(wb, 'KOMYO-abonnes-' + (onlyToday ? todayStr() : 'complet-' + todayStr()) + '.xlsx');
+  }
+  $('btnSExcel').addEventListener('click', function(){ excelSubs(false); });
+  $('btnSExcelDay').addEventListener('click', function(){ excelSubs(true); });
+
   $('btnCExcel').addEventListener('click', function(){ excelClients(false); });
   $('btnCExcelDay').addEventListener('click', function(){ excelClients(true); });
 

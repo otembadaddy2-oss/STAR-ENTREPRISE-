@@ -477,6 +477,30 @@ export async function ensureSchema() {
     )
   `;
 
+  // Installations de l'application KOMYO (suivi des abonnés, en direct dans le backend).
+  // Une ligne par appareil : install_id est tiré au hasard par l'appareil lui-même.
+  // Aucun identifiant publicitaire ni adresse IP en clair : seulement un hachage de l'IP
+  // pour freiner les envois en masse. Le nom et le numéro ne sont renseignés que si la
+  // personne est connectée à KOMYO ou a écrit ses coordonnées à Keydou.
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_installs (
+      id SERIAL PRIMARY KEY,
+      install_id TEXT UNIQUE NOT NULL,
+      source TEXT NOT NULL DEFAULT '',
+      platform TEXT NOT NULL DEFAULT '',
+      navigateur TEXT NOT NULL DEFAULT '',
+      account_id INTEGER,
+      invite BOOLEAN NOT NULL DEFAULT false,
+      nom TEXT NOT NULL DEFAULT '',
+      telephone TEXT NOT NULL DEFAULT '',
+      ville TEXT NOT NULL DEFAULT '',
+      launches INTEGER NOT NULL DEFAULT 0,
+      ip_hash TEXT NOT NULL DEFAULT '',
+      installed_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      last_seen TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
   await sql`
     CREATE TABLE IF NOT EXISTS jardis_log (
       id SERIAL PRIMARY KEY,
