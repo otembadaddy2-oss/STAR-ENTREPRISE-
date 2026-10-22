@@ -501,6 +501,28 @@ export async function ensureSchema() {
     )
   `;
 
+  // Accès du staff par mot de passe seul : compteurs anti-essais (par connexion Internet et global),
+  // et codes de réinitialisation à usage unique (stockés hachés, valables 10 minutes).
+  await sql`
+    CREATE TABLE IF NOT EXISTS staff_login_guard (
+      key TEXT PRIMARY KEY,
+      fails INTEGER NOT NULL DEFAULT 0,
+      window_start TIMESTAMPTZ NOT NULL DEFAULT now(),
+      locked_until TIMESTAMPTZ
+    )
+  `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS staff_reset_codes (
+      id SERIAL PRIMARY KEY,
+      account_id INTEGER NOT NULL,
+      code_hash TEXT NOT NULL,
+      tries INTEGER NOT NULL DEFAULT 0,
+      used BOOLEAN NOT NULL DEFAULT false,
+      expires_at TIMESTAMPTZ NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
   await sql`
     CREATE TABLE IF NOT EXISTS jardis_log (
       id SERIAL PRIMARY KEY,

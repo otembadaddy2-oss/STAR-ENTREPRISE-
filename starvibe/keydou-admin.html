@@ -53,6 +53,8 @@
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;}
   .grid .field input,.grid .field select,.grid .field textarea{width:100%;}
   .msg{font-size:12px;margin-top:8px;color:var(--ok);}
+  .lnkrow{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:14px;font-size:12.5px;} .lnkrow a{color:var(--gold-light);text-decoration:underline;}
+  .secours{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:22px;letter-spacing:1.5px;text-align:center;padding:16px 10px;border-radius:12px;background:rgba(255,255,255,.07);border:1.5px dashed var(--gold-light);color:#fff;word-break:break-all;}
   .charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-bottom:14px;}
   .chartcard{background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px 14px 10px;position:relative;}
   .chartcard h3{font-size:13px;margin:0 0 2px;} .chartcard .sub{font-size:11px;color:var(--dim);margin-bottom:8px;}
@@ -68,20 +70,56 @@
 <body>
 
 <div id="loginView" class="wrap">
-  <div class="login-card">
+  <div class="login-card" id="cardLogin">
     <h2>Espace Keydou</h2>
     <p>Connexion staff STAR ENTREPRISE.</p>
     <div class="err" id="loginErr"></div>
-    <div class="field"><label for="fUser">Identifiant</label><input type="text" id="fUser" autocomplete="username"></div>
+    <div class="field" id="fUserWrap" hidden><label for="fUser">Identifiant</label><input type="text" id="fUser" autocomplete="username"></div>
     <div class="field"><label for="fPass">Mot de passe</label><input type="password" id="fPass" autocomplete="current-password"></div>
     <button class="btn main" id="btnLogin" style="width:100%;padding:13px">Se connecter</button>
+    <div class="lnkrow"><a href="#" id="lnkForgot">Mot de passe oublié ?</a><a href="#" id="lnkUser">Avec un identifiant</a></div>
+  </div>
+
+  <div class="login-card" id="cardForgot" hidden>
+    <h2>Mot de passe oublié</h2>
+    <p>Choisis comment prouver que c'est bien toi.</p>
+    <div class="err" id="fgErr"></div>
+    <div class="tabs" style="margin-bottom:12px">
+      <button class="tab on" id="fgTabPhone" type="button">Code sur mon téléphone</button>
+      <button class="tab" id="fgTabRec" type="button">J'ai mon code de secours</button>
+    </div>
+    <div id="fgPhone">
+      <button class="btn main" id="btnFgSend" type="button" style="width:100%;padding:12px">M'envoyer un code</button>
+      <p class="muted" id="fgSent" hidden style="margin:10px 0 0">Un code à 6 chiffres vient d'être envoyé en notification sur ton téléphone enregistré. Il est valable 10 minutes. Si rien n'arrive, utilise ton code de secours.</p>
+      <div class="field" id="fgCodeWrap" hidden style="margin-top:12px"><label for="fgCode">Code à 6 chiffres</label><input type="text" id="fgCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></div>
+    </div>
+    <div id="fgRec" hidden>
+      <div class="field"><label for="fgRecCode">Code de secours</label><input type="text" id="fgRecCode" autocomplete="off" placeholder="XXXX-XXXX-XXXX-XXXX" style="text-transform:uppercase"></div>
+    </div>
+    <div id="fgNew">
+      <div class="field"><label for="fgPass1">Nouveau mot de passe</label><input type="password" id="fgPass1" autocomplete="new-password"></div>
+      <div class="field"><label for="fgPass2">Répète-le</label><input type="password" id="fgPass2" autocomplete="new-password"></div>
+      <p class="muted" style="margin:0 0 12px">12 caractères minimum. Le plus simple : 3 ou 4 mots que tu retiens, par exemple <b>Pointe-Noire.Mange.Mangue.2026</b>. Jamais un numéro de téléphone.</p>
+      <button class="btn main" id="btnFgGo" type="button" style="width:100%;padding:13px">Changer mon mot de passe</button>
+    </div>
+    <div class="lnkrow"><a href="#" id="lnkBack">← Retour à la connexion</a></div>
+  </div>
+
+  <div class="login-card" id="cardSecours" hidden>
+    <h2>Ton code de secours</h2>
+    <p>Note-le <b>maintenant</b> (papier, ou message WhatsApp à toi-même). Il s'affiche une seule fois et sert si tu oublies encore ton mot de passe.</p>
+    <div class="secours" id="secoursCode" aria-live="polite"></div>
+    <div class="bar" style="margin-top:12px">
+      <button class="btn" id="btnSecoursCopy" type="button">Copier</button>
+      <button class="btn main" id="btnSecoursOk" type="button">J'ai noté mon code — entrer</button>
+    </div>
   </div>
 </div>
 
 <div id="mainView" class="wrap" hidden>
   <div class="topbar">
     <h1>Keydou — suivi<span class="live"><i></i>en direct</span></h1>
-    <div style="display:flex;gap:8px"><a class="linkbtn" href="paiements.html">Paiements</a><button class="linkbtn" id="btnLogout">Déconnexion</button></div>
+    <div style="display:flex;gap:8px"><a class="linkbtn" href="paiements.html">Paiements</a><button class="linkbtn" id="btnRecov" title="Code de secours pour retrouver ton accès">Code de secours</button><button class="linkbtn" id="btnLogout">Déconnexion</button></div>
   </div>
   <div class="tabs">
     <button class="tab on" id="tabClients">Fichier clients (Excel)</button>
@@ -222,14 +260,73 @@
   function showLogin(){ $('loginView').hidden = false; $('mainView').hidden = true; clearInterval(timer); }
   function showMain(){ $('loginView').hidden = true; $('mainView').hidden = false; loadClients(true); loadContacts(true); loadSubs(true); loadAnnuaire(); clearInterval(timer); timer = setInterval(function(){ if (!$('paneClients').hidden) loadClients(false); if (!$('paneContacts').hidden) loadContacts(false); if (!$('paneSubs').hidden) loadSubs(false); }, 6000); }
   var timer = null;
-  $('btnLogin').addEventListener('click', function(){
-    var err = $('loginErr'); err.classList.remove('show');
-    var u = $('fUser').value.trim(), p = $('fPass').value;
-    if (!u || !p){ err.textContent = 'Identifiant et mot de passe requis.'; err.classList.add('show'); return; }
-    fetch(API_AUTH, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'login', username:u, password:p }) })
-      .then(function(r){ return r.json().then(function(d){ return { ok:r.ok, data:d }; }); })
-      .then(function(res){ if (!res.ok){ err.textContent = res.data.error || 'Connexion impossible.'; err.classList.add('show'); return; } setToken(res.data.token); showMain(); })
-      .catch(function(){ err.textContent = 'Impossible de contacter le serveur.'; err.classList.add('show'); });
+  var API_ACCES = '/api/staff-acces';
+  function showErr(id, msg){ var e = $(id); e.textContent = msg; e.classList.add('show'); }
+  function hideErr(id){ $(id).classList.remove('show'); }
+  function postJson(url, body){ return fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) }).then(function(r){ return r.json().then(function(d){ return { ok:r.ok, data:d }; }); }); }
+  var tentative = false;
+  function seConnecter(){
+    if (tentative) return;
+    hideErr('loginErr');
+    var u = $('fUserWrap').hidden ? '' : $('fUser').value.trim(), p = $('fPass').value;
+    if (!p){ showErr('loginErr', 'Écris ton mot de passe.'); return; }
+    if (!$('fUserWrap').hidden && !u){ showErr('loginErr', 'Écris ton identifiant, ou touche « Mot de passe seul ».'); return; }
+    tentative = true; $('btnLogin').disabled = true;
+    var req = u ? postJson(API_AUTH, { action:'login', username:u, password:p }) : postJson(API_ACCES, { action:'login', password:p });
+    req.then(function(res){
+      if (!res.ok){ showErr('loginErr', res.data.error || 'Connexion impossible.'); return; }
+      $('fPass').value = ''; setToken(res.data.token); showMain();
+    }).catch(function(){ showErr('loginErr', 'Impossible de contacter le serveur.'); })
+      .then(function(){ tentative = false; $('btnLogin').disabled = false; });
+  }
+  $('btnLogin').addEventListener('click', seConnecter);
+  $('fPass').addEventListener('keydown', function(e){ if (e.key === 'Enter') seConnecter(); });
+  $('fUser').addEventListener('keydown', function(e){ if (e.key === 'Enter') $('fPass').focus(); });
+  $('lnkUser').addEventListener('click', function(e){ e.preventDefault(); var w = $('fUserWrap'); w.hidden = !w.hidden; $('lnkUser').textContent = w.hidden ? 'Avec un identifiant' : 'Mot de passe seul'; (w.hidden ? $('fPass') : $('fUser')).focus(); });
+
+  /* ---------- mot de passe oublié ---------- */
+  var fgMode = 'phone';
+  function carte(nom){ ['cardLogin','cardForgot','cardSecours'].forEach(function(c){ $(c).hidden = (c !== nom); }); }
+  $('lnkForgot').addEventListener('click', function(e){ e.preventDefault(); hideErr('fgErr'); carte('cardForgot'); });
+  $('lnkBack').addEventListener('click', function(e){ e.preventDefault(); carte('cardLogin'); });
+  function fgMethode(m){ fgMode = m; $('fgTabPhone').classList.toggle('on', m === 'phone'); $('fgTabRec').classList.toggle('on', m === 'rec'); $('fgPhone').hidden = (m !== 'phone'); $('fgRec').hidden = (m !== 'rec'); hideErr('fgErr'); }
+  $('fgTabPhone').addEventListener('click', function(){ fgMethode('phone'); });
+  $('fgTabRec').addEventListener('click', function(){ fgMethode('rec'); });
+  $('btnFgSend').addEventListener('click', function(){
+    hideErr('fgErr'); var b = $('btnFgSend'); b.disabled = true;
+    postJson(API_ACCES, { action:'forgot_start' }).then(function(res){
+      if (!res.ok){ showErr('fgErr', res.data.error || 'Envoi impossible.'); return; }
+      $('fgSent').hidden = false; $('fgCodeWrap').hidden = false; $('fgCode').focus();
+      if (!res.data.envoye){ $('fgSent').textContent = 'Aucun téléphone n\'est enregistré pour recevoir le code. Utilise ton code de secours (onglet à côté), ou demande le jeton de configuration au propriétaire du site.'; }
+    }).catch(function(){ showErr('fgErr', 'Impossible de contacter le serveur.'); }).then(function(){ b.disabled = false; });
+  });
+  function afficherSecours(code, token){
+    $('secoursCode').textContent = code; carte('cardSecours'); setToken(token);
+    $('btnSecoursCopy').onclick = function(){ try { navigator.clipboard.writeText(code); $('btnSecoursCopy').textContent = 'Copié ✓'; } catch (e) { window.prompt('Copie ce code :', code); } };
+    $('btnSecoursOk').onclick = function(){ carte('cardLogin'); showMain(); };
+  }
+  $('btnFgGo').addEventListener('click', function(){
+    hideErr('fgErr');
+    var p1 = $('fgPass1').value, p2 = $('fgPass2').value;
+    if (p1 !== p2){ showErr('fgErr', 'Les deux mots de passe ne sont pas identiques.'); return; }
+    var body = fgMode === 'phone' ? { action:'forgot_finish', code:$('fgCode').value.trim(), newPassword:p1 } : { action:'forgot_recovery', recoveryCode:$('fgRecCode').value.trim(), newPassword:p1 };
+    if (fgMode === 'phone' && !body.code){ showErr('fgErr', 'Écris le code reçu sur ton téléphone (d\'abord « M\'envoyer un code »).'); return; }
+    if (fgMode === 'rec' && !body.recoveryCode){ showErr('fgErr', 'Écris ton code de secours.'); return; }
+    var b = $('btnFgGo'); b.disabled = true;
+    postJson(API_ACCES, body).then(function(res){
+      if (!res.ok){ showErr('fgErr', res.data.error || 'Changement impossible.'); return; }
+      $('fgPass1').value = ''; $('fgPass2').value = ''; $('fgCode').value = ''; $('fgRecCode').value = '';
+      afficherSecours(res.data.codeSecours, res.data.token);
+    }).catch(function(){ showErr('fgErr', 'Impossible de contacter le serveur.'); }).then(function(){ b.disabled = false; });
+  });
+  // Connecté : regénérer un code de secours (l'ancien ne marche plus)
+  $('btnRecov').addEventListener('click', function(){
+    if (!window.confirm('Générer un nouveau code de secours ? L\'ancien ne fonctionnera plus.')) return;
+    authFetch(API_ACCES, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'recovery_new' }) })
+      .then(function(r){ return r.json(); }).then(function(d){
+        if (!d.codeSecours){ window.alert('Impossible de générer le code.'); return; }
+        window.prompt('Nouveau code de secours — note-le tout de suite (il ne sera plus affiché) :', d.codeSecours);
+      });
   });
   $('btnLogout').addEventListener('click', function(){ setToken(''); showLogin(); });
   function tab(name){
