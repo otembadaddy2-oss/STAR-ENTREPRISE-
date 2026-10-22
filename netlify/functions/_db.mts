@@ -322,6 +322,11 @@ export async function ensureSchema() {
   // tout ce qui est arrivé après est "non lu". Fermer la bulle ne touche pas
   // à cette date — les notifications restent là, seule la bulle disparaît.
   await sql`ALTER TABLE starvibe_accounts ADD COLUMN IF NOT EXISTS notifs_vues_at TIMESTAMPTZ`;
+  // Clients de Keydou sans compte KOMYO : un compte "invité" est créé à la volée (nom, téléphone déclarés).
+  await sql`ALTER TABLE starvibe_accounts ADD COLUMN IF NOT EXISTS guest BOOLEAN NOT NULL DEFAULT false`;
+  await sql`ALTER TABLE starvibe_accounts ADD COLUMN IF NOT EXISTS guest_nom TEXT NOT NULL DEFAULT ''`;
+  await sql`ALTER TABLE starvibe_accounts ADD COLUMN IF NOT EXISTS guest_tel TEXT NOT NULL DEFAULT ''`;
+  await sql`ALTER TABLE starvibe_accounts ADD COLUMN IF NOT EXISTS guest_ip TEXT NOT NULL DEFAULT ''`;
 
   await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS pour_enfants BOOLEAN NOT NULL DEFAULT false`;
   await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS moderation_statut TEXT NOT NULL DEFAULT 'approuve'`;

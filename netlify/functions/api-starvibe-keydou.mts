@@ -10,13 +10,15 @@
 // abonnements, et refuse tout tant que ce secret n'est pas configuré.
 import type { Context, Config } from "@netlify/functions";
 import { ensureSchema, db, json } from "./_db.mts";
-import { requireAuth } from "./_auth.mts";
+import { randomUUID } from "node:crypto";
+import { requireAuth, issueToken } from "./_auth.mts";
 import annuaireSeed from "./keydou-annuaire.json";
 import annuaire2026 from "./keydou-annuaire-2026.json";
 import urgences from "./keydou-urgences.json";
 import { vapidKeys, smsSecret, checkSmsSecret, decisionToken, checkDecisionToken, pushAll, parseSms, last9 } from "./_push.mts";
 
 const ORG = "star_vibe";
+const GUEST_ORG = "keydou_guest"; // jeton des clients de Keydou sans compte KOMYO : n'ouvre rien d'autre que Keydou
 const STAFF_ORG = "star_entreprise";
 const NUMERO_RECEPTION = "+242 06 656 50 50";
 const MONTANT = 1000;
@@ -245,6 +247,35 @@ async function refuserDepot(sql: any, kind: string, id: number): Promise<{ ok: b
   return { ok: rows.length > 0 };
 }
 
+
+// Crée une demande Keydou (1 000 FCFA, 1 à 3 besoins). Les coordonnées du formulaire sont gardées avec la demande.
+// deno-lint-ignore no-explicit-any
+async function creerDemande(sql: any, accountId: number, body: Record<string, unknown>, invite: boolean): Promise<{ body: Record<string, unknown>; status: number }> {
+  const services = parseServices(body.services ?? body.service);
+  if (!services.length) return { body: { error: "Cochez au moins un besoin" }, status: 400 };
+  if (services.length > MAX_SERVICES) return { body: { error: `Un paiement de 1 000 FCFA couvre jusqu'à ${MAX_SERVICES} besoins à la fois.` }, status: 400 };
+  const ville = villeOk(clean(body.ville, 40));
+  if (!ville) return { body: { error: "Choisissez une ville" }, status: 400 };
+  const nom = clean(body.nom, 80);
+  const contact = clean(body.contact, 30);
+  if (nom.length < 3 || contact.replace(/\D/g, "").length < 8) return { body: { error: "Indiquez votre nom et prénom et votre numéro de téléphone" }, status: 400 };
+  const pending = (await sql`
+    SELECT COUNT(*) AS n FROM starvibe_keydou_requests WHERE account_id = ${accountId} AND statut = 'en_attente_paiement'
+  `) as { n: string }[];
+  if (Number(pending[0]?.n) >= MAX_ATTENTE) {
+    return { body: { error: "Trop de demandes en attente de paiement. Règle ou attends la confirmation des précédentes." }, status: 429 };
+  }
+  if (invite) await sql`UPDATE starvibe_accounts SET guest_nom = ${nom}, guest_tel = ${contact}, ville = ${ville} WHERE id = ${accountId} AND guest = true`;
+  const details = JSON.stringify({ nom, contact, ville });
+  const rows = (await sql`
+    INSERT INTO starvibe_keydou_requests (account_id, service, ville, demande_vocale, montant_attendu, details)
+    VALUES (${accountId}, ${services.join(",")}, ${ville}, ${clean(body.demandeVocale, 300)}, ${MONTANT}, ${details}::jsonb)
+    RETURNING *
+  `) as Row[];
+  await logEvent(sql, accountId, "demande", `${nom} · ${contact}`, services.join(","), ville, rows[0].id);
+  return { body: { demande: toApi(rows[0]) }, status: 201 };
+}
+
 const KIND_LABEL: Record<string, string> = { keydou: "Keydou", abo: "Abonnement KOMYO" };
 
 // Notification "Valider le dépôt ?" avec boutons Oui / Non sur le téléphone du staff.
@@ -320,7 +351,7 @@ export default async (req: Request, _context: Context) => {
       return json({ kind, id, objet: `Abonnement ${r[0].plan}`, montant: r[0].montant_attendu, statut: r[0].statut, nom: r[0].nom || "", telephone: r[0].telephone, ville: "", reference: `KOMYO-${id}` });
     }
     const r = (await sql`
-      SELECT k.*, a.telephone, p.nom AS auteur_nom FROM starvibe_keydou_requests k JOIN starvibe_accounts a ON a.id = k.account_id
+      SELECT k.*, COALESCE(NULLIF(a.guest_tel, ''), a.telephone) AS telephone, COALESCE(NULLIF(a.guest_nom, ''), p.nom) AS auteur_nom FROM starvibe_keydou_requests k JOIN starvibe_accounts a ON a.id = k.account_id
       LEFT JOIN starvibe_profiles p ON p.account_id = a.id AND p.type_profil = 'personnel' WHERE k.id = ${id}
     `) as Row[];
     if (!r[0]) return json({ error: "Introuvable" }, 404);
@@ -342,7 +373,7 @@ export default async (req: Request, _context: Context) => {
 
     if (p.depot && p.montant) {
       const kd = (await sql`
-        SELECT k.id, k.numero_paiement, a.telephone,
+        SELECT k.id, k.numero_paiement, COALESCE(NULLIF(a.guest_tel, ''), a.telephone) AS telephone,
                (k.paiement_declare_at IS NOT NULL AND k.paiement_declare_at > now() - interval '20 minutes') AS recent
         FROM starvibe_keydou_requests k JOIN starvibe_accounts a ON a.id = k.account_id
         WHERE k.statut = 'en_attente_paiement' AND k.montant_attendu = ${p.montant} AND k.created_at > now() - interval '48 hours'
@@ -404,7 +435,7 @@ export default async (req: Request, _context: Context) => {
     const limit = Math.min(2000, Math.max(1, Number(url.searchParams.get("limit")) || 300));
     const rows = (await sql`
       SELECT e.id, e.type, e.texte, e.service, e.ville, e.request_id, e.created_at,
-             a.telephone, p.nom AS nom
+             COALESCE(NULLIF(a.guest_tel, ''), a.telephone) AS telephone, COALESCE(NULLIF(a.guest_nom, ''), p.nom) AS nom
       FROM starvibe_keydou_events e
       JOIN starvibe_accounts a ON a.id = e.account_id
       LEFT JOIN starvibe_profiles p ON p.account_id = a.id AND p.type_profil = 'personnel'
@@ -435,7 +466,7 @@ export default async (req: Request, _context: Context) => {
     if (!staff || staff.org !== STAFF_ORG) return json({ error: "Non autorisé" }, 403);
 
     const rows = (await sql`
-      SELECT k.*, a.telephone, p.nom AS auteur_nom
+      SELECT k.*, COALESCE(NULLIF(a.guest_tel, ''), a.telephone) AS telephone, COALESCE(NULLIF(a.guest_nom, ''), p.nom) AS auteur_nom
       FROM starvibe_keydou_requests k
       JOIN starvibe_accounts a ON a.id = k.account_id
       LEFT JOIN starvibe_profiles p ON p.account_id = a.id AND p.type_profil = 'personnel'
@@ -581,34 +612,44 @@ export default async (req: Request, _context: Context) => {
       return json({ ok: true, ajoutes, misAJour, ignores });
     }
 
-    // --- Actions du client (compte KOMYO) ---
+    // --- Client sans compte KOMYO : nom, téléphone, ville suffisent. Un compte "invité" est créé
+    //     (aucun accès au reste de KOMYO) ; ce qu'il a dit à Keydou avant d'écrire ses coordonnées est enregistré. ---
+    if (action === "guest_start") {
+      const nom = clean(body.nom, 80), contact = clean(body.contact, 30);
+      if (nom.length < 3 || contact.replace(/\D/g, "").length < 8) return json({ error: "Indiquez votre nom et prénom et votre numéro de téléphone" }, 400);
+      if (!parseServices(body.services ?? body.service).length) return json({ error: "Cochez au moins un besoin" }, 400);
+      if (!villeOk(clean(body.ville, 40))) return json({ error: "Choisissez une ville" }, 400);
+      const ip = clean(req.headers.get("x-nf-client-connection-ip") || req.headers.get("x-forwarded-for") || "", 60);
+      if (ip) {
+        const n = (await sql`SELECT COUNT(*) AS n FROM starvibe_accounts WHERE guest = true AND guest_ip = ${ip} AND created_at > now() - interval '1 hour'`) as { n: string }[];
+        if (Number(n[0]?.n) >= 8) return json({ error: "Trop d'inscriptions depuis cette connexion. Réessayez plus tard." }, 429);
+      }
+      const acc = (await sql`
+        INSERT INTO starvibe_accounts (telephone, pin_hash, ville, guest, guest_nom, guest_tel, guest_ip)
+        VALUES (${"guest-" + randomUUID()}, '!', ${villeOk(clean(body.ville, 40))}, true, ${nom}, ${contact}, ${ip})
+        RETURNING id
+      `) as { id: number }[];
+      const gid = acc[0].id;
+      const evs = Array.isArray(body.events) ? (body.events as Record<string, unknown>[]).slice(0, 25) : [];
+      for (const e of evs) {
+        const t = clean(e.type, 30);
+        if (!["ouverture", "parole", "choix_service", "choix_ville", "appel_lieu"].includes(t)) continue;
+        await logEvent(sql, gid, t, clean(e.texte, 300), parseServices(e.service).join(","), villeOk(clean(e.ville, 40)), null);
+      }
+      const res = await creerDemande(sql, gid, body, true);
+      if (res.status !== 201) return json(res.body, res.status);
+      const token = await issueToken({ sub: String(gid), username: "invite", displayName: nom, org: GUEST_ORG, role: "invite" });
+      return json({ ...res.body, token }, 201);
+    }
+
+    // --- Actions du client (compte KOMYO ou invité Keydou) ---
     const session = await requireAuth(req);
-    if (!session || session.org !== ORG) return json({ error: "Non authentifié" }, 401);
+    if (!session || (session.org !== ORG && session.org !== GUEST_ORG)) return json({ error: "Non authentifié" }, 401);
     const accountId = Number(session.sub);
 
     if (action === "demande") {
-      const services = parseServices(body.services ?? body.service);
-      if (!services.length) return json({ error: "Cochez au moins un besoin" }, 400);
-      if (services.length > MAX_SERVICES) return json({ error: `Un paiement de 1 000 FCFA couvre jusqu'à ${MAX_SERVICES} besoins à la fois.` }, 400);
-      const ville = villeOk(clean(body.ville, 40));
-      if (!ville) return json({ error: "Choisissez une ville" }, 400);
-      const nom = clean(body.nom, 80);
-      const contact = clean(body.contact, 30);
-      if (nom.length < 3 || contact.replace(/\D/g, "").length < 8) return json({ error: "Indiquez votre nom et prénom et votre numéro de téléphone" }, 400);
-      const pending = (await sql`
-        SELECT COUNT(*) AS n FROM starvibe_keydou_requests WHERE account_id = ${accountId} AND statut = 'en_attente_paiement'
-      `) as { n: string }[];
-      if (Number(pending[0]?.n) >= MAX_ATTENTE) {
-        return json({ error: "Trop de demandes en attente de paiement. Règle ou attends la confirmation des précédentes." }, 429);
-      }
-      const details = JSON.stringify({ nom, contact, ville });
-      const rows = (await sql`
-        INSERT INTO starvibe_keydou_requests (account_id, service, ville, demande_vocale, montant_attendu, details)
-        VALUES (${accountId}, ${services.join(",")}, ${ville}, ${clean(body.demandeVocale, 300)}, ${MONTANT}, ${details}::jsonb)
-        RETURNING *
-      `) as Row[];
-      await logEvent(sql, accountId, "demande", `${nom} · ${contact}`, services.join(","), ville, rows[0].id);
-      return json({ demande: toApi(rows[0]) }, 201);
+      const res = await creerDemande(sql, accountId, body, session.org === GUEST_ORG);
+      return json(res.body, res.status);
     }
 
     // Contacts spontanés (ouverture, paroles, choix) : enregistrés pour le suivi en direct.
@@ -638,7 +679,7 @@ export default async (req: Request, _context: Context) => {
       `;
       await logEvent(sql, accountId, "paiement_declare", clean(body.reference, 200), own[0].service, own[0].ville, requestId);
       if (own[0].statut === "en_attente_paiement") {
-        const who = (await sql`SELECT a.telephone, p.nom FROM starvibe_accounts a LEFT JOIN starvibe_profiles p ON p.account_id = a.id AND p.type_profil = 'personnel' WHERE a.id = ${accountId}`) as { telephone: string; nom: string | null }[];
+        const who = (await sql`SELECT COALESCE(NULLIF(a.guest_tel, ''), a.telephone) AS telephone, COALESCE(NULLIF(a.guest_nom, ''), p.nom) AS nom FROM starvibe_accounts a LEFT JOIN starvibe_profiles p ON p.account_id = a.id AND p.type_profil = 'personnel' WHERE a.id = ${accountId}`) as { telephone: string; nom: string | null }[];
         await demanderValidation(sql, "keydou", requestId, `Valider le dépôt de ${own[0].montant_attendu} FCFA ?`,
           `${who[0]?.nom || "Un client"} (${numero || who[0]?.telephone}) dit avoir payé pour « ${labelOf(own[0].service)} » — réf. KDU-${requestId}. Vérifie ton MTN Money.`);
       }
@@ -675,7 +716,7 @@ export default async (req: Request, _context: Context) => {
   // --- Adresses complètes (avec numéros) : uniquement après paiement confirmé ---
   if (url.searchParams.get("resultats") === "1") {
     const session = await requireAuth(req);
-    if (!session || session.org !== ORG) return json({ error: "Non authentifié" }, 401);
+    if (!session || (session.org !== ORG && session.org !== GUEST_ORG)) return json({ error: "Non authentifié" }, 401);
     const id = Number(url.searchParams.get("requestId"));
     const own = (await sql`
       SELECT * FROM starvibe_keydou_requests WHERE id = ${id} AND account_id = ${Number(session.sub)} LIMIT 1
@@ -699,7 +740,7 @@ export default async (req: Request, _context: Context) => {
 
   // --- Statut d'une demande (le client attend la validation de son paiement) ---
   const session = await requireAuth(req);
-  if (!session || session.org !== ORG) return json({ error: "Non authentifié" }, 401);
+  if (!session || (session.org !== ORG && session.org !== GUEST_ORG)) return json({ error: "Non authentifié" }, 401);
   const id = Number(url.searchParams.get("id"));
   if (!id) return json({ error: "id requis" }, 400);
   const rows = (await sql`

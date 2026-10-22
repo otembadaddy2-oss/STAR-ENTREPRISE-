@@ -209,7 +209,6 @@
 </head>
 <body>
 <div id="loadingState" class="state">Keydou arrive…</div>
-<div id="loggedOutState" class="state" hidden>Connecte-toi pour parler à Keydou.<br><br><a href="inscription.html">Se connecter / Créer un compte</a></div>
 
 <div id="appState" hidden>
   <div class="topbar">
@@ -290,8 +289,12 @@
 (function(){
   var API = '/api/starvibe-keydou';
   var AUTH = '/api/starvibe-auth';
-  var token = localStorage.getItem('starvibe_token');
   var $ = function(id){ return document.getElementById(id); };
+  // Pas besoin de compte KOMYO : un client peut parler à Keydou avec juste son nom, son téléphone et sa ville.
+  var komyoToken = localStorage.getItem('starvibe_token') || '';
+  var token = komyoToken || localStorage.getItem('keydou_guest_token') || '';
+  var outbox = [];
+  var HOME = komyoToken ? 'accueil.html' : 'index.html';
 
   var MAX = 3;
   var VILLES = [['Brazzaville','Brazzaville'],['Pointe-Noire','Pointe-Noire'],['Dolisie','Dolisie'],['Nkayi','Nkayi'],['Oyo','Oyo'],['Ouesso','Ouesso'],['Autres','Autres villes et routes (RN1, RN2)']];
@@ -328,18 +331,21 @@
   var PHRASE = { hotel:"un hôtel ou une résidence", restaurant:"une table au restaurant", patisserie:"une boulangerie ou une pâtisserie", cafe:"un rendez-vous dans un café", coiffure:"un salon de coiffure ou de beauté", spa:"un salon de spa", sport:"une salle de sport", voiture:"la location d'un véhicule", vente_auto:"l'achat ou la vente d'une voiture", mecanique:"un garage, un dépannage ou un remorquage", station:"une station-service", voyage:"une agence de voyages ou un billet", mariage:"une salle de mariage ou de réception", evenement:"une agence événementielle", bureau:"un bureau ou un espace de coworking", tourisme:"une agence de tourisme ou un parc naturel", enfants:"un parc ou des loisirs pour enfants", banque:"une banque", supermarche:"un supermarché" };
   var VPHRASE = { 'Brazzaville':'à Brazzaville','Pointe-Noire':'à Pointe-Noire','Dolisie':'à Dolisie','Nkayi':'à Nkayi','Oyo':'à Oyo','Ouesso':'à Ouesso','Autres':'dans les petites villes et sur les routes' };
 
-  if (!token){ $('loadingState').hidden = true; $('loggedOutState').hidden = false; return; }
   function authFetch(url, opts){
     opts = opts || {};
-    opts.headers = Object.assign({}, opts.headers, { 'Authorization': 'Bearer ' + token });
+    opts.headers = Object.assign({}, opts.headers, token ? { 'Authorization': 'Bearer ' + token } : {});
     return fetch(url, opts);
   }
   function post(body){
     return authFetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) })
-      .then(function(r){ return r.json().then(function(d){ return { ok:r.ok, data:d }; }); });
+      .then(function(r){ return r.json().then(function(d){ return { ok:r.ok, status:r.status, data:d }; }); });
   }
   var current = null;
-  function track(type, texte, service, ville){ post({ action:'evenement', type:type, texte:texte||'', service:service||'', ville:ville||'', requestId: current ? Number(current.id) : 0 }).catch(function(){}); }
+  // Avant l'inscription, ce que dit le client est gardé et envoyé avec ses coordonnées.
+  function track(type, texte, service, ville){
+    if (!token){ if (outbox.length < 25) outbox.push({ type:type, texte:texte||'', service:service||'', ville:ville||'' }); return; }
+    post({ action:'evenement', type:type, texte:texte||'', service:service||'', ville:ville||'', requestId: current ? Number(current.id) : 0 }).catch(function(){});
+  }
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
   function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
   function norm(t){ return String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9\- ]/g,' ').replace(/\s+/g,' ').trim(); }
@@ -531,12 +537,22 @@
     if (tel.replace(/\D/g,'').length < 8){ err.textContent = 'Écrivez votre numéro de téléphone.'; err.hidden = false; $('fTel').focus(); return; }
     if (!picked.length){ err.textContent = 'Cochez au moins un besoin dans la liste, ou dites-le à Keydou.'; err.hidden = false; return; }
     var btn = this; btn.disabled = true; btn.textContent = 'Un instant…';
-    post({ action:'demande', nom:nom, contact:tel, ville:ville, services:picked, demandeVocale:lastSaid }).then(function(res){
+    var data = { nom:nom, contact:tel, ville:ville, services:picked, demandeVocale:lastSaid };
+    function fail(msg){ btn.disabled = false; btn.textContent = 'Valider et payer 1 000 FCFA'; err.textContent = msg; err.hidden = false; }
+    function done(res){
+      if (res.data.token){ token = res.data.token; try{ localStorage.setItem('keydou_guest_token', token); }catch(e){} }
       btn.disabled = false; btn.textContent = 'Valider et payer 1 000 FCFA';
-      if (!res.ok){ err.textContent = res.data.error || 'Impossible de créer la demande.'; err.hidden = false; return; }
       current = res.data.demande; track('choix_ville', ville, picked.join(','), ville);
       showPay(nom, tel);
-    }).catch(function(){ btn.disabled = false; btn.textContent = 'Valider et payer 1 000 FCFA'; err.textContent = 'Connexion impossible, réessayez.'; err.hidden = false; });
+    }
+    function asGuest(){ return post(Object.assign({ action:'guest_start', events:outbox.splice(0, 25) }, data)); }
+    (token ? post(Object.assign({ action:'demande' }, data)) : asGuest()).then(function(res){
+      if (res.status === 401 && token){ token = ''; try{ localStorage.removeItem('keydou_guest_token'); localStorage.removeItem('starvibe_token'); }catch(e){} return asGuest(); }
+      return res;
+    }).then(function(res){
+      if (!res.ok) return fail(res.data.error || 'Impossible de créer la demande.');
+      done(res);
+    }).catch(function(){ fail('Connexion impossible, réessayez.'); });
   });
 
   /* ------------------------------------------------------------------
@@ -745,7 +761,7 @@
     function bindCalls(){ r.querySelectorAll('a.call').forEach(function(a){ a.onclick = function(){ track('appel_lieu', a.getAttribute('data-n'), current.service, current.ville); }; }); }
     bindCalls();
     $('btnFin').addEventListener('click', function(){
-      r.innerHTML = '<div class="okbox"><div class="big">Merci pour votre visite !</div><p>À bientôt chez KOMYO.</p><a class="btn main" href="accueil.html" style="display:inline-block;text-decoration:none">Retour à mon espace</a></div>';
+      r.innerHTML = '<div class="okbox"><div class="big">Merci pour votre visite !</div><p>À bientôt chez KOMYO.</p><a class="btn main" href="' + HOME + '" style="display:inline-block;text-decoration:none">' + (komyoToken ? 'Retour à mon espace' : 'Retour à KOMYO') + '</a></div>';
       speak('bye', TXT.bye).then(function(){ setState('idle'); });
     });
   }
@@ -806,16 +822,20 @@
   /* ------------------------------------------------------------------
      Démarrage
   ------------------------------------------------------------------ */
-  authFetch(AUTH).then(function(r){ if (!r.ok){ localStorage.removeItem('starvibe_token'); $('loadingState').hidden = true; $('loggedOutState').hidden = false; return null; } return r.json(); })
-  .then(function(me){
-    if (!me) return;
+  function boot(me){
     $('loadingState').hidden = true; $('appState').hidden = false;
+    if (!me){ var bk = document.querySelector('a.back'); if (bk){ bk.href = 'index.html'; bk.textContent = '← KOMYO'; } HOME = 'index.html'; }
     try{
-      var pf = (me.profiles || []).filter(function(x){ return x.type_profil === 'personnel' || x.typeProfil === 'personnel'; })[0] || (me.profiles || [])[0];
-      if (pf && pf.nom) $('fNom').value = pf.nom;
-      if (me.account && me.account.telephone) $('fTel').value = me.account.telephone;
-      if (me.account && me.account.ville){ var vv = VILLES.filter(function(v){ return v[0].toLowerCase() === String(me.account.ville).toLowerCase(); })[0]; if (vv) $('fVille').value = vv[0]; }
+      if (me){
+        var pf = (me.profiles || []).filter(function(x){ return x.type_profil === 'personnel' || x.typeProfil === 'personnel'; })[0] || (me.profiles || [])[0];
+        if (pf && pf.nom) $('fNom').value = pf.nom;
+        if (me.account && me.account.telephone) $('fTel').value = me.account.telephone;
+        if (me.account && me.account.ville){ var vv = VILLES.filter(function(v){ return v[0].toLowerCase() === String(me.account.ville).toLowerCase(); })[0]; if (vv) $('fVille').value = vv[0]; }
+      } else {
+        $('fNom').value = localStorage.getItem('keydou_nom') || ''; $('fTel').value = localStorage.getItem('keydou_tel') || ''; var kv = localStorage.getItem('keydou_ville'); if (kv) $('fVille').value = kv;
+      }
     }catch(e){}
+    $('btnValider').addEventListener('click', function(){ try{ localStorage.setItem('keydou_nom', $('fNom').value); localStorage.setItem('keydou_tel', $('fTel').value); localStorage.setItem('keydou_ville', $('fVille').value); }catch(e){} }, true);
     track('ouverture');
     setState('dance'); say("Touchez l'écran pour que je vous dise bonjour !");
     var started = false;
@@ -829,7 +849,13 @@
     var p = aud.play();
     if (p && p.then){ p.then(function(){ aud.pause(); aud.currentTime = 0; hello(); }).catch(function(){ document.addEventListener('pointerdown', hello, true); }); }
     else document.addEventListener('pointerdown', hello, true);
-  }).catch(function(){ $('loadingState').hidden = true; $('loggedOutState').hidden = false; });
+  }
+  if (komyoToken){
+    fetch(AUTH, { headers:{ 'Authorization':'Bearer ' + komyoToken } }).then(function(r){
+      if (r.ok) return r.json();
+      localStorage.removeItem('starvibe_token'); token = localStorage.getItem('keydou_guest_token') || ''; return null;
+    }).then(boot).catch(function(){ boot(null); });
+  } else boot(null);
 })();
 </script>
 <script src="assets/bulle-komyo.js" defer></script>
