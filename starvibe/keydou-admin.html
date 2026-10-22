@@ -124,6 +124,7 @@
   <div class="tabs">
     <button class="tab on" id="tabClients">Fichier clients (Excel)</button>
     <button class="tab" id="tabSubs">Abonnés (app installée)</button>
+    <button class="tab" id="tabPins">PIN oubliés <span id="pinBadge" class="pill warn" hidden style="margin-left:4px"></span></button>
     <button class="tab" id="tabContacts">Contacts en direct</button>
     <button class="tab" id="tabAnnuaire">Annuaire de Keydou</button>
     <button class="tab" id="tabPhone">Mon téléphone (validation)</button>
@@ -163,6 +164,33 @@
     </div>
     <div class="tablewrap"><table style="min-width:980px"><thead><tr><th>N°</th><th>Date</th><th>Heure</th><th>Nom et prénom</th><th>Téléphone</th><th>Ville</th><th>Appareil</th><th>Navigateur</th><th>Origine</th><th>Ouvertures</th><th>Dernière ouverture</th></tr></thead><tbody id="sRows"></tbody></table></div>
     <p class="muted" style="margin-top:10px">Une ligne = un appareil où KOMYO est installée. Le nom et le numéro apparaissent dès que la personne se connecte à KOMYO ou écrit ses coordonnées à Keydou ; « Pas encore identifié » = installée, mais personne n'est encore connecté dessus.</p>
+  </div>
+
+  <!-- PIN OUBLIÉS : réinitialisation assistée des membres KOMYO -->
+  <div id="panePins" hidden>
+    <div class="formcard" style="margin-bottom:12px">
+      <b>Comment ça marche</b>
+      <ol class="muted" style="margin:8px 0 0;padding-left:20px;line-height:1.6">
+        <li>Un membre qui a oublié son PIN fait une demande depuis KOMYO (numéro + nom).</li>
+        <li><b>Vérifie que c'est bien lui</b> : compare le nom indiqué avec le profil KOMYO et la ville, ou appelle-le.</li>
+        <li>Touche <b>« Générer le code »</b> : un code à 6 chiffres s'affiche <b>une seule fois</b>. Envoie-le-lui par <b>WhatsApp</b> (le bouton prépare le message).</li>
+        <li>Il saisit le code et choisit son nouveau PIN (4 ou 5 chiffres). Le code vaut 24 h, 5 essais.</li>
+      </ol>
+    </div>
+    <div class="muted" id="pRefresh" style="margin-bottom:8px"></div>
+    <div class="tablewrap"><table style="min-width:900px"><thead><tr><th>N°</th><th>Date</th><th>Heure</th><th>Téléphone</th><th>Nom indiqué</th><th>Profil KOMYO</th><th>Ville</th><th>Statut</th><th>Actions</th></tr></thead><tbody id="pRows"></tbody></table></div>
+  </div>
+
+  <div id="pinModal" hidden style="position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:16px">
+    <div class="login-card" style="margin:0;max-width:440px;width:100%">
+      <h2>Code temporaire</h2>
+      <p>À envoyer à <b id="pinModalTel"></b>. Il ne sera plus affiché ensuite.</p>
+      <div class="secours" id="pinModalCode"></div>
+      <div class="bar" style="margin-top:12px">
+        <a class="btn ok" id="pinModalWa" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block">Envoyer par WhatsApp</a>
+        <button class="btn" id="pinModalClose" type="button">Fermer</button>
+      </div>
+    </div>
   </div>
 
   <!-- CONTACTS -->
@@ -258,7 +286,7 @@
 
   /* ---------- connexion ---------- */
   function showLogin(){ $('loginView').hidden = false; $('mainView').hidden = true; clearInterval(timer); }
-  function showMain(){ $('loginView').hidden = true; $('mainView').hidden = false; loadClients(true); loadContacts(true); loadSubs(true); loadAnnuaire(); clearInterval(timer); timer = setInterval(function(){ if (!$('paneClients').hidden) loadClients(false); if (!$('paneContacts').hidden) loadContacts(false); if (!$('paneSubs').hidden) loadSubs(false); }, 6000); }
+  function showMain(){ $('loginView').hidden = true; $('mainView').hidden = false; loadClients(true); loadContacts(true); loadSubs(true); loadPins(true); loadAnnuaire(); clearInterval(timer); timer = setInterval(function(){ if (!$('paneClients').hidden) loadClients(false); if (!$('paneContacts').hidden) loadContacts(false); if (!$('paneSubs').hidden) loadSubs(false); loadPins(false); }, 6000); }
   var timer = null;
   var API_ACCES = '/api/staff-acces';
   function showErr(id, msg){ var e = $(id); e.textContent = msg; e.classList.add('show'); }
@@ -330,11 +358,12 @@
   });
   $('btnLogout').addEventListener('click', function(){ setToken(''); showLogin(); });
   function tab(name){
-    ['Clients','Subs','Contacts','Annuaire','Phone'].forEach(function(n){ $('tab' + n).classList.toggle('on', n === name); $('pane' + n).hidden = (n !== name); });
+    ['Clients','Subs','Pins','Contacts','Annuaire','Phone'].forEach(function(n){ $('tab' + n).classList.toggle('on', n === name); $('pane' + n).hidden = (n !== name); });
     if (name === 'Phone') loadPhone();
   }
   $('tabClients').addEventListener('click', function(){ tab('Clients'); });
   $('tabSubs').addEventListener('click', function(){ tab('Subs'); loadSubs(false); });
+  $('tabPins').addEventListener('click', function(){ tab('Pins'); loadPins(false); });
   $('tabContacts').addEventListener('click', function(){ tab('Contacts'); });
   $('tabAnnuaire').addEventListener('click', function(){ tab('Annuaire'); });
   $('tabPhone').addEventListener('click', function(){ tab('Phone'); });
@@ -501,6 +530,52 @@
   }
   $('btnSExcel').addEventListener('click', function(){ excelSubs(false); });
   $('btnSExcelDay').addEventListener('click', function(){ excelSubs(true); });
+
+
+  /* ---------- PIN oubliés : réinitialisation assistée des membres ---------- */
+  var API_MEMBRES = '/api/starvibe-auth', pins = [], seenP = {};
+  var STATUT_PIN = { en_attente:'À traiter', code_envoye:'Code généré', termine:'Terminé ✓', refuse:'Refusé', expire:'Expiré' };
+  function waNum(t){ var d = String(t || '').replace(/\D/g, ''); if (d.length === 9 && d.charAt(0) === '0') d = '242' + d; return d; }
+  function loadPins(first){
+    authFetch(API_MEMBRES + '?pin_requests=1').then(function(r){ if (r.status === 403){ return null; } return r.json(); }).then(function(d){
+      if (!d || !d.demandes) return;
+      var fresh = {};
+      d.demandes.forEach(function(c){ if (!first && !seenP[c.id]) fresh[c.id] = true; seenP[c.id] = true; });
+      pins = d.demandes; renderPins(fresh);
+    }).catch(function(){});
+  }
+  function renderPins(fresh){
+    var nAtt = pins.filter(function(c){ return c.statut === 'en_attente'; }).length;
+    var bd = $('pinBadge'); bd.hidden = !nAtt; bd.textContent = nAtt;
+    $('pRows').innerHTML = pins.map(function(c){
+      var p = dateParts(c.date), cls = c.statut === 'termine' ? 'pay' : (c.statut === 'en_attente' ? 'warn' : '');
+      var actions = '';
+      if (c.statut === 'en_attente' || c.statut === 'code_envoye' || c.statut === 'expire') actions += '<button class="btn ok" data-gen="' + esc(c.id) + '">' + (c.statut === 'en_attente' ? 'Générer le code' : 'Nouveau code') + '</button> ';
+      if (c.statut === 'en_attente' || c.statut === 'code_envoye') actions += '<button class="btn del" data-ref="' + esc(c.id) + '">Refuser</button>';
+      return '<tr class="' + (fresh && fresh[c.id] ? 'new' : '') + '"><td>' + esc(c.id) + '</td><td>' + p.date + '</td><td>' + p.heure + '</td><td><b>' + esc(c.telephone) + '</b></td><td>' + esc(c.nomIndique || '—') + '</td><td>' + esc(c.profil || '—') + '</td><td>' + esc(c.ville || '') + '</td><td><span class="pill ' + cls + '">' + esc(STATUT_PIN[c.statut] || c.statut) + '</span></td><td>' + actions + '</td></tr>';
+    }).join('') || '<tr><td colspan="9" class="muted" style="padding:22px;text-align:center">Aucune demande. Quand un membre oublie son PIN et en fait la demande, elle apparaît ici (et ton téléphone reçoit une notification).</td></tr>';
+    var t = new Date(); $('pRefresh').textContent = 'Mis à jour à ' + pad(t.getHours()) + ':' + pad(t.getMinutes()) + ':' + pad(t.getSeconds()) + ' — automatique.';
+    $('pRows').querySelectorAll('[data-gen]').forEach(function(b){ b.addEventListener('click', function(){ genererPin(b.getAttribute('data-gen'), b); }); });
+    $('pRows').querySelectorAll('[data-ref]').forEach(function(b){ b.addEventListener('click', function(){
+      if (!window.confirm('Refuser cette demande ?')) return;
+      post2({ action:'pin_refuser', requestId:Number(b.getAttribute('data-ref')) }).then(function(){ loadPins(false); });
+    }); });
+  }
+  function post2(body){ return authFetch(API_MEMBRES, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) }).then(function(r){ return r.json().then(function(d){ return { ok:r.ok, data:d }; }); }); }
+  function genererPin(id, btn){
+    var c = pins.filter(function(x){ return x.id === id; })[0] || {};
+    if (!window.confirm('As-tu vérifié que c\'est bien ' + (c.profil || c.nomIndique || 'le membre') + ' (' + (c.telephone || '') + ') ?\nUn code temporaire va être généré.')) return;
+    btn.disabled = true;
+    post2({ action:'pin_code', requestId:Number(id) }).then(function(res){
+      btn.disabled = false;
+      if (!res.ok){ window.alert(res.data.error || 'Impossible de générer le code.'); return; }
+      $('pinModalTel').textContent = res.data.telephone; $('pinModalCode').textContent = res.data.code;
+      var msg = 'Bonjour, voici ton code temporaire KOMYO : ' + res.data.code + ' (valable 24 h). Ouvre KOMYO, touche « Se connecter » puis « Code PIN oublié ? », saisis ton numéro, ce code et ton nouveau PIN (4 ou 5 chiffres). Ne le partage avec personne.';
+      $('pinModalWa').href = 'https://wa.me/' + waNum(res.data.telephone) + '?text=' + encodeURIComponent(msg);
+      $('pinModal').hidden = false; loadPins(false);
+    });
+  }
+  $('pinModalClose').addEventListener('click', function(){ $('pinModal').hidden = true; $('pinModalCode').textContent = ''; });
 
   $('btnCExcel').addEventListener('click', function(){ excelClients(false); });
   $('btnCExcelDay').addEventListener('click', function(){ excelClients(true); });

@@ -523,6 +523,23 @@ export async function ensureSchema() {
     )
   `;
 
+  // Code PIN oublié par un membre KOMYO : le membre fait une demande, le staff vérifie son identité puis
+  // génère un code temporaire (haché, 24 h, 5 essais) qu'il lui envoie par WhatsApp.
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_pin_resets (
+      id SERIAL PRIMARY KEY,
+      account_id INTEGER NOT NULL,
+      telephone TEXT NOT NULL DEFAULT '',
+      nom_indique TEXT NOT NULL DEFAULT '',
+      statut TEXT NOT NULL DEFAULT 'en_attente',
+      code_hash TEXT NOT NULL DEFAULT '',
+      code_expire TIMESTAMPTZ,
+      tries INTEGER NOT NULL DEFAULT 0,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
   await sql`
     CREATE TABLE IF NOT EXISTS jardis_log (
       id SERIAL PRIMARY KEY,
