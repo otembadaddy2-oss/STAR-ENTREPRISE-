@@ -611,6 +611,7 @@
     setState('think'); say('Je réfléchis…');
     return sleep(1500 + Math.random()*700).then(function(){ setState('idle'); });
   }
+  var llmOn = true, histo = [];
   function answerFor(text){
     if (busy){ pendingText = text; return; }
     busy = true;
@@ -619,15 +620,45 @@
     track('parole', text);
     think().then(function(){
       if (wantsSos(text)){ release(); return openSos(); }
-      var svcs = matchServices(text), v = detectVille(text);
-      if (stage === 'askville' && v && !svcs.length){ intent.ville = v; return confirmIntent(); }
-      if (svcs.length){ intent.services = svcs; if (v) intent.ville = v; return confirmIntent(); }
-      if (v && intent.services.length){ intent.ville = v; return confirmIntent(); }
-      var st = smalltalk(text);
-      if (st) return speak(st, TXT[st]).then(function(){ release(); });
-      if (intent.services.length && wantsNumbers(text)) return speak('nopay', TXT.nopay).then(function(){ release(); });
-      return speak('noanswer', TXT.noanswer).then(function(){ release(); });
+      if (llmOn) return cerveau(text);
+      return localAnswer(text);
     });
+  }
+  // Compréhension simple, intégrée à la page (utilisée si le « cerveau » de Keydou n'est pas disponible)
+  function localAnswer(text){
+    var svcs = matchServices(text), v = detectVille(text);
+    if (stage === 'askville' && v && !svcs.length){ intent.ville = v; return confirmIntent(); }
+    if (svcs.length){ intent.services = svcs; if (v) intent.ville = v; return confirmIntent(); }
+    if (v && intent.services.length){ intent.ville = v; return confirmIntent(); }
+    var st = smalltalk(text);
+    if (st) return speak(st, TXT[st]).then(function(){ release(); });
+    if (intent.services.length && wantsNumbers(text)) return speak('nopay', TXT.nopay).then(function(){ release(); });
+    return speak('noanswer', TXT.noanswer).then(function(){ release(); });
+  }
+  // Le « cerveau » : Keydou comprend toute question. Il ne donne jamais de coordonnées avant paiement (le serveur ne les lui transmet pas).
+  function cerveau(text){
+    return post({ action:'chat', message:text, history:histo, etat:{ services:picked, ville:$('fVille').value } }).then(function(res){
+      if (!res.ok || !res.data || res.data.fallback || !res.data.reponse){ llmOn = false; return localAnswer(text); }
+      var d = res.data;
+      histo.push({ role:'user', text:text }); histo.push({ role:'keydou', text:d.reponse }); histo = histo.slice(-8);
+      if (d.sos) openSos();
+      var svcs = d.services || [];
+      if (svcs.length){
+        intent.services = svcs; if (d.ville) intent.ville = d.ville;
+        picked = svcs.slice(0, MAX); syncChecks();
+        if (intent.ville) $('fVille').value = intent.ville;
+        track('choix_service', text, picked.join(','), intent.ville);
+        stage = intent.ville ? 'ready' : 'askville'; $('villeAsk').hidden = !!intent.ville;
+      } else if (d.ville && intent.services.length){ intent.ville = d.ville; $('fVille').value = d.ville; stage = 'ready'; $('villeAsk').hidden = true; }
+      return speakSeq([], d.reponse).then(function(){
+        release();
+        if (stage === 'ready' && intent.services.length && !d.sos){
+          setState('wave'); setTimeout(function(){ if (state === 'wave') setState('idle'); }, 1800);
+          $('stepForm').scrollIntoView({ behavior:'smooth', block:'start' });
+          setTimeout(function(){ window.scrollBy(0, window.innerWidth <= 760 ? -150 : -12); }, 500);
+        }
+      });
+    }).catch(function(){ llmOn = false; return localAnswer(text); });
   }
   function confirmIntent(){
     picked = intent.services.slice(0, MAX); syncChecks();
