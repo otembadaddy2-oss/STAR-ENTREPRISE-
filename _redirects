@@ -8,3 +8,13 @@ http://komyo.starentreprise.com/   /starvibe/  301!
 /komyo   /starvibe/   301
 /keydou  /starvibe/keydou.html  302
 /installer  /starvibe/installer.html  302
+
+# Fichiers du dépôt qui n'ont pas à être publics (code des fonctions, outils, notes internes, annuaires de Keydou) : introuvables.
+/netlify/*        /404.html  404!
+/tools/*          /404.html  404!
+/node_modules/*   /404.html  404!
+/package.json       /404.html  404!
+/package-lock.json  /404.html  404!
+/docs/*.md        /404.html  404!
+/docs/pioupiou/*  /404.html  404!
+/docs/keydou/*    /404.html  404!
