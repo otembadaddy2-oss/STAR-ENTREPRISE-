@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>X SAPHIR ARENA</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="description" content="X SAPHIR ARENA — le jeu de combat 2D dessiné à l'encre de l'univers X SAPHIR. Coups spéciaux, supers, 1 ou 2 joueurs, téléphone, tablette et ordinateur.">
+<meta name="theme-color" content="#05030a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="X SAPHIR ARENA">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="robots" content="noindex">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/arena.css?v=1">
+</head>
+<body>
+<div id="app">
+  <canvas id="cv" width="960" height="540"></canvas>
+  <div id="touch"></div>
+  <button id="hud-btn" type="button" aria-label="Pause">❚❚</button>
+  <div id="hint"></div>
+
+  <section id="scr-title" class="scr shade"></section>
+  <section id="scr-menu" class="scr shade"></section>
+  <section id="scr-select" class="scr shade2"></section>
+  <section id="scr-stage" class="scr shade2"></section>
+  <section id="scr-moves" class="scr shade2"></section>
+  <section id="scr-options" class="scr shade2"></section>
+  <section id="scr-pause" class="scr shade2"></section>
+  <section id="scr-result" class="scr shade2 result"></section>
+</div>
+<div id="rotate"><i>📱</i><div id="rotate-t">Tourne ton téléphone en mode paysage</div></div>
+
+<script src="js/data.js?v=1"></script>
+<script src="js/core.js?v=1"></script>
+<script src="js/ai.js?v=1"></script>
+<script src="js/stage.js?v=1"></script>
+<script src="js/draw.js?v=1"></script>
+<script src="js/fx.js?v=1"></script>
+<script src="js/render.js?v=1"></script>
+<script src="js/audio.js?v=1"></script>
+<script src="js/input.js?v=1"></script>
+<script src="js/main.js?v=1"></script>
+</body>
+</html>

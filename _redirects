@@ -18,3 +18,5 @@ http://komyo.starentreprise.com/   /starvibe/  301!
 /docs/*.md        /404.html  404!
 /docs/pioupiou/*  /404.html  404!
 /docs/keydou/*    /404.html  404!
+/docs/film/*       /404.html  404!
+/arena/tests/*    /404.html  404!
