@@ -193,6 +193,16 @@ export default async (req: Request, _context: Context) => {
     if (!session || session.org !== ORG) return json({ error: "Non authentifié" }, 401);
     const accountId = Number(session.sub);
 
+    if (action === "rappel_vu") {
+      const quoi = clean(body.type, 10);
+      if (quoi === "bientot") {
+        await sql`UPDATE starvibe_subscriptions SET rappel_j3_at = now() WHERE account_id = ${accountId} AND statut = 'actif' AND montant_attendu > 0 AND rappel_j3_at IS NULL`;
+      } else if (quoi === "expire") {
+        await sql`UPDATE starvibe_subscriptions SET rappel_fin_at = now() WHERE account_id = ${accountId} AND statut = 'actif' AND montant_attendu > 0 AND rappel_fin_at IS NULL`;
+      } else return json({ error: "Type inconnu" }, 400);
+      return json({ ok: true });
+    }
+
     if (action === "choisir_plan") {
       const plan = clean(body.plan, 20);
       if (!PLANS[plan]) return json({ error: "Plan inconnu" }, 400);
@@ -218,6 +228,25 @@ export default async (req: Request, _context: Context) => {
   const session = await requireAuth(req);
   if (!session || session.org !== ORG) return json({ error: "Non authentifié" }, 401);
   const accountId = Number(session.sub);
+
+  // --- Rappel d'échéance : 3 jours avant la fin, puis à la fin (une seule fois chacun) ---
+  if (url.searchParams.get("rappel") === "1") {
+    const r = (await sql`
+      SELECT id, plan, expires_at, rappel_j3_at, rappel_fin_at,
+             CEIL(EXTRACT(EPOCH FROM (expires_at - now())) / 86400)::int AS jours,
+             (expires_at <= now()) AS fini
+      FROM starvibe_subscriptions
+      WHERE account_id = ${accountId} AND statut = 'actif' AND montant_attendu > 0 AND expires_at IS NOT NULL
+      ORDER BY expires_at DESC LIMIT 1
+    `) as { id: number; plan: string; expires_at: string; rappel_j3_at: string | null; rappel_fin_at: string | null; jours: number; fini: boolean }[];
+    const a = r[0];
+    if (!a) return json({ rappel: null });
+    const nom = (await sql`SELECT nom FROM starvibe_profiles WHERE account_id = ${accountId} AND type_profil = 'personnel' ORDER BY id LIMIT 1`) as { nom: string }[];
+    const base = { nom: nom[0]?.nom || "", plan: a.plan, planLabel: PLANS[a.plan]?.label || a.plan, expiresAt: a.expires_at };
+    if (!a.fini && a.jours <= 3 && !a.rappel_j3_at) return json({ rappel: { ...base, type: "bientot", jours: Math.max(1, a.jours) } });
+    if (a.fini && !a.rappel_fin_at && Date.now() - new Date(a.expires_at).getTime() < 7 * 86400000) return json({ rappel: { ...base, type: "expire", jours: 0 } });
+    return json({ rappel: null });
+  }
 
   const rows = (await sql`
     SELECT * FROM starvibe_subscriptions WHERE account_id = ${accountId} ORDER BY id DESC LIMIT 1

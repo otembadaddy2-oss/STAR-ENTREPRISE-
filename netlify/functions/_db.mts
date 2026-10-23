@@ -483,6 +483,10 @@ export async function ensureSchema() {
     )
   `;
 
+  // Rappels d'échéance : un message 3 jours avant la fin, un autre à la fin (une seule fois chacun)
+  await sql`ALTER TABLE starvibe_subscriptions ADD COLUMN IF NOT EXISTS rappel_j3_at TIMESTAMPTZ`;
+  await sql`ALTER TABLE starvibe_subscriptions ADD COLUMN IF NOT EXISTS rappel_fin_at TIMESTAMPTZ`;
+
   // Installations de l'application KOMYO (suivi des abonnés, en direct dans le backend).
   // Une ligne par appareil : install_id est tiré au hasard par l'appareil lui-même.
   // Aucun identifiant publicitaire ni adresse IP en clair : seulement un hachage de l'IP
