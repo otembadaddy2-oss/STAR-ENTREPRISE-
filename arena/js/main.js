@@ -84,6 +84,54 @@
   if (('ontouchstart' in window) || (window.matchMedia && matchMedia('(pointer:coarse)').matches)) touchMode = true;
   window.addEventListener('touchstart', function () { touchMode = true; updateTouchVisible(); }, { passive: true });
 
+
+  // ---------- chargement : 3 billes d'énergie (jaune, blanc, bleu saphir) qui tournent les unes autour des autres ----------
+  var Loader = (function () {
+    var box = $('loader'), cv2 = $('loader-cv'), x = cv2.getContext('2d'), W2 = 168, on = false, raf = 0, t0 = 0, until = 0, hideT = 0;
+    var COL = [['255,211,74', '#ffd34a'], ['255,255,255', '#ffffff'], ['58,140,255', '#3a8cff']];
+    // chaque figure : A et B = rayons des deux cercles emboîtés, a1 et a2 = leurs vitesses, e = aplatissement, tilt = inclinaison, ph = écart entre billes
+    var P = [
+      { A: 40, B: 0, a1: 2.2, a2: 0, e: 1, tilt: 0, ph: 2.094 },        // les trois tournent en rond
+      { A: 24, B: 20, a1: 1.6, a2: -4.2, e: 1, tilt: 0, ph: 2.094 },    // elles tournent aussi les unes autour des autres
+      { A: 38, B: 14, a1: 2.8, a2: 5.6, e: 0.45, tilt: 0.7, ph: 2.094 },// ellipse inclinée
+      { A: 30, B: 26, a1: -2.0, a2: 3.0, e: 0.8, tilt: 0, ph: 0.9 },    // spirale serrée
+      { A: 12, B: 36, a1: 3.4, a2: -1.2, e: 1, tilt: 0.3, ph: 2.094 },  // grande orbite lente, petites orbites rapides
+      { A: 13, B: 9, a1: 3.6, a2: -5.4, e: 1, tilt: 0, ph: 2.094 },     // grappe serrée qui tourbillonne
+      { A: 44, B: 0, a1: 1.3, a2: 0, e: 0.18, tilt: -0.5, ph: 3.14 }    // elles s'alignent et se croisent
+    ];
+    var cur = JSON.parse(JSON.stringify(P[0])), tgt = 0, nextChange = 0, trail = [[], [], []];
+    function lerp(a, b, k) { return a + (b - a) * k; }
+    function frame(ts) {
+      raf = requestAnimationFrame(frame); if (!t0) { t0 = ts; nextChange = ts + 1700; }
+      var t = (ts - t0) / 1000;
+      if (ts > nextChange) { tgt = (tgt + 1 + Math.floor(Math.random() * 3)) % P.length; nextChange = ts + 1700 + Math.random() * 900; }
+      for (var k in cur) cur[k] = lerp(cur[k], P[tgt][k], 0.045);   // glissement doux d'une figure à la suivante
+      x.globalCompositeOperation = 'source-over'; x.clearRect(0, 0, W2, W2);
+      var cx = W2 / 2, cy = W2 / 2, pos = [];
+      for (var i = 0; i < 3; i++) {
+        var ph = i * cur.ph, a1 = t * cur.a1 + ph, a2 = t * cur.a2 + ph * 2;
+        var px = Math.cos(a1) * cur.A + Math.cos(a2) * cur.B, py = (Math.sin(a1) * cur.A + Math.sin(a2) * cur.B) * cur.e;
+        var c = Math.cos(cur.tilt), s = Math.sin(cur.tilt); pos.push([cx + px * c - py * s, cy + px * s + py * c]);
+        var tr = trail[i]; tr.push(pos[i]); if (tr.length > 16) tr.shift();
+      }
+      x.globalCompositeOperation = 'lighter';
+      for (i = 0; i < 3; i++) {
+        var tr2 = trail[i];
+        for (var j = 0; j < tr2.length; j++) { var f = j / tr2.length, r = 2 + f * 5; var g = x.createRadialGradient(tr2[j][0], tr2[j][1], 0, tr2[j][0], tr2[j][1], r * 2.2); g.addColorStop(0, 'rgba(' + COL[i][0] + ',' + (f * 0.45) + ')'); g.addColorStop(1, 'rgba(' + COL[i][0] + ',0)'); x.fillStyle = g; x.beginPath(); x.arc(tr2[j][0], tr2[j][1], r * 2.2, 0, 6.3); x.fill(); }
+        var p = pos[i], pulse = 1 + Math.sin(t * 6 + i * 2) * 0.12, R = 11.5 * pulse;
+        var gg = x.createRadialGradient(p[0], p[1], 0, p[0], p[1], R * 3.2); gg.addColorStop(0, 'rgba(' + COL[i][0] + ',0.9)'); gg.addColorStop(0.35, 'rgba(' + COL[i][0] + ',0.35)'); gg.addColorStop(1, 'rgba(' + COL[i][0] + ',0)'); x.fillStyle = gg; x.beginPath(); x.arc(p[0], p[1], R * 3.2, 0, 6.3); x.fill();
+        x.fillStyle = '#fff'; x.beginPath(); x.arc(p[0], p[1], R * 0.42, 0, 6.3); x.fill();
+        x.fillStyle = COL[i][1]; x.globalAlpha = 0.9; x.beginPath(); x.arc(p[0], p[1], R * 0.78, 0, 6.3); x.fill(); x.globalAlpha = 1;
+        x.fillStyle = '#fff'; x.beginPath(); x.arc(p[0], p[1], R * 0.4, 0, 6.3); x.fill();
+      }
+      if (until && ts > until && !pendingHold) hide();
+    }
+    var pendingHold = 0;
+    function show(ms) { $('loader-t').textContent = S.lang === 'en' ? 'LOADING' : 'CHARGEMENT'; box.classList.add('on'); clearTimeout(hideT); until = performance.now() + (ms || 0); if (!on) { on = true; t0 = 0; trail = [[], [], []]; raf = requestAnimationFrame(frame); } if (!ms) until = 0; }
+    function hide() { box.classList.remove('on'); clearTimeout(hideT); hideT = setTimeout(function () { if (!box.classList.contains('on')) { cancelAnimationFrame(raf); on = false; } }, 500); until = 0; }
+    return { show: show, hide: hide };
+  })();
+
   // ---------- mise en page ----------
   function fit() {
     var vw = window.innerWidth, vh = window.innerHeight, w = Math.min(vw, vh * 16 / 9), h = w * 9 / 16;
@@ -255,7 +303,7 @@
     input.solo = G.mode !== 'vs2';
     R.setStage(G.stage); R.reset(G.match); R.hudOn = true; R.showInputs = G.mode === 'training' && !!G.training.showIn; R.lang = S.lang;
     G.screen = 'fight'; G.paused = false; G.over = 0; G.acc = 0; G.vacc = 0; touch.reset(); hideAll(); updateTouchVisible(); fit();
-    audio.playMusic(G.stage); G.demoOn = false;
+    audio.playMusic(G.stage); G.demoOn = false; Loader.show(1500);
     G.resultShown = false;
     if (touchMode && !G.hinted) { G.hinted = true; var h = $('hint'); h.textContent = t('hint'); h.classList.remove('on'); void h.offsetWidth; h.classList.add('on'); }
   }
@@ -415,6 +463,10 @@
 
   // ---------- démarrage ----------
   applySettings(); fit(); G.screen = 'title'; renderTitle(); requestAnimationFrame(frame);
+  // chargement réel au démarrage : les 4 portraits des héros
+  Loader.show(0); var pending = Data.order.length, shownAt = performance.now();
+  function imgDone() { if (--pending === 0) { var rest = Math.max(0, 1800 - (performance.now() - shownAt)); setTimeout(function () { Loader.hide(); }, rest); } }
+  Data.order.forEach(function (id) { var im = art[id]; if (im.complete) imgDone(); else { im.onload = imgDone; im.onerror = imgDone; } });
   if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(function () { /* hors ligne non disponible */ });
   window.__arena = { G: G, S: S, R: R, startFight: startFight, renderMenu: renderMenu, renderSelect: renderSelect, renderStage: renderStage, renderMoves: renderMoves, renderOptions: renderOptions, showPause: showPause, audio: audio };
 })();
