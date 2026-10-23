@@ -52,8 +52,8 @@ Ce sont des références de forme, de couleur et d'ambiance ; ne pas reproduire 
 ## Consigne de Carry (23 oct.) — carton final
 En bas de l'image, à la toute fin : **« Télécharge KOMYO » + le nom du domaine `komyo.starentreprise.com`** (texte net, ajouté en post, jamais dessiné par l'IA).
 
-## État au 24 oct. 2026 — version 1 montée (30,75 s, 9:16)
-- Fichier : `assets/video/pub-komyo-monde/pub-komyo-monde-v1-720p.mp4` (la version 1080p fait 48 Mo, gardée hors dépôt).
+## État au 24 oct. 2026 — version 2 montée (bon logo officiel : `assets/img/pub/komyo-logo-or-monde.png`) (30,75 s, 9:16)
+- Fichier : `assets/video/pub-komyo-monde/pub-komyo-monde-v2-720p.mp4` (la version 1080p fait 48 Mo, gardée hors dépôt).
 - 10 plans animés avec Kling 2.5 turbo pro (image → vidéo) ; Clémence : image extraite du spot officiel, haut recoloré en bleu STAR, décor salon STAR ENTREPRISE.
 - Voix : seule la réplique de Nadège a été générée (ElevenLabs, quota épuisé : 9 crédits restants sur 10 000) ; fin = enregistrement officiel de Clémence `starvibe/assets/audio/komyo-intro-voix-monde-v1.mp3`.
 - Musique synthétisée (piano électrique, basse, balais, vibraphone), sons d'appel / eau / glaçons, aucun droit à payer.
