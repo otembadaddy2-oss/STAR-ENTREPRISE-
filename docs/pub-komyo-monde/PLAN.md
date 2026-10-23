@@ -41,3 +41,10 @@ Mouvements de caméra : plongée centrée, zoom dans le téléphone / sortie du 
 - Images clés : 10 plans × 3 essais ≈ 3 $
 - Vidéos : 10 plans × 2 essais × 0,35 $ ≈ 7 $ (+ 3–4 plans difficiles : ≈ 2 $)
 - Total génération ≈ 12 $ sur 38,95 $ ; reste ≈ 27 $ pour X SAPHIR / PIOUPIOU.
+
+## Références fournies par Carry (dossier `references/`)
+- `telephone-orange.jpg` : smartphone orange cuivré, écran sombre à reflets orange → couleur de marque KOMYO, pour le téléphone de Nadège (sans logo de marque).
+- `telephone-argent.jpg` : smartphone titane clair → téléphones d'Angel, Foel, Messie, Sita.
+- `telecommande-noire.jpg` : télécommande noire → plan 6 (Foel) ; logo Higgsfield ajouté en post, sans le logo d'origine.
+- `salon-tele-led-rouge.jpg` : salon noir et blanc, meuble TV avec LED rouges → décor du salon de Foel (Canada).
+Ce sont des références de forme, de couleur et d'ambiance ; ne pas reproduire de logos de marques existantes (ex. pomme sur le téléphone).
