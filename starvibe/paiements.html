@@ -79,6 +79,9 @@
   <div class="topbar" style="margin-top:26px"><div><h1>Demandes Keydou</h1><div class="tag">1 000 FCFA par service</div></div><a href="keydou-admin.html" class="logout" style="text-decoration:none">Suivi en direct + Excel →</a></div>
   <div id="kdList"></div>
   <div class="empty" id="kdEmpty" hidden>Aucune demande Keydou en cours.</div>
+  <div class="topbar" style="margin-top:26px"><div><h1>Annonces KOMYO</h1><div class="tag">2 semaines 4 000 FCFA · 1 mois 10 000 FCFA — lis le message avant de confirmer</div></div></div>
+  <div id="pubList"></div>
+  <div class="empty" id="pubEmpty" hidden>Aucune annonce en attente.</div>
 </div>
 
 <script>
@@ -232,8 +235,43 @@
     });
   }
 
+  // Annonces KOMYO : relire le message, puis confirmer le paiement (montant exact) ou refuser
+  var API_PUB = '/api/starvibe-pub';
+  function pubItem(d){
+    var item = document.createElement('div'); item.className = 'item';
+    item.innerHTML =
+      '<div class="top"><div class="plan">' + esc(d.planLabel) + ' · ' + esc(d.categorie) + '</div><div class="amount">' + d.montantAttendu.toLocaleString('fr-FR') + ' FCFA</div></div>' +
+      '<div class="meta" style="font-size:15px;color:#fff"><b>« ' + esc(d.texte) + ' »</b></div>' +
+      '<div class="meta"><b>' + esc(d.auteur) + '</b> — ' + esc(d.telephone) + ' — réf. ' + esc(d.referencePaiement) + (d.lien ? '<br>Lien : ' + esc(d.lien) : '') + '</div>' +
+      '<div class="confirm-row"><input type="number" placeholder="Montant reçu (FCFA)" data-m><button data-ok>Confirmer et publier</button><button data-no style="background:#5a2a2a">Refuser</button></div><div class="itemerr"></div>';
+    var err = item.querySelector('.itemerr');
+    item.querySelector('[data-ok]').addEventListener('click', function(){
+      var m = Number(item.querySelector('[data-m]').value);
+      if (!m){ err.textContent = 'Indique le montant reçu.'; err.classList.add('show'); return; }
+      item.classList.add('processing');
+      authFetch(API_PUB, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'confirmer', pubId:d.id, montantRecu:m, reference:d.referencePaiement }) }).then(function(r){ return r.json(); }).then(function(res){
+        item.classList.remove('processing');
+        if (res.statut !== 'actif'){ err.textContent = res.message || res.error || 'Montant incorrect : annonce non activée.'; err.classList.add('show'); return; }
+        loadPub();
+      });
+    });
+    item.querySelector('[data-no]').addEventListener('click', function(){
+      var motif = prompt('Motif du refus (visible par la personne) :', 'Message non conforme') || ''; if (!motif) return;
+      item.classList.add('processing');
+      authFetch(API_PUB, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'refuser', pubId:d.id, motif:motif }) }).then(function(){ loadPub(); });
+    });
+    return item;
+  }
+  function loadPub(){
+    authFetch(API_PUB + '?admin=1').then(function(r){ return r.status === 403 ? null : r.json(); }).then(function(data){
+      var box = document.getElementById('pubList'); box.innerHTML = ''; if (!data) return;
+      var a = data.annonces || []; document.getElementById('pubEmpty').hidden = a.length > 0;
+      a.forEach(function(d){ box.appendChild(pubItem(d)); });
+    });
+  }
+
   function loadQueue(){
-    loadKd();
+    loadKd(); loadPub();
     authFetch(API_SUB + '?admin=1').then(function(res){
       if (res.status === 403){ setToken(''); showLogin(); return null; }
       return res.json();

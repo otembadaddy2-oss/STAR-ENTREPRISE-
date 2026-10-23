@@ -436,3 +436,26 @@ I18N.add({
   "Connecte-toi à KOMYO pour utiliser Myo.": "Log in to KOMYO to use Myo."
 });
 I18N.pat([[/^Vous êtes amis avec (.+) ✓$/, "You are now friends with $1 ✓"]]);
+add({
+  "Répondre": "Reply", "Créateur": "Creator", "Masquer les réponses ▴": "Hide replies ▴",
+  "te demande ton": "is asking for your", "KABA+ · PARTAGE DE CONTACT": "KABA+ · CONTACT SHARING", "KABA+ · CONTACT REÇU": "KABA+ · CONTACT RECEIVED",
+  "✓ Partager": "✓ Share", "Demande refusée.": "Request declined.", "Garder cette adresse pour la prochaine fois": "Keep this address for next time",
+  "Écris ton adresse e-mail.": "Enter your email address.", "Écris ton numéro.": "Enter your number.", "Écris une adresse e-mail valide.": "Enter a valid email address.",
+  "Écris un numéro valide, avec l'indicatif du pays.": "Enter a valid number, with the country code.", "Connexion interrompue.": "Connection lost.",
+  "Ouvrir": "Open", "Copier": "Copy", "Copié ✓": "Copied ✓", "OK": "OK", "Demander son :": "Ask for their:", "Demande envoyée ✓": "Request sent ✓",
+  "Aucun contact partagé pour l'instant.": "No shared contacts yet.", "Contacts": "Contacts",
+  "KOMYO — Faire connaître mon annonce": "KOMYO — Promote my announcement", "Fais connaître ta musique, ton événement ou ton activité": "Promote your music, event or business",
+  "Ton message défile en bas de l'écran de tous les abonnés connectés, en même temps, quelques secondes à chaque passage.": "Your message scrolls at the bottom of every connected member's screen, at the same time, for a few seconds each pass.",
+  "Ton message": "Your message", "ANNONCE": "AD", "Ton message apparaîtra ici…": "Your message will appear here…", "Type d'annonce": "Ad type",
+  "🎵 Musique (nouveau titre, album, concert)": "🎵 Music (new track, album, concert)", "🎉 Événement": "🎉 Event", "🛍️ Boutique / activité": "🛍️ Shop / business", "✨ Autre": "✨ Other",
+  "facultatif": "optional", "Nulle part (message seul)": "Nowhere (message only)", "L'espace Musique de KOMYO": "KOMYO's Music space", "L'espace Business de KOMYO": "KOMYO's Business space", "L'espace Talents de KOMYO": "KOMYO's Talents space",
+  "Mon lien (https://…)": "My link (https://…)", "Durée": "Duration", "2 semaines": "2 weeks", "1 mois": "1 month", "Continuer vers le paiement": "Continue to payment",
+  "Créer une autre annonce": "Create another ad", "Mes annonces": "My ads", "Aucune annonce pour le moment.": "No ads yet.", "Référence": "Reference", "Montant exact": "Exact amount",
+  "Dépôt Mobile Money au": "Mobile Money deposit to", "En attente de paiement": "Awaiting payment", "Terminée": "Ended", "Montant reçu incorrect": "Incorrect amount received",
+  "Écris un message d'au moins 6 caractères.": "Write a message of at least 6 characters.", "Le lien doit commencer par https://": "The link must start with https://"
+});
+I18N.pat([
+  [/^(.+) te demande ton (Gmail|WhatsApp)\.$/, "$1 is asking for your $2."], [/^(Gmail|WhatsApp) partagé avec (.+) ✓$/, "$1 shared with $2 ✓"],
+  [/^(.+) t'a partagé son (Gmail|WhatsApp)\.$/, "$1 shared their $2 with you."], [/^Afficher 1 réponse ▾$/, "Show 1 reply ▾"], [/^Afficher (\d+) réponses ▾$/, "Show $1 replies ▾"],
+  [/^Répondre à (.+)…$/, "Reply to $1…"], [/^Paiement de (.+) FCFA$/, "Payment of $1 FCFA"], [/^Active jusqu'au (.+)$/, "Active until $1"]
+]);

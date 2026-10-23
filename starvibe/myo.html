@@ -35,6 +35,7 @@
   .search:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(232,169,61,.2);}
   .empty{text-align:center;color:var(--dim);font-size:14px;padding:26px 10px;line-height:1.5;}
   .note{font-size:12px;color:var(--dim);margin:12px 0;line-height:1.45;}
+  .kaba-choix{display:flex;align-items:center;gap:8px;margin:-4px 0 10px;padding:8px 12px;font-size:12.5px;color:var(--dim);background:#fffaf0;border:1px dashed var(--line);border-radius:12px;}
   .err{background:#fdecea;color:#b3261e;border:1px solid #f3c2bd;border-radius:10px;padding:9px 12px;font-size:13px;margin-bottom:10px;}
 </style>
 </head>
@@ -43,7 +44,7 @@
 <div class="wrap">
   <div id="out" class="empty" hidden>Connecte-toi à KOMYO pour utiliser Myo.<br><a href="inscription.html" style="color:var(--coral);font-weight:700">Se connecter / Créer un compte</a></div>
   <div id="app" hidden>
-    <div class="tabs"><button data-t="amis" class="on">Amis</button><button data-t="recues">Invitations <span class="badge" data-myo-count hidden></span></button><button data-t="chercher">Chercher</button></div>
+    <div class="tabs"><button data-t="amis" class="on">Amis</button><button data-t="recues">Invitations <span class="badge" data-myo-count hidden></span></button><button data-t="contacts">Contacts</button><button data-t="chercher">Chercher</button></div>
     <div id="err" class="err" hidden></div>
     <div id="list"></div>
   </div>
@@ -66,7 +67,7 @@
   function amis(){
     get('?amis=1').then(function(d){
       var a = d.amis || [];
-      list.innerHTML = a.length ? a.map(function(p){ return '<div class="item">' + av(p) + '<div class="nm">' + esc(p.nom) + '<small>Ami · vous vous suivez</small></div><button class="b no" data-retirer="' + p.profilId + '">Retirer</button></div>'; }).join('') :
+      list.innerHTML = a.length ? a.map(function(p){ return '<div class="item">' + av(p) + '<div class="nm">' + esc(p.nom) + '<small>Ami · vous vous suivez</small></div><button class="b inv" data-kaba="' + p.profilId + '">Kaba+</button><button class="b no" data-retirer="' + p.profilId + '">Retirer</button></div><div class="kaba-choix" id="kc-' + p.profilId + '" hidden><span>Demander son :</span><button class="b inv" data-kt="gmail" data-p="' + p.profilId + '">Gmail</button><button class="b inv" data-kt="whatsapp" data-p="' + p.profilId + '">WhatsApp</button></div>'; }).join('') :
         '<div class="empty">Tu n\'as pas encore d\'amis sur Myo.<br>Va dans « Chercher » ou touche « Inviter » sur le fil.</div>';
     });
   }
@@ -75,6 +76,14 @@
       var a = d.invitations || [];
       list.innerHTML = a.length ? a.map(function(i){ return '<div class="item">' + av(i.de) + '<div class="nm">' + esc(i.de.nom) + '<small>t\'invite à devenir ami</small></div><button class="b yes" data-rep="oui" data-id="' + i.id + '">Oui</button><button class="b no" data-rep="non" data-id="' + i.id + '">Non</button></div>'; }).join('') :
         '<div class="empty">Aucune invitation en attente.</div>';
+    });
+  }
+  function lien(c){ return c.type === 'gmail' ? 'mailto:' + c.valeur : 'https://wa.me/' + String(c.valeur).replace(/[^0-9]/g, ''); }
+  function contacts(){
+    get('?contacts=1').then(function(d){
+      var a = d.contacts || [];
+      list.innerHTML = a.length ? a.map(function(c){ return '<div class="item">' + av(c.de) + '<div class="nm">' + esc(c.de.nom) + '<small>' + (c.type === 'gmail' ? 'Gmail' : 'WhatsApp') + ' : ' + esc(c.valeur) + '</small></div><a class="b yes" style="text-decoration:none" target="_blank" rel="noopener" href="' + esc(lien(c)) + '">Ouvrir</a><button class="b no" data-copy="' + esc(c.valeur) + '">Copier</button></div>'; }).join('') :
+        '<div class="empty">Aucun contact partagé pour l\'instant.<br>Dans « Amis », touche <b>Kaba+</b> à côté d\'un ami pour lui demander son Gmail ou son WhatsApp. Il choisit de partager ou non.</div>';
     });
   }
   function bouton(p){
@@ -93,15 +102,18 @@
     }, 350); });
     q.focus();
   }
-  function voir(){ erreur(''); if (tab === 'amis') amis(); else if (tab === 'recues') recues(); else chercher(); }
+  function voir(){ erreur(''); if (tab === 'amis') amis(); else if (tab === 'recues') recues(); else if (tab === 'contacts') contacts(); else chercher(); }
   [].forEach.call(document.querySelectorAll('.tabs button'), function(b){ b.addEventListener('click', function(){ tab = b.getAttribute('data-t'); [].forEach.call(document.querySelectorAll('.tabs button'), function(x){ x.classList.toggle('on', x === b); }); voir(); }); });
   list.addEventListener('click', function(e){
     var b = e.target.closest('button'); if (!b) return;
     if (b.hasAttribute('data-rep')){ b.disabled = true; window.komyoMyo.api({ body: { action: 'repondre', id: Number(b.getAttribute('data-id')), reponse: b.getAttribute('data-rep') } }).then(function(r){ return r.json(); }).then(function(d){ if (d.error) erreur(d.error); window.komyoMyo.verifier(); voir(); }); }
     else if (b.hasAttribute('data-inv')){ b.disabled = true; window.komyoMyo.inviter(b.getAttribute('data-inv')).then(function(r){ if (!r.ok){ erreur(r.d.error || 'Invitation impossible.'); b.disabled = false; return; } erreur(''); b.className = 'b off'; b.textContent = r.d.etat === 'amis' ? 'Amis ✓' : 'Envoyée'; }); }
+    else if (b.hasAttribute('data-kaba')){ var box = document.getElementById('kc-' + b.getAttribute('data-kaba')); if (box) box.hidden = !box.hidden; }
+    else if (b.hasAttribute('data-kt')){ b.disabled = true; window.komyoMyo.api({ body: { action: 'kaba_demander', profilId: Number(b.getAttribute('data-p')), type: b.getAttribute('data-kt') } }).then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); }).then(function(res){ b.disabled = false; if (!res.ok){ erreur(res.d.error || 'Demande impossible.'); return; } erreur(''); var box = document.getElementById('kc-' + b.getAttribute('data-p')); box.innerHTML = '<span>' + (res.d.etat === 'recu' ? 'Tu as déjà reçu ce contact (voir Contacts).' : 'Demande envoyée ✓ Ton ami la verra tout de suite.') + '</span>'; }); }
+    else if (b.hasAttribute('data-copy')){ try { navigator.clipboard.writeText(b.getAttribute('data-copy')); b.textContent = 'Copié ✓'; } catch (x) {} }
     else if (b.hasAttribute('data-retirer')){ if (!confirm('Retirer cette personne de tes amis ?')) return; b.disabled = true; window.komyoMyo.api({ body: { action: 'retirer', profilId: Number(b.getAttribute('data-retirer')) } }).then(function(){ voir(); }); }
   });
-  if (/[?&]onglet=(recues|chercher)/.test(location.search)){ tab = RegExp.$1; [].forEach.call(document.querySelectorAll('.tabs button'), function(x){ x.classList.toggle('on', x.getAttribute('data-t') === tab); }); }
+  if (/[?&]onglet=(recues|chercher|contacts)/.test(location.search)){ tab = RegExp.$1; [].forEach.call(document.querySelectorAll('.tabs button'), function(x){ x.classList.toggle('on', x.getAttribute('data-t') === tab); }); }
   setTimeout(voir, 50);
 })();
 </script>

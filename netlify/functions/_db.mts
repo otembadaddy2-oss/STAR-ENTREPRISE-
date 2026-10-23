@@ -442,6 +442,9 @@ export async function ensureSchema() {
     )
   `;
 
+  // Réponses aux commentaires (un seul niveau : une réponse à une réponse se range sous le commentaire d'origine)
+  await sql`ALTER TABLE starvibe_comments ADD COLUMN IF NOT EXISTS parent_id INTEGER REFERENCES starvibe_comments(id) ON DELETE CASCADE`;
+
   // Statistiques de visionnage réelles (durée + % regardé), pour donner aux
   // créateurs KOMYO une vraie analyse — pas qu'un compteur qui monte comme
   // sur la plupart des apps vidéo grand public.
@@ -567,6 +570,44 @@ export async function ensureSchema() {
     )
   `;
   await sql`CREATE INDEX IF NOT EXISTS starvibe_myo_vers_idx ON starvibe_myo (vers_account, statut)`;
+
+  // KABA+ : partage de contact (Gmail ou WhatsApp) entre amis Myo adultes, uniquement avec l'accord de la personne
+  await sql`ALTER TABLE starvibe_accounts ADD COLUMN IF NOT EXISTS contact_gmail TEXT NOT NULL DEFAULT ''`;
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_kaba (
+      id SERIAL PRIMARY KEY,
+      de_account INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      vers_account INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      type TEXT NOT NULL,
+      statut TEXT NOT NULL DEFAULT 'en_attente',
+      valeur TEXT NOT NULL DEFAULT '',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      repondu_at TIMESTAMPTZ,
+      vu_at TIMESTAMPTZ
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_kaba_vers_idx ON starvibe_kaba (vers_account, statut)`;
+
+  // ANNONCES : message qui défile chez tous les abonnés pendant une durée payée (2 semaines ou 1 mois)
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_pub (
+      id SERIAL PRIMARY KEY,
+      account_id INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      texte TEXT NOT NULL,
+      lien TEXT NOT NULL DEFAULT '',
+      categorie TEXT NOT NULL DEFAULT 'autre',
+      plan TEXT NOT NULL,
+      jours INTEGER NOT NULL,
+      montant_attendu INTEGER NOT NULL,
+      montant_recu INTEGER,
+      reference_transaction TEXT NOT NULL DEFAULT '',
+      statut TEXT NOT NULL DEFAULT 'en_attente_paiement',
+      refus_motif TEXT NOT NULL DEFAULT '',
+      started_at TIMESTAMPTZ,
+      expires_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
 
   // ÉCLAT (le direct de KOMYO) : liste d'attente en attendant le vrai direct
   await sql`

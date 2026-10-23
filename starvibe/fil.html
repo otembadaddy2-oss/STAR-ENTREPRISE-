@@ -78,6 +78,15 @@
   .comments-panel{background:#17101f;color:#fff;width:100%;max-width:480px;margin:0 auto;border-radius:20px 20px 0 0;
     max-height:72vh;display:flex;flex-direction:column;animation:slideUp .3s ease both;}
   .comments-panel h2{font-size:14.5px;margin:0;padding:16px 18px 10px;border-bottom:1px solid rgba(255,255,255,.1);}
+  .comment-row .body{flex:1;min-width:0;}
+  .comment-row .crea{font-style:normal;font:800 9.5px 'Sora',sans-serif;color:#0a1030;background:linear-gradient(135deg,#7fe3ff,#e8a93d);padding:1px 6px;border-radius:999px;margin-left:6px;vertical-align:middle;}
+  .comment-row .c-actions{display:flex;gap:14px;align-items:center;margin-top:4px;font-size:11.5px;color:rgba(255,255,255,.55);}
+  .comment-row .c-actions button{background:none;border:none;color:inherit;font:700 11.5px 'Inter',sans-serif;padding:0;cursor:pointer;}
+  .replies{margin:8px 0 0 0;padding-left:14px;border-left:2px solid rgba(255,255,255,.12);display:none;flex-direction:column;gap:12px;}
+  .replies.open{display:flex;}
+  .reply-chip{display:none;align-items:center;justify-content:space-between;gap:8px;font-size:12px;padding:6px 14px;color:rgba(255,255,255,.8);background:rgba(255,255,255,.08);}
+  .reply-chip.show{display:flex;}
+  .reply-chip button{background:none;border:none;color:#fff;font-size:16px;cursor:pointer;}
   .comments-list{flex:1;overflow-y:auto;padding:10px 16px;display:flex;flex-direction:column;gap:14px;}
   .comment-row{display:flex;gap:10px;align-items:flex-start;}
   .comment-row .avatar{flex:none;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--coral),var(--gold));
@@ -191,7 +200,7 @@
     <div style="display:flex;align-items:center;gap:10px"><a class="eclat-btn" href="eclat.html" aria-label="ÉCLAT, le direct de KOMYO"><i></i>ÉCLAT</a><button data-komyo-messages hidden></button><a class="home" href="accueil.html">Mon espace</a></div>
   </div>
   <nav class="espaces" id="espaces" aria-label="Espaces KOMYO">
-    <a href="fil.html" data-e="">Tous</a><a href="fil.html?espace=talents" data-e="talents">Talents</a><a href="fil.html?espace=business" data-e="business">Business</a><a href="fil.html?espace=decouverte" data-e="decouverte">Découverte</a>
+    <a href="fil.html" data-e="">Tous</a><a href="fil.html?espace=talents" data-e="talents">Talents</a><a href="fil.html?espace=business" data-e="business">Business</a><a href="fil.html?espace=musique" data-e="musique">Musique</a><a href="fil.html?espace=decouverte" data-e="decouverte">Découverte</a>
   </nav>
   <div class="esp-intro" id="espIntro" hidden></div>
   <div class="feed" id="feed"></div>
@@ -208,6 +217,7 @@
   <div class="comments-panel">
     <h2>Commentaires</h2>
     <div class="comments-list" id="commentsList"></div>
+    <div class="reply-chip" id="replyChip"><span id="replyTxt"></span><button type="button" id="replyCancel" aria-label="Annuler la réponse">✕</button></div>
     <div class="comment-form">
       <input type="text" id="commentInput" placeholder="Ajouter un commentaire..." maxlength="300">
       <button id="btnSendComment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
@@ -442,6 +452,7 @@
   var ESPACES = {
     talents: { nom: 'KOMYO Talents', intro: 'Montre ton talent au monde : chant, danse, cuisine, métier, sport, art, humour…', vide: 'Aucun talent publié pour le moment.<br>Sois le premier à te montrer !' },
     business: { nom: 'KOMYO Business', intro: 'Présente ton activité : produit, service, boutique. Écris dans la légende comment te contacter.', vide: 'Aucune activité publiée pour le moment.<br>Présente la tienne !' },
+    musique: { nom: 'KOMYO Musique', intro: 'Clips, sons, nouveautés : artistes, DJ, chanteurs, groupes… fais écouter ta musique.', vide: 'Aucune musique publiée pour le moment.<br>Sois le premier à jouer !' },
     decouverte: { nom: 'KOMYO Découverte', intro: 'Fais découvrir ton pays, ta ville, ta culture, tes plus beaux endroits.', vide: 'Aucune découverte publiée pour le moment.<br>Montre-nous ton coin du monde !' }
   };
   var ESPACE = (function(){ var m = /[?&]espace=([a-z]+)/.exec(location.search); return m && ESPACES[m[1]] ? m[1] : ''; })();
@@ -490,25 +501,60 @@
   var currentCommentVideoId = null;
   var currentCommentSlide = null;
 
-  function commentRowHTML(c){
-    return '<div class="comment-row">' + avatarCircle(c.auteur, 32, c.photoUrl) +
-      '<div class="body"><b>' + esc(c.auteur) + '</b><span>' + esc(c.texte) + '</span></div></div>';
+  var replyTo = null;                              // { id, auteur } quand on répond à un commentaire
+  var replyChip = document.getElementById('replyChip'), replyTxt = document.getElementById('replyTxt');
+  function setReply(r){
+    replyTo = r;
+    replyChip.classList.toggle('show', !!r);
+    replyTxt.textContent = r ? 'Réponse à ' + r.auteur : '';
+    commentInput.placeholder = r ? 'Répondre à ' + r.auteur + '…' : 'Ajouter un commentaire...';
+    if (r) commentInput.focus();
   }
+  document.getElementById('replyCancel').addEventListener('click', function(){ setReply(null); });
+
+  function commentRowHTML(c, nbRep){
+    var crea = c.estCreateur ? '<em class="crea">Créateur</em>' : '';
+    var isTop = !c.parentId;
+    return '<div class="comment-block" data-id="' + esc(c.id) + '"><div class="comment-row">' + avatarCircle(c.auteur, 32, c.photoUrl) +
+      '<div class="body"><b>' + esc(c.auteur) + crea + '</b><span>' + esc(c.texte) + '</span>' +
+      '<div class="c-actions"><button type="button" class="c-reply" data-id="' + esc(c.id) + '" data-auteur="' + esc(c.auteur) + '">Répondre</button>' +
+      (isTop ? '<button type="button" class="c-show" data-id="' + esc(c.id) + '"' + (nbRep ? '' : ' hidden') + '>Afficher ' + (nbRep || 0) + ' réponse' + (nbRep > 1 ? 's' : '') + ' ▾</button>' : '') + '</div>' +
+      (isTop ? '<div class="replies" data-parent="' + esc(c.id) + '"></div>' : '') +
+      '</div></div></div>';
+  }
+
+  // les réponses se rangent sous leur commentaire (plus ancienne en premier)
+  function afficherCommentaires(list){
+    var tops = list.filter(function(c){ return !c.parentId; });
+    var reps = {}; list.filter(function(c){ return c.parentId; }).reverse().forEach(function(c){ (reps[c.parentId] = reps[c.parentId] || []).push(c); });
+    commentsList.innerHTML = tops.length
+      ? tops.map(function(c){ return commentRowHTML(c, (reps[c.id] || []).length); }).join('')
+      : '<div class="comments-empty">Aucun commentaire pour l\'instant.<br>Sois le premier !</div>';
+    tops.forEach(function(c){
+      var box = commentsList.querySelector('.replies[data-parent="' + c.id + '"]');
+      if (box) box.innerHTML = (reps[c.id] || []).map(function(r){ return commentRowHTML(r, 0); }).join('');
+    });
+  }
+
+  commentsList.addEventListener('click', function(e){
+    var r = e.target.closest('.c-reply'); var sh = e.target.closest('.c-show');
+    if (r){ setReply({ id: r.getAttribute('data-id'), auteur: r.getAttribute('data-auteur') }); return; }
+    if (sh){
+      var box = commentsList.querySelector('.replies[data-parent="' + sh.getAttribute('data-id') + '"]');
+      var open = box.classList.toggle('open'); var n = box.children.length;
+      sh.textContent = open ? 'Masquer les réponses ▴' : 'Afficher ' + n + ' réponse' + (n > 1 ? 's' : '') + ' ▾';
+    }
+  });
 
   function openComments(videoId, slide){
     currentCommentVideoId = videoId;
     currentCommentSlide = slide;
-    commentInput.value = '';
+    commentInput.value = ''; setReply(null);
     commentsList.innerHTML = '<div class="comments-empty">Chargement…</div>';
     commentsSheet.hidden = false;
     authFetch(API_VIDEOS + '?commentaires=1&videoId=' + videoId)
       .then(function(res){ return res.json(); })
-      .then(function(data){
-        var list = data.commentaires || [];
-        commentsList.innerHTML = list.length
-          ? list.map(commentRowHTML).join('')
-          : '<div class="comments-empty">Aucun commentaire pour l\'instant.<br>Sois le premier !</div>';
-      })
+      .then(function(data){ afficherCommentaires(data.commentaires || []); })
       .catch(function(){ commentsList.innerHTML = '<div class="comments-empty">Impossible de charger les commentaires.</div>'; });
   }
 
@@ -520,16 +566,27 @@
     var texte = commentInput.value.trim();
     if (!texte || !currentCommentVideoId || !personalProfileId) return;
     btnSendComment.disabled = true;
+    var parent = replyTo ? Number(replyTo.id) : 0;
     authFetch(API_VIDEOS, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'commenter', videoId: Number(currentCommentVideoId), profileId: personalProfileId, texte: texte })
+      body: JSON.stringify({ action: 'commenter', videoId: Number(currentCommentVideoId), profileId: personalProfileId, texte: texte, parentId: parent || undefined })
     }).then(function(res){ return res.json(); }).then(function(data){
       btnSendComment.disabled = false;
       if (!data.comment) return;
       commentInput.value = '';
       var empty = commentsList.querySelector('.comments-empty');
       if (empty) empty.remove();
-      commentsList.insertAdjacentHTML('afterbegin', commentRowHTML(data.comment));
+      if (data.comment.parentId){
+        var box = commentsList.querySelector('.replies[data-parent="' + data.comment.parentId + '"]');
+        if (box){
+          box.insertAdjacentHTML('beforeend', commentRowHTML(data.comment, 0)); box.classList.add('open');
+          var show = commentsList.querySelector('.c-show[data-id="' + data.comment.parentId + '"]'); var n = box.children.length;
+          if (show){ show.hidden = false; show.textContent = 'Masquer les réponses ▴'; }
+        }
+      } else {
+        commentsList.insertAdjacentHTML('afterbegin', commentRowHTML(data.comment, 0));
+      }
+      setReply(null);
       if (currentCommentSlide){
         currentCommentSlide.querySelector('.comment-btn .count').textContent = data.commentaires;
       }
@@ -770,6 +827,7 @@
 </script>
 <script src="assets/bulle-komyo.js" defer></script>
 <script src="assets/myo-v1.js" defer></script>
+<script src="assets/pub-v1.js" defer></script>
 <script src="assets/keydou-bulle-v1.js" defer></script>
 <script src="assets/komyo-installer-v4.js" defer></script>
 </body>

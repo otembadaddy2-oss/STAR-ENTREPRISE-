@@ -21,7 +21,7 @@ const MAX_VIDEO_BYTES = 40_000_000; // 40 Mo — court format vertical
 // Une fonction Netlify n'accepte pas plus de ~6 Mo par requête : la vidéo arrive donc en morceaux de 3 Mo,
 // puis la publication les rassemble (14 morceaux de 3 Mo ≥ 40 Mo).
 const CHUNK_MAX = 4_500_000;
-const ESPACES_OUVERTS = ["talents", "business", "decouverte"];
+const ESPACES_OUVERTS = ["talents", "business", "decouverte", "musique"];
 const MAX_CHUNKS = 14;
 const UPLOAD_ID_RE = /^[a-z0-9]{10,24}$/;
 
@@ -322,6 +322,7 @@ export default async (req: Request, _context: Context) => {
       const videoId = Number(earlyBody.videoId);
       const profileId = Number(earlyBody.profileId);
       const texte = clean(earlyBody.texte, 300);
+      let parentId = Number(earlyBody.parentId) || 0;
       if (!videoId || !profileId || !texte) {
         return json({ error: "videoId, profileId et texte requis" }, 400);
       }
@@ -332,9 +333,16 @@ export default async (req: Request, _context: Context) => {
       const profile = profRows[0];
       if (!profile) return json({ error: "Profil introuvable" }, 404);
 
+      // réponse à un commentaire : le parent doit exister sur la même vidéo ; une réponse à une réponse se range sous le commentaire d'origine
+      if (parentId) {
+        const par = (await sql`SELECT id, parent_id FROM starvibe_comments WHERE id = ${parentId} AND video_id = ${videoId} LIMIT 1`) as { id: number; parent_id: number | null }[];
+        if (!par[0]) return json({ error: "Commentaire introuvable" }, 404);
+        parentId = par[0].parent_id || par[0].id;
+      }
+
       const rows = (await sql`
-        INSERT INTO starvibe_comments (video_id, account_id, profile_id, texte)
-        VALUES (${videoId}, ${accountId}, ${profileId}, ${texte})
+        INSERT INTO starvibe_comments (video_id, account_id, profile_id, texte, parent_id)
+        VALUES (${videoId}, ${accountId}, ${profileId}, ${texte}, ${parentId || null})
         RETURNING id, texte, created_at
       `) as { id: number; texte: string; created_at: string }[];
       const created = rows[0];
@@ -353,6 +361,7 @@ export default async (req: Request, _context: Context) => {
           photoUrl: photoUrl(profile.photo_key),
           createdAt: created.created_at,
           accountId,
+          parentId: parentId || null,
         },
         commentaires: countRows[0]?.comments_count ?? 0,
       }, 201);
@@ -417,12 +426,13 @@ export default async (req: Request, _context: Context) => {
     if (!videoId) return json({ error: "videoId requis" }, 400);
 
     const rows = (await sql`
-      SELECT c.id, c.texte, c.created_at, c.account_id, p.nom AS auteur_nom, p.photo_key
+      SELECT c.id, c.texte, c.created_at, c.account_id, c.parent_id, p.nom AS auteur_nom, p.photo_key, (c.account_id = v.account_id) AS est_createur
       FROM starvibe_comments c
       JOIN starvibe_profiles p ON p.id = c.profile_id
+      JOIN starvibe_videos v ON v.id = c.video_id
       WHERE c.video_id = ${videoId}
-      ORDER BY c.id DESC LIMIT 100
-    `) as { id: number; texte: string; created_at: string; account_id: number; auteur_nom: string; photo_key: string | null }[];
+      ORDER BY c.id DESC LIMIT 300
+    `) as { id: number; texte: string; created_at: string; account_id: number; parent_id: number | null; auteur_nom: string; photo_key: string | null; est_createur: boolean }[];
 
     return json({
       commentaires: rows.map((r) => ({
@@ -433,6 +443,8 @@ export default async (req: Request, _context: Context) => {
         photoUrl: photoUrl(r.photo_key),
         createdAt: r.created_at,
         accountId: r.account_id,
+        parentId: r.parent_id ? String(r.parent_id) : null,
+        estCreateur: r.est_createur,
       })),
     });
   }
