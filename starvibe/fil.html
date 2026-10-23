@@ -140,6 +140,22 @@
   .modal .errmsg.show{display:block;}
   .modal .infomsg{display:none;font-size:12px;color:#8A6318;background:#FBF3E1;border:1px solid #EDD8A0;border-radius:8px;padding:9px 12px;margin-bottom:12px;}
   .modal .infomsg.show{display:block;}
+  .src-row{display:flex;gap:10px;margin-bottom:12px;}
+  .src-btn{flex:1;border:1.5px solid #eee2cc;background:#fffaf0;color:#241536;font-family:'Sora',sans-serif;font-weight:800;font-size:13px;padding:14px 8px;border-radius:14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;line-height:1.2;}
+  .src-btn span{font-size:24px;}.src-btn small{font:600 10.5px 'Inter',sans-serif;color:#7a6f86;}
+  .src-btn.cam{border-color:var(--gold);background:linear-gradient(135deg,#fff4e0,#ffe8cc);}
+  .src-btn:active{transform:scale(.97);}
+  .picked{display:none;font-size:12px;font-weight:700;color:#1f6b3a;background:#e9f7ee;border:1px solid #bfe3cb;border-radius:8px;padding:8px 10px;margin-bottom:12px;}
+  .picked.show{display:block;}
+  .rec-sheet{position:fixed;inset:0;z-index:300;background:#000;display:none;flex-direction:column;align-items:center;justify-content:center;}
+  .rec-sheet.show{display:flex;}
+  .rec-sheet video{width:100%;max-width:480px;max-height:78vh;background:#111;object-fit:cover;transform:scaleX(-1);}
+  .rec-sheet video.done{transform:none;}
+  .rec-bar{display:flex;align-items:center;gap:18px;margin-top:16px;color:#fff;font:700 14px 'Sora',sans-serif;}
+  .rec-bar button{border:none;border-radius:999px;font:800 14px 'Sora',sans-serif;padding:12px 20px;cursor:pointer;}
+  .rec-go{background:#e5322e;color:#fff;} .rec-ok{background:#2fb35f;color:#fff;} .rec-no{background:#fff;color:#241536;}
+  .rec-time{min-width:52px;text-align:center;}
+  .publish-label{font-size:10px;font-weight:800;margin-top:2px;}
   .kids-check{display:flex;align-items:flex-start;gap:8px;font-size:11.5px;color:#5b6478;line-height:1.4;margin-bottom:16px;font-weight:600;}
   .kids-check input{margin-top:2px;flex:none;}
 </style>
@@ -169,7 +185,7 @@
   <div class="deskNav" aria-label="Vidéo précédente ou suivante"><button type="button" id="dnUp" aria-label="Vidéo précédente">▲</button><button type="button" id="dnDown" aria-label="Vidéo suivante">▼</button></div>
   <div class="bottomnav">
     <a href="accueil.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 11 12 4l8 7M6 10v9h12v-9"/></svg>Accueil</a>
-    <button id="btnAdd"><span class="add-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></span></button>
+    <button id="btnAdd" aria-label="Filmer et publier une vidéo"><span class="add-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></span><span class="publish-label">Publier</span></button>
     <a href="#" style="color:#fff;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 4v16M4 12h16"/></svg>Fil</a>
   </div>
 </div>
@@ -190,8 +206,14 @@
     <h2>Publier une vidéo</h2>
     <div class="errmsg" id="modalErr"></div>
     <div class="infomsg" id="modalInfo"></div>
-    <label for="videoFile">Choisis une vidéo</label>
-    <input type="file" id="videoFile" accept="video/*">
+    <label>Ta vidéo</label>
+    <div class="src-row">
+      <button type="button" class="src-btn cam" id="btnFilmer"><span>🎥</span>Me filmer maintenant<small>ouvre la caméra</small></button>
+      <button type="button" class="src-btn" id="btnGalerie"><span>🖼️</span>Choisir dans ma galerie<small>une vidéo déjà prête</small></button>
+    </div>
+    <input type="file" id="videoFile" accept="video/*" hidden>
+    <input type="file" id="videoCam" accept="video/*" capture="user" hidden>
+    <div class="picked" id="pickedMsg"></div>
     <label for="legendeInput">Légende</label>
     <textarea id="legendeInput" placeholder="Raconte ta vidéo..." maxlength="300"></textarea>
     <label class="kids-check">
@@ -203,6 +225,11 @@
       <button class="publish" id="btnPublish">Publier</button>
     </div>
   </div>
+</div>
+
+<div class="rec-sheet" id="recSheet">
+  <video id="recVideo" playsinline muted></video>
+  <div class="rec-bar"><button class="rec-no" id="recCancel" type="button">Annuler</button><span class="rec-time" id="recTime">0:00</span><button class="rec-go" id="recGo" type="button">● Filmer</button><button class="rec-ok" id="recUse" type="button" hidden>Utiliser</button></div>
 </div>
 
 <script>
@@ -492,11 +519,57 @@
   btnAdd.addEventListener('click', function(){
     modalErr.classList.remove('show');
     modalInfo.classList.remove('show');
-    videoFile.value = '';
+    videoFile.value = ''; videoCam.value = ''; pickedMsg.classList.remove('show');
     legendeInput.value = '';
     pourEnfants.checked = false;
     uploadModal.hidden = false;
   });
+
+
+  // ---------- Se filmer ou choisir une vidéo ----------
+  var videoCam = document.getElementById('videoCam'), pickedMsg = document.getElementById('pickedMsg');
+  var btnFilmer = document.getElementById('btnFilmer'), btnGalerie = document.getElementById('btnGalerie');
+  function montrerChoix(f){ if (f){ pickedMsg.textContent = '✅ Vidéo prête : ' + (f.name || 'ma vidéo') + ' (' + (f.size / 1048576).toFixed(1) + ' Mo)'; pickedMsg.classList.add('show'); } else pickedMsg.classList.remove('show'); }
+  videoFile.addEventListener('change', function(){ montrerChoix(videoFile.files[0]); });
+  btnGalerie.addEventListener('click', function(){ videoFile.click(); });
+  videoCam.addEventListener('change', function(){
+    var f = videoCam.files[0]; if (!f) return;
+    try { var dt = new DataTransfer(); dt.items.add(f); videoFile.files = dt.files; } catch (e) { /* vieux navigateur : on garde la vidéo de la caméra */ }
+    montrerChoix(videoFile.files[0] || f);
+  });
+  var telephone = window.matchMedia && matchMedia('(pointer:coarse)').matches;
+  var recSheet = document.getElementById('recSheet'), recVideo = document.getElementById('recVideo'), recGo = document.getElementById('recGo'), recUse = document.getElementById('recUse'), recTime = document.getElementById('recTime'), recCancel = document.getElementById('recCancel');
+  var recStream = null, recorder = null, recChunks = [], recTimer = null, recT0 = 0, recBlob = null;
+  function arreterFlux(){ if (recStream){ recStream.getTracks().forEach(function(t){ t.stop(); }); recStream = null; } clearInterval(recTimer); }
+  function fermerRec(){ arreterFlux(); recSheet.classList.remove('show'); recVideo.removeAttribute('src'); recVideo.srcObject = null; recVideo.classList.remove('done'); recGo.hidden = false; recUse.hidden = true; recTime.textContent = '0:00'; recBlob = null; }
+  btnFilmer.addEventListener('click', function(){
+    modalErr.classList.remove('show');
+    if (telephone || !(navigator.mediaDevices && window.MediaRecorder)) { videoCam.value = ''; videoCam.click(); return; }   // téléphone : la caméra du téléphone s'ouvre
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 720 }, height: { ideal: 1280 } }, audio: true }).then(function(st){
+      recStream = st; recVideo.srcObject = st; recVideo.muted = true; recVideo.play(); recSheet.classList.add('show'); recGo.textContent = '● Filmer'; recGo.hidden = false; recUse.hidden = true;
+    }).catch(function(){ modalErr.textContent = 'La caméra n\'est pas accessible. Autorise la caméra et le micro dans ton navigateur, ou choisis une vidéo dans ta galerie.'; modalErr.classList.add('show'); });
+  });
+  recGo.addEventListener('click', function(){
+    if (recorder && recorder.state === 'recording'){ recorder.stop(); return; }
+    var types = ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'], mime = types.filter(function(t){ return MediaRecorder.isTypeSupported(t); })[0];
+    recChunks = []; recorder = new MediaRecorder(recStream, mime ? { mimeType: mime, videoBitsPerSecond: 2500000 } : undefined);
+    recorder.ondataavailable = function(e){ if (e.data && e.data.size) recChunks.push(e.data); };
+    recorder.onstop = function(){
+      clearInterval(recTimer); recBlob = new Blob(recChunks, { type: recorder.mimeType || 'video/webm' });
+      arreterFlux(); recVideo.srcObject = null; recVideo.src = URL.createObjectURL(recBlob); recVideo.muted = false; recVideo.controls = true; recVideo.classList.add('done'); recVideo.play();
+      recGo.hidden = true; recUse.hidden = false;
+    };
+    recorder.start(1000); recT0 = Date.now(); recGo.textContent = '■ Arrêter';
+    recTimer = setInterval(function(){ var s = Math.floor((Date.now() - recT0) / 1000); recTime.textContent = Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); if (s >= 300) recGo.click(); }, 300);
+  });
+  recUse.addEventListener('click', function(){
+    if (!recBlob) return; var ext = /mp4/.test(recBlob.type) ? 'mp4' : 'webm', f = new File([recBlob], 'ma-video-komyo.' + ext, { type: recBlob.type });
+    try { var dt = new DataTransfer(); dt.items.add(f); videoFile.files = dt.files; } catch (e) { return; }
+    montrerChoix(f); fermerRec();
+  });
+  recCancel.addEventListener('click', fermerRec);
+  // ouverture directe depuis l'accueil : fil.html?publier=1
+  if (/[?&]publier=1/.test(location.search)) setTimeout(function(){ btnAdd.click(); }, 700);
 
   // Ordinateur : flèches ▲ ▼ et touches du clavier pour passer d'une vidéo à l'autre
   (function(){

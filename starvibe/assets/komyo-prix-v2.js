@@ -39,6 +39,7 @@
   function traiteTexte(n) {
     var p = n.parentNode;
     if (!p || p.nodeType !== 1 || /^(SCRIPT|STYLE|TEXTAREA|OPTION|TITLE)$/.test(p.tagName)) return;
+    if (p.closest && p.closest('[data-noconv]')) return;                  // messages de contrôle du montant : pas de conversion
     var v = n.nodeValue;
     if (!v || v.indexOf('FCFA') === -1 || v.indexOf('≈') !== -1) return;
     var nv = v.replace(RE, function (tout, nombre, esp) {

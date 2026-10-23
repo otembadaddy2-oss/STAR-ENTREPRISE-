@@ -273,8 +273,8 @@
           <button class="sosbtn" id="btnSos" type="button">🆘 SOS gratuit</button>
         </div>
         <p style="margin-top:6px">Écrivez vos coordonnées, cochez votre besoin, validez le paiement de 1 000 FCFA : Keydou se lève, vous dit merci et vous donne la réponse.</p>
-        <div class="field"><label for="fNom">Nom et prénom</label><input id="fNom" type="text" maxlength="80" autocomplete="name" placeholder="ex. Carry Otemba"></div>
-        <div class="field"><label for="fTel">Numéro de téléphone</label><input id="fTel" type="tel" maxlength="30" autocomplete="tel" inputmode="tel" placeholder="ex. 06 123 45 67"></div>
+        <div class="field"><label for="fNom">Nom et prénom</label><input id="fNom" type="text" maxlength="80" autocomplete="off" placeholder="ex. Carry Otemba"></div>
+        <div class="field"><label for="fTel">Numéro de téléphone</label><input id="fTel" type="tel" maxlength="30" autocomplete="off" inputmode="tel" placeholder="ex. 06 123 45 67"></div>
         <div class="field"><label for="fVille">Ville</label><select id="fVille"></select></div>
         <div class="count" id="count">Cochez votre besoin (jusqu'à 3)</div>
         <div id="svcGroups"></div>
@@ -811,18 +811,31 @@
       '<div class="pay-row"><span>Référence</span><b>' + esc(current.referencePaiement) + '</b></div>' +
       '<ol class="steps"><li>Faites <b>votre dépôt de 1 000 FCFA</b> (MTN Mobile Money ou Airtel Money) au numéro ci-dessus.</li><li>Tapez <b>votre code secret Mobile Money</b> (4 ou 5 chiffres) sur votre téléphone, jamais ici.</li><li>Quand le dépôt est terminé, touchez <b>« Valider mon dépôt »</b>.</li></ol>' +
       '<div class="field" style="margin-top:12px"><label for="payNum">Numéro avec lequel vous avez payé</label><input id="payNum" type="tel" maxlength="20" value="' + esc(tel) + '" autocomplete="tel"></div>' +
+      '<div class="field"><label for="payMontant">Montant que vous avez déposé (en FCFA)</label><input id="payMontant" type="text" inputmode="numeric" maxlength="12" autocomplete="off" placeholder="1 000"><div id="payMontantMsg" data-noconv class="note" style="margin-top:6px" aria-live="polite">Écrivez le montant de votre dépôt : exactement 1 000 FCFA.</div></div>' +
       '<div class="field"><label for="txnRef">Code de la transaction (facultatif)</label><input id="txnRef" type="text" maxlength="60" placeholder="ex. MP2610…"></div>' +
-      '<button class="btn ok block" id="btnPaid">Valider mon dépôt</button>' +
+      '<button class="btn ok block" id="btnPaid" disabled>Valider mon dépôt</button>' +
       '<div class="status" id="payStatus" hidden><span class="dots"><i></i><i></i><i></i></span><span>Keydou attend la confirmation de votre paiement…</span></div>' +
       '<div class="warn"><b>Ne donnez jamais votre code secret</b> à Keydou, à STAR ENTREPRISE ni à personne. Keydou ne le demande jamais.</div>' +
       '<div class="note">Keydou garde sa réponse tant que le dépôt n\'est pas reconnu. Dès qu\'il l\'est, il revient, se lève et vous répond (en général en quelques secondes ; l\'équipe confirme à la main sinon). Montant différent de 1 000 FCFA : paiement refusé.</div>';
     stage = 'pay';
     showView('pay');
     speak('pay', TXT.pay);
+    function lireMontant(){ var d = String($('payMontant').value).replace(/[^0-9]/g, ''); return d ? parseInt(d, 10) : null; }
+    function fmt(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+    function controleMontant(){
+      var m = lireMontant(), msg = $('payMontantMsg'), ok = false;
+      if (m === null){ msg.style.color = ''; msg.textContent = 'Écrivez le montant de votre dépôt : exactement 1 000 FCFA.'; }
+      else if (m < 1000){ msg.style.color = '#b3261e'; msg.textContent = 'Montant incorrect : ' + fmt(m) + ' FCFA, il manque ' + fmt(1000 - m) + ' FCFA. Le montant à payer est exactement 1 000 FCFA. Si vous avez déjà déposé moins, contactez l\'équipe STAR ENTREPRISE au +242 06 656 50 50 avant de refaire un dépôt.'; }
+      else if (m > 1000){ msg.style.color = '#b3261e'; msg.textContent = 'Montant incorrect : ' + fmt(m) + ' FCFA, c\'est ' + fmt(m - 1000) + ' FCFA de trop. Le montant à payer est exactement 1 000 FCFA, ni plus ni moins. Si vous avez déjà déposé plus, contactez l\'équipe STAR ENTREPRISE au +242 06 656 50 50.'; }
+      else { msg.style.color = '#0a7a3a'; msg.textContent = 'Montant correct : 1 000 FCFA.'; ok = true; }
+      $('btnPaid').disabled = !ok;
+    }
+    $('payMontant').addEventListener('input', controleMontant);
     $('btnPaid').addEventListener('click', function(){
+      if (lireMontant() !== 1000){ controleMontant(); return; }
       this.disabled = true; this.textContent = 'Dépôt déclaré';
       $('payStatus').hidden = false;
-      post({ action:'paiement_declare', requestId:Number(current.id), reference:$('txnRef').value, numeroPaiement:$('payNum').value }).then(function(){ attendre(); });
+      post({ action:'paiement_declare', requestId:Number(current.id), reference:$('txnRef').value, numeroPaiement:$('payNum').value, montantDeclare:1000 }).then(function(r){ attendre(); });
     });
   }
 
@@ -965,20 +978,21 @@
   /* ------------------------------------------------------------------
      Démarrage
   ------------------------------------------------------------------ */
+  function viderFormulaire(){
+    ['fNom','fTel','txtIn'].forEach(function(id){ var e = $(id); if (e) e.value = ''; });
+    var v = $('fVille'); if (v) v.selectedIndex = 0;
+    var inputs = document.querySelectorAll('#appState input[type=checkbox]'); for (var i = 0; i < inputs.length; i++) inputs[i].checked = false;
+  }
+  // En quittant la page (ou en revenant avec « retour »), on efface ce qui a été écrit.
+  window.addEventListener('pagehide', function(){ viderFormulaire(); });
+  window.addEventListener('pageshow', function(e){ if (e.persisted) location.reload(); });
+
   function boot(me){
     $('loadingState').hidden = true; $('appState').hidden = false;
     if (!me){ var bk = document.querySelector('a.back'); if (bk){ bk.href = 'index.html'; bk.textContent = '← KOMYO'; } HOME = 'index.html'; }
-    try{
-      if (me){
-        var pf = (me.profiles || []).filter(function(x){ return x.type_profil === 'personnel' || x.typeProfil === 'personnel'; })[0] || (me.profiles || [])[0];
-        if (pf && pf.nom) $('fNom').value = pf.nom;
-        if (me.account && me.account.telephone) $('fTel').value = me.account.telephone;
-        if (me.account && me.account.ville){ var vv = VILLES.filter(function(v){ return v[0].toLowerCase() === String(me.account.ville).toLowerCase(); })[0]; if (vv) $('fVille').value = vv[0]; }
-      } else {
-        $('fNom').value = localStorage.getItem('keydou_nom') || ''; $('fTel').value = localStorage.getItem('keydou_tel') || ''; var kv = localStorage.getItem('keydou_ville'); if (kv) $('fVille').value = kv;
-      }
-    }catch(e){}
-    $('btnValider').addEventListener('click', function(){ try{ localStorage.setItem('keydou_nom', $('fNom').value); localStorage.setItem('keydou_tel', $('fTel').value); localStorage.setItem('keydou_ville', $('fVille').value); }catch(e){} }, true);
+    // Les informations tapées ne sont jamais gardées : on quitte la page, on revient, le formulaire est vide.
+    try{ localStorage.removeItem('keydou_nom'); localStorage.removeItem('keydou_tel'); localStorage.removeItem('keydou_ville'); }catch(e){}
+    viderFormulaire();
     track('ouverture');
     setState('dance'); say("Touchez l'écran pour que je vous dise bonjour !");
     var started = false;
@@ -1001,7 +1015,7 @@
   } else boot(null);
 })();
 </script>
-<script src="assets/komyo-prix-v1.js" defer></script>
+<script src="assets/komyo-prix-v2.js" defer></script>
 <script src="assets/bulle-komyo.js" defer></script>
 <script src="assets/komyo-installer-v4.js" defer></script>
 </body>

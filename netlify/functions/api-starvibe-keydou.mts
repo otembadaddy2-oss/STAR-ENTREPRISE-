@@ -802,6 +802,13 @@ export default async (req: Request, _context: Context) => {
 
     // Le client dit "j'ai payé" : simple signal pour le staff, JAMAIS une validation.
     if (action === "paiement_declare") {
+      // Le montant doit être exactement celui attendu (1 000 FCFA) : ni moins, ni plus.
+      if (body.montantDeclare !== undefined && body.montantDeclare !== null) {
+        const md = Math.round(Number(String(body.montantDeclare).replace(/[^0-9.]/g, "")));
+        if (!Number.isFinite(md) || md !== own[0].montant_attendu) {
+          return json({ error: `Montant incorrect : ${Number.isFinite(md) ? md : "?"} FCFA. Le montant à payer est exactement ${own[0].montant_attendu} FCFA.`, montantAttendu: own[0].montant_attendu }, 400);
+        }
+      }
       const numero = clean(body.numeroPaiement, 20);
       await sql`
         UPDATE starvibe_keydou_requests

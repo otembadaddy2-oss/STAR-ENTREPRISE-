@@ -392,3 +392,12 @@ I18N.add({
 I18N.pat([
   [/^Numéro ou code PIN incorrect\. Vérifie ton numéro \(avec ou sans espaces, avec ou sans l'indicatif\) et ton code PIN\. Pas encore de compte \? Touche « Créer un compte »\.$/, "Wrong phone number or PIN code. Check your number (with or without spaces, with or without the country code) and your PIN code. No account yet? Tap “Create an account”."]
 ]);
+I18N.add({
+  "Ta vidéo": "Your video", "Me filmer maintenant": "Film myself now", "ouvre la caméra": "opens the camera", "Choisir dans ma galerie": "Choose from my gallery", "une vidéo déjà prête": "a video that is ready",
+  "Publier": "Post", "Me filmer et publier une vidéo": "Film myself and post a video", "Ouvre la caméra, filme-toi, puis publie sur KOMYO.": "Open the camera, film yourself, then post on KOMYO.",
+  "Annuler": "Cancel", "● Filmer": "● Record", "■ Arrêter": "■ Stop", "Utiliser": "Use"
+});
+I18N.pat([
+  [/^✅ Vidéo prête : (.+)$/, "✅ Video ready: $1"],
+  [/^La caméra n'est pas accessible\. Autorise la caméra et le micro dans ton navigateur, ou choisis une vidéo dans ta galerie\.$/, "The camera is not accessible. Allow the camera and microphone in your browser, or choose a video from your gallery."]
+]);

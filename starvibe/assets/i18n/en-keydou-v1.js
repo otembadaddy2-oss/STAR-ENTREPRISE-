@@ -167,3 +167,10 @@ I18N.add({
     [/^Cherche : (.+)$/, "Searching: $1"]
   ]);
 })();
+I18N.add({
+  "Montant que vous avez déposé (en FCFA)": "Amount you deposited (in FCFA)", "Écrivez le montant de votre dépôt : exactement 1 000 FCFA.": "Write the amount of your deposit: exactly 1 000 FCFA.", "Montant correct : 1 000 FCFA.": "Correct amount: 1 000 FCFA."
+});
+I18N.pat([
+  [/^Montant incorrect : (.+) FCFA, il manque (.+) FCFA\. Le montant à payer est exactement 1 000 FCFA\. Si vous avez déjà déposé moins, contactez l'équipe STAR ENTREPRISE au (.+) avant de refaire un dépôt\.$/, "Incorrect amount: $1 FCFA, $2 FCFA short. The amount to pay is exactly 1 000 FCFA. If you already deposited less, contact the STAR ENTREPRISE team on $3 before making another deposit."],
+  [/^Montant incorrect : (.+) FCFA, c'est (.+) FCFA de trop\. Le montant à payer est exactement 1 000 FCFA, ni plus ni moins\. Si vous avez déjà déposé plus, contactez l'équipe STAR ENTREPRISE au (.+)\.$/, "Incorrect amount: $1 FCFA, that is $2 FCFA too much. The amount to pay is exactly 1 000 FCFA, no more, no less. If you already deposited more, contact the STAR ENTREPRISE team on $3."]
+]);
