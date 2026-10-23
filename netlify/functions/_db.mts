@@ -554,6 +554,20 @@ export async function ensureSchema() {
     )
   `;
 
+  // MYO : invitations d'amitié (suivre + devenir ami). Une ligne par invitation ; statut : en_attente, acceptee, refusee.
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_myo (
+      id SERIAL PRIMARY KEY,
+      de_account INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      vers_account INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      statut TEXT NOT NULL DEFAULT 'en_attente',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      repondu_at TIMESTAMPTZ,
+      UNIQUE (de_account, vers_account)
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_myo_vers_idx ON starvibe_myo (vers_account, statut)`;
+
   // ÉCLAT (le direct de KOMYO) : liste d'attente en attendant le vrai direct
   await sql`
     CREATE TABLE IF NOT EXISTS starvibe_eclat_attente (

@@ -425,3 +425,14 @@ I18N.add({
   "Tu es la première personne sur la liste !": "You are the first person on the list!", "Connexion impossible pour le moment. Réessaie dans un instant.": "Connection not possible right now. Try again in a moment."
 });
 I18N.pat([[/^(\d+) personnes? attendent? (déjà )?ÉCLAT\.$/, "$1 people are waiting for ÉCLAT."]]);
+I18N.add({
+  "t'invite à te suivre et à devenir ami.": "invites you to follow them and become friends.", "MYO · INVITATION": "MYO · INVITATION", "✓ Oui": "✓ Yes", "✕ Non": "✕ No",
+  "Myo · mes amis": "Myo · my friends", "Invite des personnes à te suivre et à devenir amis.": "Invite people to follow you and become friends.", "← Mon espace": "← My space",
+  "Amis": "Friends", "Invitations": "Invitations", "Chercher": "Search", "Oui": "Yes", "Non": "No", "Inviter": "Invite", "+ Inviter": "+ Invite", "Retirer": "Remove", "Accepter": "Accept", "Envoyée": "Sent", "Plus tard": "Later", "Amis ✓": "Friends ✓",
+  "Ami · vous vous suivez": "Friend · you follow each other", "t'invite à devenir ami": "invites you to become friends", "Aucune invitation en attente.": "No pending invitations.",
+  "Tu n'as pas encore d'amis sur Myo.": "You have no friends on Myo yet.", "Écris un nom (2 lettres minimum)": "Write a name (2 letters minimum)",
+  "Tu ne vois que des personnes de ton âge : les invitations entre adultes et mineurs ne sont pas possibles.": "You only see people of your age group: invitations between adults and minors are not possible.",
+  "Personne trouvé avec ce nom.": "No one found with this name.", "Invitation envoyée ✓": "Invitation sent ✓", "Invitation refusée.": "Invitation declined.",
+  "Connecte-toi à KOMYO pour utiliser Myo.": "Log in to KOMYO to use Myo."
+});
+I18N.pat([[/^Vous êtes amis avec (.+) ✓$/, "You are now friends with $1 ✓"]]);

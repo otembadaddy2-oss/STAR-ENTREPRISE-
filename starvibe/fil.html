@@ -140,6 +140,8 @@
   .modal .errmsg.show{display:block;}
   .modal .infomsg{display:none;font-size:12px;color:#8A6318;background:#FBF3E1;border:1px solid #EDD8A0;border-radius:8px;padding:9px 12px;margin-bottom:12px;}
   .modal .infomsg.show{display:block;}
+  .myo-btn{margin-left:8px;border:1.5px solid rgba(255,255,255,.7);background:rgba(0,0,0,.25);color:#fff;font:800 11px 'Sora',Arial,sans-serif;padding:4px 10px;border-radius:999px;cursor:pointer;vertical-align:middle;backdrop-filter:blur(4px);}
+  .myo-btn.ok{background:#1f8f4a;border-color:#1f8f4a;}
   .eclat-btn{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:#fff;font:800 12px 'Sora',Arial,sans-serif;letter-spacing:.08em;padding:8px 12px;border-radius:999px;background:linear-gradient(135deg,#ff2d3d,#ff6b4a 60%,#e8a93d);box-shadow:0 6px 16px -6px rgba(255,45,61,.8);}
   .eclat-btn i{width:8px;height:8px;border-radius:50%;background:#fff;animation:eclatpulse 1.4s infinite;}
   @keyframes eclatpulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.9)}70%,100%{box-shadow:0 0 0 8px rgba(255,255,255,0)}}
@@ -338,7 +340,7 @@
         '</button>' +
         (v.estMoi ? '<button class="del-btn" data-id="' + v.id + '" aria-label="Supprimer ma vidéo"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2m-9 0 1 14h8l1-14M10 11v6M14 11v6"/></svg></span><span class="count">Suppr.</span></button>' : '') +
       '</div>' +
-      '<div class="meta"><div class="auteur">@' + v.auteur + '</div><div class="legende">' + (v.legende || '') + '</div></div>';
+      '<div class="meta"><div class="auteur">@' + v.auteur + (!v.estMoi && v.auteurProfilId ? ' <button type="button" class="myo-btn" data-p="' + v.auteurProfilId + '">+ Inviter</button>' : '') + '</div><div class="legende">' + (v.legende || '') + '</div></div>';
 
     var videoEl = slide.querySelector('video');
     var hint = slide.querySelector('.mute-hint');
@@ -535,6 +537,17 @@
   }
   btnSendComment.addEventListener('click', sendComment);
   commentInput.addEventListener('keydown', function(e){ if (e.key === 'Enter') sendComment(); });
+
+
+  // Myo : bouton « + Inviter » à côté du nom de l'auteur
+  document.addEventListener('click', function(e){
+    var b = e.target.closest && e.target.closest('.myo-btn'); if (!b || !window.komyoMyo) return;
+    e.stopPropagation(); if (b.disabled) return; b.disabled = true; b.textContent = '…';
+    window.komyoMyo.inviter(b.getAttribute('data-p')).then(function(r){
+      if (!r.ok){ b.disabled = false; b.textContent = '+ Inviter'; alert(r.d.error || 'Invitation impossible.'); return; }
+      b.classList.add('ok'); b.textContent = r.d.etat === 'amis' ? 'Amis ✓' : 'Invitation envoyée ✓';
+    }).catch(function(){ b.disabled = false; b.textContent = '+ Inviter'; });
+  }, true);
 
   // Upload modal
   var uploadModal = document.getElementById('uploadModal');
@@ -756,6 +769,7 @@
 })();
 </script>
 <script src="assets/bulle-komyo.js" defer></script>
+<script src="assets/myo-v1.js" defer></script>
 <script src="assets/keydou-bulle-v1.js" defer></script>
 <script src="assets/komyo-installer-v4.js" defer></script>
 </body>

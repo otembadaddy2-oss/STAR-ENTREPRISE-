@@ -61,6 +61,7 @@ function toApi(row: VideoRow, likedByMe: boolean, canWatchPremium = false, viewe
     commentaires: row.comments_count || 0,
     pourEnfants: row.pour_enfants,
     espace: row.espace || "general",
+    auteurProfilId: row.profile_id,
     moderationStatut: row.moderation_statut,
     createdAt: row.created_at,
     likedByMe,
