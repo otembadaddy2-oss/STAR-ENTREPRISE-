@@ -459,3 +459,4 @@ I18N.pat([
   [/^(.+) t'a partagé son (Gmail|WhatsApp)\.$/, "$1 shared their $2 with you."], [/^Afficher 1 réponse ▾$/, "Show 1 reply ▾"], [/^Afficher (\d+) réponses ▾$/, "Show $1 replies ▾"],
   [/^Répondre à (.+)…$/, "Reply to $1…"], [/^Paiement de (.+) FCFA$/, "Payment of $1 FCFA"], [/^Active jusqu'au (.+)$/, "Active until $1"]
 ]);
+add({ "J'aime": "Like", "Commenter": "Comment", "Supprimer": "Delete", "Options : j'aime, commentaire…": "Options: like, comment…" });

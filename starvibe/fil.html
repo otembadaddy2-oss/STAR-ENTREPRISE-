@@ -51,6 +51,22 @@
   .actions button:active .icon{transform:scale(.92);}
   .actions svg{width:23px;height:23px;}
   .actions .count{font-size:11px;font-weight:700;}
+  /* Écran libre : un seul petit bouton « J'aime + », les options s'ouvrent dans une petite fenêtre vitrée */
+  .actions{align-items:flex-end;gap:0;bottom:96px;}
+  .actions .plus-btn{width:44px;height:44px;border-radius:50%;background:rgba(18,12,30,.38);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1.5px solid rgba(255,255,255,.55);display:flex;align-items:center;justify-content:center;color:#fff;transition:transform .2s ease,background .2s ease,border-color .2s ease;}
+  .actions .plus-btn svg{width:26px;height:26px;overflow:visible;}
+  .actions .plus-btn .pl{transition:transform .25s ease;transform-origin:19px 5px;}
+  .actions .plus-btn[aria-expanded=true]{background:rgba(255,255,255,.92);color:#241536;transform:scale(1.06);}
+  .actions .plus-btn[aria-expanded=true] .pl{transform:rotate(45deg);}
+  .actions .plus-btn.liked{border-color:#ff4f6d;}.actions .plus-btn.liked .hrt{fill:#ff4f6d;stroke:#ff4f6d;}
+  .actions .plus-btn:active{transform:scale(.92);}
+  .actions .opts{position:absolute;right:0;bottom:54px;min-width:178px;display:flex;flex-direction:column;gap:2px;padding:8px;border-radius:20px;background:rgba(20,14,34,.62);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);border:1px solid rgba(255,255,255,.22);box-shadow:0 14px 34px -10px rgba(0,0,0,.6);transform-origin:bottom right;animation:optsIn .22s cubic-bezier(.2,.9,.3,1.2) both;}
+  .actions .opts[hidden]{display:none;}
+  @keyframes optsIn{from{opacity:0;transform:translateY(8px) scale(.9)}to{opacity:1;transform:none}}
+  .actions .opts button{flex-direction:row;gap:10px;width:100%;padding:6px 12px 6px 6px;border-radius:14px;text-align:left;font:700 13.5px 'Sora',Arial,sans-serif;}
+  .actions .opts button:hover,.actions .opts button:focus-visible{background:rgba(255,255,255,.14);}
+  .actions .opts .icon{width:34px;height:34px;flex:none;}.actions .opts svg{width:20px;height:20px;}
+  .actions .opts .lbl{flex:1;}.actions .opts .count{font-size:12px;opacity:.85;}
   .like-btn.liked .icon{background:rgba(255,79,109,.25);animation:pop .3s ease;}
   .like-btn.liked svg{fill:#ff4f6d;stroke:#ff4f6d;}
   @keyframes pop{0%{transform:scale(1);}40%{transform:scale(1.28);}100%{transform:scale(1);}}
@@ -342,17 +358,25 @@
       '<video src="' + v.videoUrl + '" loop muted playsinline preload="metadata"></video>' +
       '<div class="mute-hint"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M19 9a5 5 0 0 1 0 6M22 6a9 9 0 0 1 0 12"/></svg></div>' +
       '<div class="actions">' +
-        '<button class="like-btn' + (v.likedByMe ? ' liked' : '') + '" data-id="' + v.id + '">' +
-          '<span class="icon">' + heartIcon(v.likedByMe) + '</span><span class="count">' + v.likes + '</span>' +
-        '</button>' +
-        '<button class="comment-btn" data-id="' + v.id + '">' +
-          '<span class="icon">' + commentIcon() + '</span><span class="count">' + (v.commentaires || 0) + '</span>' +
-        '</button>' +
-        (v.estMoi ? '<button class="del-btn" data-id="' + v.id + '" aria-label="Supprimer ma vidéo"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2m-9 0 1 14h8l1-14M10 11v6M14 11v6"/></svg></span><span class="count">Suppr.</span></button>' : '') +
+        '<button type="button" class="plus-btn' + (v.likedByMe ? ' liked' : '') + '" aria-label="Options : j\'aime, commentaire…" aria-expanded="false"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path class="hrt" transform="translate(0 3) scale(.92)" d="M12 21s-7.5-4.6-10-9.3C.4 8 2 4.5 5.6 4c2-.3 3.9.6 6.4 3 2.5-2.4 4.4-3.3 6.4-3C22 4.5 23.6 8 22 11.7 19.5 16.4 12 21 12 21z"/><g class="pl"><path d="M19 1.5v7M15.5 5h7"/></g></svg></button>' +
+        '<div class="opts" hidden>' +
+          '<button class="like-btn' + (v.likedByMe ? ' liked' : '') + '" data-id="' + v.id + '">' +
+            '<span class="icon">' + heartIcon(v.likedByMe) + '</span><span class="lbl">J\'aime</span><span class="count">' + v.likes + '</span>' +
+          '</button>' +
+          '<button class="comment-btn" data-id="' + v.id + '">' +
+            '<span class="icon">' + commentIcon() + '</span><span class="lbl">Commenter</span><span class="count">' + (v.commentaires || 0) + '</span>' +
+          '</button>' +
+        (v.estMoi ? '<button class="del-btn" data-id="' + v.id + '" aria-label="Supprimer ma vidéo"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2m-9 0 1 14h8l1-14M10 11v6M14 11v6"/></svg></span><span class="lbl">Supprimer</span></button>' : '') +
+        '</div>' +
       '</div>' +
       '<div class="meta"><div class="auteur">@' + v.auteur + (!v.estMoi && v.auteurProfilId ? ' <button type="button" class="myo-btn" data-p="' + v.auteurProfilId + '">+ Inviter</button>' : '') + '</div><div class="legende">' + (v.legende || '') + '</div></div>';
 
     var videoEl = slide.querySelector('video');
+    var plus = slide.querySelector('.plus-btn'), opts = slide.querySelector('.opts'), optsTimer = null;
+    function fermerOpts(){ clearTimeout(optsTimer); opts.hidden = true; plus.setAttribute('aria-expanded', 'false'); }
+    function ouvrirOpts(){ opts.hidden = false; plus.setAttribute('aria-expanded', 'true'); }
+    plus.addEventListener('click', function(){ if (opts.hidden) ouvrirOpts(); else fermerOpts(); });
+    slide.addEventListener('keydown', function(e){ if (e.key === 'Escape') fermerOpts(); });
     var hint = slide.querySelector('.mute-hint');
     var viewed = false;
     var watchStart = null;
@@ -369,7 +393,8 @@
     }
 
     slide.addEventListener('click', function(e){
-      if (e.target.closest('.like-btn') || e.target.closest('.del-btn')) return;
+      if (e.target.closest('.actions')) return;
+      if (!opts.hidden){ fermerOpts(); return; }   // un toucher sur la vidéo referme d'abord la petite fenêtre
       videoEl.muted = !videoEl.muted;
       hint.classList.add('show');
       setTimeout(function(){ hint.classList.remove('show'); }, 500);
@@ -385,11 +410,13 @@
         btn.classList.toggle('liked', !liked);
         btn.querySelector('.icon').innerHTML = heartIcon(!liked);
         btn.querySelector('.count').textContent = data.likes;
+        plus.classList.toggle('liked', !liked);
+        clearTimeout(optsTimer); optsTimer = setTimeout(fermerOpts, 900);   // l'option est appliquée tout de suite, la fenêtre se referme seule
       });
     });
 
     slide.querySelector('.comment-btn').addEventListener('click', function(){
-      openComments(v.id, slide);
+      fermerOpts(); openComments(v.id, slide);
     });
 
     var del = slide.querySelector('.del-btn');
