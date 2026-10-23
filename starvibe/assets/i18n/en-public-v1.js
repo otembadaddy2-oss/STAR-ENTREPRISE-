@@ -412,3 +412,16 @@ I18N.add({
   "Fais découvrir ton pays, ta ville, ta culture, tes plus beaux endroits.": "Show your country, your city, your culture, your most beautiful places."
 });
 I18N.pat([[/^Publier dans KOMYO (.+)$/, "Post in KOMYO $1"]]);
+I18N.add({
+  "BIENTÔT EN DIRECT": "LIVE SOON", "Le direct de KOMYO. Filme-toi en direct, ta communauté te voit, te répond et t'encourage en temps réel.": "KOMYO's live. Film yourself live; your community sees you, answers you and cheers you on in real time.",
+  "Ce qui arrive avec ÉCLAT": "What's coming with ÉCLAT", "Lance ton direct en un geste": "Go live with one tap", "Un bouton, ta caméra s'allume, tu es en direct.": "One button, your camera turns on, you are live.",
+  "Commentaires en direct": "Live comments", "Tes spectateurs écrivent pendant que tu parles.": "Your viewers write while you speak.", "Dans chaque espace": "In every space",
+  "Talents, Business, Découverte : montre un spectacle, présente ta boutique, fais visiter ta ville.": "Talents, Business, Discovery: show a performance, present your shop, show your city.",
+  "Préviens ta communauté": "Notify your community", "Ceux qui te suivent sont prévenus quand tu démarres.": "Your followers are notified when you start.",
+  "Je veux être prévenu(e) du lancement": "Notify me at launch", "Connecte-toi à KOMYO pour être prévenu(e) dès que ÉCLAT démarre.": "Log in to KOMYO to be notified as soon as ÉCLAT starts.",
+  "ÉCLAT · le direct de KOMYO": "ÉCLAT · KOMYO's live", "Bientôt : filme-toi en direct. Touche pour être prévenu(e).": "Soon: film yourself live. Tap to be notified.",
+  "ÉCLAT n'est pas encore ouvert : aucune diffusion en direct n'a lieu pour le moment. Tu seras prévenu(e) ici quand ce sera prêt.": "ÉCLAT is not open yet: no live broadcast is taking place at the moment. You will be notified here when it is ready.",
+  "← Le fil": "← The feed", "Se connecter / Créer un compte": "Log in / Create an account", "✓ Tu seras prévenu(e) — toucher pour annuler": "✓ You will be notified — tap to cancel",
+  "Tu es la première personne sur la liste !": "You are the first person on the list!", "Connexion impossible pour le moment. Réessaie dans un instant.": "Connection not possible right now. Try again in a moment."
+});
+I18N.pat([[/^(\d+) personnes? attendent? (déjà )?ÉCLAT\.$/, "$1 people are waiting for ÉCLAT."]]);

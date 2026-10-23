@@ -140,6 +140,9 @@
   .modal .errmsg.show{display:block;}
   .modal .infomsg{display:none;font-size:12px;color:#8A6318;background:#FBF3E1;border:1px solid #EDD8A0;border-radius:8px;padding:9px 12px;margin-bottom:12px;}
   .modal .infomsg.show{display:block;}
+  .eclat-btn{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:#fff;font:800 12px 'Sora',Arial,sans-serif;letter-spacing:.08em;padding:8px 12px;border-radius:999px;background:linear-gradient(135deg,#ff2d3d,#ff6b4a 60%,#e8a93d);box-shadow:0 6px 16px -6px rgba(255,45,61,.8);}
+  .eclat-btn i{width:8px;height:8px;border-radius:50%;background:#fff;animation:eclatpulse 1.4s infinite;}
+  @keyframes eclatpulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.9)}70%,100%{box-shadow:0 0 0 8px rgba(255,255,255,0)}}
   .espaces{position:fixed;left:0;right:0;top:calc(54px + env(safe-area-inset-top));z-index:29;display:flex;gap:8px;padding:6px 14px;overflow-x:auto;scrollbar-width:none;background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,0));}
   .espaces::-webkit-scrollbar{display:none;}
   .espaces a{flex:none;color:#fff;text-decoration:none;font:700 12px 'Sora',sans-serif;padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(6px);}
@@ -183,7 +186,7 @@
 <div id="feedWrap" hidden>
   <div class="topbar">
     <div class="brand"><img src="assets/img/icons/komyo-k-v2.png" alt="">KOMYO</div>
-    <div style="display:flex;align-items:center;gap:10px"><button data-komyo-messages hidden></button><a class="home" href="accueil.html">Mon espace</a></div>
+    <div style="display:flex;align-items:center;gap:10px"><a class="eclat-btn" href="eclat.html" aria-label="ÉCLAT, le direct de KOMYO"><i></i>ÉCLAT</a><button data-komyo-messages hidden></button><a class="home" href="accueil.html">Mon espace</a></div>
   </div>
   <nav class="espaces" id="espaces" aria-label="Espaces KOMYO">
     <a href="fil.html" data-e="">Tous</a><a href="fil.html?espace=talents" data-e="talents">Talents</a><a href="fil.html?espace=business" data-e="business">Business</a><a href="fil.html?espace=decouverte" data-e="decouverte">Découverte</a>

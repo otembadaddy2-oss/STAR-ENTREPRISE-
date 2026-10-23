@@ -554,6 +554,14 @@ export async function ensureSchema() {
     )
   `;
 
+  // ÉCLAT (le direct de KOMYO) : liste d'attente en attendant le vrai direct
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_eclat_attente (
+      account_id INTEGER PRIMARY KEY REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
   initialized = true;
 }
 
