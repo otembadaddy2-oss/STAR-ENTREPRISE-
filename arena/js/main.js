@@ -89,40 +89,44 @@
   var Loader = (function () {
     var box = $('loader'), cv2 = $('loader-cv'), x = cv2.getContext('2d'), W2 = 168, on = false, raf = 0, t0 = 0, until = 0, hideT = 0;
     var COL = [['255,211,74', '#ffd34a'], ['255,255,255', '#ffffff'], ['58,140,255', '#3a8cff']];
-    // chaque figure : A et B = rayons des deux cercles emboîtés, a1 et a2 = leurs vitesses, e = aplatissement, tilt = inclinaison, ph = écart entre billes
-    var P = [
-      { A: 40, B: 0, a1: 2.2, a2: 0, e: 1, tilt: 0, ph: 2.094 },        // les trois tournent en rond
-      { A: 24, B: 20, a1: 1.6, a2: -4.2, e: 1, tilt: 0, ph: 2.094 },    // elles tournent aussi les unes autour des autres
-      { A: 38, B: 14, a1: 2.8, a2: 5.6, e: 0.45, tilt: 0.7, ph: 2.094 },// ellipse inclinée
-      { A: 30, B: 26, a1: -2.0, a2: 3.0, e: 0.8, tilt: 0, ph: 0.9 },    // spirale serrée
-      { A: 12, B: 36, a1: 3.4, a2: -1.2, e: 1, tilt: 0.3, ph: 2.094 },  // grande orbite lente, petites orbites rapides
-      { A: 13, B: 9, a1: 3.6, a2: -5.4, e: 1, tilt: 0, ph: 2.094 },     // grappe serrée qui tourbillonne
-      { A: 44, B: 0, a1: 1.3, a2: 0, e: 0.18, tilt: -0.5, ph: 3.14 }    // elles s'alignent et se croisent
+    // Les 3 billes sont toujours au même point d'une même figure, tournées de 120° l'une de l'autre : elles bougent en parfaite synchro,
+    // en triangle équilatéral, et ne peuvent jamais se toucher. La figure change de mouvement toutes les ~3 s (elle respire, s'inverse, tourbillonne).
+    var RAD = 15;                                                                                                                      // rayon des billes (dessin 168 × 168)
+    var MODES = [
+      { R: 42, Rv: 0, w: 2.0, e: 0, ew: 0 },        // rotation calme
+      { R: 40, Rv: 9, w: 2.4, e: 0, ew: 0 },        // le trio respire : s'écarte et se rapproche
+      { R: 38, Rv: 4, w: -2.6, e: 10, ew: 5.5 },    // sens inverse, avec un petit tourbillon sur chaque bille
+      { R: 46, Rv: 6, w: 1.5, e: 8, ew: -4 },       // grande orbite lente, tourbillon dans l'autre sens
+      { R: 34, Rv: 3, w: 3.6, e: 0, ew: 0 }         // petit cercle rapide
     ];
-    var cur = JSON.parse(JSON.stringify(P[0])), tgt = 0, nextChange = 0, trail = [[], [], []];
-    function lerp(a, b, k) { return a + (b - a) * k; }
+    var cur = JSON.parse(JSON.stringify(MODES[0])), tgt = 0, nextChange = 0, trail = [[], [], []], phi = 0, psi = 0, brt = 0, lastTs = 0;
     function frame(ts) {
-      raf = requestAnimationFrame(frame); if (!t0) { t0 = ts; nextChange = ts + 1700; }
-      var t = (ts - t0) / 1000;
-      if (ts > nextChange) { tgt = (tgt + 1 + Math.floor(Math.random() * 3)) % P.length; nextChange = ts + 1700 + Math.random() * 900; }
-      for (var k in cur) cur[k] = lerp(cur[k], P[tgt][k], 0.045);   // glissement doux d'une figure à la suivante
+      raf = requestAnimationFrame(frame); if (!t0) { t0 = ts; lastTs = ts; nextChange = ts + 2800; }
+      var t = (ts - t0) / 1000, dt = Math.min(0.05, (ts - lastTs) / 1000); lastTs = ts;
+      if (ts > nextChange) { tgt = (tgt + 1 + Math.floor(Math.random() * (MODES.length - 1))) % MODES.length; nextChange = ts + 2800 + Math.random() * 900; }
+      for (var kk in cur) cur[kk] += (MODES[tgt][kk] - cur[kk]) * 0.04;     // glissement doux d'un mouvement au suivant
+      phi += cur.w * dt; psi += cur.ew * dt; brt += 2.2 * dt;
       x.globalCompositeOperation = 'source-over'; x.clearRect(0, 0, W2, W2);
-      var cx = W2 / 2, cy = W2 / 2, pos = [];
+      var cx = W2 / 2, cy = W2 / 2, pos = [], rr = cur.R + cur.Rv * Math.sin(brt), P0x = Math.cos(phi) * rr + Math.cos(psi) * cur.e, P0y = Math.sin(phi) * rr + Math.sin(psi) * cur.e;
       for (var i = 0; i < 3; i++) {
-        var ph = i * cur.ph, a1 = t * cur.a1 + ph, a2 = t * cur.a2 + ph * 2;
-        var px = Math.cos(a1) * cur.A + Math.cos(a2) * cur.B, py = (Math.sin(a1) * cur.A + Math.sin(a2) * cur.B) * cur.e;
-        var c = Math.cos(cur.tilt), s = Math.sin(cur.tilt); pos.push([cx + px * c - py * s, cy + px * s + py * c]);
-        var tr = trail[i]; tr.push(pos[i]); if (tr.length > 16) tr.shift();
+        var ang = i * 2.0944, ca = Math.cos(ang), sa = Math.sin(ang);
+        pos.push([cx + P0x * ca - P0y * sa, cy + P0x * sa + P0y * ca]);
+        var tr = trail[i]; tr.push(pos[i]); if (tr.length > 22) tr.shift();
       }
       x.globalCompositeOperation = 'lighter';
       for (i = 0; i < 3; i++) {
         var tr2 = trail[i];
-        for (var j = 0; j < tr2.length; j++) { var f = j / tr2.length, r = 2 + f * 5; var g = x.createRadialGradient(tr2[j][0], tr2[j][1], 0, tr2[j][0], tr2[j][1], r * 2.2); g.addColorStop(0, 'rgba(' + COL[i][0] + ',' + (f * 0.45) + ')'); g.addColorStop(1, 'rgba(' + COL[i][0] + ',0)'); x.fillStyle = g; x.beginPath(); x.arc(tr2[j][0], tr2[j][1], r * 2.2, 0, 6.3); x.fill(); }
-        var p = pos[i], pulse = 1 + Math.sin(t * 6 + i * 2) * 0.12, R = 11.5 * pulse;
-        var gg = x.createRadialGradient(p[0], p[1], 0, p[0], p[1], R * 3.2); gg.addColorStop(0, 'rgba(' + COL[i][0] + ',0.9)'); gg.addColorStop(0.35, 'rgba(' + COL[i][0] + ',0.35)'); gg.addColorStop(1, 'rgba(' + COL[i][0] + ',0)'); x.fillStyle = gg; x.beginPath(); x.arc(p[0], p[1], R * 3.2, 0, 6.3); x.fill();
-        x.fillStyle = '#fff'; x.beginPath(); x.arc(p[0], p[1], R * 0.42, 0, 6.3); x.fill();
-        x.fillStyle = COL[i][1]; x.globalAlpha = 0.9; x.beginPath(); x.arc(p[0], p[1], R * 0.78, 0, 6.3); x.fill(); x.globalAlpha = 1;
-        x.fillStyle = '#fff'; x.beginPath(); x.arc(p[0], p[1], R * 0.4, 0, 6.3); x.fill();
+        for (var j = 0; j < tr2.length; j++) { var f = j / tr2.length, r = 3 + f * 9; var g = x.createRadialGradient(tr2[j][0], tr2[j][1], 0, tr2[j][0], tr2[j][1], r * 1.8); g.addColorStop(0, 'rgba(' + COL[i][0] + ',' + (f * 0.4) + ')'); g.addColorStop(1, 'rgba(' + COL[i][0] + ',0)'); x.fillStyle = g; x.beginPath(); x.arc(tr2[j][0], tr2[j][1], r * 1.8, 0, 6.3); x.fill(); }
+        var p = pos[i], pulse = 1 + Math.sin(t * 4 + i * 2.1) * 0.08, R = RAD * pulse;
+        var gg = x.createRadialGradient(p[0], p[1], 0, p[0], p[1], R * 2.4); gg.addColorStop(0, 'rgba(' + COL[i][0] + ',0.85)'); gg.addColorStop(0.4, 'rgba(' + COL[i][0] + ',0.3)'); gg.addColorStop(1, 'rgba(' + COL[i][0] + ',0)'); x.fillStyle = gg; x.beginPath(); x.arc(p[0], p[1], R * 2.4, 0, 6.3); x.fill();
+        // trois énergies différentes : feu doré (langues de flamme), lumière pure (éclat en croix), cristal saphir (anneau + facettes)
+        x.save(); x.translate(p[0], p[1]);
+        if (i === 0) { for (var fl = 0; fl < 6; fl++) { var fa = t * 3 + fl * 1.047, fr = R * (1.15 + 0.35 * Math.sin(t * 7 + fl * 2)); x.fillStyle = 'rgba(255,170,30,0.55)'; x.beginPath(); x.moveTo(Math.cos(fa - 0.25) * R * 0.7, Math.sin(fa - 0.25) * R * 0.7); x.lineTo(Math.cos(fa) * fr, Math.sin(fa) * fr); x.lineTo(Math.cos(fa + 0.25) * R * 0.7, Math.sin(fa + 0.25) * R * 0.7); x.fill(); } }
+        else if (i === 1) { x.strokeStyle = 'rgba(255,255,255,0.8)'; x.lineWidth = 2; x.lineCap = 'round'; var L = R * (1.9 + 0.2 * Math.sin(t * 5)); x.beginPath(); x.moveTo(-L, 0); x.lineTo(L, 0); x.moveTo(0, -L); x.lineTo(0, L); x.stroke(); x.lineWidth = 1.3; x.beginPath(); x.moveTo(-L * 0.62, -L * 0.62); x.lineTo(L * 0.62, L * 0.62); x.moveTo(-L * 0.62, L * 0.62); x.lineTo(L * 0.62, -L * 0.62); x.stroke(); }
+        else { x.rotate(t * -1.4); x.strokeStyle = 'rgba(120,190,255,0.9)'; x.lineWidth = 2.2; x.beginPath(); for (var h = 0; h < 6; h++) { var ha = h * 1.0472; x.lineTo(Math.cos(ha) * R * 1.35, Math.sin(ha) * R * 1.35); } x.closePath(); x.stroke(); x.rotate(t * 2.8); x.strokeStyle = 'rgba(255,255,255,0.55)'; x.lineWidth = 1.3; x.beginPath(); for (h = 0; h < 4; h++) { ha = h * 1.5708 + 0.785; x.lineTo(Math.cos(ha) * R * 1.05, Math.sin(ha) * R * 1.05); } x.closePath(); x.stroke(); }
+        x.restore();
+        x.fillStyle = COL[i][1]; x.globalAlpha = 0.95; x.beginPath(); x.arc(p[0], p[1], R * 0.74, 0, 6.3); x.fill(); x.globalAlpha = 1;
+        var cg = x.createRadialGradient(p[0] - R * 0.2, p[1] - R * 0.25, 0, p[0], p[1], R * 0.6); cg.addColorStop(0, 'rgba(255,255,255,1)'); cg.addColorStop(1, 'rgba(255,255,255,0.15)'); x.fillStyle = cg; x.beginPath(); x.arc(p[0], p[1], R * 0.6, 0, 6.3); x.fill();
       }
       if (until && ts > until && !pendingHold) hide();
     }
