@@ -48,3 +48,6 @@ Mouvements de caméra : plongée centrée, zoom dans le téléphone / sortie du 
 - `telecommande-noire.jpg` : télécommande noire → plan 6 (Foel) ; logo Higgsfield ajouté en post, sans le logo d'origine.
 - `salon-tele-led-rouge.jpg` : salon noir et blanc, meuble TV avec LED rouges → décor du salon de Foel (Canada).
 Ce sont des références de forme, de couleur et d'ambiance ; ne pas reproduire de logos de marques existantes (ex. pomme sur le téléphone).
+
+## Consigne de Carry (23 oct.) — carton final
+En bas de l'image, à la toute fin : **« Télécharge KOMYO » + le nom du domaine `komyo.starentreprise.com`** (texte net, ajouté en post, jamais dessiné par l'IA).
