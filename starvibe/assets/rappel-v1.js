@@ -42,7 +42,7 @@
       : '<p>Bonjour' + (prenom ? ' <b>' + prenom + '</b>' : '') + ', ton abonnement <b>' + plan + '</b> est arrivé à échéance le <span class="dt">' + date + '</span></p><p>Renouvelle-le pour retrouver tous tes avantages.</p><p>Merci d\'utiliser KOMYO.</p>';
     var t = document.createElement('div'); t.className = 'rapl';
     t.innerHTML = '<small>KOMYO · ' + (bientot ? 'RAPPEL D\'ÉCHÉANCE' : 'ABONNEMENT TERMINÉ') + '</small>' + corps +
-      '<div class="raplSig"><img src="assets/img/keydou-badge.webp" alt="Keydou"><div><b>Keydou</b><span>Ta mascotte KOMYO</span></div></div>' +
+      '<div class="raplSig"><img src="/starvibe/assets/img/keydou-badge.webp" alt="Keydou"><div><b>Keydou</b><span>Ta mascotte KOMYO</span></div></div>' +
       '<div class="raplBtns"><button type="button" class="raplYes">Renouveler</button><button type="button" class="raplNo">OK</button></div>';
     zone.appendChild(t);
     t.querySelector('.raplYes').addEventListener('click', function () { fermer(t, r.type); setTimeout(function () { location.href = 'abonnement.html'; }, 250); });
