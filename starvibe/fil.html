@@ -140,6 +140,11 @@
   .modal .errmsg.show{display:block;}
   .modal .infomsg{display:none;font-size:12px;color:#8A6318;background:#FBF3E1;border:1px solid #EDD8A0;border-radius:8px;padding:9px 12px;margin-bottom:12px;}
   .modal .infomsg.show{display:block;}
+  .espaces{position:fixed;left:0;right:0;top:calc(54px + env(safe-area-inset-top));z-index:29;display:flex;gap:8px;padding:6px 14px;overflow-x:auto;scrollbar-width:none;background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,0));}
+  .espaces::-webkit-scrollbar{display:none;}
+  .espaces a{flex:none;color:#fff;text-decoration:none;font:700 12px 'Sora',sans-serif;padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(6px);}
+  .espaces a.on{background:linear-gradient(135deg,var(--coral),var(--gold));border-color:transparent;}
+  .esp-intro{position:fixed;left:14px;right:14px;top:calc(100px + env(safe-area-inset-top));z-index:28;color:#fff;font:600 12px/1.4 'Inter',sans-serif;text-shadow:0 1px 6px rgba(0,0,0,.7);pointer-events:none;max-width:420px;}
   .src-row{display:flex;gap:10px;margin-bottom:12px;}
   .src-btn{flex:1;border:1.5px solid #eee2cc;background:#fffaf0;color:#241536;font-family:'Sora',sans-serif;font-weight:800;font-size:13px;padding:14px 8px;border-radius:14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;line-height:1.2;}
   .src-btn span{font-size:24px;}.src-btn small{font:600 10.5px 'Inter',sans-serif;color:#7a6f86;}
@@ -180,6 +185,10 @@
     <div class="brand"><img src="assets/img/icons/komyo-k-v2.png" alt="">KOMYO</div>
     <div style="display:flex;align-items:center;gap:10px"><button data-komyo-messages hidden></button><a class="home" href="accueil.html">Mon espace</a></div>
   </div>
+  <nav class="espaces" id="espaces" aria-label="Espaces KOMYO">
+    <a href="fil.html" data-e="">Tous</a><a href="fil.html?espace=talents" data-e="talents">Talents</a><a href="fil.html?espace=business" data-e="business">Business</a><a href="fil.html?espace=decouverte" data-e="decouverte">Découverte</a>
+  </nav>
+  <div class="esp-intro" id="espIntro" hidden></div>
   <div class="feed" id="feed"></div>
   <div class="activity-wrap" id="activityWrap"></div>
   <div class="deskNav" aria-label="Vidéo précédente ou suivante"><button type="button" id="dnUp" aria-label="Vidéo précédente">▲</button><button type="button" id="dnDown" aria-label="Vidéo suivante">▼</button></div>
@@ -424,12 +433,31 @@
     return slide;
   }
 
+  // ---------- Espaces : Talents, Business, Découverte ----------
+  var ESPACES = {
+    talents: { nom: 'KOMYO Talents', intro: 'Montre ton talent au monde : chant, danse, cuisine, métier, sport, art, humour…', vide: 'Aucun talent publié pour le moment.<br>Sois le premier à te montrer !' },
+    business: { nom: 'KOMYO Business', intro: 'Présente ton activité : produit, service, boutique. Écris dans la légende comment te contacter.', vide: 'Aucune activité publiée pour le moment.<br>Présente la tienne !' },
+    decouverte: { nom: 'KOMYO Découverte', intro: 'Fais découvrir ton pays, ta ville, ta culture, tes plus beaux endroits.', vide: 'Aucune découverte publiée pour le moment.<br>Montre-nous ton coin du monde !' }
+  };
+  var ESPACE = (function(){ var m = /[?&]espace=([a-z]+)/.exec(location.search); return m && ESPACES[m[1]] ? m[1] : ''; })();
+  (function(){
+    var bar = document.getElementById('espaces'); if (!bar) return;
+    [].forEach.call(bar.querySelectorAll('a'), function(a){ a.classList.toggle('on', a.getAttribute('data-e') === ESPACE); });
+    if (ESPACE){
+      var intro = document.getElementById('espIntro'); intro.textContent = ESPACES[ESPACE].intro; intro.hidden = false;
+      document.title = ESPACES[ESPACE].nom + ' — KOMYO';
+      var br = document.querySelector('.topbar .brand'); if (br) br.lastChild.nodeValue = ESPACES[ESPACE].nom.replace('KOMYO ', '');
+      var h2 = document.querySelector('#uploadModal h2'); if (h2) h2.textContent = 'Publier dans ' + ESPACES[ESPACE].nom;
+      var kc = document.querySelector('.kids-check'); if (kc) kc.style.display = 'none';
+    }
+  })();
+
   function loadFeed(){
-    authFetch(API_VIDEOS).then(function(res){ return res.json(); }).then(function(data){
+    authFetch(API_VIDEOS + (ESPACE ? '?espace=' + ESPACE : '')).then(function(res){ return res.json(); }).then(function(data){
       var videos = data.videos || [];
       feed.innerHTML = '';
       if (!videos.length){
-        feed.innerHTML = '<div class="feed-empty"><p>Aucune vidéo pour le moment.<br>Sois le premier à publier !</p></div>';
+        feed.innerHTML = '<div class="feed-empty"><p>' + (ESPACE ? ESPACES[ESPACE].vide : 'Aucune vidéo pour le moment.<br>Sois le premier à publier !') + '</p></div>';
       } else {
         videos.forEach(function(v){ feed.appendChild(renderVideo(v)); });
       }
@@ -693,7 +721,8 @@
           typeMime: file.type || 'video/mp4',
           uploadId: id,
           nChunks: n,
-          pourEnfants: pourEnfants.checked
+          pourEnfants: ESPACE ? false : pourEnfants.checked,
+          espace: ESPACE
         })
       });
     }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })

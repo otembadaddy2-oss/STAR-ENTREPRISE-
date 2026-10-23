@@ -401,3 +401,14 @@ I18N.pat([
   [/^✅ Vidéo prête : (.+)$/, "✅ Video ready: $1"],
   [/^La caméra n'est pas accessible\. Autorise la caméra et le micro dans ton navigateur, ou choisis une vidéo dans ta galerie\.$/, "The camera is not accessible. Allow the camera and microphone in your browser, or choose a video from your gallery."]
 ]);
+I18N.add({
+  "Les espaces KOMYO": "KOMYO spaces", "Talents": "Talents", "Business": "Business", "Découverte": "Discovery", "Tous": "All",
+  "Montre ce que tu sais faire": "Show what you can do", "Présente ton activité": "Present your business", "Ton pays, ta culture": "Your country, your culture", "Vidéos pour les enfants": "Videos for children",
+  "Montre ton talent au monde entier : chant, danse, cuisine, métier, art… Ouvert maintenant.": "Show your talent to the world: singing, dance, cooking, trade, art… Open now.",
+  "Présente ton activité, ton produit, ta boutique. Ouvert maintenant.": "Present your business, your product, your shop. Open now.",
+  "Explore le monde et ses cultures à travers les vidéos de la communauté. Ouvert maintenant.": "Explore the world and its cultures through community videos. Open now.",
+  "Montre ton talent au monde : chant, danse, cuisine, métier, sport, art, humour…": "Show your talent to the world: singing, dance, cooking, trade, sport, art, humour…",
+  "Présente ton activité : produit, service, boutique. Écris dans la légende comment te contacter.": "Present your business: product, service, shop. Write in the caption how to contact you.",
+  "Fais découvrir ton pays, ta ville, ta culture, tes plus beaux endroits.": "Show your country, your city, your culture, your most beautiful places."
+});
+I18N.pat([[/^Publier dans KOMYO (.+)$/, "Post in KOMYO $1"]]);

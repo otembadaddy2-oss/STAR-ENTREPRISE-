@@ -21,6 +21,7 @@ const MAX_VIDEO_BYTES = 40_000_000; // 40 Mo — court format vertical
 // Une fonction Netlify n'accepte pas plus de ~6 Mo par requête : la vidéo arrive donc en morceaux de 3 Mo,
 // puis la publication les rassemble (14 morceaux de 3 Mo ≥ 40 Mo).
 const CHUNK_MAX = 4_500_000;
+const ESPACES_OUVERTS = ["talents", "business", "decouverte"];
 const MAX_CHUNKS = 14;
 const UPLOAD_ID_RE = /^[a-z0-9]{10,24}$/;
 
@@ -39,6 +40,7 @@ interface VideoRow {
   vues_count: number;
   comments_count: number;
   pour_enfants: boolean;
+  espace?: string;
   moderation_statut: string;
   premium: boolean;
   created_at: string;
@@ -58,6 +60,7 @@ function toApi(row: VideoRow, likedByMe: boolean, canWatchPremium = false, viewe
     vues: row.vues_count,
     commentaires: row.comments_count || 0,
     pourEnfants: row.pour_enfants,
+    espace: row.espace || "general",
     moderationStatut: row.moderation_statut,
     createdAt: row.created_at,
     likedByMe,
@@ -193,6 +196,9 @@ export default async (req: Request, _context: Context) => {
       const uploadId = clean(earlyBody.uploadId, 30);
       const nChunks = Number(earlyBody.nChunks);
       const pourEnfants = Boolean(earlyBody.pourEnfants);
+      // espaces ouverts : talents, business, découverte (une vidéo pour enfants reste toujours dans PIOUPIOU, après vérification)
+      const espaceDemande = clean(earlyBody.espace, 20).toLowerCase();
+      const espace = !pourEnfants && ESPACES_OUVERTS.includes(espaceDemande) ? espaceDemande : "general";
 
       if (!profileId || (!fileBase64 && !uploadId)) return json({ error: "Profil et vidéo requis" }, 400);
       if (!typeMime.startsWith("video/")) return json({ error: "Le fichier doit être une vidéo" }, 400);
@@ -238,8 +244,8 @@ export default async (req: Request, _context: Context) => {
       const moderationStatut = pourEnfants ? "en_attente" : "approuve";
 
       const rows = (await sql`
-        INSERT INTO starvibe_videos (account_id, profile_id, legende, type_mime, blob_key, pour_enfants, moderation_statut)
-        VALUES (${accountId}, ${profileId}, ${legende}, ${typeMime}, ${blobKey}, ${pourEnfants}, ${moderationStatut})
+        INSERT INTO starvibe_videos (account_id, profile_id, legende, type_mime, blob_key, pour_enfants, moderation_statut, espace)
+        VALUES (${accountId}, ${profileId}, ${legende}, ${typeMime}, ${blobKey}, ${pourEnfants}, ${moderationStatut}, ${espace})
         RETURNING *
       `) as VideoRow[];
       const created = rows[0];
@@ -565,7 +571,9 @@ export default async (req: Request, _context: Context) => {
   // le fil principal (pour_enfants = false) c'est automatique dès la
   // publication ; pour PIOUPIOU (pour_enfants = true), ça n'arrive qu'après
   // validation par un compte staff (voir plus haut, action "moderer").
-  const wantKids = url.searchParams.get("espace") === "pioupiou";
+  const espaceParam = (url.searchParams.get("espace") || "").toLowerCase();
+  const wantKids = espaceParam === "pioupiou";
+  const espaceFiltre = ESPACES_OUVERTS.includes(espaceParam) ? espaceParam : "";   // "" = fil principal : toutes les vidéos non enfants
   const before = Number(url.searchParams.get("before")) || null;
 
   const rows = (before
@@ -573,14 +581,14 @@ export default async (req: Request, _context: Context) => {
         SELECT v.*, p.nom AS auteur_nom
         FROM starvibe_videos v
         JOIN starvibe_profiles p ON p.id = v.profile_id
-        WHERE v.pour_enfants = ${wantKids} AND v.moderation_statut = 'approuve' AND (v.premium = false OR ${wantKids}) AND v.id < ${before}
+        WHERE v.pour_enfants = ${wantKids} AND v.moderation_statut = 'approuve' AND (v.premium = false OR ${wantKids}) AND (${espaceFiltre} = '' OR v.espace = ${espaceFiltre}) AND v.id < ${before}
         ORDER BY v.id DESC LIMIT 10
       `
     : await sql`
         SELECT v.*, p.nom AS auteur_nom
         FROM starvibe_videos v
         JOIN starvibe_profiles p ON p.id = v.profile_id
-        WHERE v.pour_enfants = ${wantKids} AND v.moderation_statut = 'approuve' AND (v.premium = false OR ${wantKids})
+        WHERE v.pour_enfants = ${wantKids} AND v.moderation_statut = 'approuve' AND (v.premium = false OR ${wantKids}) AND (${espaceFiltre} = '' OR v.espace = ${espaceFiltre})
         ORDER BY v.id DESC LIMIT 10
       `) as VideoRow[];
 

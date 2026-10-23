@@ -332,6 +332,8 @@ export async function ensureSchema() {
   await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS pour_enfants BOOLEAN NOT NULL DEFAULT false`;
   await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS moderation_statut TEXT NOT NULL DEFAULT 'approuve'`;
   await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS premium BOOLEAN NOT NULL DEFAULT false`;
+  // espace de la vidéo : general (fil principal), talents, business ou decouverte (PIOUPIOU reste marqué par pour_enfants)
+  await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS espace TEXT NOT NULL DEFAULT 'general'`;
 
   // Keydou, assistant multiservices : une demande = un service payant (1 000 FCFA).
   await sql`
