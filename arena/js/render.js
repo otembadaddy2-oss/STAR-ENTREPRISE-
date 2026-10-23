@@ -128,8 +128,17 @@
     ctx.beginPath(); if (side === 0) { ctx.moveTo(x, y); ctx.lineTo(x + w, y); ctx.lineTo(x + w - slant, y + h); ctx.lineTo(x, y + h); } else { ctx.moveTo(x + slant, y); ctx.lineTo(x + w, y); ctx.lineTo(x + w, y + h); ctx.lineTo(x, y + h); } ctx.closePath();
   };
   Render.prototype.text = function (ctx, txt, x, y, size, fill, stroke, align, skew) {
-    ctx.save(); ctx.translate(x, y); if (skew) ctx.transform(1, 0, skew, 1, 0, 0); ctx.font = 'italic 900 ' + size + 'px ' + FONT; ctx.textAlign = align || 'left'; ctx.lineJoin = 'round'; ctx.lineWidth = Math.max(3, size * 0.2); ctx.strokeStyle = stroke || '#05030a'; ctx.strokeText(txt, 0, 0); ctx.fillStyle = fill || '#fff'; ctx.fillText(txt, 0, 0); ctx.restore();
+    ctx.save(); ctx.translate(x, y); if (skew) ctx.transform(1, 0, skew, 1, 0, 0); ctx.font = 'italic 900 ' + size + 'px ' + FONT; ctx.textAlign = align || 'left'; ctx.lineJoin = 'round';
+    var lw = Math.max(3, size * 0.2);
+    ctx.lineWidth = lw + size * 0.07; ctx.strokeStyle = 'rgba(0,0,0,0.55)'; ctx.strokeText(txt, 0, size * 0.07);          // ombre portée (épaisseur 3D)
+    ctx.lineWidth = lw; ctx.strokeStyle = stroke || '#05030a'; ctx.strokeText(txt, 0, 0);
+    if (size >= 16 && /^#[0-9a-f]{6}$/i.test(fill || '')) { // verre : dégradé avec reflet net au milieu
+      var g = ctx.createLinearGradient(0, -size * 0.85, 0, size * 0.12); g.addColorStop(0, '#ffffff'); g.addColorStop(0.42, mixc(fill, '#ffffff', 0.55)); g.addColorStop(0.5, fill); g.addColorStop(1, mixc(fill, '#000000', 0.38)); ctx.fillStyle = g;
+    } else ctx.fillStyle = fill || '#fff';
+    ctx.fillText(txt, 0, 0);
+    ctx.restore();
   };
+  function mixc(a, b, t) { var x = parseInt(a.slice(1), 16), y = parseInt(b.slice(1), 16); function c(s) { return Math.round(((x >> s) & 255) * (1 - t) + ((y >> s) & 255) * t); } return 'rgb(' + c(16) + ',' + c(8) + ',' + c(0) + ')'; }
   Render.prototype.hud = function (ctx, m) {
     var BW = 372, BH = 22, BY = 20, slant = 14, i;
     for (i = 0; i < 2; i++) {
