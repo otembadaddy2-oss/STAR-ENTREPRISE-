@@ -225,7 +225,7 @@
   <div class="bottomnav">
     <a href="accueil.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 11 12 4l8 7M6 10v9h12v-9"/></svg>Accueil</a>
     <button id="btnAdd" aria-label="Filmer et publier une vidéo"><span class="add-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></span><span class="publish-label">Publier</span></button>
-    <a href="#" style="color:#fff;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 4v16M4 12h16"/></svg>Fil</a>
+    <a href="fil.html" id="navFil" aria-label="Fil : revenir à la première vidéo" style="color:#fff;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M10 9l5 3-5 3z" fill="currentColor"/></svg>Fil</a>
   </div>
 </div>
 
@@ -696,6 +696,12 @@
     montrerChoix(f); fermerRec();
   });
   recCancel.addEventListener('click', fermerRec);
+  // bouton « Fil » : sur « Tous », on remonte à la première vidéo (avant : il ne faisait rien)
+  var navFil = document.getElementById('navFil');
+  if (navFil) navFil.addEventListener('click', function(e){
+    if (/[?&]espace=/.test(location.search)) return;   // dans un espace : le lien ramène à « Tous »
+    e.preventDefault(); feed.scrollTo({ top: 0, behavior: 'smooth' });
+  });
   // ouverture directe depuis l'accueil : fil.html?publier=1
   if (/[?&]publier=1/.test(location.search)) setTimeout(function(){ btnAdd.click(); }, 700);
 
