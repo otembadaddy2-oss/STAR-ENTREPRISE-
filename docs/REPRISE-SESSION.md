@@ -26,3 +26,7 @@ Keydou (1 000 FCFA, montant exact), « Me filmer », espaces Talents/Business/Mu
 - KOMYO Jeunes (8–17 ans) : fermé, en attente de l'accord de Carry pour la pré-modération.
 - ÉCLAT : un vrai direct demande un fournisseur externe.
 - Voir aussi l'ancienne liste : Hostinger, Noupia, MTN MoMo API, etc.
+
+## 24/10/2026 — mise à jour KOMYO prête, PAS ENCORE EN LIGNE
+- Prêt dans la branche claude/video-mp4-social-media-0hgpf6 (commit 546cc4c) : guide de démarrage à flèches (assets/guide-v1.js, relançable par fil.html?guide=1), bouton « Fil » corrigé, formulaire de contact sur l'accueil (enregistre dans le Backend via /api/leads, type komyo-contact, + notification staff ; puis boutons WhatsApp et e-mail préremplis), KOMYO Jeunes ouvert aux 13-17 ans (vidéos modérées par le staff avant affichage ; adultes exclus ; Business réservé aux 18+).
+- Déploiement refusé par Netlify : « Skipped due to account credit usage exceeded » (crédits du compte épuisés). Le site en ligne reste l'ancienne version. À faire : recharger / changer de plan Netlify (ou attendre le renouvellement), puis relancer le déploiement (deploy-site de siteId b9c78969-5a1f-4a95-b903-c22472ab1f91, depuis cette branche : elle contient tous les fichiers du site).
