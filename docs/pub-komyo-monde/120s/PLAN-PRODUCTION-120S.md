@@ -55,3 +55,4 @@ Vérifier : pays où KOMYO est vraiment disponible, fonctions de l'appli, prix 3
 - Élément de référence « BISSA-POP-pack » (vrai emballage) : `06715b11-b0f9-4871-94b5-a1ce1398c17c`.
 - Images clés S2 / S3 : seedream_v5_lite avec éléments (Marie + vendeuse + boîte) → `images-cles/k08_*`, `k09_*`.
 - Clips Kling 3.0 std, son natif, ≈ 25 s ≈ 3,2 $ : S1 aérien 7 s, S2 dialogue 10 s, S3 dégustation 8 s. Assemblage d'essai 24 s (non versionné). Voix et synchronisation labiale : à valider par Carry à l'écoute ; sinon doublage ElevenLabs après recharge.
+- Contrôle de l'emballage (24 oct.) : forme, logo, couleurs, mascotte fidèles ; petits textes (« 100 % naturel », « 200 ml »…) brouillés par l'IA ; la 1re glacière S2 montrait des sachets plats au nom déformé → S2 refaite (`k08b_*`, clip Kling 3.0 std 10 s, ≈ 1,3 $) avec seulement des boîtes debout. Pour des gros plans à texte net : superposer le vrai emballage en post-production.
