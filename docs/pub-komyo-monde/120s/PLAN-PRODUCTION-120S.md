@@ -157,3 +157,9 @@ Vérifier : pays où KOMYO est vraiment disponible, fonctions de l'appli, prix 3
 - Défaut : l'écran généré par Wan laissait voir l'arrière du téléphone et un visage flou en transparence.
 - Correction : le quad de l'écran est suivi image par image (flux optique), puis l'écran d'appel KOMYO (4 amis) est incrusté ; les doigts restent devant l'écran (masque de peau). Scripts : fixphone_track.py, fixphone.py.
 - Film v4 (1 min 55 s).
+
+## Tour 13 — déclinaisons 60 / 30 / 15 s (16:9, 1:1, 9:16)
+- Montées depuis le film v4 (script post/variants.py) : 60 s = histoire condensée (S1, S2, S3, S4, S5, S6a, S7, S8, S9 voix, carte finale) ; 30 s = S3 → appel → grille d'appel → logo ; 15 s = S3 → grille d'appel → logo + voix off.
+- Carte finale prolongée de 1 s pour que « komyo.starentreprise.com » reste lisible.
+- 1:1 : recadrage carré centré sur le visage de chaque plan ; 9:16 : carré sur fond flou (les plans logo restent en 16:9 entier). Un vrai plan vertical demanderait de régénérer des plans.
+- Contrôle Scribe sur la 60 s : aucune réplique coupée.
