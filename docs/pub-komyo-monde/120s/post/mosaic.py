@@ -49,7 +49,7 @@ def frame(i):
         yy,xx=np.mgrid[0:H,0:W]
         dx=(A*np.sin(2*np.pi*(yy/48.0+t*2.6))).astype(np.int32); dy=(A*0.8*np.sin(2*np.pi*(xx/64.0+t*2.1))).astype(np.int32)
         a=a[np.clip(yy+dy,0,H-1),np.clip(xx+dx,0,W-1)]
-        k=(1-t/2.2)**1.5; a=a*(1-0.35*k)+np.array([20,110,120],np.float32)*0.35*k+np.array([255,230,160],np.float32)*0.18*k
+        k=(1-t/2.2)**1.5; a=a*(1-0.14*k)+np.array([150,160,160],np.float32)*0.14*k+np.array([255,236,190],np.float32)*0.10*k
         out=Image.fromarray(a.clip(0,255).astype(np.uint8))
     return out
 p=subprocess.Popen([FF,'-y','-loglevel','error','-f','rawvideo','-pix_fmt','rgb24','-s',f'{W}x{H}','-r',str(FPS),'-i','-','-c:v','libx264','-crf','16','-pix_fmt','yuv420p','mosaic.mp4'],stdin=subprocess.PIPE)
