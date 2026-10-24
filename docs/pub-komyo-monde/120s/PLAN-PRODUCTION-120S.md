@@ -73,3 +73,9 @@ Vérifier : pays où KOMYO est vraiment disponible, fonctions de l'appli, prix 3
 - Méthode : une voix ElevenLabs fixe par personnage (Clémence = « Clémence - Advertising », id LFo5X4P9PhYaOLBA9Hyh), répliques épelées phonétiquement, puis plans parlés à une seule personne, lèvres pilotées par le fichier audio : Wan 2.7 image→vidéo (`wan/v2.7/image-to-video`, champ `audio_url`, 1,00 $ les 10 s). Alternative testable : Seedance 2.5 reference-to-video (`bytedance/seedance-2.5/reference-to-video`, images + `audio_urls`, ≈ 0,21 $/s) pour les plans à deux personnes.
 - Ordre : (1) test Clémence sur Wan (~0,70 $) ; (2) si insuffisant, même plan sur Seedance 2.5 (~1,44 $) ; (3) refaire ~60 s de plans parlés (~6–7 $) ; (4) remontage (`post/assemble.py`) puis déclinaisons 60/30/15 s, 9:16, 1:1.
 - Prix Kling 3.0 std : 0,126 $/s avec son, 0,084 $/s sans son (utile pour un teaser X SAPHIR muet avec musique).
+
+## 24 oct. 2026 (soir) — voix refaites : abonnement ElevenLabs Starter pris, test Clémence
+- Carry a pris ElevenLabs « Démarreur » (1 $ le 1er mois, puis 6 $/mois, 30 000 crédits, licence commerciale). **À annuler avant le renouvellement si inutile** (Abonnement → Facturation).
+- Voix de Clémence validée par Carry (« c'est sa voix ») : `eleven_v4`, voix `LFo5X4P9PhYaOLBA9Hyh`, réplique « Je vous l'avais dit : vous êtes formidables. Voici notre surprise. » (66 crédits).
+- Test lèvres : Wan 2.7 image→vidéo (`wan/v2.7/image-to-video`, `audio_url` = mp3 hébergé via media_upload, 5 s, 720p, ≈ 0,50 $) sur l'image clé `k12_clemence` : bouche animée sur l'audio, visage stable. Fichier d'essai : `lip_clemence_test_v1.mp4` (scratchpad).
+- Reste : choisir une voix fixe pour Marie, la vendeuse, Angèle, Foel, Messie, Sita ; générer les répliques ; plans à une personne en Wan 2.7 ; remonter avec `post/assemble.py` ; déclinaisons.
