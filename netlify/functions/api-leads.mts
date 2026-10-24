@@ -4,6 +4,7 @@
 import type { Context, Config } from "@netlify/functions";
 import { ensureSchema, db, json } from "./_db.mts";
 import { requireAuth } from "./_auth.mts";
+import { pushAll } from "./_push.mts";
 
 function clean(value: unknown, maxLen: number): string {
   return String(value ?? "").trim().slice(0, maxLen);
@@ -68,6 +69,11 @@ export default async (req: Request, _context: Context) => {
       VALUES (${type}, ${nom}, ${entreprise}, ${email}, ${telephone}, ${service}, ${message})
       RETURNING *
     `) as LeadRow[];
+
+    // Message venant de KOMYO : le staff est prévenu tout de suite (la demande reste de toute façon dans le Backend).
+    if (type === "komyo-contact") {
+      try { await pushAll(sql, { title: "Nouveau message KOMYO", body: `${nom || "Visiteur"} : ${message.slice(0, 90)}`, tag: "komyo-contact", url: "/admin.html" }); } catch { /* sans gravité : le message est enregistré */ }
+    }
 
     return json({ lead: toApi(rows[0]) }, 201);
   }

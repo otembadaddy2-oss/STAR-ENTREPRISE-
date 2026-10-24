@@ -216,7 +216,7 @@
     <div style="display:flex;align-items:center;gap:10px"><a class="eclat-btn" href="eclat.html" aria-label="ÉCLAT, le direct de KOMYO"><i></i>ÉCLAT</a><button data-komyo-messages hidden></button><a class="home" href="accueil.html">Mon espace</a></div>
   </div>
   <nav class="espaces" id="espaces" aria-label="Espaces KOMYO">
-    <a href="fil.html" data-e="">Tous</a><a href="fil.html?espace=talents" data-e="talents">Talents</a><a href="fil.html?espace=business" data-e="business">Business</a><a href="fil.html?espace=musique" data-e="musique">Musique</a><a href="fil.html?espace=decouverte" data-e="decouverte">Découverte</a>
+    <a href="fil.html" data-e="">Tous</a><a href="fil.html?espace=talents" data-e="talents">Talents</a><a href="fil.html?espace=business" data-e="business">Business</a><a href="fil.html?espace=musique" data-e="musique">Musique</a><a href="fil.html?espace=decouverte" data-e="decouverte">Découverte</a><a href="fil.html?espace=jeunes" data-e="jeunes" id="navJeunes" hidden>Jeunes</a>
   </nav>
   <div class="esp-intro" id="espIntro" hidden></div>
   <div class="feed" id="feed"></div>
@@ -480,6 +480,7 @@
     talents: { nom: 'KOMYO Talents', intro: 'Montre ton talent au monde : chant, danse, cuisine, métier, sport, art, humour…', vide: 'Aucun talent publié pour le moment.<br>Sois le premier à te montrer !' },
     business: { nom: 'KOMYO Business', intro: 'Présente ton activité : produit, service, boutique. Écris dans la légende comment te contacter.', vide: 'Aucune activité publiée pour le moment.<br>Présente la tienne !' },
     musique: { nom: 'KOMYO Musique', intro: 'Clips, sons, nouveautés : artistes, DJ, chanteurs, groupes… fais écouter ta musique.', vide: 'Aucune musique publiée pour le moment.<br>Sois le premier à jouer !' },
+    jeunes: { nom: 'KOMYO Jeunes', intro: 'L\'espace des 13–17 ans : crée, découvre et partage entre jeunes. Chaque vidéo est vérifiée avant d\'apparaître.', vide: 'Aucune vidéo pour le moment.<br>Sois le premier à publier !' },
     decouverte: { nom: 'KOMYO Découverte', intro: 'Fais découvrir ton pays, ta ville, ta culture, tes plus beaux endroits.', vide: 'Aucune découverte publiée pour le moment.<br>Montre-nous ton coin du monde !' }
   };
   var ESPACE = (function(){ var m = /[?&]espace=([a-z]+)/.exec(location.search); return m && ESPACES[m[1]] ? m[1] : ''; })();
@@ -495,11 +496,15 @@
     }
   })();
 
+  function ageDe(d){ var n = new Date(d); if (isNaN(n)) return null; var t = new Date(), a = t.getFullYear() - n.getFullYear(); if (t.getMonth() < n.getMonth() || (t.getMonth() === n.getMonth() && t.getDate() < n.getDate())) a--; return a; }
+
   function loadFeed(){
     authFetch(API_VIDEOS + (ESPACE ? '?espace=' + ESPACE : '')).then(function(res){ return res.json(); }).then(function(data){
       var videos = data.videos || [];
       feed.innerHTML = '';
-      if (!videos.length){
+      if (!videos.length && data.reserve){
+        feed.innerHTML = '<div class="feed-empty"><p>KOMYO Jeunes est réservé aux 13–17 ans.</p></div>';
+      } else if (!videos.length){
         feed.innerHTML = '<div class="feed-empty"><p>' + (ESPACE ? ESPACES[ESPACE].vide : 'Aucune vidéo pour le moment.<br>Sois le premier à publier !') + '</p></div>';
       } else {
         videos.forEach(function(v){ feed.appendChild(renderVideo(v)); });
@@ -516,6 +521,8 @@
       var personal = profiles.find(function(p){ return p.type_profil === 'personnel'; });
       if (!personal){ show(noPersonalState); return; }
       personalProfileId = personal.id;
+      var nj = document.getElementById('navJeunes');
+      if (nj && personal.date_naissance){ var a = ageDe(personal.date_naissance); nj.hidden = !(a >= 13 && a <= 17); }
       loadFeed();
     })
     .catch(function(){ show(loggedOutState); });
@@ -864,5 +871,6 @@
 <script src="assets/pub-v1.js" defer></script>
 <script src="assets/keydou-bulle-v1.js" defer></script>
 <script src="assets/komyo-installer-v4.js" defer></script>
+<script src="assets/guide-v1.js" defer></script>
 </body>
 </html>

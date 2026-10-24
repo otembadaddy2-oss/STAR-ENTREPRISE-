@@ -269,13 +269,12 @@
       <h3>PIOUPIOU</h3>
       <p>Espace vidéo éducatif pour enfants, 100% séparé et sécurisé.</p>
     </a>
-    <div class="universe-card reveal">
-      <span class="soon">Bientôt</span>
+    <a class="universe-card reveal" href="fil.html?espace=jeunes">
       <div class="u-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.3"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 21c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><path d="M16.5 14.5c2.8.4 5 2.9 5 6.5"/><circle cx="16.5" cy="7.5" r="2.6"/></svg></div>
-      <span class="age">8–17 ans</span>
+      <span class="age">13–17 ans</span>
       <h3>KOMYO Jeunes</h3>
-      <p>Découvrir, créer et partager entre ados, en toute sécurité.</p>
-    </div>
+      <p>Découvrir, créer et partager entre ados, en toute sécurité. Ouvert maintenant : chaque vidéo est vérifiée.</p>
+    </a>
     <a class="universe-card reveal" href="fil.html?espace=business">
       <div class="u-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.3"><path d="M3 9h18M8 9V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v3M4 9h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9z"/></svg></div>
       <span class="age">18 ans et +</span>
@@ -345,15 +344,49 @@
   </div>
 </section>
 
-<section class="wrap" style="padding-top:0;">
-  <a class="wa-box reveal" href="https://wa.me/242066565050?text=Bonjour%20KOMYO%2C%20je%20souhaite%20en%20savoir%20plus." target="_blank" rel="noopener">
-    <div class="wa-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.7 1.5 5.3L2 22l4.8-1.5c1.5.8 3.3 1.3 5.2 1.3 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg></div>
-    <div class="wa-text">
-      <h4>Une question sur KOMYO ?</h4>
-      <p>Écris-nous sur WhatsApp — <span class="wa-num">+242 06 656 50 50</span></p>
+<section class="wrap" style="padding-top:0;" id="contact">
+  <div class="wa-box reveal" style="display:block;cursor:default;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+      <div class="wa-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.7 1.5 5.3L2 22l4.8-1.5c1.5.8 3.3 1.3 5.2 1.3 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg></div>
+      <div class="wa-text"><h4>Une question sur KOMYO ?</h4><p>Écris-nous ton message : il arrive tout de suite chez nous.</p></div>
     </div>
-  </a>
+    <form id="ctForm" novalidate>
+      <input id="ctNom" type="text" placeholder="Ton prénom (facultatif)" autocomplete="given-name" maxlength="80" style="width:100%;margin-bottom:8px;padding:12px;border:1.5px solid var(--line);border-radius:12px;font:inherit;">
+      <input id="ctJoindre" type="text" placeholder="Ton numéro ou ton e-mail, pour te répondre" autocomplete="off" maxlength="120" style="width:100%;margin-bottom:8px;padding:12px;border:1.5px solid var(--line);border-radius:12px;font:inherit;">
+      <textarea id="ctMsg" rows="4" placeholder="Ton message" maxlength="1500" style="width:100%;margin-bottom:8px;padding:12px;border:1.5px solid var(--line);border-radius:12px;font:inherit;resize:vertical;"></textarea>
+      <button type="submit" id="ctSend" class="btn-primary" style="width:100%;">Envoyer mon message</button>
+      <p id="ctMsgEtat" role="status" style="margin:10px 0 0;font-size:14px;font-weight:600;"></p>
+      <div id="ctSuite" hidden style="margin-top:10px;display:grid;gap:8px;">
+        <a id="ctWa" class="btn-primary" target="_blank" rel="noopener" style="display:block;text-align:center;background:#25D366;">Continuer sur WhatsApp</a>
+        <a id="ctMail" class="btn-primary" style="display:block;text-align:center;">Envoyer aussi par e-mail</a>
+      </div>
+    </form>
+    <p style="margin:12px 0 0;font-size:13px;line-height:1.5;">Ou directement : <a href="mailto:contact@starentreprise.com" style="font-weight:700;color:inherit;">contact@starentreprise.com</a> · WhatsApp <a href="https://wa.me/242066565050" target="_blank" rel="noopener" style="font-weight:700;color:inherit;">+242 06 656 50 50</a></p>
+  </div>
 </section>
+<script>
+(function(){
+  var f=document.getElementById('ctForm'); if(!f) return;
+  var etat=document.getElementById('ctMsgEtat'), suite=document.getElementById('ctSuite'), bt=document.getElementById('ctSend');
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var nom=document.getElementById('ctNom').value.trim(), joindre=document.getElementById('ctJoindre').value.trim(), msg=document.getElementById('ctMsg').value.trim();
+    etat.style.color='#b3261e'; suite.hidden=true;
+    if(msg.length<3){ etat.textContent='Écris ton message.'; return; }
+    if(joindre.length<5){ etat.textContent='Ajoute ton numéro ou ton e-mail pour qu\'on puisse te répondre.'; return; }
+    var estMail=joindre.indexOf('@')>-1;
+    bt.disabled=true; etat.style.color='#241536'; etat.textContent='Envoi…';
+    fetch('/api/leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'komyo-contact',nom:nom||'Visiteur KOMYO',email:estMail?joindre:'',telephone:estMail?'':joindre,service:'KOMYO',message:msg})})
+      .then(function(r){ bt.disabled=false; if(!r.ok) throw 0;
+        etat.style.color='#1a7f37'; etat.textContent='Merci ! Ton message est bien arrivé chez nous. Tu peux aussi l\'envoyer sur WhatsApp ou par e-mail :';
+        var txt='Bonjour KOMYO, '+msg+(nom?' — '+nom:'')+' ('+joindre+')';
+        document.getElementById('ctWa').href='https://wa.me/242066565050?text='+encodeURIComponent(txt);
+        document.getElementById('ctMail').href='mailto:contact@starentreprise.com?subject='+encodeURIComponent('Question KOMYO')+'&body='+encodeURIComponent(txt);
+        suite.hidden=false; })
+      .catch(function(){ bt.disabled=false; etat.style.color='#b3261e'; etat.textContent='L\'envoi n\'a pas marché. Écris-nous sur WhatsApp ou par e-mail (liens ci-dessous).'; });
+  });
+})();
+</script>
 
 <footer>
   <div class="credit"><a href="installer.html" style="text-decoration:underline">📱 Installer l'application KOMYO</a></div>

@@ -21,7 +21,20 @@ const MAX_VIDEO_BYTES = 40_000_000; // 40 Mo — court format vertical
 // Une fonction Netlify n'accepte pas plus de ~6 Mo par requête : la vidéo arrive donc en morceaux de 3 Mo,
 // puis la publication les rassemble (14 morceaux de 3 Mo ≥ 40 Mo).
 const CHUNK_MAX = 4_500_000;
-const ESPACES_OUVERTS = ["talents", "business", "decouverte", "musique"];
+const ESPACES_OUVERTS = ["talents", "business", "decouverte", "musique", "jeunes"];
+
+// KOMYO Jeunes : réservé aux 13-17 ans (âge de la date de naissance du profil personnel).
+// Les adultes ne le voient pas et n'y publient pas ; les mineurs ne publient pas dans Business (18 ans et +).
+function ageFromDate(dateStr: string): number | null {
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime()) || d.getTime() > Date.now()) return null;
+  const now = new Date();
+  let age = now.getFullYear() - d.getFullYear();
+  const m = now.getMonth() - d.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--;
+  return age;
+}
+const estJeune = (age: number | null) => age !== null && age >= 13 && age <= 17;
 const MAX_CHUNKS = 14;
 const UPLOAD_ID_RE = /^[a-z0-9]{10,24}$/;
 
@@ -118,7 +131,7 @@ export default async (req: Request, _context: Context) => {
       FROM starvibe_videos v
       JOIN starvibe_profiles p ON p.id = v.profile_id
       JOIN starvibe_accounts a ON a.id = v.account_id
-      WHERE v.pour_enfants = true AND v.moderation_statut = 'en_attente'
+      WHERE (v.pour_enfants = true OR v.espace = 'jeunes') AND v.moderation_statut = 'en_attente'
       ORDER BY v.id ASC LIMIT 30
     `) as VideoRow[];
 
@@ -205,12 +218,19 @@ export default async (req: Request, _context: Context) => {
       if (!typeMime.startsWith("video/")) return json({ error: "Le fichier doit être une vidéo" }, 400);
 
       const profRows = (await sql`
-        SELECT id, type_profil FROM starvibe_profiles WHERE id = ${profileId} AND account_id = ${accountId} LIMIT 1
-      `) as { id: number; type_profil: string }[];
+        SELECT id, type_profil, date_naissance FROM starvibe_profiles WHERE id = ${profileId} AND account_id = ${accountId} LIMIT 1
+      `) as { id: number; type_profil: string; date_naissance: string }[];
       const profile = profRows[0];
       if (!profile) return json({ error: "Profil introuvable" }, 404);
       if (profile.type_profil !== "personnel") {
         return json({ error: "Seul un profil personnel peut publier une vidéo" }, 403);
+      }
+      const agePublieur = ageFromDate(String(profile.date_naissance));
+      if (espace === "jeunes" && !estJeune(agePublieur)) {
+        return json({ error: "KOMYO Jeunes est réservé aux 13-17 ans." }, 403);
+      }
+      if (espace === "business" && agePublieur !== null && agePublieur < 18) {
+        return json({ error: "KOMYO Business est réservé aux 18 ans et plus." }, 403);
       }
 
       let bytes: Buffer;
@@ -242,7 +262,7 @@ export default async (req: Request, _context: Context) => {
       const blobKey = `${Date.now()}-${randomBytes(4).toString("hex")}`;
       await store.set(blobKey, bytes, { metadata: { typeMime } });
 
-      const moderationStatut = pourEnfants ? "en_attente" : "approuve";
+      const moderationStatut = pourEnfants || espace === "jeunes" ? "en_attente" : "approuve";   // KOMYO Jeunes : chaque vidéo est vérifiée par le staff avant d'apparaître
 
       const rows = (await sql`
         INSERT INTO starvibe_videos (account_id, profile_id, legende, type_mime, blob_key, pour_enfants, moderation_statut, espace)
@@ -589,19 +609,25 @@ export default async (req: Request, _context: Context) => {
   const espaceFiltre = ESPACES_OUVERTS.includes(espaceParam) ? espaceParam : "";   // "" = fil principal : toutes les vidéos non enfants
   const before = Number(url.searchParams.get("before")) || null;
 
+  // KOMYO Jeunes : seuls les 13-17 ans le voient. Les autres reçoivent une liste vide.
+  if (espaceFiltre === "jeunes") {
+    const pers = (await sql`SELECT date_naissance FROM starvibe_profiles WHERE account_id = ${accountId} AND type_profil = 'personnel' LIMIT 1`) as { date_naissance: string }[];
+    if (!pers[0] || !estJeune(ageFromDate(String(pers[0].date_naissance)))) return json({ videos: [], reserve: true });
+  }
+
   const rows = (before
     ? await sql`
         SELECT v.*, p.nom AS auteur_nom
         FROM starvibe_videos v
         JOIN starvibe_profiles p ON p.id = v.profile_id
-        WHERE v.pour_enfants = ${wantKids} AND v.moderation_statut = 'approuve' AND (v.premium = false OR ${wantKids}) AND (${espaceFiltre} = '' OR v.espace = ${espaceFiltre}) AND v.id < ${before}
+        WHERE v.pour_enfants = ${wantKids} AND v.moderation_statut = 'approuve' AND (v.premium = false OR ${wantKids}) AND ((${espaceFiltre} = '' AND v.espace <> 'jeunes') OR (${espaceFiltre} <> '' AND v.espace = ${espaceFiltre})) AND v.id < ${before}
         ORDER BY v.id DESC LIMIT 10
       `
     : await sql`
         SELECT v.*, p.nom AS auteur_nom
         FROM starvibe_videos v
         JOIN starvibe_profiles p ON p.id = v.profile_id
-        WHERE v.pour_enfants = ${wantKids} AND v.moderation_statut = 'approuve' AND (v.premium = false OR ${wantKids}) AND (${espaceFiltre} = '' OR v.espace = ${espaceFiltre})
+        WHERE v.pour_enfants = ${wantKids} AND v.moderation_statut = 'approuve' AND (v.premium = false OR ${wantKids}) AND ((${espaceFiltre} = '' AND v.espace <> 'jeunes') OR (${espaceFiltre} <> '' AND v.espace = ${espaceFiltre}))
         ORDER BY v.id DESC LIMIT 10
       `) as VideoRow[];
 
