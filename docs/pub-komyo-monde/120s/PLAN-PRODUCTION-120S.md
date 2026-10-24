@@ -152,3 +152,8 @@ Vérifier : pays où KOMYO est vraiment disponible, fonctions de l'appli, prix 3
 - S9 : cliente « Madame Sita, le pagne s'il vous plaît » → Sita « Un instant, madame, hé ! » → « C'est un appel vidéo de KOMYO ! Bonjour les amis ! Nous aussi, à Abidjan, avec KOMYO, on est connectés ! » ; nouveau balayage Kling depuis la nouvelle dernière image (la cliente reste la même).
 - Film v3 : 1 min 55 s ; niveaux réajustés ; contrôle Scribe : toutes les répliques comprises.
 - Scripts : lip8.py, sweep_kling2.py, build123.py, assemble2.py (dossier post/).
+
+## Tour 12 — écran du téléphone de Sita (S9)
+- Défaut : l'écran généré par Wan laissait voir l'arrière du téléphone et un visage flou en transparence.
+- Correction : le quad de l'écran est suivi image par image (flux optique), puis l'écran d'appel KOMYO (4 amis) est incrusté ; les doigts restent devant l'écran (masque de peau). Scripts : fixphone_track.py, fixphone.py.
+- Film v4 (1 min 55 s).
