@@ -4,7 +4,7 @@ sys.path.insert(0,'.')
 from music120 import build
 SR=44100; FF=open('../ffpath').read().strip()
 SEG=[('s123','scenes_1_3_v4e.mp4',0,None),('insA','phone_insert.mp4',0,1.6),('s4','lip2_s4.mp4',0,None),('insB','phone_insert.mp4',1.6,None),
-     ('s5','lip2_s5.mp4',0,None),('s6a','lip2_s6a.mp4',0,None),('s6b','s6b_complet.mp4',0,None),('s7','lip2_s7.mp4',0,None),
+     ('s5','lip2_s5.mp4',0,None),('s6a','lip2_s6a.mp4',0,None),('s6b','s6b_complet.mp4',0,None),('s7','lip2_s7c.mp4',0,None),
      ('s8','lip_s8.mp4',0,None),('s9','s9_complet.mp4',0,None),('fin','film_fin_v3.mp4',0,None)]
 def dur(p):
     o=subprocess.run([FF,'-i',p],capture_output=True,text=True).stderr
