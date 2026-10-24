@@ -112,3 +112,9 @@ Vérifier : pays où KOMYO est vraiment disponible, fonctions de l'appli, prix 3
 - `watersfx.py` : suppression du bruit de coulée bande 700–5200 Hz (le « frouss » de 0–6 s) ; ne restent que quelques gouttes très discrètes puis le son dans le verre et les bulles. Énergie 0–6 s divisée par ~40 (rms 0,15 → 0,023).
 - `logo_anim3.py` : fond bleu remplacé par les 5 affiches fournies (KOMYO selfie, PIOUPIOU Kids, bière RACINES FORT, PIOUPIOU « Tu as des enfants ? », app Télécharge), agrandies, collées bord à bord (5 colonnes), dérive verticale lente alternée, voile sombre au centre + bande basse pour la lisibilité du logo et du CTA. L'iris doré s'ouvre maintenant sur les affiches.
 - `seq3.py` → `film_fin_v3.mp4` (37,1 s).
+
+## Tour 6 — voix fixes (ElevenLabs) + lèvres (Wan 2.7)
+- Voix validées par Carry : Marie = Fatou (`Vza9yt3uSx3RXnRx6YfI`), vendeuse = Loulou (`1T2MOlQA0Xp3hNv1dBxp`), Angèle = Sara (`QGfpyFuk3rtPv4pRSQwp`), Foel = Patrick (`lpWJhr15teNWHhRqdTOQ`), Messie = Bakumba (`cEjGxRhK5rId1bacJPJr`), cliente d'Abidjan = Grandma Clo (`EMuO6fFLrXKOryHzij6K`, « le pagne s'il vous plaît »), **Sita = voix ivoirienne créée sur mesure « Sita Abidjan KOMYO » (`BXoh2NHSNRPQ0HLbMkTT`)**, répliques « Abidjan est là dèh. Nous on est déjà connectéô / connectéoo ».
+- Pas de clonage de voix d'une personne réelle sans son accord ; piste : enregistrement consenti d'une Ivoirienne.
+- Plans parlés S4, S5, S6a, S6b, S7, S8 refaits en Wan 2.7 image→vidéo piloté par l'audio (`post/lip6.py`, audio avec silence d'écoute au début, 720p, ≈ 0,10 $/s, ≈ 2,40 $ au total) : `lip_s4.mp4` … `lip_s8.mp4`. À valider par Carry.
+- Reste : S9 (cliente + Sita), éventuellement S2/S3 (Marie avec la voix Fatou), montage 120 s.
