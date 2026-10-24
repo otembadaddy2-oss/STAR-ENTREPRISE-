@@ -1,6 +1,6 @@
 import numpy as np, subprocess, math
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
-W,H,FPS=1280,720,24; DUR=11.5; N=int(DUR*FPS)
+W,H,FPS=1280,720,24; DUR=8.0; N=int(DUR*FPS)
 FB='/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'; FR='/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
 f=lambda s,b=False: ImageFont.truetype(FB if b else FR,s)
 FF=open('../ffpath').read().strip()
@@ -44,12 +44,13 @@ def frame(i):
     if c>0: d.text((W//2,665),'Une gorgée. Un appel. Le monde se rapproche.',font=f(26,True),fill=(255,244,214,int(255*c)),anchor='mm')
     im.alpha_composite(ov)
     out=im.convert('RGB')
-    if t<2.2:   # vu à travers la surface de l'eau : ondulations qui se calment, teinte bleu-vert, éclat doré
-        a=np.asarray(out).astype(np.float32); A=16*(1-t/2.2)**2
+    u=min(t/2.2,(DUR-t)/1.6)
+    if u<1:   # vu à travers la surface de l'eau : ondulations qui se calment, teinte bleu-vert, éclat doré
+        a=np.asarray(out).astype(np.float32); A=16*(1-u)**2
         yy,xx=np.mgrid[0:H,0:W]
         dx=(A*np.sin(2*np.pi*(yy/48.0+t*2.6))).astype(np.int32); dy=(A*0.8*np.sin(2*np.pi*(xx/64.0+t*2.1))).astype(np.int32)
         a=a[np.clip(yy+dy,0,H-1),np.clip(xx+dx,0,W-1)]
-        k=(1-t/2.2)**1.5; a=a*(1-0.14*k)+np.array([150,160,160],np.float32)*0.14*k+np.array([255,236,190],np.float32)*0.10*k
+        k=(1-u)**1.5; a=a*(1-0.14*k)+np.array([150,160,160],np.float32)*0.14*k+np.array([255,236,190],np.float32)*0.10*k
         out=Image.fromarray(a.clip(0,255).astype(np.uint8))
     return out
 p=subprocess.Popen([FF,'-y','-loglevel','error','-f','rawvideo','-pix_fmt','rgb24','-s',f'{W}x{H}','-r',str(FPS),'-i','-','-c:v','libx264','-crf','16','-pix_fmt','yuv420p','mosaic.mp4'],stdin=subprocess.PIPE)
