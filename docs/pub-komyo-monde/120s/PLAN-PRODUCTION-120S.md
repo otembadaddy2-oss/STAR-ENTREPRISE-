@@ -50,3 +50,8 @@ Vérifier : pays où KOMYO est vraiment disponible, fonctions de l'appli, prix 3
 - 7 images clés 16:9 des plans larges (Soul API, 720p, ≈ 0,094 $ pièce) : `images-cles/` — aérien Brazzaville, glacière zénithale, café parisien, salon de Montréal (télécommande + tablette sur la table basse), Tokyo de nuit, boutique d'Abidjan, verre d'eau macro.
 - Image de référence de Clémence (visage du spot officiel) téléversée : media id Higgsfield `8bcbec5c-ff9d-453a-b26a-fa4353181ba5`.
 - Domaines autorisés : `*.higgsfield.ai`, `*.cloudfront.net` (téléchargement et contrôle des sorties).
+
+## 24 oct. 2026 — scènes 1 à 3 (Brazzaville) générées
+- Élément de référence « BISSA-POP-pack » (vrai emballage) : `06715b11-b0f9-4871-94b5-a1ce1398c17c`.
+- Images clés S2 / S3 : seedream_v5_lite avec éléments (Marie + vendeuse + boîte) → `images-cles/k08_*`, `k09_*`.
+- Clips Kling 3.0 std, son natif, ≈ 25 s ≈ 3,2 $ : S1 aérien 7 s, S2 dialogue 10 s, S3 dégustation 8 s. Assemblage d'essai 24 s (non versionné). Voix et synchronisation labiale : à valider par Carry à l'écoute ; sinon doublage ElevenLabs après recharge.
