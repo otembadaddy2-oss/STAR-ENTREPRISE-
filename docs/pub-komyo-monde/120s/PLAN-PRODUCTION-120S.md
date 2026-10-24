@@ -133,3 +133,8 @@ Vérifier : pays où KOMYO est vraiment disponible, fonctions de l'appli, prix 3
 - Balayage de caméra Kling 3.0 std muet (6 s, ≈ 0,50 $, `post/sweep_kling.py`) depuis la dernière image de S9 : passe derrière la cliente, étagères, rue derrière la vitre, revient sur la main qui tient le téléphone.
 - Gros plan de la main de Sita (image Grok à écran magenta ≈ 0,07 $ `post/hand_kf.py`) + écran KOMYO incrusté par détection du quadrilatère magenta et perspective (`post/hand_s9.py`, 3,8 s) → `hand_s9.mp4`.
 - Montage `s9_complet.mp4` (19 s) : S9 → balayage → gros plan main/téléphone, ambiance + « whoosh » synthétisés. Défaut connu : pendant le balayage la cliente apparaît en chemise beige (Kling l'invente) au lieu du T-shirt gris.
+
+## Tour 9 — Film complet v2 (113 s)
+- `post/assemble2.py` : S1–S3 (v4e, voix Kling retenues) → appel entrant (début de l'insert téléphone) → S4 → suite de l'insert (données mobiles, KOMYO, passage en vidéo) → S5 → S6a → S6b + gros plan écran → S7 → S8 → S9 complet (dialogue, balayage, gros plan main) → fin v3 (eau, mosaïque, Clémence, logo sur affiches). Durées calées à l'image près (24 i/s), voix recalées au même niveau, ambiances discrètes par lieu, notifications/sonnerie/tap synthétiques, musique avec ducking, normalisation −16 LUFS / pic −1,4 dBFS.
+- Fichiers (scratchpad, non versionnés car lourds) : `KOMYO_monde_en_mouvement_120s_16x9_v2.mp4` (62 Mo, 1280×720) et `KOMYO_monde_en_mouvement_120s_v2_leger.mp4` (15 Mo, 960×540).
+- Reste : retours de Carry sur v2, puis déclinaisons 60/30/15 s, 9:16, 1:1 ; Marie S2/S3 avec la voix Fatou (option, ≈ 1 $) ; correction de la chemise beige de la cliente dans le balayage S9 (option, ≈ 0,50 $).
