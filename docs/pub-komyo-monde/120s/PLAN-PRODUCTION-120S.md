@@ -145,3 +145,10 @@ Vérifier : pays où KOMYO est vraiment disponible, fonctions de l'appli, prix 3
 - Le film envoyé par Carry (`v2_leger`, 1 min 53) a été transcrit mot à mot : toutes les répliques sont reconnues correctement. Écarts : « Bissap pop » (S2, ancienne voix Kling de Marie) ; « Komio » pour « Komyo » (voix de Marie ET voix officielle de Clémence : même rendu) ; un « Logiciel téléchargé » vers 106,8 s qui est probablement un bruitage de frappe du texte du logo pris pour de la parole (à vérifier à l'oreille).
 - Niveaux mesurés avant correction : Sita −11 dB, cliente −22 dB, Clémence −21 dB, voix officielle −20 dB, Marie S4 −17,5 dB, Marie S3 −12 dB → déséquilibre. Corrigé dans `post/assemble2.py` par fenêtres de gain réplique par réplique ; niveaux mesurés après : −14,3 à −16,1 dB pour toutes les répliques.
 - Reste proposé : refaire S3 (Marie seule) avec la voix Fatou + synchronisation des lèvres (≈ 0,40 $) pour l'harmoniser avec S4/S6a ; S2 (plan à deux) ne peut pas être resynchronisé proprement avec une seule voix.
+
+## Tour 11 — scènes 2, 3 et 9 refaites (voix validées)
+- S2 en champ / contre-champ : Marie (voix Fatou, « Bonjour maman, le Bissa Pop, c'est combien ? ») puis la vendeuse (« C'est trois cents francs, ma fille ») — Wan 2.7 lip-sync, un locuteur par plan, retour sur la glacière (échange pièces/paquet).
+- S3 : « Ah, ça fait du bien ! » avec la voix de Fatou (cohérence avec S2).
+- S9 : cliente « Madame Sita, le pagne s'il vous plaît » → Sita « Un instant, madame, hé ! » → « C'est un appel vidéo de KOMYO ! Bonjour les amis ! Nous aussi, à Abidjan, avec KOMYO, on est connectés ! » ; nouveau balayage Kling depuis la nouvelle dernière image (la cliente reste la même).
+- Film v3 : 1 min 55 s ; niveaux réajustés ; contrôle Scribe : toutes les répliques comprises.
+- Scripts : lip8.py, sweep_kling2.py, build123.py, assemble2.py (dossier post/).

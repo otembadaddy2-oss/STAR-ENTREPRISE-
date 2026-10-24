@@ -3,9 +3,9 @@ from numpy.fft import rfft, irfft
 sys.path.insert(0,'.')
 from music120 import build
 SR=44100; FF=open('../ffpath').read().strip()
-SEG=[('s123','scenes_1_3_v4e.mp4',0,None),('insA','phone_insert.mp4',0,1.6),('s4','lip2_s4.mp4',0,None),('insB','phone_insert.mp4',1.6,None),
+SEG=[('s123','scenes_1_3_v5.mp4',0,None),('insA','phone_insert.mp4',0,1.6),('s4','lip2_s4.mp4',0,None),('insB','phone_insert.mp4',1.6,None),
      ('s5','lip2_s5.mp4',0,None),('s6a','lip2_s6a.mp4',0,None),('s6b','s6b_complet.mp4',0,None),('s7','lip2_s7c.mp4',0,None),
-     ('s8','lip_s8.mp4',0,None),('s9','s9_complet.mp4',0,None),('fin','film_fin_v3.mp4',0,None)]
+     ('s8','lip_s8.mp4',0,None),('s9','s9n_complet.mp4',0,None),('fin','film_fin_v3.mp4',0,None)]
 def dur(p):
     o=subprocess.run([FF,'-i',p],capture_output=True,text=True).stderr
     h,m,s=re.search(r'Duration: (\d+):(\d+):([\d.]+)',o).groups(); return int(h)*3600+int(m)*60+float(s)
@@ -46,7 +46,7 @@ def put(buf,sig,st,g=1.0,fin=0.02,fout=0.02):
 def speech_rms(a):
     m=a.mean(1); w=int(0.05*SR); k=len(m)//w
     r=np.sqrt((m[:k*w].reshape(k,w)**2).mean(1)); act=r[r>0.01]; return act.mean() if len(act) else 0.1
-ref=0.07; r123=speech_rms(load('scenes_1_3_v4e.mp4')); print('voix S1-3',round(r123,3))
+ref=0.07; r123=speech_rms(load('scenes_1_3_v5.mp4')); print('voix S1-3',round(r123,3))
 dial=np.zeros((n,2))
 for k,p,ss,to in SEG:
     if k in ('insA','insB','fin'): continue
@@ -85,9 +85,9 @@ sput(tone(1568,0.35,k=7)+0.5*tone(2349,0.35,k=8),start['s8']+0.2,0.14)    # noti
 # plan final (eau → Clémence → logo) : son propre mixage
 fin=load('film_fin_v3.mp4'); fine=np.zeros((n,2)); put(fine,fin,start['fin'],1.0,XF,0.02)
 # --- équilibrage réplique par réplique (mesures sur le film v2 : dB à ajouter pour viser ≈ −15,5 dB)
-LEV=[(7.7,11.3,-1.5),(12.6,15.6,0.0),(21.9,23.3,-4.5),(25.2,29.3,+2.0),(33.9,36.9,0.0),(37.7,39.6,0.0),(40.8,43.0,0.0),
-     (49.2,52.2,0.0),(54.0,57.3,+1.0),(58.4,61.2,+10.0),(61.4,63.1,-7.2),(64.5,68.1,-5.7)]
-LEV_FIN=[(98.8,103.2,+6.0),(107.5,110.3,+4.0)]
+d1=-1.82   # S1-3 plus court (21,28 s au lieu de 23,10 s)
+LEV=[(6.7,10.64,-1.5),(10.64,13.54,-5.0),(15.2,20.9,+2.0),(56.33,59.5,+12.0),(59.5,61.9,-3.0),(61.9,70.3,-3.0)]+[(a+d1,b+d1,g) for a,b,g in [(25.2,29.3,+2.0),(33.9,36.9,0.0),(37.7,39.6,0.0),(40.8,43.0,0.0),(49.2,52.2,0.0),(54.0,57.3,+1.0)]]
+LEV_FIN=[(a+1.97,b+1.97,g) for a,b,g in [(98.8,103.2,+6.0),(107.5,110.3,+4.0)]]
 def gcurve(wins):
     g=np.zeros(n); r=int(0.12*SR)
     for a,b,db in wins:
