@@ -15,8 +15,8 @@ V={'marie':boom(frames('clip_s11a.mp4')),'angele':boom(frames('clip_s11b.mp4')),
 LOGO=Image.open('/home/user/STAR-ENTREPRISE-/assets/img/pub/komyo-logo-or-monde.png').convert('RGBA'); LOGO.thumbnail((CW-30,CH-20))
 GOLD=(232,184,64)
 X=[24,442,860]; Y=[62,350]
-cells=[('marie',0,0,'BRAZZAVILLE · 12:00',0.0),('angele',1,0,'PARIS · 12:00',0.35),('foel',2,0,'MONTRÉAL · 06:00',0.7),
-       ('messie',0,1,'TOKYO · 20:00',1.05),('logo',1,1,'',1.75),('sita',2,1,'ABIDJAN · 11:00',1.4)]
+cells=[('marie',0,0,'BRAZZAVILLE · 12:00',0.0),('angele',1,0,'PARIS · 12:00',0.12),('foel',2,0,'MONTRÉAL · 06:00',0.24),
+       ('messie',0,1,'TOKYO · 20:00',0.36),('logo',1,1,'',0.72),('sita',2,1,'ABIDJAN · 11:00',0.48)]
 ease=lambda x: x*x*(3-2*x); clamp=lambda x,a=0,b=1: max(a,min(b,x))
 def bg():
     a=np.zeros((H,W,3),np.float32); y=np.linspace(0,1,H)[:,None]; x=np.linspace(0,1,W)[None,:]
@@ -26,7 +26,7 @@ BG=bg()
 def frame(i):
     t=i/FPS; im=BG.copy(); ov=Image.new('RGBA',(W,H),(0,0,0,0)); d=ImageDraw.Draw(ov)
     for name,cx,cy,label,t0 in cells:
-        k=ease(clamp((t-t0)/0.5))
+        k=ease(clamp((t-t0)/0.4))
         if k<=0: continue
         x0,y0=X[cx],Y[cy]; s=0.88+0.12*k
         w,h=int(CW*s),int(CH*s); xx=x0+(CW-w)//2; yy=y0+(CH-h)//2
@@ -43,7 +43,15 @@ def frame(i):
     c=ease(clamp((t-5.2)/0.8))*ease(clamp((DUR-t)/0.6+0.0)) if DUR-t<0.6 else ease(clamp((t-5.2)/0.8))
     if c>0: d.text((W//2,665),'Une gorgée. Un appel. Le monde se rapproche.',font=f(26,True),fill=(255,244,214,int(255*c)),anchor='mm')
     im.alpha_composite(ov)
-    return im.convert('RGB')
+    out=im.convert('RGB')
+    if t<2.2:   # vu à travers la surface de l'eau : ondulations qui se calment, teinte bleu-vert, éclat doré
+        a=np.asarray(out).astype(np.float32); A=16*(1-t/2.2)**2
+        yy,xx=np.mgrid[0:H,0:W]
+        dx=(A*np.sin(2*np.pi*(yy/48.0+t*2.6))).astype(np.int32); dy=(A*0.8*np.sin(2*np.pi*(xx/64.0+t*2.1))).astype(np.int32)
+        a=a[np.clip(yy+dy,0,H-1),np.clip(xx+dx,0,W-1)]
+        k=(1-t/2.2)**1.5; a=a*(1-0.35*k)+np.array([20,110,120],np.float32)*0.35*k+np.array([255,230,160],np.float32)*0.18*k
+        out=Image.fromarray(a.clip(0,255).astype(np.uint8))
+    return out
 p=subprocess.Popen([FF,'-y','-loglevel','error','-f','rawvideo','-pix_fmt','rgb24','-s',f'{W}x{H}','-r',str(FPS),'-i','-','-c:v','libx264','-crf','16','-pix_fmt','yuv420p','mosaic.mp4'],stdin=subprocess.PIPE)
 for i in range(N): p.stdin.write(frame(i).tobytes())
 p.stdin.close(); p.wait(); print('ok',N)

@@ -79,3 +79,9 @@ Vérifier : pays où KOMYO est vraiment disponible, fonctions de l'appli, prix 3
 - Voix de Clémence validée par Carry (« c'est sa voix ») : `eleven_v4`, voix `LFo5X4P9PhYaOLBA9Hyh`, réplique « Je vous l'avais dit : vous êtes formidables. Voici notre surprise. » (66 crédits).
 - Test lèvres : Wan 2.7 image→vidéo (`wan/v2.7/image-to-video`, `audio_url` = mp3 hébergé via media_upload, 5 s, 720p, ≈ 0,50 $) sur l'image clé `k12_clemence` : bouche animée sur l'audio, visage stable. Fichier d'essai : `lip_clemence_test_v1.mp4` (scratchpad).
 - Reste : choisir une voix fixe pour Marie, la vendeuse, Angèle, Foel, Messie, Sita ; générer les répliques ; plans à une personne en Wan 2.7 ; remonter avec `post/assemble.py` ; déclinaisons.
+
+## 24 oct. 2026 — retours de Carry sur le film v1 : eau, vue immergée, logo téléphone
+- **Eau qui moussait** : l'image de départ du plan du verre montrait déjà des bulles blanches ; Kling les a amplifiées. Refait : image Grok « eau transparente, ni mousse ni lait » (`k10_w1a`) puis clip Kling 3.0 std muet 4 s.
+- **Vue « comme dans l'eau, avec les vagues »** (brief : traverser symboliquement le verre) : nouvelle image sous-marine (`k10_w2_sous_leau`) + clip Kling muet 5 s, caméra qui remonte vers la surface (vagues, rayons, bulles). Fondu enchaîné 0,7 s entre les deux (`s10_new.mp4`, 8,3 s). La mosaïque des cinq visages apparaît ensuite **vue à travers la surface** : déformation ondulée qui se calme en 2,2 s, teinte bleu-vert (`mosaic.py`). Bruitages synthétiques de l'eau : `post/watersfx.py`.
+- **Logo coupé dans le téléphone** : le « K » avait été découpé trop court. Corrigé : écran de l'appli = logo officiel complet (K + KOMYO + slogan), icône d'appli = `komyo-k-v2.png` (K entier).
+- Coût : ≈ 1 $ (2 images 0,14 $ + 9 s de vidéo muette 0,76 $).

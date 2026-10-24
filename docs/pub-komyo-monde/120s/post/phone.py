@@ -5,7 +5,7 @@ DUR=4.2; N=int(DUR*FPS)
 FB='/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'; FR='/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
 f=lambda s,b=False: ImageFont.truetype(FB if b else FR,s)
 LOGO=Image.open('/home/user/STAR-ENTREPRISE-/assets/img/pub/komyo-logo-or-monde.png').convert('RGBA')
-K=LOGO.crop((int(LOGO.width*0.30),0,int(LOGO.width*0.92),int(LOGO.height*0.49)))   # le K doré
+K=Image.open('/home/user/STAR-ENTREPRISE-/starvibe/assets/img/icons/komyo-k-v2.png').convert('RGBA')
 ANG=Image.open('/home/user/STAR-ENTREPRISE-/docs/pub-komyo-monde/120s/personnages/angele.jpg').convert('RGB')
 ANG=ANG.crop((60,40,660,640)).resize((200,200))
 GOLD=(232,184,64); NAVY=(8,18,44)
@@ -83,9 +83,7 @@ def screen(t):
     else:   # ---- application KOMYO
         k=ease(clamp((t-2.75)/0.35))
         d.rectangle((0,0,sw,sh),fill=(8,16,40))
-        kk=K.copy(); sc=int(150+30*k); kk.thumbnail((sc,sc)); im.paste(kk,(sw//2-kk.width//2,150),kk)
-        d.text((sw//2,330),'KOMYO',font=f(30,True),fill=GOLD,anchor='mm')
-        d.text((sw//2,366),'Le monde en mouvement',font=f(13),fill=(220,230,250),anchor='mm')
+        lg=LOGO.copy(); lg.thumbnail((int(250+20*k),int(250+20*k))); im.paste(lg,(sw//2-lg.width//2,130),lg)
         # bouton « passer en vidéo »
         bt=clamp((t-3.05)/0.3)
         d.rounded_rectangle((40,470,sw-40,526),28,fill=(232,184,64,int(255*bt)))
