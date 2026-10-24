@@ -84,6 +84,17 @@ sput(tone(1760,0.35,k=7),start['s7']+1.9,0.16)                            # noti
 sput(tone(1568,0.35,k=7)+0.5*tone(2349,0.35,k=8),start['s8']+0.2,0.14)    # notification de Messie
 # plan final (eau → Clémence → logo) : son propre mixage
 fin=load('film_fin_v3.mp4'); fine=np.zeros((n,2)); put(fine,fin,start['fin'],1.0,XF,0.02)
+# --- équilibrage réplique par réplique (mesures sur le film v2 : dB à ajouter pour viser ≈ −15,5 dB)
+LEV=[(7.7,11.3,-1.5),(12.6,15.6,0.0),(21.9,23.3,-4.5),(25.2,29.3,+2.0),(33.9,36.9,0.0),(37.7,39.6,0.0),(40.8,43.0,0.0),
+     (49.2,52.2,0.0),(54.0,57.3,+1.0),(58.4,61.2,+10.0),(61.4,63.1,-7.2),(64.5,68.1,-5.7)]
+LEV_FIN=[(98.8,103.2,+6.0),(107.5,110.3,+4.0)]
+def gcurve(wins):
+    g=np.zeros(n); r=int(0.12*SR)
+    for a,b,db in wins:
+        i,j=int(a*SR),int(b*SR); g[i:j]=db
+    k=np.ones(r)/r; return 10**(np.convolve(g,k,'same')/20)
+dial*=gcurve(LEV)[:,None]
+fine*=gcurve(LEV_FIN)[:,None]
 # ducking de la musique sous les voix
 def bnd(x):
     m=x.mean(1); N=len(m); S=rfft(m); f=np.fft.rfftfreq(N,1/SR); S[(f<250)|(f>3500)]=0; return irfft(S,N)
