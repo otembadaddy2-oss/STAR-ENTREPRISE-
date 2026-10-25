@@ -121,6 +121,18 @@
   .mute-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:6;background:rgba(0,0,0,.45);
     width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity .2s;}
   .mute-hint.show{opacity:1;}
+  .vid-wait{position:absolute;top:50%;left:50%;width:46px;height:46px;margin:-23px 0 0 -23px;z-index:6;opacity:0;pointer-events:none;transition:opacity .2s;}
+  .vid-wait.on{opacity:1;}
+  .vid-wait i{display:block;width:100%;height:100%;border-radius:50%;border:4px solid rgba(255,255,255,.25);border-top-color:#fff;animation:vwspin .8s linear infinite;}
+  @keyframes vwspin{to{transform:rotate(360deg);}}
+  .share-sheet{position:fixed;inset:0;z-index:45;display:flex;align-items:flex-end;background:rgba(0,0,0,.55);}
+  .share-sheet[hidden]{display:none;}
+  .share-panel{background:#17101f;color:#fff;width:100%;max-width:480px;margin:0 auto;border-radius:20px 20px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom));display:grid;gap:8px;}
+  .share-panel h2{margin:0 0 4px;font:800 17px 'Sora',Arial,sans-serif;}
+  .share-panel a,.share-panel button{display:flex;align-items:center;gap:12px;width:100%;padding:13px 14px;border:0;border-radius:14px;background:rgba(255,255,255,.09);color:#fff;font:700 15px 'Sora',Arial,sans-serif;text-decoration:none;cursor:pointer;text-align:left;}
+  .share-panel a:active,.share-panel button:active{background:rgba(255,255,255,.2);}
+  .share-panel .sp-info{font-size:13px;opacity:.85;min-height:18px;margin:0;}
+  .share-panel .sp-x{justify-content:center;background:none;opacity:.8;}
   .mute-hint svg{width:26px;height:26px;}
 
   .bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;align-items:center;justify-content:space-around;
@@ -226,6 +238,20 @@
     <a href="accueil.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 11 12 4l8 7M6 10v9h12v-9"/></svg>Accueil</a>
     <button id="btnAdd" aria-label="Filmer et publier une vidéo"><span class="add-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></span><span class="publish-label">Publier</span></button>
     <a href="fil.html" id="navFil" aria-label="Fil : revenir à la première vidéo" style="color:#fff;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M10 9l5 3-5 3z" fill="currentColor"/></svg>Fil</a>
+  </div>
+</div>
+
+<div class="share-sheet" id="shareSheet" hidden>
+  <div class="share-panel" role="dialog" aria-label="Partager cette vidéo">
+    <h2>Partager cette vidéo</h2>
+    <button type="button" id="spVideo" hidden>Envoyer la vidéo (WhatsApp, Gmail…)</button>
+    <a id="spWa" target="_blank" rel="noopener">WhatsApp</a>
+    <a id="spFb" target="_blank" rel="noopener">Facebook</a>
+    <a id="spMail">E-mail / Gmail</a>
+    <button type="button" id="spCopy">Copier le lien</button>
+    <button type="button" id="spMore" hidden>Plus d'options…</button>
+    <p class="sp-info" id="spInfo" role="status"></p>
+    <button type="button" class="sp-x" id="spClose">Fermer</button>
   </div>
 </div>
 
@@ -351,11 +377,45 @@
     });
   }
 
+  // ---------- Partager une vidéo : WhatsApp, Facebook, e-mail/Gmail, vidéo elle-même, lien ----------
+  var shareSheet = document.getElementById('shareSheet'), spInfo = document.getElementById('spInfo');
+  function fermerPartage(){ shareSheet.hidden = true; spInfo.textContent = ''; }
+  shareSheet.addEventListener('click', function(e){ if (e.target === shareSheet) fermerPartage(); });
+  document.getElementById('spClose').addEventListener('click', fermerPartage);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !shareSheet.hidden) fermerPartage(); });
+  function ouvrirPartage(v){
+    var lien = location.origin + '/starvibe/';
+    var texte = 'Regarde la vidéo de @' + v.auteur + ' sur KOMYO' + (v.legende ? ' : ' + v.legende : '');
+    var tout = texte + '\n' + lien, enc = encodeURIComponent;
+    document.getElementById('spWa').href = 'https://wa.me/?text=' + enc(tout);
+    document.getElementById('spFb').href = 'https://www.facebook.com/sharer/sharer.php?u=' + enc(lien) + '&quote=' + enc(texte);
+    document.getElementById('spMail').href = 'mailto:?subject=' + enc('Une vidéo sur KOMYO') + '&body=' + enc(tout);
+    var copy = document.getElementById('spCopy'), more = document.getElementById('spMore'), vid = document.getElementById('spVideo');
+    copy.onclick = function(){
+      var ok = function(){ spInfo.textContent = 'Lien copié ✓'; }, ko = function(){ spInfo.textContent = 'Copie impossible : utilise WhatsApp ou l\'e-mail.'; };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(tout).then(ok, ko); else ko();
+    };
+    more.hidden = !navigator.share;
+    more.onclick = function(){ navigator.share({ title: 'KOMYO', text: texte, url: lien }).catch(function(){}); };
+    vid.hidden = !(navigator.canShare && window.File && window.fetch);
+    vid.onclick = function(){
+      spInfo.textContent = 'Préparation de la vidéo… (quelques secondes)';
+      fetch(v.videoUrl).then(function(r){ if (!r.ok) throw 0; return r.blob(); }).then(function(b){
+        var f = new File([b], 'komyo-video.mp4', { type: b.type || 'video/mp4' });
+        if (navigator.canShare({ files: [f] })) { spInfo.textContent = ''; return navigator.share({ files: [f], text: tout }); }
+        spInfo.textContent = 'Ton téléphone ne peut pas envoyer la vidéo directement : utilise WhatsApp ou le lien.';
+      }).catch(function(e){ if (!e || e.name !== 'AbortError') spInfo.textContent = 'Envoi impossible pour le moment : utilise WhatsApp ou le lien.'; else spInfo.textContent = ''; });
+    };
+    spInfo.textContent = ''; shareSheet.hidden = false;
+  }
+
+  var premiereVideo = true;   // la 1re vidéo se charge tout de suite ; les suivantes se préparent quand on approche
   function renderVideo(v){
     var slide = document.createElement('div');
     slide.className = 'slide';
     slide.innerHTML =
-      '<video src="' + v.videoUrl + '" loop muted playsinline preload="metadata"></video>' +
+      '<video src="' + v.videoUrl + '" loop muted playsinline preload="' + (premiereVideo ? 'auto' : 'metadata') + '"></video>' +
+      '<div class="vid-wait" aria-hidden="true"><i></i></div>' +
       '<div class="mute-hint"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M19 9a5 5 0 0 1 0 6M22 6a9 9 0 0 1 0 12"/></svg></div>' +
       '<div class="actions">' +
         '<button type="button" class="plus-btn' + (v.likedByMe ? ' liked' : '') + '" aria-label="Options : j\'aime, commentaire…" aria-expanded="false"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path class="hrt" transform="translate(0 3) scale(.92)" d="M12 21s-7.5-4.6-10-9.3C.4 8 2 4.5 5.6 4c2-.3 3.9.6 6.4 3 2.5-2.4 4.4-3.3 6.4-3C22 4.5 23.6 8 22 11.7 19.5 16.4 12 21 12 21z"/><g class="pl"><path d="M19 1.5v7M15.5 5h7"/></g></svg></button>' +
@@ -366,12 +426,24 @@
           '<button class="comment-btn" data-id="' + v.id + '">' +
             '<span class="icon">' + commentIcon() + '</span><span class="lbl">Commenter</span><span class="count">' + (v.commentaires || 0) + '</span>' +
           '</button>' +
+          '<button class="share-btn" type="button" aria-label="Partager cette vidéo">' +
+            '<span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.7 15.7 6.3M8.3 13.3l7.4 4.4"/></svg></span><span class="lbl">Partager</span>' +
+          '</button>' +
         (v.estMoi ? '<button class="del-btn" data-id="' + v.id + '" aria-label="Supprimer ma vidéo"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2m-9 0 1 14h8l1-14M10 11v6M14 11v6"/></svg></span><span class="lbl">Supprimer</span></button>' : '') +
         '</div>' +
       '</div>' +
       '<div class="meta"><div class="auteur">@' + v.auteur + (!v.estMoi && v.auteurProfilId ? ' <button type="button" class="myo-btn" data-p="' + v.auteurProfilId + '">+ Inviter</button>' : '') + '</div><div class="legende">' + (v.legende || '') + '</div></div>';
 
     var videoEl = slide.querySelector('video');
+    premiereVideo = false;
+    var attente = slide.querySelector('.vid-wait');
+    var visible = false;
+    function tenter(){ if (visible && videoEl.paused) { var p = videoEl.play(); if (p && p.catch) p.catch(function(){}); } }
+    videoEl.addEventListener('waiting', function(){ attente.classList.add('on'); });
+    ['playing', 'canplay', 'loadeddata'].forEach(function(ev){ videoEl.addEventListener(ev, function(){ if (ev === 'playing') attente.classList.remove('on'); tenter(); }); });
+    videoEl.addEventListener('error', function(){ attente.classList.remove('on'); });
+    var share = slide.querySelector('.share-btn');
+    share.addEventListener('click', function(){ fermerOpts(); ouvrirPartage(v); });
     var plus = slide.querySelector('.plus-btn'), opts = slide.querySelector('.opts'), optsTimer = null;
     function fermerOpts(){ clearTimeout(optsTimer); opts.hidden = true; plus.setAttribute('aria-expanded', 'false'); }
     function ouvrirOpts(){ opts.hidden = false; plus.setAttribute('aria-expanded', 'true'); }
@@ -395,6 +467,7 @@
     slide.addEventListener('click', function(e){
       if (e.target.closest('.actions')) return;
       if (!opts.hidden){ fermerOpts(); return; }   // un toucher sur la vidéo referme d'abord la petite fenêtre
+      if (videoEl.paused) { var pp = videoEl.play(); if (pp && pp.catch) pp.catch(function(){}); }
       videoEl.muted = !videoEl.muted;
       hint.classList.add('show');
       setTimeout(function(){ hint.classList.remove('show'); }, 500);
@@ -450,7 +523,9 @@
     var io = new IntersectionObserver(function(entries){
       entries.forEach(function(entry){
         if (entry.isIntersecting && entry.intersectionRatio > 0.6){
-          videoEl.play().catch(function(){});
+          visible = true; tenter(); setTimeout(tenter, 600); setTimeout(tenter, 1800);
+          var suivante = slide.nextElementSibling && slide.nextElementSibling.querySelector('video');
+          if (suivante && suivante.preload !== 'auto') suivante.preload = 'auto';
           if (!watchStart) watchStart = Date.now();
           if (!viewed){
             viewed = true;
@@ -464,7 +539,7 @@
             activityTimer = setInterval(pollActivity, 6000);
           }
         } else {
-          videoEl.pause();
+          visible = false; videoEl.pause();
           if (watchStart){ watchSecondsTotal += (Date.now() - watchStart) / 1000; watchStart = null; sendViewSession(); }
           if (activityTimer){ clearInterval(activityTimer); activityTimer = null; }
         }

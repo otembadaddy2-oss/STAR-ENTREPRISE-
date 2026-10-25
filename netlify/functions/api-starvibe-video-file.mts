@@ -6,6 +6,9 @@ import { getStore } from "@netlify/blobs";
 import { ensureSchema, db } from "./_db.mts";
 import { verifySignature } from "./_premium.mts";
 
+const RECENT = new Map<string, { data: ArrayBuffer; typeMime: string }>();
+const MAX_RECENT_BYTES = 120_000_000;
+
 export default async (req: Request, _context: Context) => {
   const url = new URL(req.url);
   const key = url.searchParams.get("key") || "";
@@ -22,12 +25,23 @@ export default async (req: Request, _context: Context) => {
   }
   const cacheControl = premium ? "private, max-age=3600" : "public, max-age=31536000, immutable";
 
-  const store = getStore("starvibe-videos");
-  const blob = await store.getWithMetadata(key, { type: "arrayBuffer" });
-  if (!blob) return new Response("Not found", { status: 404 });
+  // Le navigateur lit une vidéo en plusieurs morceaux (requêtes « Range ») : on garde les dernières vidéos en mémoire
+  // pour ne pas relire tout le fichier depuis le stockage à chaque morceau (c'était la cause de la lenteur d'affichage).
+  let cached = RECENT.get(key);
+  if (cached) { RECENT.delete(key); RECENT.set(key, cached); }   // le plus récent à la fin
+  else {
+    const store = getStore("starvibe-videos");
+    const blob = await store.getWithMetadata(key, { type: "arrayBuffer" });
+    if (!blob) return new Response("Not found", { status: 404 });
+    cached = { data: blob.data as ArrayBuffer, typeMime: (blob.metadata?.typeMime as string) || "video/mp4" };
+    RECENT.set(key, cached);
+    let poids = 0;
+    for (const v of RECENT.values()) poids += v.data.byteLength;
+    for (const k of RECENT.keys()) { if (RECENT.size <= 1 || (poids <= MAX_RECENT_BYTES && RECENT.size <= 6)) break; poids -= RECENT.get(k)!.data.byteLength; RECENT.delete(k); }
+  }
 
-  const typeMime = (blob.metadata?.typeMime as string) || "video/mp4";
-  const data = blob.data as ArrayBuffer;
+  const typeMime = cached.typeMime;
+  const data = cached.data;
   const total = data.byteLength;
 
   const range = req.headers.get("range");
