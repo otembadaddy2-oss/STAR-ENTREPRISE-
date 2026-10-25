@@ -23,3 +23,8 @@ http://komyo.starentreprise.com/   /starvibe/  301!
 # Jeu X SAPHIR ARENA : hors ligne tant que Carry n'a pas dit « vas-y » (retirer cette ligne pour l'ouvrir)
 /arena           /404.html  404!
 /arena/*         /404.html  404!
+
+# Documents internes (plans, états des lieux, notes de production) : pas publics
+/docs/komyo/*           /404.html  404!
+/docs/film/*            /404.html  404!
+/docs/pub-komyo-monde/* /404.html  404!
