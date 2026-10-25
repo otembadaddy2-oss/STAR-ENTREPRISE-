@@ -150,8 +150,8 @@
     var item = document.createElement('div');
     item.className = 'item';
     item.innerHTML =
-      '<div class="top"><div class="plan">' + d.plan + '</div><div class="amount">' + d.montantAttendu.toLocaleString('fr-FR') + ' FCFA</div></div>' +
-      '<div class="meta"><b>' + d.auteur + '</b> — ' + d.telephone + ' — réf. ' + d.referencePaiement + '</div>' +
+      '<div class="top"><div class="plan">' + esc(d.plan) + '</div><div class="amount">' + d.montantAttendu.toLocaleString('fr-FR') + ' FCFA</div></div>' +
+      '<div class="meta"><b>' + esc(d.auteur) + '</b> — ' + esc(d.telephone) + ' — réf. ' + esc(d.referencePaiement) + '</div>' +
       '<div class="confirm-row">' +
         '<input type="number" placeholder="Montant reçu (FCFA)" id="montant-' + d.id + '">' +
         '<button data-approve>Confirmer</button>' +

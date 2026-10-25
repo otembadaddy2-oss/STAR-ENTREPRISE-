@@ -58,3 +58,13 @@ export async function verifyDocToken(token: string, docId: string): Promise<bool
     return false;
   }
 }
+
+// Jetons « public » : comptes KOMYO, clients de Keydou sans compte, Marketplace, Guichet unique.
+// Ils ne doivent JAMAIS ouvrir le back-office du groupe (leads, membres, JARDIS, devis, inscriptions…).
+const ORGS_PUBLIQUES = new Set(["star_vibe", "keydou_guest", "star_marketplace", "guichet_unique"]);
+
+export async function requireGroupAuth(req: Request): Promise<SessionClaims | null> {
+  const s = await requireAuth(req);
+  if (!s || typeof s.org !== "string" || !s.org || ORGS_PUBLIQUES.has(s.org)) return null;
+  return s;
+}

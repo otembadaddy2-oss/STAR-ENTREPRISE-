@@ -1,7 +1,7 @@
 // JARDIS — journal d'actions (transparence prévue par le document maître).
 import type { Context, Config } from "@netlify/functions";
 import { ensureSchema, db, json } from "./_db.mts";
-import { requireAuth } from "./_auth.mts";
+import { requireGroupAuth as requireAuth } from "./_auth.mts";   // back-office : refuse les jetons KOMYO / Keydou / Marketplace / Guichet
 
 export default async (req: Request, _context: Context) => {
   const session = await requireAuth(req);

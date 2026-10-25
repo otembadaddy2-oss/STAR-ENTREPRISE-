@@ -5,7 +5,7 @@
 import type { Context, Config } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 import { ensureSchema, db } from "./_db.mts";
-import { requireAuth, verifyDocToken } from "./_auth.mts";
+import { requireGroupAuth as requireAuth, verifyDocToken } from "./_auth.mts";   // back-office : refuse les jetons KOMYO / Keydou / Marketplace / Guichet
 
 export default async (req: Request, _context: Context) => {
   const url = new URL(req.url);

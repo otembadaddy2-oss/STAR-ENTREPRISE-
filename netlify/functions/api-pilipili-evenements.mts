@@ -1,7 +1,7 @@
 // Événements Pili-Pili Events, sauvegardés dans la base partagée du groupe.
 import type { Context, Config } from "@netlify/functions";
 import { ensureSchema, db, json } from "./_db.mts";
-import { requireAuth } from "./_auth.mts";
+import { requireGroupAuth as requireAuth } from "./_auth.mts";   // back-office : refuse les jetons KOMYO / Keydou / Marketplace / Guichet
 
 function clean(value: unknown, maxLen: number): string {
   return String(value ?? "").trim().slice(0, maxLen);

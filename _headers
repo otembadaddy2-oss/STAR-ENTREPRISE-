@@ -13,3 +13,16 @@
 
 /sw.js
   Cache-Control: public, max-age=0, must-revalidate
+
+# Sécurité KOMYO : pas de lecture « devinée » des fichiers, pas d'affichage du site dans le cadre d'un autre site,
+# pas de fuite de l'adresse complète vers d'autres sites, caméra et micro réservés à KOMYO (publier une vidéo).
+/starvibe/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(self), microphone=(self), geolocation=(), payment=()
+  Strict-Transport-Security: max-age=31536000
+
+/api/*
+  X-Content-Type-Options: nosniff
+  Cache-Control: no-store

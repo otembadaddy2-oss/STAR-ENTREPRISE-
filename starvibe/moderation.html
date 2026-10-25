@@ -140,15 +140,16 @@
 
   btnLogout.addEventListener('click', function(){ setToken(''); showLogin(); });
 
+  function esc(x){ return String(x == null ? '' : x).replace(/[&<>"']/g, function(c){ return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]; }); }
   function renderItem(v){
     var item = document.createElement('div');
     item.className = 'item';
     item.innerHTML =
       '<video src="' + v.videoUrl + '" muted loop playsinline preload="metadata"></video>' +
       '<div class="info">' +
-        '<div class="auteur">' + v.auteur + '</div>' +
-        '<div class="tel">' + v.telephone + '</div>' +
-        '<div class="legende">' + (v.legende || '<em>Sans légende</em>') + '</div>' +
+        '<div class="auteur">' + esc(v.auteur) + '</div>' +
+        '<div class="tel">' + esc(v.telephone) + '</div>' +
+        '<div class="legende">' + (v.legende ? esc(v.legende) : '<em>Sans légende</em>') + '</div>' +
         '<label class="prem"><input type="checkbox" class="chk-premium"> ⭐ Réservé aux abonnés Famille (premium)</label>' +
         '<div class="actions">' +
           '<button class="btn-approve">Approuver</button>' +

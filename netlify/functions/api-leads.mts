@@ -3,7 +3,7 @@
 // gestion réservées aux comptes connectés du groupe.
 import type { Context, Config } from "@netlify/functions";
 import { ensureSchema, db, json } from "./_db.mts";
-import { requireAuth } from "./_auth.mts";
+import { requireGroupAuth as requireAuth } from "./_auth.mts";   // back-office : refuse les jetons KOMYO / Keydou / Marketplace / Guichet
 import { pushAll } from "./_push.mts";
 
 function clean(value: unknown, maxLen: number): string {
