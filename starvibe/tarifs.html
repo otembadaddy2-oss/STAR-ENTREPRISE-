@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="assets/i18n-v1.js"></script>
+<title>KOMYO — Tarifs</title>
+<meta name="theme-color" content="#FFFBF3">
+<link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<style>
+  :root{--ink:#241536;--gold:#E8A93D;--coral:#FF6B4A;--cream:#FFFBF3;--dim:#6b5f80;--line:#eee2cc;--ok:#1f8f4a;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Inter',Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:'Sora',Arial,sans-serif;}
+  .top{background:linear-gradient(135deg,#FF6B4A,#E8A93D);color:#fff;padding:calc(16px + env(safe-area-inset-top)) 20px 28px;border-radius:0 0 26px 26px;}
+  .top a{color:#fff;text-decoration:none;font:700 13px 'Sora',Arial,sans-serif;}
+  .top h1{margin:10px 0 4px;font-size:27px;line-height:1.15;}
+  .top p{margin:0;font-size:14px;opacity:.95;line-height:1.45;}
+  .wrap{max-width:520px;margin:0 auto;padding:18px 20px 60px;display:grid;gap:14px;}
+  .card{background:#fff;border:1.5px solid var(--line);border-radius:20px;padding:18px;box-shadow:0 10px 24px -18px rgba(36,21,54,.25);}
+  .card h2{margin:0 0 2px;font-size:19px;}
+  .prix{font:800 24px 'Sora',Arial,sans-serif;margin:6px 0 2px;}
+  .prix span{font:600 13px 'Inter',Arial,sans-serif;color:var(--dim);}
+  .eq{display:block;font:500 12px 'Inter',Arial,sans-serif;color:var(--dim);}
+  .card ul{margin:10px 0 14px;padding-left:18px;font-size:14px;line-height:1.5;color:#3a2c52;}
+  .btn{display:block;text-align:center;padding:13px;border-radius:14px;background:linear-gradient(135deg,#FF6B4A,#E8A93D);color:#fff;font:700 15px 'Sora',Arial,sans-serif;text-decoration:none;}
+  .btn.alt{background:#fff;color:var(--ink);border:1.5px solid var(--line);}
+  .tag{display:inline-block;font:800 10px 'Sora',Arial,sans-serif;letter-spacing:.1em;padding:3px 8px;border-radius:6px;background:#e9f7ee;color:var(--ok);}
+  .ligne{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px;}
+  .ligne:first-of-type{border-top:0;}
+  .ligne b{font-family:'Sora',Arial,sans-serif;white-space:nowrap;}
+  .note{font-size:12.5px;color:var(--dim);line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="top">
+  <a href="accueil.html">← Mon espace</a>
+  <h1>Les tarifs KOMYO</h1>
+  <p>Regarder, publier et partager : c'est gratuit. Tu ne paies que pour aller plus loin.</p>
+</div>
+<div class="wrap">
+
+  <div class="card">
+    <span class="tag">GRATUIT</span>
+    <h2>Découverte</h2>
+    <div class="prix">0 <span>FCFA</span></div>
+    <ul>
+      <li>Ton compte personnel et le fil KOMYO</li>
+      <li>Publier tes vidéos : Talents, Business, Musique, Découverte</li>
+      <li>J'aime, commentaires, partage, amis Myo</li>
+      <li>KOMYO Jeunes pour les 13–17 ans</li>
+    </ul>
+    <a class="btn alt" href="inscription.html">Créer mon compte</a>
+  </div>
+
+  <div class="card">
+    <h2>Annonce visible par tous</h2>
+    <p class="note" style="margin:2px 0 8px;">Ta musique, ta boutique ou ton événement s'affiche pour tous les abonnés.</p>
+    <div class="ligne"><span>1 semaine · essai</span><b>2 000 FCFA</b></div>
+    <div class="ligne"><span>2 semaines</span><b>4 000 FCFA</b></div>
+    <div class="ligne"><span>1 mois</span><b>10 000 FCFA</b></div>
+    <p class="note">Affichée après paiement confirmé et relecture par l'équipe. Réservé aux personnes de 18 ans et plus.</p>
+    <a class="btn" href="promouvoir.html">Faire connaître mon activité</a>
+  </div>
+
+  <div class="card">
+    <h2>Business</h2>
+    <div class="prix">5 000 <span>FCFA / mois</span><small class="eq" data-fcfa="5000"></small></div>
+    <ul>
+      <li>Mise en avant de tes vidéos</li>
+      <li>Statistiques : vues, durée regardée, j'aime</li>
+      <li>Outils pour les commerces (en cours d'ajout)</li>
+    </ul>
+    <a class="btn alt" href="abonnement.html">Choisir Business</a>
+  </div>
+
+  <div class="card">
+    <h2>Famille · PIOUPIOU</h2>
+    <div class="prix">1 500 <span>FCFA / mois</span><small class="eq" data-fcfa="1500"></small></div>
+    <ul>
+      <li>Contenus PIOUPIOU premium pour les 3–6 ans</li>
+      <li>Profils enfants illimités</li>
+      <li>Priorité de modération</li>
+    </ul>
+    <a class="btn alt" href="abonnement.html">Choisir Famille</a>
+  </div>
+
+  <div class="card">
+    <h2>Keydou, ton assistant</h2>
+    <div class="prix">1 000 <span>FCFA par demande</span><small class="eq" data-fcfa="1000"></small></div>
+    <ul>
+      <li>Hôtel, restaurant, salle, véhicule, dépannage…</li>
+      <li>Tu coches ton besoin : Keydou te donne la réponse</li>
+    </ul>
+    <a class="btn alt" href="keydou.html">Parler à Keydou</a>
+  </div>
+
+  <p class="note">Paiement par Mobile Money. Le montant doit être exact : rien n'est activé tant que l'équipe STAR ENTREPRISE n'a pas confirmé la réception. Les prix sont fixés en FCFA ; l'équivalent dans ta monnaie est indicatif. Une question ? <a href="mailto:contact@starentreprise.com" style="color:inherit;font-weight:700;">contact@starentreprise.com</a></p>
+</div>
+<script src="assets/komyo-prix-v2.js" defer></script>
+</body>
+</html>

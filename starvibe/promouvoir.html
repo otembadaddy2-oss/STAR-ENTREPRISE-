@@ -27,7 +27,7 @@
   .prev{margin-top:10px;display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:14px;background:linear-gradient(135deg,#0a1030,#241536);color:#fff;overflow:hidden;}
   .prev .tag{flex:none;font:800 9.5px 'Sora',Arial,sans-serif;letter-spacing:.12em;color:#0a1030;background:linear-gradient(135deg,#ffe27a,#e8a93d);padding:3px 7px;border-radius:6px;}
   .prev .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:600 13.5px 'Inter',Arial,sans-serif;}
-  .plans{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .plans{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
   .plan{border:2px solid var(--line);border-radius:16px;padding:14px 10px;text-align:center;background:#fff;cursor:pointer;}
   .plan input{position:absolute;opacity:0;}
   .plan b{display:block;font:800 17px 'Sora',Arial,sans-serif;margin-bottom:4px;}
@@ -67,6 +67,7 @@
 
       <label>Durée</label>
       <div class="plans" id="plans">
+        <label class="plan" data-plan="une_semaine" style="margin:0"><input type="radio" name="plan" value="une_semaine"><b>2 000 FCFA</b><span>1 semaine · essai</span></label>
         <label class="plan" data-plan="deux_semaines" style="margin:0"><input type="radio" name="plan" value="deux_semaines"><b>4 000 FCFA</b><span>2 semaines</span></label>
         <label class="plan on" data-plan="un_mois" style="margin:0"><input type="radio" name="plan" value="un_mois" checked><b>10 000 FCFA</b><span>1 mois</span></label>
       </div>

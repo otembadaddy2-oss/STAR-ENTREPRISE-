@@ -121,6 +121,8 @@
   .mute-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:6;background:rgba(0,0,0,.45);
     width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity .2s;}
   .mute-hint.show{opacity:1;}
+  .esp-promo{position:fixed;left:14px;top:calc(144px + env(safe-area-inset-top));z-index:28;display:inline-block;padding:7px 12px;border-radius:999px;background:linear-gradient(135deg,#FF6B4A,#E8A93D);color:#fff;font:700 12.5px 'Sora',Arial,sans-serif;text-decoration:none;}
+  .esp-promo[hidden]{display:none;}
   .vid-wait{position:absolute;top:50%;left:50%;width:46px;height:46px;margin:-23px 0 0 -23px;z-index:6;opacity:0;pointer-events:none;transition:opacity .2s;}
   .vid-wait.on{opacity:1;}
   .vid-wait i{display:block;width:100%;height:100%;border-radius:50%;border:4px solid rgba(255,255,255,.25);border-top-color:#fff;animation:vwspin .8s linear infinite;}
@@ -231,6 +233,7 @@
     <a href="fil.html" data-e="">Tous</a><a href="fil.html?espace=talents" data-e="talents">Talents</a><a href="fil.html?espace=business" data-e="business">Business</a><a href="fil.html?espace=musique" data-e="musique">Musique</a><a href="fil.html?espace=decouverte" data-e="decouverte">Découverte</a><a href="fil.html?espace=jeunes" data-e="jeunes" id="navJeunes" hidden>Jeunes</a>
   </nav>
   <div class="esp-intro" id="espIntro" hidden></div>
+  <a class="esp-promo" id="espPromo" href="promouvoir.html" hidden>Faire connaître mon activité ou ma musique →</a>
   <div class="feed" id="feed"></div>
   <div class="activity-wrap" id="activityWrap"></div>
   <div class="deskNav" aria-label="Vidéo précédente ou suivante"><button type="button" id="dnUp" aria-label="Vidéo précédente">▲</button><button type="button" id="dnDown" aria-label="Vidéo suivante">▼</button></div>
@@ -564,6 +567,7 @@
     [].forEach.call(bar.querySelectorAll('a'), function(a){ a.classList.toggle('on', a.getAttribute('data-e') === ESPACE); });
     if (ESPACE){
       var intro = document.getElementById('espIntro'); intro.textContent = ESPACES[ESPACE].intro; intro.hidden = false;
+      if (ESPACE === 'business' || ESPACE === 'musique' || ESPACE === 'talents'){ var ep = document.getElementById('espPromo'); if (ep) ep.hidden = false; }
       document.title = ESPACES[ESPACE].nom + ' — KOMYO';
       var br = document.querySelector('.topbar .brand'); if (br) br.lastChild.nodeValue = ESPACES[ESPACE].nom.replace('KOMYO ', '');
       var h2 = document.querySelector('#uploadModal h2'); if (h2) h2.textContent = 'Publier dans ' + ESPACES[ESPACE].nom;

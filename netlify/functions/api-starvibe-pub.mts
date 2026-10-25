@@ -1,5 +1,5 @@
 // ANNONCES KOMYO — un petit message qui défile en bas de l'écran de tous les abonnés connectés, au même moment, quelques secondes,
-// pendant la durée payée : 2 semaines (4 000 FCFA) ou 1 mois (10 000 FCFA). Pensé pour la promotion de musique, d'événements, de boutiques…
+// pendant la durée payée : 1 semaine d'essai (2 000 FCFA), 2 semaines (4 000 FCFA) ou 1 mois (10 000 FCFA). Pensé pour la promotion de musique, d'événements, de boutiques…
 //
 // Règles :
 //  - le message est affiché SEULEMENT après paiement confirmé par le staff (montant EXACT) ET relecture du texte par le staff ;
@@ -16,6 +16,7 @@ const ORG = "star_vibe";
 const STAFF_ORG = "star_entreprise";
 const NUMERO_RECEPTION = "+242 06 656 50 50";
 const PLANS: Record<string, { label: string; jours: number; montant: number }> = {
+  une_semaine: { label: "1 semaine (essai)", jours: 7, montant: 2000 },
   deux_semaines: { label: "2 semaines", jours: 14, montant: 4000 },
   un_mois: { label: "1 mois", jours: 30, montant: 10000 },
 };
