@@ -354,36 +354,29 @@
       <input id="ctNom" type="text" placeholder="Ton prénom (facultatif)" autocomplete="given-name" maxlength="80" style="width:100%;margin-bottom:8px;padding:12px;border:1.5px solid var(--line);border-radius:12px;font:inherit;">
       <input id="ctJoindre" type="text" placeholder="Ton numéro ou ton e-mail, pour te répondre" autocomplete="off" maxlength="120" style="width:100%;margin-bottom:8px;padding:12px;border:1.5px solid var(--line);border-radius:12px;font:inherit;">
       <textarea id="ctMsg" rows="4" placeholder="Ton message" maxlength="1500" style="width:100%;margin-bottom:8px;padding:12px;border:1.5px solid var(--line);border-radius:12px;font:inherit;resize:vertical;"></textarea>
+      <input id="ctSite" type="text" name="site" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
       <button type="submit" id="ctSend" class="btn-primary" style="width:100%;">Envoyer mon message</button>
       <p id="ctMsgEtat" role="status" style="margin:10px 0 0;font-size:14px;font-weight:600;"></p>
-      <div id="ctSuite" hidden style="margin-top:10px;display:grid;gap:8px;">
-        <a id="ctWa" class="btn-primary" target="_blank" rel="noopener" style="display:block;text-align:center;background:#25D366;">Continuer sur WhatsApp</a>
-        <a id="ctMail" class="btn-primary" style="display:block;text-align:center;">Envoyer aussi par e-mail</a>
-      </div>
     </form>
-    <p style="margin:12px 0 0;font-size:13px;line-height:1.5;">Ou directement : <a href="mailto:contact@starentreprise.com" style="font-weight:700;color:inherit;">contact@starentreprise.com</a> · WhatsApp <a href="https://wa.me/242066565050" target="_blank" rel="noopener" style="font-weight:700;color:inherit;">+242 06 656 50 50</a></p>
+    <p style="margin:12px 0 0;font-size:13px;line-height:1.5;">Ou écris-nous à <a href="mailto:contact@starentreprise.com" style="font-weight:700;color:inherit;">contact@starentreprise.com</a></p>
   </div>
 </section>
 <script>
 (function(){
   var f=document.getElementById('ctForm'); if(!f) return;
-  var etat=document.getElementById('ctMsgEtat'), suite=document.getElementById('ctSuite'), bt=document.getElementById('ctSend');
+  var etat=document.getElementById('ctMsgEtat'), bt=document.getElementById('ctSend');
   f.addEventListener('submit',function(e){
     e.preventDefault();
     var nom=document.getElementById('ctNom').value.trim(), joindre=document.getElementById('ctJoindre').value.trim(), msg=document.getElementById('ctMsg').value.trim();
-    etat.style.color='#b3261e'; suite.hidden=true;
+    etat.style.color='#b3261e';
     if(msg.length<3){ etat.textContent='Écris ton message.'; return; }
     if(joindre.length<5){ etat.textContent='Ajoute ton numéro ou ton e-mail pour qu\'on puisse te répondre.'; return; }
     var estMail=joindre.indexOf('@')>-1;
     bt.disabled=true; etat.style.color='#241536'; etat.textContent='Envoi…';
-    fetch('/api/leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'komyo-contact',nom:nom||'Visiteur KOMYO',email:estMail?joindre:'',telephone:estMail?'':joindre,service:'KOMYO',message:msg})})
-      .then(function(r){ bt.disabled=false; if(!r.ok) throw 0;
-        etat.style.color='#1a7f37'; etat.textContent='Merci ! Ton message est bien arrivé chez nous. Tu peux aussi l\'envoyer sur WhatsApp ou par e-mail :';
-        var txt='Bonjour KOMYO, '+msg+(nom?' — '+nom:'')+' ('+joindre+')';
-        document.getElementById('ctWa').href='https://wa.me/242066565050?text='+encodeURIComponent(txt);
-        document.getElementById('ctMail').href='mailto:contact@starentreprise.com?subject='+encodeURIComponent('Question KOMYO')+'&body='+encodeURIComponent(txt);
-        suite.hidden=false; })
-      .catch(function(){ bt.disabled=false; etat.style.color='#b3261e'; etat.textContent='L\'envoi n\'a pas marché. Écris-nous sur WhatsApp ou par e-mail (liens ci-dessous).'; });
+    fetch('/api/leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'komyo-contact',nom:nom||'Visiteur KOMYO',email:estMail?joindre:'',telephone:estMail?'':joindre,service:'KOMYO',message:msg,site:(document.getElementById('ctSite')||{}).value||''})})
+      .then(function(r){ bt.disabled=false; if(r.status===429){ etat.style.color='#b3261e'; etat.textContent='Beaucoup de messages en ce moment. Réessaie dans un petit moment.'; return; } if(!r.ok) throw 0;
+        etat.style.color='#1a7f37'; etat.textContent='Merci ! Ton message est bien envoyé à l\'équipe KOMYO. Nous te répondons vite.'; f.reset(); })
+      .catch(function(){ bt.disabled=false; etat.style.color='#b3261e'; etat.textContent='L\'envoi n\'a pas marché. Réessaie dans un instant.'; });
   });
 })();
 </script>

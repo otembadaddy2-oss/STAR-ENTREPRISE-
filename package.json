@@ -8,6 +8,7 @@
     "@netlify/database": "^1.1.0",
     "bcryptjs": "^3.0.3",
     "jose": "^6.2.8",
+    "nodemailer": "^7.0.13",
     "web-push": "^3.6.7"
   },
   "devDependencies": {
