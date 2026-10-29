@@ -1,0 +1,101 @@
+# Génère les 4 pages juridiques de KOMYO (brouillon à faire relire par un juriste). Les champs « À COMPLÉTER » doivent être remplis avant publication.
+import html, re
+OUT='/home/user/STAR-ENTREPRISE-/docs/komyo/pages-juridiques-brouillon/'
+TODO=lambda t: '<mark class="todo">[À COMPLÉTER : %s]</mark>'%html.escape(t)
+CSS="""
+  :root{--ink:#241536;--gold:#E8A93D;--coral:#FF6B4A;--cream:#FFFBF3;--dim:#6b5f80;--line:#eee2cc;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Inter',Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.6;}
+  h1,h2,h3{font-family:'Sora',Arial,sans-serif;}
+  .top{background:linear-gradient(135deg,#FF6B4A,#E8A93D);color:#fff;padding:calc(16px + env(safe-area-inset-top)) 20px 26px;border-radius:0 0 26px 26px;}
+  .top a{color:#fff;text-decoration:none;font:700 13px 'Sora',Arial,sans-serif;}
+  .top h1{margin:10px 0 4px;font-size:26px;line-height:1.15;}.top p{margin:0;font-size:13.5px;opacity:.95;}
+  .wrap{max-width:720px;margin:0 auto;padding:18px 20px 50px;}
+  .wrap h2{font-size:18px;margin:26px 0 6px;color:var(--coral);}
+  .wrap p,.wrap li{font-size:15px;color:#3a2c52;}
+  .wrap ul{padding-left:20px;margin:6px 0;}
+  .box{background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:14px 16px;margin:12px 0;font-size:14.5px;}
+  mark.todo{background:#ffe3a3;color:#7a3b00;padding:1px 4px;border-radius:4px;font-weight:700;}
+  .maj{font-size:12.5px;color:var(--dim);}
+  nav.legal{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:30px;padding-top:16px;border-top:1px solid var(--line);font-size:13.5px;}
+  nav.legal a{color:var(--ink);font-weight:600;}
+"""
+LIENS=[('conditions.html','Conditions d\'utilisation et de vente'),('remboursement.html','Remboursements'),('confidentialite.html','Confidentialité'),('mentions-legales.html','Mentions légales')]
+def page(fichier,titre,intro,corps):
+    nav=''.join('<a href="%s">%s</a>'%(f,t) for f,t in LIENS if f!=fichier)
+    h='<!DOCTYPE html>\n<html lang="fr">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n<title>KOMYO — %s</title>\n<meta name="theme-color" content="#FFFBF3">\n<link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">\n<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media=\'all\'">\n<style>%s</style>\n</head>\n<body>\n<div class="top"><a href="index.html">← KOMYO</a><h1>%s</h1><p>%s</p></div>\n<main class="wrap">\n%s\n<p class="maj">Dernière mise à jour : %s</p>\n<nav class="legal" aria-label="Documents légaux">%s<a href="tarifs.html">Tarifs</a></nav>\n</main>\n</body>\n</html>\n'%(html.escape(titre),CSS,html.escape(titre),html.escape(intro),corps,TODO('date de publication'),nav)
+    open(OUT+fichier,'w').write(h)
+EDIT="STAR ENTREPRISE, groupe dirigé par Carry OTEMBA (Pointe-Noire / Brazzaville, République du Congo)"
+# ---------------------------------------------------------------- mentions légales
+page('mentions-legales.html','Mentions légales','Qui édite KOMYO, qui l\'héberge, comment nous écrire.',f"""
+<h2>Éditeur du site et de l'application</h2>
+<div class="box"><b>STAR ENTREPRISE</b><br>Forme juridique : {TODO('SARL, SA, entreprise individuelle…')}<br>Siège : {TODO('adresse complète')}<br>Registre du commerce (RCCM) : {TODO('numéro RCCM')}<br>Numéro d'identification fiscale (NIF) : {TODO('numéro NIF')}<br>Dirigeant : Carry OTEMBA<br>E-mail : contact@starentreprise.com<br>Téléphone / WhatsApp : {TODO('numéro officiel')}</div>
+<h2>Directeur de la publication</h2><p>Carry OTEMBA.</p>
+<h2>Hébergement</h2><p>Le site et l'application sont hébergés par Netlify, Inc. (San Francisco, États-Unis), netlify.com. Les vidéos et les données sont conservées chez des prestataires techniques sélectionnés par STAR ENTREPRISE.</p>
+<h2>Propriété intellectuelle</h2><p>KOMYO, Keydou, PIOUPIOU, STAR ENTREPRISE, leurs logos, les textes, les images, les vidéos et les mascottes sont la propriété de STAR ENTREPRISE ou de leurs auteurs. Toute copie, reproduction ou utilisation sans autorisation écrite est interdite. Les vidéos publiées par les utilisateurs restent la propriété de leurs auteurs (voir les Conditions).</p>
+<h2>Signaler un contenu ou un problème</h2><p>Écris à contact@starentreprise.com en indiquant le lien ou la vidéo concernée. Nous examinons chaque signalement et retirons les contenus illicites ou contraires aux Conditions.</p>
+<h2>Liens externes</h2><p>KOMYO peut contenir des liens vers d'autres sites (WhatsApp, Facebook, etc.). STAR ENTREPRISE n'est pas responsable de leur contenu.</p>
+""")
+# ---------------------------------------------------------------- conditions
+page('conditions.html','Conditions d\'utilisation et de vente','Les règles de KOMYO, de Keydou, des abonnements et des annonces.',f"""
+<div class="box">Ces conditions s'appliquent à toute personne qui utilise KOMYO. En créant un compte ou en payant un service, tu les acceptes. {TODO('texte à faire relire par un juriste avant publication')}</div>
+<h2>1. Qui sommes-nous</h2><p>KOMYO est une application de {EDIT}. Coordonnées complètes : voir les <a href="mentions-legales.html">Mentions légales</a>.</p>
+<h2>2. Ton compte</h2><ul>
+<li>Le profil personnel KOMYO est réservé aux personnes de 18 ans et plus. Les 13–17 ans accèdent à l'espace KOMYO Jeunes, avec l'accord d'un parent ou tuteur {TODO('confirmer cette règle')}. L'espace enfants PIOUPIOU s'utilise sous la responsabilité d'un parent.</li>
+<li>Les informations données (nom, date de naissance, téléphone) doivent être exactes. Tu protèges ton code (PIN) et tu ne le partages avec personne : STAR ENTREPRISE ne te le demandera jamais.</li>
+<li>Un compte est personnel : il ne se prête pas et ne se revend pas.</li></ul>
+<h2>3. Les contenus que tu publies</h2><ul>
+<li>Tu restes propriétaire de tes vidéos, photos et textes. En les publiant, tu autorises KOMYO à les afficher, les diffuser dans l'application et les promouvoir dans KOMYO, pendant que tu les gardes en ligne. Tu peux les supprimer à tout moment.</li>
+<li>Tu garantis avoir le droit de les publier (images, musique, personnes filmées).</li>
+<li>Sont interdits : violence, haine, harcèlement, nudité ou contenu sexuel, contenu qui met des enfants en danger, arnaques, fausses informations dangereuses, publicité trompeuse, contenus illégaux.</li>
+<li>Les vidéos destinées aux enfants (PIOUPIOU) et à KOMYO Jeunes sont vérifiées avant publication. STAR ENTREPRISE peut retirer un contenu ou suspendre un compte qui ne respecte pas ces règles.</li></ul>
+<h2>4. Myo, amis et partage</h2><p>Myo permet d'inviter une personne à devenir amie. Les invitations entre adultes et mineurs ne sont pas possibles. Une invitation à regarder une vidéo ensemble, ou à partager un contact (Kaba+), n'a d'effet qu'avec l'accord de la personne invitée. Tu ne harcèles personne : les invitations sont limitées chaque jour.</p>
+<h2>5. Services gratuits et payants</h2><p>Regarder, publier et partager des vidéos est gratuit. Certains services sont payants : abonnement Famille, abonnement Business, annonces visibles par tous, service Keydou. Les prix sont indiqués en francs CFA (FCFA) sur la page <a href="tarifs.html">Tarifs</a> {TODO('préciser TVA incluse ou non applicable')}. Les équivalents en euros ou en dollars sont donnés à titre indicatif.</p>
+<h2>6. Paiement</h2><ul>
+<li>Le paiement se fait par Mobile Money (MTN ou Airtel), pour le montant exact demandé, ou par carte bancaire via notre prestataire de paiement lorsque cette option est disponible {TODO('nom du prestataire de paiement une fois choisi')}.</li>
+<li>STAR ENTREPRISE ne conserve jamais les données de ta carte bancaire ni ton code secret Mobile Money.</li>
+<li>Le service est activé quand le paiement est confirmé. Un montant différent de celui demandé est refusé.</li></ul>
+<h2>7. Abonnements</h2><p>Les abonnements durent 30 jours à partir de leur activation. Ils ne se renouvellent pas tout seuls : tu choisis de payer à nouveau. Les conditions de remboursement sont dans la page <a href="remboursement.html">Remboursements</a>.</p>
+<h2>8. Annonces payantes</h2><p>Une annonce est un message qui défile pour les abonnés pendant la durée payée. STAR ENTREPRISE peut refuser ou retirer une annonce illégale, trompeuse ou contraire aux règles. Une annonce refusée avant diffusion est remboursée.</p>
+<h2>9. Keydou</h2><ul>
+<li>Keydou est un assistant qui aide à trouver des établissements et services (hôtels, restaurants, garages, voyages…) dans l'annuaire de KOMYO. Le service coûte 1 000 FCFA par demande, pour 1 à 3 besoins.</li>
+<li>Les coordonnées viennent de sources publiques et de l'annuaire de STAR ENTREPRISE : <b>elles doivent être confirmées par appel</b>. Les prix, horaires et disponibilités sont fixés par les établissements.</li>
+<li>Keydou ne réserve pas à ta place, ne garantit pas un résultat et ne donne pas de conseil médical, juridique ou financier. En cas d'urgence, appelle les secours (117, 118, 1444).</li></ul>
+<h2>10. Disponibilité et responsabilité</h2><p>Nous faisons le maximum pour que KOMYO fonctionne en continu, sans pouvoir le garantir (maintenance, réseau, pannes). STAR ENTREPRISE n'est pas responsable des contenus publiés par les utilisateurs ni des relations entre utilisateurs et établissements. Notre responsabilité est limitée aux dommages directs, dans la mesure permise par la loi.</p>
+<h2>11. Suspension et suppression du compte</h2><p>Tu peux demander la suppression de ton compte à contact@starentreprise.com. STAR ENTREPRISE peut suspendre un compte en cas de non-respect de ces conditions, de fraude ou de danger pour d'autres utilisateurs.</p>
+<h2>12. Modification des conditions</h2><p>Nous pouvons modifier ces conditions. La date de mise à jour figure en bas de page. Continuer à utiliser KOMYO signifie les accepter.</p>
+<h2>13. Droit applicable et litiges</h2><p>Ces conditions sont régies par le droit de la République du Congo. En cas de problème, écris d'abord à contact@starentreprise.com : nous cherchons une solution amiable. À défaut, les tribunaux compétents sont ceux de {TODO('ville ou juridiction compétente')}.</p>
+""")
+# ---------------------------------------------------------------- remboursement
+page('remboursement.html','Remboursements','Dans quels cas tu es remboursé, et comment faire la demande.',f"""
+<div class="box">Cette politique est une proposition. {TODO('Carry valide chaque règle, durée et délai avant publication')}</div>
+<h2>Quand tu es remboursé</h2><ul>
+<li><b>Paiement en double</b> ou paiement fait par erreur : remboursé intégralement.</li>
+<li><b>Service payé mais non activé</b> à cause d'un problème de notre côté : activation, ou remboursement si on ne peut pas activer.</li>
+<li><b>Annonce refusée avant diffusion</b> : remboursée intégralement.</li>
+<li><b>Keydou</b> : remboursé si aucune fiche utile n'a pu t'être fournie pour ta demande.</li></ul>
+<h2>Quand il n'y a pas de remboursement</h2><ul>
+<li>Un abonnement déjà activé et utilisé : il va jusqu'à la fin de ses 30 jours et ne se renouvelle pas.</li>
+<li>Une annonce déjà diffusée.</li>
+<li>Keydou, une fois les coordonnées demandées fournies : les établissements sont indépendants de KOMYO, et leurs prix, horaires et accueil ne dépendent pas de nous.</li>
+<li>Un paiement fait avec un montant différent de celui demandé : il est refusé, et son remboursement suit les règles du moyen de paiement.</li></ul>
+<h2>Comment demander</h2><ol style="padding-left:20px"><li>Écris à contact@starentreprise.com, ou par WhatsApp {TODO('numéro officiel')}.</li><li>Indique ton nom, ton téléphone, le service, le montant, la date et la référence de paiement.</li><li>Nous répondons sous {TODO('délai, par exemple 3 jours ouvrés')}. Si la demande est acceptée, le remboursement est fait sur le même moyen de paiement, sous {TODO('délai, par exemple 7 jours ouvrés')}.</li></ol>
+<p>Les éventuels frais de transfert du prestataire de paiement peuvent être déduits {TODO('Carry décide si ces frais sont à la charge du client ou de l\'entreprise')}.</p>
+""")
+# ---------------------------------------------------------------- confidentialité
+page('confidentialite.html','Confidentialité','Quelles données KOMYO garde, pourquoi, et comment les protéger.',f"""
+<div class="box">Ce texte explique comment {EDIT} protège tes données personnelles. {TODO('texte à faire relire par un juriste')}</div>
+<h2>Ce que nous collectons</h2><ul>
+<li><b>Ton compte</b> : nom, date de naissance, numéro de téléphone, adresse e-mail éventuelle, photo de profil, PIN (conservé sous forme chiffrée).</li>
+<li><b>Tes contenus</b> : vidéos, légendes, commentaires, j'aime, invitations Myo.</li>
+<li><b>Tes demandes</b> : demandes Keydou (besoin, ville, nom et coordonnées donnés), paiements (montant, date, référence, numéro Mobile Money).</li>
+<li><b>Des données techniques</b> : appareil, langue, pages visitées et erreurs, pour faire marcher et améliorer KOMYO.</li></ul>
+<h2>Pourquoi</h2><ul><li>Créer ton compte et te connecter.</li><li>Afficher tes vidéos et faire fonctionner Myo, les commentaires et les notifications.</li><li>Traiter tes paiements et tes demandes Keydou.</li><li>Protéger KOMYO (modération, lutte contre la fraude) et les mineurs.</li><li>Te répondre quand tu nous écris.</li></ul>
+<h2>Ce que nous ne faisons pas</h2><ul><li>Nous ne vendons pas tes données.</li><li>Nous ne conservons pas les données de ta carte bancaire ni ton code secret Mobile Money.</li><li>Nous ne demandons jamais ton PIN par message.</li></ul>
+<h2>Qui y a accès</h2><p>L'équipe de STAR ENTREPRISE, selon son rôle, et des prestataires techniques qui font fonctionner le service : hébergement, base de données, envoi de notifications, paiement {TODO('lister les prestataires réels une fois choisis')}. Ils n'utilisent ces données que pour nous rendre ce service. Les données peuvent être traitées hors du Congo (par exemple aux États-Unis, chez l'hébergeur).</p>
+<h2>Les mineurs</h2><p>L'espace PIOUPIOU est destiné aux enfants sous la responsabilité d'un parent. KOMYO Jeunes est réservé aux 13–17 ans. Les contenus qui les concernent sont vérifiés, et les échanges entre adultes et mineurs ne sont pas possibles.</p>
+<h2>Combien de temps</h2><p>Nous gardons tes données tant que ton compte existe, puis le temps nécessaire pour respecter nos obligations légales et comptables {TODO('durée de conservation')}. Quand tu supprimes une vidéo, elle disparaît pour tout le monde.</p>
+<h2>Tes droits</h2><p>Tu peux demander à voir, corriger ou supprimer tes données, et retirer ton accord, en écrivant à contact@starentreprise.com. Nous répondons dans un délai raisonnable.</p>
+<h2>Sécurité</h2><p>Les échanges sont chiffrés, les accès de l'équipe sont protégés et limités. Aucun système n'est parfait : garde ton PIN secret et préviens-nous si tu vois quelque chose d'anormal.</p>
+""")
+print('pages générées dans', OUT)
