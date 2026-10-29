@@ -32,3 +32,12 @@ Keydou (1 000 FCFA, montant exact), « Me filmer », espaces Talents/Business/Mu
 - Déploiement refusé par Netlify : « Skipped due to account credit usage exceeded » (crédits du compte épuisés). Le site en ligne reste l'ancienne version. À faire : recharger / changer de plan Netlify (ou attendre le renouvellement), puis relancer le déploiement (deploy-site de siteId b9c78969-5a1f-4a95-b903-c22472ab1f91, depuis cette branche : elle contient tous les fichiers du site).
 
 - 25/10/2026 (suite) : test du propriétaire sur le site en ligne — création de compte, filmer, publier, copie dans Talents, fil « Tous » : tout fonctionne. Constats : lenteur d'affichage des vidéos, pas de bouton Partager. Corrigés dans le code (pas encore en ligne, Netlify bloqué) : bouton « Partager » (WhatsApp, Facebook, e-mail/Gmail, envoyer la vidéo, copier le lien), préchargement des vidéos + lecture relancée toute seule + roue d'attente, cache mémoire des vidéos côté serveur (api-starvibe-video-file).
+
+
+## Ajout du 29/10/2026 — « Regarder ensemble » (dans le même déploiement)
+- Un ami Myo invite un autre ami à regarder la même vidéo (bouton « Partager » → « Regarder avec un ami KOMYO »).
+- L'invité voit une bulle « Nom t'invite à regarder une vidéo ensemble — Regarder / Non ». Regarder = la vidéo s'ouvre en tête de son fil ; Non = rien ne se passe (l'ami n'est pas prévenu).
+- Règles : amis Myo seulement, même tranche d'âge (adultes / mineurs), KOMYO Jeunes réservé aux 13–17 ans, jamais PIOUPIOU, 20 invitations par jour, invitation valable 24 h, pas de réinvitation de la même vidéo pendant 7 jours après un refus.
+- Fichiers : `netlify/functions/api-starvibe-myo.mts` (regarder_inviter / regarder_repondre), `api-starvibe-videos.mts` (?une=ID), `_db.mts` (table starvibe_regarder), `starvibe/assets/myo-v1.js`, `starvibe/fil.html`, `sw-komyo.js` (cache v4).
+- Testé dans le navigateur (3 scénarios : Oui, Non, inviter un ami) avec un serveur simulé ; pas encore essayé en vrai (publication en attente des crédits Netlify).
+- Les vidéos de pub / génériques ne sont PAS publiées (décision de Carry).

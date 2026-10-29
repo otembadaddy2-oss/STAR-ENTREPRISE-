@@ -135,6 +135,13 @@
   .share-panel a:active,.share-panel button:active{background:rgba(255,255,255,.2);}
   .share-panel .sp-info{font-size:13px;opacity:.85;min-height:18px;margin:0;}
   .share-panel .sp-x{justify-content:center;background:none;opacity:.8;}
+  .ami-liste{display:flex;flex-direction:column;gap:8px;max-height:46vh;overflow:auto;}
+  .ami-row{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.08);border-radius:14px;padding:8px 10px;}
+  .ami-row .av{width:38px;height:38px;border-radius:50%;flex:none;background:linear-gradient(135deg,#FF6B4A,#E8A93D);display:flex;align-items:center;justify-content:center;font:800 13px 'Sora',Arial,sans-serif;position:relative;overflow:hidden;}
+  .ami-row .av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .ami-row b{flex:1;font:700 14px 'Sora',Arial,sans-serif;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .ami-row button{flex:none;border:none;border-radius:999px;padding:8px 14px;font:800 12px 'Sora',Arial,sans-serif;background:linear-gradient(135deg,#FF6B4A,#E8A93D);color:#fff;cursor:pointer;width:auto;}
+  .ami-row button[disabled]{background:#1f8f4a;opacity:1;}
   .mute-hint svg{width:26px;height:26px;}
 
   .bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;align-items:center;justify-content:space-around;
@@ -247,6 +254,7 @@
 <div class="share-sheet" id="shareSheet" hidden>
   <div class="share-panel" role="dialog" aria-label="Partager cette vidéo">
     <h2>Partager cette vidéo</h2>
+    <button type="button" id="spAmi">👥 Regarder avec un ami KOMYO</button>
     <button type="button" id="spVideo" hidden>Envoyer la vidéo (WhatsApp, Gmail…)</button>
     <a id="spWa" target="_blank" rel="noopener">WhatsApp</a>
     <a id="spFb" target="_blank" rel="noopener">Facebook</a>
@@ -255,6 +263,15 @@
     <button type="button" id="spMore" hidden>Plus d'options…</button>
     <p class="sp-info" id="spInfo" role="status"></p>
     <button type="button" class="sp-x" id="spClose">Fermer</button>
+  </div>
+</div>
+
+<div class="share-sheet" id="amiSheet" hidden>
+  <div class="share-panel" role="dialog" aria-label="Regarder avec un ami">
+    <h2>Regarder avec un ami</h2>
+    <p class="sp-info" id="amiInfo" role="status">Ton ami reçoit une invitation. S'il accepte, la même vidéo s'ouvre sur son téléphone.</p>
+    <div id="amiListe" class="ami-liste"></div>
+    <button type="button" class="sp-x" id="amiClose">Fermer</button>
   </div>
 </div>
 
@@ -387,6 +404,7 @@
   document.getElementById('spClose').addEventListener('click', fermerPartage);
   document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !shareSheet.hidden) fermerPartage(); });
   function ouvrirPartage(v){
+    videoPartagee = v; document.getElementById('spAmi').hidden = !(window.komyoMyo && v && !v.verrouille);
     var lien = location.origin + '/starvibe/';
     var texte = 'Regarde la vidéo de @' + v.auteur + ' sur KOMYO' + (v.legende ? ' : ' + v.legende : '');
     var tout = texte + '\n' + lien, enc = encodeURIComponent;
@@ -411,6 +429,31 @@
     };
     spInfo.textContent = ''; shareSheet.hidden = false;
   }
+
+  // ---------- Regarder avec un ami : on choisit un ami Myo, il reçoit une invitation (Oui = la même vidéo s'ouvre chez lui) ----------
+  var amiSheet = document.getElementById('amiSheet'), amiListe = document.getElementById('amiListe'), amiInfo = document.getElementById('amiInfo'), videoPartagee = null;
+  document.getElementById('amiClose').addEventListener('click', function(){ amiSheet.hidden = true; });
+  amiSheet.addEventListener('click', function(e){ if (e.target === amiSheet) amiSheet.hidden = true; });
+  function initialesAmi(n){ var p = String(n || '?').trim().split(/\s+/); return ((p[0] || '?')[0] + (p[1] ? p[1][0] : '')).toUpperCase(); }
+  document.getElementById('spAmi').addEventListener('click', function(){
+    if (!window.komyoMyo || !videoPartagee){ spInfo.textContent = 'Connecte-toi pour inviter un ami.'; return; }
+    fermerPartage(); amiSheet.hidden = false; amiListe.innerHTML = '<p class="sp-info">Chargement de tes amis…</p>';
+    window.komyoMyo.api({ q: '?amis=1' }).then(function(r){ return r.json(); }).then(function(d){
+      var amis = d.amis || [];
+      if (!amis.length){ amiListe.innerHTML = '<p class="sp-info">Tu n\'as pas encore d\'ami Myo.<br>Touche « + Inviter » à côté du nom d\'une personne pour l\'inviter.</p>'; return; }
+      amiListe.innerHTML = amis.map(function(a){
+        return '<div class="ami-row"><span class="av">' + esc(initialesAmi(a.nom)) + (a.photoUrl ? '<img src="' + esc(a.photoUrl) + '" alt="" onerror="this.remove()">' : '') + '</span><b>' + esc(a.nom) + '</b><button type="button" data-p="' + esc(a.profilId) + '">Inviter</button></div>';
+      }).join('');
+    }).catch(function(){ amiListe.innerHTML = '<p class="sp-info">Impossible de charger tes amis pour le moment.</p>'; });
+  });
+  amiListe.addEventListener('click', function(e){
+    var b = e.target.closest && e.target.closest('button[data-p]'); if (!b || !videoPartagee) return;
+    b.disabled = true; b.textContent = '…';
+    window.komyoMyo.regarder(b.getAttribute('data-p'), videoPartagee.id).then(function(r){
+      if (!r.ok){ b.disabled = false; b.textContent = 'Inviter'; amiInfo.textContent = r.d.error || 'Invitation impossible.'; return; }
+      b.textContent = 'Invitation envoyée ✓'; amiInfo.textContent = 'Invitation envoyée ✓ — si ton ami accepte, la vidéo s\'ouvre sur son téléphone.';
+    }).catch(function(){ b.disabled = false; b.textContent = 'Inviter'; amiInfo.textContent = 'Connexion interrompue. Réessaie.'; });
+  });
 
   var premiereVideo = true;   // la 1re vidéo se charge tout de suite ; les suivantes se préparent quand on approche
   function renderVideo(v){
@@ -592,6 +635,18 @@
     });
   }
 
+  // Ouvrir une vidéo précise : on la met en tête du fil et on s'y place (invitation « Regarder ensemble »)
+  window.komyoOuvrirVideo = function(id){
+    return authFetch(API_VIDEOS + '?une=' + encodeURIComponent(id)).then(function(res){ return res.json().then(function(d){ return { ok: res.ok, d: d }; }); }).then(function(r){
+      if (!r.ok || !r.d.video){ window.alert(r.d && r.d.reserve ? 'Cette vidéo est réservée aux 13–17 ans.' : 'Cette vidéo n\'est plus disponible.'); return; }
+      var empty = feed.querySelector('.feed-empty'); if (empty) empty.remove();
+      var deja = feed.querySelector('.slide[data-vid="' + r.d.video.id + '"]'); if (deja) deja.remove();
+      var slide = renderVideo(r.d.video); slide.setAttribute('data-vid', r.d.video.id);
+      feed.insertBefore(slide, feed.firstChild); show(feedWrap);
+      feed.scrollTo ? feed.scrollTo({ top: 0, behavior: 'smooth' }) : (feed.scrollTop = 0);
+    }).catch(function(){ window.alert('Connexion interrompue. Réessaie.'); });
+  };
+
   authFetch(API_AUTH).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
     .then(function(result){
       if (!result.ok){ localStorage.removeItem('starvibe_token'); show(loggedOutState); return; }
@@ -603,6 +658,8 @@
       var nj = document.getElementById('navJeunes');
       if (nj && personal.date_naissance){ var a = ageDe(personal.date_naissance); nj.hidden = !(a >= 13 && a <= 17); }
       loadFeed();
+      var demandee = (location.search.match(/[?&]video=(\d+)/) || [])[1];
+      if (demandee) setTimeout(function(){ window.komyoOuvrirVideo(demandee); }, 500);
     })
     .catch(function(){ show(loggedOutState); });
 

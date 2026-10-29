@@ -604,6 +604,22 @@ export default async (req: Request, _context: Context) => {
   // le fil principal (pour_enfants = false) c'est automatique dès la
   // publication ; pour PIOUPIOU (pour_enfants = true), ça n'arrive qu'après
   // validation par un compte staff (voir plus haut, action "moderer").
+  // Une seule vidéo (invitation « Regarder ensemble ») : mêmes règles que le fil — approuvée, jamais PIOUPIOU, KOMYO Jeunes réservé aux 13-17 ans.
+  const une = Number(url.searchParams.get("une"));
+  if (une) {
+    const r = (await sql`
+      SELECT v.*, p.nom AS auteur_nom FROM starvibe_videos v JOIN starvibe_profiles p ON p.id = v.profile_id
+      WHERE v.id = ${une} AND v.moderation_statut = 'approuve' AND v.pour_enfants = false LIMIT 1
+    `) as VideoRow[];
+    if (!r[0]) return json({ video: null }, 404);
+    if (r[0].espace === "jeunes") {
+      const pers = (await sql`SELECT date_naissance FROM starvibe_profiles WHERE account_id = ${accountId} AND type_profil = 'personnel' LIMIT 1`) as { date_naissance: string }[];
+      if (!pers[0] || !estJeune(ageFromDate(String(pers[0].date_naissance)))) return json({ video: null, reserve: true }, 403);
+    }
+    const aime = (await sql`SELECT 1 FROM starvibe_likes WHERE account_id = ${accountId} AND video_id = ${une} LIMIT 1`) as unknown[];
+    return json({ video: toApi(r[0], aime.length > 0, await hasActiveFamille(sql, accountId), accountId) });
+  }
+
   const espaceParam = (url.searchParams.get("espace") || "").toLowerCase();
   const wantKids = espaceParam === "pioupiou";
   const espaceFiltre = ESPACES_OUVERTS.includes(espaceParam) ? espaceParam : "";   // "" = fil principal : toutes les vidéos non enfants

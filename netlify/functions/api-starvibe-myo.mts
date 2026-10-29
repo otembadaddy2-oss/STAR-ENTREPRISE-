@@ -10,8 +10,12 @@
 // KABA+ : on demande à un ami son Gmail ou son WhatsApp ; il reçoit un message (Oui / Non) et choisit ce qu'il partage.
 // Rien n'est jamais partagé sans son « Oui ». Réservé aux amis Myo, tous deux de 18 ans et plus. Refus : pas de nouvelle demande pendant 7 jours.
 //
+// REGARDER ENSEMBLE : un ami Myo (même tranche d'âge) t'invite à regarder une vidéo. « Oui » ouvre la même vidéo chez toi ; « Non » : rien ne se passe
+// (la personne n'est pas prévenue du refus). L'invitation se retire seule au bout de 24 h. Pas de nouvelle invitation pour la même vidéo pendant 7 jours après un refus ; 20 invitations par jour au maximum.
+//
 // GET  ?recues=1 | ?amis=1 | ?envoyees=1 | ?etat=<profilId> | ?chercher=<texte> | ?contacts=1
 // POST { action: "inviter", profilId } | { action: "repondre", id, reponse: "oui"|"non" } | { action: "retirer", profilId }
+//      { action: "regarder_inviter", profilId, videoId } | { action: "regarder_repondre", id, reponse: "oui"|"non" }
 //      { action: "kaba_demander", profilId, type: "gmail"|"whatsapp" } | { action: "kaba_repondre", id, reponse, valeur, memoriser } | { action: "kaba_vu" }
 import type { Context, Config } from "@netlify/functions";
 import { ensureSchema, db, json } from "./_db.mts";
@@ -88,6 +92,14 @@ export default async (req: Request, _context: Context) => {
         FROM starvibe_kaba k JOIN starvibe_profiles p ON p.account_id = k.vers_account AND p.type_profil = 'personnel'
         WHERE k.de_account = ${moi} AND k.statut = 'accepte' AND k.vu_at IS NULL ORDER BY k.id DESC LIMIT 10
       `) as { id: number; type: string; valeur: string; profil_id: number; nom: string; photo_key: string | null }[];
+      const reg = (await sql`
+        SELECT r.id, r.video_id, v.legende, p.id AS profil_id, p.nom, p.photo_key
+        FROM starvibe_regarder r
+        JOIN starvibe_videos v ON v.id = r.video_id AND v.moderation_statut = 'approuve' AND v.pour_enfants = false
+        JOIN starvibe_profiles p ON p.account_id = r.de_account AND p.type_profil = 'personnel'
+        WHERE r.vers_account = ${moi} AND r.statut = 'en_attente' AND r.created_at > now() - interval '24 hours'
+        ORDER BY r.id DESC LIMIT 10
+      `) as { id: number; video_id: number; legende: string; profil_id: number; nom: string; photo_key: string | null }[];
       let defauts = { gmail: "", whatsapp: "" };
       if (kRec.length) {
         const acc = (await sql`SELECT telephone, contact_gmail FROM starvibe_accounts WHERE id = ${moi}`) as { telephone: string; contact_gmail: string }[];
@@ -96,6 +108,7 @@ export default async (req: Request, _context: Context) => {
       return json({
         invitations: rows.map((r) => ({ id: r.id, createdAt: r.created_at, de: { profilId: r.profil_id, nom: r.nom, photoUrl: photoUrl(r.photo_key) } })),
         kaba: kRec.map((r) => ({ id: r.id, type: r.type, de: { profilId: r.profil_id, nom: r.nom, photoUrl: photoUrl(r.photo_key) } })),
+        regarder: reg.map((r) => ({ id: r.id, videoId: r.video_id, legende: clean(r.legende, 90), de: { profilId: r.profil_id, nom: r.nom, photoUrl: photoUrl(r.photo_key) } })),
         partages: kNew.map((r) => ({ id: r.id, type: r.type, valeur: r.valeur, de: { profilId: r.profil_id, nom: r.nom, photoUrl: photoUrl(r.photo_key) } })),
         defauts,
       });
@@ -203,6 +216,45 @@ export default async (req: Request, _context: Context) => {
     if (!cible) return json({ error: "Personne introuvable." }, 404);
     await sql`DELETE FROM starvibe_myo WHERE statut = 'acceptee' AND ((de_account = ${moi} AND vers_account = ${cible.account_id}) OR (de_account = ${cible.account_id} AND vers_account = ${moi}))`;
     return json({ etat: "aucune" });
+  }
+
+  // ---------------- Regarder ensemble ----------------
+  if (action === "regarder_inviter") {
+    const cible = await profilParId(Number(body.profilId));
+    const videoId = Number(body.videoId);
+    if (!cible || cible.account_id === moi || !videoId) return json({ error: "Personne ou vidéo introuvable." }, 404);
+    if (!compatibles(mien, cible)) return json({ error: "Les invitations entre adultes et mineurs ne sont pas possibles sur KOMYO." }, 403);
+    if (relation(await entre(moi, cible.account_id)) !== "amis") return json({ error: "Tu peux inviter seulement tes amis Myo. Invite d'abord cette personne." }, 403);
+    const vid = (await sql`SELECT id, espace FROM starvibe_videos WHERE id = ${videoId} AND moderation_statut = 'approuve' AND pour_enfants = false LIMIT 1`) as { id: number; espace: string }[];
+    if (!vid[0]) return json({ error: "Cette vidéo n'est plus disponible." }, 404);
+    if (vid[0].espace === "jeunes") {
+      const a = ageFromDate(cible.date_naissance), b = ageFromDate(mien.date_naissance);
+      const jeune = (x: number | null) => x !== null && x >= 13 && x <= 17;
+      if (!jeune(a) || !jeune(b)) return json({ error: "Cette vidéo est réservée aux 13–17 ans." }, 403);
+    }
+    const deja = (await sql`
+      SELECT id, statut, created_at, repondu_at FROM starvibe_regarder
+      WHERE de_account = ${moi} AND vers_account = ${cible.account_id} AND video_id = ${videoId} ORDER BY id DESC LIMIT 1
+    `) as { id: number; statut: string; created_at: string; repondu_at: string | null }[];
+    const d0 = deja[0];
+    if (d0?.statut === "en_attente" && Date.now() - new Date(d0.created_at).getTime() < 86400000) return json({ etat: "envoyee" });
+    if (d0?.statut === "refusee" && d0.repondu_at && Date.now() - new Date(d0.repondu_at).getTime() < 7 * 86400000) return json({ error: "Invitation impossible pour le moment. Réessaie plus tard." }, 429);
+    const jour = (await sql`SELECT COUNT(*)::int AS n FROM starvibe_regarder WHERE de_account = ${moi} AND created_at > now() - interval '24 hours'`) as { n: number }[];
+    if ((jour[0]?.n || 0) >= 20) return json({ error: "Tu as envoyé beaucoup d'invitations aujourd'hui. Réessaie demain." }, 429);
+    await sql`INSERT INTO starvibe_regarder (de_account, vers_account, video_id) VALUES (${moi}, ${cible.account_id}, ${videoId})`;
+    return json({ etat: "envoyee" }, 201);
+  }
+
+  if (action === "regarder_repondre") {
+    const id = Number(body.id), reponse = clean(body.reponse, 5).toLowerCase();
+    if (!id || (reponse !== "oui" && reponse !== "non")) return json({ error: "Réponse invalide." }, 400);
+    const r = (await sql`
+      SELECT id, video_id FROM starvibe_regarder
+      WHERE id = ${id} AND vers_account = ${moi} AND statut = 'en_attente' AND created_at > now() - interval '24 hours' LIMIT 1
+    `) as { id: number; video_id: number }[];
+    if (!r[0]) return json({ error: "Cette invitation n'existe plus." }, 404);
+    await sql`UPDATE starvibe_regarder SET statut = ${reponse === "oui" ? "acceptee" : "refusee"}, repondu_at = now() WHERE id = ${id}`;
+    return json(reponse === "oui" ? { etat: "ok", videoId: r[0].video_id } : { etat: "refusee" });
   }
 
   // ---------------- Kaba+ ----------------

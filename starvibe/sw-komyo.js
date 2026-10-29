@@ -2,7 +2,7 @@
 // hors connexion, et porte aussi les notifications du staff (sw-staff.js).
 importScripts('/starvibe/sw-staff.js');
 
-var CACHE = 'komyo-v3';
+var CACHE = 'komyo-v4';
 var SHELL = ['/starvibe/index.html', '/starvibe/assets/img/icons/komyo-192-v2.png'];
 
 self.addEventListener('install', function(e){

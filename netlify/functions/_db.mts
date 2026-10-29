@@ -592,6 +592,20 @@ export async function ensureSchema() {
   `;
   await sql`CREATE INDEX IF NOT EXISTS starvibe_kaba_vers_idx ON starvibe_kaba (vers_account, statut)`;
 
+  // REGARDER ENSEMBLE : un ami Myo t'invite à regarder la même vidéo. Oui = la vidéo s'ouvre chez toi ; Non = rien ne se passe.
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_regarder (
+      id SERIAL PRIMARY KEY,
+      de_account INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      vers_account INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      video_id INTEGER NOT NULL REFERENCES starvibe_videos(id) ON DELETE CASCADE,
+      statut TEXT NOT NULL DEFAULT 'en_attente',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      repondu_at TIMESTAMPTZ
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_regarder_vers_idx ON starvibe_regarder (vers_account, statut)`;
+
   // ANNONCES : message qui défile chez tous les abonnés pendant une durée payée (2 semaines ou 1 mois)
   await sql`
     CREATE TABLE IF NOT EXISTS starvibe_pub (

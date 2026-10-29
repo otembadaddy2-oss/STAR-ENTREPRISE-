@@ -5,6 +5,8 @@
 //  - Non : l'invitation est refusée, le message disparaît après un instant ;
 //  - sans réponse : le message se retire seul au bout de 20 secondes, l'invitation reste dans la page Myo.
 // La personne reste là où elle est : rien ne l'oblige à changer de page.
+// REGARDER ENSEMBLE : « Nom t'invite à regarder une vidéo ensemble — ▶ Regarder / ✕ Non ». Regarder : la même vidéo s'ouvre dans son propre fil ;
+// Non : le message disparaît sans rien dire à l'ami.
 (function () {
   var API = '/api/starvibe-myo', POLL_MS = 12000, VIE_MS = 20000, FIN_MS = 2600;
   var token = null; try { token = localStorage.getItem('starvibe_token'); } catch (e) {}
@@ -39,6 +41,7 @@
     '.myoIn:focus{outline:none;border-color:#E8A93D;}.myoVal{margin-top:8px;font:700 14px Sora,Arial,sans-serif;word-break:break-all;background:#f6f1ff;border-radius:10px;padding:9px 11px;}' +
     '.myoErr{color:#b3261e;font-size:12px;margin-top:6px;}.myoChk{display:flex;gap:8px;align-items:center;margin-top:8px;font-size:12px;color:#6b5f80;}' +
     '.myoBtns.tri button{font-size:13px;}.myoOk{background:#241536;color:#fff;}' +
+    '.myoCap{margin-top:8px;font-size:12px;color:#6b5f80;font-style:italic;line-height:1.3;border-left:3px solid #E8A93D;padding-left:8px;}' +
     '@media (prefers-reduced-motion:reduce){.myoToast,.myoToast.out,.myoBar{animation:none}}';
   document.head.appendChild(css);
   var zone = document.createElement('div'); zone.id = 'myoZone'; zone.setAttribute('role', 'status'); zone.setAttribute('aria-live', 'polite'); document.body.appendChild(zone);
@@ -69,6 +72,26 @@
         if (res.ok) majCompteur(Math.max(0, nonRepondues - 1));
         retirer(t, FIN_MS);
       }).catch(function () { t.innerHTML = '<div class="myoDone">Connexion interrompue. Réessaie depuis la page Myo.</div>'; retirer(t, FIN_MS); });
+    }
+    t.querySelector('.myoYes').addEventListener('click', function () { repondre(true); });
+    t.querySelector('.myoNo').addEventListener('click', function () { repondre(false); });
+  }
+
+  // Regarder ensemble : un ami t'invite à regarder une vidéo
+  function montrerRegarder(g) {
+    var t = carte(g.de, '<b>' + esc(g.de.nom) + '</b> t\'invite à regarder une vidéo ensemble.<small>MYO · REGARDER ENSEMBLE</small>' + (g.legende ? '<div class="myoCap">« ' + esc(g.legende) + ' »</div>' : ''),
+      '<div class="myoBtns"><button type="button" class="myoYes">▶ Regarder</button><button type="button" class="myoNo">✕ Non</button></div>');
+    var v = vie(t);   // sans réponse : le message se retire seul (l'invitation reste valable 24 h)
+    function repondre(oui) {
+      if (v.fini()) return; v.stop();
+      var bs = t.querySelectorAll('button'); for (var i = 0; i < bs.length; i++) bs[i].disabled = true;
+      api({ body: { action: 'regarder_repondre', id: g.id, reponse: oui ? 'oui' : 'non' } }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); }).then(function (res) {
+        if (!oui) { retirer(t, 0); return; }                                   // Non : rien ne se passe, le message disparaît
+        if (!res.ok || !res.d.videoId) { t.innerHTML = '<div class="myoDone">' + esc(res.d.error || 'Cette invitation n\'existe plus.') + '</div>'; retirer(t, FIN_MS); return; }
+        t.innerHTML = '<div class="myoDone" style="color:#1f8f4a">Ouverture de la vidéo…</div>';
+        if (typeof window.komyoOuvrirVideo === 'function') { window.komyoOuvrirVideo(String(res.d.videoId)); retirer(t, 900); }
+        else { setTimeout(function () { location.href = 'fil.html?video=' + encodeURIComponent(res.d.videoId); }, 500); }
+      }).catch(function () { t.innerHTML = '<div class="myoDone">Connexion interrompue. Réessaie.</div>'; retirer(t, FIN_MS); });
     }
     t.querySelector('.myoYes').addEventListener('click', function () { repondre(true); });
     t.querySelector('.myoNo').addEventListener('click', function () { repondre(false); });
@@ -115,7 +138,7 @@
     t.querySelector('.myoOk').addEventListener('click', function () { v.stop(); retirer(t, 0); });
   }
 
-  function montrer(e) { enCours = true; if (e.kind === 'kaba') montrerKaba(e.k, e.defauts); else if (e.kind === 'part') montrerPartage(e.p); else montrerInvitation(e.inv); }
+  function montrer(e) { enCours = true; if (e.kind === 'reg') montrerRegarder(e.g); else if (e.kind === 'kaba') montrerKaba(e.k, e.defauts); else if (e.kind === 'part') montrerPartage(e.p); else montrerInvitation(e.inv); }
   function suivant() { if (!enCours && file.length) montrer(file.shift()); }
 
   function verifier() {
@@ -123,6 +146,7 @@
     api({ q: '?recues=1' }).then(function (r) { if (!r.ok) return null; return r.json(); }).then(function (d) {
       if (!d) return; var inv = d.invitations || []; majCompteur(inv.length);
       inv.slice().reverse().forEach(function (i) { if (!vues['i' + i.id]) { vues['i' + i.id] = true; file.push({ kind: 'inv', inv: i }); } });
+      (d.regarder || []).slice().reverse().forEach(function (g) { if (!vues['g' + g.id]) { vues['g' + g.id] = true; file.push({ kind: 'reg', g: g }); } });
       (d.kaba || []).slice().reverse().forEach(function (k) { if (!vues['k' + k.id]) { vues['k' + k.id] = true; file.push({ kind: 'kaba', k: k, defauts: d.defauts || {} }); } });
       var nouveaux = (d.partages || []).filter(function (p) { return !vues['p' + p.id]; });
       nouveaux.forEach(function (p) { vues['p' + p.id] = true; file.push({ kind: 'part', p: p }); });
@@ -136,7 +160,12 @@
     return api({ body: { action: 'inviter', profilId: Number(profilId) } }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); });
   }
 
-  window.komyoMyo = { inviter: inviter, verifier: verifier, api: api };
+  // Inviter un ami à regarder une vidéo (utilisé par le bouton « Regarder avec un ami » du fil)
+  function regarder(profilId, videoId) {
+    return api({ body: { action: 'regarder_inviter', profilId: Number(profilId), videoId: Number(videoId) } }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); });
+  }
+
+  window.komyoMyo = { inviter: inviter, regarder: regarder, verifier: verifier, api: api };
   verifier(); setInterval(verifier, POLL_MS);
   document.addEventListener('visibilitychange', function () { if (!document.hidden) verifier(); });
 })();
