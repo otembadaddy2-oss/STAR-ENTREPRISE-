@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script src="assets/i18n-v1.js"></script>
 <title>KOMYO — Créer mon compte</title>
-<meta name="description" content="Crée ton vrai compte KOMYO — numéro de téléphone et code PIN, comme le code de ta carte bancaire.">
+<meta name="description" content="Crée ton vrai compte KOMYO — numéro de téléphone et un code PIN que tu inventes, sans Mobile Money.">
 <meta name="theme-color" content="#FFFBF3">
 <link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -185,9 +185,13 @@
         </div>
 
         <div class="field">
-          <label for="fPin">Code PIN (4 ou 5 chiffres) — comme le code de ta carte</label>
+          <label for="fPin">Ton code PIN KOMYO (4 ou 5 chiffres) — invente-le toi-même</label>
           <div class="pin-row">
             <input type="password" id="fPin" inputmode="numeric" pattern="[0-9]*" maxlength="5" placeholder="•••••" autocomplete="off">
+          </div>
+          <div class="note">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#8A6318" stroke-width="2.2"><path d="M12 9v4M12 17h.01M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z"/></svg>
+            <span>Ce code est propre à KOMYO : choisis celui que tu veux. Il n'a rien à voir avec Mobile Money, Airtel Money ou ta banque, et tu n'as pas besoin de Mobile Money pour créer un compte.</span>
           </div>
         </div>
 
