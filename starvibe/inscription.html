@@ -307,10 +307,10 @@
     typePersonnel.classList.toggle('active', profileType === 'personnel');
     typeEnfant.classList.toggle('active', profileType === 'enfant');
     document.getElementById('typeAutre').classList.toggle('active', profileType === 'autre');
-    var login = mode === 'login', montrerNom = !login || profileType !== 'personnel';
-    document.getElementById('fieldNom').hidden = !montrerNom;
-    document.getElementById('lblNom').textContent = login ? 'Prénom ou nom de l\'enfant (facultatif)' : 'Nom complet';
-    document.getElementById('fNom').placeholder = login ? 'Facultatif' : 'Ton nom';
+    var login = mode === 'login';
+    document.getElementById('fieldNom').hidden = false;   // le nom et le prénom restent visibles à la connexion (consigne de Carry)
+    document.getElementById('lblNom').textContent = login ? (profileType === 'personnel' ? 'Nom et prénom (facultatif)' : 'Prénom ou nom de l\'enfant (facultatif)') : 'Nom complet';
+    document.getElementById('fNom').placeholder = login ? (profileType === 'personnel' ? 'Ton nom et ton prénom' : 'Facultatif') : 'Ton nom';
     document.getElementById('autreFields').hidden = !(login && profileType === 'autre');
   }
   typePersonnel.addEventListener('click', function(){ profileType = 'personnel'; majType(); });
