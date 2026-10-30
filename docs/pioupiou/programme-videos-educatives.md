@@ -8,7 +8,7 @@ Mis à jour le 30 octobre 2026. ☑ = terminé · ☐ = à faire. Âges : 3-4, 4
 ## A · Routines de la journée
 
 - [x] **A1** — Bonjour papa, bonjour maman (60 s, 3-6 ans) — *terminé (version 2, parents visibles)*
-- [ ] **A2** — Les dents du matin (75 s, 3-6 ans)
+- [x] **A2** — Les dents du matin (75 s, 3-6 ans) — *terminé et validé (37 s, bouches synchronisées)*
 - [ ] **A3** — Les mains propres avant de manger (60 s, 3-6 ans)
 - [ ] **A4** — Les mains propres après le repas (60 s, 3-6 ans)
 - [ ] **A5** — Merci ! (60 s, 3-6 ans)
