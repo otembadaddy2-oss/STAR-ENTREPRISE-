@@ -142,11 +142,6 @@
   <div class="wrap" style="max-width:100%;padding-inline:0;">
 
     <div id="formView">
-      <div class="tabs">
-        <button type="button" id="tabRegister" class="active">Créer un compte</button>
-        <button type="button" id="tabLogin">Se connecter</button>
-      </div>
-
       <div class="errmsg" id="errBox"></div>
 
       <form id="regForm">
@@ -263,8 +258,6 @@
   var mode = dejaInscrit ? 'login' : 'register';
   var profileType = 'personnel';
 
-  var tabRegister = document.getElementById('tabRegister');
-  var tabLogin = document.getElementById('tabLogin');
   var registerOnlyFields = document.getElementById('registerOnlyFields');
   var btnSubmit = document.getElementById('btnSubmit');
   var errBox = document.getElementById('errBox');
@@ -279,8 +272,6 @@
 
   function setMode(next){
     mode = next;
-    tabRegister.classList.toggle('active', mode === 'register');
-    tabLogin.classList.toggle('active', mode === 'login');
     registerOnlyFields.hidden = mode === 'login';
     document.getElementById('typeAutreRow').hidden = mode !== 'login';
     document.getElementById('noteAge').hidden = mode === 'login';
@@ -290,15 +281,14 @@
     btnSubmit.textContent = mode === 'register' ? 'Valider mon inscription' : 'Me connecter';
     switchHint.innerHTML = mode === 'register'
       ? 'Déjà inscrit ? <a id="linkToLogin">Se connecter</a>'
-      : '<a id="linkPinOublie" style="display:inline-block;margin-top:8px">Code PIN oublié ?</a>';
+      : '<a id="linkPinOublie" style="display:inline-block;margin-top:8px">Code PIN oublié ?</a><br><span style="display:inline-block;margin-top:10px">Première visite ? <a id="linkToRegister">S\'inscrire</a></span>';
     var l2l = document.getElementById('linkToLogin'); if (l2l) l2l.onclick = function(){ setMode('login'); };
     var lp = document.getElementById('linkPinOublie'); if (lp) lp.onclick = ouvrirPinOublie;
+    var l2r = document.getElementById('linkToRegister'); if (l2r) l2r.onclick = function(){ setMode('register'); };
     clearError();
   }
 
   setMode(mode);
-  tabRegister.addEventListener('click', function(){ setMode('register'); });
-  tabLogin.addEventListener('click', function(){ setMode('login'); });
   linkToLogin.addEventListener('click', function(){ setMode('login'); });
 
   var typeAutre = document.getElementById('typeAutre');
@@ -410,7 +400,7 @@
         setMode(mode);
         if (!result.ok){
           var msg = result.data.error || 'Une erreur est survenue.';
-          if (msg === 'Numéro ou code PIN incorrect') msg += '. Vérifie ton numéro (avec ou sans espaces, avec ou sans l\'indicatif) et ton code PIN. Pas encore de compte ? Touche « Créer un compte ».';
+          if (msg === 'Numéro ou code PIN incorrect') msg += '. Vérifie ton numéro (avec ou sans espaces, avec ou sans l\'indicatif) et ton code PIN. Pas encore de compte ? Touche « S\'inscrire » en bas de la page.';
           showError(msg);
           return;
         }
@@ -442,6 +432,6 @@
 <script src="/assets/js/date-roue-v1.js" defer></script>
 <script src="assets/komyo-prix-v2.js" defer></script>
 <script src="assets/keydou-bulle-v1.js" defer></script>
-<script src="assets/komyo-installer-v5.js" defer></script>
+<script src="assets/komyo-installer-v6.js" defer></script>
 </body>
 </html>

@@ -14,8 +14,8 @@
 // - navigateurs intégrés (Facebook, Instagram, TikTok…) : conseil d'ouvrir dans le vrai navigateur.
 // La page installer.html reprend tout cela et peut rouvrir la carte à la demande.
 //
-// v5 : un BOUTON « 📲 Installer KOMYO » reste affiché sur toutes les pages tant que l'application n'est pas installée
-// (même après que la carte s'est rangée). Il disparaît tout seul dès l'installation (ou si KOMYO est ouverte comme une application).
+// v6 : le petit bouton permanent « 📲 Installer KOMYO » est retiré (demande de Carry) ; il ne reste que la grande carte noir et or,
+// qui se range d'elle-même, et la page installer.html.
 // Un petit × le cache 14 jours (utile sur iPhone, qui n'annonce pas l'installation au navigateur).
 //
 // Suivi des abonnés (silencieux) : quand KOMYO est installée (ou ouverte comme une application,
@@ -259,38 +259,6 @@
     b.classList.add('out');
     setTimeout(function(){ b.remove(); }, 300);
   }
-
-  // ---------- Bouton « Installer » permanent (jusqu'à l'installation) ----------
-  var pastilleEl = null;
-  function pastilleVisible(){
-    if (dejaApp() || ls(K_DONE) === '1') return false;
-    if (location.pathname.indexOf('installer.html') !== -1) return false;   // la page d'installation a déjà ses explications
-    var t = parseInt(ls(K_PASTILLE) || '0', 10);
-    return !(t && Date.now() - t < 14 * 24 * 3600 * 1000);
-  }
-  function majPastille(){
-    var voir = pastilleVisible() && !box;
-    if (!voir) { if (pastilleEl) { pastilleEl.remove(); pastilleEl = null; } return; }
-    if (pastilleEl) return;
-    if (!document.getElementById('kinPastilleStyle')) {
-      var st = document.createElement('style'); st.id = 'kinPastilleStyle';
-      st.textContent = '.kinp{position:fixed;z-index:55;right:12px;bottom:calc(92px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;border-radius:999px;overflow:hidden;' +
-        'background:linear-gradient(180deg,#ffd466,#d9a92f);color:#1b1405;box-shadow:0 8px 22px rgba(0,0,0,.35);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;animation:kin-in .4s ease both}' +
-        '.kinp button{border:0;background:none;font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}' +
-        '.kinp .kinp-go{padding:10px 8px 10px 14px;font-size:13.5px;font-weight:800;min-height:40px}.kinp .kinp-x{padding:10px 12px 10px 4px;font-size:15px;font-weight:700;opacity:.7;min-height:40px}' +
-        '.kinp button:focus-visible{outline:3px solid #fff;outline-offset:-3px}@media (prefers-reduced-motion:reduce){.kinp{animation:none}}';
-      document.head.appendChild(st);
-    }
-    pastilleEl = document.createElement('div');
-    pastilleEl.className = 'kinp';
-    pastilleEl.innerHTML = '<button type="button" class="kinp-go" aria-label="Installer l\'application KOMYO">📲 Installer KOMYO</button><button type="button" class="kinp-x" aria-label="Masquer ce bouton pendant 14 jours">×</button>';
-    document.body.appendChild(pastilleEl);
-    pastilleEl.querySelector('.kinp-go').addEventListener('click', function(){ window.__komyoInstaller.installer(); });
-    pastilleEl.querySelector('.kinp-x').addEventListener('click', function(){ ls(K_PASTILLE, String(Date.now())); majPastille(); });
-  }
-  function lancerPastille(){ setTimeout(majPastille, DELAI + 500); setInterval(majPastille, 2000); }   // se range pendant que la carte est ouverte, revient ensuite ; disparaît dès l'installation
-  if (document.readyState === 'complete') lancerPastille(); else window.addEventListener('load', lancerPastille);
-  document.addEventListener('komyo:installe', majPastille);
 
   // Accès pour la page installer.html et les liens « Installer l'application ».
   window.__komyoInstaller = {

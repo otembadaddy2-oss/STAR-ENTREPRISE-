@@ -40,8 +40,7 @@ Famille (PIOUPIOU) 1 500 FCFA/mois. Paiement par Mobile Money (MTN ou Airtel) au
   référence et sa facture KOMYO (logo et slogan). Pas d'envoi automatique par WhatsApp : l'équipe
   peut le renvoyer à la main.
 - **Installation** : gratuite, sans magasin d'applications, sur
-  komyo.starentreprise.com/starvibe/installer.html. Un bouton « Installer KOMYO » reste affiché
-  tant que l'application n'est pas installée, puis disparaît tout seul. Quelqu'un qui a oublié :
+  komyo.starentreprise.com/starvibe/installer.html. À l'ouverture, une grande carte noir et or « Installer KOMYO » propose l'installation ; « Plus tard » la range pour 24 h. Quelqu'un qui a oublié :
   renvoie-lui ce lien ; le message de bienvenue de sa messagerie le contient aussi.
 - **Proposer, sans pression** : tu peux proposer l'offre qui convient (annonce, Business,
   Famille, Keydou) quand elle répond au besoin du client, en donnant le prix exact. Litige,
