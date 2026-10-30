@@ -93,7 +93,14 @@ table([["Offre","Prix","À savoir"],
  ["Annonce 2 semaines","4 000 FCFA","Idem."],
  ["Annonce 1 mois","10 000 FCFA","Idem."],
  ["Keydou","1 000 FCFA / demande","Une demande couvre jusqu'à 3 besoins."]],[70,40,64])
-small("Prix en vigueur dans l'application au 29/10/2026. Les équivalents en euros ou dollars sont indicatifs. Contact public : contact@starentreprise.com.")
+small("Prix en vigueur dans l'application au 30/10/2026. Les équivalents en euros ou dollars sont indicatifs. Contact public : contact@starentreprise.com.")
+h2("6 bis. Boutiques KOMYO Business, reçus et installation")
+bl(["<b>Boutique</b> : un vendeur avec l'offre Business (adulte) coche ses services, ajoute ses articles et donne son Mobile Money. Le client paie <b>le vendeur directement</b> ; KOMYO ne touche pas l'argent des ventes. À la confirmation, le client reçoit son accusé de réception dans sa messagerie KOMYO et le vendeur sa notification de vente.",
+"<b>Frais : 500 FCFA chaque semaine d'ouverture, avec ou sans vente</b> (la semaine d'ouverture est offerte, pas de frais pendant une pause), à payer au +242 06 656 50 50. Une semaine pour payer, puis 3 jours : <b>à 10 jours d'impayé, la boutique est mise en pause automatiquement</b>.",
+"<b>Réouverture</b> : en bas de Ma boutique, la case « Renouvellement dette » est Ouverte s'il y a une dette, Fermée sinon. Le vendeur écrit son nom et prénom et ses activités, coche la dette (montant affiché), dépose le montant, touche « J'ai payé » ; quand l'équipe valide, la boutique rouvre et il retrouve sa page.",
+"<b>Reçus</b> : à chaque paiement confirmé (abonnement, annonce, Keydou, frais de boutique), la personne reçoit un reçu détaillé dans sa messagerie KOMYO : achat, date, date de fin de validité, référence et facture avec logo. L'équipe peut le renvoyer à la main par WhatsApp ; il n'y a pas d'envoi automatique par WhatsApp.",
+"<b>Installation</b> : gratuite, sans magasin d'applications, sur komyo.starentreprise.com/starvibe/installer.html. Le bouton « Installer KOMYO » reste affiché tant que l'application n'est pas installée, puis disparaît tout seul. À quelqu'un qui a oublié : renvoie ce lien (il est aussi dans le message de bienvenue de sa messagerie).",
+"<b>Proposer sans pression</b> : propose l'offre qui répond au besoin (annonce, Business, Famille, Keydou) avec le prix exact. Litige, remboursement ou plainte sur une boutique : transmets à Carry. Jamais de code PIN."])
 h2("7. Messages types (WhatsApp ou e-mail)")
 msg("<b>Accueil.</b> Bonjour, je suis Sarah de STAR ENTREPRISE. Merci de votre demande sur KOMYO. Pour bien vous aider, pouvez-vous me confirmer votre ville et ce que vous cherchez ?")
 msg("<b>Précisions.</b> Pour trouver ce qu'il vous faut : pour quelle date ? Combien de personnes ? Avez-vous un budget en tête ?")

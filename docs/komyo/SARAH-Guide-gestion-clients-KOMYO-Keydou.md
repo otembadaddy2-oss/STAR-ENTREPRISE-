@@ -87,7 +87,17 @@ _Fiches (min.) = nombre minimum de fiches dans la mémoire de Keydou : annuaire 
 | Annonce 1 mois | 10 000 FCFA | Idem. |
 | Keydou | 1 000 FCFA / demande | Une demande couvre jusqu'à 3 besoins. |
 
-_Prix en vigueur dans l'application au 29/10/2026. Les équivalents en euros ou dollars sont indicatifs. Contact public : contact@starentreprise.com._
+_Prix en vigueur dans l'application au 30/10/2026. Les équivalents en euros ou dollars sont indicatifs. Contact public : contact@starentreprise.com._
+
+
+## 6 bis. Boutiques KOMYO Business, reçus et installation
+
+- **Boutique** : un vendeur avec l'offre Business (adulte) coche ses services, ajoute ses articles et donne son Mobile Money. Le client paie **le vendeur directement** ; KOMYO ne touche pas l'argent des ventes. À la confirmation, le client reçoit son accusé de réception dans sa messagerie KOMYO et le vendeur sa notification de vente.
+- **Frais : 500 FCFA chaque semaine d'ouverture, avec ou sans vente** (la semaine d'ouverture est offerte, pas de frais pendant une pause), à payer au +242 06 656 50 50. Une semaine pour payer, puis 3 jours : **à 10 jours d'impayé, la boutique est mise en pause automatiquement**.
+- **Réouverture** : en bas de Ma boutique, la case « Renouvellement dette » est Ouverte s'il y a une dette, Fermée sinon. Le vendeur écrit son nom et prénom et ses activités, coche la dette (montant affiché), dépose le montant, touche « J'ai payé » ; quand l'équipe valide, la boutique rouvre et il retrouve sa page.
+- **Reçus** : à chaque paiement confirmé (abonnement, annonce, Keydou, frais de boutique), la personne reçoit un reçu détaillé dans sa messagerie KOMYO : achat, date, date de fin de validité, référence et facture avec logo. L'équipe peut le renvoyer à la main par WhatsApp ; il n'y a pas d'envoi automatique par WhatsApp.
+- **Installation** : gratuite, sans magasin d'applications, sur komyo.starentreprise.com/starvibe/installer.html. Le bouton « Installer KOMYO » reste affiché tant que l'application n'est pas installée, puis disparaît tout seul. À quelqu'un qui a oublié : renvoie ce lien (il est aussi dans le message de bienvenue de sa messagerie).
+- **Proposer sans pression** : propose l'offre qui répond au besoin (annonce, Business, Famille, Keydou) avec le prix exact. Litige, remboursement ou plainte sur une boutique : transmets à Carry. Jamais de code PIN.
 
 
 ## 7. Messages types (WhatsApp ou e-mail)
