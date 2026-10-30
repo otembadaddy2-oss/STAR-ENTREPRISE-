@@ -67,10 +67,12 @@
     if (t) h['Authorization'] = 'Bearer ' + t;
     try {
       fetch(API_INST, { method: 'POST', headers: h, keepalive: true, body: JSON.stringify({ installId: idAppareil(), event: event }) })
-        .then(function(r){ if (r.ok && t) ls('komyo_install_lie', t.slice(-16)); }).catch(function(){});
+        .then(function(r){ if (r.ok && t && event !== 'visite') ls('komyo_install_lie', t.slice(-16)); }).catch(function(){});
     } catch (e) {}
   }
   function suivre(){
+    // Visite : comptée à chaque page ouverte, une seule fois par chargement (l'appareil n'est compté qu'une fois par jour côté serveur).
+    pister('visite');
     var t = jeton(), lie = ls('komyo_install_lie') === (t ? t.slice(-16) : '');
     if (dejaApp()) {
       if (ss('komyo_install_ouvert') !== '1') { ss('komyo_install_ouvert', '1'); pister('launch'); }

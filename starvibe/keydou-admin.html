@@ -123,7 +123,8 @@
     <div style="display:flex;gap:8px"><a class="linkbtn" href="paiements.html">Paiements</a><a class="linkbtn" href="moderation.html">Modération</a><button class="linkbtn" id="btnRecov" title="Code de secours pour retrouver ton accès">Code de secours</button><button class="linkbtn" id="btnLogout">Déconnexion</button></div>
   </div>
   <div class="tabs">
-    <button class="tab on" id="tabClients">Fichier clients (Excel)</button>
+    <button class="tab on" id="tabDash">Tableau de bord</button>
+    <button class="tab" id="tabClients">Fichier clients (Excel)</button>
     <button class="tab" id="tabSubs">Abonnés (app installée)</button>
     <button class="tab" id="tabPins">PIN oubliés <span id="pinBadge" class="pill warn" hidden style="margin-left:4px"></span></button>
     <button class="tab" id="tabContacts">Contacts en direct</button>
@@ -131,8 +132,18 @@
     <button class="tab" id="tabPhone">Mon téléphone (validation)</button>
   </div>
 
+  <!-- TABLEAU DE BORD : tous les mouvements, en direct -->
+  <div id="paneDash">
+    <div class="bar"><span class="muted" id="dRefresh">Chargement…</span><span class="muted">· actualisation automatique toutes les 10 secondes</span></div>
+    <div class="stats" id="dRev"></div>
+    <div class="stats" id="dAbo"></div>
+    <div class="stats" id="dTrafic"></div>
+    <div class="stats" id="dWait"></div>
+    <div class="chartcard"><h3>Derniers mouvements</h3><div class="sub">paiements, abonnements, nouveaux comptes, installations (numéros masqués)</div><div id="dFlux"></div></div>
+  </div>
+
   <!-- CLIENTS : le fichier Excel, en direct -->
-  <div id="paneClients">
+  <div id="paneClients" hidden>
     <div class="stats" id="cStats"></div>
     <div class="bar">
       <input type="search" id="cq" placeholder="Rechercher (nom, téléphone, ville, besoin, référence…)" style="flex:1;min-width:200px">
@@ -287,7 +298,7 @@
 
   /* ---------- connexion ---------- */
   function showLogin(){ $('loginView').hidden = false; $('mainView').hidden = true; clearInterval(timer); }
-  function showMain(){ $('loginView').hidden = true; $('mainView').hidden = false; loadClients(true); loadContacts(true); loadSubs(true); loadPins(true); loadAnnuaire(); clearInterval(timer); timer = setInterval(function(){ if (!$('paneClients').hidden) loadClients(false); if (!$('paneContacts').hidden) loadContacts(false); if (!$('paneSubs').hidden) loadSubs(false); loadPins(false); }, 6000); }
+  function showMain(){ $('loginView').hidden = true; $('mainView').hidden = false; loadDash(); loadClients(true); loadContacts(true); loadSubs(true); loadPins(true); loadAnnuaire(); clearInterval(timer); timer = setInterval(function(){ if (!$('paneClients').hidden) loadClients(false); if (!$('paneContacts').hidden) loadContacts(false); if (!$('paneSubs').hidden) loadSubs(false); loadPins(false); }, 6000); }
   var timer = null;
   var API_ACCES = '/api/staff-acces';
   function showErr(id, msg){ var e = $(id); e.textContent = msg; e.classList.add('show'); }
@@ -359,7 +370,7 @@
   });
   $('btnLogout').addEventListener('click', function(){ setToken(''); showLogin(); });
   /* ---------- bouton « retour » du téléphone : revient à l'écran d'avant, comme une vraie application ---------- */
-  var cur = { tab:'Clients', ov:'', card:'cardLogin' }, S0 = { tab:'Clients', ov:'', card:'cardLogin' }, dernierRetour = 0, toastEl = null;
+  var cur = { tab:'Dash', ov:'', card:'cardLogin' }, S0 = { tab:'Dash', ov:'', card:'cardLogin' }, dernierRetour = 0, toastEl = null;
   function pousser(patch){ cur = Object.assign({}, cur, patch); history.pushState({ k:'app', s:cur }, ''); }
   function appliquer(s){
     cur = s; tab(s.tab);
@@ -384,10 +395,34 @@
   });
   try { history.replaceState({ k:'root' }, ''); history.pushState({ k:'app', s:S0 }, ''); } catch (er) {}
 
-  function tab(name){
-    ['Clients','Subs','Pins','Contacts','Annuaire','Phone'].forEach(function(n){ $('tab' + n).classList.toggle('on', n === name); $('pane' + n).hidden = (n !== name); });
-    if (name === 'Phone') loadPhone();
+  // ---------- Tableau de bord en direct (paiements, abonnés, visites…) ----------
+  var dashTimer = null;
+  function fcfa(n){ return Number(n || 0).toLocaleString('fr-FR') + ' FCFA'; }
+  function carte(titre, valeur, sous){ return '<div class="stat"><b>' + esc(valeur) + '</b><span>' + esc(titre) + (sous ? ' · ' + esc(sous) : '') + '</span></div>'; }
+  function loadDash(){
+    authFetch('/api/starvibe-dashboard').then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); }).then(function(x){
+      if (!x.ok){ $('dRefresh').textContent = x.d.error || 'Impossible de charger le tableau de bord.'; return; }
+      var d = x.d, r = d.revenusFcfa;
+      $('dRev').innerHTML = carte('Encaissé aujourd\'hui', fcfa(r.jour.tous)) + carte('7 derniers jours', fcfa(r.j7.tous)) + carte('30 derniers jours', fcfa(r.j30.tous)) + carte('Total encaissé', fcfa(r.total.tous),
+        'abonnements ' + fcfa(r.total.abonnement) + ' · Keydou ' + fcfa(r.total.keydou) + ' · annonces ' + fcfa(r.total.annonce));
+      $('dAbo').innerHTML = carte('Abonnés payants actifs', d.abonnes.total) + carte('Famille', d.abonnes.famille) + carte('Business', d.abonnes.business) + carte('Comptes KOMYO', d.comptes.total, '+' + d.comptes.h24 + ' en 24 h · +' + d.comptes.j7 + ' en 7 j');
+      $('dTrafic').innerHTML = carte('Visiteurs aujourd\'hui', d.visites.appareilsAujourdhui, d.visites.pagesAujourdhui + ' pages') + carte('En ce moment (5 min)', d.visites.enCeMoment) + carte('Visiteurs sur 7 jours', d.visites.appareils7j, d.visites.pages7j + ' pages') +
+        carte('Applications installées', d.installations.total, '+' + d.installations.h24 + ' en 24 h') + carte('Vidéos', d.videos.total, d.videos.vues + ' vues · ' + d.videos.jaime + ' j\'aime');
+      var w = d.enAttente;
+      $('dWait').innerHTML = carte('Paiements abonnement à valider', w.abonnements) + carte('Paiements Keydou à valider', w.keydou) + carte('Annonces à valider', w.annonces) + carte('PIN oubliés', w.pinOublies) + carte('Vidéos à modérer', d.videos.aModerer);
+      var ic = { compte: '👤', abonnement: '⭐', attente: '⏳', keydou: '🧭', annonce: '📣', install: '📲' };
+      $('dFlux').innerHTML = d.flux.length ? '<table><tbody>' + d.flux.map(function(f){ var t = new Date(f.at); return '<tr><td style="white-space:nowrap">' + t.toLocaleDateString('fr-FR') + ' ' + t.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) + '</td><td>' + (ic[f.type] || '•') + ' ' + esc(f.texte) + '</td><td>' + esc(f.tel) + '</td></tr>'; }).join('') + '</tbody></table>' : '<p class="muted">Aucun mouvement pour le moment.</p>';
+      $('dRefresh').textContent = 'Mis à jour à ' + new Date(d.maintenant).toLocaleTimeString('fr-FR');
+    }).catch(function(){ $('dRefresh').textContent = 'Connexion interrompue, nouvel essai dans 10 secondes.'; });
+    if (!dashTimer) dashTimer = setInterval(function(){ if (!document.hidden && !$('paneDash').hidden) loadDash(); }, 10000);
   }
+
+  function tab(name){
+    ['Dash','Clients','Subs','Pins','Contacts','Annuaire','Phone'].forEach(function(n){ $('tab' + n).classList.toggle('on', n === name); $('pane' + n).hidden = (n !== name); });
+    if (name === 'Phone') loadPhone();
+    if (name === 'Dash') { loadDash(); } else { clearInterval(dashTimer); dashTimer = null; }
+  }
+  $('tabDash').addEventListener('click', function(){ goTab('Dash'); });
   $('tabClients').addEventListener('click', function(){ goTab('Clients'); });
   $('tabSubs').addEventListener('click', function(){ goTab('Subs'); loadSubs(false); });
   $('tabPins').addEventListener('click', function(){ goTab('Pins'); loadPins(false); });

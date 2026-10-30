@@ -113,6 +113,11 @@
   .btn-son svg{width:20px;height:20px;flex:none;} .btn-son[hidden]{display:none;} .btn-son:focus-visible{outline:3px solid #fff;outline-offset:2px;}
   .btn-son.on{background:rgba(10,60,34,.75);}
   .player.fs .btn-son,.player:fullscreen .btn-son{bottom:calc(14px + env(safe-area-inset-bottom,0px));left:calc(10px + env(safe-area-inset-left,0px));}
+
+  #gateDlg{border:0;border-radius:20px;padding:22px;max-width:360px;width:calc(100% - 32px);text-align:center;box-shadow:0 24px 60px -20px rgba(0,0,0,.5);}
+  #gateDlg::backdrop{background:rgba(15,40,30,.7);} #gateDlg h3{margin:0 0 6px;font-size:18px;} #gateDlg p{margin:0 0 12px;font-size:13px;line-height:1.5;color:#4a4a4a;}
+  #gateDlg input{width:100%;padding:12px;border:1.5px solid #ddd;border-radius:12px;font:inherit;font-size:20px;text-align:center;} #gateDlg .err{color:#b3261e;font-size:13px;min-height:18px;margin-top:6px;}
+  #gateDlg .row{display:flex;gap:10px;margin-top:12px;} #gateDlg button{flex:1;padding:12px;border-radius:12px;border:0;font:inherit;font-weight:800;cursor:pointer;background:#1f8f4a;color:#fff;} #gateDlg button.sec{background:#fff;color:#333;border:1.5px solid #ddd;}
 </style>
 </head>
 <body>
@@ -167,6 +172,16 @@
   </div>
 </div>
 
+<dialog id="gateDlg" aria-labelledby="gateTitre">
+  <form method="dialog" id="gateForm">
+    <h3 id="gateTitre">Réservé aux parents</h3>
+    <p>Pour t'abonner, résous ce petit calcul. C'est une sécurité pour que les enfants ne puissent pas acheter seuls.</p>
+    <p><b id="gateQ" style="font-size:22px"></b></p>
+    <input id="gateR" inputmode="numeric" autocomplete="off" aria-label="Réponse au calcul">
+    <div class="err" id="gateErr" role="alert"></div>
+    <div class="row"><button type="button" class="sec" id="gateNon">Annuler</button><button type="submit">Valider</button></div>
+  </form>
+</dialog>
 <script>
 (function(){
   var API_VIDEOS = '/api/starvibe-videos?espace=pioupiou';
@@ -279,6 +294,26 @@
     if (btnSon.contains(e.target) || tapZone.contains(e.target)) { document.removeEventListener('pointerdown', premier); return; }   // ces deux zones gèrent elles-mêmes le son
     if (!sonActif && !btnSon.hidden) activerSon(true);
     document.removeEventListener('pointerdown', premier);
+  });
+
+  // ---------- Passage réservé aux parents : un calcul d'adulte avant d'aller vers l'abonnement ----------
+  var gate = document.getElementById('gateDlg'), gateRep = 0;
+  function ouvrirPorte(){
+    var a = 12 + Math.floor(Math.random() * 17), b = 6 + Math.floor(Math.random() * 9);   // ex. 17 + 8
+    gateRep = a + b; document.getElementById('gateQ').textContent = a + ' + ' + b + ' = ?';
+    document.getElementById('gateR').value = ''; document.getElementById('gateErr').textContent = '';
+    if (gate.showModal) gate.showModal(); else gate.setAttribute('open', '');
+    setTimeout(function(){ document.getElementById('gateR').focus(); }, 50);
+  }
+  document.addEventListener('click', function(e){
+    var a = e.target.closest && e.target.closest('a[href="abonnement.html"]');
+    if (a && a.closest('.player')){ e.preventDefault(); ouvrirPorte(); }
+  });
+  document.getElementById('gateNon').addEventListener('click', function(){ gate.close(); });
+  document.getElementById('gateForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    if (parseInt(document.getElementById('gateR').value, 10) === gateRep){ location.href = 'abonnement.html'; }
+    else { document.getElementById('gateErr').textContent = 'Ce n\'est pas la bonne réponse. Demande à un parent.'; document.getElementById('gateR').value = ''; }
   });
 
   function playCurrent(){

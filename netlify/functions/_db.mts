@@ -641,6 +641,18 @@ export async function ensureSchema() {
     )
   `;
 
+  // Visites : un appareil compté une fois par jour (identifiant tiré au hasard par l'appareil, aucune adresse IP, aucun nom).
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_visites (
+      jour DATE NOT NULL DEFAULT CURRENT_DATE,
+      appareil TEXT NOT NULL,
+      pages INTEGER NOT NULL DEFAULT 1,
+      premiere TIMESTAMPTZ NOT NULL DEFAULT now(),
+      derniere TIMESTAMPTZ NOT NULL DEFAULT now(),
+      PRIMARY KEY (jour, appareil)
+    )
+  `;
+
   initialized = true;
 }
 

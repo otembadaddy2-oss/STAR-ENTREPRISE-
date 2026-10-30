@@ -82,7 +82,16 @@ export default async (req: Request, _context: Context) => {
   const installId = clean(body.installId, 64);
   if (!/^[A-Za-z0-9_-]{16,64}$/.test(installId)) return json({ error: "Identifiant invalide" }, 400);
   const event = clean(body.event, 12);
-  if (!["installed", "launch", "link"].includes(event)) return json({ error: "Événement inconnu" }, 400);
+  if (!["installed", "launch", "link", "visite"].includes(event)) return json({ error: "Événement inconnu" }, 400);
+
+  // Visite : on compte l'appareil une fois par jour (et ses pages). Rien d'autre n'est gardé.
+  if (event === "visite") {
+    await sql`
+      INSERT INTO starvibe_visites (jour, appareil) VALUES (CURRENT_DATE, ${installId})
+      ON CONFLICT (jour, appareil) DO UPDATE SET pages = starvibe_visites.pages + 1, derniere = now()
+    `;
+    return json({ ok: true });
+  }
 
   const { platform, navigateur } = appareil(req.headers.get("user-agent") || "");
 
