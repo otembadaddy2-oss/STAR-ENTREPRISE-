@@ -113,6 +113,7 @@
     <div id="payBox" hidden></div>
     <div id="plansList"></div>
     <div id="autreEnfant"></div>
+    <div id="mesRecus"></div>
   </div>
 </div>
 
@@ -150,7 +151,7 @@
         '<div class="amount">' + sub.montantAttendu.toLocaleString('fr-FR') + ' FCFA</div>' +
         '<div class="pay-row"><span>Envoyer via Mobile Money au</span><b>' + sub.numeroReception + '</b></div>' +
         '<div class="pay-row"><span>Référence à indiquer</span><b>' + sub.referencePaiement + '</b></div>' +
-        '<div class="pay-note">Envoie le montant exact avec la référence ci-dessus. Un compte STAR ENTREPRISE confirme la réception et active ton plan pour 30 jours.</div>' +
+        '<div class="pay-note">Envoie le montant exact avec la référence ci-dessus. Un compte STAR ENTREPRISE confirme la réception et active ton plan pour 30 jours ; tu reçois ensuite ton reçu détaillé par WhatsApp.</div>' +
         '<label for="payMontant" style="display:block;margin-top:12px;font-weight:700;font-size:14px">Montant que tu as déposé (en FCFA)</label>' +
         '<input id="payMontant" type="text" inputmode="numeric" maxlength="12" autocomplete="off" placeholder="' + sub.montantAttendu.toLocaleString('fr-FR') + '" style="width:100%;margin-top:6px;padding:11px 12px;border:1.5px solid #eee2cc;border-radius:12px;font:600 15px inherit">' +
         '<div id="payMontantMsg" data-noconv class="pay-note" aria-live="polite">Écris le montant de ton dépôt : exactement ' + sub.montantAttendu.toLocaleString('fr-FR') + ' FCFA.</div>' +
@@ -218,7 +219,20 @@
         loadingState.hidden = true;
         appState.hidden = false;
         if (!autreBox.firstChild) renderGift();
+        loadRecus();
       });
+  }
+
+  // ---------- Mes reçus : chaque paiement confirmé donne un reçu (aussi envoyé par WhatsApp) ----------
+  function loadRecus(){
+    authFetch('/api/starvibe-recus?mes=1').then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+      var box = document.getElementById('mesRecus'); if (!d || !d.recus || !d.recus.length){ box.innerHTML = ''; return; }
+      var h = '<div class="gift"><h2>Mes reçus</h2><p class="hint">Chaque paiement confirmé te donne un reçu, aussi envoyé sur ton WhatsApp.</p>';
+      d.recus.slice(0, 10).forEach(function(r){
+        h += '<details style="margin-top:8px"><summary><b>' + esc2(r.titre) + '</b> · ' + Number(r.montant).toLocaleString('fr-FR') + ' FCFA' + (r.expireLe ? ' · jusqu\'au ' + esc2(new Date(r.expireLe).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric', timeZone:'Africa/Brazzaville' })) : '') + '</summary><pre style="white-space:pre-wrap;font:14px/1.5 inherit;margin:8px 0 0">' + esc2(r.texte) + '</pre></details>';
+      });
+      box.innerHTML = h + '</div>';
+    });
   }
 
   // ---------- Abonnement Famille pour un autre enfant (payé par un parent, un proche…) ----------

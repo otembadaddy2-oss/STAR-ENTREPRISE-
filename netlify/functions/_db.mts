@@ -633,6 +633,31 @@ export async function ensureSchema() {
     )
   `;
 
+  // REÇUS de paiement envoyés par WhatsApp (un par paiement confirmé et par personne : payeur, bénéficiaire ou client).
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_recus (
+      id SERIAL PRIMARY KEY,
+      kind TEXT NOT NULL,
+      ref_id INTEGER NOT NULL,
+      role TEXT NOT NULL DEFAULT 'client',
+      account_id INTEGER,
+      telephone TEXT NOT NULL DEFAULT '',
+      numero TEXT NOT NULL DEFAULT '',
+      titre TEXT NOT NULL DEFAULT '',
+      montant INTEGER NOT NULL DEFAULT 0,
+      expire_le TIMESTAMPTZ,
+      texte TEXT NOT NULL DEFAULT '',
+      variables JSONB NOT NULL DEFAULT '[]'::jsonb,
+      statut TEXT NOT NULL DEFAULT 'a_envoyer',
+      erreur TEXT NOT NULL DEFAULT '',
+      wa_message_id TEXT NOT NULL DEFAULT '',
+      envoye_le TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      UNIQUE (kind, ref_id, role)
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_recus_account_idx ON starvibe_recus (account_id, created_at DESC)`;
+
   // ÉCLAT (le direct de KOMYO) : liste d'attente en attendant le vrai direct
   await sql`
     CREATE TABLE IF NOT EXISTS starvibe_eclat_attente (

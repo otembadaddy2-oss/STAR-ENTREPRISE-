@@ -11,6 +11,7 @@
 // puisse être branché plus tard sans rien changer côté client.
 import type { Context, Config } from "@netlify/functions";
 import { ensureSchema, db, json } from "./_db.mts";
+import { recuAbonnement } from "./_recu.mts";
 import { requireAuth } from "./_auth.mts";
 import { memeNumero } from "./_tel.mts";
 import { verrou, echec, msgBloque } from "./_guard.mts";
@@ -117,6 +118,7 @@ export default async (req: Request, _context: Context) => {
       WHERE id = ${subscriptionId}
     `;
 
+    if (valide) await recuAbonnement(sql, subscriptionId);
     return json({
       statut: valide ? "actif" : "paiement_invalide",
       montantAttendu: sub.montant_attendu,
@@ -184,6 +186,7 @@ export default async (req: Request, _context: Context) => {
         WHERE id = ${subscriptionId}
       `;
 
+      if (valide) await recuAbonnement(sql, subscriptionId);
       return json({
         statut: valide ? "actif" : "paiement_invalide",
         montantAttendu: sub.montant_attendu,

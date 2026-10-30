@@ -82,6 +82,9 @@
   <div class="topbar" style="margin-top:26px"><div><h1>Annonces KOMYO</h1><div class="tag">2 semaines 4 000 FCFA · 1 mois 10 000 FCFA — lis le message avant de confirmer</div></div></div>
   <div id="pubList"></div>
   <div class="empty" id="pubEmpty" hidden>Aucune annonce en attente.</div>
+  <div class="topbar" style="margin-top:26px"><div><h1>Reçus WhatsApp</h1><div class="tag" id="recuTag">Envoyés à chaque paiement confirmé</div></div></div>
+  <div id="recuList"></div>
+  <div class="empty" id="recuEmpty" hidden>Aucun reçu pour le moment.</div>
 </div>
 
 <script>
@@ -271,8 +274,36 @@
     });
   }
 
+  var API_RECU = '/api/starvibe-recus';
+  function escH(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  var ETAT = { envoye:'✅ Envoyé', envoye_manuel:'✅ Envoyé à la main', a_envoyer:'⏳ À envoyer', echec:'⚠️ Échec', sans_numero:'❌ Sans numéro' };
+  function loadRecus(){
+    authFetch(API_RECU + '?staff=1').then(function(r){ return r.ok ? r.json() : null; }).then(function(data){
+      var box = document.getElementById('recuList'); box.innerHTML = ''; if (!data) return;
+      document.getElementById('recuTag').textContent = data.auto ? 'Envoi automatique WhatsApp activé' : 'Envoi automatique non branché : touche « Envoyer sur WhatsApp »';
+      var a = data.recus || []; document.getElementById('recuEmpty').hidden = a.length > 0;
+      a.forEach(function(d){
+        var it = document.createElement('div'); it.className = 'item';
+        var ok = d.statut === 'envoye' || d.statut === 'envoye_manuel';
+        it.innerHTML = '<div><b>' + escH(d.numero) + '</b> · ' + escH(d.titre) + ' · ' + Number(d.montant).toLocaleString('fr-FR') + ' FCFA</div>' +
+          '<div class="tag">' + escH(d.telephone || '—') + ' · ' + escH(ETAT[d.statut] || d.statut) + (d.erreur ? ' · ' + escH(d.erreur) : '') + '</div>' +
+          (ok ? '' : '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">' +
+            (d.lienWhatsApp ? '<a class="btn-primary" style="text-decoration:none;display:inline-block;padding:8px 12px" target="_blank" rel="noopener" href="' + escH(d.lienWhatsApp) + '" data-id="' + d.id + '">Envoyer sur WhatsApp</a>' : '') +
+            (data.auto && d.telephone ? '<button class="btn-primary" data-re="' + d.id + '">Réessayer l\'envoi auto</button>' : '') + '</div>');
+        it.querySelectorAll('a[data-id]').forEach(function(a){ a.addEventListener('click', function(){
+          authFetch(API_RECU, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'marque_envoye', id:Number(a.getAttribute('data-id')) }) }).then(function(){ setTimeout(loadRecus, 1500); });
+        }); });
+        it.querySelectorAll('button[data-re]').forEach(function(b){ b.addEventListener('click', function(){
+          b.disabled = true;
+          authFetch(API_RECU, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'renvoyer', id:Number(b.getAttribute('data-re')) }) }).then(function(){ loadRecus(); });
+        }); });
+        box.appendChild(it);
+      });
+    });
+  }
+
   function loadQueue(){
-    loadKd(); loadPub();
+    loadKd(); loadPub(); loadRecus();
     authFetch(API_SUB + '?admin=1').then(function(res){
       if (res.status === 403){ setToken(''); showLogin(); return null; }
       return res.json();

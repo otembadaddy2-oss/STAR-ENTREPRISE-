@@ -12,6 +12,7 @@ import type { Context, Config } from "@netlify/functions";
 import { ensureSchema, db, json } from "./_db.mts";
 import { randomUUID } from "node:crypto";
 import { requireAuth, issueToken } from "./_auth.mts";
+import { recuAbonnement, recuKeydou } from "./_recu.mts";
 import annuaireSeed from "./keydou-annuaire.json";
 import annuaire2026 from "./keydou-annuaire-2026.json";
 import urgences from "./keydou-urgences.json";
@@ -210,6 +211,7 @@ async function appliquerPaiement(
         paid_at = ${valide ? sql`now()` : null}, updated_at = now()
     WHERE id = ${row.id}
   `;
+  if (valide) await recuKeydou(sql, row.id, parseServices(row.service).map((id) => SERVICES[id]).join(" + "));
   return valide;
 }
 
@@ -224,6 +226,7 @@ async function validerDepot(sql: any, kind: string, id: number, methode: string,
           statut = 'actif', started_at = now(), expires_at = now() + interval '30 days', updated_at = now()
       WHERE id = ${id} AND statut = 'en_attente_paiement' RETURNING id
     `) as { id: number }[];
+    if (r.length) await recuAbonnement(sql, id);
     return { ok: r.length > 0, statut: r.length ? "actif" : "deja_traite" };
   }
   const rows = (await sql`SELECT * FROM starvibe_keydou_requests WHERE id = ${id} LIMIT 1`) as Row[];

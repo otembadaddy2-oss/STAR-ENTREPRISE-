@@ -11,6 +11,7 @@
 import type { Context, Config } from "@netlify/functions";
 import { ensureSchema, db, json } from "./_db.mts";
 import { requireAuth } from "./_auth.mts";
+import { recuAnnonce } from "./_recu.mts";
 
 const ORG = "star_vibe";
 const STAFF_ORG = "star_entreprise";
@@ -82,6 +83,7 @@ export default async (req: Request, _context: Context) => {
           expires_at = ${valide ? sql`now() + (${r[0].jours} * interval '1 day')` : null}
         WHERE id = ${pubId}
       `;
+      if (valide) await recuAnnonce(sql, pubId, PLANS[r[0].plan]?.label || "");
       return json({ statut: valide ? "actif" : "paiement_invalide", message: valide ? `Annonce activée pour ${r[0].jours} jours.` : `Montant reçu (${montantRecu}) différent du montant attendu (${r[0].montant_attendu}) : annonce non activée.` });
     }
   }
