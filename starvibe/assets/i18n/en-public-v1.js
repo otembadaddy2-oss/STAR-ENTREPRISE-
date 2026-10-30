@@ -47,6 +47,7 @@ I18N.add({
   "Prêt à vibrer ?": "Ready to vibe?",
   "Rejoins KOMYO aujourd'hui — c'est gratuit, et ça prend moins d'une minute.": "Join KOMYO today — it's free and takes less than a minute.",
   "Créer mon compte": "Create my account",
+  "Valider mon inscription": "Complete my sign-up", "Me connecter": "Log in",
   "Une question sur KOMYO ?": "A question about KOMYO?",
   "Écris-nous sur WhatsApp —": "Write to us on WhatsApp —",
   "📱 Installer l'application KOMYO": "📱 Install the KOMYO app",

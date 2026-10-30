@@ -195,7 +195,7 @@
           </div>
         </div>
 
-        <button type="submit" class="submitbtn" id="btnSubmit">Créer mon compte</button>
+        <button type="submit" class="submitbtn" id="btnSubmit">Valider mon inscription</button>
       </form>
 
       <div class="switchmode" id="switchHint">
@@ -244,7 +244,12 @@
 <script>
 (function(){
   var API = '/api/starvibe-auth';
-  var mode = 'register';
+  // Un compte existe déjà (lien « J'ai déjà un compte », appareil déjà utilisé) : on ouvre directement « Me connecter »,
+  // sans date de naissance ni ville, qui ne servent qu'à la création du compte.
+  var dejaInscrit = false;
+  try { dejaInscrit = /[?&]mode=login\b/.test(location.search) || location.hash === '#connexion' || localStorage.getItem('komyo_deja_inscrit') === '1'; } catch (e) {}
+  if (/[?&]mode=register\b/.test(location.search)) dejaInscrit = false;
+  var mode = dejaInscrit ? 'login' : 'register';
   var profileType = 'personnel';
 
   var tabRegister = document.getElementById('tabRegister');
@@ -266,15 +271,16 @@
     tabRegister.classList.toggle('active', mode === 'register');
     tabLogin.classList.toggle('active', mode === 'login');
     registerOnlyFields.hidden = mode === 'login';
-    btnSubmit.textContent = mode === 'register' ? 'Créer mon compte' : 'Se connecter';
+    btnSubmit.textContent = mode === 'register' ? 'Valider mon inscription' : 'Me connecter';
     switchHint.innerHTML = mode === 'register'
       ? 'Déjà inscrit ? <a id="linkToLogin">Se connecter</a>'
-      : 'Pas encore de compte ? <a id="linkToLogin">Créer un compte</a><br><a id="linkPinOublie" style="display:inline-block;margin-top:8px">Code PIN oublié ?</a>';
-    document.getElementById('linkToLogin').onclick = function(){ setMode(mode === 'register' ? 'login' : 'register'); };
+      : '<a id="linkPinOublie" style="display:inline-block;margin-top:8px">Code PIN oublié ?</a>';
+    var l2l = document.getElementById('linkToLogin'); if (l2l) l2l.onclick = function(){ setMode('login'); };
     var lp = document.getElementById('linkPinOublie'); if (lp) lp.onclick = ouvrirPinOublie;
     clearError();
   }
 
+  setMode(mode);
   tabRegister.addEventListener('click', function(){ setMode('register'); });
   tabLogin.addEventListener('click', function(){ setMode('login'); });
   linkToLogin.addEventListener('click', function(){ setMode('login'); });
@@ -387,6 +393,7 @@
           return;
         }
         localStorage.setItem('starvibe_token', result.data.token);
+        try { localStorage.setItem('komyo_deja_inscrit', '1'); } catch (e) {}
         // Dès que le code est validé, on entre directement dans KOMYO : pas d'écran intermédiaire.
         window.location.replace('accueil.html');
         return;
