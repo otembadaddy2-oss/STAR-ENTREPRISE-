@@ -12,6 +12,7 @@ import { randomBytes, randomInt } from "node:crypto";
 import { ensureSchema, db, json } from "./_db.mts";
 import { issueToken, requireAuth } from "./_auth.mts";
 import { pushAll } from "./_push.mts";
+import { poster } from "./_msg.mts";
 import { ipHash, verrou, echec, effacer, msgBloque } from "./_guard.mts";
 
 function clean(value: unknown, maxLen: number): string {
@@ -287,6 +288,9 @@ export default async (req: Request, _context: Context) => {
       RETURNING id, nom, date_naissance, type_profil
     `;
     const profile = profRows[0] as any;
+    // Message de bienvenue dans la messagerie KOMYO : le lien pour installer l'application et comment la retrouver sur un autre téléphone.
+    const base = (process.env.URL || "https://komyo.starentreprise.com").replace(/\/$/, "");
+    await poster(sql, acc.id, { kind: "info", titre: "👋 Bienvenue sur KOMYO !", texte: `Ton compte est prêt. Pour l'avoir sur l'écran d'accueil de ton téléphone, ouvre ce lien depuis ton téléphone (dans Chrome sur Android, dans Safari sur iPhone) : ${base}/starvibe/installer.html\n\nTu as changé de téléphone ou tu n'as pas encore installé l'application ? Rien n'est perdu : ouvre le même lien, puis connecte-toi avec ton numéro et ton code PIN.\nL'équipe KOMYO ne te demandera jamais ton code PIN.`, lien: `${base}/starvibe/installer.html` });
 
     const token = await issueToken({
       sub: String(acc.id), username: acc.telephone, displayName: nom, org: ORG, role: "titulaire",
