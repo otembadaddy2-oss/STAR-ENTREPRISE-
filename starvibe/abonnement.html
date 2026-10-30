@@ -75,6 +75,17 @@
   footer{padding:20px;text-align:center;}
   footer .credit{font-size:10px;color:var(--text-faint);}
   footer .credit b{color:var(--text-dim);}
+  .gift{background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:20px;margin:6px 0 14px;}
+  .gift h2{font-size:17px;margin:0 0 4px;} .gift .hint{font-size:12.5px;color:var(--text-dim,#6b5f80);margin:0 0 10px;line-height:1.5;}
+  .gift label.lbl{display:block;font-size:12px;font-weight:700;margin:12px 0 5px;color:var(--text-dim,#6b5f80);}
+  .gift input[type=text],.gift input[type=tel]{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:12px;font:inherit;}
+  .gift .found{margin-top:8px;font-size:13px;font-weight:700;color:#1f8f4a;} .gift .err{margin-top:8px;font-size:13px;color:#b3261e;}
+  .gift .methods{display:grid;gap:8px;margin-top:4px;} .gift .m{display:flex;gap:10px;align-items:center;border:1.5px solid var(--line);border-radius:12px;padding:11px 12px;font-size:14px;cursor:pointer;}
+  .gift .m.on{border-color:var(--gold,#e8a93d);background:#fff8e8;} .gift .m.off{opacity:.55;cursor:not-allowed;}
+  .gift .secu{margin-top:12px;font-size:12px;background:#fff9e9;border-left:3px solid #e8a93d;padding:9px 11px;border-radius:6px;line-height:1.5;}
+  .gift .go{width:100%;margin-top:14px;padding:14px;border:0;border-radius:12px;font:inherit;font-weight:800;font-size:15px;color:#fff;background:#b8b2c6;cursor:not-allowed;}
+  .gift .go.pret{background:var(--ink,#241536);cursor:pointer;} .gift .go.ok{background:#1f8f4a;cursor:default;}
+  .gift .suivi{margin-top:12px;font-size:13px;line-height:1.6;}
 </style>
 <link rel="manifest" href="manifest-komyo.json">
 <meta name="mobile-web-app-capable" content="yes">
@@ -101,6 +112,7 @@
   <div class="wrap content">
     <div id="payBox" hidden></div>
     <div id="plansList"></div>
+    <div id="autreEnfant"></div>
   </div>
 </div>
 
@@ -205,7 +217,77 @@
         renderPlans(result.data.abonnement, result.data.plans);
         loadingState.hidden = true;
         appState.hidden = false;
+        if (!autreBox.firstChild) renderGift();
       });
+  }
+
+  // ---------- Abonnement Famille pour un autre enfant (payé par un parent, un proche…) ----------
+  var autreBox = document.getElementById('autreEnfant');
+  var params = new URLSearchParams(location.search);
+  var gift = { compte: false, methode: '', abo: null, timer: null };
+  function esc2(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+  function giftApi(payload){
+    return authFetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      .then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); });
+  }
+  function renderGift(){
+    autreBox.innerHTML =
+      '<div class="gift" id="giftCard">' +
+        '<h2>Abonnement Famille pour un autre enfant</h2>' +
+        '<p class="hint">Tu peux payer l\'abonnement Famille (1 500 FCFA par mois) pour l\'enfant d\'un proche : il suffit du numéro du parent, qui doit avoir un compte KOMYO (gratuit).</p>' +
+        '<label class="lbl" for="gTel">Numéro du parent de l\'enfant</label>' +
+        '<input type="tel" id="gTel" autocomplete="off" placeholder="Avec l\'indicatif, ex. +242 06 123 45 67" value="' + esc2(params.get('pour') || '') + '">' +
+        '<div id="gFound"></div>' +
+        '<label class="lbl" for="gEnfant">Prénom ou nom de l\'enfant (facultatif)</label>' +
+        '<input type="text" id="gEnfant" maxlength="80" autocomplete="off" value="' + esc2(params.get('enfant') || '') + '">' +
+        '<label class="lbl">Comment veux-tu payer ?</label>' +
+        '<div class="methods">' +
+          '<label class="m" data-m="mtn_money"><input type="radio" name="gm" value="mtn_money"> MTN Mobile Money</label>' +
+          '<label class="m" data-m="airtel_money"><input type="radio" name="gm" value="airtel_money"> Airtel Money</label>' +
+          '<label class="m off"><input type="radio" name="gm" disabled> Carte bancaire (Visa, Mastercard) — bientôt</label>' +
+        '</div>' +
+        '<div class="secu"><b>Ton code secret Mobile Money (PIN) ne se tape jamais ici.</b> Tu fais le dépôt sur ton propre téléphone, au numéro indiqué à l\'étape suivante. Le bouton devient vert uniquement quand le paiement est réellement confirmé.</div>' +
+        '<button type="button" class="go" id="gGo" disabled>Valider le paiement</button>' +
+        '<div class="suivi" id="gSuivi" aria-live="polite"></div>' +
+      '</div>';
+    var tel = document.getElementById('gTel'), found = document.getElementById('gFound'), go = document.getElementById('gGo');
+    function maj(){ var ok = gift.compte && gift.methode && !gift.abo; go.disabled = !ok; go.className = 'go' + (ok ? ' pret' : ''); }
+    var verif = null;
+    function verifier(){
+      gift.compte = false; found.innerHTML = ''; maj();
+      var v = tel.value.trim(); if (v.replace(/\D/g, '').length < 8) return;
+      giftApi({ action: 'trouver_compte', telephone: v }).then(function(r){
+        if (!r.ok){ found.innerHTML = '<div class="err">' + esc2(r.d.error || 'Vérification impossible.') + '</div>'; return; }
+        gift.compte = true;
+        found.innerHTML = '<div class="found">Compte trouvé ✓ ' + esc2(r.d.nomMasque) + (r.d.enfants ? ' · ' + r.d.enfants + ' profil(s) enfant' : '') + '</div>'; maj();
+      });
+    }
+    tel.addEventListener('input', function(){ clearTimeout(verif); verif = setTimeout(verifier, 700); });
+    autreBox.querySelectorAll('.m[data-m]').forEach(function(l){
+      l.addEventListener('click', function(){ gift.methode = l.getAttribute('data-m'); autreBox.querySelectorAll('.m').forEach(function(x){ x.classList.toggle('on', x === l); }); l.querySelector('input').checked = true; maj(); });
+    });
+    go.addEventListener('click', function(){
+      if (go.disabled) return; go.disabled = true; go.textContent = 'Création de la demande…';
+      giftApi({ action: 'abonner_autre', telephone: tel.value.trim(), enfantNom: document.getElementById('gEnfant').value.trim(), methode: gift.methode }).then(function(r){
+        if (!r.ok){ go.textContent = 'Valider le paiement'; document.getElementById('gSuivi').innerHTML = '<div class="err">' + esc2(r.d.error || 'Impossible de créer la demande.') + '</div>'; maj(); return; }
+        gift.abo = r.d.abonnement; go.textContent = 'En attente de confirmation du paiement…';
+        var a = gift.abo, n = Number(a.montantAttendu).toLocaleString('fr-FR');
+        document.getElementById('gSuivi').innerHTML =
+          '<b>1.</b> Dépose exactement <b>' + n + ' FCFA</b> par ' + (gift.methode === 'airtel_money' ? 'Airtel Money' : 'MTN Mobile Money') + ' au <b>' + esc2(a.numeroReception) + '</b>.<br>' +
+          '<b>2.</b> Indique la référence <b>' + esc2(a.referencePaiement) + '</b>.<br><b>3.</b> Reste sur cette page : elle se met à jour seule.';
+        gift.timer = setInterval(function(){
+          authFetch(API + '?suivi=' + encodeURIComponent(a.id)).then(function(x){ return x.json(); }).then(function(d){
+            var st = d.abonnement && d.abonnement.statut;
+            if (st === 'actif'){ clearInterval(gift.timer); go.className = 'go ok'; go.textContent = 'Paiement validé ✓';
+              document.getElementById('gSuivi').innerHTML = '<div class="found">Paiement validé ✓ L\'abonnement Famille est actif pour 30 jours.</div>'; }
+            else if (st === 'paiement_invalide'){ clearInterval(gift.timer); go.className = 'go'; go.textContent = 'Paiement non valide';
+              document.getElementById('gSuivi').innerHTML = '<div class="err">Le montant reçu ne correspond pas. Écris-nous à contact@starentreprise.com avec ta référence.</div>'; }
+          }).catch(function(){});
+        }, 6000);
+      });
+    });
+    if (tel.value) verifier();
+    if (params.get('pour') || params.get('plan') === 'autre') document.getElementById('giftCard').scrollIntoView({ behavior: 'smooth' });
   }
 
   load();

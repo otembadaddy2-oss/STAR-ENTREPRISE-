@@ -152,6 +152,7 @@
     item.innerHTML =
       '<div class="top"><div class="plan">' + esc(d.plan) + '</div><div class="amount">' + d.montantAttendu.toLocaleString('fr-FR') + ' FCFA</div></div>' +
       '<div class="meta"><b>' + esc(d.auteur) + '</b> — ' + esc(d.telephone) + ' — réf. ' + esc(d.referencePaiement) + '</div>' +
+      (d.payeurTelephone ? '<div class="meta">🎁 Payé par un autre membre : <b>' + esc(d.payeurTelephone) + '</b>' + (d.beneficiaireNom ? ' — pour l\'enfant : ' + esc(d.beneficiaireNom) : '') + '</div>' : '') +
       '<div class="confirm-row">' +
         '<input type="number" placeholder="Montant reçu (FCFA)" id="montant-' + d.id + '">' +
         '<button data-approve>Confirmer</button>' +

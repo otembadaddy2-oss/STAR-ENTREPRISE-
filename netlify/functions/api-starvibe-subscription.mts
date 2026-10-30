@@ -12,6 +12,8 @@
 import type { Context, Config } from "@netlify/functions";
 import { ensureSchema, db, json } from "./_db.mts";
 import { requireAuth } from "./_auth.mts";
+import { memeNumero } from "./_tel.mts";
+import { verrou, echec, msgBloque } from "./_guard.mts";
 
 const ORG = "star_vibe";
 const STAFF_ORG = "star_entreprise";
@@ -44,6 +46,9 @@ interface SubRow {
   created_at: string;
   telephone?: string;
   auteur_nom?: string;
+  payeur_account_id?: number | null;
+  beneficiaire_nom?: string;
+  payeur_telephone?: string;
 }
 
 function toApi(row: SubRow) {
@@ -125,15 +130,16 @@ export default async (req: Request, _context: Context) => {
     if (!staff || staff.org !== STAFF_ORG) return json({ error: "Non autorisé" }, 403);
 
     const rows = (await sql`
-      SELECT s.*, a.telephone, p.nom AS auteur_nom
+      SELECT s.*, a.telephone, p.nom AS auteur_nom, pa.telephone AS payeur_telephone
       FROM starvibe_subscriptions s
       JOIN starvibe_accounts a ON a.id = s.account_id
+      LEFT JOIN starvibe_accounts pa ON pa.id = s.payeur_account_id
       LEFT JOIN starvibe_profiles p ON p.account_id = a.id AND p.type_profil = 'personnel'
       WHERE s.statut = 'en_attente_paiement'
       ORDER BY s.created_at ASC LIMIT 50
     `) as SubRow[];
 
-    return json({ demandes: rows.map((r) => ({ ...toApi(r), telephone: r.telephone, auteur: r.auteur_nom || "" })) });
+    return json({ demandes: rows.map((r) => ({ ...toApi(r), telephone: r.telephone, auteur: r.auteur_nom || "", payeurTelephone: r.payeur_telephone || "", beneficiaireNom: r.beneficiaire_nom || "" })) });
   }
 
   if (req.method === "POST") {
@@ -203,6 +209,43 @@ export default async (req: Request, _context: Context) => {
       return json({ ok: true });
     }
 
+    // --- Abonnement Famille payé pour un autre compte (un parent, un proche…) ---
+    // Le payeur est connecté ; le bénéficiaire est identifié par son numéro. Aucun code secret n'est jamais demandé ici :
+    // le dépôt Mobile Money se fait sur le téléphone du payeur, et le plan ne s'active qu'à la confirmation réelle du paiement.
+    if (action === "trouver_compte" || action === "abonner_autre") {
+      const cle = `abonner:${accountId}`;
+      const bloc = await verrou(sql, cle);
+      if (bloc) return json({ error: msgBloque(bloc) }, 429);
+      const telephone = clean(body.telephone, 40).replace(/[^\d+]/g, "");
+      if (telephone.replace(/\D/g, "").length < 8) return json({ error: "Écris le numéro du parent de l'enfant." }, 400);
+      await echec(sql, cle, 12, 60, 60);   // 11 recherches par heure et par personne : pas de balayage de numéros
+      const cand = (await sql`
+        SELECT a.id, a.telephone FROM starvibe_accounts a
+        WHERE RIGHT(regexp_replace(a.telephone, '[^0-9]', '', 'g'), 8) = ${telephone.replace(/\D/g, "").slice(-8)} AND a.guest = false
+        ORDER BY a.id LIMIT 20
+      `) as { id: number; telephone: string }[];
+      const cible = cand.find((r) => memeNumero(r.telephone, telephone));
+      if (!cible) return json({ error: "Aucun compte KOMYO avec ce numéro. Le parent doit d'abord créer son compte (c'est gratuit)." }, 404);
+      const prof = (await sql`SELECT nom, type_profil FROM starvibe_profiles WHERE account_id = ${cible.id} ORDER BY id`) as { nom: string; type_profil: string }[];
+      const perso = prof.find((p) => p.type_profil === "personnel");
+      const masque = (perso?.nom || "").split(/\s+/).filter(Boolean).map((m) => m[0].toUpperCase() + "•••").join(" ") || "Compte KOMYO";
+      const enfants = prof.filter((p) => p.type_profil === "enfant").length;
+
+      if (action === "trouver_compte") return json({ trouve: true, nomMasque: masque, enfants });
+
+      const methode = ["mtn_money", "airtel_money"].includes(clean(body.methode, 20)) ? clean(body.methode, 20) : "";
+      if (!methode) return json({ error: "Choisis MTN Mobile Money ou Airtel Money. Le paiement par carte arrive bientôt." }, 400);
+      const actif = (await sql`SELECT plan FROM starvibe_subscriptions WHERE account_id = ${cible.id} AND statut = 'actif' AND montant_attendu > 0 AND expires_at > now() ORDER BY id DESC LIMIT 1`) as { plan: string }[];
+      if (actif[0]?.plan === "business") return json({ error: "Ce compte a déjà un abonnement Business actif." }, 409);
+      const enfantNom = clean(body.enfantNom, 80).replace(/[\u0000-\u001f\u007f<>]/g, "");
+      const ligne = (await sql`
+        INSERT INTO starvibe_subscriptions (account_id, plan, montant_attendu, statut, methode, payeur_account_id, beneficiaire_nom)
+        VALUES (${cible.id}, 'famille', ${PLANS.famille.montant}, 'en_attente_paiement', ${methode}, ${accountId}, ${enfantNom})
+        RETURNING *
+      `) as SubRow[];
+      return json({ abonnement: toApi(ligne[0]), nomMasque: masque }, 201);
+    }
+
     if (action === "choisir_plan") {
       const plan = clean(body.plan, 20);
       if (!PLANS[plan]) return json({ error: "Plan inconnu" }, 400);
@@ -228,6 +271,14 @@ export default async (req: Request, _context: Context) => {
   const session = await requireAuth(req);
   if (!session || session.org !== ORG) return json({ error: "Non authentifié" }, 401);
   const accountId = Number(session.sub);
+
+  // --- Suivi d'un paiement (le payeur ou le bénéficiaire) : le bouton ne devient vert que quand le serveur dit « actif » ---
+  if (url.searchParams.get("suivi")) {
+    const id = Number(url.searchParams.get("suivi"));
+    const r = (await sql`SELECT * FROM starvibe_subscriptions WHERE id = ${id} AND (account_id = ${accountId} OR payeur_account_id = ${accountId}) LIMIT 1`) as SubRow[];
+    if (!r[0]) return json({ error: "Paiement introuvable" }, 404);
+    return json({ abonnement: toApi(r[0]) });
+  }
 
   // --- Rappel d'échéance : 3 jours avant la fin, puis à la fin (une seule fois chacun) ---
   if (url.searchParams.get("rappel") === "1") {

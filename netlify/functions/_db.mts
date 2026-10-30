@@ -486,6 +486,9 @@ export async function ensureSchema() {
   // Rappels d'échéance : un message 3 jours avant la fin, un autre à la fin (une seule fois chacun)
   await sql`ALTER TABLE starvibe_subscriptions ADD COLUMN IF NOT EXISTS rappel_j3_at TIMESTAMPTZ`;
   await sql`ALTER TABLE starvibe_subscriptions ADD COLUMN IF NOT EXISTS rappel_fin_at TIMESTAMPTZ`;
+  // Abonnement Famille offert / payé par une autre personne : account_id = le compte qui en profite, payeur = celui qui paie.
+  await sql`ALTER TABLE starvibe_subscriptions ADD COLUMN IF NOT EXISTS payeur_account_id INTEGER`;
+  await sql`ALTER TABLE starvibe_subscriptions ADD COLUMN IF NOT EXISTS beneficiaire_nom TEXT NOT NULL DEFAULT ''`;
 
   // Installations de l'application KOMYO (suivi des abonnés, en direct dans le backend).
   // Une ligne par appareil : install_id est tiré au hasard par l'appareil lui-même.

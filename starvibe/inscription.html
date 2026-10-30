@@ -155,12 +155,12 @@
           <input type="tel" id="fTelephone" placeholder="Avec l'indicatif, ex. +33 6 12 34 56 78" autocomplete="tel" required>
         </div>
 
-        <div id="registerOnlyFields">
-          <div class="field">
-            <label for="fNom">Nom complet</label>
-            <input type="text" id="fNom" placeholder="Ton nom" autocomplete="name">
-          </div>
+        <div class="field" id="fieldNom">
+          <label for="fNom" id="lblNom">Nom complet</label>
+          <input type="text" id="fNom" placeholder="Ton nom" autocomplete="name">
+        </div>
 
+        <div id="registerOnlyFields">
           <div class="field">
             <label for="fDateNaissance">Date de naissance</label>
             <input type="date" id="fDateNaissance">
@@ -170,18 +170,29 @@
             <label for="fVille">Ville</label>
             <input type="text" id="fVille" maxlength="80" placeholder="Ta ville" autocomplete="address-level2">
           </div>
+        </div>
 
-          <div class="field">
-            <label>Ce compte est pour</label>
-            <div class="type-toggle">
-              <button type="button" data-type="personnel" id="typePersonnel" class="active">Moi-même</button>
-              <button type="button" data-type="enfant" id="typeEnfant">Mon enfant (3–6 ans)</button>
-            </div>
-            <div class="note">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#8A6318" stroke-width="2.2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
-              <span>13-17 ans : accès limité. 18 ans et + : accès complet. Espace enfants : réservé aux 3-6 ans.</span>
-            </div>
+        <div class="field" id="fieldType">
+          <label id="lblType">Ce compte est pour</label>
+          <div class="type-toggle">
+            <button type="button" data-type="personnel" id="typePersonnel" class="active">Moi-même</button>
+            <button type="button" data-type="enfant" id="typeEnfant">Mon enfant (3–6 ans)</button>
           </div>
+          <div class="type-toggle" id="typeAutreRow" hidden style="margin-top:8px">
+            <button type="button" data-type="autre" id="typeAutre">Abonnement pour un autre enfant</button>
+          </div>
+          <div class="note" id="noteAge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#8A6318" stroke-width="2.2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+            <span>13-17 ans : accès limité. 18 ans et + : accès complet. Espace enfants : réservé aux 3-6 ans.</span>
+          </div>
+        </div>
+
+        <div id="autreFields" hidden>
+          <div class="field">
+            <label for="fParent">Numéro du parent de l'enfant (compte KOMYO)</label>
+            <input type="tel" id="fParent" placeholder="Avec l'indicatif, ex. +242 06 123 45 67" autocomplete="off">
+          </div>
+          <div class="note"><span>Tu paies l'abonnement Famille pour l'enfant d'un proche. Tu choisiras MTN Mobile Money ou Airtel Money à l'étape suivante. Ton code secret Mobile Money ne se tape jamais ici.</span></div>
         </div>
 
         <div class="field">
@@ -271,6 +282,11 @@
     tabRegister.classList.toggle('active', mode === 'register');
     tabLogin.classList.toggle('active', mode === 'login');
     registerOnlyFields.hidden = mode === 'login';
+    document.getElementById('typeAutreRow').hidden = mode !== 'login';
+    document.getElementById('noteAge').hidden = mode === 'login';
+    if (mode !== 'login' && profileType === 'autre') { profileType = 'personnel'; majType(); }
+    document.getElementById('lblType').textContent = mode === 'login' ? 'Je me connecte pour' : 'Ce compte est pour';
+    majType();
     btnSubmit.textContent = mode === 'register' ? 'Valider mon inscription' : 'Me connecter';
     switchHint.innerHTML = mode === 'register'
       ? 'Déjà inscrit ? <a id="linkToLogin">Se connecter</a>'
@@ -285,16 +301,21 @@
   tabLogin.addEventListener('click', function(){ setMode('login'); });
   linkToLogin.addEventListener('click', function(){ setMode('login'); });
 
-  typePersonnel.addEventListener('click', function(){
-    profileType = 'personnel';
-    typePersonnel.classList.add('active');
-    typeEnfant.classList.remove('active');
-  });
-  typeEnfant.addEventListener('click', function(){
-    profileType = 'enfant';
-    typeEnfant.classList.add('active');
-    typePersonnel.classList.remove('active');
-  });
+  var typeAutre = document.getElementById('typeAutre');
+  // Connexion : le choix « Moi-même / Mon enfant / Un autre enfant » mène ensuite à la bonne page (espace, ou abonnement Famille).
+  function majType(){
+    typePersonnel.classList.toggle('active', profileType === 'personnel');
+    typeEnfant.classList.toggle('active', profileType === 'enfant');
+    document.getElementById('typeAutre').classList.toggle('active', profileType === 'autre');
+    var login = mode === 'login', montrerNom = !login || profileType !== 'personnel';
+    document.getElementById('fieldNom').hidden = !montrerNom;
+    document.getElementById('lblNom').textContent = login ? 'Prénom ou nom de l\'enfant (facultatif)' : 'Nom complet';
+    document.getElementById('fNom').placeholder = login ? 'Facultatif' : 'Ton nom';
+    document.getElementById('autreFields').hidden = !(login && profileType === 'autre');
+  }
+  typePersonnel.addEventListener('click', function(){ profileType = 'personnel'; majType(); });
+  typeEnfant.addEventListener('click', function(){ profileType = 'enfant'; majType(); });
+  typeAutre.addEventListener('click', function(){ profileType = 'autre'; majType(); });
 
   function showError(msg){
     errBox.textContent = msg;
@@ -356,6 +377,7 @@
     if (!telephone){ showError('Merci de renseigner ton numéro de téléphone.'); return; }
     if (!/^\d{4,5}$/.test(pin)){ showError('Le code PIN doit contenir 4 ou 5 chiffres.'); return; }
 
+    if (mode === 'login' && profileType === 'autre' && document.getElementById('fParent').value.replace(/\D/g, '').length < 8){ showError('Écris le numéro du parent de l\'enfant.'); return; }
     var payload = { telephone: telephone, pin: pin };
 
     if (mode === 'register'){
@@ -395,6 +417,11 @@
         localStorage.setItem('starvibe_token', result.data.token);
         try { localStorage.setItem('komyo_deja_inscrit', '1'); } catch (e) {}
         // Dès que le code est validé, on entre directement dans KOMYO : pas d'écran intermédiaire.
+        if (mode === 'login' && profileType === 'enfant') { window.location.replace('abonnement.html?plan=famille'); return; }
+        if (mode === 'login' && profileType === 'autre') {
+          window.location.replace('abonnement.html?plan=autre&pour=' + encodeURIComponent(document.getElementById('fParent').value.trim()) + '&enfant=' + encodeURIComponent(document.getElementById('fNom').value.trim()));
+          return;
+        }
         window.location.replace('accueil.html');
         return;
         var profiles = result.data.profiles || [];
