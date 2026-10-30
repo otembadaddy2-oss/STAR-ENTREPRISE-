@@ -124,7 +124,7 @@ I18N.add({
   "Mon abonnement": "My subscription", "Gratuit, Famille, Business": "Free, Family, Business",
   "Mes statistiques": "My statistics", "Vues, durée regardée, j'aime": "Views, watch time, likes",
   "perso": "personal", "enfant": "child",
-  "Changer ma photo": "Change my photo", "Ajouter ma photo": "Add my photo",
+  "Changer ma photo": "Change my photo", "Modifier mon profil": "Edit my profile", "Prénom et nom": "First and last name", "Enregistrer": "Save", "Annuler": "Cancel", "Profil enregistré.": "Profile saved.", "Change ta photo, ton prénom et nom, ou ta ville.": "Change your photo, your name or your city.", "Ta date de naissance ne se change pas ici : elle protège les plus jeunes. Une erreur ? Écris-nous à contact@starentreprise.com.": "Your date of birth cannot be changed here: it protects younger users. A mistake? Write to contact@starentreprise.com.", "Ajouter ma photo": "Add my photo",
   "Envoi de ta photo…": "Uploading your photo…",
   "Impossible d'enregistrer la photo.": "Could not save the photo.",
   "Photo enregistrée. Elle apparaît maintenant dans les bulles et les commentaires.": "Photo saved. It now appears in the bubbles and comments.",

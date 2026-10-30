@@ -51,6 +51,16 @@
   .profile-chip.perso{cursor:pointer;}
   .profile-chip.perso:hover{transform:translateY(-4px);box-shadow:0 10px 20px -12px rgba(232,169,61,.55);border-color:var(--gold);}
   .profile-chip.busy{opacity:.6;pointer-events:none;}
+  .edit-profile{margin-top:12px;background:none;border:1.5px solid var(--line);border-radius:10px;padding:8px 14px;font:inherit;font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;}
+  .edit-profile:hover{border-color:var(--gold);color:var(--gold-deep);}
+  #profilDlg{border:0;border-radius:18px;padding:22px;max-width:420px;width:calc(100% - 32px);box-shadow:0 24px 60px -20px rgba(36,21,54,.5);}
+  #profilDlg::backdrop{background:rgba(36,21,54,.55);}
+  #profilDlg label{display:block;font-size:12px;font-weight:700;margin:12px 0 5px;color:var(--text-dim);}
+  #profilDlg input[type=text]{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font:inherit;}
+  #profilDlg .actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+  #profilDlg .actions button{flex:1;padding:11px 14px;border-radius:10px;border:0;font:inherit;font-weight:700;cursor:pointer;background:var(--ink);color:#fff;}
+  #profilDlg .actions .sec{background:#fff;color:var(--ink);border:1.5px solid var(--line);}
+  #profilDlg .hint{font-size:11.5px;color:var(--text-dim);margin:10px 0 0;}
   .photo-msg{font-size:11.5px;margin:10px 0 0;color:var(--text-dim);}
   .photo-msg.err{color:#b3261e;}
   .profile-chip.enfant .profile-avatar{background:linear-gradient(135deg,#3fae82,var(--kids));}
@@ -135,8 +145,26 @@
       <div class="profiles-title">Mes profils</div>
       <div class="profile-list" id="profileList"></div>
       <input type="file" id="photoInput" accept="image/*" hidden>
+      <button type="button" class="edit-profile" id="btnEditProfil">Modifier mon profil</button>
       <p class="photo-msg" id="photoMsg" hidden></p>
     </div>
+    <dialog id="profilDlg">
+      <form id="profilForm" method="dialog">
+        <h3 style="margin:0 0 4px;font-size:18px;">Modifier mon profil</h3>
+        <p class="hint" style="margin:0">Change ta photo, ton prénom et nom, ou ta ville.</p>
+        <label for="pfNom">Prénom et nom</label>
+        <input type="text" id="pfNom" maxlength="120" autocomplete="name" required>
+        <label for="pfVille">Ville</label>
+        <input type="text" id="pfVille" maxlength="80" autocomplete="address-level2">
+        <p class="hint">Ta date de naissance ne se change pas ici : elle protège les plus jeunes. Une erreur ? Écris-nous à contact@starentreprise.com.</p>
+        <p class="photo-msg err" id="pfErr" hidden></p>
+        <div class="actions">
+          <button type="button" class="sec" id="pfPhoto">Changer ma photo</button>
+          <button type="submit" id="pfSave">Enregistrer</button>
+          <button type="button" class="sec" id="pfCancel">Annuler</button>
+        </div>
+      </form>
+    </dialog>
 
     <a href="keydou.html" class="keydou-card" aria-label="Parler à Keydou, agent et assistant multiservices">
       <div class="kd-dance" data-keydou-anim data-keydou-w="100"><img src="assets/img/keydou.webp" alt="Keydou" width="92" height="115"></div>
@@ -304,6 +332,7 @@
 
   // ---- Photo de profil : réduite à 320 × 320 px sur le téléphone avant
   //      l'envoi (rapide même en 3G), puis affichée dans la bulle KOMYO. ----
+  var monProfil = null, maVille = '';
   var photoInput = document.getElementById('photoInput');
   var photoMsg = document.getElementById('photoMsg');
   var photoCible = null;
@@ -379,6 +408,8 @@
         return;
       }
       var profiles = result.data.profiles || [];
+      monProfil = profiles.filter(function(p){ return p.type_profil !== 'enfant'; })[0] || profiles[0] || null;
+      maVille = (result.data.account && result.data.account.ville) || '';
       greetName.textContent = profiles.length ? profiles[0].nom : result.data.account.telephone;
       renderProfiles(profiles);
       loadingState.hidden = true;
@@ -387,6 +418,40 @@
     .catch(function(){
       showLoggedOut();
     });
+
+  // ---- Modifier mon profil : prénom et nom, ville, photo ----
+  var dlg = document.getElementById('profilDlg'), pfErr = document.getElementById('pfErr');
+  function pfMsg(t){ pfErr.textContent = t || ''; pfErr.hidden = !t; }
+  document.getElementById('btnEditProfil').addEventListener('click', function(){
+    if (!monProfil) return;
+    document.getElementById('pfNom').value = monProfil.nom || '';
+    document.getElementById('pfVille').value = maVille;
+    pfMsg(''); if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
+  });
+  document.getElementById('pfCancel').addEventListener('click', function(){ dlg.close(); });
+  document.getElementById('pfPhoto').addEventListener('click', function(){
+    if (!monProfil) return;
+    var chip = profileList.querySelector('.profile-chip.perso');
+    dlg.close(); if (chip) choisirPhoto(monProfil.id, chip);
+  });
+  document.getElementById('profilForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var nom = document.getElementById('pfNom').value.trim(), ville = document.getElementById('pfVille').value.trim();
+    if (nom.length < 2){ pfMsg('Écris ton prénom et ton nom.'); return; }
+    var b = document.getElementById('pfSave'); b.disabled = true; pfMsg('');
+    fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ action: 'update-profil', profileId: monProfil.id, nom: nom, ville: ville }) })
+      .then(function(res){ return res.json().then(function(d){ return { ok: res.ok, d: d }; }); })
+      .then(function(r){
+        b.disabled = false;
+        if (!r.ok){ pfMsg(r.d.error || 'Enregistrement impossible.'); return; }
+        monProfil.nom = r.d.profile.nom; maVille = ville;
+        greetName.textContent = monProfil.nom;
+        var n = profileList.querySelector('.profile-chip.perso .name'); if (n) n.textContent = monProfil.nom;
+        dlg.close(); message('Profil enregistré.');
+      })
+      .catch(function(){ b.disabled = false; pfMsg('Impossible de contacter le serveur. Réessaie.'); });
+  });
 
   btnLogout.addEventListener('click', function(){
     localStorage.removeItem('starvibe_token');
