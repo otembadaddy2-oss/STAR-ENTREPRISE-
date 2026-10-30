@@ -43,7 +43,8 @@
     "Pause de 3 secondes. Les parents sourient, câlin général."
    ]
   ],
-  "refrain": "Bonjour papa, bonjour maman, c'est un beau jour !"
+  "refrain": "Bonjour papa, bonjour maman, c'est un beau jour !",
+  "age": "3-6"
  },
  {
   "id": "A2",
@@ -82,7 +83,8 @@
     "Bravo Kiki ! À toi maintenant, prends ta brosse !"
    ]
   ],
-  "refrain": "Brosse, brosse, brosse, mes dents sont blanches !"
+  "refrain": "Brosse, brosse, brosse, mes dents sont blanches !",
+  "age": "3-6"
  },
  {
   "id": "A3",
@@ -117,7 +119,8 @@
     "Maintenant, bon appétit !"
    ]
   ],
-  "refrain": "Avant de manger, je me lave les mains !"
+  "refrain": "Avant de manger, je me lave les mains !",
+  "age": "3-6"
  },
  {
   "id": "A4",
@@ -148,7 +151,8 @@
     "D'accord ! Savon, eau, et hop, propres !"
    ]
   ],
-  "refrain": "Après le repas, encore les mains !"
+  "refrain": "Après le repas, encore les mains !",
+  "age": "3-6"
  },
  {
   "id": "A5",
@@ -187,7 +191,8 @@
     "Merci, c'est le mot qui fait fleurir les sourires !"
    ]
   ],
-  "refrain": "Quand on me donne, je dis : merci !"
+  "refrain": "Quand on me donne, je dis : merci !",
+  "age": "3-6"
  },
  {
   "id": "A6",
@@ -222,7 +227,8 @@
     "Un petit s'il te plaît ouvre toutes les portes !"
    ]
   ],
-  "refrain": "Un petit s'il te plaît ouvre toutes les portes !"
+  "refrain": "Un petit s'il te plaît ouvre toutes les portes !",
+  "age": "3-6"
  },
  {
   "id": "A7",
@@ -257,7 +263,8 @@
     "On regarde la personne, on sourit : c'est ça, un vrai au revoir."
    ]
   ],
-  "refrain": "Au revoir, à tout à l'heure !"
+  "refrain": "Au revoir, à tout à l'heure !",
+  "age": "3-6"
  },
  {
   "id": "A8",
@@ -287,7 +294,8 @@
     "Oh non ! Brosse, brosse, brosse !"
    ]
   ],
-  "refrain": "Le soir aussi, brosse, brosse !"
+  "refrain": "Le soir aussi, brosse, brosse !",
+  "age": "3-6"
  },
  {
   "id": "A9",
@@ -322,7 +330,8 @@
     "La lune sourit, fondu au noir."
    ]
   ],
-  "refrain": "Bonne nuit, à demain, je t'aime !"
+  "refrain": "Bonne nuit, à demain, je t'aime !",
+  "age": "3-6"
  },
  {
   "id": "A10",
@@ -363,7 +372,8 @@
     "Bravo ! Chantons tous ensemble !"
    ]
   ],
-  "refrain": "Les six refrains enchaînés"
+  "refrain": "Les six refrains enchaînés",
+  "age": "3-6"
  },
  {
   "id": "B1",
@@ -376,15 +386,15 @@
    "Mawa",
    "Maman Poule"
   ],
-  "objectif": "Apprendre l'hymne national de le Congo-Brazzaville (La Congolaise) avec respect.",
+  "objectif": "Découvrir et chanter le refrain de l'hymne national du Congo-Brazzaville (La Congolaise) avec respect.",
   "scenes": [
    [
     "Narration",
-    "Le drapeau de le Congo-Brazzaville flotte. Fanfare douce."
+    "Le drapeau du Congo-Brazzaville flotte. Fanfare douce."
    ],
    [
     "PIOUPIOU",
-    "Aujourd'hui, on apprend l'hymne de le Congo-Brazzaville !"
+    "Aujourd'hui, on apprend l'hymne du Congo-Brazzaville !"
    ],
    [
     "Mawa",
@@ -396,7 +406,7 @@
    ],
    [
     "Maman Poule",
-    "On écoute d'abord, puis on chante ensemble, couplet après couplet."
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
    ],
    [
     "Narration",
@@ -404,10 +414,11 @@
    ],
    [
     "PIOUPIOU",
-    "Bravo ! Tu connais maintenant l'hymne de le Congo-Brazzaville !"
+    "Bravo ! Tu connais maintenant l'hymne du Congo-Brazzaville !"
    ]
   ],
-  "refrain": "Épisode GRATUIT. Texte officiel à relever sur une source de l'État."
+  "refrain": "Épisode GRATUIT. Texte officiel à relever sur une source de l'État.",
+  "age": "4-6"
  },
  {
   "id": "B2",
@@ -420,7 +431,7 @@
    "Mawa",
    "Maman Poule"
   ],
-  "objectif": "Apprendre l'hymne national de la RDC (Congo-Kinshasa) (Debout Congolais) avec respect.",
+  "objectif": "Découvrir et chanter le refrain de l'hymne national de la RDC (Congo-Kinshasa) (Debout Congolais) avec respect.",
   "scenes": [
    [
     "Narration",
@@ -440,7 +451,7 @@
    ],
    [
     "Maman Poule",
-    "On écoute d'abord, puis on chante ensemble, couplet après couplet."
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
    ],
    [
     "Narration",
@@ -451,7 +462,8 @@
     "Bravo ! Tu connais maintenant l'hymne de la RDC (Congo-Kinshasa) !"
    ]
   ],
-  "refrain": "Vérifier la version en vigueur."
+  "refrain": "Vérifier la version en vigueur.",
+  "age": "4-6"
  },
  {
   "id": "B3",
@@ -464,15 +476,15 @@
    "Mawa",
    "Maman Poule"
   ],
-  "objectif": "Apprendre l'hymne national de le Cameroun (Ô Cameroun, berceau de nos ancêtres) avec respect.",
+  "objectif": "Découvrir et chanter le refrain de l'hymne national du Cameroun (Ô Cameroun, berceau de nos ancêtres) avec respect.",
   "scenes": [
    [
     "Narration",
-    "Le drapeau de le Cameroun flotte. Fanfare douce."
+    "Le drapeau du Cameroun flotte. Fanfare douce."
    ],
    [
     "PIOUPIOU",
-    "Aujourd'hui, on apprend l'hymne de le Cameroun !"
+    "Aujourd'hui, on apprend l'hymne du Cameroun !"
    ],
    [
     "Mawa",
@@ -484,7 +496,7 @@
    ],
    [
     "Maman Poule",
-    "On écoute d'abord, puis on chante ensemble, couplet après couplet."
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
    ],
    [
     "Narration",
@@ -492,10 +504,11 @@
    ],
    [
     "PIOUPIOU",
-    "Bravo ! Tu connais maintenant l'hymne de le Cameroun !"
+    "Bravo ! Tu connais maintenant l'hymne du Cameroun !"
    ]
   ],
-  "refrain": "Version française (existe aussi en anglais)."
+  "refrain": "Version française (existe aussi en anglais).",
+  "age": "4-6"
  },
  {
   "id": "B4",
@@ -508,15 +521,15 @@
    "Mawa",
    "Maman Poule"
   ],
-  "objectif": "Apprendre l'hymne national de le Gabon (La Concorde) avec respect.",
+  "objectif": "Découvrir et chanter le refrain de l'hymne national du Gabon (La Concorde) avec respect.",
   "scenes": [
    [
     "Narration",
-    "Le drapeau de le Gabon flotte. Fanfare douce."
+    "Le drapeau du Gabon flotte. Fanfare douce."
    ],
    [
     "PIOUPIOU",
-    "Aujourd'hui, on apprend l'hymne de le Gabon !"
+    "Aujourd'hui, on apprend l'hymne du Gabon !"
    ],
    [
     "Mawa",
@@ -528,7 +541,7 @@
    ],
    [
     "Maman Poule",
-    "On écoute d'abord, puis on chante ensemble, couplet après couplet."
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
    ],
    [
     "Narration",
@@ -536,10 +549,11 @@
    ],
    [
     "PIOUPIOU",
-    "Bravo ! Tu connais maintenant l'hymne de le Gabon !"
+    "Bravo ! Tu connais maintenant l'hymne du Gabon !"
    ]
   ],
-  "refrain": ""
+  "refrain": "",
+  "age": "4-6"
  },
  {
   "id": "B5",
@@ -552,15 +566,15 @@
    "Mawa",
    "Maman Poule"
   ],
-  "objectif": "Apprendre l'hymne national de le Mali (Le Mali) avec respect.",
+  "objectif": "Découvrir et chanter le refrain de l'hymne national du Mali (Le Mali) avec respect.",
   "scenes": [
    [
     "Narration",
-    "Le drapeau de le Mali flotte. Fanfare douce."
+    "Le drapeau du Mali flotte. Fanfare douce."
    ],
    [
     "PIOUPIOU",
-    "Aujourd'hui, on apprend l'hymne de le Mali !"
+    "Aujourd'hui, on apprend l'hymne du Mali !"
    ],
    [
     "Mawa",
@@ -572,7 +586,7 @@
    ],
    [
     "Maman Poule",
-    "On écoute d'abord, puis on chante ensemble, couplet après couplet."
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
    ],
    [
     "Narration",
@@ -580,10 +594,11 @@
    ],
    [
     "PIOUPIOU",
-    "Bravo ! Tu connais maintenant l'hymne de le Mali !"
+    "Bravo ! Tu connais maintenant l'hymne du Mali !"
    ]
   ],
-  "refrain": ""
+  "refrain": "",
+  "age": "4-6"
  },
  {
   "id": "B6",
@@ -596,7 +611,7 @@
    "Mawa",
    "Maman Poule"
   ],
-  "objectif": "Apprendre l'hymne national de la Guinée-Bissau (Esta é a nossa pátria bem amada) avec respect.",
+  "objectif": "Découvrir et chanter le refrain de l'hymne national de la Guinée-Bissau (Esta é a nossa pátria bem amada) avec respect.",
   "scenes": [
    [
     "Narration",
@@ -616,7 +631,7 @@
    ],
    [
     "Maman Poule",
-    "On écoute d'abord, puis on chante ensemble, couplet après couplet."
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
    ],
    [
     "Narration",
@@ -627,7 +642,8 @@
     "Bravo ! Tu connais maintenant l'hymne de la Guinée-Bissau !"
    ]
   ],
-  "refrain": "En portugais : sous-titres français."
+  "refrain": "En portugais : sous-titres français.",
+  "age": "4-6"
  },
  {
   "id": "B7",
@@ -640,7 +656,7 @@
    "Mawa",
    "Maman Poule"
   ],
-  "objectif": "Apprendre l'hymne national de la Guinée (Conakry) (Liberté) avec respect.",
+  "objectif": "Découvrir et chanter le refrain de l'hymne national de la Guinée (Conakry) (Liberté) avec respect.",
   "scenes": [
    [
     "Narration",
@@ -660,7 +676,7 @@
    ],
    [
     "Maman Poule",
-    "On écoute d'abord, puis on chante ensemble, couplet après couplet."
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
    ],
    [
     "Narration",
@@ -671,7 +687,8 @@
     "Bravo ! Tu connais maintenant l'hymne de la Guinée (Conakry) !"
    ]
   ],
-  "refrain": ""
+  "refrain": "",
+  "age": "4-6"
  },
  {
   "id": "B8",
@@ -684,7 +701,7 @@
    "Mawa",
    "Maman Poule"
   ],
-  "objectif": "Apprendre l'hymne national de la Côte d'Ivoire (L'Abidjanaise) avec respect.",
+  "objectif": "Découvrir et chanter le refrain de l'hymne national de la Côte d'Ivoire (L'Abidjanaise) avec respect.",
   "scenes": [
    [
     "Narration",
@@ -704,7 +721,7 @@
    ],
    [
     "Maman Poule",
-    "On écoute d'abord, puis on chante ensemble, couplet après couplet."
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
    ],
    [
     "Narration",
@@ -715,7 +732,8 @@
     "Bravo ! Tu connais maintenant l'hymne de la Côte d'Ivoire !"
    ]
   ],
-  "refrain": "« Abidjan » est la ville ; le pays est la Côte d'Ivoire."
+  "refrain": "« Abidjan » est la ville ; le pays est la Côte d'Ivoire.",
+  "age": "4-6"
  },
  {
   "id": "B9",
@@ -728,15 +746,15 @@
    "Mawa",
    "Maman Poule"
   ],
-  "objectif": "Apprendre l'hymne national de le Burkina Faso (Ditanyè (Une seule nuit)) avec respect.",
+  "objectif": "Découvrir et chanter le refrain de l'hymne national du Burkina Faso (Ditanyè (Une seule nuit)) avec respect.",
   "scenes": [
    [
     "Narration",
-    "Le drapeau de le Burkina Faso flotte. Fanfare douce."
+    "Le drapeau du Burkina Faso flotte. Fanfare douce."
    ],
    [
     "PIOUPIOU",
-    "Aujourd'hui, on apprend l'hymne de le Burkina Faso !"
+    "Aujourd'hui, on apprend l'hymne du Burkina Faso !"
    ],
    [
     "Mawa",
@@ -748,7 +766,7 @@
    ],
    [
     "Maman Poule",
-    "On écoute d'abord, puis on chante ensemble, couplet après couplet."
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
    ],
    [
     "Narration",
@@ -756,10 +774,11 @@
    ],
    [
     "PIOUPIOU",
-    "Bravo ! Tu connais maintenant l'hymne de le Burkina Faso !"
+    "Bravo ! Tu connais maintenant l'hymne du Burkina Faso !"
    ]
   ],
-  "refrain": ""
+  "refrain": "",
+  "age": "4-6"
  },
  {
   "id": "B10",
@@ -772,15 +791,15 @@
    "Mawa",
    "Maman Poule"
   ],
-  "objectif": "Apprendre l'hymne national de le Ghana (God Bless Our Homeland Ghana) avec respect.",
+  "objectif": "Découvrir et chanter le refrain de l'hymne national du Ghana (God Bless Our Homeland Ghana) avec respect.",
   "scenes": [
    [
     "Narration",
-    "Le drapeau de le Ghana flotte. Fanfare douce."
+    "Le drapeau du Ghana flotte. Fanfare douce."
    ],
    [
     "PIOUPIOU",
-    "Aujourd'hui, on apprend l'hymne de le Ghana !"
+    "Aujourd'hui, on apprend l'hymne du Ghana !"
    ],
    [
     "Mawa",
@@ -792,7 +811,7 @@
    ],
    [
     "Maman Poule",
-    "On écoute d'abord, puis on chante ensemble, couplet après couplet."
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
    ],
    [
     "Narration",
@@ -800,10 +819,11 @@
    ],
    [
     "PIOUPIOU",
-    "Bravo ! Tu connais maintenant l'hymne de le Ghana !"
+    "Bravo ! Tu connais maintenant l'hymne du Ghana !"
    ]
   ],
-  "refrain": "En anglais : sous-titres français."
+  "refrain": "En anglais : sous-titres français.",
+  "age": "4-6"
  },
  {
   "id": "B11",
@@ -816,15 +836,15 @@
    "Mawa",
    "Maman Poule"
   ],
-  "objectif": "Apprendre l'hymne national de le Togo (Terre de nos aïeux) avec respect.",
+  "objectif": "Découvrir et chanter le refrain de l'hymne national du Togo (Terre de nos aïeux) avec respect.",
   "scenes": [
    [
     "Narration",
-    "Le drapeau de le Togo flotte. Fanfare douce."
+    "Le drapeau du Togo flotte. Fanfare douce."
    ],
    [
     "PIOUPIOU",
-    "Aujourd'hui, on apprend l'hymne de le Togo !"
+    "Aujourd'hui, on apprend l'hymne du Togo !"
    ],
    [
     "Mawa",
@@ -836,7 +856,7 @@
    ],
    [
     "Maman Poule",
-    "On écoute d'abord, puis on chante ensemble, couplet après couplet."
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
    ],
    [
     "Narration",
@@ -844,10 +864,11 @@
    ],
    [
     "PIOUPIOU",
-    "Bravo ! Tu connais maintenant l'hymne de le Togo !"
+    "Bravo ! Tu connais maintenant l'hymne du Togo !"
    ]
   ],
-  "refrain": "« Lomé » est la capitale ; le pays est le Togo."
+  "refrain": "« Lomé » est la capitale ; le pays est le Togo.",
+  "age": "4-6"
  },
  {
   "id": "B12",
@@ -860,15 +881,15 @@
    "Mawa",
    "Maman Poule"
   ],
-  "objectif": "Apprendre l'hymne national de le Niger (La Nigérienne) avec respect.",
+  "objectif": "Découvrir et chanter le refrain de l'hymne national du Niger (La Nigérienne) avec respect.",
   "scenes": [
    [
     "Narration",
-    "Le drapeau de le Niger flotte. Fanfare douce."
+    "Le drapeau du Niger flotte. Fanfare douce."
    ],
    [
     "PIOUPIOU",
-    "Aujourd'hui, on apprend l'hymne de le Niger !"
+    "Aujourd'hui, on apprend l'hymne du Niger !"
    ],
    [
     "Mawa",
@@ -880,7 +901,7 @@
    ],
    [
     "Maman Poule",
-    "On écoute d'abord, puis on chante ensemble, couplet après couplet."
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
    ],
    [
     "Narration",
@@ -888,10 +909,11 @@
    ],
    [
     "PIOUPIOU",
-    "Bravo ! Tu connais maintenant l'hymne de le Niger !"
+    "Bravo ! Tu connais maintenant l'hymne du Niger !"
    ]
   ],
-  "refrain": "Ne pas confondre avec le Nigeria."
+  "refrain": "Ne pas confondre avec le Nigeria.",
+  "age": "4-6"
  },
  {
   "id": "B13",
@@ -904,15 +926,15 @@
    "Mawa",
    "Maman Poule"
   ],
-  "objectif": "Apprendre l'hymne national de le Maroc (Hymne chérifien) avec respect.",
+  "objectif": "Découvrir et chanter le refrain de l'hymne national du Maroc (Hymne chérifien) avec respect.",
   "scenes": [
    [
     "Narration",
-    "Le drapeau de le Maroc flotte. Fanfare douce."
+    "Le drapeau du Maroc flotte. Fanfare douce."
    ],
    [
     "PIOUPIOU",
-    "Aujourd'hui, on apprend l'hymne de le Maroc !"
+    "Aujourd'hui, on apprend l'hymne du Maroc !"
    ],
    [
     "Mawa",
@@ -924,7 +946,7 @@
    ],
    [
     "Maman Poule",
-    "On écoute d'abord, puis on chante ensemble, couplet après couplet."
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
    ],
    [
     "Narration",
@@ -932,10 +954,11 @@
    ],
    [
     "PIOUPIOU",
-    "Bravo ! Tu connais maintenant l'hymne de le Maroc !"
+    "Bravo ! Tu connais maintenant l'hymne du Maroc !"
    ]
   ],
-  "refrain": "En arabe : sous-titres français."
+  "refrain": "En arabe : sous-titres français.",
+  "age": "4-6"
  },
  {
   "id": "B14",
@@ -948,15 +971,15 @@
    "Mawa",
    "Maman Poule"
   ],
-  "objectif": "Apprendre l'hymne national de le Canada (Ô Canada) avec respect.",
+  "objectif": "Découvrir et chanter le refrain de l'hymne national du Canada (Ô Canada) avec respect.",
   "scenes": [
    [
     "Narration",
-    "Le drapeau de le Canada flotte. Fanfare douce."
+    "Le drapeau du Canada flotte. Fanfare douce."
    ],
    [
     "PIOUPIOU",
-    "Aujourd'hui, on apprend l'hymne de le Canada !"
+    "Aujourd'hui, on apprend l'hymne du Canada !"
    ],
    [
     "Mawa",
@@ -968,7 +991,7 @@
    ],
    [
     "Maman Poule",
-    "On écoute d'abord, puis on chante ensemble, couplet après couplet."
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
    ],
    [
     "Narration",
@@ -976,10 +999,11 @@
    ],
    [
     "PIOUPIOU",
-    "Bravo ! Tu connais maintenant l'hymne de le Canada !"
+    "Bravo ! Tu connais maintenant l'hymne du Canada !"
    ]
   ],
-  "refrain": "Versions française et anglaise."
+  "refrain": "Versions française et anglaise.",
+  "age": "4-6"
  },
  {
   "id": "B15",
@@ -1010,7 +1034,8 @@
     "Carte du monde, les pays s'allument un à un."
    ]
   ],
-  "refrain": ""
+  "refrain": "",
+  "age": "4-6"
  },
  {
   "id": "C1",
@@ -1043,7 +1068,8 @@
     "Dix poussins ! Bravo, tu sais compter jusqu'à dix !"
    ]
   ],
-  "refrain": "Un, deux, trois, quatre, cinq, je compte avec mes doigts !"
+  "refrain": "Un, deux, trois, quatre, cinq, je compte avec mes doigts !",
+  "age": "3-4"
  },
  {
   "id": "C2",
@@ -1077,7 +1103,8 @@
     "Trois séries : 4, 8, 10."
    ]
   ],
-  "refrain": ""
+  "refrain": "",
+  "age": "3-4"
  },
  {
   "id": "C3",
@@ -1107,7 +1134,8 @@
     "Vingt ! Bravo !"
    ]
   ],
-  "refrain": "Dix, onze, douze... jusqu'à vingt !"
+  "refrain": "Dix, onze, douze... jusqu'à vingt !",
+  "age": "4-5"
  },
  {
   "id": "C4",
@@ -1138,7 +1166,8 @@
     "Les fruits tombent dans le panier un par un jusqu'à vingt."
    ]
   ],
-  "refrain": ""
+  "refrain": "",
+  "age": "4-5"
  },
  {
   "id": "C5",
@@ -1164,7 +1193,8 @@
     "Les paires de chaussures s'alignent jusqu'à vingt."
    ]
   ],
-  "refrain": ""
+  "refrain": "",
+  "age": "5-6"
  },
  {
   "id": "C6",
@@ -1200,7 +1230,134 @@
     "Bravo à tous, vous êtes des champions !"
    ]
   ],
-  "refrain": ""
+  "refrain": "",
+  "age": "4-5"
+ },
+ {
+  "id": "C7",
+  "theme": "C",
+  "titre": "La chanson de 20 à 30",
+  "duree": "75 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola"
+  ],
+  "objectif": "Compter de 20 à 30 en groupant par dizaines.",
+  "scenes": [
+   [
+    "Zola",
+    "Après vingt, c'est quoi ?"
+   ],
+   [
+    "PIOUPIOU",
+    "Vingt et un, vingt-deux, vingt-trois... trente !"
+   ],
+   [
+    "Narration",
+    "Deux paquets de dix poussins, puis un troisième paquet apparaît : trente."
+   ],
+   [
+    "Zola",
+    "Trente ! Bravo !"
+   ]
+  ],
+  "refrain": "Vingt, vingt et un... jusqu'à trente !",
+  "age": "5-6"
+ },
+ {
+  "id": "C8",
+  "theme": "C",
+  "titre": "La chanson de 30 à 40",
+  "duree": "75 s",
+  "cast": [
+   "PIOUPIOU",
+   "Mawa"
+  ],
+  "objectif": "Compter de 30 à 40.",
+  "scenes": [
+   [
+    "Mawa",
+    "Et après trente ?"
+   ],
+   [
+    "PIOUPIOU",
+    "Trente et un, trente-deux... quarante !"
+   ],
+   [
+    "Narration",
+    "Quatre paquets de dix poussins s'alignent : quarante."
+   ],
+   [
+    "Mawa",
+    "Quarante ! Tu sais compter jusqu'à quarante !"
+   ]
+  ],
+  "refrain": "Trente, trente et un... jusqu'à quarante !",
+  "age": "5-6"
+ },
+ {
+  "id": "C9",
+  "theme": "C",
+  "titre": "Le décollage : de 10 à 0",
+  "duree": "60 s",
+  "cast": [
+   "PIOUPIOU",
+   "Kiki"
+  ],
+  "objectif": "Compter à rebours de 10 à 0 (comprendre « avant » et « après »).",
+  "scenes": [
+   [
+    "Kiki",
+    "Dix, neuf, huit... on décolle !"
+   ],
+   [
+    "PIOUPIOU",
+    "Sept, six, cinq, quatre, trois, deux, un, zéro !"
+   ],
+   [
+    "Narration",
+    "La fusée-nid des poussins décolle sur « zéro »."
+   ]
+  ],
+  "refrain": "",
+  "age": "5-6"
+ },
+ {
+  "id": "C10",
+  "theme": "C",
+  "titre": "Le grand jeu : de 1 à 40",
+  "duree": "90 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola",
+   "Mawa",
+   "Kiki"
+  ],
+  "objectif": "Quiz de fin de thème : compter jusqu'à 40 par dizaines (10, 20, 30, 40).",
+  "scenes": [
+   [
+    "PIOUPIOU",
+    "Grand jeu final : jusqu'à quarante !"
+   ],
+   [
+    "Narration",
+    "Cinq questions : combien de paquets de dix ? quel nombre après 29 ? avant 35 ?"
+   ],
+   [
+    "Zola",
+    "Moi je dis trente-deux !"
+   ],
+   [
+    "Mawa",
+    "Bravo Zola, c'est ça !"
+   ],
+   [
+    "PIOUPIOU",
+    "Bravo, tu es un champion du quarante !"
+   ]
+  ],
+  "refrain": "",
+  "age": "5-6"
  },
  {
   "id": "D1",
@@ -1230,7 +1387,8 @@
     "Q, R, S, T, U, V, W, X, Y, Z ! Bravo !"
    ]
   ],
-  "refrain": "A, B, C, D, E, je les connais, regarde !"
+  "refrain": "A, B, C, D, E, je les connais, regarde !",
+  "age": "3-6"
  },
  {
   "id": "D2",
@@ -1272,7 +1430,8 @@
     "Bravo ! Demain, on continue !"
    ]
   ],
-  "refrain": ""
+  "refrain": "",
+  "age": "4-5"
  },
  {
   "id": "D3",
@@ -1314,7 +1473,8 @@
     "Bravo ! Demain, on continue !"
    ]
   ],
-  "refrain": ""
+  "refrain": "",
+  "age": "4-5"
  },
  {
   "id": "D4",
@@ -1356,7 +1516,8 @@
     "Bravo ! Demain, on continue !"
    ]
   ],
-  "refrain": ""
+  "refrain": "",
+  "age": "4-5"
  },
  {
   "id": "D5",
@@ -1398,7 +1559,8 @@
     "Bravo ! Demain, on continue !"
    ]
   ],
-  "refrain": ""
+  "refrain": "",
+  "age": "4-5"
  },
  {
   "id": "D6",
@@ -1444,7 +1606,8 @@
     "Bravo ! Demain, on continue !"
    ]
   ],
-  "refrain": ""
+  "refrain": "",
+  "age": "4-5"
  },
  {
   "id": "D7",
@@ -1470,7 +1633,8 @@
     "Bravo ! M comme manioc !"
    ]
   ],
-  "refrain": ""
+  "refrain": "",
+  "age": "4-6"
  },
  {
   "id": "D8",
@@ -1501,6 +1665,7 @@
     "Et toi ? Demande à tes parents de t'aider à épeler ton prénom !"
    ]
   ],
-  "refrain": ""
+  "refrain": "",
+  "age": "5-6"
  }
 ]
