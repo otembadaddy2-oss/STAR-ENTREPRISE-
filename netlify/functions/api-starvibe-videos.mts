@@ -56,6 +56,8 @@ interface VideoRow {
   espace?: string;
   moderation_statut: string;
   premium: boolean;
+  disponible_le?: string | null;
+  affiche_key?: string | null;
   created_at: string;
   auteur_nom?: string;
   telephone?: string;
@@ -64,7 +66,10 @@ interface VideoRow {
 // Une vidéo premium n'expose son lien (signé) qu'aux abonnés Famille actifs ;
 // pour les autres, "verrouille" est vrai et aucun lien n'est donné.
 function toApi(row: VideoRow, likedByMe: boolean, canWatchPremium = false, viewerAccountId = 0) {
-  const locked = row.premium && !canWatchPremium;
+  // Fermée tant que : (1) le parent n'a pas d'abonnement Famille actif, ou (2) la date d'ouverture n'est pas arrivée.
+  // Décidé ici, côté serveur : une vidéo fermée n'a ni lien de lecture ni moyen d'être lue ou sautée.
+  const pasEncore = Boolean(row.premium && row.disponible_le && new Date(row.disponible_le).getTime() > Date.now());
+  const locked = row.premium && (!canWatchPremium || pasEncore);
   return {
     id: String(row.id),
     legende: row.legende,
@@ -81,6 +86,10 @@ function toApi(row: VideoRow, likedByMe: boolean, canWatchPremium = false, viewe
     estMoi: viewerAccountId > 0 && row.account_id === viewerAccountId,   // c'est ma vidéo : je peux la supprimer
     premium: row.premium,
     verrouille: locked,
+    ouvert: row.premium ? !locked : true,
+    raisonFermee: !locked ? "" : (!canWatchPremium ? "abonnement" : "date"),
+    disponibleLe: row.premium ? (row.disponible_le || null) : null,
+    afficheUrl: row.affiche_key ? `/api/starvibe-photo?key=${encodeURIComponent(row.affiche_key)}` : null,
     videoUrl: locked
       ? null
       : row.premium
@@ -189,11 +198,31 @@ export default async (req: Request, _context: Context) => {
       const videoId = Number(earlyBody.videoId);
       if (!videoId) return json({ error: "videoId requis" }, 400);
       const premium = Boolean(earlyBody.premium);
+      const dateBrute = clean(earlyBody.disponibleLe, 40);
+      const date = dateBrute ? new Date(dateBrute) : null;
+      if (dateBrute && (!date || Number.isNaN(date.getTime()))) return json({ error: "Date d'ouverture invalide" }, 400);
+      if (date && !premium) return json({ error: "Une date d'ouverture s'applique à une vidéo premium (Famille)" }, 400);
       const rows = (await sql`
-        UPDATE starvibe_videos SET premium = ${premium} WHERE id = ${videoId} RETURNING id
-      `) as { id: number }[];
+        UPDATE starvibe_videos SET premium = ${premium}, disponible_le = ${premium && date ? date.toISOString() : null}
+        WHERE id = ${videoId} RETURNING id, affiche_key
+      `) as { id: number; affiche_key: string | null }[];
       if (!rows[0]) return json({ error: "Vidéo introuvable" }, 404);
-      return json({ ok: true, premium });
+      // Affiche (image) de la vidéo : JPEG, PNG ou WebP, 1,5 Mo au plus. Remplace la précédente.
+      const img = String(earlyBody.afficheBase64 ?? "");
+      let afficheUrl: string | null = rows[0].affiche_key ? `/api/starvibe-photo?key=${encodeURIComponent(rows[0].affiche_key)}` : null;
+      if (img) {
+        const mime = clean(earlyBody.afficheMime, 40) || "image/jpeg";
+        if (!["image/jpeg", "image/png", "image/webp"].includes(mime)) return json({ error: "L'affiche doit être en JPEG, PNG ou WebP" }, 400);
+        const octets = Buffer.from(img.includes(",") ? img.split(",")[1] : img, "base64");
+        if (!octets.byteLength || octets.byteLength > 1_500_000) return json({ error: "Affiche vide ou trop lourde (1,5 Mo au plus)" }, 400);
+        const store = getStore("starvibe-photos");
+        const cle = `affiche-${videoId}-${Date.now()}-${randomBytes(4).toString("hex")}`;
+        await store.set(cle, octets, { metadata: { typeMime: mime } });
+        await sql`UPDATE starvibe_videos SET affiche_key = ${cle} WHERE id = ${videoId}`;
+        if (rows[0].affiche_key) await store.delete(rows[0].affiche_key).catch(() => {});
+        afficheUrl = `/api/starvibe-photo?key=${encodeURIComponent(cle)}`;
+      }
+      return json({ ok: true, premium, disponibleLe: premium && date ? date.toISOString() : null, afficheUrl });
     }
 
     // --- Toute autre action passe par le compte STAR VIBE de l'utilisateur ---

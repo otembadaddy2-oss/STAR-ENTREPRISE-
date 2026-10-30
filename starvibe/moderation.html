@@ -151,6 +151,11 @@
         '<div class="tel">' + esc(v.telephone) + '</div>' +
         '<div class="legende">' + (v.legende ? esc(v.legende) : '<em>Sans légende</em>') + '</div>' +
         '<label class="prem"><input type="checkbox" class="chk-premium"> ⭐ Réservé aux abonnés Famille (premium)</label>' +
+        '<div class="prem-opts" hidden style="margin:8px 0;font-size:13px;line-height:1.5">' +
+          '<label style="display:block">Ouverture à partir du (facultatif) <input type="datetime-local" class="in-date" style="width:100%"></label>' +
+          '<label style="display:block;margin-top:6px">Affiche de la vidéo (image JPEG, PNG ou WebP, 1,5 Mo max) <input type="file" class="in-affiche" accept="image/jpeg,image/png,image/webp" style="width:100%"></label>' +
+          '<small>Avant la date, ou sans abonnement Famille, la vidéo reste « FERMÉE » : seule l\'affiche est visible.</small>' +
+        '</div>' +
         '<div class="actions">' +
           '<button class="btn-approve">Approuver</button>' +
           '<button class="btn-reject">Refuser</button>' +
@@ -160,11 +165,28 @@
     item.querySelector('video').addEventListener('mouseenter', function(){ this.play().catch(function(){}); });
     item.querySelector('video').addEventListener('mouseleave', function(){ this.pause(); });
 
+    var chk = item.querySelector('.chk-premium'), opts = item.querySelector('.prem-opts');
+    chk.addEventListener('change', function(){ opts.hidden = !chk.checked; });
+    function lireAffiche(){
+      return new Promise(function(resolve){
+        var f = item.querySelector('.in-affiche').files[0]; if (!f) return resolve(null);
+        var r = new FileReader(); r.onload = function(){ resolve({ mime: f.type, data: String(r.result) }); }; r.onerror = function(){ resolve(null); }; r.readAsDataURL(f);
+      });
+    }
     function decide(decision){
       item.classList.add('processing');
       authFetch(API_VIDEOS, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'moderer', videoId: Number(v.id), decision: decision, premium: item.querySelector('.chk-premium').checked })
+        body: JSON.stringify({ action: 'moderer', videoId: Number(v.id), decision: decision, premium: chk.checked })
+      }).then(function(){
+        if (decision !== 'approuve' || !chk.checked) return;
+        var d = item.querySelector('.in-date').value;
+        return lireAffiche().then(function(a){
+          return authFetch(API_VIDEOS, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'definir_premium', videoId: Number(v.id), premium: true, disponibleLe: d ? new Date(d).toISOString() : '', afficheBase64: a ? a.data : '', afficheMime: a ? a.mime : '' })
+          });
+        });
       }).then(function(){ item.remove(); if (!queueList.children.length) emptyQueue.hidden = false; });
     }
     item.querySelector('.btn-approve').addEventListener('click', function(){ decide('approuve'); });

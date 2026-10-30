@@ -332,6 +332,9 @@ export async function ensureSchema() {
   await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS pour_enfants BOOLEAN NOT NULL DEFAULT false`;
   await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS moderation_statut TEXT NOT NULL DEFAULT 'approuve'`;
   await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS premium BOOLEAN NOT NULL DEFAULT false`;
+  // Vidéo premium : date d'ouverture (avant elle, la vidéo reste « Fermée » même pour un abonné) et affiche (image publique).
+  await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS disponible_le TIMESTAMPTZ`;
+  await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS affiche_key TEXT`;
   // espace de la vidéo : general (fil principal), talents, business ou decouverte (PIOUPIOU reste marqué par pour_enfants)
   await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS espace TEXT NOT NULL DEFAULT 'general'`;
 

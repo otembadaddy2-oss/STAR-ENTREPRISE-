@@ -81,6 +81,20 @@
     font-size:13.5px;padding:12px 20px;border-radius:16px;text-decoration:none;}
   .premium-tag{position:absolute;top:10px;left:10px;z-index:2;background:linear-gradient(135deg,var(--sun),#ff8f3d);color:#5c3200;
     font-family:'Sora',sans-serif;font-weight:800;font-size:11px;padding:4px 10px;border-radius:12px;}
+
+  .affiche{position:absolute;inset:0;z-index:3;display:none;background:#241536 center/cover no-repeat;}
+  .affiche.show{display:block;}
+  .affiche .fallback{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:26px;text-align:center;
+    background:linear-gradient(160deg,#3b2a6b,#7a3fa0 55%,#ff8f3d);color:#fff;}
+  .affiche .fallback .gros{font-size:64px;} .affiche .fallback b{font-family:'Sora',sans-serif;font-size:20px;line-height:1.25;}
+  .etiquette{position:absolute;left:0;right:0;bottom:0;z-index:4;text-align:center;font-family:'Sora',sans-serif;font-weight:800;letter-spacing:3px;padding:14px 10px 16px;color:#fff;}
+  .etiquette small{display:block;font-weight:600;letter-spacing:.3px;font-size:12px;margin-top:4px;opacity:.95;}
+  .etiquette.ferme{background:linear-gradient(0deg,rgba(0,0,0,.88),rgba(0,0,0,.55) 70%,transparent);font-size:26px;color:#ff6a6a;}
+  .etiquette.ferme a{display:inline-block;margin-top:8px;background:linear-gradient(135deg,var(--sun),#ff8f3d);color:#5c3200;font-size:13px;letter-spacing:0;padding:10px 18px;border-radius:14px;text-decoration:none;}
+  .etiquette.ouvert{position:absolute;top:10px;right:10px;left:auto;bottom:auto;padding:6px 14px;border-radius:14px;font-size:14px;letter-spacing:2px;color:#eafff2;background:rgba(10,60,34,.85);
+    text-shadow:0 0 6px #2dff8a,0 0 14px #2dff8a,0 0 26px #14d96a;box-shadow:0 0 14px #2dff8a99,inset 0 0 10px #2dff8a55;border:1.5px solid #5dffa6;animation:brille 1.8s ease-in-out infinite;}
+  @keyframes brille{0%,100%{box-shadow:0 0 8px #2dff8a77,inset 0 0 6px #2dff8a44;}50%{box-shadow:0 0 22px #2dff8acc,inset 0 0 14px #2dff8a77;}}
+  @media (prefers-reduced-motion:reduce){.etiquette.ouvert{animation:none;}}
 </style>
 </head>
 <body>
@@ -110,6 +124,9 @@
     <video id="videoEl" loop muted playsinline preload="metadata"></video>
     <div class="tapzone" id="tapZone"></div>
     <span class="premium-tag" id="premiumTag" hidden>⭐ Famille</span>
+    <div class="affiche" id="afficheEl"><div class="fallback"><div class="gros">🎬</div><b id="afficheTitre"></b></div></div>
+    <div class="etiquette ferme" id="etqFerme" hidden>FERMÉ<small id="etqRaison"></small><a href="abonnement.html" id="etqLien" hidden>Ouvrir avec l'abonnement Famille</a></div>
+    <div class="etiquette ouvert" id="etqOuvert" hidden>OUVERT</div>
     <div class="lock" id="lockEl">
       <div class="cadenas">🔒</div>
       <h3>Dessin animé réservé aux abonnés Famille</h3>
@@ -180,11 +197,30 @@
 
   function replay(el){ el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; }
 
+  // La date d'ouverture arrive pendant que la page est ouverte : on recharge pour que la vidéo s'ouvre toute seule.
+  var minuteurOuverture = null;
+  function programmerOuverture(quand){
+    clearTimeout(minuteurOuverture);
+    var d = quand - Date.now() + 1500;
+    if (d > 0 && d < 2147000000) minuteurOuverture = setTimeout(function(){ location.reload(); }, d);
+  }
+
   function playCurrent(){
     if (index >= videos.length){ show(doneState); return; }
     var v = videos[index];
     premiumTag.hidden = !v.premium;
-    lockEl.classList.toggle('show', !!v.verrouille);
+    lockEl.classList.remove('show');   // l'ancien écran « cadenas » est remplacé par l'affiche + FERMÉ
+    var aff = document.getElementById('afficheEl'), etqF = document.getElementById('etqFerme'), etqO = document.getElementById('etqOuvert');
+    aff.classList.toggle('show', !!v.verrouille); etqF.hidden = !v.verrouille; etqO.hidden = !(v.premium && !v.verrouille);
+    if (v.verrouille){
+      aff.style.backgroundImage = v.afficheUrl ? 'url("' + v.afficheUrl + '")' : '';
+      aff.querySelector('.fallback').style.display = v.afficheUrl ? 'none' : 'flex';
+      document.getElementById('afficheTitre').textContent = v.legende || 'Dessin animé PIOUPIOU';
+      var quand = v.disponibleLe ? new Date(v.disponibleLe).toLocaleString('fr-FR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) : '';
+      document.getElementById('etqRaison').textContent = v.raisonFermee === 'date' ? 'S\'ouvre automatiquement le ' + quand : 'Abonnement Famille requis (1 500 FCFA par mois)';
+      document.getElementById('etqLien').hidden = v.raisonFermee === 'date';
+      if (v.raisonFermee === 'date' && v.disponibleLe) programmerOuverture(new Date(v.disponibleLe).getTime());
+    }
     if (v.verrouille || !v.videoUrl){
       videoEl.pause(); videoEl.removeAttribute('src'); videoEl.load();
     } else {
