@@ -362,9 +362,9 @@ I18N.add({
   "Cherche la lettre": "Find the letter", "Ton prénom en lettres": "Your name in letters"
 });
 
-/* ---- carte « Installer KOMYO » (komyo-installer-v4.js) : phrases avec mots en gras, traduites d'un bloc ---- */
+/* ---- carte « Installer KOMYO » (komyo-installer-v5.js) : phrases avec mots en gras, traduites d'un bloc ---- */
 I18N.add({
-  "📱 Installer KOMYO": "📱 Install KOMYO", "Application officielle · gratuite": "Official app · free",
+  "📱 Installer KOMYO": "📱 Install KOMYO", "📲 Installer KOMYO": "📲 Install KOMYO", "Application officielle · gratuite": "Official app · free",
   "Garde <b>KOMYO</b> et <b>Keydou</b> sur ton écran d'accueil : un seul toucher pour tes vidéos et tous les services du Congo, en plein écran, même quand le réseau est lent.": "Keep <b>KOMYO</b> and <b>Keydou</b> on your home screen: one tap for your videos and all the services in Congo, full screen, even when the network is slow.",
   "Plus tard": "Later", "J'ai compris": "Got it", "Aide complète": "Full help",
   "Touche <b>⋮</b> ou <b>•••</b> (ou l'icône boussole) dans le coin": "Tap <b>⋮</b> or <b>•••</b> (or the compass icon) in the corner",
