@@ -225,7 +225,7 @@ export async function recuVente(sql: Sql, commandeId: number): Promise<void> {
   } catch (e) { console.error("recuVente", e); }
 }
 
-/** Reçu des frais hebdomadaires de la boutique (500 FCFA, semaines avec ventes). */
+/** Reçu des frais hebdomadaires de la boutique (500 FCFA par semaine d'ouverture, avec ou sans vente). */
 export async function recuFrais(sql: Sql, fraisId: number): Promise<void> {
   try {
     const f = ((await sql`
@@ -237,7 +237,7 @@ export async function recuFrais(sql: Sql, fraisId: number): Promise<void> {
     await emettre(sql, "frais", fraisId, "client", Number(f.vendeur_id), String(f.tel || ""), {
       titre: `Frais KOMYO Business — semaine du ${dateFr(new Date(String(f.semaine) + "T12:00:00Z"))}`,
       montant: Number(f.montant), payeLe: new Date(String(f.paid_at || f.created_at)),
-      detail: `${f.ventes_n} vente(s) dans la semaine pour ${Number(f.ventes_total).toLocaleString("fr-FR").replace(/[\u202f\u00a0]/g, " ")} FCFA — boutique ${f.boutique_nom}`,
+      detail: `${f.ventes_n ? `${f.ventes_n} vente(s) dans la semaine pour ${Number(f.ventes_total).toLocaleString("fr-FR").replace(/[\u202f\u00a0]/g, " ")} FCFA` : "aucune vente dans la semaine"} — boutique ${f.boutique_nom}`,
       reference: `FRS-${fraisId}`, methode: "mobile money",
     });
   } catch (e) { console.error("recuFrais", e); }

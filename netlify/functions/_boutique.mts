@@ -5,7 +5,8 @@
 //  - le client commande, paie LE VENDEUR directement par Mobile Money (KOMYO ne touche pas l'argent des ventes),
 //    puis le vendeur confirme la réception ; à cet instant le client reçoit son ACCUSÉ DE RÉCEPTION dans sa messagerie KOMYO
 //    et le vendeur sa notification de vente ;
-//  - KOMYO facture 500 FCFA par semaine AVEC ventes (semaine = lundi à dimanche, heure de Brazzaville), payable au +242 06 656 50 50.
+//  - KOMYO facture 500 FCFA CHAQUE semaine d'ouverture, avec ou sans vente (semaine = lundi à dimanche, heure de Brazzaville ; la semaine de l'ouverture
+//    est offerte ; pas de frais pendant qu'une boutique est en pause), payable au +242 06 656 50 50.
 //    Une semaine pour payer, puis 3 jours de plus : à 10 jours d'impayé, la boutique est mise en pause automatiquement.
 //    Elle ne rouvre que par le RENOUVELLEMENT : le vendeur remplit une petite fiche (nom et prénom, activités, dette affichée), dépose le montant,
 //    l'équipe valide, la boutique rouvre et il retrouve sa page. Case « Renouvellement dette » : Ouvert = il y a une dette ; Fermé = pas de dette.
@@ -64,7 +65,7 @@ export async function ouvrirBoutique(sql: Sql, accountId: number, b: Record<stri
     INSERT INTO starvibe_boutiques (account_id, nom, description, ville, numero_paiement, services)
     VALUES (${accountId}, ${nom}, ${propre(b.description, 400)}, ${propre(b.ville, 40)}, ${numero}, ${JSON.stringify(services)}::jsonb) RETURNING id
   `) as { id: number }[];
-  await poster(sql, accountId, { kind: "boutique", titre: "🏪 Ta boutique KOMYO Business est ouverte", texte: `Bravo ! « ${nom} » est ouverte. Ajoute tes articles : tes clients te paient directement par Mobile Money, tu confirmes la réception, et chacun reçoit son reçu dans sa messagerie KOMYO. KOMYO prend ${FRAIS_SEMAINE} FCFA seulement les semaines où tu as des ventes.` });
+  await poster(sql, accountId, { kind: "boutique", titre: "🏪 Ta boutique KOMYO Business est ouverte", texte: `Bravo ! « ${nom} » est ouverte. Ajoute tes articles : tes clients te paient directement par Mobile Money, tu confirmes la réception, et chacun reçoit son reçu dans sa messagerie KOMYO. KOMYO prend ${FRAIS_SEMAINE} FCFA chaque semaine où ta boutique est ouverte, avec ou sans vente (la semaine d'ouverture est offerte).` });
   return { ok: true, data: { id: r[0].id } };
 }
 
@@ -145,29 +146,34 @@ export async function annulerCommande(sql: Sql, accountId: number, commandeId: n
 
 // ---------- frais hebdomadaires ----------
 
-/** Crée (une seule fois) la facture de chaque semaine terminée AVEC ventes ; met en pause une boutique en retard ; la rouvre quand tout est payé. */
+/** Crée (une seule fois) la facture de chaque semaine terminée où la boutique était ouverte, avec ou sans vente ; met en pause une boutique en retard ; la rouvre quand tout est payé. */
 export async function genererFrais(sql: Sql, boutiqueId: number): Promise<void> {
   try {
-    const b = ((await sql`SELECT id, account_id, nom, statut, pause_motif FROM starvibe_boutiques WHERE id = ${boutiqueId}`) as Record<string, unknown>[])[0];
+    const b = ((await sql`SELECT id, account_id, nom, statut, pause_motif, created_at, frais_curseur::text AS curseur FROM starvibe_boutiques WHERE id = ${boutiqueId}`) as Record<string, unknown>[])[0];
     if (!b) return;
-    const semaines = (await sql`
-      SELECT (date_trunc('week', paid_at AT TIME ZONE 'Africa/Brazzaville'))::date AS sem, COUNT(*)::int AS n, COALESCE(SUM(total), 0)::int AS total
-      FROM starvibe_commandes
-      WHERE boutique_id = ${boutiqueId} AND statut = 'payee' AND paid_at IS NOT NULL
-        AND date_trunc('week', paid_at AT TIME ZONE 'Africa/Brazzaville') < date_trunc('week', now() AT TIME ZONE 'Africa/Brazzaville')
-      GROUP BY 1
-    `) as { sem: string | Date; n: number; total: number }[];
-    for (const w of semaines) {
-      const sem = typeof w.sem === "string" ? w.sem.slice(0, 10) : new Date(w.sem).toISOString().slice(0, 10);
+    const lundi = async (expr: string): Promise<string> => String(((await sql`SELECT (date_trunc('week', ${new Date(expr)}::timestamptz AT TIME ZONE 'Africa/Brazzaville'))::date::text AS d`) as { d: string }[])[0].d);
+    const courante = String(((await sql`SELECT (date_trunc('week', now() AT TIME ZONE 'Africa/Brazzaville'))::date::text AS d`) as { d: string }[])[0].d);
+    const plus7 = (d: string) => new Date(Date.parse(d + "T12:00:00Z") + 7 * 86400_000).toISOString().slice(0, 10);
+    // première semaine facturée = la semaine qui suit l'ouverture (la semaine d'ouverture est offerte)
+    let cur = b.curseur ? String(b.curseur).slice(0, 10) : plus7(await lundi(new Date(String(b.created_at)).toISOString()));
+    const ouverte = b.statut === "active" && (await businessActif(sql, Number(b.account_id)));
+    for (let n = 0; cur < courante && n < 80; n++, cur = plus7(cur)) {
+      if (!ouverte) continue;   // boutique en pause ou Business expiré : fermée, donc pas de frais cette semaine-là
+      const v = ((await sql`
+        SELECT COUNT(*)::int AS n, COALESCE(SUM(total), 0)::int AS total FROM starvibe_commandes
+        WHERE boutique_id = ${boutiqueId} AND statut = 'payee' AND paid_at IS NOT NULL
+          AND (paid_at AT TIME ZONE 'Africa/Brazzaville') >= ${cur}::date AND (paid_at AT TIME ZONE 'Africa/Brazzaville') < (${cur}::date + 7)
+      `) as { n: number; total: number }[])[0];
       const ins = (await sql`
-        INSERT INTO starvibe_frais (boutique_id, semaine, ventes_n, ventes_total, montant) VALUES (${boutiqueId}, ${sem}, ${w.n}, ${w.total}, ${FRAIS_SEMAINE})
+        INSERT INTO starvibe_frais (boutique_id, semaine, ventes_n, ventes_total, montant) VALUES (${boutiqueId}, ${cur}, ${v.n}, ${v.total}, ${FRAIS_SEMAINE})
         ON CONFLICT (boutique_id, semaine) DO NOTHING RETURNING id
       `) as { id: number }[];
       if (ins[0]) await poster(sql, Number(b.account_id), {
         kind: "frais", titre: `🧾 Facture KOMYO Business FRS-${ins[0].id} — ${FRAIS_SEMAINE} FCFA`,
-        texte: `Semaine du ${sem} : ${w.n} vente(s) pour ${fcfa(w.total)} FCFA. Frais KOMYO : ${FRAIS_SEMAINE} FCFA (seulement les semaines avec ventes). Règle toute ta dette d'un coup avec « Renouvellement » en bas de Ma boutique (dépôt Mobile Money au ${NUMERO_KOMYO}). Sans paiement sous ${DELAI_PAUSE_JOURS} jours (1 semaine + 3 jours), ta boutique est mise en pause automatiquement. Pour la rouvrir : « Renouvellement » en bas de Ma boutique.`,
+        texte: `Semaine du ${cur} : ${v.n ? `${v.n} vente(s) pour ${fcfa(v.total)} FCFA` : "aucune vente"}. Frais KOMYO : ${FRAIS_SEMAINE} FCFA par semaine d'ouverture, avec ou sans vente. Règle toute ta dette d'un coup avec « Renouvellement » en bas de Ma boutique (dépôt Mobile Money au ${NUMERO_KOMYO}). Sans paiement sous ${DELAI_PAUSE_JOURS} jours (1 semaine + 3 jours), ta boutique est mise en pause automatiquement.`,
       });
     }
+    await sql`UPDATE starvibe_boutiques SET frais_curseur = ${cur}::date WHERE id = ${boutiqueId}`;
     const retard = ((await sql`SELECT COUNT(*)::int AS n FROM starvibe_frais WHERE boutique_id = ${boutiqueId} AND statut IN ('a_payer', 'declare') AND created_at < now() - (${DELAI_PAUSE_JOURS} * interval '1 day')`) as { n: number }[])[0].n;
     if (retard > 0 && b.statut === "active") {
       await sql`UPDATE starvibe_boutiques SET statut = 'pause', pause_motif = 'frais' WHERE id = ${boutiqueId}`;

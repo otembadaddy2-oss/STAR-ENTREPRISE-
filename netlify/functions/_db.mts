@@ -674,7 +674,7 @@ export async function ensureSchema() {
   await sql`CREATE INDEX IF NOT EXISTS starvibe_messages_account_idx ON starvibe_messages (account_id, id DESC)`;
 
   // KOMYO BUSINESS — BOUTIQUES : le vendeur reçoit l'argent directement du client (Mobile Money) ; KOMYO enregistre la vente,
-  // envoie l'accusé de réception au client et la notification de vente au vendeur, et facture 500 FCFA par semaine AVEC ventes.
+  // envoie l'accusé de réception au client et la notification de vente au vendeur, et facture 500 FCFA CHAQUE semaine d'ouverture (avec ou sans vente ; la semaine d'ouverture est offerte).
   await sql`
     CREATE TABLE IF NOT EXISTS starvibe_boutiques (
       id SERIAL PRIMARY KEY,
@@ -689,6 +689,7 @@ export async function ensureSchema() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     )
   `;
+  await sql`ALTER TABLE starvibe_boutiques ADD COLUMN IF NOT EXISTS frais_curseur DATE`;   // lundi de la prochaine semaine à facturer
   await sql`
     CREATE TABLE IF NOT EXISTS starvibe_articles (
       id SERIAL PRIMARY KEY,

@@ -20,7 +20,7 @@
 <div class="wrap">
   <div id="etat" class="state">Chargement…</div>
   <div id="sortie" class="state" hidden>Tu n'es pas connecté.<br><a href="inscription.html?mode=login">Se connecter / Créer un compte</a></div>
-  <div id="pasBusiness" class="card" hidden><h2>Il te faut KOMYO Business</h2><p class="hint">Pour ouvrir une boutique, active l'abonnement Business (5 000 FCFA par mois). Ensuite, KOMYO ne prend que 500 FCFA par semaine, et seulement les semaines où tu as des ventes.</p><a class="btn block" href="abonnement.html">Voir l'abonnement Business</a></div>
+  <div id="pasBusiness" class="card" hidden><h2>Il te faut KOMYO Business</h2><p class="hint">Pour ouvrir une boutique, active l'abonnement Business (5 000 FCFA par mois). Ensuite, KOMYO prend 500 FCFA par semaine d'ouverture, avec ou sans vente (la semaine d'ouverture est offerte).</p><a class="btn block" href="abonnement.html">Voir l'abonnement Business</a></div>
 
   <div id="ouvrir" class="card" hidden>
     <h2>Ouvre ta boutique</h2>
@@ -107,7 +107,7 @@
   function renouv(d, paused){
     var dt = d.dette || { montant:0, semaines:0 }, ouvert = dt.montant > 0, ren = d.renouvellement;
     var e = $('rEtat'); e.textContent = ouvert ? 'Ouvert' : 'Fermé'; e.className = 'pill ' + (ouvert ? 'err' : 'ok');
-    $('rResume').textContent = ouvert ? 'Dette : ' + fc(dt.montant) + ' (' + dt.semaines + ' semaine' + (dt.semaines > 1 ? 's' : '') + ' de frais). Case ouverte : remplis-la pour renouveler.' : 'Fermé — pas de dette. Rien à renouveler.';
+    $('rResume').textContent = ouvert ? 'Dette : ' + fc(dt.montant) + ' (' + dt.semaines + ' semaine' + (dt.semaines > 1 ? 's' : '') + ' de frais, avec ou sans vente). Case ouverte : remplis-la pour renouveler.' : 'Fermé — pas de dette. Rien à renouveler.';
     $('rCocheTxt').textContent = 'Renouvellement dette : ' + fc(dt.montant);
     $('rForm').hidden = !ouvert || !!ren; $('rPaiement').hidden = !ren;
     if (ren){ renId = ren.id; $('rMontant').textContent = fc(ren.montant); $('rRef').textContent = ren.reference; $('btnPaye').disabled = ren.statut === 'declare'; if (ren.statut === 'declare'){ $('msgPaye').className = 'msg ok'; $('msgPaye').textContent = 'Merci ! L'+"'"+'équipe vérifie ton dépôt. Cette page se met à jour toute seule.'; } }
