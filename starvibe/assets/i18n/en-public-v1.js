@@ -356,6 +356,7 @@ I18N.add({
   "La chanson de 1 à 10": "The song from 1 to 10", "Comptons les poussins": "Let's count the chicks",
   "La chanson de 10 à 20": "The song from 10 to 20", "Comptons les fruits du marché": "Let's count the market fruits",
   "Compter de deux en deux": "Counting by twos", "Le grand jeu : de 1 à 20": "The big game: from 1 to 20",
+  "La chanson de 20 à 30": "The song from 20 to 30", "La chanson de 30 à 40": "The song from 30 to 40", "Le décollage : de 10 à 0": "Blast off: from 10 to 0", "Le grand jeu : de 1 à 40": "The big game: from 1 to 40",
   "La chanson de l'alphabet": "The alphabet song", "L'alphabet de A à E": "The alphabet from A to E",
   "L'alphabet de F à J": "The alphabet from F to J", "L'alphabet de K à O": "The alphabet from K to O",
   "L'alphabet de P à T": "The alphabet from P to T", "L'alphabet de U à Z": "The alphabet from U to Z",

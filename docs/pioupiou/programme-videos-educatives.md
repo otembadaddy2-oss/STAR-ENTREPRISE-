@@ -2,14 +2,14 @@
 
 Mis à jour le 30 octobre 2026. ☑ = terminé · ☐ = à faire. Âges : 3-4, 4-5, 5-6 ans (espace enfants 3-6 ans).
 
-**Avancement : 1 / 43 terminé.**
+**Avancement : 2 / 43 validés (A1, A2) ; A3 terminé, en attente de validation.**
 
 
 ## A · Routines de la journée
 
 - [x] **A1** — Bonjour papa, bonjour maman (60 s, 3-6 ans) — *terminé (version 2, parents visibles)*
 - [x] **A2** — Les dents du matin (75 s, 3-6 ans) — *terminé et validé (37 s, bouches synchronisées)*
-- [ ] **A3** — Les mains propres avant de manger (60 s, 3-6 ans)
+- [ ] **A3** — Les mains propres avant de manger (20 s, 3-6 ans) — *terminé, en attente de validation de Carry*
 - [ ] **A4** — Les mains propres après le repas (60 s, 3-6 ans)
 - [ ] **A5** — Merci ! (60 s, 3-6 ans)
 - [ ] **A6** — S'il te plaît (60 s, 3-6 ans)
