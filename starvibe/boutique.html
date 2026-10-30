@@ -38,6 +38,7 @@
     <div class="card"><div class="row2"><div><h2 id="bNom" style="margin:0"></h2><div class="mut" id="bVille"></div></div><span class="pill" id="bStatut"></span></div>
       <div class="mut" style="margin-top:8px">Ton numéro de paiement : <b id="bNum"></b></div>
       <a class="btn small light" id="bPublic" style="margin-top:10px" href="#">Voir ma boutique comme un client</a></div>
+    <div id="pauseBox" class="card" style="border-color:#b3261e" hidden><h3 style="color:#b3261e">⏸️ Ta boutique est en pause</h3><p class="hint" style="margin:0">Une facture KOMYO est impayée depuis plus de <span id="delaiPause">10</span> jours : tes clients ne peuvent plus commander. Remplis la case <b>Renouvellement</b> en bas de cette page pour la rouvrir.</p></div>
     <div id="fraisBox"></div>
     <div class="card"><h2>Commandes</h2><div id="cmdList"></div></div>
     <div class="card"><h2>Mes articles</h2><div id="artList"></div>
@@ -46,6 +47,20 @@
       <label class="lbl" for="aPrix">Prix (FCFA)</label><input type="number" id="aPrix" inputmode="numeric" min="100">
       <label class="lbl" for="aDesc">Description (facultatif)</label><input type="text" id="aDesc" maxlength="300">
       <button class="btn block" id="btnArt" style="margin-top:12px">Ajouter</button><div class="msg" id="msgArt"></div></div>
+    <div class="card" id="renouv" style="border-color:var(--gold)">
+      <div class="row2"><h2 style="margin:0">Renouvellement dette</h2><span class="pill" id="rEtat"></span></div>
+      <p class="hint" id="rResume" style="margin-top:8px"></p>
+      <div id="rForm" hidden>
+        <label class="lbl" for="rNom">Nom et prénom</label><input type="text" id="rNom" maxlength="80" autocomplete="name">
+        <label class="lbl" for="rAct">Tes activités</label><input type="text" id="rAct" maxlength="160" placeholder="Pagnes, sacs, coiffure…">
+        <label class="lbl" style="display:flex;gap:8px;align-items:flex-start;font-weight:600"><input type="checkbox" id="rCoche" style="margin-top:3px"><span id="rCocheTxt"></span></label>
+        <button class="btn block" id="btnRen" style="margin-top:12px">Continuer vers le paiement</button><div class="msg" id="msgRen"></div>
+      </div>
+      <div id="rPaiement" hidden>
+        <div class="box">Dépose <b id="rMontant"></b> par Mobile Money au <b>+242 06 656 50 50</b>, avec la référence <b id="rRef"></b>. Puis touche « J'ai payé ». Ne donne jamais ton code PIN.</div>
+        <button class="btn block" id="btnPaye">J'ai payé</button><div class="msg" id="msgPaye"></div>
+      </div>
+    </div>
   </div>
 </div>
 <script>
@@ -73,9 +88,10 @@
       $('ouvrir').hidden = true; $('maBoutique').hidden = false; var b = d.boutique;
       $('bNom').textContent = b.nom; $('bVille').textContent = b.ville || ''; $('bNum').textContent = b.numero_paiement; $('bPublic').href = 'boutiques.html?id=' + b.id;
       var st = $('bStatut'); st.textContent = b.statut === 'active' ? 'Ouverte' : 'En pause'; st.className = 'pill ' + (b.statut === 'active' ? 'ok' : 'err');
+      var paused = b.statut !== 'active'; $('pauseBox').hidden = !paused; if (d.delaiPauseJours) $('delaiPause').textContent = d.delaiPauseJours;
       var f = (d.frais || []).filter(function(z){ return z.statut === 'a_payer' || z.statut === 'declare'; });
-      $('fraisBox').innerHTML = f.map(function(z){ return '<div class="card" style="border-color:var(--gold)"><h3>Facture KOMYO ' + esc(z.reference) + ' · ' + fc(z.montant) + '</h3><p class="hint">Semaine du ' + esc(String(z.semaine).slice(0,10)) + ' : ' + z.ventes_n + ' vente(s). Paie par Mobile Money au <b>' + esc(d.numeroKomyo) + '</b> avec la référence <b>' + esc(z.reference) + '</b>. Sans paiement sous 7 jours, ta boutique est mise en pause.</p>' + (z.statut === 'a_payer' ? '<button class="btn block" data-frais="' + z.id + '">J\'ai payé</button>' : '<span class="pill warn">En attente de confirmation par l\'équipe</span>') + '</div>'; }).join('');
-      $('fraisBox').querySelectorAll('button[data-frais]').forEach(function(bt){ bt.addEventListener('click', function(){ bt.disabled = true; api({ action:'frais_declarer', fraisId:Number(bt.getAttribute('data-frais')) }).then(charge); }); });
+      $('fraisBox').innerHTML = f.length ? '<div class="card"><h3>Factures KOMYO à régler (' + f.length + ')</h3>' + f.map(function(z){ return '<div class="item row2"><div><b>' + esc(z.reference) + '</b><div class="mut">Semaine du ' + esc(String(z.semaine).slice(0,10)) + ' · ' + z.ventes_n + ' vente(s)</div></div><div class="prix">' + fc(z.montant) + '</div></div>'; }).join('') + '<p class="hint" style="margin:8px 0 0">Pour tout régler d'+"'"+'un coup, utilise la case « Renouvellement dette » en bas de la page. Pause automatique à ' + (d.delaiPauseJours || 10) + ' jours d'+"'"+'impayé.</p></div>' : '';
+      renouv(d, paused);
       var cs = d.commandes || [];
       $('cmdList').innerHTML = cs.length ? cs.map(function(c){ var s = STAT[c.statut] || [c.statut,'']; var l = (c.lignes || []).map(function(x){ return x.qte + ' × ' + esc(x.titre); }).join(', ');
         return '<div class="item"><div class="row2"><b>' + esc(c.reference) + ' · ' + fc(c.total) + '</b><span class="pill ' + s[1] + '">' + s[0] + '</span></div><div class="mut">' + l + (c.client ? ' — ' + esc(c.client) : '') + '</div>' +
@@ -87,6 +103,22 @@
       $('artList').querySelectorAll('[data-ret]').forEach(function(bt){ bt.addEventListener('click', function(){ bt.disabled = true; api({ action:'article_retirer', articleId:Number(bt.getAttribute('data-ret')) }).then(charge); }); });
     });
   }
+  var renId = null, sondage = null;
+  function renouv(d, paused){
+    var dt = d.dette || { montant:0, semaines:0 }, ouvert = dt.montant > 0, ren = d.renouvellement;
+    var e = $('rEtat'); e.textContent = ouvert ? 'Ouvert' : 'Fermé'; e.className = 'pill ' + (ouvert ? 'err' : 'ok');
+    $('rResume').textContent = ouvert ? 'Dette : ' + fc(dt.montant) + ' (' + dt.semaines + ' semaine' + (dt.semaines > 1 ? 's' : '') + ' de frais). Case ouverte : remplis-la pour renouveler.' : 'Fermé — pas de dette. Rien à renouveler.';
+    $('rCocheTxt').textContent = 'Renouvellement dette : ' + fc(dt.montant);
+    $('rForm').hidden = !ouvert || !!ren; $('rPaiement').hidden = !ren;
+    if (ren){ renId = ren.id; $('rMontant').textContent = fc(ren.montant); $('rRef').textContent = ren.reference; $('btnPaye').disabled = ren.statut === 'declare'; if (ren.statut === 'declare'){ $('msgPaye').className = 'msg ok'; $('msgPaye').textContent = 'Merci ! L'+"'"+'équipe vérifie ton dépôt. Cette page se met à jour toute seule.'; } }
+    if (paused && ouvert) $('renouv').scrollIntoView({ behavior:'smooth', block:'center' });
+    if (ren && !sondage) sondage = setInterval(function(){ api(null, '?ma=1').then(function(x){ if (x.d && x.d.dette && x.d.dette.montant === 0){ clearInterval(sondage); location.href = 'boutique.html'; } }); }, 8000);   // validé : il retrouve sa boutique
+  }
+  $('btnRen').addEventListener('click', function(){
+    var m = $('msgRen'); m.className = 'msg'; m.textContent = '';
+    api({ action:'renouveler', nomPrenom:$('rNom').value, activites:$('rAct').value, detteCochee:$('rCoche').checked }).then(function(x){ if (!x.ok){ m.className = 'msg err'; m.textContent = x.d.error || 'Impossible pour le moment.'; return; } charge(); });
+  });
+  $('btnPaye').addEventListener('click', function(){ $('btnPaye').disabled = true; api({ action:'renouveler_declarer', renId:renId }).then(charge); });
   $('btnOuvrir').addEventListener('click', function(){
     var m = $('msgOuvrir'); m.className = 'msg'; m.textContent = '';
     api({ action:'ouvrir', nom:$('fNom').value, ville:$('fVille').value, description:$('fDesc').value, numeroPaiement:$('fNum').value, services:Object.keys(choisis), accepte:$('fAccepte').checked }).then(function(x){

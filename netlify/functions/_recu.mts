@@ -10,7 +10,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { chiffres, indicatif } from "./_tel.mts";
 import { poster } from "./_msg.mts";
 
-export type KindRecu = "abo" | "keydou" | "pub" | "vente" | "frais";
+export type KindRecu = "abo" | "keydou" | "pub" | "vente" | "frais" | "renouv";
 export interface RecuInfo {
   titre: string;            // ce qui a été acheté
   montant: number;          // FCFA
@@ -241,4 +241,23 @@ export async function recuFrais(sql: Sql, fraisId: number): Promise<void> {
       reference: `FRS-${fraisId}`, methode: "mobile money",
     });
   } catch (e) { console.error("recuFrais", e); }
+}
+
+/** Reçu du renouvellement d'une boutique (dette de frais réglée). */
+export async function recuRenouvellement(sql: Sql, renId: number): Promise<void> {
+  try {
+    const r = ((await sql`
+      SELECT n.*, b.nom AS boutique_nom, b.account_id AS vendeur_id, a.telephone AS tel
+      FROM starvibe_renouvellements n JOIN starvibe_boutiques b ON b.id = n.boutique_id JOIN starvibe_accounts a ON a.id = b.account_id
+      WHERE n.id = ${renId} AND n.statut = 'valide' LIMIT 1
+    `) as Record<string, unknown>[])[0];
+    if (!r) return;
+    const nb = Array.isArray(r.frais_ids) ? (r.frais_ids as unknown[]).length : 0;
+    await emettre(sql, "renouv", renId, "client", Number(r.vendeur_id), String(r.tel || ""), {
+      titre: `Renouvellement de la boutique ${r.boutique_nom}`,
+      montant: Number(r.montant), payeLe: new Date(String(r.valide_at || r.created_at)),
+      detail: `dette de frais KOMYO Business réglée (${nb} semaine(s)) — ${r.nom_prenom}, ${r.activites}. Ta boutique est ouverte`,
+      reference: `RNV-${renId}`, methode: "mobile money",
+    });
+  } catch (e) { console.error("recuRenouvellement", e); }
 }

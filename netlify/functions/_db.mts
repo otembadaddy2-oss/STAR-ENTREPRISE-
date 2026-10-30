@@ -730,6 +730,22 @@ export async function ensureSchema() {
     )
   `;
 
+  // RENOUVELLEMENT d'une boutique (règlement de la dette de frais) : le vendeur remplit une petite fiche, déclare son dépôt, l'équipe valide.
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_renouvellements (
+      id SERIAL PRIMARY KEY,
+      boutique_id INTEGER NOT NULL REFERENCES starvibe_boutiques(id) ON DELETE CASCADE,
+      nom_prenom TEXT NOT NULL,
+      activites TEXT NOT NULL,
+      montant INTEGER NOT NULL,
+      frais_ids JSONB NOT NULL DEFAULT '[]'::jsonb,
+      statut TEXT NOT NULL DEFAULT 'a_payer',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      declare_at TIMESTAMPTZ,
+      valide_at TIMESTAMPTZ
+    )
+  `;
+
   // ÉCLAT (le direct de KOMYO) : liste d'attente en attendant le vrai direct
   await sql`
     CREATE TABLE IF NOT EXISTS starvibe_eclat_attente (

@@ -82,6 +82,9 @@
   <div class="topbar" style="margin-top:26px"><div><h1>Annonces KOMYO</h1><div class="tag">2 semaines 4 000 FCFA · 1 mois 10 000 FCFA — lis le message avant de confirmer</div></div></div>
   <div id="pubList"></div>
   <div class="empty" id="pubEmpty" hidden>Aucune annonce en attente.</div>
+  <div class="topbar" style="margin-top:26px"><div><h1>Renouvellements boutiques</h1><div class="tag">Le vendeur a déposé sa dette au +242 06 656 50 50 — valide quand tu vois le dépôt</div></div></div>
+  <div id="renList"></div>
+  <div class="empty" id="renEmpty" hidden>Aucun renouvellement en attente.</div>
   <div class="topbar" style="margin-top:26px"><div><h1>Frais boutiques</h1><div class="tag">500 FCFA par semaine avec ventes — confirme quand tu vois le dépôt</div></div></div>
   <div id="fraisList"></div>
   <div class="empty" id="fraisEmpty" hidden>Aucun frais à confirmer.</div>
@@ -311,6 +314,13 @@
   function loadBoutiques(){
     authFetch(API_BOUT + '?admin=1').then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
       if (!d) return;
+      var rl = document.getElementById('renList'); rl.innerHTML = ''; document.getElementById('renEmpty').hidden = (d.renouvellements || []).length > 0;
+      (d.renouvellements || []).forEach(function(n){
+        var it = document.createElement('div'); it.className = 'item';
+        it.innerHTML = '<div><b>' + escH(n.reference) + '</b> · ' + escH(n.nom) + ' · ' + Number(n.montant).toLocaleString('fr-FR') + ' FCFA</div><div class="tag">' + escH(n.nom_prenom) + ' · ' + escH(n.activites) + ' · ' + (n.statut === 'declare' ? '💬 le vendeur dit avoir payé' : '⏳ pas encore déclaré') + '</div><div style="margin-top:8px"><button class="btn-primary">Dépôt reçu : valider et rouvrir la boutique</button></div>';
+        it.querySelector('button').addEventListener('click', function(ev){ ev.target.disabled = true; authFetch(API_BOUT, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'renouveler_confirmer', renId:n.id }) }).then(function(){ loadBoutiques(); }); });
+        rl.appendChild(it);
+      });
       var fl = document.getElementById('fraisList'); fl.innerHTML = ''; document.getElementById('fraisEmpty').hidden = (d.frais || []).length > 0;
       (d.frais || []).forEach(function(f){
         var it = document.createElement('div'); it.className = 'item';

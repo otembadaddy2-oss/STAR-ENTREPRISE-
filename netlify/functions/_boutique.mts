@@ -5,14 +5,17 @@
 //  - le client commande, paie LE VENDEUR directement par Mobile Money (KOMYO ne touche pas l'argent des ventes),
 //    puis le vendeur confirme la réception ; à cet instant le client reçoit son ACCUSÉ DE RÉCEPTION dans sa messagerie KOMYO
 //    et le vendeur sa notification de vente ;
-//  - KOMYO facture 500 FCFA par semaine AVEC ventes (semaine = lundi à dimanche, heure de Brazzaville), payable au +242 06 656 50 50
-//    et confirmé par l'équipe. Non payé 7 jours après l'échéance : la boutique est mise en pause, puis rouverte au paiement.
+//  - KOMYO facture 500 FCFA par semaine AVEC ventes (semaine = lundi à dimanche, heure de Brazzaville), payable au +242 06 656 50 50.
+//    Une semaine pour payer, puis 3 jours de plus : à 10 jours d'impayé, la boutique est mise en pause automatiquement.
+//    Elle ne rouvre que par le RENOUVELLEMENT : le vendeur remplit une petite fiche (nom et prénom, activités, dette affichée), dépose le montant,
+//    l'équipe valide, la boutique rouvre et il retrouve sa page. Case « Renouvellement dette » : Ouvert = il y a une dette ; Fermé = pas de dette.
 import { poster } from "./_msg.mts";
-import { recuVente, recuFrais } from "./_recu.mts";
+import { recuVente, recuFrais, recuRenouvellement } from "./_recu.mts";
 
 // deno-lint-ignore no-explicit-any
 type Sql = any;
 export const FRAIS_SEMAINE = 500;
+export const DELAI_PAUSE_JOURS = 10;   // 1 semaine pour payer + 3 jours
 export const NUMERO_KOMYO = "+242 06 656 50 50";
 export const SERVICES_BOUTIQUE: Record<string, string> = {
   alimentation: "Alimentation et restauration", mode: "Mode et vêtements", beaute: "Beauté et coiffure", maison: "Maison et décoration",
@@ -162,13 +165,13 @@ export async function genererFrais(sql: Sql, boutiqueId: number): Promise<void> 
       `) as { id: number }[];
       if (ins[0]) await poster(sql, Number(b.account_id), {
         kind: "frais", titre: `🧾 Facture KOMYO Business FRS-${ins[0].id} — ${FRAIS_SEMAINE} FCFA`,
-        texte: `Semaine du ${sem} : ${w.n} vente(s) pour ${fcfa(w.total)} FCFA. Frais KOMYO : ${FRAIS_SEMAINE} FCFA (seulement les semaines avec ventes). Paie par Mobile Money au ${NUMERO_KOMYO} avec la référence FRS-${ins[0].id}, puis touche « J'ai payé » dans Ma boutique. Sans paiement sous 7 jours, ta boutique est mise en pause (tes clients ne peuvent plus commander) jusqu'au règlement.`,
+        texte: `Semaine du ${sem} : ${w.n} vente(s) pour ${fcfa(w.total)} FCFA. Frais KOMYO : ${FRAIS_SEMAINE} FCFA (seulement les semaines avec ventes). Règle toute ta dette d'un coup avec « Renouvellement » en bas de Ma boutique (dépôt Mobile Money au ${NUMERO_KOMYO}). Sans paiement sous ${DELAI_PAUSE_JOURS} jours (1 semaine + 3 jours), ta boutique est mise en pause automatiquement. Pour la rouvrir : « Renouvellement » en bas de Ma boutique.`,
       });
     }
-    const retard = ((await sql`SELECT COUNT(*)::int AS n FROM starvibe_frais WHERE boutique_id = ${boutiqueId} AND statut IN ('a_payer', 'declare') AND created_at < now() - interval '7 days'`) as { n: number }[])[0].n;
+    const retard = ((await sql`SELECT COUNT(*)::int AS n FROM starvibe_frais WHERE boutique_id = ${boutiqueId} AND statut IN ('a_payer', 'declare') AND created_at < now() - (${DELAI_PAUSE_JOURS} * interval '1 day')`) as { n: number }[])[0].n;
     if (retard > 0 && b.statut === "active") {
       await sql`UPDATE starvibe_boutiques SET statut = 'pause', pause_motif = 'frais' WHERE id = ${boutiqueId}`;
-      await poster(sql, Number(b.account_id), { kind: "frais", titre: "⏸️ Ta boutique est en pause", texte: `Une facture KOMYO de ${FRAIS_SEMAINE} FCFA n'est pas réglée depuis plus de 7 jours. Paie-la au ${NUMERO_KOMYO} : ta boutique rouvre dès que l'équipe confirme.` });
+      await poster(sql, Number(b.account_id), { kind: "frais", titre: "⏸️ Ta boutique est en pause", texte: `Une facture KOMYO n'est pas réglée depuis plus de ${DELAI_PAUSE_JOURS} jours. Ouvre « Ma boutique », remplis la case « Renouvellement » et dépose ta dette au ${NUMERO_KOMYO} : ta boutique rouvre dès que l'équipe valide, et tu retrouves ta page.` });
     } else if (retard === 0 && b.statut === "pause" && b.pause_motif === "frais") {
       await sql`UPDATE starvibe_boutiques SET statut = 'active', pause_motif = '' WHERE id = ${boutiqueId}`;
       await poster(sql, Number(b.account_id), { kind: "boutique", titre: "✅ Ta boutique est rouverte", texte: "Merci ! Tes clients peuvent de nouveau commander." });
@@ -186,5 +189,48 @@ export async function confirmerFrais(sql: Sql, fraisId: number): Promise<R<null>
   if (!f) return non("Facture introuvable ou déjà réglée.", 404);
   await recuFrais(sql, fraisId);
   await genererFrais(sql, f.boutique_id);   // rouvre la boutique si c'était la seule facture en retard
+  return { ok: true, data: null };
+}
+
+
+// ---------- renouvellement (règlement de la dette) ----------
+
+export async function dette(sql: Sql, boutiqueId: number): Promise<{ montant: number; semaines: number; fraisIds: number[] }> {
+  const r = (await sql`SELECT id, montant FROM starvibe_frais WHERE boutique_id = ${boutiqueId} AND statut IN ('a_payer', 'declare') ORDER BY id`) as { id: number; montant: number }[];
+  return { montant: r.reduce((t, x) => t + Number(x.montant), 0), semaines: r.length, fraisIds: r.map((x) => x.id) };
+}
+
+/** Le vendeur remplit la fiche de renouvellement : nom et prénom, activités, case « dette » cochée. Crée la demande avec le montant de la dette. */
+export async function demanderRenouvellement(sql: Sql, vendeurId: number, f: Record<string, unknown>): Promise<R<{ id: number; reference: string; montant: number; numeroKomyo: string }>> {
+  const b = ((await sql`SELECT id FROM starvibe_boutiques WHERE account_id = ${vendeurId} LIMIT 1`) as { id: number }[])[0];
+  if (!b) return non("Tu n'as pas de boutique.", 404);
+  await genererFrais(sql, b.id);
+  const d = await dette(sql, b.id);
+  if (d.montant === 0) return non("Pas de dette : rien à renouveler.", 409);
+  const nom = propre(f.nomPrenom, 80), act = propre(f.activites, 160);
+  if (nom.length < 3) return non("Écris ton nom et ton prénom.");
+  if (act.length < 3) return non("Écris tes activités.");
+  if (f.detteCochee !== true) return non(`Coche « Renouvellement dette : ${fcfa(d.montant)} FCFA ».`);
+  await sql`UPDATE starvibe_renouvellements SET statut = 'annule' WHERE boutique_id = ${b.id} AND statut IN ('a_payer', 'declare')`;   // une seule demande ouverte
+  const r = (await sql`INSERT INTO starvibe_renouvellements (boutique_id, nom_prenom, activites, montant, frais_ids) VALUES (${b.id}, ${nom}, ${act}, ${d.montant}, ${JSON.stringify(d.fraisIds)}::jsonb) RETURNING id`) as { id: number }[];
+  return { ok: true, data: { id: r[0].id, reference: `RNV-${r[0].id}`, montant: d.montant, numeroKomyo: NUMERO_KOMYO } };
+}
+
+export async function declarerRenouvellement(sql: Sql, vendeurId: number, renId: number): Promise<R<null>> {
+  const r = (await sql`
+    UPDATE starvibe_renouvellements SET statut = 'declare', declare_at = now()
+    WHERE id = ${renId} AND statut = 'a_payer' AND boutique_id IN (SELECT id FROM starvibe_boutiques WHERE account_id = ${vendeurId}) RETURNING id
+  `) as unknown[];
+  return r.length ? { ok: true, data: null } : non("Demande introuvable ou déjà traitée.", 404);
+}
+
+/** L'équipe valide le dépôt : les frais de la demande sont réglés, la boutique rouvre, le vendeur reçoit son reçu. */
+export async function confirmerRenouvellement(sql: Sql, renId: number): Promise<R<null>> {
+  const n = ((await sql`UPDATE starvibe_renouvellements SET statut = 'valide', valide_at = now() WHERE id = ${renId} AND statut IN ('a_payer', 'declare') RETURNING boutique_id, frais_ids`) as { boutique_id: number; frais_ids: number[] }[])[0];
+  if (!n) return non("Demande introuvable ou déjà traitée.", 404);
+  const ids = Array.isArray(n.frais_ids) ? n.frais_ids.map(Number) : [];
+  for (const id of ids) await sql`UPDATE starvibe_frais SET statut = 'paye', paid_at = now() WHERE id = ${id} AND boutique_id = ${n.boutique_id} AND statut IN ('a_payer', 'declare')`;
+  await recuRenouvellement(sql, renId);
+  await genererFrais(sql, n.boutique_id);   // rouvre la boutique : plus de dette en retard
   return { ok: true, data: null };
 }
