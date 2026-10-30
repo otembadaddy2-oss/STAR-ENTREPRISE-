@@ -110,6 +110,10 @@
   .field input,.field select,.field textarea{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13.5px;font-family:'Inter',sans-serif;color:var(--navy);background:#fff;}
   .field textarea{min-height:64px;resize:vertical;}
   .errmsg{font-size:12px;color:var(--err);margin-top:8px;}
+  .suite{margin-top:16px;padding:14px;border-radius:16px;background:#fff7e6;border:1px solid #f1d9a8;text-align:left;}
+  .suite h3{font-family:'Sora',sans-serif;font-size:14px;margin:0 0 6px;}
+  .suite p{font-size:13px;margin:0 0 8px;line-height:1.45;}
+  .suite a{font-weight:700;color:var(--coral);text-decoration:none;}
   .okbox{text-align:center;padding:6px 0;}
   .okbox .big{font-family:'Sora',sans-serif;font-weight:800;font-size:16px;margin-bottom:6px;}
   .state{text-align:center;padding:60px 20px;font-size:13px;color:var(--text-dim);}
@@ -908,6 +912,9 @@
         (g.lieux.length > SHOW ? '<button class="btn more" data-g="' + gi + '">Voir les ' + (g.lieux.length - SHOW) + ' autres</button>' : '') +
         (!g.lieux.length ? '<div class="preview">Rien d\'enregistré pour ce besoin dans cette ville : mon équipe cherche pour vous.</div>' : '') + '</div>';
     });
+    html += '<div class="suite"><h3>Pour aller plus loin avec KOMYO</h3>' +
+      '<p>Vous avez un commerce, une musique ou un événement ? Faites-vous connaître de tous les abonnés : annonce visible par tous dès <b>2 000 FCFA</b> (1 semaine). <a href="tarifs.html">Voir les offres</a></p>' +
+      '<p>Des enfants de 3 à 6 ans ? <b>Famille PIOUPIOU</b> : dessins animés éducatifs, <b>1 500 FCFA par mois</b>. <a href="tarifs.html">Découvrir</a></p></div>';
     html += '<button class="btn main block" id="btnFin" style="margin-top:14px">Terminer</button>';
     r.innerHTML = html;
     r.querySelectorAll('button.more').forEach(function(b){ b.addEventListener('click', function(){
