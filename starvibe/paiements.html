@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="assets/i18n-v1.js"></script>
 <title>KOMYO — Paiements en attente</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#050B18">
@@ -71,10 +72,27 @@
 <div id="queueView" class="wrap" hidden>
   <div class="topbar">
     <div><h1>Paiements KOMYO</h1><div class="tag">En attente de confirmation</div></div>
-    <button class="logout" id="btnLogout">Déconnexion</button>
+    <div style="display:flex;gap:8px;align-items:center"><a class="logout" href="keydou-admin.html" style="text-decoration:none;display:inline-flex;align-items:center">← Backend</a><button class="logout" id="btnLogout">Déconnexion</button></div>
   </div>
   <div id="queueList"></div>
   <div class="empty" id="emptyQueue" hidden>Aucun paiement en attente.</div>
+  <div class="topbar" style="margin-top:26px"><div><h1>Demandes Keydou</h1><div class="tag">1 000 FCFA par service</div></div><a href="keydou-admin.html" class="logout" style="text-decoration:none">Suivi en direct + Excel →</a></div>
+  <div id="kdList"></div>
+  <div class="empty" id="kdEmpty" hidden>Aucune demande Keydou en cours.</div>
+  <div class="topbar" style="margin-top:26px"><div><h1>Annonces KOMYO</h1><div class="tag">2 semaines 4 000 FCFA · 1 mois 10 000 FCFA — lis le message avant de confirmer</div></div></div>
+  <div id="pubList"></div>
+  <div class="empty" id="pubEmpty" hidden>Aucune annonce en attente.</div>
+  <div class="topbar" style="margin-top:26px"><div><h1>Renouvellements boutiques</h1><div class="tag">Le vendeur a déposé sa dette au +242 06 656 50 50 — valide quand tu vois le dépôt</div></div></div>
+  <div id="renList"></div>
+  <div class="empty" id="renEmpty" hidden>Aucun renouvellement en attente.</div>
+  <div class="topbar" style="margin-top:26px"><div><h1>Frais boutiques</h1><div class="tag">500 FCFA chaque semaine d'ouverture, avec ou sans vente — confirme quand tu vois le dépôt</div></div></div>
+  <div id="fraisList"></div>
+  <div class="empty" id="fraisEmpty" hidden>Aucun frais à confirmer.</div>
+  <div class="topbar" style="margin-top:26px"><div><h1>Boutiques</h1><div class="tag">Mettre en pause en cas de plainte</div></div></div>
+  <div id="boutList"></div>
+  <div class="topbar" style="margin-top:26px"><div><h1>Reçus (messagerie KOMYO)</h1><div class="tag" id="recuTag">Envoyés à chaque paiement confirmé</div></div></div>
+  <div id="recuList"></div>
+  <div class="empty" id="recuEmpty" hidden>Aucun reçu pour le moment.</div>
 </div>
 
 <script>
@@ -82,6 +100,7 @@
   var TOKEN_KEY = 'starvibe_admin_token';
   var API_AUTH = '/api/auth';
   var API_SUB = '/api/starvibe-subscription';
+  var API_KD = '/api/starvibe-keydou';
 
   var loginView = document.getElementById('loginView');
   var queueView = document.getElementById('queueView');
@@ -142,8 +161,9 @@
     var item = document.createElement('div');
     item.className = 'item';
     item.innerHTML =
-      '<div class="top"><div class="plan">' + d.plan + '</div><div class="amount">' + d.montantAttendu.toLocaleString('fr-FR') + ' FCFA</div></div>' +
-      '<div class="meta"><b>' + d.auteur + '</b> — ' + d.telephone + ' — réf. ' + d.referencePaiement + '</div>' +
+      '<div class="top"><div class="plan">' + esc(d.plan) + '</div><div class="amount">' + d.montantAttendu.toLocaleString('fr-FR') + ' FCFA</div></div>' +
+      '<div class="meta"><b>' + esc(d.auteur) + '</b> — ' + esc(d.telephone) + ' — réf. ' + esc(d.referencePaiement) + '</div>' +
+      (d.payeurTelephone ? '<div class="meta">🎁 Payé par un autre membre : <b>' + esc(d.payeurTelephone) + '</b>' + (d.beneficiaireNom ? ' — pour l\'enfant : ' + esc(d.beneficiaireNom) : '') + '</div>' : '') +
       '<div class="confirm-row">' +
         '<input type="number" placeholder="Montant reçu (FCFA)" id="montant-' + d.id + '">' +
         '<button data-approve>Confirmer</button>' +
@@ -177,7 +197,149 @@
     return item;
   }
 
+
+  function esc(x){ return String(x == null ? '' : x).replace(/[&<>"']/g, function(c){ return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]; }); }
+
+  // Demandes Keydou : à confirmer (paiement) puis à traiter (coordonnées reçues)
+  function kdItem(d, aTraiter){
+    var item = document.createElement('div');
+    item.className = 'item';
+    var det = d.details || {};
+    var html =
+      '<div class="top"><div class="plan">' + esc(d.serviceLabel) + (d.paiementDeclare && !aTraiter ? ' <span style="color:#6fd6ab;font-size:11px">· « j\'ai payé »</span>' : '') + '</div><div class="amount">' + d.montantAttendu.toLocaleString('fr-FR') + ' FCFA</div></div>' +
+      '<div class="meta"><b>' + esc(d.auteur) + '</b> — ' + esc(d.telephone) + ' — réf. ' + esc(d.referencePaiement) + (d.demandeVocale ? '<br>Dit : « ' + esc(d.demandeVocale) + ' »' : '') + '</div>';
+    if (aTraiter){
+      html += '<div class="meta">' +
+        (det.nom ? '<b>' + esc(det.nom) + '</b> — ' + esc(det.contact) + '<br>' + esc(det.ville) + (det.lieu ? ', ' + esc(det.lieu) : '') + '<br>Date : ' + esc(det.date || '—') + ' · Budget : ' + esc(det.budget || '—') + (det.precisions ? '<br>' + esc(det.precisions) : '') : '<i>Payé, coordonnées pas encore saisies par le client.</i>') +
+        '</div><div class="confirm-row"><button data-done>Marquer comme traité</button></div>';
+    } else {
+      html += '<div class="confirm-row"><input type="number" placeholder="Montant reçu (FCFA)" data-m><button data-ok>Confirmer</button></div><div class="itemerr"></div>';
+    }
+    item.innerHTML = html;
+    var err = item.querySelector('.itemerr');
+    var ok = item.querySelector('[data-ok]');
+    if (ok) ok.addEventListener('click', function(){
+      var m = Number(item.querySelector('[data-m]').value);
+      if (!m){ err.textContent = 'Indique le montant reçu.'; err.classList.add('show'); return; }
+      item.classList.add('processing');
+      authFetch(API_KD, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'confirmer_paiement', requestId:Number(d.id), montantRecu:m, reference:d.referencePaiement }) })
+        .then(function(r){ return r.json(); }).then(function(res){
+          item.classList.remove('processing');
+          if (res.statut !== 'paye'){ err.textContent = res.message || res.error || 'Paiement rejeté.'; err.classList.add('show'); return; }
+          loadKd();
+        });
+    });
+    var dn = item.querySelector('[data-done]');
+    if (dn) dn.addEventListener('click', function(){
+      item.classList.add('processing');
+      authFetch(API_KD, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'marquer_traite', requestId:Number(d.id) }) }).then(function(){ loadKd(); });
+    });
+    return item;
+  }
+  function loadKd(){
+    authFetch(API_KD + '?admin=1').then(function(r){ return r.status === 403 ? null : r.json(); }).then(function(data){
+      var box = document.getElementById('kdList'); box.innerHTML = '';
+      if (!data){ return; }
+      var a = data.aConfirmer || [], t = data.aTraiter || [];
+      document.getElementById('kdEmpty').hidden = (a.length + t.length) > 0;
+      a.forEach(function(d){ box.appendChild(kdItem(d, false)); });
+      t.forEach(function(d){ box.appendChild(kdItem(d, true)); });
+    });
+  }
+
+  // Annonces KOMYO : relire le message, puis confirmer le paiement (montant exact) ou refuser
+  var API_PUB = '/api/starvibe-pub';
+  function pubItem(d){
+    var item = document.createElement('div'); item.className = 'item';
+    item.innerHTML =
+      '<div class="top"><div class="plan">' + esc(d.planLabel) + ' · ' + esc(d.categorie) + '</div><div class="amount">' + d.montantAttendu.toLocaleString('fr-FR') + ' FCFA</div></div>' +
+      '<div class="meta" style="font-size:15px;color:#fff"><b>« ' + esc(d.texte) + ' »</b></div>' +
+      '<div class="meta"><b>' + esc(d.auteur) + '</b> — ' + esc(d.telephone) + ' — réf. ' + esc(d.referencePaiement) + (d.lien ? '<br>Lien : ' + esc(d.lien) : '') + '</div>' +
+      '<div class="confirm-row"><input type="number" placeholder="Montant reçu (FCFA)" data-m><button data-ok>Confirmer et publier</button><button data-no style="background:#5a2a2a">Refuser</button></div><div class="itemerr"></div>';
+    var err = item.querySelector('.itemerr');
+    item.querySelector('[data-ok]').addEventListener('click', function(){
+      var m = Number(item.querySelector('[data-m]').value);
+      if (!m){ err.textContent = 'Indique le montant reçu.'; err.classList.add('show'); return; }
+      item.classList.add('processing');
+      authFetch(API_PUB, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'confirmer', pubId:d.id, montantRecu:m, reference:d.referencePaiement }) }).then(function(r){ return r.json(); }).then(function(res){
+        item.classList.remove('processing');
+        if (res.statut !== 'actif'){ err.textContent = res.message || res.error || 'Montant incorrect : annonce non activée.'; err.classList.add('show'); return; }
+        loadPub();
+      });
+    });
+    item.querySelector('[data-no]').addEventListener('click', function(){
+      var motif = prompt('Motif du refus (visible par la personne) :', 'Message non conforme') || ''; if (!motif) return;
+      item.classList.add('processing');
+      authFetch(API_PUB, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'refuser', pubId:d.id, motif:motif }) }).then(function(){ loadPub(); });
+    });
+    return item;
+  }
+  function loadPub(){
+    authFetch(API_PUB + '?admin=1').then(function(r){ return r.status === 403 ? null : r.json(); }).then(function(data){
+      var box = document.getElementById('pubList'); box.innerHTML = ''; if (!data) return;
+      var a = data.annonces || []; document.getElementById('pubEmpty').hidden = a.length > 0;
+      a.forEach(function(d){ box.appendChild(pubItem(d)); });
+    });
+  }
+
+  var API_RECU = '/api/starvibe-recus';
+  function escH(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  var ETAT = { messagerie:'✅ Dans la messagerie KOMYO', envoye:'✅ Envoyé sur WhatsApp', envoye_manuel:'✅ Envoyé à la main', a_envoyer:'⏳ À envoyer', echec:'⚠️ Échec', sans_numero:'❌ Sans numéro' };
+  function loadRecus(){
+    authFetch(API_RECU + '?staff=1').then(function(r){ return r.ok ? r.json() : null; }).then(function(data){
+      var box = document.getElementById('recuList'); box.innerHTML = ''; if (!data) return;
+      document.getElementById('recuTag').textContent = data.auto ? 'Envoi WhatsApp automatique activé en plus de la messagerie' : 'Chaque reçu arrive dans la messagerie KOMYO ; tu peux aussi l\'envoyer sur WhatsApp en un geste';
+      var a = data.recus || []; document.getElementById('recuEmpty').hidden = a.length > 0;
+      a.forEach(function(d){
+        var it = document.createElement('div'); it.className = 'item';
+        var ok = d.statut === 'envoye' || d.statut === 'envoye_manuel';
+        it.innerHTML = '<div><b>' + escH(d.numero) + '</b> · ' + escH(d.titre) + ' · ' + Number(d.montant).toLocaleString('fr-FR') + ' FCFA</div>' +
+          '<div class="tag">' + escH(d.telephone || '—') + ' · ' + escH(ETAT[d.statut] || d.statut) + (d.erreur ? ' · ' + escH(d.erreur) : '') + '</div>' +
+          (ok ? '' : '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">' +
+            (d.lienWhatsApp ? '<a class="btn-primary" style="text-decoration:none;display:inline-block;padding:8px 12px" target="_blank" rel="noopener" href="' + escH(d.lienWhatsApp) + '" data-id="' + d.id + '">Envoyer aussi sur WhatsApp (gratuit)</a>' : '') +
+            (data.auto && d.telephone ? '<button class="btn-primary" data-re="' + d.id + '">Réessayer l\'envoi auto</button>' : '') + '</div>');
+        it.querySelectorAll('a[data-id]').forEach(function(a){ a.addEventListener('click', function(){
+          authFetch(API_RECU, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'marque_envoye', id:Number(a.getAttribute('data-id')) }) }).then(function(){ setTimeout(loadRecus, 1500); });
+        }); });
+        it.querySelectorAll('button[data-re]').forEach(function(b){ b.addEventListener('click', function(){
+          b.disabled = true;
+          authFetch(API_RECU, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'renvoyer', id:Number(b.getAttribute('data-re')) }) }).then(function(){ loadRecus(); });
+        }); });
+        box.appendChild(it);
+      });
+    });
+  }
+
+  var API_BOUT = '/api/starvibe-boutique';
+  function loadBoutiques(){
+    authFetch(API_BOUT + '?admin=1').then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+      if (!d) return;
+      var rl = document.getElementById('renList'); rl.innerHTML = ''; document.getElementById('renEmpty').hidden = (d.renouvellements || []).length > 0;
+      (d.renouvellements || []).forEach(function(n){
+        var it = document.createElement('div'); it.className = 'item';
+        it.innerHTML = '<div><b>' + escH(n.reference) + '</b> · ' + escH(n.nom) + ' · ' + Number(n.montant).toLocaleString('fr-FR') + ' FCFA</div><div class="tag">' + escH(n.nom_prenom) + ' · ' + escH(n.activites) + ' · ' + (n.statut === 'declare' ? '💬 le vendeur dit avoir payé' : '⏳ pas encore déclaré') + '</div><div style="margin-top:8px"><button class="btn-primary">Dépôt reçu : valider et rouvrir la boutique</button></div>';
+        it.querySelector('button').addEventListener('click', function(ev){ ev.target.disabled = true; authFetch(API_BOUT, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'renouveler_confirmer', renId:n.id }) }).then(function(){ loadBoutiques(); }); });
+        rl.appendChild(it);
+      });
+      var fl = document.getElementById('fraisList'); fl.innerHTML = ''; document.getElementById('fraisEmpty').hidden = (d.frais || []).length > 0;
+      (d.frais || []).forEach(function(f){
+        var it = document.createElement('div'); it.className = 'item';
+        it.innerHTML = '<div><b>' + escH(f.reference) + '</b> · ' + escH(f.nom) + ' · ' + Number(f.montant).toLocaleString('fr-FR') + ' FCFA</div><div class="tag">Semaine du ' + escH(String(f.semaine).slice(0,10)) + ' · ' + f.ventes_n + ' vente(s) · ' + (f.statut === 'declare' ? '💬 le vendeur dit avoir payé' : '⏳ en attente') + '</div><div style="margin-top:8px"><button class="btn-primary" data-fc="' + f.id + '">Paiement reçu : confirmer</button></div>';
+        it.querySelector('button').addEventListener('click', function(ev){ ev.target.disabled = true; authFetch(API_BOUT, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'frais_confirmer', fraisId:f.id }) }).then(function(){ loadBoutiques(); }); });
+        fl.appendChild(it);
+      });
+      var bl = document.getElementById('boutList'); bl.innerHTML = '';
+      (d.boutiques || []).forEach(function(b){
+        var it = document.createElement('div'); it.className = 'item'; var active = b.statut === 'active';
+        it.innerHTML = '<div><b>' + escH(b.nom) + '</b> · ' + escH(b.ville || '') + '</div><div class="tag">' + (active ? '✅ ouverte' : '⏸️ en pause (' + escH(b.pause_motif || '') + ')') + '</div><div style="margin-top:8px"><button class="btn-primary" style="background:#444">' + (active ? 'Mettre en pause' : 'Rouvrir') + '</button></div>';
+        it.querySelector('button').addEventListener('click', function(ev){ ev.target.disabled = true; authFetch(API_BOUT, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action: active ? 'pause' : 'reactiver', boutiqueId:b.id }) }).then(function(){ loadBoutiques(); }); });
+        bl.appendChild(it);
+      });
+    });
+  }
+
   function loadQueue(){
+    loadKd(); loadPub(); loadRecus(); loadBoutiques();
     authFetch(API_SUB + '?admin=1').then(function(res){
       if (res.status === 403){ setToken(''); showLogin(); return null; }
       return res.json();
@@ -193,5 +355,7 @@
   if (getToken()) showQueue(); else showLogin();
 })();
 </script>
+<script src="/assets/js/oeil-mdp-v2.js" defer></script>
+<script src="assets/retour-backend-v1.js" defer></script>
 </body>
 </html>

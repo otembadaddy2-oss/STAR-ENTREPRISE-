@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="assets/i18n-v1.js"></script>
 <title>KOMYO — Créer mon compte</title>
-<meta name="description" content="Crée ton vrai compte KOMYO — numéro de téléphone et code PIN, comme ton Mobile Money.">
+<meta name="description" content="Crée ton vrai compte KOMYO — numéro de téléphone et un code PIN que tu inventes, sans Mobile Money.">
 <meta name="theme-color" content="#FFFBF3">
-<link rel="icon" href="../assets/img/icons/favicon-star-rounded-v1.png" type="image/png">
+<link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -116,15 +117,22 @@
 
   [hidden]{display:none!important;}
 </style>
+<link rel="manifest" href="manifest-komyo.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KOMYO">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="assets/img/icons/komyo-apple-180-v2.png">
+<link rel="stylesheet" href="assets/komyo-bureau-v1.css" media="(min-width:1000px)">
 </head>
-<body>
+<body class="pg-inscription">
 
 <div class="hero">
-  <img src="https://images.unsplash.com/photo-1751580471264-7f8cd53d82d8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="">
-  <img src="https://images.unsplash.com/photo-1778894926879-07308f00c4a9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="">
-  <img src="https://images.unsplash.com/photo-1600682806492-b2a020079ae0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="">
+  <img src="https://images.unsplash.com/photo-1751580471264-7f8cd53d82d8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=72&w=720" alt="">
+  <img src="https://images.unsplash.com/photo-1778894926879-07308f00c4a9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=72&w=720" alt="">
+  <img src="https://images.unsplash.com/photo-1600682806492-b2a020079ae0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=72&w=720" alt="">
   <div class="hero-content">
-    <div class="hero-icon"><img src="assets/img/komyo-icon.png" alt="KOMYO"></div>
+    <div class="hero-icon"><img src="assets/img/icons/komyo-192-v2.png" alt="KOMYO"></div>
     <div class="hero-title">KOMYO</div>
     <div class="hero-sub">Apprendre • Créer • Partager</div>
   </div>
@@ -144,15 +152,15 @@
       <form id="regForm">
         <div class="field">
           <label for="fTelephone">Numéro de téléphone</label>
-          <input type="tel" id="fTelephone" placeholder="+242 06 ..." autocomplete="tel" required>
+          <input type="tel" id="fTelephone" placeholder="Avec l'indicatif, ex. +33 6 12 34 56 78" autocomplete="tel" required>
+        </div>
+
+        <div class="field" id="fieldNom">
+          <label for="fNom" id="lblNom">Nom complet</label>
+          <input type="text" id="fNom" placeholder="Ton nom" autocomplete="name">
         </div>
 
         <div id="registerOnlyFields">
-          <div class="field">
-            <label for="fNom">Nom complet</label>
-            <input type="text" id="fNom" placeholder="Ton nom" autocomplete="name">
-          </div>
-
           <div class="field">
             <label for="fDateNaissance">Date de naissance</label>
             <input type="date" id="fDateNaissance">
@@ -160,40 +168,71 @@
 
           <div class="field">
             <label for="fVille">Ville</label>
-            <select id="fVille">
-              <option value="">Choisir...</option>
-              <option>Brazzaville</option>
-              <option>Pointe-Noire</option>
-              <option>Autre ville</option>
-            </select>
+            <input type="text" id="fVille" maxlength="80" placeholder="Ta ville" autocomplete="address-level2">
           </div>
+        </div>
 
-          <div class="field">
-            <label>Ce compte est pour</label>
-            <div class="type-toggle">
-              <button type="button" data-type="personnel" id="typePersonnel" class="active">Moi-même</button>
-              <button type="button" data-type="enfant" id="typeEnfant">Mon enfant (3–6 ans)</button>
-            </div>
-            <div class="note">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#8A6318" stroke-width="2.2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
-              <span>13-17 ans : accès limité. 18 ans et + : accès complet. Espace enfants : réservé aux 3-6 ans.</span>
-            </div>
+        <div class="field" id="fieldType">
+          <label id="lblType">Ce compte est pour</label>
+          <div class="type-toggle">
+            <button type="button" data-type="personnel" id="typePersonnel" class="active">Moi-même</button>
+            <button type="button" data-type="enfant" id="typeEnfant">Mon enfant (3–6 ans)</button>
           </div>
+          <div class="type-toggle" id="typeAutreRow" hidden style="margin-top:8px">
+            <button type="button" data-type="autre" id="typeAutre">Abonnement pour un autre enfant</button>
+          </div>
+          <div class="note" id="noteAge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#8A6318" stroke-width="2.2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+            <span>13-17 ans : accès limité. 18 ans et + : accès complet. Espace enfants : réservé aux 3-6 ans.</span>
+          </div>
+        </div>
+
+        <div id="autreFields" hidden>
+          <div class="field">
+            <label for="fParent">Numéro du parent de l'enfant (compte KOMYO)</label>
+            <input type="tel" id="fParent" placeholder="Avec l'indicatif, ex. +242 06 123 45 67" autocomplete="off">
+          </div>
+          <div class="note"><span>Tu paies l'abonnement Famille pour l'enfant d'un proche. Tu choisiras MTN Mobile Money ou Airtel Money à l'étape suivante. Ton code secret Mobile Money ne se tape jamais ici.</span></div>
         </div>
 
         <div class="field">
-          <label for="fPin">Code PIN (4 chiffres) — comme ton Mobile Money</label>
+          <label for="fPin">Ton code PIN KOMYO (4 ou 5 chiffres) — invente-le toi-même</label>
           <div class="pin-row">
-            <input type="password" id="fPin" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="••••" autocomplete="off">
+            <input type="password" id="fPin" inputmode="numeric" pattern="[0-9]*" maxlength="5" placeholder="•••••" autocomplete="off">
+          </div>
+          <div class="note">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#8A6318" stroke-width="2.2"><path d="M12 9v4M12 17h.01M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z"/></svg>
+            <span>Ce code est propre à KOMYO : choisis celui que tu veux. Il n'a rien à voir avec Mobile Money, Airtel Money ou ta banque, et tu n'as pas besoin de Mobile Money pour créer un compte.</span>
           </div>
         </div>
 
-        <button type="submit" class="submitbtn" id="btnSubmit">Créer mon compte</button>
+        <button type="submit" class="submitbtn" id="btnSubmit">Valider mon inscription</button>
       </form>
 
       <div class="switchmode" id="switchHint">
         Déjà inscrit ? <a id="linkToLogin">Se connecter</a>
       </div>
+    </div>
+
+    <div id="pinView" hidden>
+      <h2 style="font-family:'Sora',sans-serif;font-size:18px;margin:0 0 4px;">Code PIN oublié</h2>
+      <p class="pin-help" style="font-size:13px;color:#6b5f80;margin:0 0 14px;">Pas de panique : on te le réinitialise en 2 étapes.</p>
+      <div class="errmsg" id="pinErr"></div>
+
+      <div id="pinStep1">
+        <div class="field"><label for="pTel">1. Ton numéro de téléphone</label><input type="tel" id="pTel" placeholder="Avec l'indicatif, ex. +33 6 12 34 56 78" autocomplete="tel"></div>
+        <div class="field"><label for="pNom">Ton nom (pour qu'on te reconnaisse)</label><input type="text" id="pNom" placeholder="Ton nom" autocomplete="name"></div>
+        <button type="button" class="submitbtn" id="pDemander">Demander un code</button>
+        <div class="note" id="pDemandeOk" hidden style="margin-top:12px"><span>Demande envoyée ✅ L'équipe KOMYO vérifie que c'est bien toi, puis t'envoie un <b>code temporaire par WhatsApp</b> (en général dans la journée). Reviens ensuite ici, étape 2.</span></div>
+      </div>
+
+      <div id="pinStep2" style="margin-top:18px;padding-top:16px;border-top:1px solid #eee2cc">
+        <div class="field"><label for="pCode">2. Le code reçu par WhatsApp (6 chiffres)</label><input type="text" id="pCode" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="••••••"></div>
+        <div class="field"><label for="pNew">Ton nouveau code PIN (4 ou 5 chiffres)</label><input type="password" id="pNew" inputmode="numeric" pattern="[0-9]*" maxlength="5" placeholder="•••••" autocomplete="new-password"></div>
+        <div class="field"><label for="pNew2">Répète-le</label><input type="password" id="pNew2" inputmode="numeric" pattern="[0-9]*" maxlength="5" placeholder="•••••" autocomplete="new-password"></div>
+        <button type="button" class="submitbtn" id="pValider">Enregistrer mon nouveau PIN</button>
+      </div>
+      <div class="switchmode"><a id="pRetour">← Retour à la connexion</a></div>
     </div>
 
     <div class="success" id="successView">
@@ -216,7 +255,12 @@
 <script>
 (function(){
   var API = '/api/starvibe-auth';
-  var mode = 'register';
+  // Un compte existe déjà (lien « J'ai déjà un compte », appareil déjà utilisé) : on ouvre directement « Me connecter »,
+  // sans date de naissance ni ville, qui ne servent qu'à la création du compte.
+  var dejaInscrit = false;
+  try { dejaInscrit = /[?&]mode=login\b/.test(location.search) || location.hash === '#connexion' || localStorage.getItem('komyo_deja_inscrit') === '1'; } catch (e) {}
+  if (/[?&]mode=register\b/.test(location.search)) dejaInscrit = false;
+  var mode = dejaInscrit ? 'login' : 'register';
   var profileType = 'personnel';
 
   var tabRegister = document.getElementById('tabRegister');
@@ -238,28 +282,40 @@
     tabRegister.classList.toggle('active', mode === 'register');
     tabLogin.classList.toggle('active', mode === 'login');
     registerOnlyFields.hidden = mode === 'login';
-    btnSubmit.textContent = mode === 'register' ? 'Créer mon compte' : 'Se connecter';
+    document.getElementById('typeAutreRow').hidden = mode !== 'login';
+    document.getElementById('noteAge').hidden = mode === 'login';
+    if (mode !== 'login' && profileType === 'autre') { profileType = 'personnel'; majType(); }
+    document.getElementById('lblType').textContent = mode === 'login' ? 'Je me connecte pour' : 'Ce compte est pour';
+    majType();
+    btnSubmit.textContent = mode === 'register' ? 'Valider mon inscription' : 'Me connecter';
     switchHint.innerHTML = mode === 'register'
       ? 'Déjà inscrit ? <a id="linkToLogin">Se connecter</a>'
-      : 'Pas encore de compte ? <a id="linkToLogin">Créer un compte</a>';
-    document.getElementById('linkToLogin').onclick = function(){ setMode(mode === 'register' ? 'login' : 'register'); };
+      : '<a id="linkPinOublie" style="display:inline-block;margin-top:8px">Code PIN oublié ?</a>';
+    var l2l = document.getElementById('linkToLogin'); if (l2l) l2l.onclick = function(){ setMode('login'); };
+    var lp = document.getElementById('linkPinOublie'); if (lp) lp.onclick = ouvrirPinOublie;
     clearError();
   }
 
+  setMode(mode);
   tabRegister.addEventListener('click', function(){ setMode('register'); });
   tabLogin.addEventListener('click', function(){ setMode('login'); });
   linkToLogin.addEventListener('click', function(){ setMode('login'); });
 
-  typePersonnel.addEventListener('click', function(){
-    profileType = 'personnel';
-    typePersonnel.classList.add('active');
-    typeEnfant.classList.remove('active');
-  });
-  typeEnfant.addEventListener('click', function(){
-    profileType = 'enfant';
-    typeEnfant.classList.add('active');
-    typePersonnel.classList.remove('active');
-  });
+  var typeAutre = document.getElementById('typeAutre');
+  // Connexion : le choix « Moi-même / Mon enfant / Un autre enfant » mène ensuite à la bonne page (espace, ou abonnement Famille).
+  function majType(){
+    typePersonnel.classList.toggle('active', profileType === 'personnel');
+    typeEnfant.classList.toggle('active', profileType === 'enfant');
+    document.getElementById('typeAutre').classList.toggle('active', profileType === 'autre');
+    var login = mode === 'login';
+    document.getElementById('fieldNom').hidden = false;   // le nom et le prénom restent visibles à la connexion (consigne de Carry)
+    document.getElementById('lblNom').textContent = login ? (profileType === 'personnel' ? 'Nom et prénom (facultatif)' : 'Prénom ou nom de l\'enfant (facultatif)') : 'Nom complet';
+    document.getElementById('fNom').placeholder = login ? (profileType === 'personnel' ? 'Ton nom et ton prénom' : 'Facultatif') : 'Ton nom';
+    document.getElementById('autreFields').hidden = !(login && profileType === 'autre');
+  }
+  typePersonnel.addEventListener('click', function(){ profileType = 'personnel'; majType(); });
+  typeEnfant.addEventListener('click', function(){ profileType = 'enfant'; majType(); });
+  typeAutre.addEventListener('click', function(){ profileType = 'autre'; majType(); });
 
   function showError(msg){
     errBox.textContent = msg;
@@ -270,6 +326,47 @@
     errBox.textContent = '';
   }
 
+
+  // ---------- Code PIN oublié (réinitialisation assistée) ----------
+  var pinView = document.getElementById('pinView'), pinErr = document.getElementById('pinErr');
+  function pinShowErr(m){ pinErr.textContent = m; pinErr.classList.add('show'); }
+  function pinClearErr(){ pinErr.classList.remove('show'); pinErr.textContent = ''; }
+  function ouvrirPinOublie(){
+    formView.hidden = true; pinView.hidden = false; pinClearErr();
+    var t = document.getElementById('fTelephone').value.trim(); if (t) document.getElementById('pTel').value = t;
+  }
+  document.getElementById('pRetour').addEventListener('click', function(){ pinView.hidden = true; formView.hidden = false; setMode('login'); });
+  function postPin(body){ return fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) }).then(function(r){ return r.json().then(function(d){ return { ok:r.ok, data:d }; }); }); }
+  document.getElementById('pDemander').addEventListener('click', function(){
+    pinClearErr();
+    var tel = document.getElementById('pTel').value.trim();
+    if (!tel){ pinShowErr('Écris ton numéro de téléphone.'); return; }
+    var b = this; b.disabled = true;
+    postPin({ action:'pin_demande', telephone:tel, nom:document.getElementById('pNom').value.trim() }).then(function(res){
+      if (!res.ok){ pinShowErr(res.data.error || 'Envoi impossible.'); return; }
+      document.getElementById('pDemandeOk').hidden = false;
+    }).catch(function(){ pinShowErr('Impossible de contacter le serveur. Réessaie.'); }).then(function(){ b.disabled = false; });
+  });
+  document.getElementById('pValider').addEventListener('click', function(){
+    pinClearErr();
+    var tel = document.getElementById('pTel').value.trim(), code = document.getElementById('pCode').value.trim();
+    var p1 = document.getElementById('pNew').value.trim(), p2 = document.getElementById('pNew2').value.trim();
+    if (!tel){ pinShowErr('Écris ton numéro de téléphone (étape 1).'); return; }
+    if (!/^\d{6}$/.test(code)){ pinShowErr('Le code reçu par WhatsApp fait 6 chiffres.'); return; }
+    if (!/^\d{4,5}$/.test(p1)){ pinShowErr('Ton nouveau PIN doit contenir 4 ou 5 chiffres.'); return; }
+    if (p1 !== p2){ pinShowErr('Les deux codes PIN ne sont pas identiques.'); return; }
+    var b = this; b.disabled = true;
+    postPin({ action:'pin_reset', telephone:tel, code:code, newPin:p1 }).then(function(res){
+      if (!res.ok){ pinShowErr(res.data.error || 'Changement impossible.'); return; }
+      localStorage.setItem('starvibe_token', res.data.token);
+      window.location.replace('accueil.html');   // nouveau PIN validé : on entre directement
+      return;
+      var profiles = res.data.profiles || [];
+      successName.textContent = profiles.length ? profiles[0].nom : tel;
+      pinView.hidden = true; successView.classList.add('show');
+    }).catch(function(){ pinShowErr('Impossible de contacter le serveur. Réessaie.'); }).then(function(){ b.disabled = false; });
+  });
+
   form.addEventListener('submit', function(e){
     e.preventDefault();
     clearError();
@@ -278,8 +375,9 @@
     var pin = document.getElementById('fPin').value.trim();
 
     if (!telephone){ showError('Merci de renseigner ton numéro de téléphone.'); return; }
-    if (!/^\d{4}$/.test(pin)){ showError('Le code PIN doit contenir exactement 4 chiffres.'); return; }
+    if (!/^\d{4,5}$/.test(pin)){ showError('Le code PIN doit contenir 4 ou 5 chiffres.'); return; }
 
+    if (mode === 'login' && profileType === 'autre' && document.getElementById('fParent').value.replace(/\D/g, '').length < 8){ showError('Écris le numéro du parent de l\'enfant.'); return; }
     var payload = { telephone: telephone, pin: pin };
 
     if (mode === 'register'){
@@ -292,6 +390,7 @@
       payload.nom = nom;
       payload.dateNaissance = dateNaissance;
       payload.ville = ville;
+      payload.pays = window.KOMYO_PAYS || '';
       payload.typeProfil = profileType;
     } else {
       payload.action = 'login';
@@ -310,10 +409,21 @@
         btnSubmit.disabled = false;
         setMode(mode);
         if (!result.ok){
-          showError(result.data.error || 'Une erreur est survenue.');
+          var msg = result.data.error || 'Une erreur est survenue.';
+          if (msg === 'Numéro ou code PIN incorrect') msg += '. Vérifie ton numéro (avec ou sans espaces, avec ou sans l\'indicatif) et ton code PIN. Pas encore de compte ? Touche « Créer un compte ».';
+          showError(msg);
           return;
         }
         localStorage.setItem('starvibe_token', result.data.token);
+        try { localStorage.setItem('komyo_deja_inscrit', '1'); } catch (e) {}
+        // Dès que le code est validé, on entre directement dans KOMYO : pas d'écran intermédiaire.
+        if (mode === 'login' && profileType === 'enfant') { window.location.replace('abonnement.html?plan=famille'); return; }
+        if (mode === 'login' && profileType === 'autre') {
+          window.location.replace('abonnement.html?plan=autre&pour=' + encodeURIComponent(document.getElementById('fParent').value.trim()) + '&enfant=' + encodeURIComponent(document.getElementById('fNom').value.trim()));
+          return;
+        }
+        window.location.replace('accueil.html');
+        return;
         var profiles = result.data.profiles || [];
         var displayName = profiles.length ? profiles[0].nom : (mode === 'register' ? document.getElementById('fNom').value : telephone);
         successName.textContent = displayName;
@@ -328,5 +438,10 @@
   });
 })();
 </script>
+<script src="/assets/js/oeil-mdp-v2.js" defer></script>
+<script src="/assets/js/date-roue-v1.js" defer></script>
+<script src="assets/komyo-prix-v2.js" defer></script>
+<script src="assets/keydou-bulle-v1.js" defer></script>
+<script src="assets/komyo-installer-v5.js" defer></script>
 </body>
 </html>

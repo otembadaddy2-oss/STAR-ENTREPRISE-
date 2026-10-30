@@ -1,0 +1,61 @@
+{
+  "id": "/starvibe/",
+  "name": "KOMYO — Le monde en mouvement",
+  "short_name": "KOMYO",
+  "description": "KOMYO, le monde en mouvement : partage tes vidéos et trouve tous les services du Congo avec Keydou, l'assistant.",
+  "start_url": "/starvibe/index.html?source=app",
+  "scope": "/starvibe/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#08080c",
+  "theme_color": "#08080c",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "/starvibe/assets/img/icons/komyo-192-v2.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/starvibe/assets/img/icons/komyo-512-v2.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/starvibe/assets/img/icons/komyo-192-maskable-v2.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/starvibe/assets/img/icons/komyo-512-maskable-v2.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Parler à Keydou",
+      "url": "/starvibe/keydou.html",
+      "icons": [
+        {
+          "src": "/starvibe/assets/img/icons/komyo-192-v2.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "categories": [
+    "social",
+    "entertainment",
+    "lifestyle"
+  ],
+  "prefer_related_applications": false
+}

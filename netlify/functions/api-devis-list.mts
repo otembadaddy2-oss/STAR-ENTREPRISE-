@@ -3,7 +3,7 @@
 import type { Context, Config } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 import { json } from "./_db.mts";
-import { requireAuth } from "./_auth.mts";
+import { requireGroupAuth as requireAuth } from "./_auth.mts";   // back-office : refuse les jetons KOMYO / Keydou / Marketplace / Guichet
 
 interface DevisRecord {
   id: string;

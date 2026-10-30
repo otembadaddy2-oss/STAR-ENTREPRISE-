@@ -1,0 +1,33 @@
+{
+ "pays": "Côte d'Ivoire",
+ "ville": "Abidjan",
+ "numeros": [
+  {
+   "numero": "180",
+   "motif": "Sapeurs-pompiers",
+   "note": "Numéro cité par le gouvernement du Canada (fiche Abidjan) et un guide suisse. À reconfirmer."
+  },
+  {
+   "numero": "185",
+   "motif": "Urgences médicales (SAMU)",
+   "note": "Cité par un guide suisse et la fiche canadienne. À reconfirmer."
+  },
+  {
+   "numero": "110",
+   "motif": "Police secours",
+   "note": "110, 111 ou 170 selon les sources. À reconfirmer."
+  },
+  {
+   "numero": "111",
+   "motif": "Police secours (2e numéro)",
+   "note": "Cité avec le 110 et le 170. À reconfirmer."
+  },
+  {
+   "numero": "170",
+   "motif": "Police (3e numéro)",
+   "note": "Cité avec le 110 et le 111. À reconfirmer."
+  }
+ ],
+ "avertissement": "Numéros relevés dans des guides officiels étrangers (Canada, Suisse), pas dans une source ivoirienne : à valider auprès de la Police ou des Sapeurs-pompiers avant mise en service.",
+ "source": "Recherche web du 22 octobre 2026 : fiches voyage du gouvernement du Canada et guide d'affaires suisse sur la Côte d'Ivoire"
+}

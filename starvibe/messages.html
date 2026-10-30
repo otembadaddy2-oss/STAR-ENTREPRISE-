@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="assets/i18n-v1.js"></script>
+<title>KOMYO — Ma messagerie</title>
+<meta name="theme-color" content="#FFFBF3">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+<link rel="stylesheet" href="assets/komyo-boutique-v1.css">
+<link rel="manifest" href="manifest-komyo.json">
+</head>
+<body>
+<div class="topbar"><div class="row"><h1>Ma messagerie</h1><a class="back" href="accueil.html">← Mon espace</a></div><p>Tes reçus, tes accusés de réception, tes ventes et tes factures.</p></div>
+<div class="wrap">
+  <div id="etat" class="state">Chargement…</div>
+  <div id="sortie" class="state" hidden>Tu n'es pas connecté.<br><a href="inscription.html?mode=login">Se connecter / Créer un compte</a></div>
+  <div id="liste" hidden></div>
+  <button class="btn light block" id="toutLu" hidden style="margin-top:6px">Tout marquer comme lu</button>
+</div>
+<script>
+(function(){
+  var token = ''; try{ token = localStorage.getItem('starvibe_token') || ''; }catch(e){}
+  var etat = document.getElementById('etat'), sortie = document.getElementById('sortie'), liste = document.getElementById('liste'), toutLu = document.getElementById('toutLu');
+  if (!token){ etat.hidden = true; sortie.hidden = false; return; }
+  function esc(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+  function api(body){ return fetch('/api/starvibe-messages', body ? { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body:JSON.stringify(body) } : { headers:{'Authorization':'Bearer '+token} }); }
+  function quand(d){ return new Date(d).toLocaleString('fr-FR', { day:'numeric', month:'long', hour:'2-digit', minute:'2-digit', timeZone:'Africa/Brazzaville' }); }
+  var BOUTON = { commande:['Ouvrir Ma boutique','boutique.html'], frais:['Ouvrir Ma boutique','boutique.html'], boutique:['Ouvrir Ma boutique','boutique.html'] };
+  function charge(){
+    api().then(function(r){ if (r.status === 401){ try{ localStorage.removeItem('starvibe_token'); }catch(e){} etat.hidden = true; sortie.hidden = false; return null; } return r.json(); }).then(function(d){
+      if (!d) return; etat.hidden = true; liste.hidden = false;
+      if (!d.messages.length){ liste.innerHTML = '<div class="state">Aucun message pour le moment. Tes reçus arriveront ici dès ton premier paiement confirmé.</div>'; toutLu.hidden = true; return; }
+      toutLu.hidden = d.nonLus === 0;
+      liste.innerHTML = d.messages.map(function(m){
+        var b = BOUTON[m.kind];
+        var facture = m.lien ? '<a class="btn small" style="margin-top:10px" target="_blank" rel="noopener" href="' + esc(m.lien) + '">Voir la facture KOMYO</a>' : '';
+        var corps = esc(m.texte).replace(/https?:\/\/\S+/g, '').replace(/Votre facture \(avec le logo KOMYO\) :\s*/g, '');
+        return '<details class="msgitem' + (m.lu ? '' : ' nonlu') + '" data-id="' + m.id + '"' + (m.lu ? '' : ' open') + '><summary>' + (m.lu ? '' : '<span class="dot"></span>') + esc(m.titre) + '<span class="date">' + esc(quand(m.date)) + '</span></summary><div class="corps">' + corps + (facture ? '<br>' + facture : '') + (b ? '<br><a class="btn small light" style="margin-top:10px" href="' + b[1] + '">' + b[0] + '</a>' : '') + '</div></details>';
+      }).join('');
+      liste.querySelectorAll('details').forEach(function(el){ el.addEventListener('toggle', function(){ if (el.open && el.classList.contains('nonlu')){ el.classList.remove('nonlu'); var dot = el.querySelector('.dot'); if (dot) dot.remove(); api({ action:'lu', id:Number(el.getAttribute('data-id')) }); } }); });
+    }).catch(function(){ etat.textContent = 'Impossible de charger tes messages. Vérifie ta connexion.'; });
+  }
+  toutLu.addEventListener('click', function(){ api({ action:'tout_lu' }).then(charge); });
+  charge();
+})();
+</script>
+</body>
+</html>

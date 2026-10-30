@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="assets/i18n-v1.js"></script>
 <title>KOMYO — Modération PIOUPIOU</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#050B18">
@@ -53,6 +54,7 @@
   .btn-approve{background:rgba(47,143,110,.22);color:#6fd6ab;}
   .btn-reject{background:rgba(179,38,30,.18);color:#ff8a80;}
   .item.processing{opacity:.4;pointer-events:none;}
+.prem{display:flex;align-items:center;gap:8px;font-size:12.5px;margin:8px 0;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -71,7 +73,7 @@
 <div id="queueView" class="wrap" hidden>
   <div class="topbar">
     <div><h1>Modération PIOUPIOU</h1><div class="tag">Vidéos en attente</div></div>
-    <button class="logout" id="btnLogout">Déconnexion</button>
+    <div style="display:flex;gap:8px;align-items:center"><a class="logout" href="keydou-admin.html" style="text-decoration:none;display:inline-flex;align-items:center">← Backend</a><button class="logout" id="btnLogout">Déconnexion</button></div>
   </div>
   <div id="queueList"></div>
   <div class="empty" id="emptyQueue" hidden>Aucune vidéo en attente. Tout est à jour !</div>
@@ -138,15 +140,22 @@
 
   btnLogout.addEventListener('click', function(){ setToken(''); showLogin(); });
 
+  function esc(x){ return String(x == null ? '' : x).replace(/[&<>"']/g, function(c){ return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]; }); }
   function renderItem(v){
     var item = document.createElement('div');
     item.className = 'item';
     item.innerHTML =
       '<video src="' + v.videoUrl + '" muted loop playsinline preload="metadata"></video>' +
       '<div class="info">' +
-        '<div class="auteur">' + v.auteur + '</div>' +
-        '<div class="tel">' + v.telephone + '</div>' +
-        '<div class="legende">' + (v.legende || '<em>Sans légende</em>') + '</div>' +
+        '<div class="auteur">' + esc(v.auteur) + '</div>' +
+        '<div class="tel">' + esc(v.telephone) + '</div>' +
+        '<div class="legende">' + (v.legende ? esc(v.legende) : '<em>Sans légende</em>') + '</div>' +
+        '<label class="prem"><input type="checkbox" class="chk-premium"> ⭐ Réservé aux abonnés Famille (premium)</label>' +
+        '<div class="prem-opts" hidden style="margin:8px 0;font-size:13px;line-height:1.5">' +
+          '<label style="display:block">Ouverture à partir du (facultatif) <input type="datetime-local" class="in-date" style="width:100%"></label>' +
+          '<label style="display:block;margin-top:6px">Affiche de la vidéo (image JPEG, PNG ou WebP, 1,5 Mo max) <input type="file" class="in-affiche" accept="image/jpeg,image/png,image/webp" style="width:100%"></label>' +
+          '<small>Avant la date, ou sans abonnement Famille, la vidéo reste « FERMÉE » : seule l\'affiche est visible.</small>' +
+        '</div>' +
         '<div class="actions">' +
           '<button class="btn-approve">Approuver</button>' +
           '<button class="btn-reject">Refuser</button>' +
@@ -156,11 +165,28 @@
     item.querySelector('video').addEventListener('mouseenter', function(){ this.play().catch(function(){}); });
     item.querySelector('video').addEventListener('mouseleave', function(){ this.pause(); });
 
+    var chk = item.querySelector('.chk-premium'), opts = item.querySelector('.prem-opts');
+    chk.addEventListener('change', function(){ opts.hidden = !chk.checked; });
+    function lireAffiche(){
+      return new Promise(function(resolve){
+        var f = item.querySelector('.in-affiche').files[0]; if (!f) return resolve(null);
+        var r = new FileReader(); r.onload = function(){ resolve({ mime: f.type, data: String(r.result) }); }; r.onerror = function(){ resolve(null); }; r.readAsDataURL(f);
+      });
+    }
     function decide(decision){
       item.classList.add('processing');
       authFetch(API_VIDEOS, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'moderer', videoId: Number(v.id), decision: decision })
+        body: JSON.stringify({ action: 'moderer', videoId: Number(v.id), decision: decision, premium: chk.checked })
+      }).then(function(){
+        if (decision !== 'approuve' || !chk.checked) return;
+        var d = item.querySelector('.in-date').value;
+        return lireAffiche().then(function(a){
+          return authFetch(API_VIDEOS, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'definir_premium', videoId: Number(v.id), premium: true, disponibleLe: d ? new Date(d).toISOString() : '', afficheBase64: a ? a.data : '', afficheMime: a ? a.mime : '' })
+          });
+        });
       }).then(function(){ item.remove(); if (!queueList.children.length) emptyQueue.hidden = false; });
     }
     item.querySelector('.btn-approve').addEventListener('click', function(){ decide('approuve'); });
@@ -185,5 +211,7 @@
   if (getToken()) showQueue(); else showLogin();
 })();
 </script>
+<script src="/assets/js/oeil-mdp-v2.js" defer></script>
+<script src="assets/retour-backend-v1.js" defer></script>
 </body>
 </html>

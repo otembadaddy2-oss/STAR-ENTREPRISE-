@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="assets/i18n-v1.js"></script>
+<title>Installer KOMYO</title>
+<meta name="description" content="Installe l'application KOMYO sur ton téléphone, ta tablette ou ton ordinateur : Android, iPhone, iPad, Windows, Mac.">
+<meta name="theme-color" content="#08080c">
+<link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">
+<link rel="manifest" href="manifest-komyo.json">
+<link rel="apple-touch-icon" href="assets/img/icons/komyo-apple-180-v2.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KOMYO">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+  :root{
+    --bg:#08080c; --card:#12111d; --card-2:#1a1830; --ink:#f4efe2; --dim:#b9b2c9; --gold:#ffd466; --gold-deep:#d9a92f; --line:rgba(217,169,47,.35); --ok:#4fd18b;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:560px;margin:0 auto;padding:max(20px,env(safe-area-inset-top)) 18px calc(40px + env(safe-area-inset-bottom))}
+  .back{display:inline-block;margin-bottom:14px;color:var(--dim);text-decoration:none;font-size:14px}
+  .back:hover{color:var(--gold)}
+  .hero{text-align:center;padding:10px 0 22px}
+  .hero img{width:116px;height:116px;border-radius:28px;border:1px solid var(--line);box-shadow:0 0 40px rgba(255,200,60,.22);margin:0 auto 16px}
+  h1{margin:0 0 6px;font-size:28px;line-height:1.15;color:var(--gold);text-wrap:balance}
+  .lead{margin:0 auto;max-width:34ch;color:var(--dim);font-size:15.5px}
+  .go{margin:22px 0 6px}
+  .btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:56px;border:0;border-radius:16px;background:linear-gradient(180deg,var(--gold),var(--gold-deep));color:#1b1405;font:inherit;font-size:18px;font-weight:800;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .btn:active{transform:scale(.985)}
+  .btn:focus-visible,.share a:focus-visible,.share button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+  .btn[disabled]{background:rgba(79,209,139,.16);color:var(--ok);cursor:default}
+  .state{margin:10px 0 0;text-align:center;font-size:13.5px;color:var(--dim);min-height:1.4em}
+  h2{margin:30px 0 10px;font-size:17px;color:#fff}
+  .dev{background:var(--card);border:1px solid rgba(255,255,255,.09);border-radius:18px;padding:16px 16px 14px;margin-bottom:12px}
+  .dev.me{border-color:var(--gold-deep);background:var(--card-2);box-shadow:0 0 0 1px rgba(255,212,102,.15) inset}
+  .dev h3{margin:0 0 8px;font-size:16px;display:flex;align-items:center;gap:8px}
+  .dev h3 span.tag{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#1b1405;background:var(--gold);border-radius:99px;padding:2px 8px}
+  .dev ol{margin:0;padding-left:22px;color:#e7e1f1;font-size:14.5px}
+  .dev li+li{margin-top:5px}
+  .dev b{color:var(--gold)}
+  .dev p{margin:8px 0 0;font-size:13px;color:var(--dim)}
+  .why{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+  .why li{display:flex;gap:10px;align-items:flex-start;color:#e7e1f1;font-size:14.5px}
+  .why li::before{content:"✓";flex:none;color:var(--ok);font-weight:800}
+  .share{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+  .share a,.share button{flex:1 1 150px;min-height:46px;display:flex;align-items:center;justify-content:center;border-radius:13px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.07);color:var(--ink);font:inherit;font-size:14.5px;font-weight:700;text-decoration:none;cursor:pointer}
+  .diag{background:var(--card);border:1px solid rgba(255,255,255,.09);border-radius:14px;padding:12px 14px;font-size:13.5px;color:#e7e1f1}
+  .diag dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0 0 10px}
+  .diag dt{color:var(--dim)} .diag dd{margin:0;font-weight:600}
+  .diag .ok{color:var(--ok)} .diag .ko{color:#ffb86b}
+  .tips{margin:0;padding-left:20px;font-size:14.5px;color:#e7e1f1} .tips li+li{margin-top:7px}
+  .foot{margin-top:30px;text-align:center;font-size:12.5px;color:var(--dim)}
+  .foot a{color:var(--gold)}
+</style>
+<link rel="stylesheet" href="assets/komyo-bureau-v2.css" media="(min-width:1000px)">
+</head>
+<body class="pg-installer">
+<main class="wrap">
+  <a class="back" href="index.html">← Retour à KOMYO</a>
+
+  <section class="hero">
+    <img src="assets/img/icons/komyo-512-v2.png" alt="Logo KOMYO" width="116" height="116">
+    <h1>Installe KOMYO sur ton écran</h1>
+    <p class="lead">Une vraie application, gratuite, sans passer par un magasin : téléphone, tablette ou ordinateur.</p>
+    <div class="go">
+      <button class="btn" id="goBtn" type="button">📱 Installer maintenant</button>
+      <p class="state" id="state" role="status"></p>
+    </div>
+  </section>
+
+  <h2>Pourquoi l'installer ?</h2>
+  <ul class="why">
+    <li>Un seul toucher depuis ton écran d'accueil, comme WhatsApp</li>
+    <li>Plein écran, sans barre d'adresse du navigateur</li>
+    <li>Keydou et tes vidéos toujours à portée de main</li>
+    <li>Léger : rien à télécharger depuis un magasin, aucune mise à jour à faire</li>
+  </ul>
+
+  <h2>Comment faire sur ton appareil</h2>
+
+  <div class="dev" id="dev-android">
+    <h3>🤖 Android <span class="tag" hidden>Ton appareil</span></h3>
+    <ol>
+      <li>Ouvre cette page dans <b>Chrome</b> (ou Samsung Internet)</li>
+      <li>Touche <b>Installer maintenant</b> ci-dessus, puis <b>Installer</b> dans la fenêtre qui s'ouvre</li>
+      <li>Si rien ne s'affiche : menu <b>⋮</b> → <b>Installer l'application</b></li>
+    </ol>
+    <p>Fonctionne aussi sur les tablettes Android et les Chromebook.</p>
+  </div>
+
+  <div class="dev" id="dev-ios">
+    <h3>🍎 iPhone et iPad <span class="tag" hidden>Ton appareil</span></h3>
+    <ol>
+      <li>Ouvre cette page dans <b>Safari</b> (ou Chrome / Firefox sur iOS récent)</li>
+      <li>Touche <b>Partager</b> ⬆️ (le carré avec une flèche)</li>
+      <li>Choisis <b>Sur l'écran d'accueil</b> ➕, puis <b>Ajouter</b></li>
+    </ol>
+    <p>Apple ne permet pas l'installation en un seul bouton : ces deux gestes suffisent.</p>
+  </div>
+
+  <div class="dev" id="dev-pc">
+    <h3>💻 Ordinateur portable ou de bureau <span class="tag" hidden>Ton appareil</span></h3>
+    <ol>
+      <li><b>Windows, Mac, Linux — Chrome ou Edge</b> : touche <b>Installer maintenant</b>, ou clique l'icône <b>⊕</b> à droite de la barre d'adresse</li>
+      <li><b>Mac — Safari</b> : menu <b>Fichier</b> → <b>Ajouter au Dock…</b></li>
+      <li>KOMYO s'ouvre alors dans sa propre fenêtre, avec une icône sur le bureau ou la barre des tâches</li>
+    </ol>
+    <p>Firefox sur ordinateur n'installe pas les applications : utilise Chrome ou Edge.</p>
+  </div>
+
+  <div class="dev" id="dev-app">
+    <h3>💬 Tu as ouvert le lien depuis WhatsApp, Facebook ou TikTok ?</h3>
+    <ol>
+      <li>Touche <b>⋮</b> ou <b>•••</b> en haut ou en bas de l'écran</li>
+      <li>Choisis <b>Ouvrir dans le navigateur</b></li>
+      <li>Reviens ici et suis les étapes de ton appareil</li>
+    </ol>
+  </div>
+
+  <h2 id="probleme">Ça ne s'installe pas ?</h2>
+  <div class="dev">
+    <h3>🔎 Ce que voit ton téléphone</h3>
+    <div class="diag" id="diag" aria-live="polite">Analyse en cours…</div>
+    <div class="share" style="margin-top:10px">
+      <a id="waDiag" href="#" target="_blank" rel="noopener">Envoyer ce diagnostic par WhatsApp</a>
+    </div>
+  </div>
+  <div class="dev">
+    <h3>✅ Essaie dans cet ordre</h3>
+    <ol class="tips">
+      <li>Dans le menu <b>⋮</b> de Chrome, cherche <b>Installer l'application</b> ou <b>Ajouter à l'écran d'accueil</b>.</li>
+      <li>Rien ? Touche <b>Partager…</b> et regarde la rangée d'actions (fais-la glisser).</li>
+      <li><b>Mets Chrome à jour</b> dans le Play Store, puis rouvre cette page.</li>
+      <li>Ouvre cette page dans <b>un autre navigateur</b> : Edge, Samsung Internet, Firefox ou Opera.</li>
+      <li>Lien reçu par WhatsApp, Facebook ou TikTok ? Choisis <b>Ouvrir dans le navigateur</b>.</li>
+    </ol>
+    <p>Certains téléphones plus anciens ou limités ne savent pas installer les applications web, quel que soit le site. <b>KOMYO fonctionne alors très bien dans le navigateur</b> : garde simplement la page dans tes favoris ⭐.</p>
+  </div>
+
+  <h2>Donne-la à un proche, ou envoie-la à ton propre téléphone</h2>
+  <p class="mut" style="margin:0 0 8px;font-size:13px;line-height:1.5">Tu as ouvert ton compte sur un ordinateur, ou tu as oublié d'installer l'application ? Touche « Envoyer sur WhatsApp » et choisis <b>ton propre numéro</b> (« Moi-même ») : tu reçois le lien sur ton téléphone. Ensuite, connecte-toi avec ton numéro et ton code PIN : ton compte est déjà là.</p>
+  <div class="share">
+    <a id="wa" href="#" target="_blank" rel="noopener">Envoyer sur WhatsApp</a>
+    <button id="copy" type="button">Copier le lien</button>
+  </div>
+
+  <p class="foot" style="margin-top:22px">Pour savoir combien de personnes utilisent l'application, KOMYO note son installation : type d'appareil, et ton nom et ton numéro si tu es connecté à KOMYO ou client de Keydou. Rien d'autre, rien n'est revendu.</p>
+  <p class="foot">Une question ? Demande à <a href="keydou.html">Keydou</a>, il t'aide en direct.</p>
+</main>
+
+<script src="assets/komyo-installer-v5.js" defer></script>
+<script>
+(function(){
+  var btn = document.getElementById('goBtn'), state = document.getElementById('state');
+  var LIEN = location.origin + '/starvibe/installer.html';
+
+  function maj(){
+    var k = window.__komyoInstaller;
+    if (!k) return;
+    if (k.dejaInstallee()) {
+      btn.disabled = true; btn.textContent = '✓ KOMYO est déjà installée';
+      state.textContent = 'Tu l\'utilises déjà comme application. Merci !';
+    } else if (k.peutAuto()) {
+      state.textContent = 'Prêt : un toucher et c\'est installé.';
+    } else {
+      state.textContent = 'Suis les étapes de ton appareil ci-dessous (touche le bouton pour les voir).';
+    }
+  }
+  function moi(){
+    var k = window.__komyoInstaller; if (!k) return;
+    var p = k.plateforme();
+    var id = p === 'android' ? 'dev-android' : p === 'ios' ? 'dev-ios' : p === 'interne' ? 'dev-app' : 'dev-pc';
+    var el = document.getElementById(id); if (!el) return;
+    el.classList.add('me');
+    var tag = el.querySelector('.tag'); if (tag) tag.hidden = false;
+    el.parentNode.insertBefore(el, document.querySelector('.dev'));
+  }
+  window.addEventListener('load', function(){ moi(); maj(); setTimeout(maj, 1500); setTimeout(maj, 4000); });
+  document.addEventListener('komyo:installe', maj);
+  btn.addEventListener('click', function(){ var k = window.__komyoInstaller; if (k) k.installer(); });
+
+
+  // Diagnostic : ce que le navigateur offre vraiment, utile pour aider quelqu'un à distance
+  function diag(){
+    var k = window.__komyoInstaller; if (!k || !k.diagnostic) return;
+    var d = k.diagnostic(), el = document.getElementById('diag');
+    function badge(v, oui, non){ return '<span class="' + (v ? 'ok' : 'ko') + '">' + (v ? oui : non) + '</span>'; }
+    el.innerHTML = '<dl><dt>Appareil</dt><dd>' + d.appareil + '</dd><dt>Navigateur</dt><dd>' + d.navigateur + '</dd><dt>Installation en un bouton</dt><dd>' +
+      badge(d.dejaInstallee || d.installationAuto, d.dejaInstallee ? 'déjà installée ✓' : 'proposée ✓', d.appareil === 'iPhone/iPad' ? 'non (normal sur iPhone : utilise Partager)' : 'non proposée par ce navigateur') +
+      '</dd><dt>Fonctionnement hors ligne</dt><dd>' + badge(d.serviceWorker, 'oui ✓', 'non') + '</dd></dl>' +
+      (d.dejaInstallee ? '' : (d.installationAuto ? '<span class="ok">Tout est prêt : touche « Installer maintenant » en haut.</span>' : 'Suis la liste ci-dessous : ton navigateur ne propose pas le bouton, mais l\'installation manuelle peut marcher.'));
+    var txt = 'Diagnostic KOMYO — ' + d.appareil + ', ' + d.navigateur + ', installation en un bouton : ' + (d.installationAuto ? 'oui' : 'non') + ', écran ' + d.ecran;
+    document.getElementById('waDiag').href = 'https://wa.me/?text=' + encodeURIComponent(txt);
+  }
+  window.addEventListener('load', function(){ setTimeout(diag, 800); setTimeout(diag, 3500); });
+
+  document.getElementById('wa').href = 'https://wa.me/?text=' + encodeURIComponent('Installe KOMYO sur ton téléphone, c\'est gratuit : ' + LIEN);
+  document.getElementById('copy').addEventListener('click', function(){
+    var b = this;
+    function ok(){ b.textContent = 'Lien copié ✓'; setTimeout(function(){ b.textContent = 'Copier le lien'; }, 2000); }
+    if (navigator.share && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) { navigator.share({ title: 'KOMYO', text: 'Installe KOMYO, c\'est gratuit', url: LIEN }).catch(function(){}); return; }
+    if (navigator.clipboard) navigator.clipboard.writeText(LIEN).then(ok).catch(function(){ window.prompt('Copie ce lien :', LIEN); });
+    else window.prompt('Copie ce lien :', LIEN);
+  });
+})();
+</script>
+<script src="assets/bulle-komyo.js" defer></script>
+</body>
+</html>

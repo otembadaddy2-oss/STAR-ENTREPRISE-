@@ -13,10 +13,30 @@ import { getStore } from "@netlify/blobs";
 import { randomBytes } from "node:crypto";
 import { ensureSchema, db, json } from "./_db.mts";
 import { requireAuth } from "./_auth.mts";
+import { signedVideoUrl, hasActiveFamille } from "./_premium.mts";
 
 const ORG = "star_vibe";
 const STAFF_ORG = "star_entreprise";
 const MAX_VIDEO_BYTES = 40_000_000; // 40 Mo — court format vertical
+// Une fonction Netlify n'accepte pas plus de ~6 Mo par requête : la vidéo arrive donc en morceaux de 3 Mo,
+// puis la publication les rassemble (14 morceaux de 3 Mo ≥ 40 Mo).
+const CHUNK_MAX = 4_500_000;
+const ESPACES_OUVERTS = ["talents", "business", "decouverte", "musique", "jeunes"];
+
+// KOMYO Jeunes : réservé aux 13-17 ans (âge de la date de naissance du profil personnel).
+// Les adultes ne le voient pas et n'y publient pas ; les mineurs ne publient pas dans Business (18 ans et +).
+function ageFromDate(dateStr: string): number | null {
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime()) || d.getTime() > Date.now()) return null;
+  const now = new Date();
+  let age = now.getFullYear() - d.getFullYear();
+  const m = now.getMonth() - d.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--;
+  return age;
+}
+const estJeune = (age: number | null) => age !== null && age >= 13 && age <= 17;
+const MAX_CHUNKS = 14;
+const UPLOAD_ID_RE = /^[a-z0-9]{10,24}$/;
 
 function clean(value: unknown, maxLen: number): string {
   return String(value ?? "").trim().slice(0, maxLen);
@@ -33,13 +53,23 @@ interface VideoRow {
   vues_count: number;
   comments_count: number;
   pour_enfants: boolean;
+  espace?: string;
   moderation_statut: string;
+  premium: boolean;
+  disponible_le?: string | null;
+  affiche_key?: string | null;
   created_at: string;
   auteur_nom?: string;
   telephone?: string;
 }
 
-function toApi(row: VideoRow, likedByMe: boolean) {
+// Une vidéo premium n'expose son lien (signé) qu'aux abonnés Famille actifs ;
+// pour les autres, "verrouille" est vrai et aucun lien n'est donné.
+function toApi(row: VideoRow, likedByMe: boolean, canWatchPremium = false, viewerAccountId = 0) {
+  // Fermée tant que : (1) le parent n'a pas d'abonnement Famille actif, ou (2) la date d'ouverture n'est pas arrivée.
+  // Décidé ici, côté serveur : une vidéo fermée n'a ni lien de lecture ni moyen d'être lue ou sautée.
+  const pasEncore = Boolean(row.premium && row.disponible_le && new Date(row.disponible_le).getTime() > Date.now());
+  const locked = row.premium && (!canWatchPremium || pasEncore);
   return {
     id: String(row.id),
     legende: row.legende,
@@ -48,10 +78,23 @@ function toApi(row: VideoRow, likedByMe: boolean) {
     vues: row.vues_count,
     commentaires: row.comments_count || 0,
     pourEnfants: row.pour_enfants,
+    espace: row.espace || "general",
+    auteurProfilId: row.profile_id,
     moderationStatut: row.moderation_statut,
     createdAt: row.created_at,
     likedByMe,
-    videoUrl: `/api/starvibe-video-file?key=${encodeURIComponent(row.blob_key)}`,
+    estMoi: viewerAccountId > 0 && row.account_id === viewerAccountId,   // c'est ma vidéo : je peux la supprimer
+    premium: row.premium,
+    verrouille: locked,
+    ouvert: row.premium ? !locked : true,
+    raisonFermee: !locked ? "" : (!canWatchPremium ? "abonnement" : "date"),
+    disponibleLe: row.premium ? (row.disponible_le || null) : null,
+    afficheUrl: row.affiche_key ? `/api/starvibe-photo?key=${encodeURIComponent(row.affiche_key)}` : null,
+    videoUrl: locked
+      ? null
+      : row.premium
+        ? signedVideoUrl(row.blob_key)
+        : `/api/starvibe-video-file?key=${encodeURIComponent(row.blob_key)}`,
   };
 }
 
@@ -78,7 +121,7 @@ function toModerationApi(row: VideoRow) {
     auteur: row.auteur_nom || "",
     telephone: row.telephone || "",
     createdAt: row.created_at,
-    videoUrl: `/api/starvibe-video-file?key=${encodeURIComponent(row.blob_key)}`,
+    videoUrl: signedVideoUrl(row.blob_key),
   };
 }
 
@@ -97,11 +140,26 @@ export default async (req: Request, _context: Context) => {
       FROM starvibe_videos v
       JOIN starvibe_profiles p ON p.id = v.profile_id
       JOIN starvibe_accounts a ON a.id = v.account_id
-      WHERE v.pour_enfants = true AND v.moderation_statut = 'en_attente'
+      WHERE (v.pour_enfants = true OR v.espace = 'jeunes') AND v.moderation_statut = 'en_attente'
       ORDER BY v.id ASC LIMIT 30
     `) as VideoRow[];
 
     return json({ videos: rows.map(toModerationApi) });
+  }
+
+  // --- Envoi d'un morceau de vidéo (binaire brut, compte STAR VIBE) ---
+  if (req.method === "POST" && url.searchParams.get("chunk") === "1") {
+    const session = await requireAuth(req);
+    if (!session || session.org !== ORG) return json({ error: "Non authentifié" }, 401);
+    const up = url.searchParams.get("id") || "";
+    const i = Number(url.searchParams.get("i")), n = Number(url.searchParams.get("n"));
+    if (!UPLOAD_ID_RE.test(up) || !Number.isInteger(i) || !Number.isInteger(n) || i < 0 || i >= n || n > MAX_CHUNKS) {
+      return json({ error: "Morceau de vidéo invalide" }, 400);
+    }
+    const part = await req.arrayBuffer();
+    if (part.byteLength === 0 || part.byteLength > CHUNK_MAX) return json({ error: "Morceau de vidéo invalide" }, 400);
+    await getStore("starvibe-videos-tmp").set(`${session.sub}/${up}/${i}`, part);
+    return json({ ok: true });
   }
 
   // --- Décision de modération (staff) ---
@@ -123,11 +181,48 @@ export default async (req: Request, _context: Context) => {
         return json({ error: "videoId et decision (approuve|rejete) requis" }, 400);
       }
 
+      const premium = decision === "approuve" && Boolean(earlyBody.premium);
       const rows = (await sql`
-        UPDATE starvibe_videos SET moderation_statut = ${decision} WHERE id = ${videoId} RETURNING id
+        UPDATE starvibe_videos SET moderation_statut = ${decision}, premium = ${premium}
+        WHERE id = ${videoId} RETURNING id
       `) as { id: number }[];
       if (!rows[0]) return json({ error: "Vidéo introuvable" }, 404);
-      return json({ ok: true, moderationStatut: decision });
+      return json({ ok: true, moderationStatut: decision, premium });
+    }
+
+    // Le staff peut aussi passer une vidéo déjà approuvée en premium (ou la
+    // rendre gratuite) sans la remodérer.
+    if (clean(earlyBody.action, 20) === "definir_premium") {
+      const staff = await requireAuth(req);
+      if (!staff || staff.org !== STAFF_ORG) return json({ error: "Non autorisé" }, 403);
+      const videoId = Number(earlyBody.videoId);
+      if (!videoId) return json({ error: "videoId requis" }, 400);
+      const premium = Boolean(earlyBody.premium);
+      const dateBrute = clean(earlyBody.disponibleLe, 40);
+      const date = dateBrute ? new Date(dateBrute) : null;
+      if (dateBrute && (!date || Number.isNaN(date.getTime()))) return json({ error: "Date d'ouverture invalide" }, 400);
+      if (date && !premium) return json({ error: "Une date d'ouverture s'applique à une vidéo premium (Famille)" }, 400);
+      const rows = (await sql`
+        UPDATE starvibe_videos SET premium = ${premium}, disponible_le = ${premium && date ? date.toISOString() : null}
+        WHERE id = ${videoId} RETURNING id, affiche_key
+      `) as { id: number; affiche_key: string | null }[];
+      if (!rows[0]) return json({ error: "Vidéo introuvable" }, 404);
+      // Affiche (image) de la vidéo : JPEG, PNG ou WebP, 1,5 Mo au plus. Remplace la précédente.
+      const img = String(earlyBody.afficheBase64 ?? "");
+      let afficheUrl: string | null = rows[0].affiche_key ? `/api/starvibe-photo?key=${encodeURIComponent(rows[0].affiche_key)}` : null;
+      if (img) {
+        const mime = clean(earlyBody.afficheMime, 40) || "image/jpeg";
+        if (!["image/jpeg", "image/png", "image/webp"].includes(mime)) return json({ error: "L'affiche doit être en JPEG, PNG ou WebP" }, 400);
+        const octets = Buffer.from(img.includes(",") ? img.split(",")[1] : img, "base64");
+        if (!octets.byteLength || octets.byteLength > 1_500_000) return json({ error: "Affiche vide ou trop lourde (1,5 Mo au plus)" }, 400);
+        const store = getStore("starvibe-photos");
+        const cle = `affiche-${videoId}-${Date.now()}-${randomBytes(4).toString("hex")}`;
+        await store.set(cle, octets, { metadata: { typeMime: mime } });
+        await sql`UPDATE starvibe_videos SET affiche_key = ${cle} WHERE id = ${videoId}`;
+        if (rows[0].affiche_key) await store.delete(rows[0].affiche_key).catch(() => {});
+        afficheUrl = `/api/starvibe-photo?key=${encodeURIComponent(cle)}`;
+      }
+      return json({ ok: true, premium, disponibleLe: premium && date ? date.toISOString() : null, afficheUrl });
     }
 
     // --- Toute autre action passe par le compte STAR VIBE de l'utilisateur ---
@@ -141,22 +236,52 @@ export default async (req: Request, _context: Context) => {
       const legende = clean(earlyBody.legende, 300);
       const typeMime = clean(earlyBody.typeMime, 100) || "video/mp4";
       const fileBase64 = String(earlyBody.fileBase64 ?? "");
+      const uploadId = clean(earlyBody.uploadId, 30);
+      const nChunks = Number(earlyBody.nChunks);
       const pourEnfants = Boolean(earlyBody.pourEnfants);
+      // espaces ouverts : talents, business, découverte (une vidéo pour enfants reste toujours dans PIOUPIOU, après vérification)
+      const espaceDemande = clean(earlyBody.espace, 20).toLowerCase();
+      const espace = !pourEnfants && ESPACES_OUVERTS.includes(espaceDemande) ? espaceDemande : "general";
 
-      if (!profileId || !fileBase64) return json({ error: "Profil et vidéo requis" }, 400);
+      if (!profileId || (!fileBase64 && !uploadId)) return json({ error: "Profil et vidéo requis" }, 400);
       if (!typeMime.startsWith("video/")) return json({ error: "Le fichier doit être une vidéo" }, 400);
 
       const profRows = (await sql`
-        SELECT id, type_profil FROM starvibe_profiles WHERE id = ${profileId} AND account_id = ${accountId} LIMIT 1
-      `) as { id: number; type_profil: string }[];
+        SELECT id, type_profil, date_naissance FROM starvibe_profiles WHERE id = ${profileId} AND account_id = ${accountId} LIMIT 1
+      `) as { id: number; type_profil: string; date_naissance: string }[];
       const profile = profRows[0];
       if (!profile) return json({ error: "Profil introuvable" }, 404);
       if (profile.type_profil !== "personnel") {
         return json({ error: "Seul un profil personnel peut publier une vidéo" }, 403);
       }
+      const agePublieur = ageFromDate(String(profile.date_naissance));
+      if (espace === "jeunes" && !estJeune(agePublieur)) {
+        return json({ error: "KOMYO Jeunes est réservé aux 13-17 ans." }, 403);
+      }
+      if (espace === "business" && agePublieur !== null && agePublieur < 18) {
+        return json({ error: "KOMYO Business est réservé aux 18 ans et plus." }, 403);
+      }
 
-      const raw = fileBase64.includes(",") ? fileBase64.split(",")[1] : fileBase64;
-      const bytes = Buffer.from(raw, "base64");
+      let bytes: Buffer;
+      const tmpKeys: string[] = [];
+      const tmp = getStore("starvibe-videos-tmp");
+      if (uploadId) {
+        if (!UPLOAD_ID_RE.test(uploadId) || !Number.isInteger(nChunks) || nChunks < 1 || nChunks > MAX_CHUNKS) {
+          return json({ error: "Envoi incomplet, réessaie." }, 400);
+        }
+        const parts: Buffer[] = [];
+        for (let k = 0; k < nChunks; k++) {
+          const key = `${accountId}/${uploadId}/${k}`;
+          const part = await tmp.get(key, { type: "arrayBuffer" });
+          if (!part) return json({ error: "Envoi incomplet, réessaie." }, 400);
+          parts.push(Buffer.from(part));
+          tmpKeys.push(key);
+        }
+        bytes = Buffer.concat(parts);
+      } else {
+        const raw = fileBase64.includes(",") ? fileBase64.split(",")[1] : fileBase64;
+        bytes = Buffer.from(raw, "base64");
+      }
       if (bytes.byteLength > MAX_VIDEO_BYTES) {
         return json({ error: "Vidéo trop volumineuse (limite 40 Mo)" }, 400);
       }
@@ -166,17 +291,31 @@ export default async (req: Request, _context: Context) => {
       const blobKey = `${Date.now()}-${randomBytes(4).toString("hex")}`;
       await store.set(blobKey, bytes, { metadata: { typeMime } });
 
-      const moderationStatut = pourEnfants ? "en_attente" : "approuve";
+      const moderationStatut = pourEnfants || espace === "jeunes" ? "en_attente" : "approuve";   // KOMYO Jeunes : chaque vidéo est vérifiée par le staff avant d'apparaître
 
       const rows = (await sql`
-        INSERT INTO starvibe_videos (account_id, profile_id, legende, type_mime, blob_key, pour_enfants, moderation_statut)
-        VALUES (${accountId}, ${profileId}, ${legende}, ${typeMime}, ${blobKey}, ${pourEnfants}, ${moderationStatut})
+        INSERT INTO starvibe_videos (account_id, profile_id, legende, type_mime, blob_key, pour_enfants, moderation_statut, espace)
+        VALUES (${accountId}, ${profileId}, ${legende}, ${typeMime}, ${blobKey}, ${pourEnfants}, ${moderationStatut}, ${espace})
         RETURNING *
       `) as VideoRow[];
       const created = rows[0];
+      for (const key of tmpKeys) { try { await tmp.delete(key); } catch { /* sans gravité : ménage seulement */ } }
+      created.premium = false;
       created.auteur_nom = (await sql`SELECT nom FROM starvibe_profiles WHERE id = ${profileId}`)[0]?.nom || "";
 
       return json({ video: toApi(created, false) }, 201);
+    }
+
+    // --- Supprimer sa propre vidéo (la vidéo, ses j'aime, ses commentaires et son fichier) ---
+    if (action === "supprimer") {
+      const videoId = Number(earlyBody.videoId);
+      if (!videoId) return json({ error: "videoId requis" }, 400);
+      const gone = (await sql`
+        DELETE FROM starvibe_videos WHERE id = ${videoId} AND account_id = ${accountId} RETURNING blob_key
+      `) as { blob_key: string }[];
+      if (!gone[0]) return json({ error: "Vidéo introuvable, ou ce n'est pas la tienne." }, 404);
+      try { await getStore("starvibe-videos").delete(gone[0].blob_key); } catch { /* le fichier orphelin ne gêne personne */ }
+      return json({ ok: true });
     }
 
     if (action === "like" || action === "unlike") {
@@ -232,6 +371,7 @@ export default async (req: Request, _context: Context) => {
       const videoId = Number(earlyBody.videoId);
       const profileId = Number(earlyBody.profileId);
       const texte = clean(earlyBody.texte, 300);
+      let parentId = Number(earlyBody.parentId) || 0;
       if (!videoId || !profileId || !texte) {
         return json({ error: "videoId, profileId et texte requis" }, 400);
       }
@@ -242,9 +382,16 @@ export default async (req: Request, _context: Context) => {
       const profile = profRows[0];
       if (!profile) return json({ error: "Profil introuvable" }, 404);
 
+      // réponse à un commentaire : le parent doit exister sur la même vidéo ; une réponse à une réponse se range sous le commentaire d'origine
+      if (parentId) {
+        const par = (await sql`SELECT id, parent_id FROM starvibe_comments WHERE id = ${parentId} AND video_id = ${videoId} LIMIT 1`) as { id: number; parent_id: number | null }[];
+        if (!par[0]) return json({ error: "Commentaire introuvable" }, 404);
+        parentId = par[0].parent_id || par[0].id;
+      }
+
       const rows = (await sql`
-        INSERT INTO starvibe_comments (video_id, account_id, profile_id, texte)
-        VALUES (${videoId}, ${accountId}, ${profileId}, ${texte})
+        INSERT INTO starvibe_comments (video_id, account_id, profile_id, texte, parent_id)
+        VALUES (${videoId}, ${accountId}, ${profileId}, ${texte}, ${parentId || null})
         RETURNING id, texte, created_at
       `) as { id: number; texte: string; created_at: string }[];
       const created = rows[0];
@@ -263,6 +410,7 @@ export default async (req: Request, _context: Context) => {
           photoUrl: photoUrl(profile.photo_key),
           createdAt: created.created_at,
           accountId,
+          parentId: parentId || null,
         },
         commentaires: countRows[0]?.comments_count ?? 0,
       }, 201);
@@ -327,12 +475,13 @@ export default async (req: Request, _context: Context) => {
     if (!videoId) return json({ error: "videoId requis" }, 400);
 
     const rows = (await sql`
-      SELECT c.id, c.texte, c.created_at, c.account_id, p.nom AS auteur_nom, p.photo_key
+      SELECT c.id, c.texte, c.created_at, c.account_id, c.parent_id, p.nom AS auteur_nom, p.photo_key, (c.account_id = v.account_id) AS est_createur
       FROM starvibe_comments c
       JOIN starvibe_profiles p ON p.id = c.profile_id
+      JOIN starvibe_videos v ON v.id = c.video_id
       WHERE c.video_id = ${videoId}
-      ORDER BY c.id DESC LIMIT 100
-    `) as { id: number; texte: string; created_at: string; account_id: number; auteur_nom: string; photo_key: string | null }[];
+      ORDER BY c.id DESC LIMIT 300
+    `) as { id: number; texte: string; created_at: string; account_id: number; parent_id: number | null; auteur_nom: string; photo_key: string | null; est_createur: boolean }[];
 
     return json({
       commentaires: rows.map((r) => ({
@@ -343,6 +492,8 @@ export default async (req: Request, _context: Context) => {
         photoUrl: photoUrl(r.photo_key),
         createdAt: r.created_at,
         accountId: r.account_id,
+        parentId: r.parent_id ? String(r.parent_id) : null,
+        estCreateur: r.est_createur,
       })),
     });
   }
@@ -482,22 +633,46 @@ export default async (req: Request, _context: Context) => {
   // le fil principal (pour_enfants = false) c'est automatique dès la
   // publication ; pour PIOUPIOU (pour_enfants = true), ça n'arrive qu'après
   // validation par un compte staff (voir plus haut, action "moderer").
-  const wantKids = url.searchParams.get("espace") === "pioupiou";
+  // Une seule vidéo (invitation « Regarder ensemble ») : mêmes règles que le fil — approuvée, jamais PIOUPIOU, KOMYO Jeunes réservé aux 13-17 ans.
+  const une = Number(url.searchParams.get("une"));
+  if (une) {
+    const r = (await sql`
+      SELECT v.*, p.nom AS auteur_nom FROM starvibe_videos v JOIN starvibe_profiles p ON p.id = v.profile_id
+      WHERE v.id = ${une} AND v.moderation_statut = 'approuve' AND v.pour_enfants = false LIMIT 1
+    `) as VideoRow[];
+    if (!r[0]) return json({ video: null }, 404);
+    if (r[0].espace === "jeunes") {
+      const pers = (await sql`SELECT date_naissance FROM starvibe_profiles WHERE account_id = ${accountId} AND type_profil = 'personnel' LIMIT 1`) as { date_naissance: string }[];
+      if (!pers[0] || !estJeune(ageFromDate(String(pers[0].date_naissance)))) return json({ video: null, reserve: true }, 403);
+    }
+    const aime = (await sql`SELECT 1 FROM starvibe_likes WHERE account_id = ${accountId} AND video_id = ${une} LIMIT 1`) as unknown[];
+    return json({ video: toApi(r[0], aime.length > 0, await hasActiveFamille(sql, accountId), accountId) });
+  }
+
+  const espaceParam = (url.searchParams.get("espace") || "").toLowerCase();
+  const wantKids = espaceParam === "pioupiou";
+  const espaceFiltre = ESPACES_OUVERTS.includes(espaceParam) ? espaceParam : "";   // "" = fil principal : toutes les vidéos non enfants
   const before = Number(url.searchParams.get("before")) || null;
+
+  // KOMYO Jeunes : seuls les 13-17 ans le voient. Les autres reçoivent une liste vide.
+  if (espaceFiltre === "jeunes") {
+    const pers = (await sql`SELECT date_naissance FROM starvibe_profiles WHERE account_id = ${accountId} AND type_profil = 'personnel' LIMIT 1`) as { date_naissance: string }[];
+    if (!pers[0] || !estJeune(ageFromDate(String(pers[0].date_naissance)))) return json({ videos: [], reserve: true });
+  }
 
   const rows = (before
     ? await sql`
         SELECT v.*, p.nom AS auteur_nom
         FROM starvibe_videos v
         JOIN starvibe_profiles p ON p.id = v.profile_id
-        WHERE v.pour_enfants = ${wantKids} AND v.moderation_statut = 'approuve' AND v.id < ${before}
+        WHERE v.pour_enfants = ${wantKids} AND v.moderation_statut = 'approuve' AND (v.premium = false OR ${wantKids}) AND ((${espaceFiltre} = '' AND v.espace <> 'jeunes') OR (${espaceFiltre} <> '' AND v.espace = ${espaceFiltre})) AND v.id < ${before}
         ORDER BY v.id DESC LIMIT 10
       `
     : await sql`
         SELECT v.*, p.nom AS auteur_nom
         FROM starvibe_videos v
         JOIN starvibe_profiles p ON p.id = v.profile_id
-        WHERE v.pour_enfants = ${wantKids} AND v.moderation_statut = 'approuve'
+        WHERE v.pour_enfants = ${wantKids} AND v.moderation_statut = 'approuve' AND (v.premium = false OR ${wantKids}) AND ((${espaceFiltre} = '' AND v.espace <> 'jeunes') OR (${espaceFiltre} <> '' AND v.espace = ${espaceFiltre}))
         ORDER BY v.id DESC LIMIT 10
       `) as VideoRow[];
 
@@ -509,7 +684,8 @@ export default async (req: Request, _context: Context) => {
     : [];
   const likedSet = new Set(likedRows.map((r) => r.video_id));
 
-  return json({ videos: rows.map((r) => toApi(r, likedSet.has(r.id))) });
+  const canWatchPremium = await hasActiveFamille(sql, accountId);
+  return json({ videos: rows.map((r) => toApi(r, likedSet.has(r.id), canWatchPremium, accountId)), abonneFamille: canWatchPremium });
 };
 
 export const config: Config = {

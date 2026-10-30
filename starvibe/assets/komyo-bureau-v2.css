@@ -1,0 +1,22 @@
+/* KOMYO — version ordinateur, 2e partie (écrans de 1000 px et plus) : Tarifs, Installer, Promouvoir, Myo, PIOUPIOU.
+   Chargée avec media="(min-width:1000px)" : un téléphone ou une tablette n'en applique jamais une ligne. */
+
+/* En-tête dégradé : le texte s'aligne sur la colonne centrale au lieu de coller au bord gauche */
+.pg-tarifs .top{padding-inline:max(40px,calc((100% - 1080px)/2));padding-bottom:34px}
+.pg-promouvoir .top,.pg-myo .top{padding-inline:max(40px,calc((100% - 680px)/2));padding-bottom:34px}
+.pg-tarifs .top h1{font-size:34px}
+
+/* Tarifs : les offres côte à côte */
+.pg-tarifs .wrap{max-width:1160px;padding:28px 40px 70px;grid-template-columns:repeat(2,1fr);gap:20px;align-items:stretch}
+.pg-tarifs .wrap>.card:first-child{grid-column:1/-1}
+.pg-tarifs .wrap>.note,.pg-tarifs .wrap>p{grid-column:1/-1}
+
+/* Promouvoir et Myo : colonne de lecture confortable */
+.pg-promouvoir .wrap,.pg-myo .wrap{max-width:760px;padding:28px 40px 70px}
+
+/* Installer : colonne centrale plus large */
+.pg-installer .wrap{max-width:760px}
+
+/* PIOUPIOU : lecteur vidéo plus grand pour les parents sur ordinateur */
+.pg-pioupiou .player{max-width:420px}
+.pg-pioupiou .caption-box,.pg-pioupiou .controls{max-width:420px}

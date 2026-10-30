@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="assets/i18n-v1.js"></script>
+<title>KOMYO — Faire connaître mon annonce</title>
+<meta name="theme-color" content="#FFFBF3">
+<link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<style>
+  :root{--ink:#241536;--gold:#E8A93D;--coral:#FF6B4A;--cream:#FFFBF3;--dim:#6b5f80;--line:#eee2cc;--ok:#1f8f4a;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Inter',Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:'Sora',Arial,sans-serif;}
+  [hidden]{display:none!important;}
+  .top{background:linear-gradient(135deg,#0a1030,#16226b);color:#fff;padding:calc(16px + env(safe-area-inset-top)) 20px 28px;border-radius:0 0 26px 26px;}
+  .top a{color:#fff;text-decoration:none;font:700 13px 'Sora',Arial,sans-serif;}
+  .top h1{margin:10px 0 4px;font-size:25px;line-height:1.15;}
+  .top p{margin:0;font-size:13.5px;opacity:.92;line-height:1.45;}
+  .wrap{max-width:480px;margin:0 auto;padding:16px 20px 60px;}
+  label{display:block;font:700 13px 'Sora',Arial,sans-serif;margin:16px 0 6px;}
+  textarea,input[type=text],input[type=url],select{width:100%;border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;font:500 15px 'Inter',Arial,sans-serif;background:#fff;color:var(--ink);}
+  textarea{resize:none;height:84px;}
+  textarea:focus,input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(232,169,61,.2);}
+  .count{font-size:11.5px;color:var(--dim);text-align:right;margin-top:3px;}
+  .prev{margin-top:10px;display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:14px;background:linear-gradient(135deg,#0a1030,#241536);color:#fff;overflow:hidden;}
+  .prev .tag{flex:none;font:800 9.5px 'Sora',Arial,sans-serif;letter-spacing:.12em;color:#0a1030;background:linear-gradient(135deg,#ffe27a,#e8a93d);padding:3px 7px;border-radius:6px;}
+  .prev .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:600 13.5px 'Inter',Arial,sans-serif;}
+  .plans{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+  .plan{border:2px solid var(--line);border-radius:16px;padding:14px 10px;text-align:center;background:#fff;cursor:pointer;}
+  .plan input{position:absolute;opacity:0;}
+  .plan b{display:block;font:800 17px 'Sora',Arial,sans-serif;margin-bottom:4px;}
+  .plan span{font-size:12.5px;color:var(--dim);}
+  .plan.on{border-color:var(--coral);background:#fff4ee;box-shadow:0 8px 18px -10px rgba(255,107,74,.7);}
+  .cta{width:100%;border:none;border-radius:16px;padding:16px;margin-top:18px;font:800 16px 'Sora',Arial,sans-serif;color:#fff;cursor:pointer;background:linear-gradient(135deg,var(--coral),var(--gold));box-shadow:0 14px 28px -12px rgba(232,120,60,.8);}
+  .cta:disabled{opacity:.6;}
+  .err{background:#fdecea;color:#b3261e;border:1px solid #f3c2bd;border-radius:10px;padding:9px 12px;font-size:13px;margin-top:12px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;margin-top:16px;}
+  .row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px;}
+  .row:first-of-type{border-top:none;}
+  .row b{font-family:'Sora',Arial,sans-serif;text-align:right;}
+  .note{font-size:12.5px;color:var(--dim);line-height:1.5;margin-top:10px;}
+  .warn{background:#fff7e0;border:1px solid #ecd9a0;border-radius:10px;padding:9px 12px;font-size:12.5px;margin-top:10px;line-height:1.45;}
+  .st{display:inline-block;font:800 11px 'Sora',Arial,sans-serif;padding:3px 9px;border-radius:999px;background:#eee;}
+  .st.actif{background:#e4f6ea;color:var(--ok);}.st.att{background:#fff3d6;color:#8a6318;}.st.non{background:#fdecea;color:#b3261e;}
+  .mini{font-size:12px;color:var(--dim);}
+</style>
+<link rel="stylesheet" href="assets/komyo-bureau-v2.css" media="(min-width:1000px)">
+</head>
+<body class="pg-promouvoir">
+<div class="top"><a href="accueil.html">← Mon espace</a><h1>Fais connaître ta musique, ton événement ou ton activité</h1><p>Ton message défile en bas de l'écran de tous les abonnés connectés, en même temps, quelques secondes à chaque passage.</p></div>
+<div class="wrap">
+  <div id="out" class="card" hidden style="text-align:center">Connecte-toi à KOMYO pour créer une annonce.<br><a href="inscription.html" style="color:var(--coral);font-weight:700">Se connecter / Créer un compte</a></div>
+  <div id="app" hidden>
+    <div id="formView">
+      <label for="texte">Ton message <span class="mini">(ex. : « DJ Kaled — nouvel album disponible dans l'espace Musique »)</span></label>
+      <textarea id="texte" maxlength="100" placeholder="Écris ton message en une phrase courte"></textarea>
+      <div class="count"><span id="nb">0</span> / 100</div>
+      <div class="prev"><span class="tag">ANNONCE</span><span class="t" id="prev">Ton message apparaîtra ici…</span></div>
+
+      <label for="cat">Type d'annonce</label>
+      <select id="cat"><option value="musique">🎵 Musique (nouveau titre, album, concert)</option><option value="evenement">🎉 Événement</option><option value="business">🛍️ Boutique / activité</option><option value="autre">✨ Autre</option></select>
+
+      <label for="lien">Où envoyer les gens quand ils touchent l'annonce ? <span class="mini">(facultatif)</span></label>
+      <select id="lienType"><option value="">Nulle part (message seul)</option><option value="fil.html?espace=musique">L'espace Musique de KOMYO</option><option value="fil.html?espace=business">L'espace Business de KOMYO</option><option value="fil.html?espace=talents">L'espace Talents de KOMYO</option><option value="https">Mon lien (https://…)</option></select>
+      <input type="url" id="lien" placeholder="https://" hidden style="margin-top:8px">
+
+      <label>Durée</label>
+      <div class="plans" id="plans">
+        <label class="plan" data-plan="une_semaine" style="margin:0"><input type="radio" name="plan" value="une_semaine"><b>2 000 FCFA</b><span>1 semaine · essai</span></label>
+        <label class="plan" data-plan="deux_semaines" style="margin:0"><input type="radio" name="plan" value="deux_semaines"><b>4 000 FCFA</b><span>2 semaines</span></label>
+        <label class="plan on" data-plan="un_mois" style="margin:0"><input type="radio" name="plan" value="un_mois" checked><b>10 000 FCFA</b><span>1 mois</span></label>
+      </div>
+      <div id="err" class="err" hidden></div>
+      <button class="cta" id="btnCreer" type="button">Continuer vers le paiement</button>
+      <p class="note">Ton annonce n'est affichée qu'après paiement confirmé et relecture par l'équipe STAR ENTREPRISE. Réservé aux personnes de 18 ans et plus. Messages interdits : arnaques, haine, contenu pour adultes, fausses promesses.</p>
+    </div>
+
+    <div id="payView" hidden>
+      <div class="card" id="payCard"></div>
+      <button class="cta" id="btnAutre" type="button" style="background:#241536;box-shadow:none">Créer une autre annonce</button>
+    </div>
+
+    <h2 style="margin:26px 0 6px;font-size:16px">Mes annonces</h2>
+    <div id="mes"><div class="note">Chargement…</div></div>
+  </div>
+</div>
+<script>
+(function(){
+  var API = '/api/starvibe-pub', token = '';
+  try { token = localStorage.getItem('starvibe_token') || ''; } catch (e) {}
+  var out = document.getElementById('out'), app = document.getElementById('app');
+  if (!token){ out.hidden = false; return; }
+  app.hidden = false;
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]; }); }
+  function fmt(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+  function api(opts){ opts = opts || {}; return fetch(API + (opts.q || ''), opts.body ? { method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + token }, body: JSON.stringify(opts.body) } : { headers:{ 'Authorization':'Bearer ' + token } }); }
+
+  $('texte').addEventListener('input', function(){ $('nb').textContent = this.value.length; $('prev').textContent = this.value.trim() || 'Ton message apparaîtra ici…'; });
+  $('lienType').addEventListener('change', function(){ $('lien').hidden = this.value !== 'https'; });
+  [].forEach.call(document.querySelectorAll('.plan'), function(p){ p.addEventListener('click', function(){ [].forEach.call(document.querySelectorAll('.plan'), function(x){ x.classList.toggle('on', x === p); }); }); });
+  function erreur(m){ $('err').textContent = m || ''; $('err').hidden = !m; }
+
+  $('btnCreer').addEventListener('click', function(){
+    erreur('');
+    var texte = $('texte').value.trim(), plan = (document.querySelector('input[name=plan]:checked') || {}).value, lt = $('lienType').value, lien = lt === 'https' ? $('lien').value.trim() : lt;
+    if (texte.length < 6){ erreur('Écris un message d\'au moins 6 caractères.'); return; }
+    if (lt === 'https' && !/^https:\/\//.test(lien)){ erreur('Le lien doit commencer par https://'); return; }
+    var b = this; b.disabled = true; b.textContent = 'Un instant…';
+    api({ body: { action:'creer', texte:texte, lien:lien, categorie:$('cat').value, plan:plan } }).then(function(r){ return r.json().then(function(d){ return { ok:r.ok, d:d }; }); }).then(function(res){
+      b.disabled = false; b.textContent = 'Continuer vers le paiement';
+      if (!res.ok){ erreur(res.d.error || 'Création impossible pour le moment.'); return; }
+      paiement(res.d.annonce); mes();
+    }).catch(function(){ b.disabled = false; b.textContent = 'Continuer vers le paiement'; erreur('Connexion interrompue. Réessaie dans un instant.'); });
+  });
+  function paiement(a){
+    $('formView').hidden = true; $('payView').hidden = false;
+    $('payCard').innerHTML = '<h2 style="margin:0 0 8px;font-size:17px">Paiement de ' + fmt(a.montantAttendu) + ' FCFA</h2>' +
+      '<div class="row"><span>Annonce</span><b>' + esc(a.texte) + '</b></div><div class="row"><span>Durée</span><b>' + esc(a.planLabel) + '</b></div>' +
+      '<div class="row"><span>Montant exact</span><b>' + fmt(a.montantAttendu) + ' FCFA</b></div><div class="row"><span>Dépôt Mobile Money au</span><b>' + esc(a.numeroReception) + '</b></div><div class="row"><span>Référence</span><b>' + esc(a.referencePaiement) + '</b></div>' +
+      '<p class="note">1. Fais ton dépôt (MTN Mobile Money ou Airtel Money) au numéro ci-dessus, <b>avec la référence</b>.<br>2. Ton annonce démarre dès que l\'équipe a reçu le montant exact et relu ton message.</p>' +
+      '<div class="warn"><b>Montant exact : ' + fmt(a.montantAttendu) + ' FCFA.</b> Un montant différent (moins ou plus) ne démarre pas l\'annonce : contacte l\'équipe STAR ENTREPRISE au ' + esc(a.numeroReception) + '. Ne donne jamais ton code secret Mobile Money.</div>';
+  }
+  $('btnAutre').addEventListener('click', function(){ $('payView').hidden = true; $('formView').hidden = false; $('texte').value = ''; $('nb').textContent = '0'; $('prev').textContent = 'Ton message apparaîtra ici…'; erreur(''); });
+  function jolie(d){ try { return new Date(d).toLocaleDateString('fr-FR', { day:'numeric', month:'long' }); } catch (e) { return ''; } }
+  function mes(){
+    api({ q:'?mes=1' }).then(function(r){ return r.json(); }).then(function(d){
+      var a = d.annonces || [];
+      $('mes').innerHTML = a.length ? a.map(function(x){
+        var exp = x.statut === 'actif' && x.expiresAt && new Date(x.expiresAt) < new Date();
+        var st = exp ? '<span class="st">Terminée</span>' : x.statut === 'actif' ? '<span class="st actif">Active jusqu\'au ' + esc(jolie(x.expiresAt)) + '</span>' : x.statut === 'en_attente_paiement' ? '<span class="st att">En attente de paiement</span>' : x.statut === 'refusee' ? '<span class="st non">Refusée' + (x.refusMotif ? ' : ' + esc(x.refusMotif) : '') + '</span>' : '<span class="st non">Montant reçu incorrect</span>';
+        return '<div class="card" style="margin-top:10px"><div style="font-weight:600;font-size:14px;margin-bottom:6px">' + esc(x.texte) + '</div>' + st + ' <span class="mini">· ' + esc(x.planLabel) + ' · ' + fmt(x.montantAttendu) + ' FCFA' + (x.statut === 'en_attente_paiement' ? ' · réf. ' + esc(x.referencePaiement) : '') + '</span></div>';
+      }).join('') : '<div class="note">Aucune annonce pour le moment.</div>';
+    });
+  }
+  mes();
+})();
+</script>
+</body>
+</html>

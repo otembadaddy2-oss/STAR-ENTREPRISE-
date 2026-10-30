@@ -1,0 +1,12 @@
+<!doctype html><meta charset="utf-8"><title>fight</title><body style="margin:0;background:#000"><canvas id="c" style="width:960px;height:540px;display:block"></canvas>
+<script src="../js/data.js"></script><script src="../js/core.js"></script><script src="../js/ai.js"></script><script src="../js/stage.js"></script><script src="../js/draw.js"></script><script src="../js/fx.js"></script><script src="../js/render.js"></script>
+<script>
+var q=new URLSearchParams(location.search), A=q.get('a')||'calpros', B=q.get('b')||'kormal', st=q.get('s')||'pointe-noire';
+var m=new XS.Core.Match({p1:A,p2:B,cpu1:{cpu:true,level:3},cpu2:{cpu:true,level:3},seed:+(q.get('seed')||3)});
+var art={},por={};XS.Data.order.forEach(function(id){var i=new Image();i.src='../img/'+id+'-portrait.jpg';art[id]=i;var p=new Image();p.src='../img/'+id+'-portrait.jpg';por[id]=p;});
+var R=new XS.Render(document.getElementById('c'),{art:art,portraits:por}); R.setStage(st);
+var ai=[XS.AI.create(3,1),XS.AI.create(3,2)];
+window.step=function(n,forceRage){for(var i=0;i<n;i++){ if(forceRage&&m.phase==='fight'){m.f[0].rage=100;} m.step([ai[0].think(m,0),ai[1].think(m,1)]); R.onEvents(m); R.tick(m);} R.draw(m);};
+window.until=function(fn,max){for(var i=0;i<max;i++){window.step(1);if(fn(m))return i;}return -1;};
+window.M=m; window.R=R; step(1);
+</script>

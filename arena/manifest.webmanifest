@@ -1,0 +1,20 @@
+{
+  "name": "X SAPHIR ARENA",
+  "short_name": "X SAPHIR ARENA",
+  "description": "Le jeu de combat 2D dessiné à l'encre de l'univers X SAPHIR.",
+  "id": "/arena/",
+  "start_url": "/arena/?source=pwa",
+  "scope": "/arena/",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "landscape",
+  "background_color": "#05030a",
+  "theme_color": "#05030a",
+  "lang": "fr",
+  "categories": ["games"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

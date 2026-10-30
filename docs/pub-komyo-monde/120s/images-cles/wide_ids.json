@@ -1,0 +1,37 @@
+{
+ "k01_brazza_aerial": {
+  "id": "14c7a7f6-a233-446b-98fc-74f7ad08fecb",
+  "status": "completed",
+  "url": "https://d3u0tzju9qaucj.cloudfront.net/089a11ab-f215-4dba-83fa-abc51a497cdd/14c7a7f6-a233-446b-98fc-74f7ad08fecb/ade37ecc-3398-4037-b42d-836777027638.png"
+ },
+ "k03_paris_cafe": {
+  "id": "1c2ebbcf-226e-4962-b26f-24f6d0502010",
+  "status": "completed",
+  "url": "https://d3u0tzju9qaucj.cloudfront.net/089a11ab-f215-4dba-83fa-abc51a497cdd/1c2ebbcf-226e-4962-b26f-24f6d0502010/cc581191-0ed7-4e11-a5c2-aac3fd3becea.png"
+ },
+ "k04_montreal_salon": {
+  "id": "2ad910ea-e3ab-4faf-8267-dcef529fb7b1",
+  "status": "completed",
+  "url": "https://d3u0tzju9qaucj.cloudfront.net/089a11ab-f215-4dba-83fa-abc51a497cdd/2ad910ea-e3ab-4faf-8267-dcef529fb7b1/f15b4c7f-cedc-4544-bcb5-e30ef0eb1ac1.png"
+ },
+ "k02_glaciere_topdown": {
+  "id": "768764d7-9720-41ec-850f-d4bdba3b92b2",
+  "status": "completed",
+  "url": "https://d3u0tzju9qaucj.cloudfront.net/089a11ab-f215-4dba-83fa-abc51a497cdd/768764d7-9720-41ec-850f-d4bdba3b92b2/9171c88c-d79e-4842-9240-41ffbe278497.png"
+ },
+ "k05_tokyo_nuit": {
+  "id": "8f42f565-624d-46fa-8193-bef149df8c41",
+  "status": "completed",
+  "url": "https://d3u0tzju9qaucj.cloudfront.net/089a11ab-f215-4dba-83fa-abc51a497cdd/8f42f565-624d-46fa-8193-bef149df8c41/db451c93-bbfc-4aee-a8fb-dd5e51cadecd.png"
+ },
+ "k07_eau_verre": {
+  "id": "afe9a7e2-037a-4bdb-a07d-44c6537ac659",
+  "status": "completed",
+  "url": "https://d3u0tzju9qaucj.cloudfront.net/089a11ab-f215-4dba-83fa-abc51a497cdd/afe9a7e2-037a-4bdb-a07d-44c6537ac659/eba2d3d9-2057-4735-b9dc-32bc1d086f77.png"
+ },
+ "k06_abidjan_boutique": {
+  "id": "333ca8f6-a0fe-4cb2-af6a-076ca6eb443c",
+  "status": "completed",
+  "url": "https://d3u0tzju9qaucj.cloudfront.net/089a11ab-f215-4dba-83fa-abc51a497cdd/333ca8f6-a0fe-4cb2-af6a-076ca6eb443c/045a5ec3-d1f8-4d6f-b10e-aaf16d2192fa.png"
+ }
+}

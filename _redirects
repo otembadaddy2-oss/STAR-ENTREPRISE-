@@ -3,3 +3,28 @@
 # KOMYO : adresse komyo.starentreprise.com (le domaine nu reste sur le site PHP de Hostinger)
 https://komyo.starentreprise.com/  /starvibe/  301!
 http://komyo.starentreprise.com/   /starvibe/  301!
+
+# Lien court à partager (en attendant komyo.starentreprise.com)
+/komyo   /starvibe/   301
+/keydou  /starvibe/keydou.html  302
+/installer  /starvibe/installer.html  302
+
+# Fichiers du dépôt qui n'ont pas à être publics (code des fonctions, outils, notes internes, annuaires de Keydou) : introuvables.
+/netlify/*        /404.html  404!
+/tools/*          /404.html  404!
+/node_modules/*   /404.html  404!
+/package.json       /404.html  404!
+/package-lock.json  /404.html  404!
+/docs/*.md        /404.html  404!
+/docs/pioupiou/*  /404.html  404!
+/docs/keydou/*    /404.html  404!
+/docs/film/*       /404.html  404!
+/arena/tests/*    /404.html  404!
+# Jeu X SAPHIR ARENA : hors ligne tant que Carry n'a pas dit « vas-y » (retirer cette ligne pour l'ouvrir)
+/arena           /404.html  404!
+/arena/*         /404.html  404!
+
+# Documents internes (plans, états des lieux, notes de production) : pas publics
+/docs/komyo/*           /404.html  404!
+/docs/film/*            /404.html  404!
+/docs/pub-komyo-monde/* /404.html  404!

@@ -1,0 +1,23 @@
+<!doctype html><meta charset="utf-8"><title>poses</title><body style="margin:0;background:#222"><canvas id="c" width="1920" height="1080"></canvas>
+<script src="../js/data.js"></script><script src="../js/core.js"></script><script src="../js/draw.js"></script>
+<script>
+var ctx=document.getElementById('c').getContext('2d'), D=XS.Draw, Dat=XS.Data;
+var q=new URLSearchParams(location.search), cid=q.get('c')||'calpros';
+var names=[['idle','idle',{}],['crouch','crouch',{}],['walkF','walkF',{}],['dashF','dashF',{sf:10}],['air','air',{vy:5,y:60}],['block','block',{}],['cblock','block',{blockCrouch:true}],['hit','hit',{sf:2}],
+['lp','attack',{m:'lp'}],['hp','attack',{m:'hp'}],['lk','attack',{m:'lk'}],['hk','attack',{m:'hk'}],['clp','attack',{m:'clp'}],['chp','attack',{m:'chp'}],['clk','attack',{m:'clk'}],['chk','attack',{m:'chk'}],
+['jlp','attack',{m:'jlp',y:60}],['jhk','attack',{m:'jhk',y:60}],['thr','attack',{m:'thr'}],['fire','attack',{m:'sp236'}],['dp','attack',{m:'sp623',y:40}],['lunge','attack',{m:'sp214'}],['beam','attack',{m:'sup'}],
+['airhit','airhit',{sf:6,y:90}],['lie','knockdown',{}],['getup','getup',{kdT:9}],['ko','ko',{sf:10,y:80}],['win','win',{}],['intro','intro',{animT:60}],['thrown','thrown',{sf:6,y:70}],['walkB','walkB',{}],['tech','tech',{}]];
+var C=Dat.chars[cid];
+names.forEach(function(n,i){
+  var col=i%8, row=Math.floor(i/8), x=120+col*240, gy=row*270+232;
+  ctx.fillStyle=(row+col)%2?'#2b2f4a':'#252a44'; ctx.fillRect(col*240,row*270,240,270);
+  ctx.fillStyle='#555';ctx.fillRect(col*240,gy,240,2);
+  var f={C:C,cid:cid,face:1,x:0,y:n[2].y||0,vy:n[2].vy||0,state:n[1],sf:n[2].sf||0,animT:n[2].animT||40,rage:0,flash:0,mf:0,move:null,kdT:n[2].kdT||0,blockCrouch:n[2].blockCrouch,hitKind:'stand',proj:null};
+  if(n[2].m){var m=n[2].m,mv;
+    if(m.indexOf('sp')===0){mv=C.specials[m.slice(2)].H;} else if(m==='sup'){mv=C.sup;} else mv=C.normals[m];
+    f.move=mv; var su=mv.su, ac=mv.ac>90?28:mv.ac; f.mf=su+1; }
+  D.drawFighter(ctx,f,x,gy,1.15,{noGlow:false});
+  ctx.fillStyle='#fff';ctx.font='14px sans-serif';ctx.fillText(n[0],col*240+8,row*270+18);
+});
+window.__done=true;
+</script>

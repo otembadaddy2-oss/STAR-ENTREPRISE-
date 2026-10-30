@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="assets/i18n-v1.js"></script>
 <title>KOMYO — Apprendre • Créer • Partager</title>
-<meta name="description" content="KOMYO : l'application vidéo verticale pensée pour le Congo et l'Afrique. Un vrai compte, un espace enfants séparé (PIOUPIOU), 100% sécurisé.">
+<meta name="description" content="KOMYO : l'application vidéo verticale pensée pour le monde entier. Un vrai compte, un espace enfants séparé (PIOUPIOU), 100% sécurisé.">
 <meta name="theme-color" content="#FFFBF3">
-<link rel="icon" href="../assets/img/icons/favicon-star-rounded-v1.png" type="image/png">
+<link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -35,23 +36,27 @@
   /* NAV */
   .nav{position:sticky;top:0;z-index:20;background:rgba(255,251,243,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
   .nav .wrap{display:flex;align-items:center;justify-content:space-between;padding-block:12px;max-width:480px;}
-  .brand{display:flex;align-items:center;gap:9px;font-family:'Sora',sans-serif;font-weight:800;font-size:15px;color:var(--ink);}
-  .brand img{width:30px;height:30px;border-radius:9px;transition:transform .3s ease;}
+  .brand{display:flex;align-items:center;gap:11px;font-family:'Sora',sans-serif;font-weight:800;font-size:21px;letter-spacing:.3px;color:var(--ink);}
+  .brand img{width:58px;height:58px;margin-block:-8px;object-fit:contain;transition:transform .3s ease;}
   .brand:hover img{transform:rotate(-8deg) scale(1.08);}
   .nav a.cta{background:linear-gradient(135deg,var(--coral),var(--gold));color:#fff;font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;
     padding:9px 16px;border-radius:20px;transition:transform .25s ease, box-shadow .25s ease;box-shadow:0 6px 16px -8px rgba(232,169,61,.6);}
   .nav a.cta:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 10px 22px -8px rgba(232,169,61,.8);}
 
   /* HERO */
-  .hero{position:relative;min-height:76vh;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;}
-  .hero-imgs{position:absolute;inset:0;display:grid;grid-template-columns:1.1fr 1fr .9fr;}
-  .hero-imgs img{width:100%;height:100%;object-fit:cover;filter:saturate(1.15) brightness(1.02);transform:scale(1.04);
-    transition:transform 8s ease;}
-  .hero:hover .hero-imgs img{transform:scale(1.1);}
-  .hero-imgs::after{content:"";position:absolute;inset:0;background:
-    linear-gradient(180deg, rgba(36,21,54,.18) 0%, rgba(232,169,61,.22) 45%, var(--cream) 92%);
-  }
-  .hero-body{position:relative;padding:0 22px 40px;text-align:center;}
+  .hero{position:relative;display:flex;flex-direction:column;overflow:hidden;}
+  .mosaic{position:relative;height:330px;max-width:480px;width:100%;margin:0 auto;padding-inline:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;overflow:hidden;
+    -webkit-mask-image:linear-gradient(180deg,#000 0,#000 72%,transparent 100%);mask-image:linear-gradient(180deg,#000 0,#000 72%,transparent 100%);}
+  .mcol{overflow:hidden;}
+  .mtrack{display:flex;flex-direction:column;gap:10px;will-change:transform;animation:mscroll 46s linear infinite;}
+  .mcol.up .mtrack{animation-direction:reverse;animation-duration:54s;}
+  .mcol:nth-child(3) .mtrack{animation-duration:40s;}
+  .mtrack img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:18px;background:var(--cream-2);flex:none;
+    box-shadow:0 10px 24px -14px rgba(36,21,54,.45);filter:saturate(1.12) brightness(1.03);}
+  @keyframes mscroll{from{transform:translateY(0);}to{transform:translateY(calc(-50% - 5px));}}
+  @media (prefers-reduced-motion:reduce){.mtrack{animation:none;}}
+  .hero-body{position:relative;padding:0 22px 40px;margin-top:-34px;text-align:center;}
+  .hero-logo{width:min(260px,70vw);height:auto;margin:0 auto 6px;filter:drop-shadow(0 10px 18px rgba(200,148,47,.35));animation:fadeUp .7s ease both;}
   .eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.85);border:1px solid rgba(232,169,61,.4);
     padding:6px 13px;border-radius:20px;font-size:11px;font-weight:700;color:var(--gold-deep);margin-bottom:18px;letter-spacing:.3px;
     animation:fadeUp .7s ease both;box-shadow:0 6px 16px -10px rgba(36,21,54,.25);}
@@ -126,18 +131,28 @@
   .wa-box .wa-num{font-family:'Sora',sans-serif;font-weight:800;color:#128C4A;}
 
   /* PIOUPIOU BANNER */
+
+  .keydou-banner{display:flex;align-items:center;gap:8px;border-radius:22px;overflow:hidden;margin-top:6px;text-decoration:none;color:var(--ink,#241536);
+    background:radial-gradient(120% 120% at 0% 0%,#fffaf0 0%,#ffecc2 60%,#f8d98c 100%);border:1px solid #eee2cc;padding:8px 18px 8px 8px;box-shadow:0 14px 30px -16px rgba(200,148,47,.55);transition:transform .3s ease;}
+  .keydou-banner:hover{transform:translateY(-4px);}
+  .keydou-banner img{flex:none;width:104px;height:auto;filter:drop-shadow(0 5px 6px rgba(36,21,54,.2));}
+  @keyframes kdHopL{0%{transform:translateY(0) rotate(-6deg);}25%{transform:translateY(-14px) rotate(0);}50%{transform:translateY(0) rotate(6deg);}75%{transform:translateY(-14px) rotate(0);}100%{transform:translateY(0) rotate(-6deg);}}
+  .keydou-banner h3{font-size:18px;margin:0 0 3px;font-family:'Sora',sans-serif;}
+  .keydou-banner p{font-size:12px;line-height:1.5;margin:0 0 6px;color:#6b5f80;}
+  .keydou-banner b{font-family:'Sora',sans-serif;font-size:12px;color:#7a5a12;border-bottom:1.5px solid #C8942F;}
+  @media (prefers-reduced-motion: reduce){.keydou-banner img{animation:none;}}
   .kids-banner{position:relative;border-radius:22px;overflow:hidden;margin-top:6px;box-shadow:0 14px 30px -16px rgba(47,143,110,.4);
     transition:transform .35s ease;}
   .kids-banner:hover{transform:translateY(-4px);}
-  .kids-banner img{width:100%;height:200px;object-fit:cover;transition:transform 6s ease;}
-  .kids-banner:hover img{transform:scale(1.08);}
-  .kids-banner::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg, rgba(15,74,55,.88) 8%, rgba(15,74,55,.05) 75%);}
-  .kids-banner-body{position:absolute;left:0;right:0;bottom:0;padding:18px 20px;}
-  .kids-badge{display:inline-block;margin-bottom:8px;animation:floaty 3s ease-in-out infinite;
+  .kids-banner>img{width:100%;height:290px;object-fit:cover;object-position:50% 22%;transition:transform 6s ease;}
+  .kids-banner:hover>img{transform:scale(1.06);}
+  .kids-banner::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg, rgba(15,74,55,.92) 6%, rgba(15,74,55,.45) 34%, rgba(15,74,55,0) 62%);}
+  .kids-banner-body{position:absolute;z-index:2;left:0;right:0;bottom:0;padding:18px 20px;}
+  .kids-badge{position:absolute;z-index:2;top:6px;right:8px;animation:floaty 3s ease-in-out infinite;
     filter:drop-shadow(0 6px 12px rgba(0,0,0,.35));}
-  .kids-badge img{height:30px;width:auto;display:block;border-radius:7px;}
-  .kids-banner-body h3{font-size:18px;font-weight:800;margin:0 0 4px;color:#fff;font-family:'Baloo 2',sans-serif;}
-  .kids-banner-body p{font-size:12px;color:rgba(255,255,255,.88);margin:0;max-width:280px;line-height:1.5;}
+  .kids-badge img{height:100px;width:auto;display:block;}
+  .kids-banner-body h3{font-size:19px;font-weight:800;margin:0 0 4px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.45);font-family:'Baloo 2',sans-serif;}
+  .kids-banner-body p{font-size:12px;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5);margin:0;max-width:280px;line-height:1.5;}
 
   /* HOW IT WORKS */
   .steps{counter-reset:step;}
@@ -168,37 +183,48 @@
     background:linear-gradient(135deg,var(--coral),var(--gold));border:none;display:flex;align-items:center;justify-content:center;
     box-shadow:0 12px 26px -8px rgba(232,169,61,.65);cursor:pointer;animation:floaty 2.4s ease-in-out infinite;
     transition:transform .25s ease;}
+  .voice-hint[hidden]{display:none;}
   .voice-hint:hover{transform:scale(1.08);}
   .voice-hint svg{width:24px;height:24px;}
 </style>
+<link rel="manifest" href="manifest-komyo.json">
+<script>document.write('<link rel="preload" as="image" href="assets/img/icons/komyo-logo-officiel' + (window.KOMYO_LANG === 'en' ? '-en' : '') + '-v2.webp">');</script>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KOMYO">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="assets/img/icons/komyo-apple-180-v2.png">
+<link rel="stylesheet" href="assets/komyo-bureau-v1.css" media="(min-width:1000px)">
 </head>
-<body>
+<body class="pg-index">
+<script src="assets/komyo-intro-v5.js"></script>
 
-<audio id="introVoice" preload="auto" src="assets/audio/komyo-intro-voix.mp3"></audio>
+<audio id="introVoice" preload="auto" src="assets/audio/komyo-intro-voix-monde-v2.mp3"></audio>
 <button id="voiceHint" class="voice-hint" type="button" aria-label="Écouter le message de bienvenue" hidden>
   <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>
 </button>
 
 <nav class="nav">
   <div class="wrap">
-    <div class="brand"><img src="assets/img/komyo-icon.png" alt="">KOMYO</div>
+    <div class="brand"><img src="assets/img/icons/komyo-k-v3.webp" alt="">KOMYO</div>
     <a class="cta" href="inscription.html">Créer un compte</a>
   </div>
 </nav>
 
 <div class="hero">
-  <div class="hero-imgs">
-    <img src="https://images.unsplash.com/photo-1600682806492-b2a020079ae0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="">
-    <img src="https://images.unsplash.com/photo-1751580471264-7f8cd53d82d8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="">
-    <img src="https://images.unsplash.com/photo-1778894926879-07308f00c4a9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="">
+  <div class="mosaic">
+    <div class="mcol down"><div class="mtrack"><img src="https://images.unsplash.com/photo-1770842655322-bcfd1c4be229?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Enfant qui rit aux éclats" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1643818657367-491080baeece?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Famille qui saute de joie" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1768244016603-7a8f46acc462?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Jeune homme qui éclate de rire" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1719086249857-4e6b77012f1e?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Enfants complices et rieurs" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1770842655322-bcfd1c4be229?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1643818657367-491080baeece?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1768244016603-7a8f46acc462?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1719086249857-4e6b77012f1e?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"></div></div>
+    <div class="mcol up"><div class="mtrack"><img src="https://images.unsplash.com/photo-1764145177622-8317fbfe1877?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Fillette au grand sourire" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1643818653783-2f818a205bb6?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Famille bras ouverts dans l'herbe" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1633539656332-d0861676473a?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Garçon hilare" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1596768453551-c1e07b6fc1b6?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Amies qui rient devant un téléphone" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1764145177622-8317fbfe1877?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1643818653783-2f818a205bb6?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1633539656332-d0861676473a?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1596768453551-c1e07b6fc1b6?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"></div></div>
+    <div class="mcol down"><div class="mtrack"><img src="https://images.unsplash.com/photo-1643818656778-714d7ba6b420?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Fillette sur les épaules de son papa" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1571417800906-5a5058dbd45d?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Cinq garçons souriants" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1751580471264-7f8cd53d82d8?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Maman et ses trois enfants" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1596510914965-9ae08acae566?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Parents et bébé heureux" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1643818656778-714d7ba6b420?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1571417800906-5a5058dbd45d?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1751580471264-7f8cd53d82d8?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1596510914965-9ae08acae566?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"></div></div>
   </div>
   <div class="hero-body">
-    <div class="eyebrow"><span class="dot"></span>Nouveau — ouvert à Brazzaville &amp; Pointe-Noire</div>
+    <img class="hero-logo" src="assets/img/icons/komyo-logo-officiel-v2.webp" alt="KOMYO — Le monde en mouvement" width="260" height="208">
+    <div class="eyebrow"><span class="dot"></span>Nouveau — ouvert partout dans le monde</div>
     <h1>Apprendre.<br>Créer.<br>Partager.</h1>
-    <p>L'application vidéo verticale pensée pour le Congo et l'Afrique — avec un vrai espace séparé et sécurisé pour les enfants.</p>
+    <p>L'application vidéo verticale pensée pour le monde entier — avec un vrai espace séparé et sécurisé pour les enfants.</p>
     <div class="hero-ctas">
       <a class="btn-primary" href="inscription.html">Créer mon compte gratuitement</a>
-      <a class="btn-ghost" href="inscription.html">J'ai déjà un compte</a>
+      <a class="btn-ghost" href="inscription.html?mode=login">J'ai déjà un compte</a>
     </div>
     <div class="trust-row">
       <span class="item"><svg viewBox="0 0 24 24" fill="none" stroke="#2f9e5e" stroke-width="2.3"><path d="M12 3 4 6.5V12c0 5 3.5 8.5 8 9 4.5-.5 8-4 8-9V6.5L12 3z"/></svg>100% sécurisé</span>
@@ -211,8 +237,8 @@
 <section class="wrap">
   <div class="sec-head reveal">
     <div class="sec-tag">Pourquoi KOMYO</div>
-    <h2>Une appli faite pour toi, faite pour ici</h2>
-    <p>Chaque détail est pensé pour le public congolais et africain — du numéro de téléphone au design.</p>
+    <h2>Une appli faite pour toi, où que tu sois</h2>
+    <p>Chaque détail est pensé pour toutes les cultures, partout dans le monde — du numéro de téléphone au design.</p>
   </div>
   <div class="feat-grid">
     <div class="feat-card play reveal">
@@ -234,7 +260,7 @@
   <div class="sec-head reveal">
     <div class="sec-tag">L'univers KOMYO</div>
     <h2>Une seule marque, plusieurs mondes</h2>
-    <p>KOMYO grandit avec toi — de l'espace enfants aux opportunités business, en passant par la découverte de l'Afrique.</p>
+    <p>KOMYO grandit avec toi — de l'espace enfants aux opportunités business, en passant par la découverte du monde.</p>
   </div>
   <div class="universe-grid">
     <a class="universe-card kids reveal" href="pioupiou.html">
@@ -243,42 +269,55 @@
       <h3>PIOUPIOU</h3>
       <p>Espace vidéo éducatif pour enfants, 100% séparé et sécurisé.</p>
     </a>
-    <div class="universe-card reveal">
-      <span class="soon">Bientôt</span>
+    <a class="universe-card reveal" href="fil.html?espace=jeunes">
       <div class="u-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.3"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 21c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><path d="M16.5 14.5c2.8.4 5 2.9 5 6.5"/><circle cx="16.5" cy="7.5" r="2.6"/></svg></div>
-      <span class="age">8–17 ans</span>
+      <span class="age">13–17 ans</span>
       <h3>KOMYO Jeunes</h3>
-      <p>Découvrir, créer et partager entre ados, en toute sécurité.</p>
-    </div>
-    <div class="universe-card reveal">
-      <span class="soon">Bientôt</span>
+      <p>Découvrir, créer et partager entre ados, en toute sécurité. Ouvert maintenant : chaque vidéo est vérifiée.</p>
+    </a>
+    <a class="universe-card reveal" href="fil.html?espace=business">
       <div class="u-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.3"><path d="M3 9h18M8 9V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v3M4 9h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9z"/></svg></div>
       <span class="age">18 ans et +</span>
       <h3>KOMYO Business</h3>
-      <p>Vendre, entreprendre et développer ton activité sur toute l'Afrique.</p>
-    </div>
-    <div class="universe-card reveal">
-      <span class="soon">Bientôt</span>
+      <p>Présente ton activité, ton produit, ta boutique. Ouvert maintenant.</p>
+    </a>
+    <a class="universe-card reveal" href="fil.html?espace=talents">
       <div class="u-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.3"><path d="m12 2 2.9 6.3 6.9.7-5.2 4.7 1.6 6.8L12 17l-6.2 3.5 1.6-6.8L2.2 9l6.9-.7L12 2z"/></svg></div>
       <span class="age">Créateurs &amp; talents</span>
       <h3>KOMYO Talents</h3>
-      <p>Mettre en valeur les savoir-faire et talents africains.</p>
-    </div>
-    <div class="universe-card reveal" style="grid-column:1/-1;">
-      <span class="soon">Bientôt</span>
+      <p>Montre ton talent au monde entier : chant, danse, cuisine, métier, art… Ouvert maintenant.</p>
+    </a>
+    <a class="universe-card reveal" href="fil.html?espace=musique">
+      <div class="u-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.3"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg></div>
+      <span class="age">Artistes &amp; DJ</span>
+      <h3>KOMYO Musique</h3>
+      <p>Clips, sons et nouveautés des artistes. Annonces pour faire connaître ta musique.</p>
+    </a>
+    <a class="universe-card reveal" href="fil.html?espace=decouverte" style="grid-column:1/-1;">
       <div class="u-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.3"><circle cx="12" cy="12" r="9"/><path d="m14.5 9.5-2 5-3 2 2-5 3-2z"/></svg></div>
-      <span class="age">Toute l'Afrique</span>
+      <span class="age">Le monde entier</span>
       <h3>KOMYO Découverte</h3>
-      <p>Explorer l'Afrique et sa richesse culturelle, à travers des vidéos de la communauté.</p>
-    </div>
+      <p>Explore le monde et ses cultures à travers les vidéos de la communauté. Ouvert maintenant.</p>
+    </a>
   </div>
 </section>
 
 <section class="wrap" style="padding-top:0;">
+  <a class="keydou-banner reveal" href="keydou.html" data-keydou-anim data-keydou-w="116">
+    <img src="assets/img/keydou.webp" alt="Keydou, la mascotte-assistant de STAR ENTREPRISE" width="104" height="130">
+    <div>
+      <h3>Keydou, votre assistant multiservices</h3>
+      <p>Hôtel, restaurant, salle de sport, spa, voiture, dépannage… Parlez à Keydou : il connaît les bonnes adresses du Congo. Juste votre nom, votre téléphone et votre ville.</p>
+      <b>Parler à Keydou — sans créer de compte →</b>
+    </div>
+  </a>
+</section>
+
+<section class="wrap" style="padding-top:0;">
   <div class="kids-banner reveal">
-    <img src="https://images.unsplash.com/photo-1778894926879-07308f00c4a9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="">
+    <img src="assets/img/kids-joie.jpg" alt="Des enfants qui rient à la balançoire, au foot et au château de sable" width="736" height="736">
+    <span class="kids-badge"><img src="assets/img/pioupiou-logo-slogan-v2.webp" alt="PIOUPIOU — Le bonheur dans chaque croquant !"></span>
     <div class="kids-banner-body">
-      <span class="kids-badge"><img src="assets/img/pioupiou-wordmark.jpg" alt="PIOUPIOU"></span>
       <h3>Un monde à part pour les tout-petits</h3>
       <p>Un espace éducatif et amusant réservé aux 3-6 ans — supervisé par un parent, jamais mélangé avec le reste de KOMYO.</p>
     </div>
@@ -291,7 +330,7 @@
     <h2>Trois étapes, c'est tout</h2>
   </div>
   <div class="steps">
-    <div class="step reveal"><div class="step-num"></div><div><h3>Crée ton compte</h3><p>Ton numéro de téléphone et un code PIN à 4 chiffres — comme ton Mobile Money.</p></div></div>
+    <div class="step reveal"><div class="step-num"></div><div><h3>Crée ton compte</h3><p>Ton numéro de téléphone et un code PIN à 4 ou 5 chiffres que tu inventes toi-même — sans Mobile Money.</p></div></div>
     <div class="step reveal"><div class="step-num"></div><div><h3>Choisis ton profil</h3><p>Toi-même, ou un profil "Mon enfant (3-6 ans)" séparé pour ta famille.</p></div></div>
     <div class="step reveal"><div class="step-num"></div><div><h3>Filme &amp; découvre</h3><p>Partage tes vidéos et découvre celles des autres, en toute sécurité.</p></div></div>
   </div>
@@ -305,17 +344,45 @@
   </div>
 </section>
 
-<section class="wrap" style="padding-top:0;">
-  <a class="wa-box reveal" href="https://wa.me/242066565050?text=Bonjour%20KOMYO%2C%20je%20souhaite%20en%20savoir%20plus." target="_blank" rel="noopener">
-    <div class="wa-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.7 1.5 5.3L2 22l4.8-1.5c1.5.8 3.3 1.3 5.2 1.3 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg></div>
-    <div class="wa-text">
-      <h4>Une question sur KOMYO ?</h4>
-      <p>Écris-nous sur WhatsApp — <span class="wa-num">+242 06 656 50 50</span></p>
+<section class="wrap" style="padding-top:0;" id="contact">
+  <div class="wa-box reveal" style="display:block;cursor:default;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+      <div class="wa-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.7 1.5 5.3L2 22l4.8-1.5c1.5.8 3.3 1.3 5.2 1.3 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg></div>
+      <div class="wa-text"><h4>Une question sur KOMYO ?</h4><p>Écris-nous ton message : il arrive tout de suite chez nous.</p></div>
     </div>
-  </a>
+    <form id="ctForm" novalidate>
+      <input id="ctNom" type="text" placeholder="Ton prénom (facultatif)" autocomplete="given-name" maxlength="80" style="width:100%;margin-bottom:8px;padding:12px;border:1.5px solid var(--line);border-radius:12px;font:inherit;">
+      <input id="ctJoindre" type="text" placeholder="Ton numéro ou ton e-mail, pour te répondre" autocomplete="off" maxlength="120" style="width:100%;margin-bottom:8px;padding:12px;border:1.5px solid var(--line);border-radius:12px;font:inherit;">
+      <textarea id="ctMsg" rows="4" placeholder="Ton message" maxlength="1500" style="width:100%;margin-bottom:8px;padding:12px;border:1.5px solid var(--line);border-radius:12px;font:inherit;resize:vertical;"></textarea>
+      <input id="ctSite" type="text" name="site" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
+      <button type="submit" id="ctSend" class="btn-primary" style="width:100%;">Envoyer mon message</button>
+      <p id="ctMsgEtat" role="status" style="margin:10px 0 0;font-size:14px;font-weight:600;"></p>
+    </form>
+    <p style="margin:12px 0 0;font-size:13px;line-height:1.5;">Ou écris-nous à <a href="mailto:contact@starentreprise.com" style="font-weight:700;color:inherit;">contact@starentreprise.com</a></p>
+  </div>
 </section>
+<script>
+(function(){
+  var f=document.getElementById('ctForm'); if(!f) return;
+  var etat=document.getElementById('ctMsgEtat'), bt=document.getElementById('ctSend');
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var nom=document.getElementById('ctNom').value.trim(), joindre=document.getElementById('ctJoindre').value.trim(), msg=document.getElementById('ctMsg').value.trim();
+    etat.style.color='#b3261e';
+    if(msg.length<3){ etat.textContent='Écris ton message.'; return; }
+    if(joindre.length<5){ etat.textContent='Ajoute ton numéro ou ton e-mail pour qu\'on puisse te répondre.'; return; }
+    var estMail=joindre.indexOf('@')>-1;
+    bt.disabled=true; etat.style.color='#241536'; etat.textContent='Envoi…';
+    fetch('/api/leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'komyo-contact',nom:nom||'Visiteur KOMYO',email:estMail?joindre:'',telephone:estMail?'':joindre,service:'KOMYO',message:msg,site:(document.getElementById('ctSite')||{}).value||''})})
+      .then(function(r){ bt.disabled=false; if(r.status===429){ etat.style.color='#b3261e'; etat.textContent='Beaucoup de messages en ce moment. Réessaie dans un petit moment.'; return; } if(!r.ok) throw 0;
+        etat.style.color='#1a7f37'; etat.textContent='Merci ! Ton message est bien envoyé à l\'équipe KOMYO. Nous te répondons vite.'; f.reset(); })
+      .catch(function(){ bt.disabled=false; etat.style.color='#b3261e'; etat.textContent='L\'envoi n\'a pas marché. Réessaie dans un instant.'; });
+  });
+})();
+</script>
 
 <footer>
+  <div class="credit"><a href="installer.html" style="text-decoration:underline">📱 Installer l'application KOMYO</a> · <a href="tarifs.html" style="text-decoration:underline">Tarifs</a></div>
   <div class="credit"><b>STAR ENTREPRISE</b> — Tous droits réservés.</div>
 </footer>
 
@@ -335,11 +402,14 @@
   var audio = document.getElementById('introVoice');
   var hint = document.getElementById('voiceHint');
   if (!audio || !hint) return;
+  // Le message de bienvenue est enregistré en français : pas de voix en version anglaise.
+  if (window.KOMYO_LANG === 'en'){ audio.removeAttribute('src'); try{ audio.load(); }catch(e){} return; }
   var KEY = 'komyo_intro_played';
   var already = false;
   try { already = !!sessionStorage.getItem(KEY); } catch(e){}
   if (already) return;
   function markPlayed(){ try{ sessionStorage.setItem(KEY, '1'); }catch(e){} }
+  audio.addEventListener('ended', function(){ hint.hidden = true; });
   audio.play().then(markPlayed).catch(function(){
     hint.hidden = false;
     hint.addEventListener('click', function(){
@@ -350,5 +420,9 @@
 })();
 </script>
 
+<script src="assets/keydou-bulle-v1.js" defer></script>
+<script src="assets/keydou-vignette-v1.js" defer></script>
+<script src="assets/komyo-installer-v5.js" defer></script>
+<script src="assets/bulle-komyo.js" defer></script>
 </body>
 </html>

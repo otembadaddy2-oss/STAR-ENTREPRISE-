@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="assets/i18n-v1.js"></script>
+<title>KOMYO — Espace Keydou</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#050B18">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+<style>
+  :root{--navy:#0d1830;--navy-deep:#050B18;--card:#12213F;--gold:#c8942f;--gold-light:#e8b85c;--ok:#6fd6ab;--err:#ff8a80;--dim:rgba(255,255,255,.55);}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--navy-deep);color:#fff;font-family:'Inter',Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:'Sora',Arial,sans-serif;}
+  [hidden]{display:none!important;}
+  .wrap{max-width:980px;margin:0 auto;padding:18px;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+  .topbar h1{font-size:17px;margin:0;}
+  .live{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--ok);margin-left:8px;}
+  .live i{width:8px;height:8px;border-radius:50%;background:var(--ok);animation:blink 1.4s infinite;}
+  @keyframes blink{0%,100%{opacity:.3;}50%{opacity:1;}}
+  .linkbtn{border:1.5px solid rgba(255,255,255,.22);color:#fff;font-size:11.5px;font-weight:700;font-family:'Sora',sans-serif;padding:8px 13px;border-radius:20px;background:none;cursor:pointer;text-decoration:none;}
+  .tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+  .tab{border:none;border-radius:12px;padding:10px 16px;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;cursor:pointer;background:rgba(255,255,255,.07);color:#fff;}
+  .tab.on{background:linear-gradient(135deg,#FF7A2E,var(--gold));}
+  .btn{border:none;border-radius:11px;padding:10px 15px;font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;background:rgba(255,255,255,.1);color:#fff;}
+  .btn.main{background:linear-gradient(135deg,#FF7A2E,var(--gold));}
+  .btn.ok{background:rgba(47,143,110,.3);color:var(--ok);}
+  .btn.del{background:rgba(179,38,30,.25);color:var(--err);}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center;}
+  input,select,textarea{border:1.5px solid rgba(255,255,255,.18);border-radius:10px;padding:9px 11px;font-family:'Inter',sans-serif;font-size:13px;color:#fff;background:rgba(255,255,255,.05);}
+  select option{color:#000;}
+  .login-card{background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:24px;margin:12vh auto 0;max-width:420px;}
+  .login-card h2{font-size:17px;margin:0 0 4px;} .login-card p{font-size:12.5px;color:var(--dim);margin:0 0 16px;}
+  .field{margin-bottom:12px;} .field label{display:block;font-size:11.5px;font-weight:700;margin-bottom:5px;} .field input{width:100%;}
+  .err{display:none;font-size:12px;color:var(--err);margin-bottom:10px;} .err.show{display:block;}
+  .tablewrap{overflow-x:auto;border:1px solid rgba(255,255,255,.08);border-radius:14px;}
+  table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:760px;}
+  th{position:sticky;top:0;background:#0b1a36;text-align:left;font-family:'Sora',sans-serif;font-size:11px;letter-spacing:.4px;text-transform:uppercase;color:var(--gold-light);padding:9px 10px;white-space:nowrap;}
+  td{padding:8px 10px;border-top:1px solid rgba(255,255,255,.06);vertical-align:top;}
+  tr.new td{animation:flash 2.5s ease;}
+  @keyframes flash{from{background:rgba(232,184,92,.25);}to{background:transparent;}}
+  .pill{display:inline-block;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:12px;background:rgba(255,255,255,.1);white-space:nowrap;}
+  .pill.pay{background:rgba(47,143,110,.3);color:var(--ok);} .pill.warn{background:rgba(232,184,92,.2);color:var(--gold-light);}
+  .muted{color:var(--dim);font-size:12px;}
+  .stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+  .stat{background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 14px;min-width:120px;}
+  .stat b{display:block;font-family:'Sora',sans-serif;font-size:20px;} .stat span{font-size:11px;color:var(--dim);}
+  .formcard{background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;margin-bottom:14px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;}
+  .grid .field input,.grid .field select,.grid .field textarea{width:100%;}
+  .msg{font-size:12px;margin-top:8px;color:var(--ok);}
+  .lnkrow{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:14px;font-size:12.5px;} .lnkrow a{color:var(--gold-light);text-decoration:underline;}
+  .secours{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:22px;letter-spacing:1.5px;text-align:center;padding:16px 10px;border-radius:12px;background:rgba(255,255,255,.07);border:1.5px dashed var(--gold-light);color:#fff;word-break:break-all;}
+  .charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-bottom:14px;}
+  .chartcard{background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px 14px 10px;position:relative;}
+  .chartcard h3{font-size:13px;margin:0 0 2px;} .chartcard .sub{font-size:11px;color:var(--dim);margin-bottom:8px;}
+  .chartcard svg{display:block;width:100%;height:auto;overflow:visible;}
+  .chartcard .gl{stroke:rgba(255,255,255,.10);stroke-width:1;} .chartcard .ax{fill:var(--dim);font-size:10px;font-family:'Inter',sans-serif;}
+  .chartcard .bar-m{fill:var(--gold-light);} .chartcard .hit:hover + .bar-m,.chartcard .hit.on + .bar-m{fill:#ffd98a;}
+  .devrow{display:grid;grid-template-columns:minmax(90px,1.1fr) 3fr auto;gap:10px;align-items:center;font-size:12.5px;margin:7px 0;}
+  .devrow .trk{height:10px;border-radius:5px;background:rgba(255,255,255,.07);overflow:hidden;} .devrow .trk i{display:block;height:100%;border-radius:5px;background:var(--gold-light);}
+  .devrow b{font-variant-numeric:tabular-nums;font-family:'Sora',sans-serif;font-size:12.5px;}
+  .tip{position:absolute;z-index:5;pointer-events:none;background:#050B18;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:6px 9px;font-size:11.5px;white-space:nowrap;transform:translate(-50%,-110%);}
+</style>
+</head>
+<body>
+
+<div id="loginView" class="wrap">
+  <div class="login-card" id="cardLogin">
+    <h2>Espace Keydou</h2>
+    <p>Connexion staff STAR ENTREPRISE.</p>
+    <div class="err" id="loginErr"></div>
+    <div class="field" id="fUserWrap" hidden><label for="fUser">Identifiant</label><input type="text" id="fUser" autocomplete="username"></div>
+    <div class="field"><label for="fPass">Mot de passe</label><input type="password" id="fPass" autocomplete="current-password"></div>
+    <button class="btn main" id="btnLogin" style="width:100%;padding:13px">Se connecter</button>
+    <div class="lnkrow"><a href="#" id="lnkForgot">Mot de passe oublié ?</a><a href="#" id="lnkUser">Avec un identifiant</a></div>
+  </div>
+
+  <div class="login-card" id="cardForgot" hidden>
+    <h2>Mot de passe oublié</h2>
+    <p>Choisis comment prouver que c'est bien toi.</p>
+    <div class="err" id="fgErr"></div>
+    <div class="tabs" style="margin-bottom:12px">
+      <button class="tab on" id="fgTabPhone" type="button">Code sur mon téléphone</button>
+      <button class="tab" id="fgTabRec" type="button">J'ai mon code de secours</button>
+    </div>
+    <div id="fgPhone">
+      <button class="btn main" id="btnFgSend" type="button" style="width:100%;padding:12px">M'envoyer un code</button>
+      <p class="muted" id="fgSent" hidden style="margin:10px 0 0">Un code à 6 chiffres vient d'être envoyé en notification sur ton téléphone enregistré. Il est valable 10 minutes. Si rien n'arrive, utilise ton code de secours.</p>
+      <div class="field" id="fgCodeWrap" hidden style="margin-top:12px"><label for="fgCode">Code à 6 chiffres</label><input type="text" id="fgCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></div>
+    </div>
+    <div id="fgRec" hidden>
+      <div class="field"><label for="fgRecCode">Code de secours</label><input type="text" id="fgRecCode" autocomplete="off" placeholder="XXXX-XXXX-XXXX-XXXX" style="text-transform:uppercase"></div>
+    </div>
+    <div id="fgNew">
+      <div class="field"><label for="fgPass1">Nouveau mot de passe</label><input type="password" id="fgPass1" autocomplete="new-password"></div>
+      <div class="field"><label for="fgPass2">Répète-le</label><input type="password" id="fgPass2" autocomplete="new-password"></div>
+      <p class="muted" style="margin:0 0 12px">12 caractères minimum. Le plus simple : 3 ou 4 mots que tu retiens, par exemple <b>Pointe-Noire.Mange.Mangue.2026</b>. Jamais un numéro de téléphone.</p>
+      <button class="btn main" id="btnFgGo" type="button" style="width:100%;padding:13px">Changer mon mot de passe</button>
+    </div>
+    <div class="lnkrow"><a href="#" id="lnkBack">← Retour à la connexion</a></div>
+  </div>
+
+  <div class="login-card" id="cardSecours" hidden>
+    <h2>Ton code de secours</h2>
+    <p>Note-le <b>maintenant</b> (papier, ou message WhatsApp à toi-même). Il s'affiche une seule fois et sert si tu oublies encore ton mot de passe.</p>
+    <div class="secours" id="secoursCode" aria-live="polite"></div>
+    <div class="bar" style="margin-top:12px">
+      <button class="btn" id="btnSecoursCopy" type="button">Copier</button>
+      <button class="btn main" id="btnSecoursOk" type="button">J'ai noté mon code — entrer</button>
+    </div>
+  </div>
+</div>
+
+<div id="mainView" class="wrap" hidden>
+  <div class="topbar">
+    <h1>Keydou — suivi<span class="live"><i></i>en direct</span></h1>
+    <div style="display:flex;gap:8px"><a class="linkbtn" href="paiements.html">Paiements</a><a class="linkbtn" href="moderation.html">Modération</a><button class="linkbtn" id="btnRecov" title="Code de secours pour retrouver ton accès">Code de secours</button><button class="linkbtn" id="btnLogout">Déconnexion</button></div>
+  </div>
+  <div class="tabs">
+    <button class="tab on" id="tabDash">Tableau de bord</button>
+    <button class="tab" id="tabClients">Fichier clients (Excel)</button>
+    <button class="tab" id="tabSubs">Abonnés (app installée)</button>
+    <button class="tab" id="tabPins">PIN oubliés <span id="pinBadge" class="pill warn" hidden style="margin-left:4px"></span></button>
+    <button class="tab" id="tabContacts">Contacts en direct</button>
+    <button class="tab" id="tabAnnuaire">Annuaire de Keydou</button>
+    <button class="tab" id="tabPhone">Mon téléphone (validation)</button>
+  </div>
+
+  <!-- TABLEAU DE BORD : tous les mouvements, en direct -->
+  <div id="paneDash">
+    <div class="bar"><span class="muted" id="dRefresh">Chargement…</span><span class="muted">· actualisation automatique toutes les 10 secondes</span></div>
+    <div class="stats" id="dRev"></div>
+    <div class="stats" id="dAbo"></div>
+    <div class="stats" id="dTrafic"></div>
+    <div class="stats" id="dWait"></div>
+    <div class="chartcard"><h3>Derniers mouvements</h3><div class="sub">paiements, abonnements, nouveaux comptes, installations (numéros masqués)</div><div id="dFlux"></div></div>
+  </div>
+
+  <!-- CLIENTS : le fichier Excel, en direct -->
+  <div id="paneClients" hidden>
+    <div class="stats" id="cStats"></div>
+    <div class="bar">
+      <input type="search" id="cq" placeholder="Rechercher (nom, téléphone, ville, besoin, référence…)" style="flex:1;min-width:200px">
+      <select id="cStatut"><option value="">Tous les statuts</option><option value="paye">Payés</option><option value="en_attente_paiement">En attente de paiement</option><option value="paiement_invalide">Montant refusé</option><option value="paiement_refuse">Dépôt non trouvé</option></select>
+      <select id="cJour"><option value="">Toutes les dates</option><option value="today">Aujourd'hui</option></select>
+    </div>
+    <div class="bar">
+      <button class="btn main" id="btnCExcel">⬇ Télécharger l'Excel (clients)</button>
+      <button class="btn" id="btnCExcelDay">⬇ Excel du jour</button>
+      <span class="muted" id="cRefresh"></span>
+    </div>
+    <div class="tablewrap"><table style="min-width:1100px"><thead><tr><th>N°</th><th>Date</th><th>Heure</th><th>Nom et prénom</th><th>Téléphone</th><th>Ville</th><th>Besoins</th><th>Paiement</th><th>Montant reçu</th><th>Payé avec</th><th>Référence</th><th>Origine</th><th>Traité</th></tr></thead><tbody id="cRows"></tbody></table></div>
+  </div>
+
+  <!-- ABONNÉS : appareils où l'application KOMYO est installée, en direct -->
+  <div id="paneSubs" hidden>
+    <div class="stats" id="sStats"></div>
+    <div class="charts">
+      <div class="chartcard"><h3>Installations par jour</h3><div class="sub">30 derniers jours</div><div id="sDays"></div></div>
+      <div class="chartcard"><h3>Appareils</h3><div class="sub" id="sDevSub"></div><div id="sDev"></div></div>
+    </div>
+    <div class="bar">
+      <input type="search" id="sq" placeholder="Rechercher (nom, téléphone, ville, appareil…)" style="flex:1;min-width:200px">
+      <select id="sOrig"><option value="">Toutes les origines</option><option value="Compte KOMYO">Compte KOMYO</option><option value="Client Keydou (sans compte)">Client Keydou (sans compte)</option><option value="Pas encore identifié">Pas encore identifié</option></select>
+    </div>
+    <div class="bar">
+      <button class="btn main" id="btnSExcel">⬇ Télécharger l'Excel (abonnés)</button>
+      <button class="btn" id="btnSExcelDay">⬇ Excel du jour</button>
+      <span class="muted" id="sRefresh"></span>
+    </div>
+    <div class="tablewrap"><table style="min-width:980px"><thead><tr><th>N°</th><th>Date</th><th>Heure</th><th>Nom et prénom</th><th>Téléphone</th><th>Ville</th><th>Appareil</th><th>Navigateur</th><th>Origine</th><th>Ouvertures</th><th>Dernière ouverture</th></tr></thead><tbody id="sRows"></tbody></table></div>
+    <p class="muted" style="margin-top:10px">Une ligne = un appareil où KOMYO est installée. Le nom et le numéro apparaissent dès que la personne se connecte à KOMYO ou écrit ses coordonnées à Keydou ; « Pas encore identifié » = installée, mais personne n'est encore connecté dessus.</p>
+  </div>
+
+  <!-- PIN OUBLIÉS : réinitialisation assistée des membres KOMYO -->
+  <div id="panePins" hidden>
+    <div class="formcard" style="margin-bottom:12px">
+      <b>Comment ça marche</b>
+      <ol class="muted" style="margin:8px 0 0;padding-left:20px;line-height:1.6">
+        <li>Un membre qui a oublié son PIN fait une demande depuis KOMYO (numéro + nom).</li>
+        <li><b>Vérifie que c'est bien lui</b> : compare le nom indiqué avec le profil KOMYO et la ville, ou appelle-le.</li>
+        <li>Touche <b>« Générer le code »</b> : un code à 6 chiffres s'affiche <b>une seule fois</b>. Envoie-le-lui par <b>WhatsApp</b> (le bouton prépare le message).</li>
+        <li>Il saisit le code et choisit son nouveau PIN (4 ou 5 chiffres). Le code vaut 24 h, 5 essais.</li>
+      </ol>
+    </div>
+    <div class="muted" id="pRefresh" style="margin-bottom:8px"></div>
+    <div class="tablewrap"><table style="min-width:900px"><thead><tr><th>N°</th><th>Date</th><th>Heure</th><th>Téléphone</th><th>Nom indiqué</th><th>Profil KOMYO</th><th>Ville</th><th>Statut</th><th>Actions</th></tr></thead><tbody id="pRows"></tbody></table></div>
+  </div>
+
+  <div id="pinModal" hidden style="position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:16px">
+    <div class="login-card" style="margin:0;max-width:440px;width:100%">
+      <h2>Code temporaire</h2>
+      <p>À envoyer à <b id="pinModalTel"></b>. Il ne sera plus affiché ensuite.</p>
+      <div class="secours" id="pinModalCode"></div>
+      <div class="bar" style="margin-top:12px">
+        <a class="btn ok" id="pinModalWa" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block">Envoyer par WhatsApp</a>
+        <button class="btn" id="pinModalClose" type="button">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACTS -->
+  <div id="paneContacts" hidden>
+    <div class="stats" id="stats"></div>
+    <div class="bar">
+      <input type="search" id="q" placeholder="Rechercher (nom, téléphone, texte…)" style="flex:1;min-width:200px">
+      <button class="btn main" id="btnExcel">⬇ Télécharger l'Excel du jour</button>
+      <button class="btn" id="btnExcelAll">⬇ Excel complet</button>
+    </div>
+    <div class="muted" id="lastRefresh" style="margin-bottom:8px"></div>
+    <div class="tablewrap"><table><thead><tr><th>Date</th><th>Heure</th><th>Nom</th><th>Téléphone</th><th>Événement</th><th>Détail</th><th>Service</th><th>Ville</th><th>Réf.</th></tr></thead><tbody id="rows"></tbody></table></div>
+  </div>
+
+
+  <!-- TÉLÉPHONE -->
+  <div id="panePhone" hidden>
+    <div class="formcard">
+      <h3 style="margin:0 0 4px;font-size:14px">1. Recevoir « Valider le dépôt ? Oui / Non » sur ce téléphone</h3>
+      <p class="muted" style="margin:0 0 10px">Quand un client touche « J'ai payé », une notification apparaît sur ton téléphone avec deux boutons. Tu regardes ton MTN Money, tu touches « Reçu, valider » : Keydou répond tout de suite au client. Ouvre cette page <b>sur le téléphone qui reçoit les dépôts</b> (+242 06 656 50 50).</p>
+      <div class="bar"><button class="btn main" id="btnPushOn">🔔 Activer les notifications sur ce téléphone</button><button class="btn" id="btnPushTest">Envoyer un test</button></div>
+      <div class="msg" id="pushMsg" hidden></div>
+      <p class="muted" style="margin:10px 0 0">iPhone : d'abord « Partager » puis « Sur l'écran d'accueil », ouvre l'icône, puis active. Sur iPhone les boutons Oui/Non s'ouvrent dans une page au lieu de s'afficher dans la notification.</p>
+    </div>
+    <div class="formcard">
+      <h3 style="margin:0 0 4px;font-size:14px">2. Reconnaissance automatique des dépôts (SMS)</h3>
+      <p class="muted" style="margin:0 0 10px">Une application Android de transfert de SMS (par exemple « SmsForwarder », « MacroDroid » ou « Tasker ») envoie à Keydou chaque SMS de dépôt reçu d'MTN/Airtel. Si le montant est exact <b>et</b> que le numéro de l'expéditeur est celui du client, le dépôt est validé tout seul. Sinon tu reçois la notification Oui/Non.</p>
+      <div class="field"><label>Adresse du webhook (à coller dans l'application, méthode POST)</label><input id="hookUrl" readonly style="width:100%"></div>
+      <div class="bar"><button class="btn" id="btnCopyHook">Copier l'adresse</button>
+        <label style="font-size:13px;display:flex;align-items:center;gap:8px"><input type="checkbox" id="autoOn" checked> Validation automatique quand tout correspond</label></div>
+      <div class="bar"><label style="font-size:13px;display:flex;align-items:center;gap:8px"><input type="checkbox" id="repliOn" checked> Valider aussi si le client paie depuis un autre numéro (une seule demande de ce montant en attente, « J'ai payé » touché il y a moins de 20 min)</label></div>
+      <ol class="muted" style="margin:6px 0 0;padding-left:18px;line-height:1.8">
+        <li>Installe l'application de transfert de SMS sur le téléphone qui reçoit les dépôts.</li>
+        <li>Règle : « si le SMS vient d'MTN / MobileMoney (et Airtel Money) » → « envoyer vers le webhook ci-dessus ».</li>
+        <li>Corps de la requête : <code>{"message":"[corps du SMS]","from":"[expéditeur]"}</code> (le mot entre crochets est la variable de l'application).</li>
+        <li>Filtre l'expéditeur : seuls les SMS d'MTN / Airtel doivent partir.</li>
+      </ol>
+      <div class="muted" style="margin-top:12px">Les 20 derniers SMS reçus (pour vérifier que ça marche) :</div>
+      <div class="tablewrap" style="margin-top:6px"><table style="min-width:600px"><thead><tr><th>Date</th><th>Montant</th><th>Numéro</th><th>Résultat</th><th>SMS</th></tr></thead><tbody id="smsRows"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- ANNUAIRE -->
+  <div id="paneAnnuaire" hidden>
+    <div class="formcard">
+      <h3 style="margin:0 0 4px;font-size:14px">Mémoire de Keydou : les adresses qu'il connaît</h3>
+      <p class="muted" style="margin:0 0 10px">Ajoutez, corrigez ou supprimez une adresse. Vous pouvez aussi remplir un fichier Excel et l'importer. Cochez « Vérifié » seulement quand le numéro a été confirmé par un appel.</p>
+      <div class="bar">
+        <button class="btn main" id="btnNew">+ Ajouter une adresse</button>
+        <button class="btn" id="btnExport">⬇ Télécharger l'annuaire (Excel)</button>
+        <label class="btn ok" style="cursor:pointer">⬆ Importer un Excel<input type="file" id="fileImport" accept=".xlsx,.xls,.csv" hidden></label>
+        <select id="fService"></select><select id="fVille"></select>
+      </div>
+      <div class="msg" id="impMsg" hidden></div>
+    </div>
+    <div class="formcard" id="editCard" hidden>
+      <h3 id="editTitle" style="margin:0 0 10px;font-size:14px">Adresse</h3>
+      <div class="grid">
+        <div class="field"><label>Service</label><select id="eService"></select></div>
+        <div class="field"><label>Ville</label><select id="eVille"></select></div>
+        <div class="field"><label>Nom</label><input id="eNom" maxlength="120"></div>
+        <div class="field"><label>Adresse / quartier</label><input id="eAdr" maxlength="200"></div>
+        <div class="field"><label>Téléphone(s) (séparés par « / »)</label><input id="eTel" maxlength="80"></div>
+        <div class="field"><label>WhatsApp (chiffres)</label><input id="eWa" maxlength="40"></div>
+        <div class="field" style="grid-column:1/-1"><label>Description</label><textarea id="eDesc" maxlength="400" rows="2"></textarea></div>
+        <div class="field"><label>Source (lien)</label><input id="eSrc" maxlength="300"></div>
+        <div class="field"><label>Note sur la source</label><input id="eNote" maxlength="200"></div>
+        <div class="field"><label><input type="checkbox" id="eVer"> Numéro vérifié par appel</label></div>
+        <div class="field"><label><input type="checkbox" id="eActif" checked> Visible par les clients</label></div>
+      </div>
+      <div class="bar"><button class="btn main" id="btnSave">Enregistrer</button><button class="btn" id="btnCancel">Annuler</button></div>
+      <div class="err" id="editErr"></div>
+    </div>
+    <div class="tablewrap"><table><thead><tr><th>Service</th><th>Ville</th><th>Nom</th><th>Téléphone</th><th>État</th><th></th></tr></thead><tbody id="lieuxRows"></tbody></table></div>
+  </div>
+</div>
+
+<script src="assets/vendor/xlsx.full.min.js"></script>
+<script>
+(function(){
+  var TOKEN_KEY = 'starvibe_admin_token';
+  var API_AUTH = '/api/auth', API = '/api/starvibe-keydou';
+  var $ = function(id){ return document.getElementById(id); };
+  function getToken(){ try{ return localStorage.getItem(TOKEN_KEY) || ''; }catch(e){ return ''; } }
+  function setToken(t){ try{ if (t) localStorage.setItem(TOKEN_KEY, t); else localStorage.removeItem(TOKEN_KEY); }catch(e){} }
+  function authFetch(url, opts){ opts = opts || {}; opts.headers = Object.assign({}, opts.headers, { 'Authorization': 'Bearer ' + getToken() }); return fetch(url, opts); }
+  function post(body){ return authFetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) }).then(function(r){ return r.json().then(function(d){ return { ok:r.ok, data:d }; }); }); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+  function pad(n){ return (n<10?'0':'') + n; }
+
+  var EV = { ouverture:'A ouvert Keydou', parole:'A dit', choix_service:'Service choisi', choix_ville:'Ville choisie', demande:'Demande créée (paiement attendu)', paiement_declare:'A déclaré avoir payé', paiement_valide:'Paiement confirmé', paiement_invalide:'Paiement refusé (montant)', coordonnees:'Coordonnées envoyées', appel_lieu:'A appelé une adresse' };
+  var SERVICES = {}, VILLES = [];
+
+  /* ---------- connexion ---------- */
+  function showLogin(){ $('loginView').hidden = false; $('mainView').hidden = true; clearInterval(timer); }
+  function showMain(){ $('loginView').hidden = true; $('mainView').hidden = false; loadDash(); loadClients(true); loadContacts(true); loadSubs(true); loadPins(true); loadAnnuaire(); clearInterval(timer); timer = setInterval(function(){ if (!$('paneClients').hidden) loadClients(false); if (!$('paneContacts').hidden) loadContacts(false); if (!$('paneSubs').hidden) loadSubs(false); loadPins(false); }, 6000); }
+  var timer = null;
+  var API_ACCES = '/api/staff-acces';
+  function showErr(id, msg){ var e = $(id); e.textContent = msg; e.classList.add('show'); }
+  function hideErr(id){ $(id).classList.remove('show'); }
+  function postJson(url, body){ return fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) }).then(function(r){ return r.json().then(function(d){ return { ok:r.ok, data:d }; }); }); }
+  var tentative = false;
+  function seConnecter(){
+    if (tentative) return;
+    hideErr('loginErr');
+    var u = $('fUserWrap').hidden ? '' : $('fUser').value.trim(), p = $('fPass').value;
+    if (!p){ showErr('loginErr', 'Écris ton mot de passe.'); return; }
+    if (!$('fUserWrap').hidden && !u){ showErr('loginErr', 'Écris ton identifiant, ou touche « Mot de passe seul ».'); return; }
+    tentative = true; $('btnLogin').disabled = true;
+    var req = u ? postJson(API_AUTH, { action:'login', username:u, password:p }) : postJson(API_ACCES, { action:'login', password:p });
+    req.then(function(res){
+      if (!res.ok){ showErr('loginErr', res.data.error || 'Connexion impossible.'); return; }
+      $('fPass').value = ''; setToken(res.data.token); showMain();
+    }).catch(function(){ showErr('loginErr', 'Impossible de contacter le serveur.'); })
+      .then(function(){ tentative = false; $('btnLogin').disabled = false; });
+  }
+  $('btnLogin').addEventListener('click', seConnecter);
+  $('fPass').addEventListener('keydown', function(e){ if (e.key === 'Enter') seConnecter(); });
+  $('fUser').addEventListener('keydown', function(e){ if (e.key === 'Enter') $('fPass').focus(); });
+  $('lnkUser').addEventListener('click', function(e){ e.preventDefault(); var w = $('fUserWrap'); w.hidden = !w.hidden; $('lnkUser').textContent = w.hidden ? 'Avec un identifiant' : 'Mot de passe seul'; (w.hidden ? $('fPass') : $('fUser')).focus(); });
+
+  /* ---------- mot de passe oublié ---------- */
+  var fgMode = 'phone';
+  function carte(nom){ ['cardLogin','cardForgot','cardSecours'].forEach(function(c){ $(c).hidden = (c !== nom); }); }
+  $('lnkForgot').addEventListener('click', function(e){ e.preventDefault(); hideErr('fgErr'); pousser({ card:'cardForgot' }); carte('cardForgot'); });
+  $('lnkBack').addEventListener('click', function(e){ e.preventDefault(); if (cur.card === 'cardForgot') history.back(); else carte('cardLogin'); });
+  function fgMethode(m){ fgMode = m; $('fgTabPhone').classList.toggle('on', m === 'phone'); $('fgTabRec').classList.toggle('on', m === 'rec'); $('fgPhone').hidden = (m !== 'phone'); $('fgRec').hidden = (m !== 'rec'); hideErr('fgErr'); }
+  $('fgTabPhone').addEventListener('click', function(){ fgMethode('phone'); });
+  $('fgTabRec').addEventListener('click', function(){ fgMethode('rec'); });
+  $('btnFgSend').addEventListener('click', function(){
+    hideErr('fgErr'); var b = $('btnFgSend'); b.disabled = true;
+    postJson(API_ACCES, { action:'forgot_start' }).then(function(res){
+      if (!res.ok){ showErr('fgErr', res.data.error || 'Envoi impossible.'); return; }
+      $('fgSent').hidden = false; $('fgCodeWrap').hidden = false; $('fgCode').focus();
+      if (!res.data.envoye){ $('fgSent').textContent = 'Aucun téléphone n\'est enregistré pour recevoir le code. Utilise ton code de secours (onglet à côté), ou demande le jeton de configuration au propriétaire du site.'; }
+    }).catch(function(){ showErr('fgErr', 'Impossible de contacter le serveur.'); }).then(function(){ b.disabled = false; });
+  });
+  function afficherSecours(code, token){
+    $('secoursCode').textContent = code; carte('cardSecours'); setToken(token);
+    $('btnSecoursCopy').onclick = function(){ try { navigator.clipboard.writeText(code); $('btnSecoursCopy').textContent = 'Copié ✓'; } catch (e) { window.prompt('Copie ce code :', code); } };
+    $('btnSecoursOk').onclick = function(){ carte('cardLogin'); showMain(); };
+  }
+  $('btnFgGo').addEventListener('click', function(){
+    hideErr('fgErr');
+    var p1 = $('fgPass1').value, p2 = $('fgPass2').value;
+    if (p1 !== p2){ showErr('fgErr', 'Les deux mots de passe ne sont pas identiques.'); return; }
+    var body = fgMode === 'phone' ? { action:'forgot_finish', code:$('fgCode').value.trim(), newPassword:p1 } : { action:'forgot_recovery', recoveryCode:$('fgRecCode').value.trim(), newPassword:p1 };
+    if (fgMode === 'phone' && !body.code){ showErr('fgErr', 'Écris le code reçu sur ton téléphone (d\'abord « M\'envoyer un code »).'); return; }
+    if (fgMode === 'rec' && !body.recoveryCode){ showErr('fgErr', 'Écris ton code de secours.'); return; }
+    var b = $('btnFgGo'); b.disabled = true;
+    postJson(API_ACCES, body).then(function(res){
+      if (!res.ok){ showErr('fgErr', res.data.error || 'Changement impossible.'); return; }
+      $('fgPass1').value = ''; $('fgPass2').value = ''; $('fgCode').value = ''; $('fgRecCode').value = '';
+      afficherSecours(res.data.codeSecours, res.data.token);
+    }).catch(function(){ showErr('fgErr', 'Impossible de contacter le serveur.'); }).then(function(){ b.disabled = false; });
+  });
+  // Connecté : regénérer un code de secours (l'ancien ne marche plus)
+  $('btnRecov').addEventListener('click', function(){
+    if (!window.confirm('Générer un nouveau code de secours ? L\'ancien ne fonctionnera plus.')) return;
+    authFetch(API_ACCES, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'recovery_new' }) })
+      .then(function(r){ return r.json(); }).then(function(d){
+        if (!d.codeSecours){ window.alert('Impossible de générer le code.'); return; }
+        window.prompt('Nouveau code de secours — note-le tout de suite (il ne sera plus affiché) :', d.codeSecours);
+      });
+  });
+  $('btnLogout').addEventListener('click', function(){ setToken(''); showLogin(); });
+  /* ---------- bouton « retour » du téléphone : revient à l'écran d'avant, comme une vraie application ---------- */
+  var cur = { tab:'Dash', ov:'', card:'cardLogin' }, S0 = { tab:'Dash', ov:'', card:'cardLogin' }, dernierRetour = 0, toastEl = null;
+  function pousser(patch){ cur = Object.assign({}, cur, patch); history.pushState({ k:'app', s:cur }, ''); }
+  function appliquer(s){
+    cur = s; tab(s.tab);
+    $('pinModal').hidden = (s.ov !== 'pin'); if (s.ov !== 'pin') $('pinModalCode').textContent = '';
+    $('editCard').hidden = (s.ov !== 'edit');
+    if (!$('loginView').hidden && $('cardSecours').hidden) carte(s.card);
+  }
+  function goTab(n){ if (cur.tab !== n){ pousser({ tab:n, ov:'' }); } tab(n); }
+  function fermerOv(){ if (cur.ov) history.back(); else appliquer(Object.assign({}, cur, { ov:'' })); }
+  function toastQuitter(){
+    if (!toastEl){ toastEl = document.createElement('div'); toastEl.setAttribute('role', 'status'); toastEl.style.cssText = 'position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:90;padding:11px 18px;border-radius:999px;background:#1b2542;color:#fff;border:1px solid var(--gold-light);font-weight:700;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.5);max-width:88vw;text-align:center'; toastEl.textContent = 'Appuie encore sur retour pour quitter'; document.body.appendChild(toastEl); }
+    toastEl.hidden = false; clearTimeout(toastEl._t); toastEl._t = setTimeout(function(){ toastEl.hidden = true; }, 2300);
+  }
+  window.addEventListener('popstate', function(e){
+    if (!$('cardSecours').hidden){ history.pushState({ k:'app', s:cur }, ''); return; } // le code de secours doit d'abord être noté
+    var st = e.state;
+    if (st && st.k === 'app' && st.s){ appliquer(st.s); return; }
+    // retour tout en bas de l'historique : on prévient, puis un 2e retour rapide quitte vraiment
+    if (Date.now() - dernierRetour < 2500){ history.back(); return; }
+    dernierRetour = Date.now(); toastQuitter();
+    appliquer(S0); history.pushState({ k:'app', s:S0 }, '');
+  });
+  try { history.replaceState({ k:'root' }, ''); history.pushState({ k:'app', s:S0 }, ''); } catch (er) {}
+
+  // ---------- Tableau de bord en direct (paiements, abonnés, visites…) ----------
+  var dashTimer = null;
+  function fcfa(n){ return Number(n || 0).toLocaleString('fr-FR') + ' FCFA'; }
+  function carte(titre, valeur, sous){ return '<div class="stat"><b>' + esc(valeur) + '</b><span>' + esc(titre) + (sous ? ' · ' + esc(sous) : '') + '</span></div>'; }
+  function loadDash(){
+    authFetch('/api/starvibe-dashboard').then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); }).then(function(x){
+      if (!x.ok){ $('dRefresh').textContent = x.d.error || 'Impossible de charger le tableau de bord.'; return; }
+      var d = x.d, r = d.revenusFcfa;
+      $('dRev').innerHTML = carte('Encaissé aujourd\'hui', fcfa(r.jour.tous)) + carte('7 derniers jours', fcfa(r.j7.tous)) + carte('30 derniers jours', fcfa(r.j30.tous)) + carte('Total encaissé', fcfa(r.total.tous),
+        'abonnements ' + fcfa(r.total.abonnement) + ' · Keydou ' + fcfa(r.total.keydou) + ' · annonces ' + fcfa(r.total.annonce));
+      $('dAbo').innerHTML = carte('Abonnés payants actifs', d.abonnes.total) + carte('Famille', d.abonnes.famille) + carte('Business', d.abonnes.business) + carte('Comptes KOMYO', d.comptes.total, '+' + d.comptes.h24 + ' en 24 h · +' + d.comptes.j7 + ' en 7 j');
+      $('dTrafic').innerHTML = carte('Visiteurs aujourd\'hui', d.visites.appareilsAujourdhui, d.visites.pagesAujourdhui + ' pages') + carte('En ce moment (5 min)', d.visites.enCeMoment) + carte('Visiteurs sur 7 jours', d.visites.appareils7j, d.visites.pages7j + ' pages') +
+        carte('Applications installées', d.installations.total, '+' + d.installations.h24 + ' en 24 h') + carte('Vidéos', d.videos.total, d.videos.vues + ' vues · ' + d.videos.jaime + ' j\'aime');
+      var w = d.enAttente;
+      $('dWait').innerHTML = carte('Paiements abonnement à valider', w.abonnements) + carte('Paiements Keydou à valider', w.keydou) + carte('Annonces à valider', w.annonces) + carte('PIN oubliés', w.pinOublies) + carte('Vidéos à modérer', d.videos.aModerer);
+      var ic = { compte: '👤', abonnement: '⭐', attente: '⏳', keydou: '🧭', annonce: '📣', install: '📲' };
+      $('dFlux').innerHTML = d.flux.length ? '<table><tbody>' + d.flux.map(function(f){ var t = new Date(f.at); return '<tr><td style="white-space:nowrap">' + t.toLocaleDateString('fr-FR') + ' ' + t.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) + '</td><td>' + (ic[f.type] || '•') + ' ' + esc(f.texte) + '</td><td>' + esc(f.tel) + '</td></tr>'; }).join('') + '</tbody></table>' : '<p class="muted">Aucun mouvement pour le moment.</p>';
+      $('dRefresh').textContent = 'Mis à jour à ' + new Date(d.maintenant).toLocaleTimeString('fr-FR');
+    }).catch(function(){ $('dRefresh').textContent = 'Connexion interrompue, nouvel essai dans 10 secondes.'; });
+    if (!dashTimer) dashTimer = setInterval(function(){ if (!document.hidden && !$('paneDash').hidden) loadDash(); }, 10000);
+  }
+
+  function tab(name){
+    ['Dash','Clients','Subs','Pins','Contacts','Annuaire','Phone'].forEach(function(n){ $('tab' + n).classList.toggle('on', n === name); $('pane' + n).hidden = (n !== name); });
+    if (name === 'Phone') loadPhone();
+    if (name === 'Dash') { loadDash(); } else { clearInterval(dashTimer); dashTimer = null; }
+  }
+  $('tabDash').addEventListener('click', function(){ goTab('Dash'); });
+  $('tabClients').addEventListener('click', function(){ goTab('Clients'); });
+  $('tabSubs').addEventListener('click', function(){ goTab('Subs'); loadSubs(false); });
+  $('tabPins').addEventListener('click', function(){ goTab('Pins'); loadPins(false); });
+  $('tabContacts').addEventListener('click', function(){ goTab('Contacts'); });
+  $('tabAnnuaire').addEventListener('click', function(){ goTab('Annuaire'); });
+  $('tabPhone').addEventListener('click', function(){ goTab('Phone'); });
+
+
+  /* ---------- fichier clients (une ligne par client), en direct ---------- */
+  var clients = [], seenC = {};
+  var STATUT = { paye:'Payé', en_attente_paiement:'En attente de paiement', paiement_invalide:'Montant refusé', paiement_refuse:'Dépôt non trouvé' };
+  function fcfa(n){ return (n == null ? '' : Number(n).toLocaleString('fr-FR') + ' FCFA'); }
+  function loadClients(first){
+    authFetch(API + '?clients=1&limit=3000').then(function(r){ if (r.status === 403){ setToken(''); showLogin(); return null; } return r.json(); }).then(function(d){
+      if (!d || !d.clients) return;
+      var fresh = {};
+      d.clients.forEach(function(c){ var k = c.id + ':' + c.statut + ':' + c.traite; if (!first && !seenC[k]) fresh[c.id] = true; seenC[k] = true; });
+      clients = d.clients; renderClients(fresh);
+      var t = new Date(); $('cRefresh').textContent = 'Mis à jour à ' + pad(t.getHours()) + ':' + pad(t.getMinutes()) + ':' + pad(t.getSeconds()) + ' — automatique, toutes les 6 secondes.';
+    });
+  }
+  function cFiltered(onlyToday){
+    var q = $('cq').value.trim().toLowerCase(), st = $('cStatut').value, jour = onlyToday || $('cJour').value === 'today';
+    return clients.filter(function(c){
+      if (st && c.statut !== st) return false;
+      if (jour && dateParts(c.date).date !== todayStr()) return false;
+      return !q || [c.nom, c.telephone, c.ville, c.besoins, c.reference, c.numeroPaiement, STATUT[c.statut]].join(' ').toLowerCase().indexOf(q) !== -1;
+    });
+  }
+  function renderClients(fresh){
+    var today = todayStr(), nPaye = 0, nAtt = 0, recette = 0, nToday = 0;
+    clients.forEach(function(c){ if (c.statut === 'paye'){ nPaye++; recette += (c.montantRecu || c.montantAttendu || 0); } if (c.statut === 'en_attente_paiement') nAtt++; if (dateParts(c.date).date === today) nToday++; });
+    $('cStats').innerHTML =
+      '<div class="stat"><b>' + clients.length + '</b><span>clients (demandes) au total</span></div>' +
+      '<div class="stat"><b>' + nToday + '</b><span>aujourd\'hui</span></div>' +
+      '<div class="stat"><b>' + nPaye + '</b><span>payés</span></div>' +
+      '<div class="stat"><b>' + nAtt + '</b><span>en attente de paiement</span></div>' +
+      '<div class="stat"><b>' + recette.toLocaleString('fr-FR') + '</b><span>FCFA encaissés</span></div>';
+    var list = cFiltered(false);
+    $('cRows').innerHTML = list.map(function(c){
+      var p = dateParts(c.date), cls = c.statut === 'paye' ? 'pay' : (c.statut === 'en_attente_paiement' ? 'warn' : '');
+      return '<tr class="' + (fresh && fresh[c.id] ? 'new' : '') + '"><td>' + esc(c.id) + '</td><td>' + p.date + '</td><td>' + p.heure + '</td><td><b>' + esc(c.nom || '—') + '</b></td><td>' + esc(c.telephone) + '</td><td>' + esc(c.ville) + '</td><td>' + esc(c.besoins) + '</td>' +
+        '<td><span class="pill ' + cls + '">' + esc(STATUT[c.statut] || c.statut) + '</span></td><td>' + (c.statut === 'paye' ? esc(fcfa(c.montantRecu || c.montantAttendu)) : '') + '</td><td>' + esc(c.numeroPaiement) + '</td><td>' + esc(c.reference) + '</td><td class="muted">' + esc(c.origine) + '</td>' +
+        '<td>' + (c.statut === 'paye' ? '<input type="checkbox" data-traite="' + esc(c.id) + '" ' + (c.traite ? 'checked' : '') + ' aria-label="Dossier traité">' : '') + '</td></tr>';
+    }).join('') || '<tr><td colspan="13" class="muted" style="padding:22px;text-align:center">Aucun client pour le moment : dès qu\'une personne s\'inscrit auprès de Keydou, elle apparaît ici.</td></tr>';
+    $('cRows').querySelectorAll('input[data-traite]').forEach(function(cb){ cb.addEventListener('change', function(){ post({ action:'marquer_traite', requestId:Number(cb.getAttribute('data-traite')), traite:cb.checked }); }); });
+  }
+  ['cq'].forEach(function(id){ $(id).addEventListener('input', function(){ renderClients(null); }); });
+  ['cStatut','cJour'].forEach(function(id){ $(id).addEventListener('change', function(){ renderClients(null); }); });
+
+  function excelClients(onlyToday){
+    var rows = cFiltered(onlyToday).slice().reverse();
+    var main = [['N°','Date','Heure','Nom et prénom','Téléphone','Ville','Besoins','Statut du paiement','Montant reçu (FCFA)','Payé avec le numéro','Code transaction','Référence','Origine','Dossier traité','Date du paiement']];
+    rows.forEach(function(c){ var p = dateParts(c.date), pp = c.payeLe ? dateParts(c.payeLe) : null; main.push([Number(c.id), p.date, p.heure, c.nom, c.telephone, c.ville, c.besoins, STATUT[c.statut] || c.statut, c.statut === 'paye' ? (c.montantRecu || c.montantAttendu) : '', c.numeroPaiement, c.transaction, c.reference, c.origine, c.traite ? 'oui' : 'non', pp ? pp.date + ' ' + pp.heure : '']); });
+    var days = {};
+    rows.forEach(function(c){ var d = dateParts(c.date).date, o = days[d] || (days[d] = { n:0, paye:0, att:0, fcfa:0 }); o.n++; if (c.statut === 'paye'){ o.paye++; o.fcfa += (c.montantRecu || c.montantAttendu || 0); } if (c.statut === 'en_attente_paiement') o.att++; });
+    var jour = [['Date','Demandes','Payées','En attente','Encaissé (FCFA)']];
+    Object.keys(days).sort().reverse().forEach(function(d){ var o = days[d]; jour.push([d, o.n, o.paye, o.att, o.fcfa]); });
+    var tel = {};
+    rows.forEach(function(c){ var k = c.telephone || c.nom; var o = tel[k] || (tel[k] = { nom:c.nom, tel:c.telephone, n:0, paye:0, besoins:{}, last:c.date }); o.n++; if (c.statut === 'paye') o.paye++; c.besoins.split(' + ').forEach(function(b){ if (b) o.besoins[b] = 1; }); if (c.date > o.last) o.last = c.date; });
+    var pers = [['Nom et prénom','Téléphone','Demandes','Dont payées','Besoins demandés','Dernière demande']];
+    Object.keys(tel).forEach(function(k){ var o = tel[k], p = dateParts(o.last); pers.push([o.nom, o.tel, o.n, o.paye, Object.keys(o.besoins).join(', '), p.date + ' ' + p.heure]); });
+    var wb = XLSX.utils.book_new();
+    var w1 = XLSX.utils.aoa_to_sheet(main); w1['!cols'] = [{wch:6},{wch:11},{wch:9},{wch:26},{wch:17},{wch:14},{wch:44},{wch:22},{wch:16},{wch:18},{wch:16},{wch:11},{wch:14},{wch:12},{wch:18}]; w1['!autofilter'] = { ref: 'A1:O' + main.length }; w1['!freeze'] = { xSplit:0, ySplit:1 };
+    var w2 = XLSX.utils.aoa_to_sheet(jour); w2['!cols'] = [{wch:12},{wch:10},{wch:10},{wch:11},{wch:16}];
+    var w3 = XLSX.utils.aoa_to_sheet(pers); w3['!cols'] = [{wch:26},{wch:17},{wch:10},{wch:11},{wch:50},{wch:18}];
+    XLSX.utils.book_append_sheet(wb, w1, 'Clients'); XLSX.utils.book_append_sheet(wb, w2, 'Par jour'); XLSX.utils.book_append_sheet(wb, w3, 'Par personne');
+    XLSX.writeFile(wb, 'Keydou-clients-' + (onlyToday ? todayStr() : 'complet-' + todayStr()) + '.xlsx');
+  }
+
+  /* ---------- abonnés : installations de l'application, en direct ---------- */
+  var subs = [], seenS = {}, subsMeta = { comptes:0, invites:0 };
+  function loadSubs(first){
+    authFetch('/api/starvibe-installs?stats=1&limit=5000').then(function(r){ if (r.status === 403){ setToken(''); showLogin(); return null; } return r.json(); }).then(function(d){
+      if (!d || !d.installs) return;
+      var fresh = {};
+      d.installs.forEach(function(c){ if (!first && !seenS[c.id]) fresh[c.id] = true; seenS[c.id] = true; });
+      subs = d.installs; subsMeta = { comptes: d.comptesKomyo || 0, invites: d.clientsKeydouSansCompte || 0 };
+      renderSubs(fresh);
+      var t = new Date(); $('sRefresh').textContent = 'Mis à jour à ' + pad(t.getHours()) + ':' + pad(t.getMinutes()) + ':' + pad(t.getSeconds()) + ' — automatique, toutes les 6 secondes.';
+    });
+  }
+  function sFiltered(onlyToday){
+    var q = $('sq').value.trim().toLowerCase(), o = $('sOrig').value;
+    return subs.filter(function(c){
+      if (o && c.origine !== o) return false;
+      if (onlyToday && dateParts(c.date).date !== todayStr()) return false;
+      return !q || [c.nom, c.telephone, c.ville, c.appareil, c.navigateur, c.origine].join(' ').toLowerCase().indexOf(q) !== -1;
+    });
+  }
+  function renderSubs(fresh){
+    var today = todayStr(), now = Date.now(), week = 0, nToday = 0, ident = 0, actifs = 0;
+    subs.forEach(function(c){
+      var age = (now - new Date(c.date).getTime()) / 86400000;
+      if (dateParts(c.date).date === today) nToday++;
+      if (age <= 7) week++;
+      if (c.telephone) ident++;
+      if (now - new Date(c.derniere).getTime() <= 86400000) actifs++;
+    });
+    $('sStats').innerHTML =
+      '<div class="stat"><b>' + subs.length + '</b><span>appareils avec l\'application</span></div>' +
+      '<div class="stat"><b>' + nToday + '</b><span>installés aujourd\'hui</span></div>' +
+      '<div class="stat"><b>' + week + '</b><span>sur les 7 derniers jours</span></div>' +
+      '<div class="stat"><b>' + ident + '</b><span>avec nom et numéro</span></div>' +
+      '<div class="stat"><b>' + actifs + '</b><span>ouverts ces 24 h</span></div>' +
+      '<div class="stat"><b>' + subsMeta.comptes + '</b><span>comptes KOMYO au total</span></div>';
+    drawDays(); drawDevices();
+    var list = sFiltered(false);
+    $('sRows').innerHTML = list.map(function(c){
+      var p = dateParts(c.date), l = dateParts(c.derniere), cls = c.telephone ? 'pay' : 'warn';
+      return '<tr class="' + (fresh && fresh[c.id] ? 'new' : '') + '"><td>' + esc(c.id) + '</td><td>' + p.date + '</td><td>' + p.heure + '</td><td><b>' + esc(c.nom || '—') + '</b></td><td>' + esc(c.telephone || '—') + '</td><td>' + esc(c.ville || '') + '</td><td>' + esc(c.appareil) + '</td><td>' + esc(c.navigateur) + '</td><td><span class="pill ' + cls + '">' + esc(c.origine) + '</span></td><td>' + c.ouvertures + '</td><td>' + l.date + ' ' + l.heure + '</td></tr>';
+    }).join('') || '<tr><td colspan="11" class="muted" style="padding:22px;text-align:center">Aucune installation pour le moment : dès qu\'une personne installe KOMYO sur son appareil, elle apparaît ici.</td></tr>';
+  }
+  ['sq'].forEach(function(id){ $(id).addEventListener('input', function(){ renderSubs(null); }); });
+  $('sOrig').addEventListener('change', function(){ renderSubs(null); });
+
+  var tipEl = null;
+  function tip(host, x, html){
+    if (!tipEl){ tipEl = document.createElement('div'); tipEl.className = 'tip'; }
+    if (!html){ if (tipEl.parentNode) tipEl.parentNode.removeChild(tipEl); return; }
+    host.appendChild(tipEl); tipEl.innerHTML = html; tipEl.style.left = x + 'px'; tipEl.style.top = '58px';
+  }
+  function drawDays(){
+    var host = $('sDays'), days = [], i, d, byDay = {};
+    subs.forEach(function(c){ var k = dateParts(c.date).date; byDay[k] = (byDay[k] || 0) + 1; });
+    for (i = 29; i >= 0; i--){ d = new Date(); d.setDate(d.getDate() - i); var k = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); days.push({ k: k, n: byDay[k] || 0, lab: pad(d.getDate()) + '/' + pad(d.getMonth() + 1) }); }
+    var max = Math.max(1, Math.max.apply(null, days.map(function(x){ return x.n; })));
+    var top = max <= 4 ? max : Math.ceil(max / 4) * 4, W = 600, H = 190, L = 28, R = 4, T = 8, B = 22, pw = W - L - R, ph = H - T - B, bw = pw / 30;
+    var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Installations par jour sur 30 jours">';
+    var steps = top <= 4 ? top : 4;
+    for (i = 0; i <= steps; i++){ var v = Math.round(top * i / steps), y = T + ph - ph * v / top; svg += '<line class="gl" x1="' + L + '" x2="' + (W - R) + '" y1="' + y + '" y2="' + y + '"/><text class="ax" x="' + (L - 6) + '" y="' + (y + 3) + '" text-anchor="end">' + v + '</text>'; }
+    days.forEach(function(x, j){
+      var h = ph * x.n / top, bx = L + j * bw + bw * 0.18, w = bw * 0.64, by = T + ph - h;
+      svg += '<rect class="hit" data-i="' + j + '" x="' + (L + j * bw) + '" y="' + T + '" width="' + bw + '" height="' + ph + '" fill="transparent"/>';
+      if (x.n) svg += '<path class="bar-m" d="M' + bx + ' ' + (T + ph) + 'V' + (by + 4) + 'Q' + bx + ' ' + by + ' ' + (bx + 4) + ' ' + by + 'H' + (bx + w - 4) + 'Q' + (bx + w) + ' ' + by + ' ' + (bx + w) + ' ' + (by + 4) + 'V' + (T + ph) + 'Z"/>';
+      else svg += '<rect class="bar-m" x="' + bx + '" y="' + (T + ph - 1.5) + '" width="' + w + '" height="1.5" opacity=".35"/>';
+      if (j % 5 === 0 || j === 29) svg += '<text class="ax" x="' + (L + j * bw + bw / 2) + '" y="' + (H - 6) + '" text-anchor="middle">' + x.lab + '</text>';
+    });
+    host.innerHTML = svg + '</svg>';
+    var card = host.parentNode;
+    host.querySelectorAll('.hit').forEach(function(r){
+      function on(){ var x = days[Number(r.getAttribute('data-i'))]; var rect = r.getBoundingClientRect(), cr = card.getBoundingClientRect(); tip(card, rect.left - cr.left + rect.width / 2, '<b>' + x.lab + '</b> : ' + x.n + ' installation' + (x.n > 1 ? 's' : '')); }
+      r.addEventListener('mouseenter', on); r.addEventListener('focus', on); r.addEventListener('click', on); r.addEventListener('mouseleave', function(){ tip(card, 0, ''); });
+    });
+  }
+  function countBy(key){ var o = {}; subs.forEach(function(c){ o[c[key]] = (o[c[key]] || 0) + 1; }); return Object.keys(o).map(function(k){ return { k: k, n: o[k] }; }).sort(function(a, b){ return b.n - a.n; }); }
+  function drawDevices(){
+    var rows = countBy('appareil'), tot = subs.length;
+    $('sDevSub').textContent = tot ? 'Répartition des ' + tot + ' installation' + (tot > 1 ? 's' : '') : '';
+    $('sDev').innerHTML = rows.map(function(r){ var pc = Math.round(100 * r.n / tot); return '<div class="devrow"><span>' + esc(r.k) + '</span><span class="trk" role="img" aria-label="' + pc + ' %"><i style="width:' + Math.max(2, pc) + '%"></i></span><b>' + r.n + ' <span class="muted" style="font-weight:400">· ' + pc + ' %</span></b></div>'; }).join('') || '<div class="muted" style="padding:12px 0">Pas encore d\'installation.</div>';
+  }
+  function excelSubs(onlyToday){
+    var rows = sFiltered(onlyToday).slice().reverse();
+    var main = [['N°','Date','Heure','Nom et prénom','Téléphone','Ville','Appareil','Navigateur','Origine','Comment repérée','Ouvertures','Dernière ouverture']];
+    rows.forEach(function(c){ var p = dateParts(c.date), l = dateParts(c.derniere); main.push([Number(c.id), p.date, p.heure, c.nom, c.telephone, c.ville, c.appareil, c.navigateur, c.origine, c.via, c.ouvertures, l.date + ' ' + l.heure]); });
+    var days = {}; rows.forEach(function(c){ var k = dateParts(c.date).date; days[k] = (days[k] || 0) + 1; });
+    var ks = Object.keys(days).sort(), cum = 0, jour = [['Date','Installations','Cumul']];
+    ks.forEach(function(k){ cum += days[k]; jour.push([k, days[k], cum]); });
+    var dev = {}; rows.forEach(function(c){ dev[c.appareil] = (dev[c.appareil] || 0) + 1; });
+    var app = [['Appareil','Installations']]; Object.keys(dev).sort(function(a, b){ return dev[b] - dev[a]; }).forEach(function(k){ app.push([k, dev[k]]); });
+    var wb = XLSX.utils.book_new();
+    var w1 = XLSX.utils.aoa_to_sheet(main); w1['!cols'] = [{wch:6},{wch:11},{wch:9},{wch:26},{wch:17},{wch:14},{wch:20},{wch:16},{wch:28},{wch:24},{wch:11},{wch:18}]; w1['!autofilter'] = { ref: 'A1:L' + main.length };
+    var w2 = XLSX.utils.aoa_to_sheet(jour); w2['!cols'] = [{wch:12},{wch:13},{wch:9}];
+    var w3 = XLSX.utils.aoa_to_sheet(app); w3['!cols'] = [{wch:22},{wch:13}];
+    XLSX.utils.book_append_sheet(wb, w1, 'Abonnés'); XLSX.utils.book_append_sheet(wb, w2, 'Par jour'); XLSX.utils.book_append_sheet(wb, w3, 'Par appareil');
+    XLSX.writeFile(wb, 'KOMYO-abonnes-' + (onlyToday ? todayStr() : 'complet-' + todayStr()) + '.xlsx');
+  }
+  $('btnSExcel').addEventListener('click', function(){ excelSubs(false); });
+  $('btnSExcelDay').addEventListener('click', function(){ excelSubs(true); });
+
+
+  /* ---------- PIN oubliés : réinitialisation assistée des membres ---------- */
+  var API_MEMBRES = '/api/starvibe-auth', pins = [], seenP = {};
+  var STATUT_PIN = { en_attente:'À traiter', code_envoye:'Code généré', termine:'Terminé ✓', refuse:'Refusé', expire:'Expiré' };
+  function waNum(t){ var d = String(t || '').replace(/\D/g, ''); if (d.length === 9 && d.charAt(0) === '0') d = '242' + d; return d; }
+  function loadPins(first){
+    authFetch(API_MEMBRES + '?pin_requests=1').then(function(r){ if (r.status === 403){ return null; } return r.json(); }).then(function(d){
+      if (!d || !d.demandes) return;
+      var fresh = {};
+      d.demandes.forEach(function(c){ if (!first && !seenP[c.id]) fresh[c.id] = true; seenP[c.id] = true; });
+      pins = d.demandes; renderPins(fresh);
+    }).catch(function(){});
+  }
+  function renderPins(fresh){
+    var nAtt = pins.filter(function(c){ return c.statut === 'en_attente'; }).length;
+    var bd = $('pinBadge'); bd.hidden = !nAtt; bd.textContent = nAtt;
+    $('pRows').innerHTML = pins.map(function(c){
+      var p = dateParts(c.date), cls = c.statut === 'termine' ? 'pay' : (c.statut === 'en_attente' ? 'warn' : '');
+      var actions = '';
+      if (c.statut === 'en_attente' || c.statut === 'code_envoye' || c.statut === 'expire') actions += '<button class="btn ok" data-gen="' + esc(c.id) + '">' + (c.statut === 'en_attente' ? 'Générer le code' : 'Nouveau code') + '</button> ';
+      if (c.statut === 'en_attente' || c.statut === 'code_envoye') actions += '<button class="btn del" data-ref="' + esc(c.id) + '">Refuser</button>';
+      return '<tr class="' + (fresh && fresh[c.id] ? 'new' : '') + '"><td>' + esc(c.id) + '</td><td>' + p.date + '</td><td>' + p.heure + '</td><td><b>' + esc(c.telephone) + '</b></td><td>' + esc(c.nomIndique || '—') + '</td><td>' + esc(c.profil || '—') + '</td><td>' + esc(c.ville || '') + '</td><td><span class="pill ' + cls + '">' + esc(STATUT_PIN[c.statut] || c.statut) + '</span></td><td>' + actions + '</td></tr>';
+    }).join('') || '<tr><td colspan="9" class="muted" style="padding:22px;text-align:center">Aucune demande. Quand un membre oublie son PIN et en fait la demande, elle apparaît ici (et ton téléphone reçoit une notification).</td></tr>';
+    var t = new Date(); $('pRefresh').textContent = 'Mis à jour à ' + pad(t.getHours()) + ':' + pad(t.getMinutes()) + ':' + pad(t.getSeconds()) + ' — automatique.';
+    $('pRows').querySelectorAll('[data-gen]').forEach(function(b){ b.addEventListener('click', function(){ genererPin(b.getAttribute('data-gen'), b); }); });
+    $('pRows').querySelectorAll('[data-ref]').forEach(function(b){ b.addEventListener('click', function(){
+      if (!window.confirm('Refuser cette demande ?')) return;
+      post2({ action:'pin_refuser', requestId:Number(b.getAttribute('data-ref')) }).then(function(){ loadPins(false); });
+    }); });
+  }
+  function post2(body){ return authFetch(API_MEMBRES, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) }).then(function(r){ return r.json().then(function(d){ return { ok:r.ok, data:d }; }); }); }
+  function genererPin(id, btn){
+    var c = pins.filter(function(x){ return x.id === id; })[0] || {};
+    if (!window.confirm('As-tu vérifié que c\'est bien ' + (c.profil || c.nomIndique || 'le membre') + ' (' + (c.telephone || '') + ') ?\nUn code temporaire va être généré.')) return;
+    btn.disabled = true;
+    post2({ action:'pin_code', requestId:Number(id) }).then(function(res){
+      btn.disabled = false;
+      if (!res.ok){ window.alert(res.data.error || 'Impossible de générer le code.'); return; }
+      $('pinModalTel').textContent = res.data.telephone; $('pinModalCode').textContent = res.data.code;
+      var msg = (window.I18N ? I18N.t : function(x){ return x; })('Bonjour, voici ton code temporaire KOMYO : ' + res.data.code + ' (valable 24 h). Ouvre KOMYO, touche « Se connecter » puis « Code PIN oublié ? », saisis ton numéro, ce code et ton nouveau PIN (4 ou 5 chiffres). Ne le partage avec personne.');
+      $('pinModalWa').href = 'https://wa.me/' + waNum(res.data.telephone) + '?text=' + encodeURIComponent(msg);
+      if (cur.ov !== 'pin') pousser({ ov:'pin' }); $('pinModal').hidden = false; loadPins(false);
+    });
+  }
+  $('pinModalClose').addEventListener('click', function(){ fermerOv(); });
+
+  $('btnCExcel').addEventListener('click', function(){ excelClients(false); });
+  $('btnCExcelDay').addEventListener('click', function(){ excelClients(true); });
+
+  /* ---------- contacts en direct ---------- */
+  var contacts = [], seen = {};
+  function dateParts(iso){ var d = new Date(iso); return { date: d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()), heure: pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()) }; }
+  function todayStr(){ var d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()); }
+
+  function loadContacts(first){
+    authFetch(API + '?contacts=1&limit=1000').then(function(r){ if (r.status === 403){ setToken(''); showLogin(); return null; } return r.json(); }).then(function(d){
+      if (!d) return;
+      var fresh = {};
+      d.contacts.forEach(function(c){ if (!first && !seen[c.id]) fresh[c.id] = true; seen[c.id] = true; });
+      contacts = d.contacts;
+      render(fresh);
+      var t = new Date(); $('lastRefresh').textContent = 'Mis à jour à ' + pad(t.getHours()) + ':' + pad(t.getMinutes()) + ':' + pad(t.getSeconds()) + ' — rafraîchi automatiquement toutes les 6 secondes.';
+    });
+  }
+  function filtered(){
+    var q = $('q').value.trim().toLowerCase();
+    if (!q) return contacts;
+    return contacts.filter(function(c){ return [c.nom, c.telephone, c.texte, c.serviceLabel, c.ville, EV[c.type], c.reference].join(' ').toLowerCase().indexOf(q) !== -1; });
+  }
+  function render(fresh){
+    var list = filtered();
+    var people = {}, paid = 0, today = todayStr(), nToday = 0;
+    contacts.forEach(function(c){ people[c.telephone] = 1; if (c.type === 'paiement_valide') paid++; if (dateParts(c.date).date === today) nToday++; });
+    $('stats').innerHTML =
+      '<div class="stat"><b>' + Object.keys(people).length + '</b><span>personnes ont contacté Keydou</span></div>' +
+      '<div class="stat"><b>' + nToday + '</b><span>échanges aujourd\'hui</span></div>' +
+      '<div class="stat"><b>' + paid + '</b><span>paiements confirmés</span></div>';
+    $('rows').innerHTML = list.map(function(c){
+      var p = dateParts(c.date), cls = c.type.indexOf('paiement_valide') === 0 ? 'pay' : (c.type === 'demande' || c.type === 'paiement_declare' ? 'warn' : '');
+      return '<tr class="' + (fresh && fresh[c.id] ? 'new' : '') + '"><td>' + p.date + '</td><td>' + p.heure + '</td><td>' + esc(c.nom || '—') + '</td><td>' + esc(c.telephone) + '</td><td><span class="pill ' + cls + '">' + esc(EV[c.type] || c.type) + '</span></td><td>' + esc(c.texte) + '</td><td>' + esc(c.serviceLabel) + '</td><td>' + esc(c.ville) + '</td><td>' + esc(c.reference) + '</td></tr>';
+    }).join('') || '<tr><td colspan="9" class="muted" style="padding:22px;text-align:center">Aucun contact pour le moment.</td></tr>';
+  }
+  $('q').addEventListener('input', function(){ render(null); });
+
+  function excelContacts(onlyToday){
+    var rows = contacts.filter(function(c){ return !onlyToday || dateParts(c.date).date === todayStr(); }).slice().reverse();
+    var main = [['Date','Heure','Nom','Téléphone','Événement','Détail','Service','Ville','Référence demande']];
+    rows.forEach(function(c){ var p = dateParts(c.date); main.push([p.date, p.heure, c.nom, c.telephone, EV[c.type] || c.type, c.texte, c.serviceLabel, c.ville, c.reference]); });
+    var byPhone = {};
+    rows.forEach(function(c){ var k = c.telephone; var o = byPhone[k] || (byPhone[k] = { nom:c.nom, tel:k, n:0, last:c.date, services:{}, paye:0 }); o.n++; if (c.date > o.last) o.last = c.date; if (c.serviceLabel) o.services[c.serviceLabel] = 1; if (c.type === 'paiement_valide') o.paye++; if (c.nom) o.nom = c.nom; });
+    var sum = [['Nom','Téléphone','Nombre d\'échanges','Dernier contact','Services demandés','Paiements confirmés']];
+    Object.keys(byPhone).forEach(function(k){ var o = byPhone[k], p = dateParts(o.last); sum.push([o.nom, o.tel, o.n, p.date + ' ' + p.heure, Object.keys(o.services).join(', '), o.paye]); });
+    var wb = XLSX.utils.book_new();
+    var ws1 = XLSX.utils.aoa_to_sheet(main); ws1['!cols'] = [{wch:11},{wch:9},{wch:22},{wch:16},{wch:30},{wch:42},{wch:34},{wch:14},{wch:12}];
+    var ws2 = XLSX.utils.aoa_to_sheet(sum); ws2['!cols'] = [{wch:22},{wch:16},{wch:16},{wch:18},{wch:50},{wch:18}];
+    XLSX.utils.book_append_sheet(wb, ws1, 'Contacts'); XLSX.utils.book_append_sheet(wb, ws2, 'Par personne');
+    XLSX.writeFile(wb, 'Keydou-contacts-' + (onlyToday ? todayStr() : 'complet-' + todayStr()) + '.xlsx');
+  }
+  $('btnExcel').addEventListener('click', function(){ excelContacts(true); });
+  $('btnExcelAll').addEventListener('click', function(){ excelContacts(false); });
+
+  /* ---------- annuaire ---------- */
+  var lieux = [], editId = 0;
+  function fillSelect(sel, opts, first){ sel.innerHTML = (first ? '<option value="">' + first + '</option>' : '') + opts.map(function(o){ return '<option value="' + esc(o[0]) + '">' + esc(o[1]) + '</option>'; }).join(''); }
+  function loadAnnuaire(){
+    authFetch(API + '?lieux_admin=1').then(function(r){ return r.status === 403 ? null : r.json(); }).then(function(d){
+      if (!d) return;
+      lieux = d.lieux; SERVICES = d.services; VILLES = d.villes;
+      var svcOpts = Object.keys(SERVICES).map(function(k){ return [k, SERVICES[k]]; });
+      var vOpts = VILLES.map(function(v){ return [v, v]; });
+      var cs = $('fService').value, cv = $('fVille').value;
+      fillSelect($('fService'), svcOpts, 'Tous les services'); fillSelect($('fVille'), vOpts, 'Toutes les villes');
+      $('fService').value = cs; $('fVille').value = cv;
+      fillSelect($('eService'), svcOpts); fillSelect($('eVille'), vOpts);
+      renderLieux();
+    });
+  }
+  function renderLieux(){
+    var s = $('fService').value, v = $('fVille').value;
+    $('lieuxRows').innerHTML = lieux.filter(function(l){ return (!s || l.service === s) && (!v || l.ville === v); }).map(function(l){
+      return '<tr><td>' + esc(SERVICES[l.service] || l.service) + '</td><td>' + esc(l.ville) + '</td><td><b>' + esc(l.nom) + '</b><div class="muted">' + esc(l.adresse) + '</div></td><td>' + (l.telephone ? esc(l.telephone) : '<span class="muted">— à trouver</span>') + '</td><td>' +
+        '<span class="pill ' + (l.verifie ? 'pay' : 'warn') + '">' + (l.verifie ? 'Vérifié' : 'À confirmer') + '</span>' + (l.actif ? '' : ' <span class="pill">Masqué</span>') + '</td><td style="white-space:nowrap"><button class="btn" data-edit="' + l.id + '">Modifier</button> <button class="btn del" data-del="' + l.id + '">Supprimer</button></td></tr>';
+    }).join('') || '<tr><td colspan="6" class="muted" style="padding:22px;text-align:center">Aucune adresse.</td></tr>';
+  }
+  $('fService').addEventListener('change', renderLieux); $('fVille').addEventListener('change', renderLieux);
+  $('lieuxRows').addEventListener('click', function(ev){
+    var e = ev.target.getAttribute('data-edit'), d = ev.target.getAttribute('data-del');
+    if (e) openEdit(lieux.filter(function(l){ return l.id === e; })[0]);
+    if (d && confirm('Supprimer cette adresse ?')) post({ action:'lieu_delete', id:Number(d) }).then(loadAnnuaire);
+  });
+  function openEdit(l){
+    l = l || { service:'hotel', ville:'Brazzaville', nom:'', adresse:'', telephone:'', whatsapp:'', description:'', sourceUrl:'', sourceNote:'', verifie:false, actif:true };
+    editId = l.id ? Number(l.id) : 0;
+    $('editTitle').textContent = editId ? 'Modifier une adresse' : 'Nouvelle adresse';
+    $('eService').value = l.service; $('eVille').value = l.ville; $('eNom').value = l.nom; $('eAdr').value = l.adresse; $('eTel').value = l.telephone; $('eWa').value = l.whatsapp;
+    $('eDesc').value = l.description; $('eSrc').value = l.sourceUrl || ''; $('eNote').value = l.sourceNote || ''; $('eVer').checked = !!l.verifie; $('eActif').checked = l.actif !== false;
+    $('editErr').classList.remove('show'); if (cur.ov !== 'edit') pousser({ ov:'edit' }); $('editCard').hidden = false; $('editCard').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+  $('btnNew').addEventListener('click', function(){ openEdit(null); });
+  $('btnCancel').addEventListener('click', function(){ fermerOv(); });
+  $('btnSave').addEventListener('click', function(){
+    var err = $('editErr'); err.classList.remove('show');
+    var body = { action:'lieu_save', id:editId, service:$('eService').value, ville:$('eVille').value, nom:$('eNom').value, adresse:$('eAdr').value, telephone:$('eTel').value, whatsapp:$('eWa').value, description:$('eDesc').value, sourceUrl:$('eSrc').value, sourceNote:$('eNote').value, verifie:$('eVer').checked, actif:$('eActif').checked };
+    if (!body.nom.trim()){ err.textContent = 'Le nom est requis.'; err.classList.add('show'); return; }
+    post(body).then(function(res){ if (!res.ok){ err.textContent = res.data.error || 'Enregistrement impossible.'; err.classList.add('show'); return; } fermerOv(); loadAnnuaire(); });
+  });
+
+  var COLS = ['Service','Ville','Nom','Adresse','Téléphone','WhatsApp','Description','Source (lien)','Note sur la source','Vérifié (oui/non)','Visible (oui/non)'];
+  $('btnExport').addEventListener('click', function(){
+    var rows = [COLS];
+    lieux.forEach(function(l){ rows.push([SERVICES[l.service] || l.service, l.ville, l.nom, l.adresse, l.telephone, l.whatsapp, l.description, l.sourceUrl, l.sourceNote, l.verifie ? 'oui' : 'non', l.actif ? 'oui' : 'non']); });
+    var ws = XLSX.utils.aoa_to_sheet(rows); ws['!cols'] = [{wch:34},{wch:14},{wch:34},{wch:34},{wch:26},{wch:16},{wch:50},{wch:40},{wch:30},{wch:12},{wch:12}];
+    var wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Annuaire Keydou');
+    XLSX.writeFile(wb, 'Annuaire-Keydou-' + todayStr() + '.xlsx');
+  });
+  $('fileImport').addEventListener('change', function(){
+    var f = this.files[0]; if (!f) return;
+    var msg = $('impMsg'); msg.hidden = false; msg.style.color = ''; msg.textContent = 'Lecture du fichier…';
+    var rd = new FileReader();
+    rd.onload = function(){
+      try{
+        var wb = XLSX.read(rd.result, { type:'array' });
+        var rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval:'' });
+        var byLabel = {}; Object.keys(SERVICES).forEach(function(k){ byLabel[SERVICES[k].toLowerCase()] = k; byLabel[k] = k; });
+        var yes = function(v){ return /^(oui|yes|true|1|x)$/i.test(String(v).trim()); };
+        var out = rows.map(function(r){
+          var svc = byLabel[String(r['Service']).trim().toLowerCase()] || '';
+          return { service:svc, ville:String(r['Ville']).trim(), nom:String(r['Nom']).trim(), adresse:r['Adresse'], telephone:r['Téléphone'], whatsapp:r['WhatsApp'], description:r['Description'], sourceUrl:r['Source (lien)'], sourceNote:r['Note sur la source'], verifie:yes(r['Vérifié (oui/non)']), actif: r['Visible (oui/non)'] === '' ? true : yes(r['Visible (oui/non)']) };
+        });
+        post({ action:'lieux_import', lieux:out }).then(function(res){
+          msg.style.color = res.ok ? '' : '#ff8a80';
+          msg.textContent = res.ok ? ('Import terminé : ' + res.data.ajoutes + ' ajoutée(s), ' + res.data.misAJour + ' mise(s) à jour, ' + res.data.ignores + ' ligne(s) ignorée(s) (service, ville ou nom manquant).') : (res.data.error || 'Import impossible.');
+          loadAnnuaire();
+        });
+      }catch(e){ msg.style.color = '#ff8a80'; msg.textContent = 'Fichier illisible : ' + e.message; }
+    };
+    rd.readAsArrayBuffer(f); this.value = '';
+  });
+
+
+  /* ---------- téléphone : notifications + SMS ---------- */
+  var RES = { valide_auto:'✅ Validé automatiquement', valide_auto_montant:'✅ Validé (autre numéro, seule demande)', a_confirmer:'Notification Oui/Non envoyée', non_rapproche:'Non rapproché', numero_different:'Montant trouvé, numéro différent', plusieurs_correspondances:'Plusieurs demandes possibles', deja_traite:'Déjà traité', ignore:'Ignoré (pas un dépôt)' };
+  function pmsg(t, bad){ var m = $('pushMsg'); m.hidden = false; m.style.color = bad ? '#ff8a80' : ''; m.textContent = t; }
+  function b64ToU8(b){ var p = '='.repeat((4 - b.length % 4) % 4), s = (b + p).replace(/-/g,'+').replace(/_/g,'/'), r = atob(s), o = new Uint8Array(r.length); for (var i=0;i<r.length;i++) o[i] = r.charCodeAt(i); return o; }
+  function loadPhone(){
+    authFetch(API + '?sms_info=1').then(function(r){ return r.status === 403 ? null : r.json(); }).then(function(d){
+      if (!d) return;
+      $('hookUrl').value = location.origin + '/api/starvibe-keydou?sms=1&s=' + d.secret;
+      $('autoOn').checked = d.auto; $('repliOn').checked = d.repli !== false;
+      $('smsRows').innerHTML = (d.journal || []).map(function(l){ var p = dateParts(l.created_at); return '<tr><td>' + p.date + ' ' + p.heure + '</td><td>' + (l.montant || '—') + '</td><td>' + esc(l.numero || '—') + '</td><td>' + esc(RES[l.resultat] || l.resultat) + '</td><td class="muted">' + esc(String(l.message).slice(0, 90)) + '</td></tr>'; }).join('') || '<tr><td colspan="5" class="muted" style="padding:16px;text-align:center">Aucun SMS reçu pour le moment.</td></tr>';
+      if (d.telephonesNotifies) pmsg('✅ ' + d.telephonesNotifies + ' téléphone(s) reçoivent déjà les notifications.');
+    });
+  }
+  $('btnCopyHook').addEventListener('click', function(){ var i = $('hookUrl'); i.select(); try{ navigator.clipboard.writeText(i.value); }catch(e){ document.execCommand('copy'); } this.textContent = 'Copié ✔'; });
+  $('autoOn').addEventListener('change', function(){ post({ action:'sms_auto', on:this.checked }); });
+  $('repliOn').addEventListener('change', function(){ post({ action:'sms_repli', on:this.checked }); });
+  $('btnPushOn').addEventListener('click', function(){
+    if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)){ pmsg('Ce navigateur ne gère pas les notifications. Sur iPhone : ajoute d\'abord la page à l\'écran d\'accueil, puis rouvre-la depuis l\'icône.', true); return; }
+    pmsg('Activation en cours…');
+    navigator.serviceWorker.register('/starvibe/sw-komyo.js').then(function(){ return navigator.serviceWorker.ready; }).then(function(reg){
+      return Notification.requestPermission().then(function(perm){
+        if (perm !== 'granted') throw new Error('Autorisation refusée : active les notifications pour ce site dans les réglages du téléphone.');
+        return fetch(API + '?pushkey=1').then(function(r){ return r.json(); }).then(function(k){ return reg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey:b64ToU8(k.publicKey) }); });
+      });
+    }).then(function(sub){ return post({ action:'push_subscribe', subscription: sub.toJSON(), label: navigator.userAgent.slice(0, 50) }); })
+      .then(function(res){ if (!res.ok) throw new Error(res.data.error || 'Enregistrement impossible.'); pmsg('✅ Notifications activées. Touche « Envoyer un test ».'); })
+      .catch(function(e){ pmsg(e.message || 'Activation impossible.', true); });
+  });
+  $('btnPushTest').addEventListener('click', function(){ post({ action:'push_test' }).then(function(res){ pmsg(res.ok ? (res.data.envoyes ? 'Test envoyé (' + res.data.envoyes + ' téléphone). Regarde ton écran.' : 'Aucun téléphone enregistré : touche d\'abord « Activer ».') : (res.data.error || 'Échec.'), !res.ok || !res.data.envoyes); }); });
+
+  if (getToken()) showMain(); else showLogin();
+})();
+</script>
+<script src="/assets/js/oeil-mdp-v2.js" defer></script>
+</body>
+</html>

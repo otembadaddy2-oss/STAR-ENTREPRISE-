@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="assets/i18n-v1.js"></script>
+<title>KOMYO — Keydou, assistant multiservices</title>
+<meta name="theme-color" content="#FFFBF3">
+<link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+<style>
+  :root{--navy:#241536;--coral:#FF6B4A;--gold:#E8A93D;--gold-deep:#C8942F;--cream:#FFFBF3;--text-dim:#6b5f80;--text-faint:#a49bb8;--line:#eee2cc;--ok:#2f8f6e;--err:#b3261e;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cream);color:var(--navy);font-family:'Inter',Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:'Sora',Arial,sans-serif;}
+  img{max-width:100%;display:block;}
+  [hidden]{display:none!important;}
+  .wrap{max-width:480px;margin:0 auto;padding-inline:18px;}
+
+  .topbar{background:linear-gradient(120deg,var(--coral),var(--gold));color:#fff;padding:16px 18px 40px;border-radius:0 0 26px 26px;}
+  .topbar .row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .topbar h1{font-size:15.5px;margin:0;line-height:1.25;}
+  .topbar h1 small{display:block;font-family:'Inter',sans-serif;font-weight:500;font-size:11.5px;opacity:.9;margin-top:2px;}
+  .topbar a.back{font-size:11.5px;font-weight:700;color:#fff;border:1.5px solid rgba(255,255,255,.45);padding:7px 13px;border-radius:20px;text-decoration:none;background:rgba(255,255,255,.12);white-space:nowrap;}
+  .content{margin-top:-28px;}
+
+  /* ----- l'écran de Keydou ----- */
+  .stage{position:relative;height:380px;border-radius:24px;overflow:hidden;border:2px solid #fff;
+    background:radial-gradient(120% 90% at 50% 8%,#fffaf0 0%,#ffecc2 55%,#f8d98c 100%);
+    box-shadow:0 18px 34px -20px rgba(36,21,54,.45), inset 0 0 0 1px var(--line);}
+  .stage::before{content:"";position:absolute;inset:0;background:
+    radial-gradient(circle at 18% 22%,rgba(255,255,255,.9) 0 2px,transparent 3px),
+    radial-gradient(circle at 82% 30%,rgba(255,255,255,.9) 0 2.5px,transparent 3.5px),
+    radial-gradient(circle at 70% 12%,rgba(255,255,255,.8) 0 1.5px,transparent 2.5px),
+    radial-gradient(circle at 30% 60%,rgba(255,255,255,.7) 0 2px,transparent 3px);}
+  .floor{position:absolute;left:0;right:0;bottom:0;height:46px;background:linear-gradient(180deg,rgba(200,148,47,0),rgba(200,148,47,.28));}
+  .kd-pos{position:absolute;bottom:30px;left:50%;width:250px;margin-left:-125px;transition:left 1.4s ease-in-out;z-index:2;}
+  .kd-flip{transition:transform .5s ease;transform-origin:50% 100%;}
+  .kd-flip.left{transform:scaleX(-1);}
+  .kd-shadow{position:absolute;left:50%;bottom:-4px;width:120px;height:16px;margin-left:-60px;border-radius:50%;background:rgba(36,21,54,.22);filter:blur(4px);}
+  .kd-body{position:relative;transform-origin:50% 100%;will-change:transform;}
+  .kd-body img{width:100%;height:auto;display:block;filter:drop-shadow(0 6px 8px rgba(36,21,54,.18));}
+  .kd-body.idle{animation:sway 3.2s ease-in-out infinite;}
+  .kd-body.dance{animation:dance .8s ease-in-out infinite;}
+  .kd-body.walk{animation:step .46s ease-in-out infinite;}
+  .kd-body.sit{transform:translateY(22px) scale(1.04,.8) rotate(-3deg);animation:none;transition:transform .5s ease;}
+  .kd-body.talk{animation:none;transform:scale(var(--talk,1),var(--talk-y,1));}
+  @keyframes sway{0%,100%{transform:rotate(-2deg) translateY(0);}50%{transform:rotate(2deg) translateY(-5px);}}
+  @keyframes dance{0%{transform:translateY(0) rotate(-6deg) scale(1.03,.95);}25%{transform:translateY(-22px) rotate(0) scale(.97,1.05);}50%{transform:translateY(0) rotate(6deg) scale(1.03,.95);}75%{transform:translateY(-22px) rotate(0) scale(.97,1.05);}100%{transform:translateY(0) rotate(-6deg) scale(1.03,.95);}}
+  @keyframes step{0%,100%{transform:translateY(0) rotate(-4deg);}50%{transform:translateY(-9px) rotate(4deg);}}
+
+  .bubble{position:absolute;left:12px;right:12px;top:12px;z-index:3;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:10px 13px;
+    font-size:12.5px;line-height:1.5;min-height:44px;box-shadow:0 8px 18px -12px rgba(36,21,54,.4);}
+  .bubble::after{content:"";position:absolute;left:50%;bottom:-8px;width:14px;height:14px;margin-left:-7px;background:#fff;border-right:1.5px solid var(--line);border-bottom:1.5px solid var(--line);transform:rotate(45deg);}
+  .bubble b{font-family:'Sora',sans-serif;font-size:11px;color:var(--gold-deep);display:block;margin-bottom:1px;}
+  .nameplate{position:absolute;left:0;right:0;bottom:8px;text-align:center;z-index:1;font-family:'Sora',sans-serif;font-weight:800;font-size:11px;color:#7a5a12;letter-spacing:.3px;}
+
+  .panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;margin-top:14px;box-shadow:0 10px 24px -18px rgba(36,21,54,.25);animation:fadeUp .4s ease both;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+  .panel h2{font-size:14.5px;margin:0 0 6px;}
+  .panel p{font-size:12.5px;color:var(--text-dim);line-height:1.55;margin:0 0 10px;}
+
+  .mic-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;}
+  .mic{width:86px;height:86px;border-radius:50%;border:none;cursor:pointer;color:#fff;background:linear-gradient(135deg,var(--coral),var(--gold));
+    display:flex;align-items:center;justify-content:center;box-shadow:0 14px 26px -12px rgba(255,107,74,.7);touch-action:none;user-select:none;-webkit-user-select:none;transition:transform .15s ease;}
+  .mic svg{width:34px;height:34px;}
+  .mic.live{transform:scale(1.12);animation:pulse 1s ease-in-out infinite;background:linear-gradient(135deg,#e5383b,#ff6b4a);}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(229,56,59,.5);}50%{box-shadow:0 0 0 16px rgba(229,56,59,0);}}
+  .mic-label{font-size:12px;font-weight:700;color:var(--text-dim);text-align:center;}
+  .heard{font-size:12px;color:var(--text-dim);background:#faf5ea;border-radius:10px;padding:8px 11px;margin-top:6px;width:100%;}
+
+  .row-input{display:flex;gap:8px;margin-top:10px;}
+  .row-input input{flex:1;min-width:0;border:1.5px solid var(--line);border-radius:12px;padding:11px 12px;font-size:13.5px;font-family:'Inter',sans-serif;color:var(--navy);background:#fff;}
+  .btn{border:none;border-radius:12px;padding:12px 16px;font-family:'Sora',sans-serif;font-weight:800;font-size:13px;cursor:pointer;background:#f3ede0;color:var(--navy);transition:transform .2s ease;}
+  .btn:hover:not(:disabled){transform:translateY(-2px);}
+  .btn:disabled{opacity:.55;cursor:default;}
+  .btn.main{background:linear-gradient(135deg,var(--coral),var(--gold));color:#fff;}
+  .btn.ok{background:linear-gradient(135deg,#3fae82,var(--ok));color:#fff;}
+  .btn.block{width:100%;margin-top:6px;}
+  .next{display:flex;justify-content:flex-end;margin-top:10px;}
+
+  .svc-list{display:flex;flex-direction:column;gap:8px;}
+  .svc{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;border:1.5px solid var(--line);border-radius:12px;
+    background:#fff;padding:12px 14px;font-family:'Inter',sans-serif;font-size:13.5px;font-weight:600;color:var(--navy);cursor:pointer;transition:border-color .2s ease, transform .2s ease;}
+  .svc:hover{border-color:var(--gold);transform:translateX(3px);}
+  .svc svg{width:16px;height:16px;flex:none;stroke:var(--gold-deep);}
+
+  .formule{border:1.5px solid var(--gold);border-radius:16px;padding:16px;background:linear-gradient(180deg,#fffaf0,#fff);}
+  .formule .tag{font-family:'Sora',sans-serif;font-weight:800;font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--gold-deep);}
+  .formule h3{font-size:15px;margin:4px 0 2px;}
+  .formule .price{font-family:'Sora',sans-serif;font-weight:800;font-size:24px;margin:6px 0 8px;}
+  .formule .price span{font-size:12px;color:var(--text-faint);font-weight:600;}
+  .formule ul{margin:0 0 10px;padding-left:18px;font-size:12.5px;color:var(--text-dim);line-height:1.6;}
+  .note{font-size:11.5px;color:var(--text-dim);line-height:1.6;background:#FBF3E1;border:1px solid #EDD8A0;border-radius:10px;padding:10px 12px;margin-top:10px;}
+
+  .pay-row{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:9px 0;border-bottom:1px solid var(--line);}
+  .pay-row:last-of-type{border-bottom:none;}
+  .pay-row b{text-align:right;}
+  .status{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--text-dim);margin-top:12px;}
+  .dots{display:inline-flex;gap:4px;}
+  .dots i{width:7px;height:7px;border-radius:50%;background:var(--gold);animation:blink 1.2s infinite;}
+  .dots i:nth-child(2){animation-delay:.2s;} .dots i:nth-child(3){animation-delay:.4s;}
+  @keyframes blink{0%,80%,100%{opacity:.25;}40%{opacity:1;}}
+
+  .field{margin-bottom:10px;}
+  .field label{display:block;font-size:11.5px;font-weight:700;margin-bottom:4px;}
+  .field input,.field select,.field textarea{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13.5px;font-family:'Inter',sans-serif;color:var(--navy);background:#fff;}
+  .field textarea{min-height:64px;resize:vertical;}
+  .errmsg{font-size:12px;color:var(--err);margin-top:8px;}
+  .suite{margin-top:16px;padding:14px;border-radius:16px;background:#fff7e6;border:1px solid #f1d9a8;text-align:left;}
+  .suite h3{font-family:'Sora',sans-serif;font-size:14px;margin:0 0 6px;}
+  .suite p{font-size:13px;margin:0 0 8px;line-height:1.45;}
+  .suite a{font-weight:700;color:var(--coral);text-decoration:none;}
+  .okbox{text-align:center;padding:6px 0;}
+  .okbox .big{font-family:'Sora',sans-serif;font-weight:800;font-size:16px;margin-bottom:6px;}
+  .state{text-align:center;padding:60px 20px;font-size:13px;color:var(--text-dim);}
+  .state a{color:var(--navy);font-weight:700;border-bottom:1.5px solid var(--gold);}
+  footer{padding:20px;text-align:center;font-size:10px;color:var(--text-faint);}
+
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+  .chip{border:1.5px solid var(--line);background:#fff;border-radius:20px;padding:10px 16px;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;color:var(--navy);cursor:pointer;transition:border-color .2s ease, transform .2s ease;}
+  .chip:hover{border-color:var(--gold);transform:translateY(-2px);}
+  .preview{margin:8px 0 2px;padding:10px 12px;background:#faf5ea;border-radius:10px;font-size:12px;color:var(--text-dim);line-height:1.6;}
+  .preview b{color:var(--navy);}
+  .lieu{border:1px solid var(--line);border-radius:14px;padding:13px 14px;margin-top:10px;background:#fff;}
+  .lieu h3{font-size:14px;margin:0 0 2px;}
+  .lieu .adr{font-size:12px;color:var(--text-dim);margin-bottom:5px;}
+  .lieu .desc{font-size:12px;line-height:1.5;color:var(--text-dim);margin-bottom:8px;}
+  .lieu .badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 9px;border-radius:12px;background:#FBF0DA;color:#8a6410;margin-bottom:6px;}
+  .lieu .badge.ok{background:#e1f5ec;color:#1f7a57;}
+  .lieu .acts{display:flex;flex-wrap:wrap;gap:8px;}
+  .lieu a.call{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-family:'Sora',sans-serif;font-weight:800;font-size:12.5px;color:#fff;background:linear-gradient(135deg,#3fae82,var(--ok));padding:9px 13px;border-radius:11px;}
+  .lieu a.wa{text-decoration:none;font-family:'Sora',sans-serif;font-weight:800;font-size:12.5px;color:#075e54;background:#dff6e8;padding:9px 13px;border-radius:11px;}
+  .lieu .nonum{font-size:11.5px;color:var(--text-faint);font-style:italic;}
+  .privacy{font-size:10.5px;color:var(--text-faint);line-height:1.5;margin-top:10px;text-align:center;}
+
+
+  /* ----- inscription simplifiée ----- */
+  .kd-body.stand{animation:standup 1.1s ease-out 1;}
+  @keyframes standup{0%{transform:translateY(22px) scale(1.04,.8) rotate(-3deg);}35%{transform:translateY(-34px) scale(.96,1.08);}60%{transform:translateY(0) scale(1.04,.94);}80%{transform:translateY(-10px) scale(.99,1.02);}100%{transform:translateY(0) scale(1,1);}}
+  .sosbtn{display:inline-flex;align-items:center;gap:6px;font-family:'Sora',sans-serif;font-weight:800;font-size:12px;color:#fff;background:#d92d20;border:none;border-radius:20px;padding:8px 14px;cursor:pointer;}
+  .grp{margin-top:12px;}
+  .grp h3{font-size:11px;letter-spacing:.7px;text-transform:uppercase;color:var(--gold-deep);margin:0 0 6px;}
+  .chk{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:6px;font-size:13px;font-weight:600;cursor:pointer;background:#fff;transition:border-color .2s ease,background .2s ease;}
+  .chk input{width:20px;height:20px;accent-color:var(--coral);flex:none;margin:0;}
+  .chk.on{border-color:var(--coral);background:#fff5f1;}
+  .count{font-size:12px;font-weight:700;color:var(--text-dim);margin:8px 0 2px;}
+  .steps{margin:8px 0 4px;padding-left:20px;font-size:12.5px;color:var(--text-dim);line-height:1.7;}
+  .steps b{color:var(--navy);}
+  .warn{font-size:11.5px;line-height:1.55;background:#fdecea;border:1px solid #f3b8b2;color:#8c1d14;border-radius:10px;padding:10px 12px;margin-top:10px;}
+  .more{width:100%;margin-top:8px;}
+  .sosrow{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:8px;}
+  .sosrow .nb{font-family:'Sora',sans-serif;font-weight:800;font-size:18px;}
+  .sosrow .mt{font-size:12px;color:var(--text-dim);line-height:1.4;flex:1;}
+  .sosrow a{text-decoration:none;background:#d92d20;color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:12px;border-radius:10px;padding:9px 12px;}
+  table.pg{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px;}
+  table.pg td,table.pg th{border-bottom:1px solid var(--line);padding:6px 4px;text-align:left;}
+  table.pg td:nth-child(n+2),table.pg th:nth-child(n+2){text-align:right;white-space:nowrap;}
+
+
+  /* ----- deux colonnes : Keydou à gauche, l'interface à droite ----- */
+  .layout{max-width:1020px;margin:-28px auto 0;padding-inline:16px;display:grid;grid-template-columns:310px minmax(0,1fr);gap:18px;align-items:start;}
+  .side{position:sticky;top:12px;}
+  .main{min-width:0;}
+  .main .panel:first-child{margin-top:0;}
+  .stage{height:470px;}
+  .kd-pos{perspective:700px;}
+  .think-dots{position:absolute;left:62%;top:-4px;display:none;gap:4px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:6px 9px;}
+  .think-dots i{width:6px;height:6px;border-radius:50%;background:var(--gold-deep);animation:blink 1.2s infinite;}
+  .think-dots i:nth-child(2){animation-delay:.2s;} .think-dots i:nth-child(3){animation-delay:.4s;}
+  .kd-body.think ~ .think-dots, .thinking .think-dots{display:flex;}
+
+  /* mouvements : respiration, regard, salut, joie, tour sur lui-même… */
+  .kd-body.idle{animation:breathe 4.2s ease-in-out infinite;}
+  .kd-body.look{animation:look 2.6s ease-in-out 1;}
+  .kd-body.wave{animation:wave 1.8s ease-in-out 1;}
+  .kd-body.hop{animation:hop .85s ease-out 2;}
+  .kd-body.spin{animation:spin 1.4s ease-in-out 1;}
+  .kd-body.think{animation:thinkTilt 3s ease-in-out infinite;}
+  .kd-body.walk{animation:step .52s ease-in-out infinite;}
+  @keyframes breathe{0%,100%{transform:scale(1,1) rotate(0deg);}50%{transform:scale(1.014,.986) rotate(.8deg);}}
+  @keyframes look{0%,100%{transform:rotate(0) translateX(0);}25%,75%{transform:rotate(5deg) translateX(8px);}}
+  @keyframes wave{0%,100%{transform:rotate(0);}15%{transform:rotate(-7deg) translateY(-4px);}35%{transform:rotate(6deg);}55%{transform:rotate(-6deg) translateY(-4px);}75%{transform:rotate(4deg);}}
+  @keyframes hop{0%{transform:translateY(0) scale(1.05,.93);}40%{transform:translateY(-34px) scale(.96,1.07);}80%{transform:translateY(0) scale(1.06,.92);}100%{transform:translateY(0) scale(1,1);}}
+  @keyframes spin{0%{transform:rotateY(0) translateY(0);}50%{transform:rotateY(180deg) translateY(-14px);}100%{transform:rotateY(360deg) translateY(0);}}
+  @keyframes thinkTilt{0%,100%{transform:rotate(-1deg);}50%{transform:rotate(-7deg) translateX(-4px);}}
+
+  .mic-card{display:flex;align-items:center;gap:14px;}
+  .mic-card .mic{width:64px;height:64px;flex:none;}
+  .mic-card .mic svg{width:26px;height:26px;}
+  .mic-card .txt{flex:1;min-width:0;}
+  .mic-card .txt p{margin:0;}
+  .or{font-size:11.5px;color:var(--text-faint);text-align:center;margin:10px 0 0;}
+  select.ville-sel{width:100%;}
+
+  @media (max-width:760px){
+    .layout{grid-template-columns:1fr;gap:10px;margin-top:-26px;}
+    .side{top:0;z-index:30;margin-inline:-16px;padding:6px 10px 0;background:var(--cream);}
+    .stage{height:auto;min-height:140px;display:flex;align-items:center;gap:8px;padding:8px 10px 8px 6px;border-radius:18px;}
+    .stage::before,.floor,.nameplate{display:none;}
+    .kd-pos{position:relative;bottom:auto;left:auto!important;margin:0;width:136px;flex:none;order:1;}
+    .kd-shadow{width:70px;margin-left:-35px;}
+    .bubble{position:relative;left:auto;right:auto;top:auto;order:2;flex:1;min-height:0;max-height:128px;overflow:auto;font-size:12px;padding:9px 11px;}
+    .bubble::after{left:-8px;bottom:auto;top:50%;margin:-7px 0 0 0;transform:rotate(135deg);}
+    .think-dots{left:auto;right:-4px;top:-6px;}
+  }
+
+  /* Keydou vidéo : détouré en direct (fond vert retiré), sans aucune déformation CSS */
+  .kd-body canvas{width:100%;height:auto;display:block;filter:drop-shadow(0 6px 8px rgba(36,21,54,.18));}
+  .kd-body .kd-img{width:62%;margin:0 auto;}
+  .kd-body.vid{animation:none!important;transform:none!important;}
+  .vidhold{position:absolute;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none;}
+  @media (prefers-reduced-motion: reduce){.kd-body.dance,.kd-body.walk,.kd-body.idle,.kd-body.stand{animation:none;} .kd-pos{transition:none;}}
+</style>
+<link rel="manifest" href="manifest-komyo.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KOMYO">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="assets/img/icons/komyo-apple-180-v2.png">
+</head>
+<body>
+<div id="loadingState" class="state">Keydou arrive…</div>
+
+<div id="appState" hidden>
+  <div class="topbar">
+    <div class="row">
+      <h1>Keydou<small>Agent et assistant multiservices — STAR ENTREPRISE</small></h1>
+      <a class="back" href="accueil.html">← Mon espace</a>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="side">
+      <div class="stage" id="stage" aria-live="polite">
+        <div class="bubble" id="bubble"><b>Keydou</b><span id="bubbleText">Touchez l'écran pour que je vous dise bonjour !</span></div>
+        <div class="floor"></div>
+        <div class="kd-pos" id="kdPos" style="left:50%">
+          <div class="kd-flip" id="kdFlip">
+            <div class="kd-body dance" id="kdBody"><img class="kd-img" id="kdImg" src="assets/img/keydou.webp" alt="Keydou, la mascotte-assistant de STAR ENTREPRISE" width="170" height="212"><canvas id="kdCanvas" width="360" height="360" hidden></canvas></div>
+            <div class="kd-shadow"></div>
+          </div>
+          <video id="kdVid" class="vidhold" muted playsinline preload="auto" aria-hidden="true"></video>
+          <div class="think-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+        </div>
+        <div class="nameplate">KEYDOU · AGENT ET ASSISTANT MULTISERVICES</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <!-- Parler à Keydou -->
+      <div class="panel" id="stepAsk">
+        <h2>Que puis-je faire pour vous ?</h2>
+        <div class="mic-card">
+          <button class="mic" id="btnMic" aria-label="Appuyer et parler à Keydou">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+          </button>
+          <div class="txt"><p><b id="micLabel">Appuyez et parlez</b></p><p>Gardez le doigt appuyé pendant que vous parlez, puis lâchez. Ex. : « je cherche un hôtel à Pointe-Noire ».</p></div>
+        </div>
+        <div class="heard" id="heard" hidden></div>
+        <div class="row-input">
+          <input type="text" id="txtIn" placeholder="ou écrivez votre besoin ici" maxlength="200">
+          <button class="btn main" id="btnSend">Envoyer</button>
+        </div>
+        <div class="field" id="villeAsk" style="margin-top:10px" hidden><label for="fVilleAsk">Dans quelle ville ?</label><div class="chips" id="villeChips"></div></div>
+        <div class="or">… ou cochez directement votre besoin dans l'inscription ci-dessous</div>
+      </div>
+
+      <!-- Inscription -->
+      <div class="panel" id="stepForm">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <h2 style="margin:0">Mon inscription Keydou</h2>
+          <button class="sosbtn" id="btnSos" type="button">🆘 SOS gratuit</button>
+        </div>
+        <p style="margin-top:6px">Écrivez vos coordonnées, cochez votre besoin, validez le paiement de 1 000 FCFA : Keydou se lève, vous dit merci et vous donne la réponse.</p>
+        <div class="field"><label for="fNom">Nom et prénom</label><input id="fNom" type="text" maxlength="80" autocomplete="off" placeholder="ex. Carry Otemba"></div>
+        <div class="field"><label for="fTel">Numéro de téléphone</label><input id="fTel" type="tel" maxlength="30" autocomplete="off" inputmode="tel" placeholder="ex. 06 123 45 67"></div>
+        <div class="field"><label for="fVille">Ville</label><select id="fVille"></select></div>
+        <div class="count" id="count">Cochez votre besoin (jusqu'à 3)</div>
+        <div id="svcGroups"></div>
+        <div class="formule" style="margin-top:14px">
+          <div class="tag">Formule Assistance</div>
+          <div class="price">1 000 FCFA <span>une seule fois pour vos besoins cochés</span></div>
+          <button class="btn main block" id="btnValider">Valider et payer 1 000 FCFA</button>
+          <div class="errmsg" id="fErr" hidden></div>
+        </div>
+        <div class="note">Keydou ne donne la réponse qu'après réception de votre paiement. Les frais d'assistance sont distincts du prix de l'hôtel, du restaurant ou de toute autre prestation. Les numéros viennent d'annuaires publics : confirmez-les par appel avant de vous déplacer. Vos échanges avec Keydou sont enregistrés par STAR ENTREPRISE pour traiter votre demande.</div>
+      </div>
+
+      <div class="panel" id="stepSos" hidden></div>
+      <div class="panel" id="stepPay" hidden></div>
+      <div class="panel" id="stepResults" hidden></div>
+    </main>
+  </div>
+</div>
+
+<footer>STAR ENTREPRISE — un seul groupe, toutes les solutions pour votre vie.</footer>
+
+<audio id="aud" preload="auto" playsinline></audio>
+
+<script>
+(function(){
+  var API = '/api/starvibe-keydou';
+  var AUTH = '/api/starvibe-auth';
+  var $ = function(id){ return document.getElementById(id); };
+  // Pas besoin de compte KOMYO : un client peut parler à Keydou avec juste son nom, son téléphone et sa ville.
+  var komyoToken = localStorage.getItem('starvibe_token') || '';
+  var token = komyoToken || localStorage.getItem('keydou_guest_token') || '';
+  var outbox = [];
+  var HOME = komyoToken ? 'accueil.html' : 'index.html';
+
+  var MAX = 3;
+  var VILLES = [['Brazzaville','Brazzaville'],['Pointe-Noire','Pointe-Noire'],['Dolisie','Dolisie'],['Nkayi','Nkayi'],['Oyo','Oyo'],['Ouesso','Ouesso'],['Autres','Autres villes et routes (RN1, RN2)']];
+  var VILLE_KEYS = { 'Brazzaville':['brazzaville','brazza','bzv'], 'Pointe-Noire':['pointe noire','pointe-noire','pointenoire','ponton','pnr'], 'Dolisie':['dolisie','dolisy'], 'Nkayi':['nkayi','nkaye'], 'Oyo':['oyo'], 'Ouesso':['ouesso'],
+    'Autres':['rn1','rn2','route nationale','sur la route','owando','madingou','loutete','etoumbi','bouansa','ollombo','ailleurs','autre ville','autres villes'] };
+  var GROUPES = [
+    ['Se loger et se restaurer', [
+      ['hotel','Un hôtel ou une résidence',['hotel','hotels','chambre','hebergement','logement','dormir','nuitee','auberge','residence']],
+      ['restaurant','Une table au restaurant',['restaurant','restaurants','table','manger','repas','diner','dejeuner','resto','gastronomie']],
+      ['patisserie','Une boulangerie ou une pâtisserie',['boulangerie','patisserie','pain','gateau','gateaux','croissant','viennoiserie']],
+      ['cafe','Un rendez-vous dans un café',['cafe','salon de the','boire un verre','rencontre']]]],
+    ['Beauté et forme', [
+      ['coiffure','Un salon de coiffure ou de beauté',['coiffure','coiffeur','coupe','barbe','cheveux','barbier','barber','degrade','tresses','salon de beaute','esthetique','manucure','beaute']],
+      ['spa','Un salon de spa',['spa','massage','detente','bien-etre','bien etre','soin','hammam','sauna']],
+      ['sport','Une salle de sport',['salle de sport','sport','gym','musculation','fitness','entrainement']]]],
+    ['Se déplacer', [
+      ['voiture','La location d\'un véhicule',['voiture','vehicule','location','louer','taxi','chauffeur','auto','4x4']],
+      ['vente_auto','Acheter ou vendre une voiture',['acheter','achat','vendre','vente','occasion','concession','courtier','courtage']],
+      ['mecanique','Un garage, un dépannage ou un remorquage',['panne','mecanicien','mecanique','depannage','garage','moteur','pneu','batterie','remorquage','depanneur']],
+      ['station','Une station-service',['station','essence','carburant','gasoil','plein','total']],
+      ['voyage','Une agence de voyages ou un billet',['voyage','voyages','billet','billets','avion','vol','billetterie','ticket','agence de voyage']]]],
+    ['Événements et affaires', [
+      ['mariage','Une salle de mariage ou de réception',['mariage','fete','anniversaire','ceremonie','reception','salle de mariage','banquet','salle des fetes']],
+      ['evenement','Une agence événementielle',['evenement','evenementielle','organiser','organisateur','animation','traiteur','decoration','conference']],
+      ['bureau','Un bureau ou un espace de coworking',['bureau','bureaux','coworking','espace de travail','salle de reunion','reunion']],
+      ['tourisme','Une agence de tourisme ou un parc naturel',['tourisme','touristique','parc national','safari','visite','excursion','nature']],
+      ['enfants','Un parc ou des loisirs pour enfants',['enfant','enfants','jeux','gonflable','gonflables','loisirs','parc d attraction']]]],
+    ['Argent et courses', [
+      ['banque','Une banque',['banque','banques','argent','compte bancaire','retrait','retirer','agence bancaire','credit']],
+      ['supermarche','Un supermarché',['supermarche','courses','grande surface','magasin','alimentation','super u']]]]
+  ];
+  // Version anglaise : les clients comprennent aussi les mots anglais (le « cerveau » de Keydou, lui, comprend toute phrase).
+  var EN = window.KOMYO_LANG === 'en';
+  var EN_KEYS = {
+    hotel:['room','rooms','accommodation','lodging','lodge','guesthouse','guest house','stay','bed','resort','inn'],
+    restaurant:['eat','food','meal','dinner','lunch','dining','breakfast','cuisine','bistro','takeaway','take away'],
+    patisserie:['bakery','bakeries','pastry','pastries','bread','cake','cakes','baker','dessert'],
+    cafe:['coffee','coffeeshop','coffee shop','tea room','tea','drink','drinks','bar'],
+    coiffure:['hair','haircut','hairdresser','hairdressers','beauty','salon','nails','braids','braiding','barbershop','makeup','make up'],
+    spa:['relax','relaxation','sauna','wellness','treatment','steam room'],
+    sport:['gym','gyms','fitness','workout','training','exercise','weights'],
+    voiture:['car','cars','rent','rental','hire','vehicle','vehicles','driver','car hire','rent a car'],
+    vente_auto:['buy','sell','sale','purchase','used car','second hand','secondhand','dealership','dealer','broker'],
+    mecanique:['breakdown','broke down','broken down','mechanic','repair','tow','towing','tyre','tyres','tire','tires','battery','engine','flat tyre'],
+    station:['petrol','gas station','fuel','diesel','filling station','petrol station'],
+    voyage:['travel','trip','tickets','flight','flights','plane','airline','airlines','travel agency','airfare'],
+    mariage:['wedding','party','birthday','ceremony','venue','event hall','hall','wedding hall'],
+    evenement:['event','events','organiser','organizer','catering','caterer','decor','planner','event planner'],
+    bureau:['office','offices','co working','meeting room','workspace','desk'],
+    tourisme:['tourism','tourist','tourists','tour','tours','national park','park','sightseeing','holiday','vacation'],
+    enfants:['kids','child','children','play','playground','bouncy castle','bouncy castles','amusement','fun park'],
+    banque:['bank','banks','money','withdraw','withdrawal','account','loan','atm','cash'],
+    supermarche:['supermarket','supermarkets','groceries','grocery','shopping','shop','market','store','food shop']
+  };
+  if (EN) GROUPES.forEach(function(g){ g[1].forEach(function(sv){ if (EN_KEYS[sv[0]]) sv[2] = sv[2].concat(EN_KEYS[sv[0]]); }); });
+  if (EN) VILLE_KEYS.Autres = VILLE_KEYS.Autres.concat(['other city','other town','other towns','other cities','elsewhere','on the road','along the road','another city']);
+  var SERVICES = [], labels = {};
+  GROUPES.forEach(function(g){ g[1].forEach(function(s){ SERVICES.push({ id:s[0], label:s[1], keys:s[2] }); labels[s[0]] = s[1]; }); });
+  var PHRASE = { hotel:"un hôtel ou une résidence", restaurant:"une table au restaurant", patisserie:"une boulangerie ou une pâtisserie", cafe:"un rendez-vous dans un café", coiffure:"un salon de coiffure ou de beauté", spa:"un salon de spa", sport:"une salle de sport", voiture:"la location d'un véhicule", vente_auto:"l'achat ou la vente d'une voiture", mecanique:"un garage, un dépannage ou un remorquage", station:"une station-service", voyage:"une agence de voyages ou un billet", mariage:"une salle de mariage ou de réception", evenement:"une agence événementielle", bureau:"un bureau ou un espace de coworking", tourisme:"une agence de tourisme ou un parc naturel", enfants:"un parc ou des loisirs pour enfants", banque:"une banque", supermarche:"un supermarché" };
+  var VPHRASE = { 'Brazzaville':'à Brazzaville','Pointe-Noire':'à Pointe-Noire','Dolisie':'à Dolisie','Nkayi':'à Nkayi','Oyo':'à Oyo','Ouesso':'à Ouesso','Autres':'dans les petites villes et sur les routes' };
+
+  function authFetch(url, opts){
+    opts = opts || {};
+    opts.headers = Object.assign({}, opts.headers, token ? { 'Authorization': 'Bearer ' + token } : {});
+    return fetch(url, opts);
+  }
+  function post(body){
+    return authFetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) })
+      .then(function(r){ return r.json().then(function(d){ return { ok:r.ok, status:r.status, data:d }; }); });
+  }
+  var current = null;
+  // Avant l'inscription, ce que dit le client est gardé et envoyé avec ses coordonnées.
+  function track(type, texte, service, ville){
+    if (!token){ if (outbox.length < 25) outbox.push({ type:type, texte:texte||'', service:service||'', ville:ville||'' }); return; }
+    post({ action:'evenement', type:type, texte:texte||'', service:service||'', ville:ville||'', requestId: current ? Number(current.id) : 0 }).catch(function(){});
+  }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+  function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+  function norm(t){ return String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9\- ]/g,' ').replace(/\s+/g,' ').trim(); }
+  function lev(a,b){
+    if (Math.abs(a.length-b.length) > 2) return 3;
+    var d=[], i, j;
+    for (i=0;i<=a.length;i++){ d[i]=[i]; }
+    for (j=0;j<=b.length;j++){ d[0][j]=j; }
+    for (i=1;i<=a.length;i++) for (j=1;j<=b.length;j++) d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+    return d[a.length][b.length];
+  }
+
+  /* ------------------------------------------------------------------
+     Keydou — le personnage vit : il respire, regarde, salue, saute, tourne…
+  ------------------------------------------------------------------ */
+  var kdPos = $('kdPos'), kdFlip = $('kdFlip'), kdBody = $('kdBody');
+  var bubbleText = $('bubbleText');
+  var aud = $('aud');
+  var X_CENTER = 50, X_LEFT = 24, X_RIGHT = 76, curX = 50;
+  var state = 'dance', speaking = false;
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---- Keydou vivant : séquences vidéo détourées en direct (fond vert). Si elles ne chargent pas, l'image fixe + animations CSS prennent le relais. ---- */
+  var VBASE = 'assets/video/keydou/', SZ = 360;
+  var vid = $('kdVid'), cv = $('kdCanvas'), kdImg = $('kdImg');
+  var g2 = cv.getContext ? cv.getContext('2d', { willReadFrequently:true }) : null;
+  var useVideo = !!g2 && !reduce, videoShown = false, curClip = '';
+  var CLIPS = {
+    idle:{ f:'idle', loop:true }, dance:{ f:'dance', loop:true }, talk:{ f:'talk', loop:true }, think:{ f:'think', loop:true }, walk:{ f:'walk', loop:true },
+    sit:{ f:'sitdown', next:'sitloop' }, stand:{ f:'stand' }, look:{ f:'look' }, wave:{ f:'wave' }, hop:{ f:'jump' }, spin:{ f:'spin' }, celebrate:{ f:'celebrate' }
+  };
+  function lancer(f, loop, fin){
+    curClip = f; vid.loop = !!loop; vid.onended = fin || null;
+    vid.src = VBASE + f + '.mp4';
+    var p = vid.play(); if (p && p.catch) p.catch(function(){});
+  }
+  function applyClip(s){
+    if (!useVideo) return;
+    var c = CLIPS[s] || CLIPS.idle;
+    if (c.loop && curClip === c.f && vid.loop) return;
+    if (c.loop) return lancer(c.f, true);
+    lancer(c.f, false, function(){
+      if (state !== s) return;
+      if (c.next) lancer(c.next, true); else setState('idle');
+    });
+    if (c.next) curClip = c.f;
+  }
+  // détourage : le fond vert devient transparent, le vert sur les bords est neutralisé
+  function dessiner(){
+    if (!useVideo || vid.readyState < 2) return;
+    g2.drawImage(vid, 0, 0, SZ, SZ);
+    var im = g2.getImageData(0, 0, SZ, SZ), d = im.data;
+    for (var i = 0; i < d.length; i += 4){
+      var r = d[i], g = d[i+1], b = d[i+2], m = r > b ? r : b, k = g - m;
+      if (k > 28){ d[i+3] = k >= 95 ? 0 : 255 * (1 - (k - 28) / 67); d[i+1] = m; }
+      else if (k > 0){ d[i+1] = g - k * 0.7; }
+    }
+    g2.putImageData(im, 0, 0);
+    if (!videoShown){ videoShown = true; cv.hidden = false; kdImg.style.display = 'none'; kdBody.className = kdBody.className + ' vid'; prechauffer(); }
+  }
+  function boucleVideo(){
+    dessiner();
+    if (vid.requestVideoFrameCallback) vid.requestVideoFrameCallback(boucleVideo); else requestAnimationFrame(boucleVideo);
+  }
+  function prechauffer(){
+    ['talk','walk','sitdown','sitloop','stand','look','wave','jump','spin','celebrate','think','dance'].forEach(function(n, i){ setTimeout(function(){ fetch(VBASE + n + '.mp4').catch(function(){}); }, 700 * (i + 1)); });
+  }
+  if (useVideo){
+    vid.onerror = function(){ useVideo = false; videoShown = false; cv.hidden = true; kdImg.style.display = ''; kdBody.className = 'kd-body ' + state; };
+    boucleVideo();
+  }
+  window.__keydou = { setState: function(x){ setState(x); }, walkTo: function(x, ms){ return walkTo(x, ms); } }; // pour les essais
+  function pulse(cls, ms){ setState(cls); if (!videoShown || (CLIPS[cls] && CLIPS[cls].loop)) setTimeout(function(){ if (state === cls) setState('idle'); }, ms); }
+
+  function setState(s){ state = s; kdBody.className = 'kd-body ' + s + (videoShown ? ' vid' : ''); applyClip(s); kdPos.classList.toggle('thinking', s === 'think'); if (s !== 'talk'){ kdBody.style.removeProperty('--talk'); kdBody.style.removeProperty('--talk-y'); } }
+  function say(text){ bubbleText.textContent = text; }
+  function face(left){ kdFlip.classList.toggle('left', !!left); }
+  function walkTo(x, ms){
+    ms = ms || 1400;
+    if (x === curX) return Promise.resolve();
+    face(x < curX);
+    kdPos.style.transitionDuration = (ms/1000) + 's';
+    setState('walk');
+    kdPos.style.left = x + '%';
+    curX = x;
+    return sleep(ms).then(function(){ setState('idle'); });
+  }
+  function playOnce(cls, ms){
+    if (reduce || speaking || state !== 'idle') return;
+    pulse(cls, ms);
+  }
+  // Il a sa propre vie : de temps en temps il regarde autour, fait coucou, saute de joie, tourne sur lui-même ou fait quelques pas.
+  var lifeActs = [
+    function(){ playOnce('look', 2600); },
+    function(){ playOnce('wave', 1800); },
+    function(){ playOnce('hop', 1700); },
+    function(){ playOnce('spin', 1400); },
+    function(){ if (state !== 'idle' || speaking) return; var to = curX > 50 ? X_LEFT : X_RIGHT; walkTo(to, 2200); },
+    function(){ playOnce('look', 2600); }
+  ];
+  function lifeTick(){
+    if (!busy && !speaking && state === 'idle' && Math.random() < 0.85) lifeActs[Math.floor(Math.random()*lifeActs.length)]();
+    setTimeout(lifeTick, 4200 + Math.random()*3600);
+  }
+
+  var ctx = null, analyser = null, data = null, raf = null, srcNode = null;
+  function setupAnalyser(){
+    if (analyser || !(window.AudioContext || window.webkitAudioContext)) return;
+    try{
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      srcNode = ctx.createMediaElementSource(aud);
+      analyser = ctx.createAnalyser(); analyser.fftSize = 256;
+      srcNode.connect(analyser); analyser.connect(ctx.destination);
+      data = new Uint8Array(analyser.frequencyBinCount);
+    }catch(e){ analyser = null; }
+  }
+  function animateTalk(){
+    if (!analyser){ kdBody.style.setProperty('--talk', (1 + 0.025 * Math.abs(Math.sin(Date.now()/110))).toFixed(3)); kdBody.style.setProperty('--talk-y', (1 - 0.02 * Math.abs(Math.sin(Date.now()/110))).toFixed(3)); }
+    else{
+      analyser.getByteFrequencyData(data);
+      var sum = 0; for (var i=0;i<data.length;i++) sum += data[i];
+      var lvl = Math.min(1, (sum/data.length)/90);
+      kdBody.style.setProperty('--talk', (1 + 0.05*lvl).toFixed(3));
+      kdBody.style.setProperty('--talk-y', (1 - 0.04*lvl).toFixed(3));
+    }
+    raf = requestAnimationFrame(animateTalk);
+  }
+  var audioOK = true;
+  // Enregistrements de la voix de Keydou déjà en ligne. Les autres phrases s'affichent en texte
+  // jusqu'à ce qu'elles soient enregistrées (ajouter leur nom ici quand le fichier existe).
+  var HAVE = {}; ['hello','pay','waiting','paid','paidnone','bye','sos'].forEach(function(n){ HAVE[n] = true; });
+  var curEnd = null, seqId = 0;
+  function speakOne(name){
+    return new Promise(function(resolve){
+      if (!audioOK){ resolve(); return; }
+      if (curEnd) curEnd(); // une nouvelle phrase coupe la précédente
+      aud.src = 'assets/audio/keydou/' + name + '.mp3';
+      var done = false;
+      function end(){ if (done) return; done = true; if (curEnd === end) curEnd = null; cancelAnimationFrame(raf); resolve(); }
+      curEnd = end;
+      aud.onended = end;
+      aud.onerror = function(){ audioOK = false; end(); };
+      setupAnalyser();
+      if (ctx && ctx.state === 'suspended') ctx.resume();
+      var p = aud.play();
+      if (p && p.then){
+        p.then(function(){ setState('talk'); cancelAnimationFrame(raf); animateTalk(); })
+         .catch(function(){ audioOK = false; end(); });
+      } else { setState('talk'); animateTalk(); }
+    });
+  }
+  // Une phrase = un ou plusieurs petits enregistrements mis bout à bout (la voix reste celle de Keydou).
+  // En anglais, pas d'enregistrement : la voix du téléphone lit la phrase (le texte reste affiché dans la bulle).
+  function parlerEn(text){
+    return new Promise(function(resolve){
+      var tx = (window.I18N && I18N.t) ? I18N.t(text) : text, done = false;
+      function fin(){ if (done) return; done = true; resolve(); }
+      var attente = Math.min(6500, 600 + tx.length * 42);
+      try{
+        if (!('speechSynthesis' in window)){ setTimeout(fin, attente); return; }
+        speechSynthesis.cancel();
+        var u = new SpeechSynthesisUtterance(tx);
+        u.lang = 'en-GB'; u.rate = 1; u.pitch = 1.1; u.onend = fin; u.onerror = fin;
+        speechSynthesis.speak(u);
+        setTimeout(fin, 15000);
+      }catch(e){ setTimeout(fin, attente); }
+    });
+  }
+  function speakSeq(names, text, alt){
+    if (EN) names = [];
+    else if (names.some(function(n){ return !HAVE[n]; })){
+      if (alt){ names = alt.names; text = alt.text; } else names = [];
+    }
+    if (text) say(text);
+    var my = ++seqId;
+    var prev = (state === 'talk' || state === 'walk') ? 'idle' : state;
+    speaking = true;
+    if (!names.length && text && state !== 'sit') setState('talk');
+    var chain = Promise.resolve();
+    names.forEach(function(n, i){ chain = chain.then(function(){ return my === seqId ? speakOne(n) : null; }).then(function(){ return sleep(i < names.length - 1 ? 60 : 0); }); });
+    return chain.then(function(){
+      if (my !== seqId) return;
+      if (EN && text) return parlerEn(text);
+      if (!audioOK || !names.length){ return sleep(Math.min(6500, 600 + (text||'').length * 42)); }
+    }).then(function(){
+      if (my !== seqId) return;
+      speaking = false;
+      setState(prev === 'think' ? 'idle' : prev);
+    });
+  }
+  function speak(name, text){ return speakSeq([name], text); }
+
+  var TXT = {
+    hello: "Bonjour, et bienvenue chez KOMYO ! Moi, c'est Keydou, agent chez STAR ENTREPRISE et votre assistant multiservices. Écrivez votre nom et votre numéro, cochez ce dont vous avez besoin, et je m'occupe du reste !",
+    paid: "Merci beaucoup ! Votre paiement est bien reçu. Voici les informations que vous souhaitez. Touchez un numéro pour appeler directement.",
+    askville: "Dans quelle ville ? Brazzaville, Pointe-Noire, Dolisie, Nkayi, Oyo, Ouesso, ou ailleurs sur la route ?",
+    ready: "Parfait, j'ai ce qu'il faut ! Pour vous donner la réponse, écrivez votre nom et votre numéro, puis validez le paiement de mille francs. Tant que ce n'est pas payé, je ne peux pas vous la donner.",
+    nopay: "Je comprends votre impatience, mais je dois d'abord recevoir votre paiement de mille francs. Dès que c'est fait, je vous donne tout, promis !",
+    noanswer: "Oups ! Désolé, je n'ai pas de réponse à cette question. Si votre besoin est dans la liste, cochez-le, et je vous réponds avec plaisir.",
+    noheard: "Pardon, je n'ai pas bien entendu. Appuyez sur le micro et parlez à nouveau, ou écrivez votre besoin.",
+    pay: "Parfait ! Faites maintenant votre dépôt de mille francs sur le numéro affiché, puis touchez le bouton pour valider. Et surtout, ne donnez jamais votre code secret à personne !",
+    waiting: "J'attends la confirmation de votre paiement. Merci de patienter quelques instants, j'arrive tout de suite !",
+    paidnone: "Merci, votre paiement est bien reçu ! Pour cette ville, je n'ai pas encore d'adresse enregistrée. Mon équipe cherche pour vous, et vous contacte très vite !",
+    bye: "Merci pour votre visite, à bientôt ! Passez une très belle journée !",
+    sos: "En cas d'urgence, appelez tout de suite. Voici les numéros importants. Gardez votre calme, les secours sont là pour vous aider.",
+    'sm-greet': "Bonjour à vous aussi ! Dites-moi ce que vous cherchez, je vous écoute.",
+    'sm-thanks': "Avec plaisir ! C'est mon métier, et surtout ma joie.",
+    'sm-who': "Je suis Keydou, l'assistant multiservices de STAR ENTREPRISE. Je connais les bonnes adresses du Congo, hôtels, restaurants, garages, banques, voyages et bien d'autres, et je vous aide avec le sourire !",
+    'sm-price': "Mon service coûte mille francs CFA, une seule fois pour un à trois besoins. Les prix des hôtels, des restaurants et des autres prestations sont donnés par les établissements : moi, je ne les annonce pas.",
+    'sm-bye': "Au revoir, et à très bientôt !",
+    'sm-help': "Je peux vous trouver un hôtel, un restaurant, un garage, une voiture à louer, une banque, un billet de voyage, une salle de fête, et bien d'autres choses. Dites-moi simplement ce qu'il vous faut !"
+  };
+  function listPhrases(ids){ return ids.map(function(i){ return PHRASE[i]; }).join(' et '); }
+  function listClips(ids){ var out = []; ids.forEach(function(i, k){ if (k) out.push('et'); out.push('s-' + i); }); return out; }
+
+  /* ------------------------------------------------------------------
+     Les vues
+  ------------------------------------------------------------------ */
+  var VIEWS = { home:['stepAsk','stepForm'], sos:['stepSos'], pay:['stepPay'], results:['stepResults'] };
+  var ALL = ['stepAsk','stepForm','stepSos','stepPay','stepResults'];
+  function showView(v, anchor){
+    ALL.forEach(function(p){ $(p).hidden = VIEWS[v].indexOf(p) === -1; });
+    var t = $(anchor || VIEWS[v][0]);
+    window.scrollTo({ top: Math.max(0, t.getBoundingClientRect().top + window.scrollY - (window.innerWidth <= 760 ? 150 : 12)), behavior: 'smooth' });
+  }
+
+  /* ------------------------------------------------------------------
+     Formulaire (cases à cocher) — Keydou peut les cocher à la place du client
+  ------------------------------------------------------------------ */
+  var picked = [];
+  VILLES.forEach(function(v){ var o = document.createElement('option'); o.value = v[0]; o.textContent = v[1]; $('fVille').appendChild(o); });
+  var boxes = {};
+  function updateCount(){ $('count').textContent = picked.length ? picked.length + ' besoin' + (picked.length > 1 ? 's' : '') + ' coché' + (picked.length > 1 ? 's' : '') + ' sur ' + MAX : 'Cochez votre besoin (jusqu\'à ' + MAX + ')'; }
+  function syncChecks(){ Object.keys(boxes).forEach(function(id){ var on = picked.indexOf(id) !== -1; boxes[id].cb.checked = on; boxes[id].lab.classList.toggle('on', on); }); updateCount(); }
+  GROUPES.forEach(function(g){
+    var box = document.createElement('div'); box.className = 'grp';
+    box.innerHTML = '<h3>' + esc(g[0]) + '</h3>';
+    g[1].forEach(function(s){
+      var l = document.createElement('label'); l.className = 'chk';
+      l.innerHTML = '<input type="checkbox" value="' + s[0] + '"><span>' + esc(s[1]) + '</span>';
+      var cb = l.querySelector('input');
+      boxes[s[0]] = { cb:cb, lab:l };
+      cb.addEventListener('change', function(){
+        if (cb.checked){
+          if (picked.length >= MAX){ cb.checked = false; $('count').textContent = 'Vous pouvez cocher ' + MAX + ' besoins au maximum pour 1 000 FCFA.'; return; }
+          picked.push(s[0]); track('choix_service', s[1], picked.join(','), $('fVille').value);
+        } else { picked = picked.filter(function(x){ return x !== s[0]; }); }
+        syncChecks();
+      });
+      box.appendChild(l);
+    });
+    $('svcGroups').appendChild(box);
+  });
+
+  $('btnValider').addEventListener('click', function(){
+    var err = $('fErr'); err.hidden = true;
+    var nom = $('fNom').value.trim(), tel = $('fTel').value.trim(), ville = $('fVille').value;
+    if (nom.length < 3){ err.textContent = 'Écrivez votre nom et prénom.'; err.hidden = false; $('fNom').focus(); return; }
+    if (tel.replace(/\D/g,'').length < 8){ err.textContent = 'Écrivez votre numéro de téléphone.'; err.hidden = false; $('fTel').focus(); return; }
+    if (!picked.length){ err.textContent = 'Cochez au moins un besoin dans la liste, ou dites-le à Keydou.'; err.hidden = false; return; }
+    var btn = this; btn.disabled = true; btn.textContent = 'Un instant…';
+    var data = { nom:nom, contact:tel, ville:ville, services:picked, demandeVocale:lastSaid };
+    function fail(msg){ btn.disabled = false; btn.textContent = 'Valider et payer 1 000 FCFA'; err.textContent = msg; err.hidden = false; }
+    function done(res){
+      if (res.data.token){ token = res.data.token; try{ localStorage.setItem('keydou_guest_token', token); }catch(e){} }
+      btn.disabled = false; btn.textContent = 'Valider et payer 1 000 FCFA';
+      current = res.data.demande; track('choix_ville', ville, picked.join(','), ville);
+      showPay(nom, tel);
+    }
+    function asGuest(){ return post(Object.assign({ action:'guest_start', events:outbox.splice(0, 25) }, data)); }
+    (token ? post(Object.assign({ action:'demande' }, data)) : asGuest()).then(function(res){
+      if (res.status === 401 && token){ token = ''; try{ localStorage.removeItem('keydou_guest_token'); localStorage.removeItem('starvibe_token'); }catch(e){} return asGuest(); }
+      return res;
+    }).then(function(res){
+      if (!res.ok) return fail(res.data.error || 'Impossible de créer la demande.');
+      done(res);
+    }).catch(function(){ fail('Connexion impossible, réessayez.'); });
+  });
+
+  /* ------------------------------------------------------------------
+     Compréhension : besoins (jusqu'à 3) + ville + petites conversations
+  ------------------------------------------------------------------ */
+  function detectVille(text){
+    var t = ' ' + norm(text) + ' ';
+    for (var v in VILLE_KEYS){ for (var i=0;i<VILLE_KEYS[v].length;i++){ if (t.indexOf(' ' + VILLE_KEYS[v][i] + ' ') !== -1) return v; } }
+    var toks = norm(text).split(' ');
+    for (var v2 in VILLE_KEYS){ for (var j=0;j<VILLE_KEYS[v2].length;j++){ var k = VILLE_KEYS[v2][j]; if (k.indexOf(' ') !== -1 || k.length < 6) continue; for (var m=0;m<toks.length;m++){ if (toks[m].length >= 6 && lev(toks[m], k) <= (k.length >= 8 ? 2 : 1)) return v2; } } }
+    return '';
+  }
+  function matchServices(text){
+    var n = norm(text), t = ' ' + n + ' ', toks = n.split(' '), res = [];
+    SERVICES.forEach(function(s){
+      var score = 0;
+      s.keys.forEach(function(k){
+        var nk = norm(k);
+        if (nk.indexOf(' ') !== -1 || nk.indexOf('-') !== -1){ if (t.indexOf(nk) !== -1) score += 3; return; }
+        if (toks.indexOf(nk) !== -1){ score += 2; return; }
+        var tol = nk.length >= 8 ? 2 : (nk.length >= 6 ? 1 : 0);
+        if (tol) for (var i=0;i<toks.length;i++){ if (toks[i].length >= nk.length - 2 && lev(toks[i], nk) <= tol){ score += 1; break; } }
+      });
+      if (score >= 2) res.push({ id:s.id, score:score });
+    });
+    var ids = res.sort(function(a,b){ return b.score - a.score; }).map(function(r){ return r.id; });
+    var louer = / louer | location | taxi | chauffeur /.test(t);
+    if (ids.indexOf('vente_auto') !== -1 && !louer) ids = ids.filter(function(i){ return i !== 'voiture'; });
+    if (ids.indexOf('hotel') !== -1 && ids.indexOf('restaurant') === -1 && / restaurant /.test(t)) ids.push('restaurant');
+    return ids.slice(0, MAX);
+  }
+  function wantsSos(text){
+    var t = ' ' + norm(text) + ' ';
+    var keys = [' sos ',' urgence',' police ',' pompier',' ambulance',' accident',' au secours',' danger',' peage',' harcelement',' violence'];
+    if (EN) keys = keys.concat([' emergency',' firefighter',' fire brigade',' toll',' harassment',' help me',' rescue',' attacked',' assault']);
+    return keys.some(function(k){ return t.indexOf(k) !== -1; });
+  }
+  function wantsNumbers(text){ var t = norm(text); return /(numero|telephone|adresse|contact|donne|donnez|dis moi|dites moi|number|phone|address)/.test(t); }
+  function smalltalk(text){
+    var t = ' ' + norm(text) + ' ';
+    function has(list){ for (var i=0;i<list.length;i++) if (t.indexOf(' ' + list[i] + ' ') !== -1 || t.indexOf(list[i]) !== -1) return true; return false; }
+    if (has(['au revoir','a bientot','bye','ciao','a plus'].concat(EN ? ['goodbye','see you','good night'] : []))) return 'sm-bye';
+    if (has(['merci','thanks'].concat(EN ? ['thank you','thank'] : []))) return 'sm-thanks';
+    if (has(['qui es tu','qui etes vous','qui es-tu','tu es qui','vous etes qui','comment tu t appelles','comment vous vous appelez','presente'].concat(EN ? ['who are you','your name','what are you','who is keydou'] : []))) return 'sm-who';
+    if (has(['combien','prix','tarif','cout','coute','gratuit','payer'].concat(EN ? ['how much','price','prices','cost','free','pay'] : []))) return 'sm-price';
+    if (has(['aide','aider','que peux','que sais','que fais','quoi faire','services','propose','que pouvez'].concat(EN ? ['help','what can you','what do you do','what can i','services'] : []))) return 'sm-help';
+    if (has(['bonjour','bonsoir','salut','coucou','hello','allo'].concat(EN ? [' hi ','hey','good morning','good evening','good afternoon'] : []))) return 'sm-greet';
+    return '';
+  }
+
+  /* ------------------------------------------------------------------
+     La conversation : Keydou écoute, réfléchit, comprend, mais ne donne la réponse qu'après paiement
+  ------------------------------------------------------------------ */
+  var busy = false, stage = 'ask', lastSaid = '', intent = { services:[], ville:'' };
+  var pendingText = '';
+  function release(){ busy = false; if (pendingText){ var t = pendingText; pendingText = ''; answerFor(t); } }
+  function think(){
+    setState('think'); say('Je réfléchis…');
+    return sleep(1500 + Math.random()*700).then(function(){ setState('idle'); });
+  }
+  var llmOn = true, histo = [];
+  function answerFor(text){
+    if (busy){ pendingText = text; return; }
+    busy = true;
+    lastSaid = text;
+    $('heard').hidden = false; $('heard').textContent = 'Vous avez dit : « ' + text + ' »';
+    track('parole', text);
+    think().then(function(){
+      if (wantsSos(text)){ release(); return openSos(); }
+      if (llmOn) return cerveau(text);
+      return localAnswer(text);
+    });
+  }
+  // Compréhension simple, intégrée à la page (utilisée si le « cerveau » de Keydou n'est pas disponible)
+  function localAnswer(text){
+    var svcs = matchServices(text), v = detectVille(text);
+    if (stage === 'askville' && v && !svcs.length){ intent.ville = v; return confirmIntent(); }
+    if (svcs.length){ intent.services = svcs; if (v) intent.ville = v; return confirmIntent(); }
+    if (v && intent.services.length){ intent.ville = v; return confirmIntent(); }
+    var st = smalltalk(text);
+    if (st) return speak(st, TXT[st]).then(function(){ release(); });
+    if (intent.services.length && wantsNumbers(text)) return speak('nopay', TXT.nopay).then(function(){ release(); });
+    return speak('noanswer', TXT.noanswer).then(function(){ release(); });
+  }
+  // Le « cerveau » : Keydou comprend toute question. Il ne donne jamais de coordonnées avant paiement (le serveur ne les lui transmet pas).
+  function cerveau(text){
+    return post({ action:'chat', message:text, history:histo, etat:{ services:picked, ville:$('fVille').value } }).then(function(res){
+      if (!res.ok || !res.data || res.data.fallback || !res.data.reponse){ llmOn = false; return localAnswer(text); }
+      var d = res.data;
+      histo.push({ role:'user', text:text }); histo.push({ role:'keydou', text:d.reponse }); histo = histo.slice(-8);
+      if (d.sos) openSos();
+      var svcs = d.services || [];
+      if (svcs.length){
+        intent.services = svcs; if (d.ville) intent.ville = d.ville;
+        picked = svcs.slice(0, MAX); syncChecks();
+        if (intent.ville) $('fVille').value = intent.ville;
+        track('choix_service', text, picked.join(','), intent.ville);
+        stage = intent.ville ? 'ready' : 'askville'; $('villeAsk').hidden = !!intent.ville;
+      } else if (d.ville && intent.services.length){ intent.ville = d.ville; $('fVille').value = d.ville; stage = 'ready'; $('villeAsk').hidden = true; }
+      return speakSeq([], d.reponse).then(function(){
+        release();
+        if (stage === 'ready' && intent.services.length && !d.sos){
+          pulse('wave', 1800);
+          $('stepForm').scrollIntoView({ behavior:'smooth', block:'start' });
+          setTimeout(function(){ window.scrollBy(0, window.innerWidth <= 760 ? -150 : -12); }, 500);
+        }
+      });
+    }).catch(function(){ llmOn = false; return localAnswer(text); });
+  }
+  function confirmIntent(){
+    picked = intent.services.slice(0, MAX); syncChecks();
+    if (intent.ville) $('fVille').value = intent.ville;
+    track('choix_service', lastSaid, picked.join(','), intent.ville);
+    var names = ['iu'].concat(listClips(picked));
+    var txt = "Si j'ai bien compris, vous cherchez " + listPhrases(picked) + (intent.ville ? ' ' + VPHRASE[intent.ville] : '') + '.';
+    if (intent.ville){
+      stage = 'ready'; $('villeAsk').hidden = true;
+      names.push('v-' + intent.ville);
+      return speakSeq(names, txt).then(function(){ return speak('ready', TXT.ready); }).then(function(){
+        release(); pulse('wave', 1800);
+        $('stepForm').scrollIntoView({ behavior:'smooth', block:'start' });
+        setTimeout(function(){ window.scrollBy(0, window.innerWidth <= 760 ? -150 : -12); }, 500);
+      });
+    }
+    stage = 'askville'; $('villeAsk').hidden = false;
+    return speakSeq(names, txt).then(function(){ return speak('askville', TXT.askville); }).then(function(){ release(); });
+  }
+  VILLES.forEach(function(v){
+    var b = document.createElement('button'); b.className = 'chip'; b.textContent = v[1];
+    b.addEventListener('click', function(){ if (busy || !intent.services.length) return; busy = true; intent.ville = v[0]; lastSaid = lastSaid || v[1]; confirmIntent(); });
+    $('villeChips').appendChild(b);
+  });
+
+  /* ------------------------------------------------------------------
+     Paiement
+  ------------------------------------------------------------------ */
+  var pollTimer = null;
+  function showPay(nom, tel){
+    var p = $('stepPay');
+    p.innerHTML =
+      '<h2>Paiement de 1 000 FCFA</h2>' +
+      '<div class="pay-row"><span>Nom</span><b>' + esc(nom) + '</b></div>' +
+      '<div class="pay-row"><span>Téléphone</span><b>' + esc(tel) + '</b></div>' +
+      '<div class="pay-row"><span>Besoins</span><b>' + esc(current.serviceLabel) + '</b></div>' +
+      '<div class="pay-row"><span>Ville</span><b>' + esc($('fVille').selectedOptions[0].textContent) + '</b></div>' +
+      '<div class="pay-row"><span>Montant exact</span><b>1 000 FCFA</b></div>' +
+      '<div class="pay-row"><span>Dépôt Mobile Money au</span><b>' + esc(current.numeroReception) + '</b></div>' +
+      '<div class="pay-row"><span>Référence</span><b>' + esc(current.referencePaiement) + '</b></div>' +
+      '<ol class="steps"><li>Faites <b>votre dépôt de 1 000 FCFA</b> (MTN Mobile Money ou Airtel Money) au numéro ci-dessus.</li><li>Tapez <b>votre code secret Mobile Money</b> (4 ou 5 chiffres) sur votre téléphone, jamais ici.</li><li>Quand le dépôt est terminé, touchez <b>« Valider mon dépôt »</b>.</li></ol>' +
+      '<div class="field" style="margin-top:12px"><label for="payNum">Numéro avec lequel vous avez payé</label><input id="payNum" type="tel" maxlength="20" value="' + esc(tel) + '" autocomplete="tel"></div>' +
+      '<div class="field"><label for="payMontant">Montant que vous avez déposé (en FCFA)</label><input id="payMontant" type="text" inputmode="numeric" maxlength="12" autocomplete="off" placeholder="1 000"><div id="payMontantMsg" data-noconv class="note" style="margin-top:6px" aria-live="polite">Écrivez le montant de votre dépôt : exactement 1 000 FCFA.</div></div>' +
+      '<div class="field"><label for="txnRef">Code de la transaction (facultatif)</label><input id="txnRef" type="text" maxlength="60" placeholder="ex. MP2610…"></div>' +
+      '<button class="btn ok block" id="btnPaid" disabled>Valider mon dépôt</button>' +
+      '<div class="status" id="payStatus" hidden><span class="dots"><i></i><i></i><i></i></span><span>Keydou attend la confirmation de votre paiement…</span></div>' +
+      '<div class="warn"><b>Ne donnez jamais votre code secret</b> à Keydou, à STAR ENTREPRISE ni à personne. Keydou ne le demande jamais.</div>' +
+      '<div class="note">Keydou garde sa réponse tant que le dépôt n\'est pas reconnu. Dès qu\'il l\'est, il revient, se lève et vous répond (en général en quelques secondes ; l\'équipe confirme à la main sinon). Montant différent de 1 000 FCFA : paiement refusé.</div>';
+    stage = 'pay';
+    showView('pay');
+    speak('pay', TXT.pay);
+    function lireMontant(){ var d = String($('payMontant').value).replace(/[^0-9]/g, ''); return d ? parseInt(d, 10) : null; }
+    function fmt(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+    function controleMontant(){
+      var m = lireMontant(), msg = $('payMontantMsg'), ok = false;
+      if (m === null){ msg.style.color = ''; msg.textContent = 'Écrivez le montant de votre dépôt : exactement 1 000 FCFA.'; }
+      else if (m < 1000){ msg.style.color = '#b3261e'; msg.textContent = 'Montant incorrect : ' + fmt(m) + ' FCFA, il manque ' + fmt(1000 - m) + ' FCFA. Le montant à payer est exactement 1 000 FCFA. Si vous avez déjà déposé moins, contactez l\'équipe STAR ENTREPRISE au +242 06 656 50 50 avant de refaire un dépôt.'; }
+      else if (m > 1000){ msg.style.color = '#b3261e'; msg.textContent = 'Montant incorrect : ' + fmt(m) + ' FCFA, c\'est ' + fmt(m - 1000) + ' FCFA de trop. Le montant à payer est exactement 1 000 FCFA, ni plus ni moins. Si vous avez déjà déposé plus, contactez l\'équipe STAR ENTREPRISE au +242 06 656 50 50.'; }
+      else { msg.style.color = '#0a7a3a'; msg.textContent = 'Montant correct : 1 000 FCFA.'; ok = true; }
+      $('btnPaid').disabled = !ok;
+    }
+    $('payMontant').addEventListener('input', controleMontant);
+    $('btnPaid').addEventListener('click', function(){
+      if (lireMontant() !== 1000){ controleMontant(); return; }
+      this.disabled = true; this.textContent = 'Dépôt déclaré';
+      $('payStatus').hidden = false;
+      post({ action:'paiement_declare', requestId:Number(current.id), reference:$('txnRef').value, numeroPaiement:$('payNum').value, montantDeclare:1000 }).then(function(r){ attendre(); });
+    });
+  }
+
+  function attendre(){
+    stage = 'wait';
+    walkTo(X_LEFT, 1600).then(function(){ face(false); setState('sit'); return speak('waiting', TXT.waiting); }).then(function(){ setState('sit'); });
+    var tries = 0;
+    clearInterval(pollTimer);
+    pollTimer = setInterval(function(){
+      tries++;
+      authFetch(API + '?id=' + current.id).then(function(r){ return r.json(); }).then(function(d){
+        if (!d.demande) return;
+        if (d.demande.statut === 'paye'){ clearInterval(pollTimer); paiementValide(); }
+        else if (d.demande.statut === 'paiement_refuse'){
+          clearInterval(pollTimer); setState('idle'); say("Je n'ai pas trouvé votre dépôt. Contactez l'équipe STAR ENTREPRISE.");
+          $('payStatus').innerHTML = '<span style="color:#b3261e">Dépôt non trouvé. Vérifiez le numéro et le montant, ou contactez l\'équipe.</span>';
+        }
+        else if (d.demande.statut === 'paiement_invalide'){
+          clearInterval(pollTimer); setState('idle'); say("Le montant reçu ne correspond pas à 1 000 FCFA. Contactez l'équipe STAR ENTREPRISE.");
+          $('payStatus').innerHTML = '<span style="color:#b3261e">Montant différent de 1 000 FCFA : paiement non validé. Contactez l\'équipe.</span>';
+        }
+      }).catch(function(){});
+      if (tries > 450){ clearInterval(pollTimer); }
+    }, 4000);
+  }
+
+  /* ------------------------------------------------------------------
+     Paiement reçu : Keydou est content, se lève, rappelle la question, puis donne la réponse
+  ------------------------------------------------------------------ */
+  function paiementValide(){
+    authFetch(API + '?resultats=1&requestId=' + current.id).then(function(r){ return r.json(); }).catch(function(){ return { groupes:[] }; }).then(function(res){
+      var groupes = (res && res.groupes) || [];
+      var total = groupes.reduce(function(n, g){ return n + g.lieux.length; }, 0);
+      var ids = String(current.service || '').split(',').filter(Boolean);
+      var v = current.ville || 'Autres';
+      var etaitAssis = state === 'sit';
+      face(false); setState(etaitAssis ? 'stand' : 'celebrate');
+      var happy = sleep(etaitAssis ? 1800 : 2600).then(function(){ if (etaitAssis){ setState('celebrate'); return sleep(2800); } });
+      showView('results'); renderResults(groupes, total, false);
+      happy.then(function(){ setState('idle'); return walkTo(X_CENTER, 900); }).then(function(){
+        if (!total) return speak('paidnone', TXT.paidnone);
+        var txt = 'Merci, votre paiement est bien reçu, et je suis très content ! Vous cherchiez ' + listPhrases(ids) + ' ' + VPHRASE[v] + '. Voici ce que j\'ai pour vous.';
+        return speakSeq(['thanks'].concat(listClips(ids)).concat(['v-' + v, 'voici']), txt, { names:['paid'], text:TXT.paid });
+      }).then(function(){ pulse('dance', 2600); });
+    });
+  }
+
+  function telLinks(txt){
+    return String(txt||'').split('/').map(function(x){ return x.trim(); }).filter(Boolean).map(function(num){
+      var d = num.replace(/[^0-9+]/g,'');
+      var href = d.charAt(0) === '+' ? d : (d.indexOf('242') === 0 ? '+' + d : (d.length <= 5 ? d : '+242' + d));
+      return '<a class="call" href="tel:' + esc(href) + '" data-n="' + esc(num) + '">📞 ' + esc(num) + '</a>';
+    }).join('');
+  }
+  function lieuHtml(l){
+    var wa = l.whatsapp ? '<a class="wa" target="_blank" rel="noopener" href="https://wa.me/' + esc(String(l.whatsapp).replace(/[^0-9]/g,'')) + '">WhatsApp</a>' : '';
+    return '<div class="lieu"><span class="badge ' + (l.verifie ? 'ok' : '') + '">' + (l.verifie ? 'Numéro vérifié' : 'À confirmer par appel') + '</span>' +
+      '<h3>' + esc(l.nom) + '</h3>' +
+      '<div class="adr">' + esc(l.ville) + (l.adresse ? ' · ' + esc(l.adresse) : '') + '</div>' +
+      (l.description ? '<div class="desc">' + esc(l.description) + '</div>' : '') +
+      '<div class="acts">' + (l.telephone ? telLinks(l.telephone) : '<span class="nonum">Numéro pas encore trouvé : Keydou le cherche pour vous.</span>') + wa + '</div></div>';
+  }
+  var SHOW = 8;
+  function renderResults(groupes, total){
+    var r = $('stepResults');
+    var html = '<h2>Merci ' + esc((($('fNom').value||'').split(' ')[0]) || '') + ' ! Voici la réponse de Keydou</h2><p>Touchez un numéro pour appeler. Les numéros viennent d\'annuaires publics (édition du 21 octobre 2026) : confirmez-les avant de vous déplacer.</p>';
+    if (!total) html += '<div class="preview">Aucune adresse enregistrée pour cette ville pour le moment. Mon équipe vous contacte avec le numéro que vous avez donné.</div>';
+    groupes.forEach(function(g, gi){
+      html += '<div class="grp"><h3>' + esc(g.label) + ' · ' + g.lieux.length + '</h3><div id="g' + gi + '">' + g.lieux.slice(0, SHOW).map(lieuHtml).join('') + '</div>' +
+        (g.lieux.length > SHOW ? '<button class="btn more" data-g="' + gi + '">Voir les ' + (g.lieux.length - SHOW) + ' autres</button>' : '') +
+        (!g.lieux.length ? '<div class="preview">Rien d\'enregistré pour ce besoin dans cette ville : mon équipe cherche pour vous.</div>' : '') + '</div>';
+    });
+    html += '<div class="suite"><h3>Pour aller plus loin avec KOMYO</h3>' +
+      '<p>Vous avez un commerce, une musique ou un événement ? Faites-vous connaître de tous les abonnés : annonce visible par tous dès <b>2 000 FCFA</b> (1 semaine). <a href="tarifs.html">Voir les offres</a></p>' +
+      '<p>Des enfants de 3 à 6 ans ? <b>Famille PIOUPIOU</b> : dessins animés éducatifs, <b>1 500 FCFA par mois</b>. <a href="tarifs.html">Découvrir</a></p></div>';
+    html += '<button class="btn main block" id="btnFin" style="margin-top:14px">Terminer</button>';
+    r.innerHTML = html;
+    r.querySelectorAll('button.more').forEach(function(b){ b.addEventListener('click', function(){
+      var gi = Number(b.getAttribute('data-g')); $('g' + gi).innerHTML = groupes[gi].lieux.map(lieuHtml).join(''); b.remove(); bindCalls();
+    }); });
+    function bindCalls(){ r.querySelectorAll('a.call').forEach(function(a){ a.onclick = function(){ track('appel_lieu', a.getAttribute('data-n'), current.service, current.ville); }; }); }
+    bindCalls();
+    $('btnFin').addEventListener('click', function(){
+      r.innerHTML = '<div class="okbox"><div class="big">Merci pour votre visite !</div><p>À bientôt chez KOMYO.</p><a class="btn main" href="' + HOME + '" style="display:inline-block;text-decoration:none">' + (komyoToken ? 'Retour à mon espace' : 'Retour à KOMYO') + '</a></div>';
+      speak('bye', TXT.bye).then(function(){ setState('idle'); });
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     SOS : gratuit, sans paiement
+  ------------------------------------------------------------------ */
+  function telHref(n){ var d = String(n).replace(/[^0-9+]/g,''); return 'tel:' + (d.length <= 4 ? d : (d.charAt(0)==='+' ? d : '+242' + d)); }
+  function openSos(){
+    track('parole', 'SOS ouvert');
+    return fetch(API + '?sos=1').then(function(r){ return r.json(); }).then(function(d){
+      var h = '<h2>🆘 SOS — gratuit</h2><p>En cas de danger, appelez d\'abord. Ces numéros sont toujours gratuits chez Keydou.</p>';
+      d.numeros.forEach(function(n){ h += '<div class="sosrow"><div class="nb">' + esc(n.numero) + '</div><div class="mt"><b>' + esc(n.motif) + '</b><br>' + esc(n.note) + '</div><a href="' + telHref(n.numero) + '">Appeler</a></div>'; });
+      d.ong.forEach(function(n){ h += '<div class="sosrow"><div class="mt"><b>' + esc(n.nom) + '</b></div><a href="' + telHref(n.tel) + '">' + esc(n.tel) + '</a></div>'; });
+      h += '<div class="note">' + esc(d.avertissement) + '</div>';
+      h += '<div class="grp"><h3>Accident ou panne : que faire</h3><ul class="steps" style="list-style:disc">' + d.protocole.map(function(x){ return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></div>';
+      h += '<div class="grp"><h3>' + esc(d.peages.titre) + '</h3><div style="font-size:12px;color:var(--text-dim)">Gares : ' + d.peages.gares.map(esc).join(' · ') + '</div><table class="pg"><tr><th>Véhicule</th><th>Par gare</th><th>7 gares</th></tr>' +
+        d.peages.tarifs.map(function(t){ return '<tr><td>' + esc(t.classe) + '</td><td>' + t.gare.toLocaleString('fr-FR') + '</td><td>' + t.total.toLocaleString('fr-FR') + '</td></tr>'; }).join('') + '</table><div class="note">' + esc(d.peages.note) + '</div></div>';
+      h += '<button class="btn block" id="btnSosBack" style="margin-top:12px">← Retour</button>';
+      $('stepSos').innerHTML = h; showView('sos');
+      $('btnSosBack').addEventListener('click', function(){ showView('home', 'stepAsk'); });
+      return speak('sos', TXT.sos);
+    }).catch(function(){ alert('SOS : appelez le 117 (police), le 118 (pompiers) ou le 10 10 (assistance RN1).'); });
+  }
+  $('btnSos').addEventListener('click', openSos);
+
+  /* ------------------------------------------------------------------
+     Entrées : micro (appui prolongé) et texte
+  ------------------------------------------------------------------ */
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var rec = null, heardText = '', listening = false;
+  var btnMic = $('btnMic'), micLabel = $('micLabel');
+  if (!SR){ micLabel.textContent = "Micro non disponible ici : écrivez ou cochez dans la liste"; btnMic.style.opacity = .45; }
+  function startListening(){
+    if (!SR || busy || listening) return;
+    if (aud && !aud.paused){ aud.pause(); speaking = false; }
+    if (EN){ try{ speechSynthesis.cancel(); }catch(e){} }
+    heardText = ''; listening = true;
+    rec = new SR(); rec.lang = EN ? 'en-GB' : 'fr-FR'; rec.interimResults = true; rec.continuous = true; rec.maxAlternatives = 1;
+    rec.onresult = function(ev){
+      var t = ''; for (var i=0;i<ev.results.length;i++) t += ev.results[i][0].transcript + ' ';
+      heardText = t.trim(); $('heard').hidden = false; $('heard').textContent = '« ' + heardText + ' »';
+    };
+    rec.onerror = function(){ };
+    rec.onend = function(){
+      listening = false; btnMic.classList.remove('live'); micLabel.textContent = 'Appuyez et parlez';
+      if (heardText) answerFor(heardText);
+      else speak('noheard', TXT.noheard);
+    };
+    try{ rec.start(); btnMic.classList.add('live'); micLabel.textContent = 'Je vous écoute… lâchez quand vous avez fini'; setState('look'); say("Je vous écoute…"); }catch(e){ listening = false; }
+  }
+  function stopListening(){ if (rec && listening){ try{ rec.stop(); }catch(e){} } }
+  btnMic.addEventListener('pointerdown', function(e){ e.preventDefault(); try{ btnMic.setPointerCapture(e.pointerId); }catch(x){} startListening(); });
+  ['pointerup','pointercancel'].forEach(function(ev){ btnMic.addEventListener(ev, stopListening); });
+  btnMic.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+  $('btnSend').addEventListener('click', function(){ var v = $('txtIn').value.trim(); if (v){ $('txtIn').value = ''; answerFor(v); } });
+  $('txtIn').addEventListener('keydown', function(e){ if (e.key === 'Enter'){ var v = this.value.trim(); if (v){ this.value = ''; answerFor(v); } } });
+
+  /* ------------------------------------------------------------------
+     Démarrage
+  ------------------------------------------------------------------ */
+  function viderFormulaire(){
+    ['fNom','fTel','txtIn'].forEach(function(id){ var e = $(id); if (e) e.value = ''; });
+    var v = $('fVille'); if (v) v.selectedIndex = 0;
+    var inputs = document.querySelectorAll('#appState input[type=checkbox]'); for (var i = 0; i < inputs.length; i++) inputs[i].checked = false;
+  }
+  // En quittant la page (ou en revenant avec « retour »), on efface ce qui a été écrit.
+  window.addEventListener('pagehide', function(){ viderFormulaire(); });
+  window.addEventListener('pageshow', function(e){ if (e.persisted) location.reload(); });
+
+  function boot(me){
+    $('loadingState').hidden = true; $('appState').hidden = false;
+    if (!me){ var bk = document.querySelector('a.back'); if (bk){ bk.href = 'index.html'; bk.textContent = '← KOMYO'; } HOME = 'index.html'; }
+    // Les informations tapées ne sont jamais gardées : on quitte la page, on revient, le formulaire est vide.
+    try{ localStorage.removeItem('keydou_nom'); localStorage.removeItem('keydou_tel'); localStorage.removeItem('keydou_ville'); }catch(e){}
+    viderFormulaire();
+    track('ouverture');
+    setState('dance'); say("Touchez l'écran pour que je vous dise bonjour !");
+    var started = false;
+    function hello(){
+      if (started) return; started = true;
+      document.removeEventListener('pointerdown', hello, true);
+      setState('wave');
+      speak('hello', TXT.hello).then(function(){ setState('idle'); setTimeout(lifeTick, 3000); });
+    }
+    aud.src = 'assets/audio/keydou/hello.mp3';
+    var p = aud.play();
+    if (p && p.then){ p.then(function(){ aud.pause(); aud.currentTime = 0; hello(); }).catch(function(){ document.addEventListener('pointerdown', hello, true); }); }
+    else document.addEventListener('pointerdown', hello, true);
+  }
+  if (komyoToken){
+    fetch(AUTH, { headers:{ 'Authorization':'Bearer ' + komyoToken } }).then(function(r){
+      if (r.ok) return r.json();
+      localStorage.removeItem('starvibe_token'); token = localStorage.getItem('keydou_guest_token') || ''; return null;
+    }).then(boot).catch(function(){ boot(null); });
+  } else boot(null);
+})();
+</script>
+<script src="assets/komyo-prix-v2.js" defer></script>
+<script src="assets/bulle-komyo.js" defer></script>
+<script src="assets/komyo-installer-v5.js" defer></script>
+</body>
+</html>

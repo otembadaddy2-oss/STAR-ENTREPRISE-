@@ -1,0 +1,66 @@
+/* KOMYO — version ordinateur (écrans de 1000 px et plus).
+   Chargée avec media="(min-width:1000px)" : un téléphone ou une tablette n'en voit jamais un octet appliqué. */
+
+/* ===== Page d'accueil du site : deux colonnes, grandes cartes ===== */
+.pg-index .wrap{max-width:1180px;padding-inline:48px}
+.pg-index .nav .wrap{max-width:1180px}
+.pg-index .nav a.cta{font-size:14px;padding:11px 24px}
+.pg-index .hero{flex-direction:row-reverse;align-items:center;max-width:1180px;margin:0 auto;padding:40px 48px 30px;gap:56px;overflow:visible}
+.pg-index .mosaic{flex:0 0 44%;max-width:none;width:auto;height:600px;margin:0;padding:0;border-radius:32px;-webkit-mask-image:none;mask-image:none;box-shadow:0 30px 60px -30px rgba(36,21,54,.5)}
+.pg-index .hero-body{flex:1;margin:0;padding:0;text-align:left}
+.pg-index .hero-logo{width:340px;max-width:none;margin:0 0 8px}
+.pg-index .hero h1{font-size:68px;line-height:1.02;margin-bottom:20px}
+.pg-index .hero p{max-width:520px;margin:0 0 32px;font-size:18px}
+.pg-index .hero-ctas{flex-direction:row;max-width:none;margin:0;gap:14px}
+.pg-index .hero-ctas a{padding:16px 32px;text-align:center}
+.pg-index .trust-row{justify-content:flex-start;margin-top:34px}
+.pg-index .trust-row .item{font-size:13px}
+.pg-index .sec-head{margin-bottom:38px}
+.pg-index .sec-head h2{font-size:36px}
+.pg-index .sec-head p{max-width:620px;font-size:16px}
+.pg-index .feat-grid{flex-direction:row;gap:20px}
+.pg-index .feat-card{flex:1;flex-direction:column;padding:28px}
+.pg-index .feat-card h3{font-size:18px}
+.pg-index .feat-card p{font-size:14.5px}
+.pg-index .universe-grid{grid-template-columns:repeat(5,1fr);gap:16px}
+.pg-index .universe-card[style]{grid-column:auto!important}
+.pg-index .universe-card{padding:24px 16px}
+.pg-index .universe-card h3{font-size:16px}
+.pg-index .universe-card p{font-size:13px}
+.pg-index .keydou-banner{max-width:920px;margin-inline:auto}
+.pg-index .keydou-banner h3{font-size:24px}
+.pg-index .keydou-banner p{font-size:15px}
+.pg-index .kids-banner>img{height:460px}
+.pg-index .kids-banner-body{padding:30px 36px}
+.pg-index .kids-banner-body h3{font-size:28px}
+.pg-index .kids-banner-body p{font-size:15px;max-width:520px}
+.pg-index .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.pg-index .step{margin:0;background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px}
+.pg-index .step h3{font-size:17px}
+.pg-index .step p{font-size:14.5px}
+
+/* ===== Mon espace ===== */
+.pg-accueil .wrap{max-width:1080px;padding-inline:40px}
+.pg-accueil .topbar .row{max-width:1080px;margin:0 auto;padding-inline:40px}
+.pg-accueil .content{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch}
+.pg-accueil .content>*{margin-bottom:0}
+.pg-accueil .content>.card:first-child,.pg-accueil .content>.card:last-child{grid-column:1/-1}
+
+/* ===== Mon abonnement ===== */
+.pg-abonnement .wrap{max-width:1080px;padding-inline:40px}
+.pg-abonnement .topbar .row{max-width:1080px;margin:0 auto;padding-inline:40px}
+.pg-abonnement #plansList{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.pg-abonnement .plan-card{margin-bottom:0}
+
+/* ===== Statistiques ===== */
+.pg-statistiques .wrap{max-width:960px;padding-inline:40px}
+
+/* ===== Inscription / connexion : une carte centrée, pas un formulaire de 1366 px de large ===== */
+.pg-inscription .card{max-width:540px;margin:-18px auto 48px;border-radius:24px;box-shadow:0 24px 60px -24px rgba(36,21,54,.45)}
+
+/* ===== Le fil de vidéos : un grand « téléphone » au centre, flèches ▲ ▼ et clavier ===== */
+.pg-fil,.pg-fil html{background:#0b0712}
+.pg-fil #feedWrap{position:relative;max-width:480px;margin:0 auto;box-shadow:0 0 0 1px rgba(255,255,255,.08),0 30px 80px -20px rgba(0,0,0,.8)}
+.pg-fil .topbar,.pg-fil .bottomnav,.pg-fil .activity-wrap{left:50%!important;right:auto!important;width:480px;transform:translateX(-50%)}
+.pg-fil .deskNav{display:flex}
+.pg-fil .comments-sheet{justify-content:center}

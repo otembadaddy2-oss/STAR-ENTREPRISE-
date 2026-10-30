@@ -1,0 +1,159 @@
+
+
+KOMYO — LE MONDE EN MOUVEMENT
+CAMPAGNE INTERNATIONALE 2026
+DIRECTIVE MAÎTRE À COPIER DANS WORK OU HIGGSFIELD
+
+
+CONCEPT
+UNE GORGÉE. UN APPEL. LE MONDE SE RAPPROCHE.
+Une journée ordinaire à Brazzaville devient une rencontre mondiale. La publicité commence comme une scène sensorielle pour BISSA POP : chaleur, glaçons, gouttes et plaisir. Un appel téléphonique conduit ensuite Marie à découvrir KOMYO. Grâce à une mise en scène de regards et de raccords, ses amis de Paris, Montréal, Tokyo et Abidjan semblent peu à peu réunis face à face, sans effacer les distances ni l'identité des lieux. Clémence révèle la marque à la fin : KOMYO — LE MONDE EN MOUVEMENT.
+Luxe = authenticité humaine, détails sensoriels, excellent son, justesse du rythme, personnages cohérents et mouvements de caméra motivés. Pas une accumulation d'effets sans histoire.
+
+BRIEF ARTISTIQUE ET PRODUIT
+FORMAT — Film maître de 120 secondes ; adaptations 60, 30 et 15 secondes. Cadrage 16:9 ; master de livraison 4K si le matériel est adéquat, variantes 9:16 et 1:1 ; bande-son mixée séparément.
+PERSONNAGES — Marie, femme congolaise à Brazzaville ; Angèle, femme élégante à Paris ; Foel, homme blanc avec lunettes au Canada ; Messie, homme noir au Japon ; Sita, commerçante à Abidjan ; Clémence, présentatrice de la révélation. Six identités visuelles distinctes et constantes.
+GÉOGRAPHIE & HORLOGES — Même instant en hiver européen : 12 h Brazzaville ; 12 h Paris ; 6 h Montréal ; 20 h Tokyo ; 11 h Abidjan. Paris et Brazzaville ont bien la même heure en hiver ; différencier leur lumière et leur décor, pas inventer un décalage horaire.
+ÉMOTION — La surprise ne vient pas d'un téléporteur magique mais de la sensation de proximité : raccords de regard, continuité des gestes, profondeur des écrans, éventuel assemblage final des cinq espaces en un dispositif visuel commun.
+UNIVERS SONORE — Musique instrumentale originale / licenciée : afro-soul contemporain très doux, piano feutré, guitare claire, basse ronde, texture blues discrète ; percussion subtile. Chaleur de Brazzaville -> pulsation d'appel -> ouverture harmonique lors du groupe -> signature sonore or et lumière.
+MARQUES — Le logo officiel KOMYO, son texte exact LE MONDE EN MOUVEMENT et le véritable conditionnement BISSA POP doivent provenir de fichiers de référence. Télécommande HIGGSFIELD visible au Canada et gilet Sita : éléments prévus comme accessoires, à utiliser publiquement seulement après validation des droits et sans laisser croire à un partenariat non approuvé.
+
+SCÉNARIO DÉCOUPÉ — FILM 120 SECONDES
+00:00–00:07 | BRAZZAVILLE / midi
+IMAGE : Ouverture aérienne sur une rue vivante. Le soleil est haut, la chaleur palpite. La caméra descend du ciel jusqu'à une marchande et sa glacière. Traces de lumière sur les carrosseries ; bruit des motos et de la ville.
+CAMÉRA : Aerial Pullback inversé + Crane Down + travelling sol / 24 mm
+SON : Ambiance urbaine, musique à peine perceptible
+CONTROLE : Aucun texte ; ville véritablement congolaise, pas skyline générique
+
+00:07–00:17 | GLACIÈRE / produit
+IMAGE : Marie : « Bonjour maman, le BISSA POP, c'est combien ? » Marchande : « Trois cents francs, ma fille. » Marie remet 300 FCFA. Caméra zénithale au fond de la glacière : glace humide, boîtes et bouteille BISSA POP, main anatomiquement correcte.
+CAMÉRA : Overhead vertical + push-in macro / 50–100 mm
+SON : Glaçons, pièce/billet, sourire de la vendeuse
+CONTROLE : Prix de 300 FCFA à confirmer avant diffusion ; vraie étiquette
+
+00:17–00:27 | BRAZZAVILLE / dégustation
+IMAGE : Un plan macro suit les gouttes sur la bouteille ; micro-éclaboussure réaliste quand elle la sort. Marie ouvre, boit avec plaisir, sourit : « Ah... ça fait du bien ! » Pas de liquides impossibles ni de faux gestes.
+CAMÉRA : Eating Zoom doux + macro dolly + contre-plongée légère / 85 mm
+SON : Capsule, gorgée, souffle de satisfaction
+CONTROLE : Ne pas faire couler du liquide sans cause physique
+
+00:27–00:38 | APPEL / passage
+IMAGE : Vibration du téléphone. Écran net : ANGÈLE — PARIS, bouton vert et rouge, numéro seulement si fourni (ne jamais inventer). Marie touche le bouton vert. Angèle : « Marie ! Tu m'entends ? » Marie : « Angèle ! Oui ! » Angèle : « Tu es sur KOMYO ? » Marie active ses données mobiles puis ouvre KOMYO pour basculer en vidéo.
+CAMÉRA : Insert téléphone + Rack Focus + Crash Zoom In + Through Object In
+SON : Sonnerie courte -> silence momentané -> souffle de transition
+CONTROLE : Création des interfaces en postproduction et chronologie téléphone plausible
+
+00:38–00:49 | PARIS / élégance
+IMAGE : La caméra ressort symboliquement du smartphone d'Angèle, dans un café parisien haut de gamme. Angèle en tailleur, escarpins noirs à semelle rouge sans marques tierces identifiables, boulevard parisien crédible au fond. Angèle : « Maintenant, je te vois ! » Marie : « Comme si tu étais devant moi. »
+CAMÉRA : Through Object Out + Arc Right 120° + plan épaule / 35 mm
+SON : Café, murmures, tasse posée, musicalité parisienne
+CONTROLE : Éviter le faux décor de carte postale et le texte illisible
+
+00:49–01:00 | DEUX MONDES / effet miroir
+IMAGE : Raccord de regard : Angèle tourne la tête à gauche ; Marie réagit comme si son amie se trouvait en face, mais une ligne lumineuse discrète et les bords du téléphone rappellent l'appel. Angèle : « Reste là, j'appelle Foel. » Split dynamique sans incrustation flottante instable.
+CAMÉRA : Match cut eye-line + Double Dolly léger + pano latéral
+SON : Pont musical : note de piano répétée
+CONTROLE : La proximité est poétique, pas une téléportation littérale
+
+01:00–01:12 | CANADA / hiver
+IMAGE : Extérieur froid de Montréal à l'aube, neige visible. Intérieur chaud, grande télévision avec MATCH DE SPORT FICTIF. Sur la table : tablette, télécommande noire marquée HIGGSFIELD en plan rapproché (logo placé en post si autorisé). Foel, lunettes, entend le mobile, répond : « Angèle ! Enfin, vous êtes là ! »
+CAMÉRA : Establishing winter + low angle sur télécommande + 360 Orbit partiel autour Foel
+SON : Vent lointain, ambiance TV discrète, notification
+CONTROLE : Aucun vrai match sous droits ; logo tiers conditionnel
+
+01:12–01:24 | TOKYO / nuit
+IMAGE : Foel ajoute Messie. Tokyo nocturne : rue dynamique, lanternes/enseignes réelles et silhouettes respectueuses, sans cliché déguisé. Messie décroche KOMYO : « Je suis connecté ! Et Sita, elle est où ? » Grand plan de ville puis approche vers son sourire.
+CAMÉRA : FPV drone contrôlé + travelling plongée -> visage + Arc Left
+SON : Ville japonaise nocturne et son bref du téléphone
+CONTROLE : Tenue japonaise contemporaine élégante, pas de caricature
+
+01:24–01:36 | ABIDJAN / boutique
+IMAGE : Abidjan : Sita en gilet noir, éventuel logo HIGGSFIELD autorisé au dos. Boutique de quartier riche de détails : pains, mèches, sandales, accessoires, tissus, clientes. Cliente : « Madame Sita, le pain s'il vous plaît. » Sita : « Un instant, madame ! » Elle répond au groupe : « Abidjan est là, hein ! Nous, on était déjà connectés ! »
+CAMÉRA : Plan large commerce + 360 Orbit 180–240° + gros plan appel
+SON : Bruit du commerce, rires, phrase ivoirienne naturelle
+CONTROLE : L'orbite doit garder même visage et objets ; clients consentants
+
+01:36–01:46 | ABIDJAN / verre & eau
+IMAGE : Sita sert de l'eau dans un verre transparent. La caméra suit le filet liquide en macro, traverse *symboliquement* le verre, voit les bulles, puis ressort de l'autre côté. Le dernier reflet contient les cinq visages en appel, raccord de matière et non de physique impossible.
+CAMÉRA : Super macro + 120 fps simulé / compositing Through Object
+SON : Son détaillé de l'eau + suspension musicale
+CONTROLE : Plan à composer en plusieurs prises, pas de caméra réellement sous l'eau
+
+01:46–01:55 | CONNEXION / tableau mondial
+IMAGE : Les cinq fenêtres téléphoniques deviennent un seul plan chorégraphié : regards et mouvements se répondent comme autour d'une table. Marie lève sa bouteille ; Angèle lève sa tasse ; Foel sourit ; Messie fait un petit signe ; Sita rejoint sa cliente. Montrer subtilement les frontières de chaque environnement.
+CAMÉRA : 5 cadres raccordés en perspective + travelling circulaire virtuel
+SON : Cinq ambiances fondues dans un thème commun
+CONTROLE : Égalité visuelle entre continents et personnes ; éviter montage confus
+
+01:55–02:00 | CLÉMENCE / marque
+IMAGE : Clémence, élégante et chaleureuse, regarde caméra : « Je vous l'avais dit : vous êtes formidables. Voici notre surprise. » Cut vers l'animation lumineuse du logo officiel KOMYO. Voix : « KOMYO. Le monde en mouvement. » Logo plein cadre, slogan saisi avec une animation typographique précise.
+CAMÉRA : Dolly In très lent -> title card or sur fond maîtrisé
+SON : Signature musicale mémorable + léger scintillement sonore
+CONTROLE : Texte exact et logo fournis ; CTA ou pays disponibles seulement si vérifiés
+
+PROMPT MAÎTRE POUR CHATGPT WORK
+MISSION À WORK / DIRECTION DE PRODUCTION — NE PAS REMPLACER CE DOCUMENT PAR UN SIMPLE RÉSUMÉ.
+Tu es un réalisateur publicitaire de premier plan, un directeur de la photographie, un directeur artistique, un scénariste, un superviseur VFX, un monteur et un responsable qualité travaillant ensemble pour STAR ENTREPRISE. Réalise la préproduction puis, si les outils et les ressources autorisent effectivement la génération, une publicité cinématographique originale pour KOMYO. Concept : « UNE GORGÉE. UN APPEL. LE MONDE SE RAPPROCHE. » ; slogan final obligatoire : « LE MONDE EN MOUVEMENT ».
+Livrables souhaités : film maître 120 s, versions 60/30/15 s, 16:9 principal et versions 9:16/1:1, storyboard plan par plan, portraits verrouillés, fiches décors, listes d'accessoires, pistes de dialogue/sound design, fichiers de montage et vidéo finale uniquement après vérification. Ne prétends jamais qu'un film est livré sans fichier MP4 jouable.
+Histoire et distribution : Marie à Brazzaville achète du BISSA POP pour 300 FCFA dans une glacière pleine de glaçons, goûte ; Angèle appelle depuis un café élégant à Paris ; Marie active ses données et ouvre KOMYO pour passer à la vidéo ; Angèle ajoute Foel, homme à lunettes dans un appartement de Montréal enneigé, télécommande noire avec l'inscription HIGGSFIELD en gros plan ; Foel ajoute Messie dans Tokyo nocturne ; Messie demande d'appeler Sita, commerçante à Abidjan, boutique authentique (pains, mèches, sandales, accessoires), gilet noir avec inscription HIGGSFIELD si son usage est autorisé ; une caméra filme le versement d'eau dans un verre avec point de vue macro immersif ; chacun finit sur un seul plan de groupe « comme face à face » grâce au montage et aux raccords de regard ; Clémence révèle KOMYO et le slogan.
+Même instant, en saison hivernale : Brazzaville 12:00, Paris 12:00, Montréal 06:00, Tokyo 20:00 et Abidjan 11:00. Différencier physiquement chaque environnement et chaque texture sonore. Ne pas forcer artificiellement le décalage horaire Paris–Brazzaville.
+Technique image : lumière réaliste, rendu premium, grain de cinéma très léger, éclairage adapté aux peaux, anamorphique discret, profondeur de champ motivée, 24/35/50/85 mm et objectif macro. Utilise mouvements précis (Overhead, Crane Down, Dolly In, Arc Right, 360 Orbit, Crash Zoom In, Through Object In/Out, Focus Change, FPV Drone) sans enchaîner des mouvements incohérents dans un seul plan. Pour les effets impossible à générer proprement (téléphone traversé, verre traversé, mosaïque commune), découpe en plans et réalise une composition au montage.
+Direction d'acteurs : six visages uniques qui ne changent jamais d'un plan à l'autre, émotions crédibles et dialogues français naturels, accents respectés, bouche synchronisée, regards cohérents entre participants d'un appel vidéo, latence subtile. Pas de célébrités réelles, faux témoignages ou fausses prétentions de disponibilité mondiale.
+Son : musique instrumentale afro-soul et blues originale ou licenciée, doux groove et montée progressive ; sons concrets (glaçons, capsule, gouttes, téléphone, pas, neige, ville, boutique, eau), dialogues intelligibles au-dessus de la musique. Faire une VO Clémence chaleureuse, élégante, non publicitaire forcée.
+Accessoires et logos : import obligatoire du logo officiel KOMYO et du packaging officiel BISSA POP ; NE JAMAIS laisser une IA inventer des lettres et numéros à l'écran. Écrans de smartphones conçus en surimpression graphique et contrôlés (boutons d'appel, nom, application). Inscription HIGGSFIELD de la télécommande et du gilet : éviter toute fausse implication de parrainage ; validation de marque et droits nécessaire avant publication. Match TV fictif et musique aux droits clairs. Confirmer le tarif 300 FCFA et la disponibilité géographique avant diffusion.
+Méthode : 1. retrouver les fichiers sources ; 2. verrouiller casting et objets ; 3. concevoir storyboard et animatique avec durées exactes ; 4. produire des keyframes fixes pour chaque lieu ; 5. générer les plans un à un (4–10 s selon outil) ; 6. contrôles qualité systématiques ; 7. postproduction VFX des transitions et des écrans ; 8. bruitages, musique, dialogues, mix ; 9. montage 120 s et déclinaisons ; 10. export final et rapport de vérification. En l'absence d'accès à un outil ou de crédits suffisants : livrer tout ce qui est possible sans annoncer une vidéo inexistante. Demander validation avant toute dépense.
+Interdits : changer visages/tenues, textes illisibles, faux numéros, mains déformées, lèvres mal synchronisées, bouteilles qui se transforment, lumière sans source, neige et soleil incompatibles au même lieu, caméra traversant physiquement la matière sans composition, même décor recyclé pour deux villes, logos déformés, dialogues trop longs, fausses affirmations « disponible partout » si le service n'est pas réellement lancé.
+Critère de réussite : le spectateur a envie de goûter la boisson dans les 30 premières secondes, puis ressent la joie humaine d'une conversation mondiale ; à la fin, il se souvient de KOMYO et du slogan exact. Le film doit être cohérent, original, premium et techniquement montrable à une agence internationale.
+
+DÉCLINAISON 30 SECONDES
+VERSION 30 SECONDES — SANS PERDRE LES CINQ PAYS
+00–04 s Brazzaville : Marie sort le BISSA POP glacé ; « 300 francs » sur échange rapide et macro gouttes.
+04–08 s Appel Angèle, clic données mobiles, icône KOMYO, traversée de l'écran vers Paris.
+08–12 s Paris : Angèle dit « Je te vois ! », regard face à Marie, raccord de caméra.
+12–16 s Canada : neige, Foel souriant, télécommande HIGGSFIELD en insert autorisé (une demi-seconde), « Enfin ! ».
+16–20 s Tokyo : Messie répond à la nuit tombée, « Je suis là ! ».
+20–24 s Abidjan : Sita en boutique, demi-orbite, « Abidjan aussi ! » ; eau dans le verre en transition.
+24–27 s Les cinq visages réunis comme face à face, rythme musical ascendant.
+27–30 s Clémence en très bref plan (facultatif si temps contraint), puis animation logo KOMYO + « LE MONDE EN MOUVEMENT » ; ne pas prétendre tous les dialogues du film long intégralement.
+
+PROMPTS PLAN PAR PLAN (EN ANGLAIS POUR LES MODÈLES VIDÉO)
+01 — BRAZZAVILLE
+Photorealistic high-budget commercial. Authentic lively Brazzaville street market, midday equatorial sunlight, bustling but tastefully framed. A friendly Congolese woman in her 20s/30s approaches a female street vendor's insulated cooler with ice cubes and the exact branded BISSA POP bottle from reference image. Natural skin texture, genuine market architecture. Camera: crane down from elevated street establishing shot, then true overhead view into ice chest. 35mm then 85mm macro. No generated text. Keep all faces and bottle proportions identical to locked references.
+
+02 — BISSA POP / MACRO
+Ultra-premium food-beverage close-up of the exact BISSA POP reference packaging, refrigerated bottle with physically accurate condensation, sparkling ice and water droplets, hand reaches once with five correct fingers, bottle is opened and tasted, clean soft highlights and realistic fluid gravity. 100mm macro lens, shallow depth of field, slow-motion inserts, no excessive splash, no label morphing. Real actor's authentic delighted expression.
+
+03 — PARIS / PASSAGE TÉLÉPHONE
+Luxury Paris cafe in winter midday with refined Haussmann windows, Parisian passersby, elegant French woman Angèle seated in tailored attire and tasteful black heels. Camera transition is a planned VFX sequence: push into a tracked smartphone display in a separate shot, cut to matching lens/framing from the Paris phone. Gentle 120-degree orbit; eyeline matched with Congo character. No unrealistic teleportation, no floating UI; exact video-call interface added in post.
+
+04 — CANADA / HIGGSFIELD
+Montreal at 6 AM in winter, exterior snowflakes, blue twilight through window, cozy warm apartment interior. White bespectacled man Foel hears a mobile call during a fictitious sports match on a large television. Insert 1-second shot of a black TV remote on a coffee table with a clear reserved space for the word HIGGSFIELD to be composited legally in post. Realistic hand pickup, gentle 180-degree camera arc, cinematic contrast between warm inside and blue snow outside.
+
+05 — TOKYO / NUIT
+Tokyo 8 PM, cinematic contemporary Japanese streets, believable urban signage and pedestrians, unique night lighting, a Black male character Messie in tasteful contemporary clothing receives a group-call notification. An elegant overhead-to-eye-level crane descend, then smooth arc around him while he answers. Keep architectural identity and culturally respectful background details, no arbitrary costumes, no fake Japanese text visible.
+
+06 — ABIDJAN / BOUTIQUE
+Authentic daytime Abidjan neighborhood boutique at 11 AM, full shelves of bread, hair extensions, sandals, accessories, fabrics and small goods. West African female shopkeeper Sita in elegant black vest (reserved graphic placement for legally cleared HIGGSFIELD logo) answers a smartphone while courteously addressing a customer. Precision 180-degree orbit, camera passes behind Sita to reveal vest, then frontal close-up. Rich ambient life, stable body anatomy, no objects disappearing.
+
+07 — VERRE / TRANSITION
+Ultra-realistic macro water-pouring shot in Abidjan boutique. Clear glass, physically believable liquid, surface tension, tiny bubbles, refracted environment and clean highlights. Planned VFX multi-shot transition from exterior glass rim to an immersive underwater-like view inside glass and out through surface. 120fps-feel but not a physically impossible single take. Match color temperature across connected shots.
+
+08 — FINALE / CLÉMENCE
+Global emotional culmination: five distinct friends in five distinct authentic locations are staged through composited split perspective, as if looking at each other across one invisible table. Refined yet subtle smartphone border graphics show video connection. Elegant Congolese female presenter Clémence in premium simple outfit addresses camera, sincere expression. Dissolve to the supplied exact KOMYO 3D gold logo, isolated, with exact slogan LE MONDE EN MOUVEMENT, stable legible typography composed in post. Elegant restrained light reveal, no re-created logo.
+
+CHECKLIST QUALITÉ
+- Les cinq pays restent identifiables sans drapeau plaqué ni monuments génériques.
+- Six visages verrouillés sur les images de référence ; costumes, bijoux et coiffures inchangés.
+- La chronologie des appels est compréhensible, les écrans et boutons sont nets et vrais.
+- Tous les numéros affichés sont fictifs et validés ou ne sont pas affichés.
+- Le vrai emballage BISSA POP reste fidèle à toutes les prises ; prix approuvé.
+- Télécommande HIGGSFIELD bien reconnaissable si autorisation ; match télévisé libre de droits/fictif.
+- Sita, sa boutique, sa cliente et le gilet conservent leur identité sur l'orbite.
+- Physique de l'eau, condensation, mouvement des mains et prises impeccables.
+- Mélange son naturel, musique autorisée, dialogues intelligibles, lipsync synchronisé.
+- Aucune allégation commerciale non vérifiée : lancement mondial, disponibilité, fonctionnalité ou prix.
+- Logo KOMYO exact ; slogan final exact et correctement orthographié.
+- MP4 final joué et contrôlé du début à la fin ; 120 s, plus 60/30/15 s si produits.
+
+PRÉCAUTION : Les fonctions, pays de disponibilité, tarifs et droits de tiers doivent être vérifiés avant la diffusion. Ce document est une préproduction ; il ne prétend pas qu’une vidéo a été générée.
+RÉFÉRENCES HIGGSFIELD : https://higgsfield.ai/camera-controls ; https://higgsfield.ai/blog/new-marketing-studio-higgsfield ; https://higgsfield.ai/blog/marketing-studio-video-2

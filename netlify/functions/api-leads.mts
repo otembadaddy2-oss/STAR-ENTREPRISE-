@@ -1,9 +1,11 @@
 // Demandes de devis et messages de contact du site STAR ENTREPRISE.
 // Écriture publique (formulaires devis.html / contact.html) ; lecture et
 // gestion réservées aux comptes connectés du groupe.
+import { envoyerContact } from "./_mail.mts";
 import type { Context, Config } from "@netlify/functions";
 import { ensureSchema, db, json } from "./_db.mts";
-import { requireAuth } from "./_auth.mts";
+import { requireGroupAuth as requireAuth } from "./_auth.mts";   // back-office : refuse les jetons KOMYO / Keydou / Marketplace / Guichet
+import { pushAll } from "./_push.mts";
 
 function clean(value: unknown, maxLen: number): string {
   return String(value ?? "").trim().slice(0, maxLen);
@@ -63,11 +65,25 @@ export default async (req: Request, _context: Context) => {
       return json({ error: "Merci de renseigner au moins un moyen de contact" }, 400);
     }
 
+    // Formulaire KOMYO : champ-piège pour les robots (un humain ne le voit pas) et plafond horaire contre le spam.
+    if (type === "komyo-contact") {
+      if (clean(body.site, 100)) return json({ lead: { id: "0" } }, 201);   // robot : on fait semblant que c'est passé
+      const recents = (await sql`SELECT COUNT(*)::int AS n FROM leads WHERE type = 'komyo-contact' AND created_at > now() - interval '1 hour'`) as { n: number }[];
+      if ((recents[0]?.n || 0) >= 30) return json({ error: "Trop de messages pour le moment. Réessaie un peu plus tard." }, 429);
+    }
+
     const rows = (await sql`
       INSERT INTO leads (type, nom, entreprise, email, telephone, service, message)
       VALUES (${type}, ${nom}, ${entreprise}, ${email}, ${telephone}, ${service}, ${message})
       RETURNING *
     `) as LeadRow[];
+
+    // Message venant de KOMYO : le staff est prévenu tout de suite (la demande reste de toute façon dans le Backend).
+    if (type === "komyo-contact") {
+      // Le message part aussi par e-mail vers contact@starentreprise.com (si le mot de passe SMTP est configuré dans Netlify).
+      try { await envoyerContact({ nom, contact: email || telephone, email, message }); } catch { /* le message reste dans le back-office */ }
+      try { await pushAll(sql, { title: "Nouveau message KOMYO", body: `${nom || "Visiteur"} : ${message.slice(0, 90)}`, tag: "komyo-contact", url: "/admin.html" }); } catch { /* sans gravité : le message est enregistré */ }
+    }
 
     return json({ lead: toApi(rows[0]) }, 201);
   }

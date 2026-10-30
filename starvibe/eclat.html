@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="assets/i18n-v1.js"></script>
+<title>KOMYO — ÉCLAT, le direct</title>
+<meta name="theme-color" content="#0f0a18">
+<link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<style>
+  :root{--coral:#FF6B4A;--gold:#E8A93D;--sap:#3a8cff;--ink:#0f0a18;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;min-height:100%;background:var(--ink);color:#fff;font-family:'Inter',Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  [hidden]{display:none!important;}
+  .top{display:flex;align-items:center;justify-content:space-between;padding:14px 18px calc(10px);padding-top:calc(14px + env(safe-area-inset-top));}
+  .top a{color:#fff;text-decoration:none;font:700 13px 'Sora',Arial,sans-serif;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);}
+  .hero{position:relative;text-align:center;padding:30px 22px 10px;overflow:hidden;}
+  .hero::before{content:"";position:absolute;left:50%;top:-40px;width:520px;height:520px;transform:translateX(-50%);background:radial-gradient(circle,rgba(58,140,255,.35),rgba(255,107,74,.18) 45%,transparent 68%);filter:blur(10px);animation:glow 5s ease-in-out infinite alternate;pointer-events:none;}
+  @keyframes glow{from{transform:translateX(-50%) scale(.9);opacity:.8}to{transform:translateX(-50%) scale(1.1);opacity:1}}
+  .badge{position:relative;display:inline-flex;align-items:center;gap:8px;font:800 12px 'Sora',Arial,sans-serif;letter-spacing:.14em;padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);}
+  .dot{width:10px;height:10px;border-radius:50%;background:#ff2d3d;box-shadow:0 0 0 0 rgba(255,45,61,.8);animation:pulse 1.4s infinite;}
+  @keyframes pulse{70%{box-shadow:0 0 0 10px rgba(255,45,61,0)}100%{box-shadow:0 0 0 0 rgba(255,45,61,0)}}
+  h1{position:relative;font:800 clamp(54px,18vw,92px)/1 'Sora',Arial,sans-serif;margin:16px 0 4px;letter-spacing:.02em;background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,.95) 50%,transparent 62%) 0 0/250% 100% no-repeat,linear-gradient(180deg,#fff 0,#ffe7a8 40%,var(--gold) 55%,var(--coral) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;animation:sheen 4.5s ease-in-out infinite;filter:drop-shadow(0 6px 24px rgba(255,107,74,.45));}
+  @keyframes sheen{0%{background-position:-160% 0,0 0}60%,100%{background-position:260% 0,0 0}}
+  .sub{position:relative;font:600 16px/1.45 'Inter',Arial,sans-serif;max-width:420px;margin:0 auto;color:#e9e4f5;}
+  .box{max-width:460px;margin:22px auto;padding:0 20px;}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:18px;backdrop-filter:blur(8px);}
+  .card h2{font:700 15px 'Sora',Arial,sans-serif;margin:0 0 10px;}
+  ul{list-style:none;margin:0;padding:0;}
+  li{display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-top:1px solid rgba(255,255,255,.08);font-size:14px;line-height:1.4;color:#ddd6ee;}
+  li:first-child{border-top:none;}
+  li b{display:block;color:#fff;font-family:'Sora',Arial,sans-serif;font-size:14px;}
+  li i{font-style:normal;font-size:22px;flex:none;}
+  .cta{width:100%;border:none;border-radius:16px;padding:16px;font:800 16px 'Sora',Arial,sans-serif;color:#fff;cursor:pointer;background:linear-gradient(135deg,var(--coral),var(--gold));box-shadow:0 14px 28px -12px rgba(232,120,60,.8);}
+  .cta:disabled{opacity:.6;cursor:default;}
+  .cta.ok{background:linear-gradient(135deg,#2fb35f,#1f8f4a);box-shadow:0 14px 28px -12px rgba(47,179,95,.7);}
+  .msg{margin-top:10px;font-size:13px;color:#cdbfe8;text-align:center;min-height:18px;}
+  .msg.err{color:#ffb3ad;}
+  .orbs{display:flex;justify-content:center;gap:10px;margin:14px 0 0;}
+  .orbs span{width:12px;height:12px;border-radius:50%;animation:bob 1.6s ease-in-out infinite;}
+  .orbs span:nth-child(1){background:#ffd34a;box-shadow:0 0 12px #ffd34a}.orbs span:nth-child(2){background:#fff;box-shadow:0 0 12px #fff;animation-delay:.2s}.orbs span:nth-child(3){background:var(--sap);box-shadow:0 0 12px var(--sap);animation-delay:.4s}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .foot{max-width:460px;margin:8px auto 40px;padding:0 20px;font-size:12px;color:#9d92b5;text-align:center;}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="top"><a href="fil.html">← Le fil</a><a href="accueil.html">Mon espace</a></div>
+
+<section class="hero">
+  <span class="badge"><i class="dot"></i>BIENTÔT EN DIRECT</span>
+  <h1>ÉCLAT</h1>
+  <p class="sub">Le direct de KOMYO. Filme-toi en direct, ta communauté te voit, te répond et t'encourage en temps réel.</p>
+  <div class="orbs" aria-hidden="true"><span></span><span></span><span></span></div>
+</section>
+
+<div class="box">
+  <div class="card">
+    <h2>Ce qui arrive avec ÉCLAT</h2>
+    <ul>
+      <li><i>🔴</i><div><b>Lance ton direct en un geste</b>Un bouton, ta caméra s'allume, tu es en direct.</div></li>
+      <li><i>💬</i><div><b>Commentaires en direct</b>Tes spectateurs écrivent pendant que tu parles.</div></li>
+      <li><i>⭐</i><div><b>Dans chaque espace</b>Talents, Business, Découverte : montre un spectacle, présente ta boutique, fais visiter ta ville.</div></li>
+      <li><i>🔔</i><div><b>Préviens ta communauté</b>Ceux qui te suivent sont prévenus quand tu démarres.</div></li>
+    </ul>
+  </div>
+</div>
+
+<div class="box">
+  <button class="cta" id="btnJoin" type="button" hidden>Je veux être prévenu(e) du lancement</button>
+  <div class="msg" id="msg" aria-live="polite"></div>
+  <div class="card" id="loginCard" hidden style="text-align:center">
+    <p style="margin:0 0 12px;font-size:14px;color:#ddd6ee">Connecte-toi à KOMYO pour être prévenu(e) dès que ÉCLAT démarre.</p>
+    <a class="cta" href="inscription.html" style="display:block;text-decoration:none;">Se connecter / Créer un compte</a>
+  </div>
+</div>
+<p class="foot">ÉCLAT n'est pas encore ouvert : aucune diffusion en direct n'a lieu pour le moment. Tu seras prévenu(e) ici quand ce sera prêt.</p>
+
+<script>
+(function(){
+  var API = '/api/starvibe-eclat', token = '';
+  try { token = localStorage.getItem('starvibe_token') || ''; } catch (e) {}
+  var btn = document.getElementById('btnJoin'), msg = document.getElementById('msg'), login = document.getElementById('loginCard');
+  function etat(d){
+    btn.hidden = false; btn.disabled = false;
+    if (d.inscrit){ btn.textContent = '✓ Tu seras prévenu(e) — toucher pour annuler'; btn.className = 'cta ok'; msg.className = 'msg'; msg.textContent = d.total > 1 ? d.total + ' personnes attendent ÉCLAT.' : 'Tu es la première personne sur la liste !'; }
+    else { btn.textContent = 'Je veux être prévenu(e) du lancement'; btn.className = 'cta'; msg.className = 'msg'; msg.textContent = d.total ? d.total + ' personne' + (d.total > 1 ? 's attendent' : ' attend') + ' déjà ÉCLAT.' : ''; }
+  }
+  function appel(action){
+    btn.disabled = true;
+    return fetch(API, { method: action ? 'POST' : 'GET', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }, body: action ? JSON.stringify({ action: action }) : undefined })
+      .then(function(r){ if (r.status === 401){ throw new Error('401'); } return r.json(); }).then(etat)
+      .catch(function(e){ btn.disabled = false; if (e.message === '401'){ btn.hidden = true; login.hidden = false; } else { btn.hidden = false; msg.className = 'msg err'; msg.textContent = 'Connexion impossible pour le moment. Réessaie dans un instant.'; } });
+  }
+  if (!token){ login.hidden = false; return; }
+  appel(null);
+  btn.addEventListener('click', function(){ appel(btn.classList.contains('ok') ? 'quitter' : 'rejoindre'); });
+})();
+</script>
+</body>
+</html>

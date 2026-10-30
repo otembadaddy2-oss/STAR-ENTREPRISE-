@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="assets/i18n-v1.js"></script>
 <title>KOMYO — Mon espace</title>
 <meta name="theme-color" content="#FFFBF3">
-<link rel="icon" href="../assets/img/icons/favicon-star-rounded-v1.png" type="image/png">
+<link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -50,6 +51,16 @@
   .profile-chip.perso{cursor:pointer;}
   .profile-chip.perso:hover{transform:translateY(-4px);box-shadow:0 10px 20px -12px rgba(232,169,61,.55);border-color:var(--gold);}
   .profile-chip.busy{opacity:.6;pointer-events:none;}
+  .edit-profile{margin-top:12px;background:none;border:1.5px solid var(--line);border-radius:10px;padding:8px 14px;font:inherit;font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;}
+  .edit-profile:hover{border-color:var(--gold);color:var(--gold-deep);}
+  #profilDlg{border:0;border-radius:18px;padding:22px;max-width:420px;width:calc(100% - 32px);box-shadow:0 24px 60px -20px rgba(36,21,54,.5);}
+  #profilDlg::backdrop{background:rgba(36,21,54,.55);}
+  #profilDlg label{display:block;font-size:12px;font-weight:700;margin:12px 0 5px;color:var(--text-dim);}
+  #profilDlg input[type=text]{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font:inherit;}
+  #profilDlg .actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+  #profilDlg .actions button{flex:1;padding:11px 14px;border-radius:10px;border:0;font:inherit;font-weight:700;cursor:pointer;background:var(--ink);color:#fff;}
+  #profilDlg .actions .sec{background:#fff;color:var(--ink);border:1.5px solid var(--line);}
+  #profilDlg .hint{font-size:11.5px;color:var(--text-dim);margin:10px 0 0;}
   .photo-msg{font-size:11.5px;margin:10px 0 0;color:var(--text-dim);}
   .photo-msg.err{color:#b3261e;}
   .profile-chip.enfant .profile-avatar{background:linear-gradient(135deg,#3fae82,var(--kids));}
@@ -82,6 +93,20 @@
   .quick-item h4{font-size:12.5px;margin:0 0 2px;}
   .quick-item p{font-size:10.5px;color:var(--text-faint);margin:0;}
 
+
+  .keydou-card{display:flex;align-items:center;gap:6px;border-radius:18px;overflow:hidden;position:relative;margin-bottom:16px;text-decoration:none;color:var(--ink);
+    background:radial-gradient(120% 120% at 0% 0%,#fffaf0 0%,#ffecc2 60%,#f8d98c 100%);border:1px solid var(--line);padding:6px 16px 6px 6px;
+    box-shadow:0 12px 26px -16px rgba(200,148,47,.6);transition:transform .3s ease, box-shadow .3s ease;}
+  .keydou-card:hover{transform:translateY(-4px);box-shadow:0 18px 32px -16px rgba(200,148,47,.7);}
+  .keydou-card .kd-dance{flex:none;width:104px;height:112px;display:flex;align-items:flex-end;justify-content:center;}
+  .keydou-card .kd-dance img{width:92px;height:auto;filter:drop-shadow(0 5px 6px rgba(36,21,54,.2));}
+  @keyframes kdHop{0%{transform:translateY(0) rotate(-6deg) scale(1.03,.95);}25%{transform:translateY(-14px) rotate(0) scale(.97,1.05);}50%{transform:translateY(0) rotate(6deg) scale(1.03,.95);}75%{transform:translateY(-14px) rotate(0) scale(.97,1.05);}100%{transform:translateY(0) rotate(-6deg) scale(1.03,.95);}}
+  .keydou-card .kd-text .pill{display:inline-block;background:linear-gradient(135deg,var(--coral),var(--gold));color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:5px;}
+  .keydou-card h3{font-size:16px;margin:0 0 2px;}
+  .keydou-card p{font-size:11.5px;line-height:1.45;color:var(--text-dim);margin:0 0 7px;}
+  .keydou-card .go{display:inline-block;font-family:'Sora',sans-serif;font-weight:800;font-size:11.5px;color:#7a5a12;border-bottom:1.5px solid var(--gold-deep);}
+  @media (prefers-reduced-motion: reduce){.keydou-card .kd-dance img{animation:none;}}
+
   .state{text-align:center;padding:60px 20px;}
   .state p{font-size:13px;color:var(--text-dim);}
   .state a{color:var(--ink);font-weight:700;border-bottom:1.5px solid var(--gold);}
@@ -90,20 +115,27 @@
   footer .credit{font-size:10px;color:var(--text-faint);}
   footer .credit b{color:var(--text-dim);}
 </style>
+<link rel="manifest" href="manifest-komyo.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KOMYO">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="assets/img/icons/komyo-apple-180-v2.png">
+<link rel="stylesheet" href="assets/komyo-bureau-v1.css" media="(min-width:1000px)">
 </head>
-<body>
+<body class="pg-accueil">
 
 <div id="loadingState" class="state"><p>Chargement de ton espace…</p></div>
 
 <div id="loggedOutState" class="state" hidden>
-  <p>Tu n'es pas connecté.<br><a href="inscription.html">Se connecter / Créer un compte</a></p>
+  <p>Tu n'es pas connecté.<br><a href="inscription.html?mode=login">Se connecter / Créer un compte</a></p>
 </div>
 
 <div id="appState" hidden>
   <div class="topbar">
     <div class="row">
       <div class="greet">Bonjour<b id="greetName">—</b></div>
-      <button class="logout" id="btnLogout">Déconnexion</button>
+      <div style="display:flex;align-items:center;gap:10px"><button data-komyo-messages hidden></button><button class="logout" id="btnLogout">Déconnexion</button></div>
     </div>
   </div>
 
@@ -113,11 +145,82 @@
       <div class="profiles-title">Mes profils</div>
       <div class="profile-list" id="profileList"></div>
       <input type="file" id="photoInput" accept="image/*" hidden>
+      <button type="button" class="edit-profile" id="btnEditProfil">Modifier mon profil</button>
       <p class="photo-msg" id="photoMsg" hidden></p>
+    </div>
+    <dialog id="profilDlg">
+      <form id="profilForm" method="dialog">
+        <h3 style="margin:0 0 4px;font-size:18px;">Modifier mon profil</h3>
+        <p class="hint" style="margin:0">Change ta photo, ton prénom et nom, ou ta ville.</p>
+        <label for="pfNom">Prénom et nom</label>
+        <input type="text" id="pfNom" maxlength="120" autocomplete="name" required>
+        <label for="pfVille">Ville</label>
+        <input type="text" id="pfVille" maxlength="80" autocomplete="address-level2">
+        <p class="hint">Ta date de naissance ne se change pas ici : elle protège les plus jeunes. Une erreur ? Écris-nous à contact@starentreprise.com.</p>
+        <p class="photo-msg err" id="pfErr" hidden></p>
+        <div class="actions">
+          <button type="button" class="sec" id="pfPhoto">Changer ma photo</button>
+          <button type="submit" id="pfSave">Enregistrer</button>
+          <button type="button" class="sec" id="pfCancel">Annuler</button>
+        </div>
+      </form>
+    </dialog>
+
+    <a href="keydou.html" class="keydou-card" aria-label="Parler à Keydou, agent et assistant multiservices">
+      <div class="kd-dance" data-keydou-anim data-keydou-w="100"><img src="assets/img/keydou.webp" alt="Keydou" width="92" height="115"></div>
+      <div class="kd-text">
+        <span class="pill">Nouveau</span>
+        <h3>Keydou</h3>
+        <p>Agent et assistant multiservices : hôtel, restaurant, salle, véhicule, dépannage…</p>
+        <span class="go">Parler à Keydou →</span>
+      </div>
+    </a>
+
+    <a href="promouvoir.html" class="pub-card" style="display:flex;align-items:center;gap:14px;margin:12px 0;padding:16px 18px;border-radius:18px;background:linear-gradient(135deg,#0a1030,#16226b);color:#fff;text-decoration:none;box-shadow:0 12px 26px -12px rgba(10,16,48,.8);">
+      <span style="font-size:30px;line-height:1;">📣</span>
+      <span style="display:block;"><b style="display:block;font-family:'Sora',sans-serif;font-size:16px;">Faire connaître ma musique ou mon activité</b><span style="font-size:12.5px;opacity:.92;">Une annonce visible par tous les abonnés : 2 semaines 4 000 FCFA · 1 mois 10 000 FCFA.</span></span>
+    </a>
+
+    <a href="messages.html" class="msg-card" style="display:flex;align-items:center;gap:14px;margin:12px 0;padding:16px 18px;border-radius:18px;background:#fff;color:#241536;text-decoration:none;border:1.5px solid #eee2cc;box-shadow:0 10px 22px -14px rgba(36,21,54,.5);">
+      <span style="font-size:30px;line-height:1;">✉️</span>
+      <span style="display:block;flex:1;"><b style="display:block;font-family:'Sora',sans-serif;font-size:16px;">Ma messagerie</b><span style="font-size:12.5px;color:#6b5f80;">Tes reçus, accusés de réception, ventes et factures.</span></span>
+      <span data-msg-count hidden style="min-width:22px;height:22px;border-radius:999px;background:#e5322e;color:#fff;font:800 12px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;padding:0 6px;"></span>
+    </a>
+
+    <a href="boutiques.html" class="shop-card" style="display:flex;align-items:center;gap:14px;margin:12px 0;padding:16px 18px;border-radius:18px;background:#fff;color:#241536;text-decoration:none;border:1.5px solid #eee2cc;box-shadow:0 10px 22px -14px rgba(36,21,54,.5);">
+      <span style="font-size:30px;line-height:1;">🏪</span>
+      <span style="display:block;flex:1;"><b style="display:block;font-family:'Sora',sans-serif;font-size:16px;">Boutiques KOMYO</b><span style="font-size:12.5px;color:#6b5f80;">Achète auprès de vendeurs KOMYO Business · <a href="boutique.html" style="color:#c4501f;font-weight:700;">Ouvrir ma boutique</a></span></span>
+    </a>
+
+    <a href="myo.html" class="myo-card" style="display:flex;align-items:center;gap:14px;margin:12px 0;padding:16px 18px;border-radius:18px;background:#fff;color:#241536;text-decoration:none;border:1.5px solid #eee2cc;box-shadow:0 10px 22px -14px rgba(36,21,54,.5);">
+      <span style="font-size:30px;line-height:1;">🤝</span>
+      <span style="display:block;flex:1;"><b style="display:block;font-family:'Sora',sans-serif;font-size:16px;">Myo · mes amis</b><span style="font-size:12.5px;color:#6b5f80;">Invite des personnes à te suivre et à devenir amis.</span></span>
+      <span data-myo-count hidden style="min-width:22px;height:22px;border-radius:999px;background:#e5322e;color:#fff;font:800 12px 'Sora',sans-serif;display:flex;align-items:center;justify-content:center;padding:0 6px;"></span>
+    </a>
+
+    <a href="eclat.html" class="eclat-card" style="display:flex;align-items:center;gap:14px;margin:12px 0;padding:16px 18px;border-radius:18px;background:linear-gradient(135deg,#241536,#3a1d4f 55%,#5a2a3f);color:#fff;text-decoration:none;box-shadow:0 12px 26px -12px rgba(36,21,54,.8);border:1px solid rgba(255,255,255,.12);">
+      <span style="width:12px;height:12px;border-radius:50%;background:#ff2d3d;box-shadow:0 0 12px #ff2d3d;flex:none;"></span>
+      <span style="display:block;"><b style="display:block;font-family:'Sora',sans-serif;font-size:16px;letter-spacing:.06em;">ÉCLAT · le direct de KOMYO</b><span style="font-size:12.5px;opacity:.9;">Bientôt : filme-toi en direct. Touche pour être prévenu(e).</span></span>
+    </a>
+
+    <a href="fil.html?publier=1" class="publish-card" style="display:flex;align-items:center;gap:14px;margin:12px 0;padding:16px 18px;border-radius:18px;background:linear-gradient(135deg,#ff6f4a,#e8a93d);color:#fff;text-decoration:none;box-shadow:0 12px 26px -12px rgba(232,120,60,.7);">
+      <span style="font-size:34px;line-height:1;">🎥</span>
+      <span style="display:block;"><b style="display:block;font-family:'Sora',sans-serif;font-size:16px;">Me filmer et publier une vidéo</b><span style="font-size:12.5px;opacity:.95;">Ouvre la caméra, filme-toi, puis publie sur KOMYO.</span></span>
+    </a>
+
+    <div class="card" style="margin:12px 0;">
+      <div class="quick-title">Les espaces KOMYO</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
+        <a href="fil.html?espace=talents" style="text-decoration:none;color:inherit;border:1.5px solid #eee2cc;border-radius:14px;padding:12px;background:#fffaf0;"><b style="display:block;font-family:'Sora',sans-serif;">⭐ Talents</b><span style="font-size:12px;opacity:.8;">Montre ce que tu sais faire</span></a>
+        <a href="fil.html?espace=business" style="text-decoration:none;color:inherit;border:1.5px solid #eee2cc;border-radius:14px;padding:12px;background:#fffaf0;"><b style="display:block;font-family:'Sora',sans-serif;">🛍️ Business</b><span style="font-size:12px;opacity:.8;">Présente ton activité</span></a>
+        <a href="fil.html?espace=musique" style="text-decoration:none;color:inherit;border:1.5px solid #eee2cc;border-radius:14px;padding:12px;background:#fffaf0;"><b style="display:block;font-family:'Sora',sans-serif;">🎵 Musique</b><span style="font-size:12px;opacity:.8;">Artistes, DJ, nouveautés</span></a>
+        <a href="fil.html?espace=decouverte" style="text-decoration:none;color:inherit;border:1.5px solid #eee2cc;border-radius:14px;padding:12px;background:#fffaf0;"><b style="display:block;font-family:'Sora',sans-serif;">🌍 Découverte</b><span style="font-size:12px;opacity:.8;">Ton pays, ta culture</span></a>
+        <a href="pioupiou.html" style="text-decoration:none;color:inherit;border:1.5px solid #eee2cc;border-radius:14px;padding:12px;background:#fffaf0;"><b style="display:block;font-family:'Sora',sans-serif;">🐥 PIOUPIOU</b><span style="font-size:12px;opacity:.8;">Vidéos pour les enfants</span></a>
+      </div>
     </div>
 
     <a href="fil.html" class="feed-card" style="display:block;">
-      <img src="https://images.unsplash.com/photo-1600682806492-b2a020079ae0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="">
+      <img src="https://images.unsplash.com/photo-1600682806492-b2a020079ae0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=72&w=720" alt="">
       <div class="feed-overlay">
         <span class="pill">Nouveau</span>
         <h3>Découvrir le fil</h3>
@@ -151,10 +254,27 @@
       </div>
     </div>
 
+    <div class="card" id="inviter">
+      <div class="quick-title">Fais grandir KOMYO avec tes amis</div>
+      <p style="margin:6px 0 12px;font-size:14px;line-height:1.4;">Plus il y a de monde, plus tes vidéos sont vues. Invite tes amis, ta famille, tes clients.</p>
+      <div style="display:grid;gap:8px;">
+        <a id="invWa" target="_blank" rel="noopener" style="display:block;text-align:center;padding:12px;border-radius:14px;background:#25D366;color:#fff;font-weight:700;text-decoration:none;">Inviter sur WhatsApp</a>
+        <a href="tarifs.html" style="display:block;text-align:center;padding:12px;border-radius:14px;background:#fff;border:1.5px solid var(--line);color:inherit;font-weight:700;text-decoration:none;">Voir les tarifs KOMYO</a>
+      </div>
+      <script>document.getElementById('invWa').href='https://wa.me/?text='+encodeURIComponent('Je suis sur KOMYO : vidéos, talents, business et amis, partout dans le monde. Rejoins-moi : '+location.origin+'/starvibe/');</script>
+    </div>
+
+    <div class="card" id="aide">
+      <div class="quick-title">Besoin d'aide ?</div>
+      <p style="margin:6px 0 12px;font-size:14px;line-height:1.4;">Une question ? Écris-nous : <a href="mailto:contact@starentreprise.com" style="font-weight:700;color:inherit;">contact@starentreprise.com</a>.</p>
+      <a href="fil.html?guide=1" style="display:inline-block;font-weight:700;font-size:14px;text-decoration:underline;color:inherit;">▶ Revoir le guide de démarrage</a>
+    </div>
+
   </div>
 </div>
 
 <footer>
+  <div class="credit"><a href="installer.html" style="text-decoration:underline">📱 Installer l'application KOMYO</a></div>
   <div class="credit"><b>STAR ENTREPRISE</b> — Tous droits réservés.</div>
 </footer>
 
@@ -223,6 +343,7 @@
 
   // ---- Photo de profil : réduite à 320 × 320 px sur le téléphone avant
   //      l'envoi (rapide même en 3G), puis affichée dans la bulle KOMYO. ----
+  var monProfil = null, maVille = '';
   var photoInput = document.getElementById('photoInput');
   var photoMsg = document.getElementById('photoMsg');
   var photoCible = null;
@@ -298,6 +419,8 @@
         return;
       }
       var profiles = result.data.profiles || [];
+      monProfil = profiles.filter(function(p){ return p.type_profil !== 'enfant'; })[0] || profiles[0] || null;
+      maVille = (result.data.account && result.data.account.ville) || '';
       greetName.textContent = profiles.length ? profiles[0].nom : result.data.account.telephone;
       renderProfiles(profiles);
       loadingState.hidden = true;
@@ -307,6 +430,40 @@
       showLoggedOut();
     });
 
+  // ---- Modifier mon profil : prénom et nom, ville, photo ----
+  var dlg = document.getElementById('profilDlg'), pfErr = document.getElementById('pfErr');
+  function pfMsg(t){ pfErr.textContent = t || ''; pfErr.hidden = !t; }
+  document.getElementById('btnEditProfil').addEventListener('click', function(){
+    if (!monProfil) return;
+    document.getElementById('pfNom').value = monProfil.nom || '';
+    document.getElementById('pfVille').value = maVille;
+    pfMsg(''); if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
+  });
+  document.getElementById('pfCancel').addEventListener('click', function(){ dlg.close(); });
+  document.getElementById('pfPhoto').addEventListener('click', function(){
+    if (!monProfil) return;
+    var chip = profileList.querySelector('.profile-chip.perso');
+    dlg.close(); if (chip) choisirPhoto(monProfil.id, chip);
+  });
+  document.getElementById('profilForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var nom = document.getElementById('pfNom').value.trim(), ville = document.getElementById('pfVille').value.trim();
+    if (nom.length < 2){ pfMsg('Écris ton prénom et ton nom.'); return; }
+    var b = document.getElementById('pfSave'); b.disabled = true; pfMsg('');
+    fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ action: 'update-profil', profileId: monProfil.id, nom: nom, ville: ville }) })
+      .then(function(res){ return res.json().then(function(d){ return { ok: res.ok, d: d }; }); })
+      .then(function(r){
+        b.disabled = false;
+        if (!r.ok){ pfMsg(r.d.error || 'Enregistrement impossible.'); return; }
+        monProfil.nom = r.d.profile.nom; maVille = ville;
+        greetName.textContent = monProfil.nom;
+        var n = profileList.querySelector('.profile-chip.perso .name'); if (n) n.textContent = monProfil.nom;
+        dlg.close(); message('Profil enregistré.');
+      })
+      .catch(function(){ b.disabled = false; pfMsg('Impossible de contacter le serveur. Réessaie.'); });
+  });
+
   btnLogout.addEventListener('click', function(){
     localStorage.removeItem('starvibe_token');
     window.location.href = 'index.html';
@@ -314,5 +471,16 @@
 })();
 </script>
 <script src="assets/bulle-komyo.js" defer></script>
+<script src="assets/myo-v1.js" defer></script>
+<script src="assets/rappel-v1.js" defer></script>
+<script src="assets/pub-v1.js" defer></script>
+<script src="assets/keydou-bulle-v1.js" defer></script>
+<script src="assets/keydou-vignette-v1.js" defer></script>
+<script src="assets/komyo-installer-v5.js" defer></script>
+<script>
+(function(){ var t=''; try{ t=localStorage.getItem('starvibe_token')||''; }catch(e){} if(!t) return;
+  fetch('/api/starvibe-messages',{headers:{'Authorization':'Bearer '+t}}).then(function(r){return r.ok?r.json():null;}).then(function(d){
+    var el=document.querySelector('[data-msg-count]'); if(el&&d&&d.nonLus>0){ el.textContent=d.nonLus>99?'99+':d.nonLus; el.hidden=false; } }).catch(function(){}); })();
+</script>
 </body>
 </html>

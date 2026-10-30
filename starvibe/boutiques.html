@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="assets/i18n-v1.js"></script>
+<title>KOMYO — Boutiques</title>
+<meta name="theme-color" content="#FFFBF3">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+<link rel="stylesheet" href="assets/komyo-boutique-v1.css">
+<link rel="manifest" href="manifest-komyo.json">
+</head>
+<body>
+<div class="topbar"><div class="row"><h1 id="titre">Boutiques KOMYO</h1><a class="back" href="accueil.html">← Mon espace</a></div><p>Des vendeurs KOMYO Business. Tu paies le vendeur directement par Mobile Money, et tu reçois ton reçu dans ta messagerie.</p></div>
+<div class="wrap">
+  <div id="vueListe">
+    <div class="card"><div class="chips" id="filtres"></div></div>
+    <div id="boutiques"></div><div class="state" id="videListe" hidden>Aucune boutique pour le moment.</div>
+  </div>
+  <div id="vueBoutique" hidden>
+    <a class="back" href="boutiques.html" style="display:inline-block;margin:0 0 10px;font-weight:700;text-decoration:none;color:#fff">← Toutes les boutiques</a>
+    <div class="card"><h2 id="bNom" style="margin:0 0 4px"></h2><div class="mut" id="bInfo"></div></div>
+    <div class="card"><div id="articles"></div><button class="btn block" id="btnCommander" style="margin-top:12px" disabled>Commander</button><div class="msg" id="msgCmd"></div></div>
+    <div id="paiement" class="card" hidden></div>
+  </div>
+</div>
+<script>
+(function(){
+  var token = ''; try{ token = localStorage.getItem('starvibe_token') || ''; }catch(e){}
+  var $ = function(i){ return document.getElementById(i); };
+  var params = new URLSearchParams(location.search), idB = params.get('id');
+  function esc(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+  function fc(n){ return Number(n).toLocaleString('fr-FR') + ' FCFA'; }
+  function get(q){ return fetch('/api/starvibe-boutique' + q).then(function(r){ return r.json().then(function(d){ return { ok:r.ok, d:d }; }); }); }
+  function post(b){ return fetch('/api/starvibe-boutique', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body:JSON.stringify(b) }).then(function(r){ return r.json().then(function(d){ return { ok:r.ok, status:r.status, d:d }; }); }); }
+  var filtre = '';
+  function liste(){
+    get('?liste=1' + (filtre ? '&service=' + encodeURIComponent(filtre) : '')).then(function(x){
+      var S = x.d.services || {};
+      $('filtres').innerHTML = '<button class="chip' + (filtre ? '' : ' on') + '" data-k="">Tout</button>' + Object.keys(S).map(function(k){ return '<button class="chip' + (filtre === k ? ' on' : '') + '" data-k="' + k + '">' + esc(S[k]) + '</button>'; }).join('');
+      $('filtres').querySelectorAll('.chip').forEach(function(c){ c.addEventListener('click', function(){ filtre = c.getAttribute('data-k'); liste(); }); });
+      var b = x.d.boutiques || []; $('videListe').hidden = b.length > 0;
+      $('boutiques').innerHTML = b.map(function(z){ return '<a class="card" style="display:block;text-decoration:none" href="boutiques.html?id=' + z.id + '"><div class="row2"><h3 style="margin:0">' + esc(z.nom) + '</h3><span class="pill">' + z.nArticles + ' article(s)</span></div><div class="mut">' + esc(z.ville || '') + ' · ' + (z.services || []).map(function(k){ return esc(S[k] || k); }).join(', ') + '</div>' + (z.description ? '<p class="hint" style="margin:8px 0 0">' + esc(z.description) + '</p>' : '') + '</a>'; }).join('');
+    });
+  }
+  var qtes = {}, articles = [];
+  function majBouton(){ var n = 0, t = 0; articles.forEach(function(a){ var q = qtes[a.id] || 0; n += q; t += q * a.prix; }); var b = $('btnCommander'); b.disabled = n === 0; b.textContent = n ? 'Commander · ' + fc(t) : 'Commander'; }
+  function boutique(){
+    $('vueListe').hidden = true; $('vueBoutique').hidden = false;
+    get('?id=' + encodeURIComponent(idB)).then(function(x){
+      if (!x.ok){ $('vueBoutique').innerHTML = '<div class="state">' + esc(x.d.error || 'Boutique introuvable') + '<br><a href="boutiques.html">Voir les autres boutiques</a></div>'; return; }
+      var b = x.d.boutique; $('titre').textContent = b.nom; $('bNom').textContent = b.nom; $('bInfo').textContent = (b.ville || '') + (b.description ? ' · ' + b.description : '');
+      articles = x.d.articles || [];
+      $('articles').innerHTML = articles.length ? articles.map(function(a){ return '<div class="item row2"><div><b>' + esc(a.titre) + '</b><div class="mut">' + esc(a.description || '') + '</div><div class="prix">' + fc(a.prix) + '</div></div><div><label class="lbl" style="margin:0 0 4px" for="q' + a.id + '">Qté</label><input class="qte" type="number" min="0" max="20" value="0" id="q' + a.id + '" data-a="' + a.id + '"></div></div>'; }).join('') : '<div class="mut">Cette boutique n\'a pas encore d\'article.</div>';
+      $('articles').querySelectorAll('input[data-a]').forEach(function(i){ i.addEventListener('input', function(){ qtes[i.getAttribute('data-a')] = Math.max(0, Math.min(20, parseInt(i.value, 10) || 0)); majBouton(); }); });
+    });
+  }
+  $('btnCommander').addEventListener('click', function(){
+    var m = $('msgCmd'); m.className = 'msg'; m.textContent = '';
+    if (!token){ m.className = 'msg err'; m.innerHTML = 'Connecte-toi pour commander : <a href="inscription.html?mode=login">Se connecter / Créer un compte</a>'; return; }
+    var lignes = articles.filter(function(a){ return qtes[a.id] > 0; }).map(function(a){ return { articleId:a.id, qte:qtes[a.id] }; });
+    $('btnCommander').disabled = true;
+    post({ action:'commander', boutiqueId:Number(idB), lignes:lignes }).then(function(x){
+      if (!x.ok){ m.className = 'msg err'; m.textContent = x.d.error || 'Commande impossible.'; majBouton(); return; }
+      var d = x.d; var p = $('paiement'); p.hidden = false;
+      p.innerHTML = '<h2>Ta commande ' + esc(d.reference) + ' · ' + fc(d.total) + '</h2><div class="box">Paie <b>' + esc(d.boutique) + '</b> par Mobile Money au numéro <b>' + esc(d.numeroPaiement) + '</b>, avec la référence <b>' + esc(d.reference) + '</b>, puis touche le bouton ci-dessous. Ne donne jamais ton code PIN.</div><button class="btn block" id="btnPaye">J\'ai payé</button><div class="msg" id="msgPaye"></div>';
+      $('btnCommander').hidden = true; p.scrollIntoView({ behavior:'smooth' });
+      $('btnPaye').addEventListener('click', function(){ $('btnPaye').disabled = true; post({ action:'declarer_paye', commandeId:d.id }).then(function(y){ var mp = $('msgPaye'); if (y.ok){ mp.className = 'msg ok'; mp.innerHTML = 'Merci ! Le vendeur vérifie son paiement. <b>Dès qu\'il confirme, ton reçu arrive dans ta messagerie KOMYO.</b> <a href="messages.html">Ouvrir ma messagerie</a>'; } else { mp.className = 'msg err'; mp.textContent = y.d.error || 'Erreur'; } }); });
+    });
+  });
+  if (idB) boutique(); else liste();
+})();
+</script>
+</body>
+</html>

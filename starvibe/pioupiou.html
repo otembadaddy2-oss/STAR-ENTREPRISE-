@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="assets/i18n-v1.js"></script>
 <title>PIOUPIOU — Vidéos pour enfants</title>
 <meta name="theme-color" content="#0f4a37">
 <link rel="icon" href="../assets/img/icons/favicon-star-rounded-v1.png" type="image/png">
@@ -26,7 +27,7 @@
   .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;}
   .badge{display:inline-flex;align-items:center;animation:floaty 3s ease-in-out infinite;
     filter:drop-shadow(0 8px 14px rgba(0,0,0,.35));}
-  .badge img{height:34px;width:auto;display:block;}
+  .badge img{height:70px;width:auto;display:block;}
   .back{color:#fff;font-size:12.5px;font-weight:700;border:1.5px solid rgba(255,255,255,.4);padding:7px 14px;border-radius:20px;
     text-decoration:none;background:rgba(255,255,255,.1);transition:background .2s ease, transform .2s ease;}
   .back:hover{background:rgba(255,255,255,.24);transform:translateY(-1px);}
@@ -58,32 +59,109 @@
   .state h2{font-size:18px;margin:0 0 8px;}
   .state p{font-size:13px;color:rgba(255,255,255,.7);line-height:1.6;max-width:280px;}
   .state a{color:var(--kids-light);font-weight:700;}
+  .avenir{width:100%;max-width:360px;margin-top:18px;text-align:left;}
+  .avenir h3{font-family:'Sora',Arial,sans-serif;font-size:14px;margin:0 0 10px;text-align:center;color:var(--kids-light);}
+  .avenir details{background:rgba(255,255,255,.13);border:1.5px solid rgba(255,255,255,.22);border-radius:16px;margin-bottom:10px;overflow:hidden;}
+  .avenir summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:13px 14px;font-weight:700;font-size:14px;}
+  .avenir summary::-webkit-details-marker{display:none;}
+  .avenir summary .n{margin-left:auto;font-size:11.5px;font-weight:600;color:rgba(255,255,255,.75);}
+  .avenir summary::after{content:"+";font-weight:800;font-size:18px;line-height:1;margin-left:6px;}
+  .avenir details[open] summary::after{content:"–";}
+  .avenir ul{list-style:none;margin:0;padding:0 14px 12px;}
+  .avenir li{display:flex;gap:10px;justify-content:space-between;align-items:baseline;padding:8px 0;border-top:1px solid rgba(255,255,255,.14);font-size:13px;line-height:1.4;}
+  .avenir li small{color:rgba(255,255,255,.72);white-space:nowrap;}
+  .avenir li .bientot{display:block;font-size:11px;color:#ffe08a;font-weight:700;}
+  .lock{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:24px;
+    background:linear-gradient(160deg,rgba(15,74,55,.92),rgba(30,152,102,.9));z-index:3;}
+  .lock.show{display:flex;}
+  .lock .cadenas{font-size:44px;}
+  .lock h3{margin:0;font-family:'Sora',sans-serif;font-size:17px;}
+  .lock p{margin:0;font-size:12.5px;color:rgba(255,255,255,.85);line-height:1.5;}
+  .lock a{margin-top:6px;background:linear-gradient(135deg,var(--sun),#ff8f3d);color:#5c3200;font-family:'Sora',sans-serif;font-weight:800;
+    font-size:13.5px;padding:12px 20px;border-radius:16px;text-decoration:none;}
+  .premium-tag{position:absolute;top:10px;left:10px;z-index:2;background:linear-gradient(135deg,var(--sun),#ff8f3d);color:#5c3200;
+    font-family:'Sora',sans-serif;font-weight:800;font-size:11px;padding:4px 10px;border-radius:12px;}
+
+  .affiche{position:absolute;inset:0;z-index:3;display:none;background:#241536 center/cover no-repeat;}
+  .affiche.show{display:block;}
+  .affiche .fallback{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:26px;text-align:center;
+    background:linear-gradient(160deg,#3b2a6b,#7a3fa0 55%,#ff8f3d);color:#fff;}
+  .affiche .fallback .gros{font-size:64px;} .affiche .fallback b{font-family:'Sora',sans-serif;font-size:20px;line-height:1.25;}
+  .etiquette{position:absolute;left:0;right:0;bottom:0;z-index:4;text-align:center;font-family:'Sora',sans-serif;font-weight:800;letter-spacing:3px;padding:14px 10px 16px;color:#fff;}
+  .etiquette small{display:block;font-weight:600;letter-spacing:.3px;font-size:12px;margin-top:4px;opacity:.95;}
+  .etiquette.ferme{background:linear-gradient(0deg,rgba(0,0,0,.88),rgba(0,0,0,.55) 70%,transparent);font-size:26px;color:#ff6a6a;}
+  .etiquette.ferme a{display:inline-block;margin-top:8px;background:linear-gradient(135deg,var(--sun),#ff8f3d);color:#5c3200;font-size:13px;letter-spacing:0;padding:10px 18px;border-radius:14px;text-decoration:none;}
+  .etiquette.ouvert{position:absolute;top:10px;right:10px;left:auto;bottom:auto;padding:6px 14px;border-radius:14px;font-size:14px;letter-spacing:2px;color:#eafff2;background:rgba(10,60,34,.85);
+    text-shadow:0 0 6px #2dff8a,0 0 14px #2dff8a,0 0 26px #14d96a;box-shadow:0 0 14px #2dff8a99,inset 0 0 10px #2dff8a55;border:1.5px solid #5dffa6;animation:brille 1.8s ease-in-out infinite;}
+  @keyframes brille{0%,100%{box-shadow:0 0 8px #2dff8a77,inset 0 0 6px #2dff8a44;}50%{box-shadow:0 0 22px #2dff8acc,inset 0 0 14px #2dff8a77;}}
+  @media (prefers-reduced-motion:reduce){.etiquette.ouvert{animation:none;}}
+
+  /* Plein écran : le parent agrandit la vidéo (touche Échap, bouton ✕ ou geste retour pour revenir). */
+  .btn-fs{position:absolute;right:10px;bottom:10px;z-index:5;width:44px;height:44px;border-radius:14px;border:0;background:rgba(0,0,0,.55);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .btn-fs svg{width:22px;height:22px;} .btn-fs:focus-visible{outline:3px solid #fff;outline-offset:2px;}
+  .btn-fs[hidden]{display:none;}
+  .btn-fs .ico-out{display:none;}
+  .player.fs,.player:fullscreen{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;max-width:none;aspect-ratio:auto;border-radius:0;z-index:9999;background:#000;}
+  .player.fs video,.player:fullscreen video{object-fit:contain;background:#000;}
+  .player.fs .btn-fs .ico-in,.player:fullscreen .btn-fs .ico-in{display:none;}
+  .player.fs .btn-fs .ico-out,.player:fullscreen .btn-fs .ico-out{display:block;}
+  .player.fs .btn-fs,.player:fullscreen .btn-fs{top:calc(10px + env(safe-area-inset-top,0px));bottom:auto;right:calc(10px + env(safe-area-inset-right,0px));}
+  .player.fs .premium-tag,.player:fullscreen .premium-tag{top:calc(10px + env(safe-area-inset-top,0px));}
+  body.fs-ouvert{overflow:hidden;}
+
+  .btn-son{position:absolute;left:10px;bottom:10px;z-index:5;border:0;border-radius:14px;background:rgba(0,0,0,.6);color:#fff;font-family:'Sora',sans-serif;font-weight:700;font-size:12px;padding:10px 12px;cursor:pointer;display:flex;gap:8px;align-items:center;max-width:70%;text-align:left;line-height:1.3;}
+  .btn-son svg{width:20px;height:20px;flex:none;} .btn-son[hidden]{display:none;} .btn-son:focus-visible{outline:3px solid #fff;outline-offset:2px;}
+  .btn-son.on{background:rgba(10,60,34,.75);}
+  .player.fs .btn-son,.player:fullscreen .btn-son{bottom:calc(14px + env(safe-area-inset-bottom,0px));left:calc(10px + env(safe-area-inset-left,0px));}
+
+  #gateDlg{border:0;border-radius:20px;padding:22px;max-width:360px;width:calc(100% - 32px);text-align:center;box-shadow:0 24px 60px -20px rgba(0,0,0,.5);}
+  #gateDlg::backdrop{background:rgba(15,40,30,.7);} #gateDlg h3{margin:0 0 6px;font-size:18px;} #gateDlg p{margin:0 0 12px;font-size:13px;line-height:1.5;color:#4a4a4a;}
+  #gateDlg input{width:100%;padding:12px;border:1.5px solid #ddd;border-radius:12px;font:inherit;font-size:20px;text-align:center;} #gateDlg .err{color:#b3261e;font-size:13px;min-height:18px;margin-top:6px;}
+  #gateDlg .row{display:flex;gap:10px;margin-top:12px;} #gateDlg button{flex:1;padding:12px;border-radius:12px;border:0;font:inherit;font-weight:800;cursor:pointer;background:#1f8f4a;color:#fff;} #gateDlg button.sec{background:#fff;color:#333;border:1.5px solid #ddd;}
 </style>
+<link rel="stylesheet" href="assets/komyo-bureau-v2.css" media="(min-width:1000px)">
 </head>
-<body>
+<body class="pg-pioupiou">
 
 <div class="topbar">
-  <span class="badge"><img src="assets/img/pioupiou-wordmark.jpg" alt="PIOUPIOU" style="border-radius:8px;"></span>
+  <span class="badge"><img src="assets/img/pioupiou-logo-slogan-v2.webp" alt="PIOUPIOU — Le bonheur dans chaque croquant !"></span>
   <a class="back" href="accueil.html">← Retour</a>
 </div>
 
 <div id="loadingState" class="state"><div class="emoji">🐥</div><p>Chargement...</p></div>
-<div id="loggedOutState" class="state" hidden><div class="emoji">🔒</div><p>Connecte-toi d'abord.<br><a href="inscription.html">Se connecter</a></p></div>
+<div id="loggedOutState" class="state" hidden><div class="emoji">🔒</div><p>Connecte-toi d'abord.<br><a href="inscription.html?mode=login">Se connecter</a></p></div>
 <div id="emptyState" class="state" hidden>
   <div class="emoji">🌟</div>
   <h2>Bientôt de nouvelles vidéos !</h2>
-  <p>Nos petites histoires sont en cours de préparation. Reviens bientôt sur PIOUPIOU.</p>
+  <p>Nos petites histoires sont en cours de préparation. Voici ce qui t'attend 👇</p>
+  <div class="avenir" data-avenir></div>
 </div>
 <div id="doneState" class="state" hidden>
   <div class="emoji">🎉</div>
   <h2>Bravo, tu as tout regardé !</h2>
   <p>De nouvelles vidéos arrivent bientôt.</p>
+  <div class="avenir" data-avenir></div>
 </div>
 
 <div id="stageWrap" class="stage" hidden>
   <div class="player">
     <video id="videoEl" loop muted playsinline preload="metadata"></video>
     <div class="tapzone" id="tapZone"></div>
+    <span class="premium-tag" id="premiumTag" hidden>⭐ Famille</span>
+    <div class="affiche" id="afficheEl"><div class="fallback"><div class="gros">🎬</div><b id="afficheTitre"></b></div></div>
+    <div class="etiquette ferme" id="etqFerme" hidden>FERMÉ<small id="etqRaison"></small><a href="abonnement.html" id="etqLien" hidden>Ouvrir avec l'abonnement Famille</a></div>
+    <div class="etiquette ouvert" id="etqOuvert" hidden>OUVERT</div>
+    <div class="lock" id="lockEl">
+      <div class="cadenas">🔒</div>
+      <h3>Dessin animé réservé aux abonnés Famille</h3>
+      <p>Abonne-toi pour 1 500 FCFA par mois et regarde tous les dessins animés PIOUPIOU.</p>
+      <a href="abonnement.html">Découvrir l'abonnement Famille</a>
+    </div>
+    <button type="button" class="btn-son" id="btnSon" hidden></button>
+    <button type="button" class="btn-fs" id="btnFs" aria-label="Agrandir la vidéo en plein écran" hidden>
+      <svg class="ico-in" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+      <svg class="ico-out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
     <div class="mute-hint" id="muteHint"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M19 9a5 5 0 0 1 0 6M22 6a9 9 0 0 1 0 12"/></svg></div>
   </div>
   <div class="caption-box">
@@ -95,6 +173,16 @@
   </div>
 </div>
 
+<dialog id="gateDlg" aria-labelledby="gateTitre">
+  <form method="dialog" id="gateForm">
+    <h3 id="gateTitre">Réservé aux parents</h3>
+    <p>Pour t'abonner, résous ce petit calcul. C'est une sécurité pour que les enfants ne puissent pas acheter seuls.</p>
+    <p><b id="gateQ" style="font-size:22px"></b></p>
+    <input id="gateR" inputmode="numeric" autocomplete="off" aria-label="Réponse au calcul">
+    <div class="err" id="gateErr" role="alert"></div>
+    <div class="row"><button type="button" class="sec" id="gateNon">Annuler</button><button type="submit">Valider</button></div>
+  </form>
+</dialog>
 <script>
 (function(){
   var API_VIDEOS = '/api/starvibe-videos?espace=pioupiou';
@@ -112,8 +200,28 @@
   var auteurEl = document.getElementById('auteurEl');
   var legendeEl = document.getElementById('legendeEl');
   var btnNext = document.getElementById('btnNext');
+  var lockEl = document.getElementById('lockEl');
+  var premiumTag = document.getElementById('premiumTag');
 
-  function show(el){ [loadingState, loggedOutState, emptyState, doneState, stageWrap].forEach(function(e){ e.hidden = (e !== el); }); }
+  // La liste des petites histoires à venir (39 épisodes), affichée tant qu'il n'y a pas (ou plus) de vidéo à regarder.
+  function esc(t){ return String(t).replace(/[&<>"]/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  var aVenirHtml = null;
+  function remplirAVenir(){
+    var hotes = document.querySelectorAll('[data-avenir]');
+    if (aVenirHtml !== null){ Array.prototype.forEach.call(hotes, function(h){ h.innerHTML = aVenirHtml; }); return; }
+    fetch('/starvibe/assets/pioupiou-episodes-v1.json').then(function(r){ return r.json(); }).then(function(d){
+      var total = d.familles.reduce(function(n, f){ return n + f.episodes.length; }, 0);
+      var h = '<h3>' + total + ' petites histoires arrivent</h3>';
+      d.familles.forEach(function(f){
+        h += '<details><summary><span>' + f.emoji + '</span> ' + esc(f.nom) + '<span class="n">' + f.episodes.length + ' épisodes</span></summary><ul>';
+        f.episodes.forEach(function(e){ h += '<li><span>' + esc(e.titre) + '<span class="bientot">Bientôt</span></span><small>' + esc(e.duree) + '</small></li>'; });
+        h += '</ul></details>';
+      });
+      aVenirHtml = h; Array.prototype.forEach.call(hotes, function(x){ x.innerHTML = h; });
+    }).catch(function(){});
+  }
+
+  function show(el){ if (el === emptyState || el === doneState) remplirAVenir(); [loadingState, loggedOutState, emptyState, doneState, stageWrap].forEach(function(e){ e.hidden = (e !== el); }); }
 
   if (!token){ show(loggedOutState); return; }
 
@@ -128,11 +236,113 @@
 
   function replay(el){ el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; }
 
+  // La date d'ouverture arrive pendant que la page est ouverte : on recharge pour que la vidéo s'ouvre toute seule.
+  var minuteurOuverture = null;
+  function programmerOuverture(quand){
+    clearTimeout(minuteurOuverture);
+    var d = quand - Date.now() + 1500;
+    if (d > 0 && d < 2147000000) minuteurOuverture = setTimeout(function(){ location.reload(); }, d);
+  }
+
+  // ---------- Plein écran (le parent agrandit l'image) ----------
+  var playerEl = document.querySelector('.player'), btnFs = document.getElementById('btnFs');
+  function enPleinEcran(){ return document.fullscreenElement === playerEl || document.webkitFullscreenElement === playerEl || playerEl.classList.contains('fs'); }
+  function majBoutonFs(){
+    var on = enPleinEcran();
+    btnFs.setAttribute('aria-label', on ? 'Quitter le plein écran' : 'Agrandir la vidéo en plein écran');
+    document.body.classList.toggle('fs-ouvert', on);
+  }
+  function quitterFs(){
+    if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(function(){});
+    else if (document.webkitFullscreenElement && document.webkitExitFullscreen) document.webkitExitFullscreen();
+    playerEl.classList.remove('fs'); majBoutonFs();
+  }
+  function entrerFs(){
+    var req = playerEl.requestFullscreen || playerEl.webkitRequestFullscreen;
+    if (req){
+      try {
+        var r = req.call(playerEl);
+        if (r && r.catch) r.catch(function(){ playerEl.classList.add('fs'); majBoutonFs(); });   // refus du navigateur : plein écran « maison »
+      } catch (e) { playerEl.classList.add('fs'); }
+    } else {
+      playerEl.classList.add('fs');   // iPhone : pas de plein écran d'élément → même effet avec toute la fenêtre
+    }
+    try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (e) {}   // l'écran peut pivoter en paysage
+    majBoutonFs();
+  }
+  btnFs.addEventListener('click', function(e){ e.stopPropagation(); enPleinEcran() ? quitterFs() : entrerFs(); });
+  document.addEventListener('fullscreenchange', majBoutonFs);
+  document.addEventListener('webkitfullscreenchange', majBoutonFs);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && playerEl.classList.contains('fs')) quitterFs(); });
+
+  // ---------- Son : la vidéo démarre avec le son dès que le parent a touché l'écran ; le volume se règle avec les boutons du téléphone ----------
+  var btnSon = document.getElementById('btnSon'), sonActif = false;
+  var ICO_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M22 9l-6 6M16 9l6 6"/></svg>';
+  var ICO_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>';
+  function majSon(){
+    btnSon.className = 'btn-son' + (sonActif ? ' on' : '');
+    btnSon.innerHTML = sonActif ? ICO_ON + '<span>Son activé · volume avec les boutons du téléphone</span>' : ICO_OFF + '<span>Son coupé · touche ici pour entendre</span>';
+    btnSon.setAttribute('aria-label', sonActif ? 'Couper le son' : 'Activer le son');
+  }
+  function activerSon(oui){
+    sonActif = oui; videoEl.muted = !oui;
+    if (oui){ videoEl.volume = 1; var p = videoEl.play(); if (p && p.catch) p.catch(function(){ sonActif = false; videoEl.muted = true; videoEl.play().catch(function(){}); majSon(); }); }
+    majSon();
+  }
+  btnSon.addEventListener('click', function(e){ e.stopPropagation(); activerSon(!sonActif); });
+  // Le premier geste du parent (toucher la page, « Vidéo suivante », plein écran) active le son pour toute la séance.
+  document.addEventListener('pointerdown', function premier(e){
+    if (btnSon.contains(e.target) || tapZone.contains(e.target)) { document.removeEventListener('pointerdown', premier); return; }   // ces deux zones gèrent elles-mêmes le son
+    if (!sonActif && !btnSon.hidden) activerSon(true);
+    document.removeEventListener('pointerdown', premier);
+  });
+
+  // ---------- Passage réservé aux parents : un calcul d'adulte avant d'aller vers l'abonnement ----------
+  var gate = document.getElementById('gateDlg'), gateRep = 0;
+  function ouvrirPorte(){
+    var a = 12 + Math.floor(Math.random() * 17), b = 6 + Math.floor(Math.random() * 9);   // ex. 17 + 8
+    gateRep = a + b; document.getElementById('gateQ').textContent = a + ' + ' + b + ' = ?';
+    document.getElementById('gateR').value = ''; document.getElementById('gateErr').textContent = '';
+    if (gate.showModal) gate.showModal(); else gate.setAttribute('open', '');
+    setTimeout(function(){ document.getElementById('gateR').focus(); }, 50);
+  }
+  document.addEventListener('click', function(e){
+    var a = e.target.closest && e.target.closest('a[href="abonnement.html"]');
+    if (a && a.closest('.player')){ e.preventDefault(); ouvrirPorte(); }
+  });
+  document.getElementById('gateNon').addEventListener('click', function(){ gate.close(); });
+  document.getElementById('gateForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    if (parseInt(document.getElementById('gateR').value, 10) === gateRep){ location.href = 'abonnement.html'; }
+    else { document.getElementById('gateErr').textContent = 'Ce n\'est pas la bonne réponse. Demande à un parent.'; document.getElementById('gateR').value = ''; }
+  });
+
   function playCurrent(){
     if (index >= videos.length){ show(doneState); return; }
     var v = videos[index];
-    videoEl.src = v.videoUrl;
-    videoEl.play().catch(function(){});
+    premiumTag.hidden = !v.premium;
+    lockEl.classList.remove('show');   // l'ancien écran « cadenas » est remplacé par l'affiche + FERMÉ
+    var aff = document.getElementById('afficheEl'), etqF = document.getElementById('etqFerme'), etqO = document.getElementById('etqOuvert');
+    aff.classList.toggle('show', !!v.verrouille); etqF.hidden = !v.verrouille; etqO.hidden = !(v.premium && !v.verrouille);
+    if (v.verrouille){
+      aff.style.backgroundImage = v.afficheUrl ? 'url("' + v.afficheUrl + '")' : '';
+      aff.querySelector('.fallback').style.display = v.afficheUrl ? 'none' : 'flex';
+      document.getElementById('afficheTitre').textContent = v.legende || 'Dessin animé PIOUPIOU';
+      var quand = v.disponibleLe ? new Date(v.disponibleLe).toLocaleString('fr-FR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) : '';
+      document.getElementById('etqRaison').textContent = v.raisonFermee === 'date' ? 'S\'ouvre automatiquement le ' + quand : 'Abonnement Famille requis (1 500 FCFA par mois)';
+      document.getElementById('etqLien').hidden = v.raisonFermee === 'date';
+      if (v.raisonFermee === 'date' && v.disponibleLe) programmerOuverture(new Date(v.disponibleLe).getTime());
+    }
+    btnFs.hidden = !!(v.verrouille || !v.videoUrl);
+    btnSon.hidden = !!(v.verrouille || !v.videoUrl); majSon();
+    if (v.verrouille && enPleinEcran()) quitterFs();   // une vidéo fermée ne s'agrandit pas
+    if (v.verrouille || !v.videoUrl){
+      videoEl.pause(); videoEl.removeAttribute('src'); videoEl.load();
+    } else {
+      videoEl.src = v.videoUrl;
+      videoEl.muted = !sonActif;
+      videoEl.play().catch(function(){ if (sonActif){ sonActif = false; videoEl.muted = true; majSon(); videoEl.play().catch(function(){}); } });
+    }
     auteurEl.textContent = '@' + v.auteur;
     legendeEl.textContent = v.legende || '';
     show(stageWrap);
@@ -146,7 +356,7 @@
   });
 
   tapZone.addEventListener('click', function(){
-    videoEl.muted = !videoEl.muted;
+    activerSon(!sonActif);
     muteHint.classList.add('show');
     setTimeout(function(){ muteHint.classList.remove('show'); }, 500);
   });
@@ -165,5 +375,6 @@
     .catch(function(){ show(loggedOutState); });
 })();
 </script>
+<script src="assets/komyo-prix-v2.js" defer></script>
 </body>
 </html>

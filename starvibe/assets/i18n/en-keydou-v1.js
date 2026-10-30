@@ -1,0 +1,176 @@
+/* KOMYO — dictionnaire anglais : Keydou, l'assistant multiservices (page, phrases, résultats, SOS). */
+I18N.add({
+  "KOMYO — Keydou, assistant multiservices": "KOMYO — Keydou, multi-service assistant",
+  "Keydou arrive…": "Keydou is coming…",
+  "Agent et assistant multiservices — STAR ENTREPRISE": "Agent and multi-service assistant — STAR ENTREPRISE",
+  "Touchez l'écran pour que je vous dise bonjour !": "Tap the screen so I can say hello!",
+  "KEYDOU · AGENT ET ASSISTANT MULTISERVICES": "KEYDOU · AGENT AND MULTI-SERVICE ASSISTANT",
+  "Que puis-je faire pour vous ?": "How can I help you?",
+  "Appuyez et parlez": "Press and speak",
+  "Gardez le doigt appuyé pendant que vous parlez, puis lâchez. Ex. : « je cherche un hôtel à Pointe-Noire ».": "Keep your finger pressed while you speak, then let go. E.g. “I'm looking for a hotel in Pointe-Noire”.",
+  "Appuyer et parler à Keydou": "Press and speak to Keydou",
+  "ou écrivez votre besoin ici": "or type what you need here",
+  "Envoyer": "Send",
+  "Dans quelle ville ?": "Which city?",
+  "… ou cochez directement votre besoin dans l'inscription ci-dessous": "… or tick your need directly in the form below",
+  "Mon inscription Keydou": "My Keydou registration",
+  "🆘 SOS gratuit": "🆘 Free SOS",
+  "Écrivez vos coordonnées, cochez votre besoin, validez le paiement de 1 000 FCFA : Keydou se lève, vous dit merci et vous donne la réponse.": "Enter your details, tick your need and confirm the payment of 1,000 FCFA: Keydou stands up, says thank you and gives you the answer.",
+  "Nom et prénom": "Full name",
+  "Numéro de téléphone": "Phone number",
+  "ex. Carry Otemba": "e.g. Carry Otemba",
+  "ex. 06 123 45 67": "e.g. 06 123 45 67",
+  "Ville": "City",
+  "Cochez votre besoin (jusqu'à 3)": "Tick your need (up to 3)",
+  "Formule Assistance": "Assistance plan",
+  "1 000 FCFA": "1,000 FCFA",
+  "une seule fois pour vos besoins cochés": "one time only for your ticked needs",
+  "Valider et payer 1 000 FCFA": "Confirm and pay 1,000 FCFA",
+  "Keydou ne donne la réponse qu'après réception de votre paiement. Les frais d'assistance sont distincts du prix de l'hôtel, du restaurant ou de toute autre prestation. Les numéros viennent d'annuaires publics : confirmez-les par appel avant de vous déplacer. Vos échanges avec Keydou sont enregistrés par STAR ENTREPRISE pour traiter votre demande.": "Keydou only gives the answer once your payment has been received. The assistance fee is separate from the price of the hotel, restaurant or any other service. The numbers come from public directories: confirm them by phone before travelling. Your exchanges with Keydou are recorded by STAR ENTREPRISE to process your request.",
+  "STAR ENTREPRISE — un seul groupe, toutes les solutions pour votre vie.": "STAR ENTREPRISE — one group, every solution for your life.",
+  "Keydou, la mascotte-assistant de STAR ENTREPRISE": "Keydou, the mascot-assistant of STAR ENTREPRISE",
+  "← KOMYO": "← KOMYO",
+  /* villes */
+  "Autres villes et routes (RN1, RN2)": "Other towns and roads (RN1, RN2)",
+  "Autres": "Other",
+  /* groupes et besoins */
+  "Se loger et se restaurer": "Stay and eat",
+  "Beauté et forme": "Beauty and fitness",
+  "Se déplacer": "Getting around",
+  "Événements et affaires": "Events and business",
+  "Argent et courses": "Money and shopping",
+  "Un hôtel ou une résidence": "A hotel or residence",
+  "Une table au restaurant": "A table at a restaurant",
+  "Une boulangerie ou une pâtisserie": "A bakery or pastry shop",
+  "Un rendez-vous dans un café": "A meeting at a café",
+  "Un salon de coiffure ou de beauté": "A hair or beauty salon",
+  "Un salon de spa": "A spa",
+  "Une salle de sport": "A gym",
+  "La location d'un véhicule": "Vehicle rental",
+  "Acheter ou vendre une voiture": "Buy or sell a car",
+  "Un garage, un dépannage ou un remorquage": "A garage, breakdown service or towing",
+  "Une station-service": "A petrol station",
+  "Une agence de voyages ou un billet": "A travel agency or a ticket",
+  "Une salle de mariage ou de réception": "A wedding or reception hall",
+  "Une agence événementielle": "An event agency",
+  "Un bureau ou un espace de coworking": "An office or coworking space",
+  "Une agence de tourisme ou un parc naturel": "A tourism agency or nature park",
+  "Un parc ou des loisirs pour enfants": "A park or leisure activities for children",
+  "Une banque": "A bank",
+  "Un supermarché": "A supermarket",
+  /* phrases de Keydou */
+  "Bonjour, et bienvenue chez KOMYO ! Moi, c'est Keydou, agent chez STAR ENTREPRISE et votre assistant multiservices. Écrivez votre nom et votre numéro, cochez ce dont vous avez besoin, et je m'occupe du reste !": "Hello, and welcome to KOMYO! I'm Keydou, an agent at STAR ENTREPRISE and your multi-service assistant. Write your name and your number, tick what you need, and I'll take care of the rest!",
+  "Merci beaucoup ! Votre paiement est bien reçu. Voici les informations que vous souhaitez. Touchez un numéro pour appeler directement.": "Thank you very much! Your payment has been received. Here is the information you wanted. Tap a number to call directly.",
+  "Dans quelle ville ? Brazzaville, Pointe-Noire, Dolisie, Nkayi, Oyo, Ouesso, ou ailleurs sur la route ?": "Which city? Brazzaville, Pointe-Noire, Dolisie, Nkayi, Oyo, Ouesso, or somewhere else along the road?",
+  "Parfait, j'ai ce qu'il faut ! Pour vous donner la réponse, écrivez votre nom et votre numéro, puis validez le paiement de mille francs. Tant que ce n'est pas payé, je ne peux pas vous la donner.": "Perfect, I have what I need! To give you the answer, write your name and your number, then confirm the payment of one thousand francs. Until it is paid, I can't give it to you.",
+  "Je comprends votre impatience, mais je dois d'abord recevoir votre paiement de mille francs. Dès que c'est fait, je vous donne tout, promis !": "I understand your impatience, but I must first receive your payment of one thousand francs. As soon as it's done, I'll give you everything, I promise!",
+  "Oups ! Désolé, je n'ai pas de réponse à cette question. Si votre besoin est dans la liste, cochez-le, et je vous réponds avec plaisir.": "Oops! Sorry, I don't have an answer to that question. If your need is in the list, tick it and I'll gladly answer.",
+  "Pardon, je n'ai pas bien entendu. Appuyez sur le micro et parlez à nouveau, ou écrivez votre besoin.": "Sorry, I didn't hear that well. Press the microphone and speak again, or type what you need.",
+  "Parfait ! Faites maintenant votre dépôt de mille francs sur le numéro affiché, puis touchez le bouton pour valider. Et surtout, ne donnez jamais votre code secret à personne !": "Perfect! Now make your deposit of one thousand francs to the number shown, then tap the button to confirm. And above all, never give your secret code to anyone!",
+  "J'attends la confirmation de votre paiement. Merci de patienter quelques instants, j'arrive tout de suite !": "I'm waiting for your payment to be confirmed. Please wait a few moments, I'll be right with you!",
+  "Merci, votre paiement est bien reçu ! Pour cette ville, je n'ai pas encore d'adresse enregistrée. Mon équipe cherche pour vous, et vous contacte très vite !": "Thank you, your payment has been received! For this city I don't have an address on file yet. My team is looking for you and will contact you very soon!",
+  "Merci pour votre visite, à bientôt ! Passez une très belle journée !": "Thank you for your visit, see you soon! Have a wonderful day!",
+  "En cas d'urgence, appelez tout de suite. Voici les numéros importants. Gardez votre calme, les secours sont là pour vous aider.": "In an emergency, call straight away. Here are the important numbers. Stay calm, help is there for you.",
+  "Bonjour à vous aussi ! Dites-moi ce que vous cherchez, je vous écoute.": "Hello to you too! Tell me what you're looking for, I'm listening.",
+  "Avec plaisir ! C'est mon métier, et surtout ma joie.": "My pleasure! It's my job, and above all my joy.",
+  "Je suis Keydou, l'assistant multiservices de STAR ENTREPRISE. Je connais les bonnes adresses du Congo, hôtels, restaurants, garages, banques, voyages et bien d'autres, et je vous aide avec le sourire !": "I'm Keydou, the multi-service assistant of STAR ENTREPRISE. I know the good addresses in Congo — hotels, restaurants, garages, banks, travel and many more — and I help you with a smile!",
+  "Mon service coûte mille francs CFA, une seule fois pour un à trois besoins. Les prix des hôtels, des restaurants et des autres prestations sont donnés par les établissements : moi, je ne les annonce pas.": "My service costs one thousand CFA francs, one time only for one to three needs. Hotel, restaurant and other prices are set by the establishments: I don't announce them.",
+  "Au revoir, et à très bientôt !": "Goodbye, and see you very soon!",
+  "Je peux vous trouver un hôtel, un restaurant, un garage, une voiture à louer, une banque, un billet de voyage, une salle de fête, et bien d'autres choses. Dites-moi simplement ce qu'il vous faut !": "I can find you a hotel, a restaurant, a garage, a rental car, a bank, a travel ticket, an event hall and much more. Just tell me what you need!",
+  "Je réfléchis…": "Let me think…",
+  "Je vous écoute…": "I'm listening…",
+  "Je vous écoute… lâchez quand vous avez fini": "I'm listening… let go when you've finished",
+  "Micro non disponible ici : écrivez ou cochez dans la liste": "Microphone not available here: type or tick in the list",
+  "Écrivez votre nom et prénom.": "Enter your full name.",
+  "Écrivez votre numéro de téléphone.": "Enter your phone number.",
+  "Cochez au moins un besoin dans la liste, ou dites-le à Keydou.": "Tick at least one need in the list, or tell Keydou.",
+  "Un instant…": "One moment…",
+  "Impossible de créer la demande.": "Could not create the request.",
+  "Connexion impossible, réessayez.": "Could not connect, please try again.",
+  /* paiement */
+  "Paiement de 1 000 FCFA": "Payment of 1,000 FCFA",
+  "Nom": "Name", "Téléphone": "Phone", "Besoins": "Needs", "Montant exact": "Exact amount",
+  "Dépôt Mobile Money au": "Mobile Money deposit to", "Référence": "Reference",
+  "Faites <b>votre dépôt de 1 000 FCFA</b> (MTN Mobile Money ou Airtel Money) au numéro ci-dessus.": "Make <b>your deposit of 1,000 FCFA</b> (MTN Mobile Money or Airtel Money) to the number above.",
+  "Tapez <b>votre code secret Mobile Money</b> (4 ou 5 chiffres) sur votre téléphone, jamais ici.": "Enter <b>your Mobile Money secret code</b> (4 or 5 digits) on your phone, never here.",
+  "Quand le dépôt est terminé, touchez <b>« Valider mon dépôt »</b>.": "When the deposit is done, tap <b>“Confirm my deposit”</b>.",
+  "Numéro avec lequel vous avez payé": "Number you paid with",
+  "Code de la transaction (facultatif)": "Transaction code (optional)",
+  "ex. MP2610…": "e.g. MP2610…",
+  "Valider mon dépôt": "Confirm my deposit",
+  "Dépôt déclaré": "Deposit declared",
+  "Keydou attend la confirmation de votre paiement…": "Keydou is waiting for your payment to be confirmed…",
+  "<b>Ne donnez jamais votre code secret</b> à Keydou, à STAR ENTREPRISE ni à personne. Keydou ne le demande jamais.": "<b>Never give your secret code</b> to Keydou, to STAR ENTREPRISE or to anyone. Keydou never asks for it.",
+  "Keydou garde sa réponse tant que le dépôt n'est pas reconnu. Dès qu'il l'est, il revient, se lève et vous répond (en général en quelques secondes ; l'équipe confirme à la main sinon). Montant différent de 1 000 FCFA : paiement refusé.": "Keydou keeps his answer until the deposit is recognised. As soon as it is, he comes back, stands up and answers you (usually within seconds; the team confirms by hand otherwise). Amount different from 1,000 FCFA: payment refused.",
+  "Je n'ai pas trouvé votre dépôt. Contactez l'équipe STAR ENTREPRISE.": "I could not find your deposit. Contact the STAR ENTREPRISE team.",
+  "Dépôt non trouvé. Vérifiez le numéro et le montant, ou contactez l'équipe.": "Deposit not found. Check the number and the amount, or contact the team.",
+  "Le montant reçu ne correspond pas à 1 000 FCFA. Contactez l'équipe STAR ENTREPRISE.": "The amount received does not match 1,000 FCFA. Contact the STAR ENTREPRISE team.",
+  "Montant différent de 1 000 FCFA : paiement non validé. Contactez l'équipe.": "Amount different from 1,000 FCFA: payment not confirmed. Contact the team.",
+  /* résultats */
+  "Touchez un numéro pour appeler. Les numéros viennent d'annuaires publics (édition du 21 octobre 2026) : confirmez-les avant de vous déplacer.": "Tap a number to call. The numbers come from public directories (21 October 2026 edition): confirm them before travelling.",
+  "Numéro vérifié": "Verified number",
+  "À confirmer par appel": "To be confirmed by phone",
+  "Numéro pas encore trouvé : Keydou le cherche pour vous.": "Number not found yet: Keydou is looking for it for you.",
+  "Aucune adresse enregistrée pour cette ville pour le moment. Mon équipe vous contacte avec le numéro que vous avez donné.": "No address on file for this city at the moment. My team will contact you on the number you gave.",
+  "Rien d'enregistré pour ce besoin dans cette ville : mon équipe cherche pour vous.": "Nothing on file for this need in this city: my team is looking for you.",
+  "Terminer": "Finish",
+  "Merci pour votre visite !": "Thank you for your visit!",
+  "À bientôt chez KOMYO.": "See you soon at KOMYO.",
+  "Retour à mon espace": "Back to my space", "Retour à KOMYO": "Back to KOMYO",
+  /* SOS */
+  "SOS — gratuit": "SOS — free", "🆘 SOS — gratuit": "🆘 SOS — free",
+  "En cas de danger, appelez d'abord. Ces numéros sont toujours gratuits chez Keydou.": "In case of danger, call first. These numbers are always free with Keydou.",
+  "Appeler": "Call",
+  "Accident ou panne : que faire": "Accident or breakdown: what to do",
+  "Véhicule": "Vehicle", "Par gare": "Per station", "7 gares": "7 stations",
+  "← Retour": "← Back",
+  "SOS : appelez le 117 (police), le 118 (pompiers) ou le 10 10 (assistance RN1).": "SOS: call 117 (police), 118 (fire brigade) or 10 10 (RN1 road assistance)."
+});
+
+(function () {
+  /* petits morceaux réutilisés dans les phrases composées */
+  var PH = {
+    "un hôtel ou une résidence": "a hotel or residence", "une table au restaurant": "a table at a restaurant",
+    "une boulangerie ou une pâtisserie": "a bakery or pastry shop", "un rendez-vous dans un café": "a meeting at a café",
+    "un salon de coiffure ou de beauté": "a hair or beauty salon", "un salon de spa": "a spa", "une salle de sport": "a gym",
+    "la location d'un véhicule": "a vehicle rental", "l'achat ou la vente d'une voiture": "buying or selling a car",
+    "un garage, un dépannage ou un remorquage": "a garage, breakdown service or towing", "une station-service": "a petrol station",
+    "une agence de voyages ou un billet": "a travel agency or a ticket", "une salle de mariage ou de réception": "a wedding or reception hall",
+    "une agence événementielle": "an event agency", "un bureau ou un espace de coworking": "an office or coworking space",
+    "une agence de tourisme ou un parc naturel": "a tourism agency or nature park", "un parc ou des loisirs pour enfants": "a park or leisure activities for children",
+    "une banque": "a bank", "un supermarché": "a supermarket"
+  };
+  var VP = {
+    "à Brazzaville": "in Brazzaville", "à Pointe-Noire": "in Pointe-Noire", "à Dolisie": "in Dolisie", "à Nkayi": "in Nkayi",
+    "à Oyo": "in Oyo", "à Ouesso": "in Ouesso", "dans les petites villes et sur les routes": "in the small towns and along the roads"
+  };
+  function phrases(s) {
+    return s.split(" et ").map(function (p) { return PH[p] || p; }).join(" and ");
+  }
+  I18N.pat([
+    [/^Si j'ai bien compris, vous cherchez (.+?)(?: (à Brazzaville|à Pointe-Noire|à Dolisie|à Nkayi|à Oyo|à Ouesso|dans les petites villes et sur les routes))?\.$/, function (m, a, v) {
+      return "If I understood correctly, you are looking for " + phrases(a) + (v ? " " + VP[v] : "") + ".";
+    }],
+    [/^Merci, votre paiement est bien reçu, et je suis très content ! Vous cherchiez (.+?) (à Brazzaville|à Pointe-Noire|à Dolisie|à Nkayi|à Oyo|à Ouesso|dans les petites villes et sur les routes)\. Voici ce que j'ai pour vous\.$/, function (m, a, v) {
+      return "Thank you, your payment has been received, and I'm very happy! You were looking for " + phrases(a) + " " + VP[v] + ". Here is what I have for you.";
+    }],
+    [/^(\d+) besoins? cochés? sur (\d+)$/, function (m, n, max) { return n + " need" + (n > 1 ? "s" : "") + " ticked out of " + max; }],
+    [/^Cochez votre besoin \(jusqu'à (\d+)\)$/, "Tick your need (up to $1)"],
+    [/^Vous pouvez cocher (\d+) besoins au maximum pour 1 000 FCFA\.$/, "You can tick $1 needs at most for 1,000 FCFA."],
+    [/^Vous avez dit : « ([\s\S]*) »$/, "You said: “$1”"],
+    [/^« ([\s\S]*) »$/, function (m, a) { return "“" + I18N.t(a) + "”"; }],
+    [/^Merci ([\s\S]*?) ! Voici la réponse de Keydou$/, function (m, n) { return "Thank you" + (n.trim() ? " " + n.trim() : "") + "! Here is Keydou's answer"; }],
+    [/^Voir les (\d+) autres$/, "Show the other $1"],
+    [/^(.+) · (\d+)$/, function (m, a, n) { var t = I18N.t(a); return t === a ? m : t + " · " + n; }],
+    [/^(.+) \+ (.+)$/, function (m, a, b) { var x = I18N.t(a), y = I18N.t(b); return x === a && y === b ? m : x + " + " + y; }],
+    [/^Gares : (.+)$/, "Toll stations: $1"],
+    [/^Cherche : (.+)$/, "Searching: $1"]
+  ]);
+})();
+I18N.add({
+  "Montant que vous avez déposé (en FCFA)": "Amount you deposited (in FCFA)", "Écrivez le montant de votre dépôt : exactement 1 000 FCFA.": "Write the amount of your deposit: exactly 1 000 FCFA.", "Montant correct : 1 000 FCFA.": "Correct amount: 1 000 FCFA."
+});
+I18N.pat([
+  [/^Montant incorrect : (.+) FCFA, il manque (.+) FCFA\. Le montant à payer est exactement 1 000 FCFA\. Si vous avez déjà déposé moins, contactez l'équipe STAR ENTREPRISE au (.+) avant de refaire un dépôt\.$/, "Incorrect amount: $1 FCFA, $2 FCFA short. The amount to pay is exactly 1 000 FCFA. If you already deposited less, contact the STAR ENTREPRISE team on $3 before making another deposit."],
+  [/^Montant incorrect : (.+) FCFA, c'est (.+) FCFA de trop\. Le montant à payer est exactement 1 000 FCFA, ni plus ni moins\. Si vous avez déjà déposé plus, contactez l'équipe STAR ENTREPRISE au (.+)\.$/, "Incorrect amount: $1 FCFA, that is $2 FCFA too much. The amount to pay is exactly 1 000 FCFA, no more, no less. If you already deposited more, contact the STAR ENTREPRISE team on $3."]
+]);

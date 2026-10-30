@@ -322,9 +322,105 @@ export async function ensureSchema() {
   // tout ce qui est arrivé après est "non lu". Fermer la bulle ne touche pas
   // à cette date — les notifications restent là, seule la bulle disparaît.
   await sql`ALTER TABLE starvibe_accounts ADD COLUMN IF NOT EXISTS notifs_vues_at TIMESTAMPTZ`;
+  // Clients de Keydou sans compte KOMYO : un compte "invité" est créé à la volée (nom, téléphone déclarés).
+  await sql`ALTER TABLE starvibe_accounts ADD COLUMN IF NOT EXISTS pays TEXT NOT NULL DEFAULT ''`;
+  await sql`ALTER TABLE starvibe_accounts ADD COLUMN IF NOT EXISTS guest BOOLEAN NOT NULL DEFAULT false`;
+  await sql`ALTER TABLE starvibe_accounts ADD COLUMN IF NOT EXISTS guest_nom TEXT NOT NULL DEFAULT ''`;
+  await sql`ALTER TABLE starvibe_accounts ADD COLUMN IF NOT EXISTS guest_tel TEXT NOT NULL DEFAULT ''`;
+  await sql`ALTER TABLE starvibe_accounts ADD COLUMN IF NOT EXISTS guest_ip TEXT NOT NULL DEFAULT ''`;
 
   await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS pour_enfants BOOLEAN NOT NULL DEFAULT false`;
   await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS moderation_statut TEXT NOT NULL DEFAULT 'approuve'`;
+  await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS premium BOOLEAN NOT NULL DEFAULT false`;
+  // Vidéo premium : date d'ouverture (avant elle, la vidéo reste « Fermée » même pour un abonné) et affiche (image publique).
+  await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS disponible_le TIMESTAMPTZ`;
+  await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS affiche_key TEXT`;
+  // espace de la vidéo : general (fil principal), talents, business ou decouverte (PIOUPIOU reste marqué par pour_enfants)
+  await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS espace TEXT NOT NULL DEFAULT 'general'`;
+
+  // Keydou, assistant multiservices : une demande = un service payant (1 000 FCFA).
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_keydou_requests (
+      id SERIAL PRIMARY KEY,
+      account_id INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      service TEXT NOT NULL,
+      demande_vocale TEXT NOT NULL DEFAULT '',
+      montant_attendu INTEGER NOT NULL DEFAULT 1000,
+      montant_recu INTEGER,
+      reference_transaction TEXT NOT NULL DEFAULT '',
+      paiement_declare_at TIMESTAMPTZ,
+      statut TEXT NOT NULL DEFAULT 'en_attente_paiement',
+      details JSONB NOT NULL DEFAULT '{}'::jsonb,
+      traite BOOLEAN NOT NULL DEFAULT false,
+      paid_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+  await sql`ALTER TABLE starvibe_keydou_requests ADD COLUMN IF NOT EXISTS ville TEXT NOT NULL DEFAULT ''`;
+  // Mémoire de Keydou : l'annuaire des lieux (modifiable par le staff).
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_keydou_lieux (
+      id SERIAL PRIMARY KEY,
+      service TEXT NOT NULL,
+      ville TEXT NOT NULL,
+      nom TEXT NOT NULL,
+      adresse TEXT NOT NULL DEFAULT '',
+      telephone TEXT NOT NULL DEFAULT '',
+      whatsapp TEXT NOT NULL DEFAULT '',
+      description TEXT NOT NULL DEFAULT '',
+      source_url TEXT NOT NULL DEFAULT '',
+      source_note TEXT NOT NULL DEFAULT '',
+      verifie BOOLEAN NOT NULL DEFAULT false,
+      actif BOOLEAN NOT NULL DEFAULT true,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+  // Journal de tous les contacts avec Keydou (affiché en direct côté staff, exportable en Excel).
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_keydou_events (
+      id SERIAL PRIMARY KEY,
+      account_id INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      type TEXT NOT NULL,
+      texte TEXT NOT NULL DEFAULT '',
+      service TEXT NOT NULL DEFAULT '',
+      ville TEXT NOT NULL DEFAULT '',
+      request_id INTEGER,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_keydou_events_created ON starvibe_keydou_events (created_at DESC)`;
+  await sql`ALTER TABLE starvibe_keydou_requests ADD COLUMN IF NOT EXISTS numero_paiement TEXT NOT NULL DEFAULT ''`;
+  // Notifications "Valider le dépôt ? Oui / Non" sur le téléphone du staff (Web Push).
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_push_subs (
+      id SERIAL PRIMARY KEY,
+      endpoint TEXT UNIQUE NOT NULL,
+      p256dh TEXT NOT NULL,
+      auth TEXT NOT NULL,
+      label TEXT NOT NULL DEFAULT '',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+  // Journal des SMS de dépôt transférés depuis le téléphone de réception (reconnaissance automatique).
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_sms_log (
+      id SERIAL PRIMARY KEY,
+      expediteur TEXT NOT NULL DEFAULT '',
+      message TEXT NOT NULL DEFAULT '',
+      montant INTEGER,
+      numero TEXT NOT NULL DEFAULT '',
+      resultat TEXT NOT NULL DEFAULT '',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL DEFAULT ''
+    )
+  `;
 
   await sql`
     CREATE TABLE IF NOT EXISTS starvibe_likes (
@@ -348,6 +444,9 @@ export async function ensureSchema() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     )
   `;
+
+  // Réponses aux commentaires (un seul niveau : une réponse à une réponse se range sous le commentaire d'origine)
+  await sql`ALTER TABLE starvibe_comments ADD COLUMN IF NOT EXISTS parent_id INTEGER REFERENCES starvibe_comments(id) ON DELETE CASCADE`;
 
   // Statistiques de visionnage réelles (durée + % regardé), pour donner aux
   // créateurs KOMYO une vraie analyse — pas qu'un compteur qui monte comme
@@ -387,6 +486,76 @@ export async function ensureSchema() {
     )
   `;
 
+  // Rappels d'échéance : un message 3 jours avant la fin, un autre à la fin (une seule fois chacun)
+  await sql`ALTER TABLE starvibe_subscriptions ADD COLUMN IF NOT EXISTS rappel_j3_at TIMESTAMPTZ`;
+  await sql`ALTER TABLE starvibe_subscriptions ADD COLUMN IF NOT EXISTS rappel_fin_at TIMESTAMPTZ`;
+  // Abonnement Famille offert / payé par une autre personne : account_id = le compte qui en profite, payeur = celui qui paie.
+  await sql`ALTER TABLE starvibe_subscriptions ADD COLUMN IF NOT EXISTS payeur_account_id INTEGER`;
+  await sql`ALTER TABLE starvibe_subscriptions ADD COLUMN IF NOT EXISTS beneficiaire_nom TEXT NOT NULL DEFAULT ''`;
+
+  // Installations de l'application KOMYO (suivi des abonnés, en direct dans le backend).
+  // Une ligne par appareil : install_id est tiré au hasard par l'appareil lui-même.
+  // Aucun identifiant publicitaire ni adresse IP en clair : seulement un hachage de l'IP
+  // pour freiner les envois en masse. Le nom et le numéro ne sont renseignés que si la
+  // personne est connectée à KOMYO ou a écrit ses coordonnées à Keydou.
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_installs (
+      id SERIAL PRIMARY KEY,
+      install_id TEXT UNIQUE NOT NULL,
+      source TEXT NOT NULL DEFAULT '',
+      platform TEXT NOT NULL DEFAULT '',
+      navigateur TEXT NOT NULL DEFAULT '',
+      account_id INTEGER,
+      invite BOOLEAN NOT NULL DEFAULT false,
+      nom TEXT NOT NULL DEFAULT '',
+      telephone TEXT NOT NULL DEFAULT '',
+      ville TEXT NOT NULL DEFAULT '',
+      launches INTEGER NOT NULL DEFAULT 0,
+      ip_hash TEXT NOT NULL DEFAULT '',
+      installed_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      last_seen TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
+  // Accès du staff par mot de passe seul : compteurs anti-essais (par connexion Internet et global),
+  // et codes de réinitialisation à usage unique (stockés hachés, valables 10 minutes).
+  await sql`
+    CREATE TABLE IF NOT EXISTS staff_login_guard (
+      key TEXT PRIMARY KEY,
+      fails INTEGER NOT NULL DEFAULT 0,
+      window_start TIMESTAMPTZ NOT NULL DEFAULT now(),
+      locked_until TIMESTAMPTZ
+    )
+  `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS staff_reset_codes (
+      id SERIAL PRIMARY KEY,
+      account_id INTEGER NOT NULL,
+      code_hash TEXT NOT NULL,
+      tries INTEGER NOT NULL DEFAULT 0,
+      used BOOLEAN NOT NULL DEFAULT false,
+      expires_at TIMESTAMPTZ NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
+  // Code PIN oublié par un membre KOMYO : le membre fait une demande, le staff vérifie son identité puis
+  // génère un code temporaire (haché, 24 h, 5 essais) qu'il lui envoie par WhatsApp.
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_pin_resets (
+      id SERIAL PRIMARY KEY,
+      account_id INTEGER NOT NULL,
+      telephone TEXT NOT NULL DEFAULT '',
+      nom_indique TEXT NOT NULL DEFAULT '',
+      statut TEXT NOT NULL DEFAULT 'en_attente',
+      code_hash TEXT NOT NULL DEFAULT '',
+      code_expire TIMESTAMPTZ,
+      tries INTEGER NOT NULL DEFAULT 0,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
   await sql`
     CREATE TABLE IF NOT EXISTS jardis_log (
       id SERIAL PRIMARY KEY,
@@ -395,6 +564,206 @@ export async function ensureSchema() {
       doc_id INTEGER REFERENCES jardis_documents(id) ON DELETE SET NULL,
       created_by INTEGER REFERENCES accounts(id) ON DELETE SET NULL,
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
+  // MYO : invitations d'amitié (suivre + devenir ami). Une ligne par invitation ; statut : en_attente, acceptee, refusee.
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_myo (
+      id SERIAL PRIMARY KEY,
+      de_account INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      vers_account INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      statut TEXT NOT NULL DEFAULT 'en_attente',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      repondu_at TIMESTAMPTZ,
+      UNIQUE (de_account, vers_account)
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_myo_vers_idx ON starvibe_myo (vers_account, statut)`;
+
+  // KABA+ : partage de contact (Gmail ou WhatsApp) entre amis Myo adultes, uniquement avec l'accord de la personne
+  await sql`ALTER TABLE starvibe_accounts ADD COLUMN IF NOT EXISTS contact_gmail TEXT NOT NULL DEFAULT ''`;
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_kaba (
+      id SERIAL PRIMARY KEY,
+      de_account INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      vers_account INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      type TEXT NOT NULL,
+      statut TEXT NOT NULL DEFAULT 'en_attente',
+      valeur TEXT NOT NULL DEFAULT '',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      repondu_at TIMESTAMPTZ,
+      vu_at TIMESTAMPTZ
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_kaba_vers_idx ON starvibe_kaba (vers_account, statut)`;
+
+  // REGARDER ENSEMBLE : un ami Myo t'invite à regarder la même vidéo. Oui = la vidéo s'ouvre chez toi ; Non = rien ne se passe.
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_regarder (
+      id SERIAL PRIMARY KEY,
+      de_account INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      vers_account INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      video_id INTEGER NOT NULL REFERENCES starvibe_videos(id) ON DELETE CASCADE,
+      statut TEXT NOT NULL DEFAULT 'en_attente',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      repondu_at TIMESTAMPTZ
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_regarder_vers_idx ON starvibe_regarder (vers_account, statut)`;
+
+  // ANNONCES : message qui défile chez tous les abonnés pendant une durée payée (2 semaines ou 1 mois)
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_pub (
+      id SERIAL PRIMARY KEY,
+      account_id INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      texte TEXT NOT NULL,
+      lien TEXT NOT NULL DEFAULT '',
+      categorie TEXT NOT NULL DEFAULT 'autre',
+      plan TEXT NOT NULL,
+      jours INTEGER NOT NULL,
+      montant_attendu INTEGER NOT NULL,
+      montant_recu INTEGER,
+      reference_transaction TEXT NOT NULL DEFAULT '',
+      statut TEXT NOT NULL DEFAULT 'en_attente_paiement',
+      refus_motif TEXT NOT NULL DEFAULT '',
+      started_at TIMESTAMPTZ,
+      expires_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
+  // REÇUS de paiement envoyés par WhatsApp (un par paiement confirmé et par personne : payeur, bénéficiaire ou client).
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_recus (
+      id SERIAL PRIMARY KEY,
+      kind TEXT NOT NULL,
+      ref_id INTEGER NOT NULL,
+      role TEXT NOT NULL DEFAULT 'client',
+      account_id INTEGER,
+      telephone TEXT NOT NULL DEFAULT '',
+      numero TEXT NOT NULL DEFAULT '',
+      titre TEXT NOT NULL DEFAULT '',
+      montant INTEGER NOT NULL DEFAULT 0,
+      expire_le TIMESTAMPTZ,
+      texte TEXT NOT NULL DEFAULT '',
+      variables JSONB NOT NULL DEFAULT '[]'::jsonb,
+      statut TEXT NOT NULL DEFAULT 'a_envoyer',
+      erreur TEXT NOT NULL DEFAULT '',
+      wa_message_id TEXT NOT NULL DEFAULT '',
+      envoye_le TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      UNIQUE (kind, ref_id, role)
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_recus_account_idx ON starvibe_recus (account_id, created_at DESC)`;
+
+  // MESSAGERIE KOMYO : reçus, accusés de réception, ventes, factures hebdomadaires… (gratuite, dans l'application)
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_messages (
+      id SERIAL PRIMARY KEY,
+      account_id INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      kind TEXT NOT NULL DEFAULT 'info',
+      titre TEXT NOT NULL DEFAULT '',
+      texte TEXT NOT NULL DEFAULT '',
+      lien TEXT NOT NULL DEFAULT '',
+      lu BOOLEAN NOT NULL DEFAULT false,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_messages_account_idx ON starvibe_messages (account_id, id DESC)`;
+
+  // KOMYO BUSINESS — BOUTIQUES : le vendeur reçoit l'argent directement du client (Mobile Money) ; KOMYO enregistre la vente,
+  // envoie l'accusé de réception au client et la notification de vente au vendeur, et facture 500 FCFA CHAQUE semaine d'ouverture (avec ou sans vente ; la semaine d'ouverture est offerte).
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_boutiques (
+      id SERIAL PRIMARY KEY,
+      account_id INTEGER UNIQUE NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      nom TEXT NOT NULL,
+      description TEXT NOT NULL DEFAULT '',
+      ville TEXT NOT NULL DEFAULT '',
+      numero_paiement TEXT NOT NULL DEFAULT '',
+      services JSONB NOT NULL DEFAULT '[]'::jsonb,
+      statut TEXT NOT NULL DEFAULT 'active',
+      pause_motif TEXT NOT NULL DEFAULT '',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+  await sql`ALTER TABLE starvibe_boutiques ADD COLUMN IF NOT EXISTS frais_curseur DATE`;   // lundi de la prochaine semaine à facturer
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_articles (
+      id SERIAL PRIMARY KEY,
+      boutique_id INTEGER NOT NULL REFERENCES starvibe_boutiques(id) ON DELETE CASCADE,
+      titre TEXT NOT NULL,
+      description TEXT NOT NULL DEFAULT '',
+      prix INTEGER NOT NULL,
+      actif BOOLEAN NOT NULL DEFAULT true,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_commandes (
+      id SERIAL PRIMARY KEY,
+      boutique_id INTEGER NOT NULL REFERENCES starvibe_boutiques(id) ON DELETE CASCADE,
+      client_account_id INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      lignes JSONB NOT NULL DEFAULT '[]'::jsonb,
+      total INTEGER NOT NULL,
+      statut TEXT NOT NULL DEFAULT 'en_attente',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      declare_at TIMESTAMPTZ,
+      paid_at TIMESTAMPTZ
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_commandes_boutique_idx ON starvibe_commandes (boutique_id, id DESC)`;
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_frais (
+      id SERIAL PRIMARY KEY,
+      boutique_id INTEGER NOT NULL REFERENCES starvibe_boutiques(id) ON DELETE CASCADE,
+      semaine DATE NOT NULL,
+      ventes_n INTEGER NOT NULL DEFAULT 0,
+      ventes_total INTEGER NOT NULL DEFAULT 0,
+      montant INTEGER NOT NULL DEFAULT 500,
+      statut TEXT NOT NULL DEFAULT 'a_payer',
+      declare_at TIMESTAMPTZ,
+      paid_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      UNIQUE (boutique_id, semaine)
+    )
+  `;
+
+  // RENOUVELLEMENT d'une boutique (règlement de la dette de frais) : le vendeur remplit une petite fiche, déclare son dépôt, l'équipe valide.
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_renouvellements (
+      id SERIAL PRIMARY KEY,
+      boutique_id INTEGER NOT NULL REFERENCES starvibe_boutiques(id) ON DELETE CASCADE,
+      nom_prenom TEXT NOT NULL,
+      activites TEXT NOT NULL,
+      montant INTEGER NOT NULL,
+      frais_ids JSONB NOT NULL DEFAULT '[]'::jsonb,
+      statut TEXT NOT NULL DEFAULT 'a_payer',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      declare_at TIMESTAMPTZ,
+      valide_at TIMESTAMPTZ
+    )
+  `;
+
+  // ÉCLAT (le direct de KOMYO) : liste d'attente en attendant le vrai direct
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_eclat_attente (
+      account_id INTEGER PRIMARY KEY REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+
+  // Visites : un appareil compté une fois par jour (identifiant tiré au hasard par l'appareil, aucune adresse IP, aucun nom).
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_visites (
+      jour DATE NOT NULL DEFAULT CURRENT_DATE,
+      appareil TEXT NOT NULL,
+      pages INTEGER NOT NULL DEFAULT 1,
+      premiere TIMESTAMPTZ NOT NULL DEFAULT now(),
+      derniere TIMESTAMPTZ NOT NULL DEFAULT now(),
+      PRIMARY KEY (jour, appareil)
     )
   `;
 

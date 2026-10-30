@@ -1,0 +1,1671 @@
+[
+ {
+  "id": "A1",
+  "theme": "A",
+  "titre": "Bonjour papa, bonjour maman",
+  "duree": "60 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola"
+  ],
+  "objectif": "Dire bonjour à ses parents dès le réveil.",
+  "scenes": [
+   [
+    "Narration",
+    "Le soleil se lève sur la maison. Dans son petit nid, PIOUPIOU s'étire."
+   ],
+   [
+    "PIOUPIOU",
+    "Pioupiou ! Le soleil est là, je me réveille !"
+   ],
+   [
+    "PIOUPIOU",
+    "Zola, tu sais quelle est la première chose à faire le matin ?"
+   ],
+   [
+    "Zola",
+    "Heu... manger ?"
+   ],
+   [
+    "PIOUPIOU",
+    "Non ! Dire bonjour à papa et à maman, avec un grand sourire !"
+   ],
+   [
+    "Zola",
+    "Bonjour papa, bonjour maman !"
+   ],
+   [
+    "PIOUPIOU",
+    "Bravo Zola ! À toi qui regardes : dis bonjour à tes parents !"
+   ],
+   [
+    "Narration",
+    "Pause de 3 secondes. Les parents sourient, câlin général."
+   ]
+  ],
+  "refrain": "Bonjour papa, bonjour maman, c'est un beau jour !",
+  "age": "3-6"
+ },
+ {
+  "id": "A2",
+  "theme": "A",
+  "titre": "Les dents du matin",
+  "duree": "75 s",
+  "cast": [
+   "PIOUPIOU",
+   "Mawa",
+   "Kiki"
+  ],
+  "objectif": "Se brosser les dents 2 minutes, en haut, en bas, devant, derrière.",
+  "scenes": [
+   [
+    "Kiki",
+    "Moi, je n'ai pas besoin de brosse à dents ! Hi hi !"
+   ],
+   [
+    "Mawa",
+    "Kiki, les microbes adorent les dents sales."
+   ],
+   [
+    "PIOUPIOU",
+    "Regardez : on brosse en haut, en bas, devant, derrière. Deux minutes."
+   ],
+   [
+    "Narration",
+    "Un minuteur de 2 minutes en forme de soleil. Les microbes (petits dessins rigolos) s'enfuient."
+   ],
+   [
+    "Kiki",
+    "Oh ! Mes dents brillent comme des étoiles !"
+   ],
+   [
+    "PIOUPIOU",
+    "Bravo Kiki ! À toi maintenant, prends ta brosse !"
+   ]
+  ],
+  "refrain": "Brosse, brosse, brosse, mes dents sont blanches !",
+  "age": "3-6"
+ },
+ {
+  "id": "A3",
+  "theme": "A",
+  "titre": "Les mains propres avant de manger",
+  "duree": "60 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola",
+   "Maman Poule"
+  ],
+  "objectif": "Se laver les mains avant chaque repas (savon, 20 secondes, rinçage, séchage).",
+  "scenes": [
+   [
+    "Maman Poule",
+    "À table, les enfants ! Mais d'abord ?"
+   ],
+   [
+    "Zola",
+    "Les mains !"
+   ],
+   [
+    "PIOUPIOU",
+    "Savon, on frotte le temps de chanter la chanson, on rince, on sèche."
+   ],
+   [
+    "Narration",
+    "Gros plan : bulles de savon, la chanson dure 20 secondes."
+   ],
+   [
+    "Maman Poule",
+    "Maintenant, bon appétit !"
+   ]
+  ],
+  "refrain": "Avant de manger, je me lave les mains !",
+  "age": "3-6"
+ },
+ {
+  "id": "A4",
+  "theme": "A",
+  "titre": "Les mains propres après le repas",
+  "duree": "60 s",
+  "cast": [
+   "PIOUPIOU",
+   "Mawa",
+   "Kiki"
+  ],
+  "objectif": "Se laver les mains après le repas, les toilettes, le jeu.",
+  "scenes": [
+   [
+    "Kiki",
+    "J'ai fini de manger, je file jouer !"
+   ],
+   [
+    "Mawa",
+    "Et tes mains, Kiki ? Elles sont pleines de sauce !"
+   ],
+   [
+    "PIOUPIOU",
+    "Après le repas, après les toilettes, après le jeu : toujours les mains !"
+   ],
+   [
+    "Kiki",
+    "D'accord ! Savon, eau, et hop, propres !"
+   ]
+  ],
+  "refrain": "Après le repas, encore les mains !",
+  "age": "3-6"
+ },
+ {
+  "id": "A5",
+  "theme": "A",
+  "titre": "Merci !",
+  "duree": "60 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola",
+   "Maman Poule"
+  ],
+  "objectif": "Dire merci quand on reçoit quelque chose.",
+  "scenes": [
+   [
+    "Maman Poule",
+    "Tiens Zola, une mangue bien mûre."
+   ],
+   [
+    "Zola",
+    "(la prend sans rien dire)"
+   ],
+   [
+    "PIOUPIOU",
+    "Zola, il manque un petit mot magique..."
+   ],
+   [
+    "Zola",
+    "Merci Maman Poule !"
+   ],
+   [
+    "Maman Poule",
+    "Avec plaisir mon grand !"
+   ],
+   [
+    "PIOUPIOU",
+    "Merci, c'est le mot qui fait fleurir les sourires !"
+   ]
+  ],
+  "refrain": "Quand on me donne, je dis : merci !",
+  "age": "3-6"
+ },
+ {
+  "id": "A6",
+  "theme": "A",
+  "titre": "S'il te plaît",
+  "duree": "60 s",
+  "cast": [
+   "PIOUPIOU",
+   "Mawa",
+   "Kiki"
+  ],
+  "objectif": "Demander poliment.",
+  "scenes": [
+   [
+    "Kiki",
+    "Donne-moi le ballon !"
+   ],
+   [
+    "Mawa",
+    "Pas comme ça, Kiki."
+   ],
+   [
+    "Kiki",
+    "Heu... s'il te plaît ?"
+   ],
+   [
+    "Mawa",
+    "Voilà ! Tiens, le ballon est à toi."
+   ],
+   [
+    "PIOUPIOU",
+    "Un petit s'il te plaît ouvre toutes les portes !"
+   ]
+  ],
+  "refrain": "Un petit s'il te plaît ouvre toutes les portes !",
+  "age": "3-6"
+ },
+ {
+  "id": "A7",
+  "theme": "A",
+  "titre": "Au revoir",
+  "duree": "60 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola",
+   "Maman Poule"
+  ],
+  "objectif": "Dire au revoir en regardant la personne.",
+  "scenes": [
+   [
+    "Narration",
+    "Zola part à l'école avec son cartable."
+   ],
+   [
+    "PIOUPIOU",
+    "N'oublie pas de dire au revoir, Zola !"
+   ],
+   [
+    "Zola",
+    "Au revoir Maman Poule, à tout à l'heure !"
+   ],
+   [
+    "Maman Poule",
+    "Au revoir Zola, bonne journée !"
+   ],
+   [
+    "PIOUPIOU",
+    "On regarde la personne, on sourit : c'est ça, un vrai au revoir."
+   ]
+  ],
+  "refrain": "Au revoir, à tout à l'heure !",
+  "age": "3-6"
+ },
+ {
+  "id": "A8",
+  "theme": "A",
+  "titre": "Les dents du soir",
+  "duree": "60 s",
+  "cast": [
+   "PIOUPIOU",
+   "Mawa"
+  ],
+  "objectif": "Se brosser les dents avant de dormir.",
+  "scenes": [
+   [
+    "Narration",
+    "La nuit tombe. PIOUPIOU bâille."
+   ],
+   [
+    "Mawa",
+    "J'ai trop sommeil pour me brosser les dents..."
+   ],
+   [
+    "PIOUPIOU",
+    "Les microbes sont réveillés la nuit. Si tu ne brosses pas, ils font la fête dans ta bouche !"
+   ],
+   [
+    "Mawa",
+    "Oh non ! Brosse, brosse, brosse !"
+   ]
+  ],
+  "refrain": "Le soir aussi, brosse, brosse !",
+  "age": "3-6"
+ },
+ {
+  "id": "A9",
+  "theme": "A",
+  "titre": "Bonne nuit papa, bonne nuit maman",
+  "duree": "60 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola",
+   "Maman Poule"
+  ],
+  "objectif": "Dire bonne nuit avant d'aller se coucher.",
+  "scenes": [
+   [
+    "Narration",
+    "Les étoiles s'allument. Zola est en pyjama."
+   ],
+   [
+    "Zola",
+    "Bonne nuit papa, bonne nuit maman, je vous aime !"
+   ],
+   [
+    "Maman Poule",
+    "Bonne nuit mon grand, à demain."
+   ],
+   [
+    "PIOUPIOU",
+    "Dors bien, et fais de beaux rêves !"
+   ],
+   [
+    "Narration",
+    "La lune sourit, fondu au noir."
+   ]
+  ],
+  "refrain": "Bonne nuit, à demain, je t'aime !",
+  "age": "3-6"
+ },
+ {
+  "id": "A10",
+  "theme": "A",
+  "titre": "Bravo, quelle belle journée !",
+  "duree": "90 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola",
+   "Mawa",
+   "Kiki",
+   "Maman Poule"
+  ],
+  "objectif": "Récapituler toute la journée en chanson (fête de fin de thème).",
+  "scenes": [
+   [
+    "Narration",
+    "Les cinq personnages rejouent en accéléré : réveil, dents, mains, merci, au revoir, nuit."
+   ],
+   [
+    "Maman Poule",
+    "Qui peut me dire ce qu'on fait le matin ?"
+   ],
+   [
+    "Zola",
+    "Bonjour papa, bonjour maman !"
+   ],
+   [
+    "Mawa",
+    "Les dents, les mains !"
+   ],
+   [
+    "Kiki",
+    "Merci, s'il te plaît, au revoir !"
+   ],
+   [
+    "PIOUPIOU",
+    "Bravo ! Chantons tous ensemble !"
+   ]
+  ],
+  "refrain": "Les six refrains enchaînés",
+  "age": "3-6"
+ },
+ {
+  "id": "B1",
+  "theme": "B",
+  "titre": "Hymne : le Congo-Brazzaville",
+  "duree": "90 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola",
+   "Mawa",
+   "Maman Poule"
+  ],
+  "objectif": "Découvrir et chanter le refrain de l'hymne national du Congo-Brazzaville (La Congolaise) avec respect.",
+  "scenes": [
+   [
+    "Narration",
+    "Le drapeau du Congo-Brazzaville flotte. Fanfare douce."
+   ],
+   [
+    "PIOUPIOU",
+    "Aujourd'hui, on apprend l'hymne du Congo-Brazzaville !"
+   ],
+   [
+    "Mawa",
+    "Un hymne, c'est la chanson de tout un pays."
+   ],
+   [
+    "Zola",
+    "Alors on se lève et on chante avec le coeur !"
+   ],
+   [
+    "Maman Poule",
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
+   ],
+   [
+    "Narration",
+    "Les paroles OFFICIELLES s'allument mot à mot (karaoké). [Insérer les paroles vérifiées - voir fiche source]"
+   ],
+   [
+    "PIOUPIOU",
+    "Bravo ! Tu connais maintenant l'hymne du Congo-Brazzaville !"
+   ]
+  ],
+  "refrain": "Épisode GRATUIT. Texte officiel à relever sur une source de l'État.",
+  "age": "4-6"
+ },
+ {
+  "id": "B2",
+  "theme": "B",
+  "titre": "Hymne : la RDC (Congo-Kinshasa)",
+  "duree": "90 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola",
+   "Mawa",
+   "Maman Poule"
+  ],
+  "objectif": "Découvrir et chanter le refrain de l'hymne national de la RDC (Congo-Kinshasa) (Debout Congolais) avec respect.",
+  "scenes": [
+   [
+    "Narration",
+    "Le drapeau de la RDC (Congo-Kinshasa) flotte. Fanfare douce."
+   ],
+   [
+    "PIOUPIOU",
+    "Aujourd'hui, on apprend l'hymne de la RDC (Congo-Kinshasa) !"
+   ],
+   [
+    "Mawa",
+    "Un hymne, c'est la chanson de tout un pays."
+   ],
+   [
+    "Zola",
+    "Alors on se lève et on chante avec le coeur !"
+   ],
+   [
+    "Maman Poule",
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
+   ],
+   [
+    "Narration",
+    "Les paroles OFFICIELLES s'allument mot à mot (karaoké). [Insérer les paroles vérifiées - voir fiche source]"
+   ],
+   [
+    "PIOUPIOU",
+    "Bravo ! Tu connais maintenant l'hymne de la RDC (Congo-Kinshasa) !"
+   ]
+  ],
+  "refrain": "Vérifier la version en vigueur.",
+  "age": "4-6"
+ },
+ {
+  "id": "B3",
+  "theme": "B",
+  "titre": "Hymne : le Cameroun",
+  "duree": "90 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola",
+   "Mawa",
+   "Maman Poule"
+  ],
+  "objectif": "Découvrir et chanter le refrain de l'hymne national du Cameroun (Ô Cameroun, berceau de nos ancêtres) avec respect.",
+  "scenes": [
+   [
+    "Narration",
+    "Le drapeau du Cameroun flotte. Fanfare douce."
+   ],
+   [
+    "PIOUPIOU",
+    "Aujourd'hui, on apprend l'hymne du Cameroun !"
+   ],
+   [
+    "Mawa",
+    "Un hymne, c'est la chanson de tout un pays."
+   ],
+   [
+    "Zola",
+    "Alors on se lève et on chante avec le coeur !"
+   ],
+   [
+    "Maman Poule",
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
+   ],
+   [
+    "Narration",
+    "Les paroles OFFICIELLES s'allument mot à mot (karaoké). [Insérer les paroles vérifiées - voir fiche source]"
+   ],
+   [
+    "PIOUPIOU",
+    "Bravo ! Tu connais maintenant l'hymne du Cameroun !"
+   ]
+  ],
+  "refrain": "Version française (existe aussi en anglais).",
+  "age": "4-6"
+ },
+ {
+  "id": "B4",
+  "theme": "B",
+  "titre": "Hymne : le Gabon",
+  "duree": "90 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola",
+   "Mawa",
+   "Maman Poule"
+  ],
+  "objectif": "Découvrir et chanter le refrain de l'hymne national du Gabon (La Concorde) avec respect.",
+  "scenes": [
+   [
+    "Narration",
+    "Le drapeau du Gabon flotte. Fanfare douce."
+   ],
+   [
+    "PIOUPIOU",
+    "Aujourd'hui, on apprend l'hymne du Gabon !"
+   ],
+   [
+    "Mawa",
+    "Un hymne, c'est la chanson de tout un pays."
+   ],
+   [
+    "Zola",
+    "Alors on se lève et on chante avec le coeur !"
+   ],
+   [
+    "Maman Poule",
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
+   ],
+   [
+    "Narration",
+    "Les paroles OFFICIELLES s'allument mot à mot (karaoké). [Insérer les paroles vérifiées - voir fiche source]"
+   ],
+   [
+    "PIOUPIOU",
+    "Bravo ! Tu connais maintenant l'hymne du Gabon !"
+   ]
+  ],
+  "refrain": "",
+  "age": "4-6"
+ },
+ {
+  "id": "B5",
+  "theme": "B",
+  "titre": "Hymne : le Mali",
+  "duree": "90 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola",
+   "Mawa",
+   "Maman Poule"
+  ],
+  "objectif": "Découvrir et chanter le refrain de l'hymne national du Mali (Le Mali) avec respect.",
+  "scenes": [
+   [
+    "Narration",
+    "Le drapeau du Mali flotte. Fanfare douce."
+   ],
+   [
+    "PIOUPIOU",
+    "Aujourd'hui, on apprend l'hymne du Mali !"
+   ],
+   [
+    "Mawa",
+    "Un hymne, c'est la chanson de tout un pays."
+   ],
+   [
+    "Zola",
+    "Alors on se lève et on chante avec le coeur !"
+   ],
+   [
+    "Maman Poule",
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
+   ],
+   [
+    "Narration",
+    "Les paroles OFFICIELLES s'allument mot à mot (karaoké). [Insérer les paroles vérifiées - voir fiche source]"
+   ],
+   [
+    "PIOUPIOU",
+    "Bravo ! Tu connais maintenant l'hymne du Mali !"
+   ]
+  ],
+  "refrain": "",
+  "age": "4-6"
+ },
+ {
+  "id": "B6",
+  "theme": "B",
+  "titre": "Hymne : la Guinée-Bissau",
+  "duree": "90 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola",
+   "Mawa",
+   "Maman Poule"
+  ],
+  "objectif": "Découvrir et chanter le refrain de l'hymne national de la Guinée-Bissau (Esta é a nossa pátria bem amada) avec respect.",
+  "scenes": [
+   [
+    "Narration",
+    "Le drapeau de la Guinée-Bissau flotte. Fanfare douce."
+   ],
+   [
+    "PIOUPIOU",
+    "Aujourd'hui, on apprend l'hymne de la Guinée-Bissau !"
+   ],
+   [
+    "Mawa",
+    "Un hymne, c'est la chanson de tout un pays."
+   ],
+   [
+    "Zola",
+    "Alors on se lève et on chante avec le coeur !"
+   ],
+   [
+    "Maman Poule",
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
+   ],
+   [
+    "Narration",
+    "Les paroles OFFICIELLES s'allument mot à mot (karaoké). [Insérer les paroles vérifiées - voir fiche source]"
+   ],
+   [
+    "PIOUPIOU",
+    "Bravo ! Tu connais maintenant l'hymne de la Guinée-Bissau !"
+   ]
+  ],
+  "refrain": "En portugais : sous-titres français.",
+  "age": "4-6"
+ },
+ {
+  "id": "B7",
+  "theme": "B",
+  "titre": "Hymne : la Guinée (Conakry)",
+  "duree": "90 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola",
+   "Mawa",
+   "Maman Poule"
+  ],
+  "objectif": "Découvrir et chanter le refrain de l'hymne national de la Guinée (Conakry) (Liberté) avec respect.",
+  "scenes": [
+   [
+    "Narration",
+    "Le drapeau de la Guinée (Conakry) flotte. Fanfare douce."
+   ],
+   [
+    "PIOUPIOU",
+    "Aujourd'hui, on apprend l'hymne de la Guinée (Conakry) !"
+   ],
+   [
+    "Mawa",
+    "Un hymne, c'est la chanson de tout un pays."
+   ],
+   [
+    "Zola",
+    "Alors on se lève et on chante avec le coeur !"
+   ],
+   [
+    "Maman Poule",
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
+   ],
+   [
+    "Narration",
+    "Les paroles OFFICIELLES s'allument mot à mot (karaoké). [Insérer les paroles vérifiées - voir fiche source]"
+   ],
+   [
+    "PIOUPIOU",
+    "Bravo ! Tu connais maintenant l'hymne de la Guinée (Conakry) !"
+   ]
+  ],
+  "refrain": "",
+  "age": "4-6"
+ },
+ {
+  "id": "B8",
+  "theme": "B",
+  "titre": "Hymne : la Côte d'Ivoire",
+  "duree": "90 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola",
+   "Mawa",
+   "Maman Poule"
+  ],
+  "objectif": "Découvrir et chanter le refrain de l'hymne national de la Côte d'Ivoire (L'Abidjanaise) avec respect.",
+  "scenes": [
+   [
+    "Narration",
+    "Le drapeau de la Côte d'Ivoire flotte. Fanfare douce."
+   ],
+   [
+    "PIOUPIOU",
+    "Aujourd'hui, on apprend l'hymne de la Côte d'Ivoire !"
+   ],
+   [
+    "Mawa",
+    "Un hymne, c'est la chanson de tout un pays."
+   ],
+   [
+    "Zola",
+    "Alors on se lève et on chante avec le coeur !"
+   ],
+   [
+    "Maman Poule",
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
+   ],
+   [
+    "Narration",
+    "Les paroles OFFICIELLES s'allument mot à mot (karaoké). [Insérer les paroles vérifiées - voir fiche source]"
+   ],
+   [
+    "PIOUPIOU",
+    "Bravo ! Tu connais maintenant l'hymne de la Côte d'Ivoire !"
+   ]
+  ],
+  "refrain": "« Abidjan » est la ville ; le pays est la Côte d'Ivoire.",
+  "age": "4-6"
+ },
+ {
+  "id": "B9",
+  "theme": "B",
+  "titre": "Hymne : le Burkina Faso",
+  "duree": "90 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola",
+   "Mawa",
+   "Maman Poule"
+  ],
+  "objectif": "Découvrir et chanter le refrain de l'hymne national du Burkina Faso (Ditanyè (Une seule nuit)) avec respect.",
+  "scenes": [
+   [
+    "Narration",
+    "Le drapeau du Burkina Faso flotte. Fanfare douce."
+   ],
+   [
+    "PIOUPIOU",
+    "Aujourd'hui, on apprend l'hymne du Burkina Faso !"
+   ],
+   [
+    "Mawa",
+    "Un hymne, c'est la chanson de tout un pays."
+   ],
+   [
+    "Zola",
+    "Alors on se lève et on chante avec le coeur !"
+   ],
+   [
+    "Maman Poule",
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
+   ],
+   [
+    "Narration",
+    "Les paroles OFFICIELLES s'allument mot à mot (karaoké). [Insérer les paroles vérifiées - voir fiche source]"
+   ],
+   [
+    "PIOUPIOU",
+    "Bravo ! Tu connais maintenant l'hymne du Burkina Faso !"
+   ]
+  ],
+  "refrain": "",
+  "age": "4-6"
+ },
+ {
+  "id": "B10",
+  "theme": "B",
+  "titre": "Hymne : le Ghana",
+  "duree": "90 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola",
+   "Mawa",
+   "Maman Poule"
+  ],
+  "objectif": "Découvrir et chanter le refrain de l'hymne national du Ghana (God Bless Our Homeland Ghana) avec respect.",
+  "scenes": [
+   [
+    "Narration",
+    "Le drapeau du Ghana flotte. Fanfare douce."
+   ],
+   [
+    "PIOUPIOU",
+    "Aujourd'hui, on apprend l'hymne du Ghana !"
+   ],
+   [
+    "Mawa",
+    "Un hymne, c'est la chanson de tout un pays."
+   ],
+   [
+    "Zola",
+    "Alors on se lève et on chante avec le coeur !"
+   ],
+   [
+    "Maman Poule",
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
+   ],
+   [
+    "Narration",
+    "Les paroles OFFICIELLES s'allument mot à mot (karaoké). [Insérer les paroles vérifiées - voir fiche source]"
+   ],
+   [
+    "PIOUPIOU",
+    "Bravo ! Tu connais maintenant l'hymne du Ghana !"
+   ]
+  ],
+  "refrain": "En anglais : sous-titres français.",
+  "age": "4-6"
+ },
+ {
+  "id": "B11",
+  "theme": "B",
+  "titre": "Hymne : le Togo",
+  "duree": "90 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola",
+   "Mawa",
+   "Maman Poule"
+  ],
+  "objectif": "Découvrir et chanter le refrain de l'hymne national du Togo (Terre de nos aïeux) avec respect.",
+  "scenes": [
+   [
+    "Narration",
+    "Le drapeau du Togo flotte. Fanfare douce."
+   ],
+   [
+    "PIOUPIOU",
+    "Aujourd'hui, on apprend l'hymne du Togo !"
+   ],
+   [
+    "Mawa",
+    "Un hymne, c'est la chanson de tout un pays."
+   ],
+   [
+    "Zola",
+    "Alors on se lève et on chante avec le coeur !"
+   ],
+   [
+    "Maman Poule",
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
+   ],
+   [
+    "Narration",
+    "Les paroles OFFICIELLES s'allument mot à mot (karaoké). [Insérer les paroles vérifiées - voir fiche source]"
+   ],
+   [
+    "PIOUPIOU",
+    "Bravo ! Tu connais maintenant l'hymne du Togo !"
+   ]
+  ],
+  "refrain": "« Lomé » est la capitale ; le pays est le Togo.",
+  "age": "4-6"
+ },
+ {
+  "id": "B12",
+  "theme": "B",
+  "titre": "Hymne : le Niger",
+  "duree": "90 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola",
+   "Mawa",
+   "Maman Poule"
+  ],
+  "objectif": "Découvrir et chanter le refrain de l'hymne national du Niger (La Nigérienne) avec respect.",
+  "scenes": [
+   [
+    "Narration",
+    "Le drapeau du Niger flotte. Fanfare douce."
+   ],
+   [
+    "PIOUPIOU",
+    "Aujourd'hui, on apprend l'hymne du Niger !"
+   ],
+   [
+    "Mawa",
+    "Un hymne, c'est la chanson de tout un pays."
+   ],
+   [
+    "Zola",
+    "Alors on se lève et on chante avec le coeur !"
+   ],
+   [
+    "Maman Poule",
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
+   ],
+   [
+    "Narration",
+    "Les paroles OFFICIELLES s'allument mot à mot (karaoké). [Insérer les paroles vérifiées - voir fiche source]"
+   ],
+   [
+    "PIOUPIOU",
+    "Bravo ! Tu connais maintenant l'hymne du Niger !"
+   ]
+  ],
+  "refrain": "Ne pas confondre avec le Nigeria.",
+  "age": "4-6"
+ },
+ {
+  "id": "B13",
+  "theme": "B",
+  "titre": "Hymne : le Maroc",
+  "duree": "90 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola",
+   "Mawa",
+   "Maman Poule"
+  ],
+  "objectif": "Découvrir et chanter le refrain de l'hymne national du Maroc (Hymne chérifien) avec respect.",
+  "scenes": [
+   [
+    "Narration",
+    "Le drapeau du Maroc flotte. Fanfare douce."
+   ],
+   [
+    "PIOUPIOU",
+    "Aujourd'hui, on apprend l'hymne du Maroc !"
+   ],
+   [
+    "Mawa",
+    "Un hymne, c'est la chanson de tout un pays."
+   ],
+   [
+    "Zola",
+    "Alors on se lève et on chante avec le coeur !"
+   ],
+   [
+    "Maman Poule",
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
+   ],
+   [
+    "Narration",
+    "Les paroles OFFICIELLES s'allument mot à mot (karaoké). [Insérer les paroles vérifiées - voir fiche source]"
+   ],
+   [
+    "PIOUPIOU",
+    "Bravo ! Tu connais maintenant l'hymne du Maroc !"
+   ]
+  ],
+  "refrain": "En arabe : sous-titres français.",
+  "age": "4-6"
+ },
+ {
+  "id": "B14",
+  "theme": "B",
+  "titre": "Hymne : le Canada",
+  "duree": "90 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola",
+   "Mawa",
+   "Maman Poule"
+  ],
+  "objectif": "Découvrir et chanter le refrain de l'hymne national du Canada (Ô Canada) avec respect.",
+  "scenes": [
+   [
+    "Narration",
+    "Le drapeau du Canada flotte. Fanfare douce."
+   ],
+   [
+    "PIOUPIOU",
+    "Aujourd'hui, on apprend l'hymne du Canada !"
+   ],
+   [
+    "Mawa",
+    "Un hymne, c'est la chanson de tout un pays."
+   ],
+   [
+    "Zola",
+    "Alors on se lève et on chante avec le coeur !"
+   ],
+   [
+    "Maman Poule",
+    "On écoute d'abord, puis on chante ensemble, le refrain d'abord, puis le premier couplet."
+   ],
+   [
+    "Narration",
+    "Les paroles OFFICIELLES s'allument mot à mot (karaoké). [Insérer les paroles vérifiées - voir fiche source]"
+   ],
+   [
+    "PIOUPIOU",
+    "Bravo ! Tu connais maintenant l'hymne du Canada !"
+   ]
+  ],
+  "refrain": "Versions française et anglaise.",
+  "age": "4-6"
+ },
+ {
+  "id": "B15",
+  "theme": "B",
+  "titre": "Chaque semaine, un nouveau pays",
+  "duree": "60 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola",
+   "Mawa"
+  ],
+  "objectif": "Présenter la série et le calendrier d'hymnes.",
+  "scenes": [
+   [
+    "PIOUPIOU",
+    "Chaque semaine, on découvre l'hymne d'un nouveau pays !"
+   ],
+   [
+    "Mawa",
+    "Sénégal, Bénin, Tchad, Rwanda, Madagascar, Haïti..."
+   ],
+   [
+    "Zola",
+    "Et le tien ? Demande à tes parents lequel tu veux voir !"
+   ],
+   [
+    "Narration",
+    "Carte du monde, les pays s'allument un à un."
+   ]
+  ],
+  "refrain": "",
+  "age": "4-6"
+ },
+ {
+  "id": "C1",
+  "theme": "C",
+  "titre": "La chanson de 1 à 10",
+  "duree": "75 s",
+  "cast": [
+   "PIOUPIOU"
+  ],
+  "objectif": "Compter de 1 à 10.",
+  "scenes": [
+   [
+    "PIOUPIOU",
+    "Aujourd'hui, on compte avec mes amis les poussins ! Prêt ?"
+   ],
+   [
+    "Narration",
+    "À chaque nombre, un poussin apparaît, le chiffre grossit, la voix le dit : un, deux, trois..."
+   ],
+   [
+    "PIOUPIOU",
+    "Un, deux, trois, quatre, cinq, je compte avec mes doigts. Six, sept, huit, neuf, dix, les poussins sont tous là !"
+   ],
+   [
+    "PIOUPIOU",
+    "On recommence plus vite !"
+   ],
+   [
+    "PIOUPIOU",
+    "Dix poussins ! Bravo, tu sais compter jusqu'à dix !"
+   ]
+  ],
+  "refrain": "Un, deux, trois, quatre, cinq, je compte avec mes doigts !",
+  "age": "3-4"
+ },
+ {
+  "id": "C2",
+  "theme": "C",
+  "titre": "Comptons les poussins",
+  "duree": "75 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola"
+  ],
+  "objectif": "Dénombrer de 1 à 10.",
+  "scenes": [
+   [
+    "PIOUPIOU",
+    "Combien de poussins dans le panier ?"
+   ],
+   [
+    "Narration",
+    "Silence de 3 secondes : l'enfant répond."
+   ],
+   [
+    "Zola",
+    "Il y en a sept !"
+   ],
+   [
+    "PIOUPIOU",
+    "Bravo ! Et maintenant ?"
+   ],
+   [
+    "Narration",
+    "Trois séries : 4, 8, 10."
+   ]
+  ],
+  "refrain": "",
+  "age": "3-4"
+ },
+ {
+  "id": "C3",
+  "theme": "C",
+  "titre": "La chanson de 10 à 20",
+  "duree": "75 s",
+  "cast": [
+   "PIOUPIOU",
+   "Mawa"
+  ],
+  "objectif": "Compter de 10 à 20.",
+  "scenes": [
+   [
+    "Mawa",
+    "Après dix, c'est quoi ?"
+   ],
+   [
+    "PIOUPIOU",
+    "Onze, douze, treize, quatorze, quinze, seize, dix-sept, dix-huit, dix-neuf, vingt !"
+   ],
+   [
+    "Narration",
+    "Les poussins forment des groupes de dix."
+   ],
+   [
+    "Mawa",
+    "Vingt ! Bravo !"
+   ]
+  ],
+  "refrain": "Dix, onze, douze... jusqu'à vingt !",
+  "age": "4-5"
+ },
+ {
+  "id": "C4",
+  "theme": "C",
+  "titre": "Comptons les fruits du marché",
+  "duree": "75 s",
+  "cast": [
+   "PIOUPIOU",
+   "Maman Poule",
+   "Kiki"
+  ],
+  "objectif": "Compter de 10 à 20 avec des mangues, bananes, ananas.",
+  "scenes": [
+   [
+    "Maman Poule",
+    "Au marché, il y a des fruits partout !"
+   ],
+   [
+    "Kiki",
+    "Je compte les mangues : onze, douze, treize..."
+   ],
+   [
+    "PIOUPIOU",
+    "Et les bananes ? Aide Kiki !"
+   ],
+   [
+    "Narration",
+    "Les fruits tombent dans le panier un par un jusqu'à vingt."
+   ]
+  ],
+  "refrain": "",
+  "age": "4-5"
+ },
+ {
+  "id": "C5",
+  "theme": "C",
+  "titre": "Compter de deux en deux",
+  "duree": "60 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola"
+  ],
+  "objectif": "2, 4, 6, 8... 20 (les chaussures par paires).",
+  "scenes": [
+   [
+    "Zola",
+    "Une chaussure, deux chaussures..."
+   ],
+   [
+    "PIOUPIOU",
+    "On compte les paires : deux, quatre, six, huit, dix..."
+   ],
+   [
+    "Narration",
+    "Les paires de chaussures s'alignent jusqu'à vingt."
+   ]
+  ],
+  "refrain": "",
+  "age": "5-6"
+ },
+ {
+  "id": "C6",
+  "theme": "C",
+  "titre": "Le grand jeu : de 1 à 20",
+  "duree": "90 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola",
+   "Mawa",
+   "Kiki"
+  ],
+  "objectif": "Quiz chronométré de fin de thème.",
+  "scenes": [
+   [
+    "PIOUPIOU",
+    "Prêts pour le grand jeu ?"
+   ],
+   [
+    "Narration",
+    "Cinq questions : quel nombre vient après 12 ? avant 18 ? Combien de doigts ? ..."
+   ],
+   [
+    "Kiki",
+    "Moi je dis quinze !"
+   ],
+   [
+    "Mawa",
+    "Non Kiki, regarde bien !"
+   ],
+   [
+    "PIOUPIOU",
+    "Bravo à tous, vous êtes des champions !"
+   ]
+  ],
+  "refrain": "",
+  "age": "4-5"
+ },
+ {
+  "id": "C7",
+  "theme": "C",
+  "titre": "La chanson de 20 à 30",
+  "duree": "75 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola"
+  ],
+  "objectif": "Compter de 20 à 30 en groupant par dizaines.",
+  "scenes": [
+   [
+    "Zola",
+    "Après vingt, c'est quoi ?"
+   ],
+   [
+    "PIOUPIOU",
+    "Vingt et un, vingt-deux, vingt-trois... trente !"
+   ],
+   [
+    "Narration",
+    "Deux paquets de dix poussins, puis un troisième paquet apparaît : trente."
+   ],
+   [
+    "Zola",
+    "Trente ! Bravo !"
+   ]
+  ],
+  "refrain": "Vingt, vingt et un... jusqu'à trente !",
+  "age": "5-6"
+ },
+ {
+  "id": "C8",
+  "theme": "C",
+  "titre": "La chanson de 30 à 40",
+  "duree": "75 s",
+  "cast": [
+   "PIOUPIOU",
+   "Mawa"
+  ],
+  "objectif": "Compter de 30 à 40.",
+  "scenes": [
+   [
+    "Mawa",
+    "Et après trente ?"
+   ],
+   [
+    "PIOUPIOU",
+    "Trente et un, trente-deux... quarante !"
+   ],
+   [
+    "Narration",
+    "Quatre paquets de dix poussins s'alignent : quarante."
+   ],
+   [
+    "Mawa",
+    "Quarante ! Tu sais compter jusqu'à quarante !"
+   ]
+  ],
+  "refrain": "Trente, trente et un... jusqu'à quarante !",
+  "age": "5-6"
+ },
+ {
+  "id": "C9",
+  "theme": "C",
+  "titre": "Le décollage : de 10 à 0",
+  "duree": "60 s",
+  "cast": [
+   "PIOUPIOU",
+   "Kiki"
+  ],
+  "objectif": "Compter à rebours de 10 à 0 (comprendre « avant » et « après »).",
+  "scenes": [
+   [
+    "Kiki",
+    "Dix, neuf, huit... on décolle !"
+   ],
+   [
+    "PIOUPIOU",
+    "Sept, six, cinq, quatre, trois, deux, un, zéro !"
+   ],
+   [
+    "Narration",
+    "La fusée-nid des poussins décolle sur « zéro »."
+   ]
+  ],
+  "refrain": "",
+  "age": "5-6"
+ },
+ {
+  "id": "C10",
+  "theme": "C",
+  "titre": "Le grand jeu : de 1 à 40",
+  "duree": "90 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola",
+   "Mawa",
+   "Kiki"
+  ],
+  "objectif": "Quiz de fin de thème : compter jusqu'à 40 par dizaines (10, 20, 30, 40).",
+  "scenes": [
+   [
+    "PIOUPIOU",
+    "Grand jeu final : jusqu'à quarante !"
+   ],
+   [
+    "Narration",
+    "Cinq questions : combien de paquets de dix ? quel nombre après 29 ? avant 35 ?"
+   ],
+   [
+    "Zola",
+    "Moi je dis trente-deux !"
+   ],
+   [
+    "Mawa",
+    "Bravo Zola, c'est ça !"
+   ],
+   [
+    "PIOUPIOU",
+    "Bravo, tu es un champion du quarante !"
+   ]
+  ],
+  "refrain": "",
+  "age": "5-6"
+ },
+ {
+  "id": "D1",
+  "theme": "D",
+  "titre": "La chanson de l'alphabet",
+  "duree": "90 s",
+  "cast": [
+   "PIOUPIOU",
+   "Mawa"
+  ],
+  "objectif": "Découvrir les 26 lettres en chanson.",
+  "scenes": [
+   [
+    "PIOUPIOU",
+    "Vingt-six lettres, vingt-six amis !"
+   ],
+   [
+    "Narration",
+    "Chaque lettre apparaît et rebondit : A, B, C, D, E, F, G..."
+   ],
+   [
+    "Mawa",
+    "H, I, J, K, L, M, N, O, P !"
+   ],
+   [
+    "PIOUPIOU",
+    "Q, R, S, T, U, V, W, X, Y, Z ! Bravo !"
+   ]
+  ],
+  "refrain": "A, B, C, D, E, je les connais, regarde !",
+  "age": "3-6"
+ },
+ {
+  "id": "D2",
+  "theme": "D",
+  "titre": "L'alphabet de A à E",
+  "duree": "60 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola"
+  ],
+  "objectif": "Apprendre les lettres A à E avec des mots familiers.",
+  "scenes": [
+   [
+    "PIOUPIOU",
+    "Aujourd'hui, les lettres de A à E. Écoute bien et répète !"
+   ],
+   [
+    "Narration",
+    "A en grand + image : A comme ananas. (silence : l'enfant répète)"
+   ],
+   [
+    "Narration",
+    "B en grand + image : B comme banane. (silence : l'enfant répète)"
+   ],
+   [
+    "Narration",
+    "C en grand + image : C comme canne à sucre. (silence : l'enfant répète)"
+   ],
+   [
+    "Narration",
+    "D en grand + image : D comme djembé. (silence : l'enfant répète)"
+   ],
+   [
+    "Narration",
+    "E en grand + image : E comme éléphant. (silence : l'enfant répète)"
+   ],
+   [
+    "PIOUPIOU",
+    "Bravo ! Demain, on continue !"
+   ]
+  ],
+  "refrain": "",
+  "age": "4-5"
+ },
+ {
+  "id": "D3",
+  "theme": "D",
+  "titre": "L'alphabet de F à J",
+  "duree": "60 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola"
+  ],
+  "objectif": "Apprendre les lettres F à J avec des mots familiers.",
+  "scenes": [
+   [
+    "PIOUPIOU",
+    "Aujourd'hui, les lettres de F à J. Écoute bien et répète !"
+   ],
+   [
+    "Narration",
+    "F en grand + image : F comme fufu. (silence : l'enfant répète)"
+   ],
+   [
+    "Narration",
+    "G en grand + image : G comme gorille. (silence : l'enfant répète)"
+   ],
+   [
+    "Narration",
+    "H en grand + image : H comme hippopotame. (silence : l'enfant répète)"
+   ],
+   [
+    "Narration",
+    "I en grand + image : I comme igname. (silence : l'enfant répète)"
+   ],
+   [
+    "Narration",
+    "J en grand + image : J comme jus de mangue. (silence : l'enfant répète)"
+   ],
+   [
+    "PIOUPIOU",
+    "Bravo ! Demain, on continue !"
+   ]
+  ],
+  "refrain": "",
+  "age": "4-5"
+ },
+ {
+  "id": "D4",
+  "theme": "D",
+  "titre": "L'alphabet de K à O",
+  "duree": "60 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola"
+  ],
+  "objectif": "Apprendre les lettres K à O avec des mots familiers.",
+  "scenes": [
+   [
+    "PIOUPIOU",
+    "Aujourd'hui, les lettres de K à O. Écoute bien et répète !"
+   ],
+   [
+    "Narration",
+    "K en grand + image : K comme karité. (silence : l'enfant répète)"
+   ],
+   [
+    "Narration",
+    "L en grand + image : L comme lion. (silence : l'enfant répète)"
+   ],
+   [
+    "Narration",
+    "M en grand + image : M comme manioc. (silence : l'enfant répète)"
+   ],
+   [
+    "Narration",
+    "N en grand + image : N comme nid. (silence : l'enfant répète)"
+   ],
+   [
+    "Narration",
+    "O en grand + image : O comme oiseau. (silence : l'enfant répète)"
+   ],
+   [
+    "PIOUPIOU",
+    "Bravo ! Demain, on continue !"
+   ]
+  ],
+  "refrain": "",
+  "age": "4-5"
+ },
+ {
+  "id": "D5",
+  "theme": "D",
+  "titre": "L'alphabet de P à T",
+  "duree": "60 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola"
+  ],
+  "objectif": "Apprendre les lettres P à T avec des mots familiers.",
+  "scenes": [
+   [
+    "PIOUPIOU",
+    "Aujourd'hui, les lettres de P à T. Écoute bien et répète !"
+   ],
+   [
+    "Narration",
+    "P en grand + image : P comme poussin. (silence : l'enfant répète)"
+   ],
+   [
+    "Narration",
+    "Q en grand + image : Q comme queue. (silence : l'enfant répète)"
+   ],
+   [
+    "Narration",
+    "R en grand + image : R comme riz. (silence : l'enfant répète)"
+   ],
+   [
+    "Narration",
+    "S en grand + image : S comme soleil. (silence : l'enfant répète)"
+   ],
+   [
+    "Narration",
+    "T en grand + image : T comme tam-tam. (silence : l'enfant répète)"
+   ],
+   [
+    "PIOUPIOU",
+    "Bravo ! Demain, on continue !"
+   ]
+  ],
+  "refrain": "",
+  "age": "4-5"
+ },
+ {
+  "id": "D6",
+  "theme": "D",
+  "titre": "L'alphabet de U à Z",
+  "duree": "60 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola"
+  ],
+  "objectif": "Apprendre les lettres U à Z avec des mots familiers.",
+  "scenes": [
+   [
+    "PIOUPIOU",
+    "Aujourd'hui, les lettres de U à Z. Écoute bien et répète !"
+   ],
+   [
+    "Narration",
+    "U en grand + image : U comme un. (silence : l'enfant répète)"
+   ],
+   [
+    "Narration",
+    "V en grand + image : V comme vache. (silence : l'enfant répète)"
+   ],
+   [
+    "Narration",
+    "W en grand + image : W comme wagon. (silence : l'enfant répète)"
+   ],
+   [
+    "Narration",
+    "X en grand + image : X comme xylophone. (silence : l'enfant répète)"
+   ],
+   [
+    "Narration",
+    "Y en grand + image : Y comme yaourt. (silence : l'enfant répète)"
+   ],
+   [
+    "Narration",
+    "Z en grand + image : Z comme zèbre. (silence : l'enfant répète)"
+   ],
+   [
+    "PIOUPIOU",
+    "Bravo ! Demain, on continue !"
+   ]
+  ],
+  "refrain": "",
+  "age": "4-5"
+ },
+ {
+  "id": "D7",
+  "theme": "D",
+  "titre": "Cherche la lettre",
+  "duree": "75 s",
+  "cast": [
+   "PIOUPIOU",
+   "Kiki"
+  ],
+  "objectif": "Jeu : retrouver une lettre parmi plusieurs.",
+  "scenes": [
+   [
+    "Kiki",
+    "Où est la lettre M ?"
+   ],
+   [
+    "Narration",
+    "Quatre lettres, l'enfant touche la bonne (jeu interactif)."
+   ],
+   [
+    "PIOUPIOU",
+    "Bravo ! M comme manioc !"
+   ]
+  ],
+  "refrain": "",
+  "age": "4-6"
+ },
+ {
+  "id": "D8",
+  "theme": "D",
+  "titre": "Ton prénom en lettres",
+  "duree": "75 s",
+  "cast": [
+   "PIOUPIOU",
+   "Zola",
+   "Mawa"
+  ],
+  "objectif": "Épeler son prénom.",
+  "scenes": [
+   [
+    "PIOUPIOU",
+    "Ton prénom aussi s'écrit avec des lettres !"
+   ],
+   [
+    "Zola",
+    "Z - O - L - A : Zola !"
+   ],
+   [
+    "Mawa",
+    "M - A - W - A : Mawa !"
+   ],
+   [
+    "PIOUPIOU",
+    "Et toi ? Demande à tes parents de t'aider à épeler ton prénom !"
+   ]
+  ],
+  "refrain": "",
+  "age": "5-6"
+ }
+]

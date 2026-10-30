@@ -1,21 +1,26 @@
-// STAR VIBE — comptes réels (téléphone + code PIN à 4 chiffres, comme un
+// STAR VIBE — comptes réels (téléphone + code PIN à 4 ou 5 chiffres, comme un
 // compte Mobile Money). Un compte peut porter plusieurs profils : le
 // profil personnel du titulaire, et des profils enfant (3-6 ans) qu'il
 // supervise. Mêmes protections que les autres comptes du groupe :
 // verrouillage après tentatives échouées, réponse générique en cas
 // d'échec de connexion, code PIN toujours haché (jamais stocké en clair).
+import { memeNumero } from "./_tel.mts";
 import type { Context, Config } from "@netlify/functions";
 import bcrypt from "bcryptjs";
 import { getStore } from "@netlify/blobs";
-import { randomBytes } from "node:crypto";
+import { randomBytes, randomInt } from "node:crypto";
 import { ensureSchema, db, json } from "./_db.mts";
 import { issueToken, requireAuth } from "./_auth.mts";
+import { pushAll } from "./_push.mts";
+import { poster } from "./_msg.mts";
+import { ipHash, verrou, echec, effacer, msgBloque } from "./_guard.mts";
 
 function clean(value: unknown, maxLen: number): string {
   return String(value ?? "").trim().slice(0, maxLen);
 }
 
-const PIN_RE = /^\d{4}$/;
+const PIN_RE = /^\d{4,5}$/; // 4 ou 5 chiffres (les comptes existants à 4 chiffres restent valables)
+const STAFF_ORG = "star_entreprise";
 const MAX_FAILED_ATTEMPTS = 5;
 const LOCKOUT_MINUTES = 15;
 const ORG = "star_vibe";
@@ -44,6 +49,27 @@ function ageFromDate(dateStr: string): number | null {
 export default async (req: Request, _context: Context) => {
   await ensureSchema();
   const { sql } = db();
+
+  if (req.method === "GET" && new URL(req.url).searchParams.get("pin_requests") === "1") {
+    const staff = await requireAuth(req);
+    if (!staff || staff.org !== STAFF_ORG) return json({ error: "Non autorisé" }, 403);
+    const rows = await sql`
+      SELECT r.id, r.telephone, r.nom_indique, r.statut, r.created_at, r.updated_at, r.code_expire,
+             a.ville, a.created_at AS compte_cree, p.nom AS profil_nom
+      FROM starvibe_pin_resets r
+      JOIN starvibe_accounts a ON a.id = r.account_id
+      LEFT JOIN starvibe_profiles p ON p.account_id = a.id AND p.type_profil = 'personnel'
+      ORDER BY r.id DESC LIMIT 300
+    `;
+    return json({
+      now: new Date().toISOString(),
+      demandes: (rows as any[]).map((r) => ({
+        id: String(r.id), telephone: r.telephone, nomIndique: r.nom_indique, statut: r.statut,
+        date: r.created_at, maj: r.updated_at, codeExpire: r.code_expire,
+        ville: r.ville || "", profil: r.profil_nom || "", compteCree: r.compte_cree,
+      })),
+    });
+  }
 
   if (req.method === "GET") {
     const session = await requireAuth(req);
@@ -75,18 +101,105 @@ export default async (req: Request, _context: Context) => {
 
   const action = clean(body.action, 20);
 
+  // ---------- Code PIN oublié (réinitialisation assistée) ----------
+  // Les 8 derniers chiffres : le même numéro est reconnu collé ou espacé, avec « + », « 00 » ou l'indicatif, avec ou sans le 0 du début
+  // (+242 06 608 71 42, 0666087142, 6 608 71 42, +2420 06 608 71 42…). Le code PIN départage les rares numéros qui se ressemblent.
+  const tel9 = (t: string) => t.replace(/\D/g, "").slice(-8);
+
+  // Membre : demande. Réponse toujours identique (on ne dit jamais si un numéro a un compte).
+  if (action === "pin_demande") {
+    const telephone = clean(body.telephone, 40).replace(/[^\d+]/g, "");
+    const nom = clean(body.nom, 80);
+    const ip = ipHash(req);
+    const kIp = `ip:pindem:${ip}`, kTel = `tel:pindem:${tel9(telephone)}`;
+    const bloc = Math.max(await verrou(sql, kIp), await verrou(sql, kTel));
+    if (bloc) return json({ error: msgBloque(bloc) }, 429);
+    if (tel9(telephone).length < 8) return json({ error: "Écris ton numéro de téléphone." }, 400);
+    await echec(sql, kIp, 4, 60, 60);     // 3 demandes par heure et par connexion
+    await echec(sql, kTel, 4, 1440, 240); // 3 demandes par jour et par numéro
+    const rows = await sql`SELECT id, telephone FROM starvibe_accounts WHERE RIGHT(regexp_replace(telephone, '[^0-9]', '', 'g'), 8) = ${tel9(telephone)} AND guest = false ORDER BY id LIMIT 20`;
+    const acc = (rows as any[]).find((r) => memeNumero(r.telephone, telephone)) as any;
+    if (acc) {
+      const deja = await sql`SELECT 1 FROM starvibe_pin_resets WHERE account_id = ${acc.id} AND statut = 'en_attente' AND created_at > now() - interval '6 hours' LIMIT 1`;
+      if (!deja[0]) {
+        await sql`INSERT INTO starvibe_pin_resets (account_id, telephone, nom_indique) VALUES (${acc.id}, ${telephone}, ${nom})`;
+        try { await pushAll(sql, { title: "Code PIN oublié", body: `${telephone}${nom ? " — " + nom : ""} demande un nouveau PIN. Ouvre le backend, onglet « PIN oubliés ».`, tag: "pin-oublie", url: "/starvibe/keydou-admin.html" }); } catch { /* la demande reste visible dans le backend */ }
+      }
+    }
+    return json({ ok: true });
+  }
+
+  // Membre : code temporaire reçu par WhatsApp + nouveau PIN
+  if (action === "pin_reset") {
+    const telephone = clean(body.telephone, 40).replace(/[^\d+]/g, "");
+    const code = clean(body.code, 12).replace(/\D/g, "");
+    const newPin = String(body.newPin ?? "");
+    const kIp = `ip:pinreset:${ipHash(req)}`;
+    const bloc = await verrou(sql, kIp);
+    if (bloc) return json({ error: msgBloque(bloc) }, 429);
+    if (!PIN_RE.test(newPin)) return json({ error: "Le nouveau PIN doit contenir 4 ou 5 chiffres." }, 400);
+    if (code.length !== 6) return json({ error: "Le code temporaire fait 6 chiffres." }, 400);
+    const rows = await sql`
+      SELECT r.id, r.account_id, r.code_hash, r.tries, a.telephone AS tel_compte
+      FROM starvibe_pin_resets r JOIN starvibe_accounts a ON a.id = r.account_id
+      WHERE RIGHT(regexp_replace(a.telephone, '[^0-9]', '', 'g'), 8) = ${tel9(telephone)} AND r.statut = 'code_envoye' AND r.code_expire > now()
+      ORDER BY r.id DESC LIMIT 20
+    `;
+    const r = (rows as any[]).find((x) => memeNumero(x.tel_compte, telephone)) as any;
+    const generique = () => json({ error: "Code incorrect ou expiré. Demande un nouveau code si besoin." }, 400);
+    if (!r) { await echec(sql, kIp, 8, 60, 30); return generique(); }
+    if (!(await bcrypt.compare(code, r.code_hash))) {
+      const t = (r.tries || 0) + 1;
+      if (t >= 5) await sql`UPDATE starvibe_pin_resets SET statut = 'expire', tries = ${t}, updated_at = now() WHERE id = ${r.id}`;
+      else await sql`UPDATE starvibe_pin_resets SET tries = ${t}, updated_at = now() WHERE id = ${r.id}`;
+      await echec(sql, kIp, 8, 60, 30);
+      return generique();
+    }
+    const pinHash = await bcrypt.hash(newPin, 12);
+    await sql`UPDATE starvibe_accounts SET pin_hash = ${pinHash}, failed_attempts = 0, locked_until = NULL WHERE id = ${r.account_id}`;
+    await sql`UPDATE starvibe_pin_resets SET statut = 'termine', updated_at = now() WHERE id = ${r.id}`;
+    await effacer(sql, kIp);
+    const accRows = await sql`SELECT id, telephone, ville FROM starvibe_accounts WHERE id = ${r.account_id} LIMIT 1`;
+    const acc = accRows[0] as any;
+    const profiles = await sql`SELECT id, nom, date_naissance, type_profil FROM starvibe_profiles WHERE account_id = ${acc.id} ORDER BY id ASC`;
+    const token = await issueToken({ sub: String(acc.id), username: acc.telephone, displayName: (profiles[0] as any)?.nom || acc.telephone, org: ORG, role: "titulaire" });
+    return json({ token, account: { id: acc.id, telephone: acc.telephone, ville: acc.ville }, profiles });
+  }
+
+  // Staff : générer le code temporaire d'une demande (affiché une seule fois), ou la refuser
+  if (action === "pin_code" || action === "pin_refuser") {
+    const staff = await requireAuth(req);
+    if (!staff || staff.org !== STAFF_ORG) return json({ error: "Non autorisé" }, 403);
+    const id = Number(body.requestId);
+    const rows = await sql`SELECT id, telephone, statut FROM starvibe_pin_resets WHERE id = ${id} LIMIT 1`;
+    const r = rows[0] as any;
+    if (!r) return json({ error: "Demande introuvable" }, 404);
+    if (r.statut === "termine") return json({ error: "Cette demande est déjà terminée." }, 400);
+    if (action === "pin_refuser") {
+      await sql`UPDATE starvibe_pin_resets SET statut = 'refuse', code_hash = '', updated_at = now() WHERE id = ${id}`;
+      return json({ ok: true });
+    }
+    const code = String(randomInt(0, 1000000)).padStart(6, "0");
+    const h = await bcrypt.hash(code, 10);
+    await sql`UPDATE starvibe_pin_resets SET statut = 'code_envoye', code_hash = ${h}, code_expire = now() + interval '24 hours', tries = 0, updated_at = now() WHERE id = ${id}`;
+    return json({ ok: true, code, telephone: r.telephone });
+  }
+
   if (action === "login") {
     const telephone = clean(body.telephone, 40).replace(/[^\d+]/g, "");
     const pin = String(body.pin ?? "");
     if (!telephone || !pin) return json({ error: "Numéro de téléphone ou code PIN manquant" }, 400);
 
-    const rows = await sql`
+    // Le numéro est reconnu quelle que soit son écriture : 066565050, 06 656 50 50 ou +242 06 656 50 50.
+    const rowsBrut = await sql`
       SELECT id, telephone, pin_hash, ville, failed_attempts, locked_until
-      FROM starvibe_accounts WHERE telephone = ${telephone} LIMIT 1
+      FROM starvibe_accounts WHERE RIGHT(regexp_replace(telephone, '[^0-9]', '', 'g'), 8) = ${tel9(telephone)}
+      ORDER BY id LIMIT 20
     `;
-    const acc = rows[0] as any;
+    const rows = (rowsBrut as any[]).filter((r) => memeNumero(r.telephone, telephone));
+    let acc = rows[0] as any;
     const genericError = () => json({ error: "Numéro ou code PIN incorrect" }, 401);
-    if (!acc) return genericError();
+    if (!acc || tel9(telephone).length < 8) return genericError();
 
     if (acc.locked_until && new Date(acc.locked_until).getTime() > Date.now()) {
       const minutes = Math.ceil((new Date(acc.locked_until).getTime() - Date.now()) / 60000);
@@ -96,7 +209,10 @@ export default async (req: Request, _context: Context) => {
       );
     }
 
-    const ok = await bcrypt.compare(pin, acc.pin_hash);
+    let ok = false;
+    for (const r of rows as any[]) {
+      if (r.pin_hash && (await bcrypt.compare(pin, r.pin_hash))) { acc = r; ok = true; break; }
+    }
     if (!ok) {
       const attempts = (acc.failed_attempts || 0) + 1;
       if (attempts >= MAX_FAILED_ATTEMPTS) {
@@ -135,12 +251,13 @@ export default async (req: Request, _context: Context) => {
     const nom = clean(body.nom, 120);
     const dateNaissance = clean(body.dateNaissance, 20);
     const ville = clean(body.ville, 80);
+    const pays = clean(body.pays, 2).toUpperCase().replace(/[^A-Z]/g, "");   // pays détecté (code à 2 lettres), pour les prix et l'annuaire de Keydou
     const typeProfil = clean(body.typeProfil, 20) === "enfant" ? "enfant" : "personnel";
 
     if (telephone.replace(/\D/g, "").length < 8) {
       return json({ error: "Numéro de téléphone invalide" }, 400);
     }
-    if (!PIN_RE.test(pin)) return json({ error: "Le code PIN doit contenir exactement 4 chiffres" }, 400);
+    if (!PIN_RE.test(pin)) return json({ error: "Le code PIN doit contenir 4 ou 5 chiffres" }, 400);
     if (!nom) return json({ error: "Le nom est requis" }, 400);
     if (!dateNaissance) return json({ error: "La date de naissance est requise" }, 400);
 
@@ -152,15 +269,15 @@ export default async (req: Request, _context: Context) => {
       if (age < 13) return json({ error: "STAR VIBE est réservé aux 13 ans et plus (sauf profil enfant 3-6 ans)" }, 400);
     }
 
-    const exists = await sql`SELECT id FROM starvibe_accounts WHERE telephone = ${telephone} LIMIT 1`;
+    const exists = (await sql`SELECT id, telephone FROM starvibe_accounts WHERE RIGHT(regexp_replace(telephone, '[^0-9]', '', 'g'), 8) = ${tel9(telephone)} LIMIT 20`).filter((r: any) => memeNumero(r.telephone, telephone));
     if (exists.length) {
       return json({ error: "Un compte existe déjà avec ce numéro — connecte-toi plutôt" }, 409);
     }
 
     const pinHash = await bcrypt.hash(pin, 12);
     const accRows = await sql`
-      INSERT INTO starvibe_accounts (telephone, pin_hash, ville)
-      VALUES (${telephone}, ${pinHash}, ${ville})
+      INSERT INTO starvibe_accounts (telephone, pin_hash, ville, pays)
+      VALUES (${telephone}, ${pinHash}, ${ville}, ${pays})
       RETURNING id, telephone, ville
     `;
     const acc = accRows[0] as any;
@@ -171,6 +288,9 @@ export default async (req: Request, _context: Context) => {
       RETURNING id, nom, date_naissance, type_profil
     `;
     const profile = profRows[0] as any;
+    // Message de bienvenue dans la messagerie KOMYO : le lien pour installer l'application et comment la retrouver sur un autre téléphone.
+    const base = (process.env.URL || "https://komyo.starentreprise.com").replace(/\/$/, "");
+    await poster(sql, acc.id, { kind: "info", titre: "👋 Bienvenue sur KOMYO !", texte: `Ton compte est prêt. Pour l'avoir sur l'écran d'accueil de ton téléphone, ouvre ce lien depuis ton téléphone (dans Chrome sur Android, dans Safari sur iPhone) : ${base}/starvibe/installer.html\n\nTu as changé de téléphone ou tu n'as pas encore installé l'application ? Rien n'est perdu : ouvre le même lien, puis connecte-toi avec ton numéro et ton code PIN.\nL'équipe KOMYO ne te demandera jamais ton code PIN.`, lien: `${base}/starvibe/installer.html` });
 
     const token = await issueToken({
       sub: String(acc.id), username: acc.telephone, displayName: nom, org: ORG, role: "titulaire",
@@ -202,6 +322,26 @@ export default async (req: Request, _context: Context) => {
       RETURNING id, nom, date_naissance, type_profil
     `;
     return json({ profile: rows[0] }, 201);
+  }
+
+  // Modifier mon profil : prénom et nom, ville. La date de naissance ne se change pas ici (elle décide de l'accès
+  // des mineurs) : en cas d'erreur, l'équipe la corrige sur demande. Un profil ne peut être modifié que par son titulaire.
+  if (action === "update-profil") {
+    const session = await requireAuth(req);
+    if (!session || session.org !== ORG) return json({ error: "Non authentifié" }, 401);
+    const accountId = Number(session.sub);
+    const profileId = Number(body.profileId);
+    const nom = clean(body.nom, 120).replace(/[\u0000-\u001f\u007f<>]/g, "").replace(/\s+/g, " ").trim();
+    const ville = clean(body.ville, 80).replace(/[\u0000-\u001f\u007f<>]/g, "").trim();
+    if (!profileId) return json({ error: "Profil requis" }, 400);
+    if (nom.length < 2) return json({ error: "Écris ton prénom et ton nom (2 lettres au moins)." }, 400);
+    const rows = (await sql`SELECT id, type_profil FROM starvibe_profiles WHERE id = ${profileId} AND account_id = ${accountId} LIMIT 1`) as { id: number; type_profil: string }[];
+    if (!rows[0]) return json({ error: "Profil introuvable" }, 404);
+    await sql`UPDATE starvibe_profiles SET nom = ${nom} WHERE id = ${profileId}`;
+    if (rows[0].type_profil === "personnel" && body.ville !== undefined) {
+      await sql`UPDATE starvibe_accounts SET ville = ${ville} WHERE id = ${accountId}`;
+    }
+    return json({ ok: true, profile: { id: profileId, nom }, ville: rows[0].type_profil === "personnel" && body.ville !== undefined ? ville : undefined });
   }
 
   // Photo de profil : remplace l'ancienne (supprimée du stockage). Réservée
