@@ -95,6 +95,19 @@
     text-shadow:0 0 6px #2dff8a,0 0 14px #2dff8a,0 0 26px #14d96a;box-shadow:0 0 14px #2dff8a99,inset 0 0 10px #2dff8a55;border:1.5px solid #5dffa6;animation:brille 1.8s ease-in-out infinite;}
   @keyframes brille{0%,100%{box-shadow:0 0 8px #2dff8a77,inset 0 0 6px #2dff8a44;}50%{box-shadow:0 0 22px #2dff8acc,inset 0 0 14px #2dff8a77;}}
   @media (prefers-reduced-motion:reduce){.etiquette.ouvert{animation:none;}}
+
+  /* Plein écran : le parent agrandit la vidéo (touche Échap, bouton ✕ ou geste retour pour revenir). */
+  .btn-fs{position:absolute;right:10px;bottom:10px;z-index:5;width:44px;height:44px;border-radius:14px;border:0;background:rgba(0,0,0,.55);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .btn-fs svg{width:22px;height:22px;} .btn-fs:focus-visible{outline:3px solid #fff;outline-offset:2px;}
+  .btn-fs[hidden]{display:none;}
+  .btn-fs .ico-out{display:none;}
+  .player.fs,.player:fullscreen{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;max-width:none;aspect-ratio:auto;border-radius:0;z-index:9999;background:#000;}
+  .player.fs video,.player:fullscreen video{object-fit:contain;background:#000;}
+  .player.fs .btn-fs .ico-in,.player:fullscreen .btn-fs .ico-in{display:none;}
+  .player.fs .btn-fs .ico-out,.player:fullscreen .btn-fs .ico-out{display:block;}
+  .player.fs .btn-fs,.player:fullscreen .btn-fs{top:calc(10px + env(safe-area-inset-top,0px));bottom:auto;right:calc(10px + env(safe-area-inset-right,0px));}
+  .player.fs .premium-tag,.player:fullscreen .premium-tag{top:calc(10px + env(safe-area-inset-top,0px));}
+  body.fs-ouvert{overflow:hidden;}
 </style>
 </head>
 <body>
@@ -133,6 +146,10 @@
       <p>Abonne-toi pour 1 500 FCFA par mois et regarde tous les dessins animés PIOUPIOU.</p>
       <a href="abonnement.html">Découvrir l'abonnement Famille</a>
     </div>
+    <button type="button" class="btn-fs" id="btnFs" aria-label="Agrandir la vidéo en plein écran" hidden>
+      <svg class="ico-in" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+      <svg class="ico-out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
     <div class="mute-hint" id="muteHint"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M19 9a5 5 0 0 1 0 6M22 6a9 9 0 0 1 0 12"/></svg></div>
   </div>
   <div class="caption-box">
@@ -205,6 +222,37 @@
     if (d > 0 && d < 2147000000) minuteurOuverture = setTimeout(function(){ location.reload(); }, d);
   }
 
+  // ---------- Plein écran (le parent agrandit l'image) ----------
+  var playerEl = document.querySelector('.player'), btnFs = document.getElementById('btnFs');
+  function enPleinEcran(){ return document.fullscreenElement === playerEl || document.webkitFullscreenElement === playerEl || playerEl.classList.contains('fs'); }
+  function majBoutonFs(){
+    var on = enPleinEcran();
+    btnFs.setAttribute('aria-label', on ? 'Quitter le plein écran' : 'Agrandir la vidéo en plein écran');
+    document.body.classList.toggle('fs-ouvert', on);
+  }
+  function quitterFs(){
+    if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(function(){});
+    else if (document.webkitFullscreenElement && document.webkitExitFullscreen) document.webkitExitFullscreen();
+    playerEl.classList.remove('fs'); majBoutonFs();
+  }
+  function entrerFs(){
+    var req = playerEl.requestFullscreen || playerEl.webkitRequestFullscreen;
+    if (req){
+      try {
+        var r = req.call(playerEl);
+        if (r && r.catch) r.catch(function(){ playerEl.classList.add('fs'); majBoutonFs(); });   // refus du navigateur : plein écran « maison »
+      } catch (e) { playerEl.classList.add('fs'); }
+    } else {
+      playerEl.classList.add('fs');   // iPhone : pas de plein écran d'élément → même effet avec toute la fenêtre
+    }
+    try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (e) {}   // l'écran peut pivoter en paysage
+    majBoutonFs();
+  }
+  btnFs.addEventListener('click', function(e){ e.stopPropagation(); enPleinEcran() ? quitterFs() : entrerFs(); });
+  document.addEventListener('fullscreenchange', majBoutonFs);
+  document.addEventListener('webkitfullscreenchange', majBoutonFs);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && playerEl.classList.contains('fs')) quitterFs(); });
+
   function playCurrent(){
     if (index >= videos.length){ show(doneState); return; }
     var v = videos[index];
@@ -221,6 +269,8 @@
       document.getElementById('etqLien').hidden = v.raisonFermee === 'date';
       if (v.raisonFermee === 'date' && v.disponibleLe) programmerOuverture(new Date(v.disponibleLe).getTime());
     }
+    btnFs.hidden = !!(v.verrouille || !v.videoUrl);
+    if (v.verrouille && enPleinEcran()) quitterFs();   // une vidéo fermée ne s'agrandit pas
     if (v.verrouille || !v.videoUrl){
       videoEl.pause(); videoEl.removeAttribute('src'); videoEl.load();
     } else {
