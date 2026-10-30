@@ -1,4 +1,5 @@
 // REÇUS DE PAIEMENT KOMYO — consultation et suivi.
+// GET  ?facture=1&id=&t=  (public, lien signé reçu par WhatsApp) : les lignes de la facture, sans le numéro de téléphone.
 // GET  ?mes=1      (abonné)  : mes reçus, du plus récent au plus ancien.
 // GET  ?staff=1    (staff)   : les derniers reçus avec l'état d'envoi WhatsApp et un lien pour l'envoyer à la main.
 // POST { action: "renvoyer", id }      (staff) : retente l'envoi automatique WhatsApp.
@@ -6,7 +7,7 @@
 import type { Context, Config } from "@netlify/functions";
 import { ensureSchema, db, json } from "./_db.mts";
 import { requireAuth } from "./_auth.mts";
-import { envoyerWhatsApp, numeroWhatsApp } from "./_recu.mts";
+import { envoyerWhatsApp, numeroWhatsApp, jetonFactureValide } from "./_recu.mts";
 
 const ORG = "star_vibe";
 const STAFF_ORG = "star_entreprise";
@@ -15,6 +16,14 @@ export default async (req: Request, _context: Context) => {
   await ensureSchema();
   const { sql } = db();
   const url = new URL(req.url);
+  if (req.method === "GET" && url.searchParams.get("facture") === "1") {
+    const id = Number(url.searchParams.get("id"));
+    if (!id || !jetonFactureValide(id, url.searchParams.get("t") || "")) return json({ error: "Lien invalide" }, 403);
+    const r = ((await sql`SELECT numero, titre, montant, expire_le, variables, created_at FROM starvibe_recus WHERE id = ${id} LIMIT 1`) as Record<string, unknown>[])[0];
+    if (!r) return json({ error: "Reçu introuvable" }, 404);
+    return json({ numero: r.numero, titre: r.titre, montant: r.montant, expireLe: r.expire_le, date: r.created_at, variables: r.variables });
+  }
+
   const session = await requireAuth(req);
 
   if (req.method === "GET" && url.searchParams.get("mes") === "1") {

@@ -6,6 +6,7 @@
 //   WHATSAPP_TOKEN, WHATSAPP_PHONE_ID, et (facultatif) WHATSAPP_TEMPLATE_RECU (défaut « komyo_recu »), WHATSAPP_TEMPLATE_LANG (défaut « fr »).
 // Sans ces variables, le reçu est quand même créé et visible dans l'application ; l'équipe peut l'envoyer en un geste (lien WhatsApp pré-rempli).
 // Un paiement ne doit JAMAIS échouer à cause d'un reçu : tout est protégé par try/catch.
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { chiffres, indicatif } from "./_tel.mts";
 
 export type KindRecu = "abo" | "keydou" | "pub";
@@ -38,7 +39,7 @@ export function numeroWhatsApp(brut: string): string {
 }
 
 /** Texte complet du reçu (affiché dans l'application et envoyé tel quel en lien WhatsApp). */
-export function texteRecu(numero: string, r: RecuInfo, role: "client" | "payeur" | "beneficiaire" = "client", nomAutre = ""): string {
+export function texteRecu(numero: string, r: RecuInfo, role: "client" | "payeur" | "beneficiaire" = "client", nomAutre = "", lien = ""): string {
   const l: string[] = [];
   l.push(`🧾 Reçu KOMYO n° ${numero}`);
   l.push("");
@@ -50,25 +51,40 @@ export function texteRecu(numero: string, r: RecuInfo, role: "client" | "payeur"
   if (r.fin) l.push(`Valable jusqu'au : ${dateFr(r.fin)}`);
   l.push(`Détail : ${r.detail}`);
   l.push(`Référence : ${r.reference}`);
+  if (lien) l.push(`Votre facture (avec le logo KOMYO) : ${lien}`);
   l.push("");
   if (r.fin) l.push("Un rappel vous sera envoyé 3 jours avant la fin.");
-  l.push("Merci de votre confiance. KOMYO, le monde en mouvement.");
+  l.push("Merci de votre confiance.");
+  l.push("KOMYO, le monde en mouvement.");
   l.push("Ne partagez jamais votre code PIN Mobile Money ni votre mot de passe.");
   return l.join("\n");
 }
 
+/** Lien de la facture (page KOMYO avec logo et slogan, imprimable en PDF). Signé : impossible à deviner. */
+const jeton = (id: number) => createHmac("sha256", process.env.JWT_SECRET || "").update(`facture:${id}`).digest("hex").slice(0, 40);
+export function lienFacture(id: number): string {
+  if (!process.env.JWT_SECRET) return "";
+  const base = (process.env.URL || "https://komyo.starentreprise.com").replace(/\/$/, "");
+  return `${base}/starvibe/recu.html?id=${id}&t=${jeton(id)}`;
+}
+export function jetonFactureValide(id: number, t: string): boolean {
+  if (!process.env.JWT_SECRET) return false;
+  const a = Buffer.from(jeton(id)), b = Buffer.from(String(t || ""));
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
 /** Variables du modèle WhatsApp approuvé (pas de retour à la ligne autorisé par Meta dans une variable). */
-export function variablesModele(numero: string, r: RecuInfo): string[] {
+export function variablesModele(numero: string, r: RecuInfo, lien = ""): string[] {
   const un = (s: string) => String(s).replace(/[\r\n\t]+/g, " ").replace(/ {2,}/g, " ").trim().slice(0, 300);
   return [
     un(numero), un(r.titre), `${r.montant.toLocaleString("fr-FR").replace(/[  ]/g, " ")}`, dateFr(r.payeLe, true),
-    r.fin ? dateFr(r.fin) : "sans limite (paiement unique)", un(r.detail) + " — Réf. " + un(r.reference),
+    r.fin ? dateFr(r.fin) : "sans limite (paiement unique)", un(r.detail) + " — Réf. " + un(r.reference), lien || "disponible dans votre application KOMYO",
   ];
 }
 
 /** Texte à enregistrer dans Meta (catégorie UTILITAIRE), nom « komyo_recu », langue fr. */
 export const MODELE_META =
-  "Bonjour ! Voici votre reçu KOMYO n° {{1}}.\nAchat : {{2}}\nMontant : {{3}} FCFA\nPayé le : {{4}}\nValable jusqu'au : {{5}}\nDétail : {{6}}\nMerci de votre confiance. KOMYO, le monde en mouvement.";
+  "Bonjour ! Voici votre reçu KOMYO n° {{1}}.\nAchat : {{2}}\nMontant : {{3}} FCFA\nPayé le : {{4}}\nValable jusqu'au : {{5}}\nDétail : {{6}}\nVotre facture : {{7}}\nMerci de votre confiance. KOMYO, le monde en mouvement.";
 
 export async function envoyerWhatsApp(telephoneWa: string, variables: string[]): Promise<{ etat: "envoye" | "a_envoyer" | "echec"; id?: string; erreur?: string }> {
   const token = process.env.WHATSAPP_TOKEN, phoneId = process.env.WHATSAPP_PHONE_ID;
@@ -107,8 +123,9 @@ async function emettre(sql: Sql, kind: KindRecu, refId: number, role: string, ac
   if (!ins[0]) return;   // reçu déjà émis (paiement confirmé deux fois : un seul reçu)
   const id = ins[0].id;
   const numero = `REC-${new Date().getUTCFullYear()}-${String(id).padStart(6, "0")}`;
-  const texte = texteRecu(numero, r, role as "client", nomAutre);
-  const variables = variablesModele(numero, r);
+  const lien = lienFacture(id);
+  const texte = texteRecu(numero, r, role as "client", nomAutre, lien);
+  const variables = variablesModele(numero, r, lien);
   await sql`UPDATE starvibe_recus SET numero = ${numero}, texte = ${texte}, variables = ${JSON.stringify(variables)}::jsonb WHERE id = ${id}`;
   if (!wa) return;
   const res = await envoyerWhatsApp(wa, variables);

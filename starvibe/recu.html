@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KOMYO — Reçu de paiement</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#FF7A2E">
+<style>
+  :root{--coral:#FF7A2E;--gold:#c8942f;--navy:#0d1830;--ink:#1c2233;--line:#eadfc8;--bg:#fffaf0;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  [hidden]{display:none!important;}
+  .page{max-width:640px;margin:0 auto;padding:18px 16px 40px;}
+  .facture{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 8px 30px rgba(200,148,47,.12);}
+  .tete{background:linear-gradient(135deg,var(--coral),var(--gold));padding:22px 20px;text-align:center;}
+  .tete img{width:190px;max-width:70%;height:auto;display:block;margin:0 auto;}
+  .slogan{margin-top:8px;color:#fff;font-weight:700;font-size:14px;letter-spacing:.3px;}
+  .corps{padding:20px;}
+  .titre{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+  .titre h1{font-size:19px;margin:0;}
+  .titre .num{font-weight:700;color:var(--gold);font-size:14px;}
+  .ligne{display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14.5px;}
+  .ligne span:first-child{color:#6b6350;}
+  .ligne b{text-align:right;}
+  .total{display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding:14px 16px;border-radius:14px;background:#fff3de;font-weight:800;font-size:18px;}
+  .valable{margin-top:14px;padding:12px 14px;border-radius:12px;background:#eaf7ee;color:#1d6b3a;font-weight:700;font-size:14px;}
+  .note{margin-top:14px;font-size:12.5px;color:#6b6350;line-height:1.5;}
+  .pied{padding:16px 20px;border-top:1px solid var(--line);text-align:center;font-size:12.5px;color:#6b6350;}
+  .pied b{color:var(--navy);}
+  .actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+  .actions button,.actions a{flex:1;min-width:150px;text-align:center;text-decoration:none;border:none;border-radius:12px;padding:13px 10px;font-weight:800;font-size:14px;cursor:pointer;background:linear-gradient(135deg,var(--coral),var(--gold));color:#fff;}
+  .etat{text-align:center;padding:60px 10px;color:#6b6350;}
+  @media print{.actions{display:none!important;}body{background:#fff;}.page{padding:0;}.facture{box-shadow:none;border:none;}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div id="etat" class="etat">Chargement de votre reçu…</div>
+  <div id="facture" class="facture" hidden>
+    <div class="tete"><img src="assets/img/icons/komyo-logo-officiel-v2.webp" alt="KOMYO" width="190" height="auto"><div class="slogan">KOMYO, le monde en mouvement</div></div>
+    <div class="corps">
+      <div class="titre"><h1>Reçu de paiement</h1><span class="num" id="num"></span></div>
+      <div class="ligne"><span>Achat</span><b id="achat"></b></div>
+      <div class="ligne"><span>Payé le</span><b id="paye"></b></div>
+      <div class="ligne"><span>Détail</span><b id="detail" style="font-weight:600"></b></div>
+      <div class="total"><span>Montant payé</span><span id="montant"></span></div>
+      <div class="valable" id="valable" hidden></div>
+      <p class="note">Ce reçu confirme la réception de votre paiement par STAR ENTREPRISE. Conservez-le. Ne partagez jamais votre code PIN Mobile Money ni votre mot de passe.</p>
+    </div>
+    <div class="pied"><b>KOMYO</b> — une application <b>STAR ENTREPRISE</b> · contact@starentreprise.com</div>
+  </div>
+  <div class="actions" id="actions" hidden><button type="button" id="btnPrint">Enregistrer en PDF / imprimer</button><a href="index.html">Ouvrir KOMYO</a></div>
+</div>
+<script>
+(function(){
+  var q = new URLSearchParams(location.search), etat = document.getElementById('etat');
+  function $(i){ return document.getElementById(i); }
+  fetch('/api/starvibe-recus?facture=1&id=' + encodeURIComponent(q.get('id') || '') + '&t=' + encodeURIComponent(q.get('t') || ''))
+    .then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); })
+    .then(function(x){
+      if (!x.ok){ etat.textContent = 'Ce lien de reçu n\'est pas valide. Retrouvez vos reçus dans KOMYO, page Mon abonnement.'; return; }
+      var d = x.d, v = d.variables || [];
+      $('num').textContent = 'n° ' + d.numero;
+      $('achat').textContent = d.titre;
+      $('paye').textContent = v[3] || new Date(d.date).toLocaleDateString('fr-FR');
+      $('detail').textContent = (v[5] || '').replace(/\s*—\s*Réf\..*$/, '') + ((v[5] || '').match(/Réf\.\s*(.*)$/) ? ' (réf. ' + (v[5].match(/Réf\.\s*(.*)$/)[1]) + ')' : '');
+      $('montant').textContent = Number(d.montant).toLocaleString('fr-FR') + ' FCFA';
+      if (d.expireLe){ var e = $('valable'); e.hidden = false; e.textContent = 'Valable jusqu\'au ' + (v[4] || new Date(d.expireLe).toLocaleDateString('fr-FR')) + ' (rappel 3 jours avant la fin)'; }
+      etat.hidden = true; $('facture').hidden = false; $('actions').hidden = false;
+    }).catch(function(){ etat.textContent = 'Impossible de charger le reçu. Vérifiez votre connexion et réessayez.'; });
+  $('btnPrint').addEventListener('click', function(){ window.print(); });
+})();
+</script>
+</body>
+</html>

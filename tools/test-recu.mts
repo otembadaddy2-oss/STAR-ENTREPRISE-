@@ -1,6 +1,8 @@
 // Test des reçus de paiement : textes, numéros WhatsApp, et émission en base (PGlite, sans réseau).
 import { createRequire } from "node:module";
-import { dateFr, numeroWhatsApp, texteRecu, variablesModele, recuAbonnement, recuKeydou, recuAnnonce } from "../netlify/functions/_recu.mts";
+process.env.JWT_SECRET = "secret-de-test";
+process.env.URL = "https://exemple.netlify.app";
+const { dateFr, numeroWhatsApp, texteRecu, variablesModele, recuAbonnement, recuKeydou, recuAnnonce, lienFacture, jetonFactureValide } = await import("../netlify/functions/_recu.mts");
 const require = createRequire("/tmp/pgl/");
 const { PGlite } = require("@electric-sql/pglite");
 let bad = 0;
@@ -16,7 +18,11 @@ ok(numeroWhatsApp("123") === "", "trop court");
 const info = { titre: "Abonnement Famille PIOUPIOU (1 mois)", montant: 1500, payeLe: new Date("2026-10-30T14:00:00Z"), fin: new Date("2026-11-29T14:00:00Z"), detail: "dessins animés premium", reference: "KOMYO-12", methode: "mobile_money" };
 const t = texteRecu("REC-2026-000001", info);
 ok(t.includes("1 500 FCFA") && t.includes("Valable jusqu'au : 29 novembre 2026") && t.includes("KOMYO-12") && t.includes("PIN"), "texte du reçu");
-ok(variablesModele("REC-1", info).length === 6 && variablesModele("REC-1", info).every((v) => !/[\n\t]/.test(v)), "variables sans retour à la ligne");
+ok(variablesModele("REC-1", info, "https://x/y").length === 7 && variablesModele("REC-1", info).every((v) => !/[\n\t]/.test(v)), "variables sans retour à la ligne");
+const lien = lienFacture(42);
+ok(/^https:\/\/exemple\.netlify\.app\/starvibe\/recu\.html\?id=42&t=[0-9a-f]{40}$/.test(lien), "lien facture");
+ok(jetonFactureValide(42, lien.split("t=")[1]) && !jetonFactureValide(43, lien.split("t=")[1]) && !jetonFactureValide(42, "x".repeat(40)), "jeton signé");
+ok(texteRecu("R", info, "client", "", lien).includes("logo KOMYO") && texteRecu("R", info).includes("KOMYO, le monde en mouvement"), "texte avec facture et slogan");
 ok(texteRecu("R", info, "payeur", "Mawa").includes("Vous avez offert"), "texte payeur");
 
 // --- base de test
@@ -60,5 +66,5 @@ ok(rows.some((r) => r.ref_id === 3 && r.statut === "sans_numero"), "sans numéro
 ok(rows.filter((r) => r.statut === "a_envoyer").length === 5, "5 à envoyer (WhatsApp non branché)");
 ok(rows.every((r) => /^REC-2026-\d{6}$/.test(r.numero)), "numéros de reçu");
 const tx = (await pg.query("SELECT texte FROM starvibe_recus WHERE kind='pub'")).rows[0] as any;
-ok(tx.texte.includes("Annonce visible par tous") && tx.texte.includes("Valable jusqu'au"), "reçu annonce");
+ok(tx.texte.includes("Annonce visible par tous") && tx.texte.includes("Valable jusqu'au") && tx.texte.includes("recu.html?id="), "reçu annonce avec lien facture");
 console.log(bad ? `${bad} échec(s)` : "tous les contrôles OK");
