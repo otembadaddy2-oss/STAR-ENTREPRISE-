@@ -658,6 +658,78 @@ export async function ensureSchema() {
   `;
   await sql`CREATE INDEX IF NOT EXISTS starvibe_recus_account_idx ON starvibe_recus (account_id, created_at DESC)`;
 
+  // MESSAGERIE KOMYO : reçus, accusés de réception, ventes, factures hebdomadaires… (gratuite, dans l'application)
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_messages (
+      id SERIAL PRIMARY KEY,
+      account_id INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      kind TEXT NOT NULL DEFAULT 'info',
+      titre TEXT NOT NULL DEFAULT '',
+      texte TEXT NOT NULL DEFAULT '',
+      lien TEXT NOT NULL DEFAULT '',
+      lu BOOLEAN NOT NULL DEFAULT false,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_messages_account_idx ON starvibe_messages (account_id, id DESC)`;
+
+  // KOMYO BUSINESS — BOUTIQUES : le vendeur reçoit l'argent directement du client (Mobile Money) ; KOMYO enregistre la vente,
+  // envoie l'accusé de réception au client et la notification de vente au vendeur, et facture 500 FCFA par semaine AVEC ventes.
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_boutiques (
+      id SERIAL PRIMARY KEY,
+      account_id INTEGER UNIQUE NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      nom TEXT NOT NULL,
+      description TEXT NOT NULL DEFAULT '',
+      ville TEXT NOT NULL DEFAULT '',
+      numero_paiement TEXT NOT NULL DEFAULT '',
+      services JSONB NOT NULL DEFAULT '[]'::jsonb,
+      statut TEXT NOT NULL DEFAULT 'active',
+      pause_motif TEXT NOT NULL DEFAULT '',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_articles (
+      id SERIAL PRIMARY KEY,
+      boutique_id INTEGER NOT NULL REFERENCES starvibe_boutiques(id) ON DELETE CASCADE,
+      titre TEXT NOT NULL,
+      description TEXT NOT NULL DEFAULT '',
+      prix INTEGER NOT NULL,
+      actif BOOLEAN NOT NULL DEFAULT true,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_commandes (
+      id SERIAL PRIMARY KEY,
+      boutique_id INTEGER NOT NULL REFERENCES starvibe_boutiques(id) ON DELETE CASCADE,
+      client_account_id INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      lignes JSONB NOT NULL DEFAULT '[]'::jsonb,
+      total INTEGER NOT NULL,
+      statut TEXT NOT NULL DEFAULT 'en_attente',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      declare_at TIMESTAMPTZ,
+      paid_at TIMESTAMPTZ
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_commandes_boutique_idx ON starvibe_commandes (boutique_id, id DESC)`;
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_frais (
+      id SERIAL PRIMARY KEY,
+      boutique_id INTEGER NOT NULL REFERENCES starvibe_boutiques(id) ON DELETE CASCADE,
+      semaine DATE NOT NULL,
+      ventes_n INTEGER NOT NULL DEFAULT 0,
+      ventes_total INTEGER NOT NULL DEFAULT 0,
+      montant INTEGER NOT NULL DEFAULT 500,
+      statut TEXT NOT NULL DEFAULT 'a_payer',
+      declare_at TIMESTAMPTZ,
+      paid_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      UNIQUE (boutique_id, semaine)
+    )
+  `;
+
   // ÉCLAT (le direct de KOMYO) : liste d'attente en attendant le vrai direct
   await sql`
     CREATE TABLE IF NOT EXISTS starvibe_eclat_attente (

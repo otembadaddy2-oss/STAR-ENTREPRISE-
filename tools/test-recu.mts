@@ -32,6 +32,7 @@ CREATE TABLE starvibe_accounts (id SERIAL PRIMARY KEY, telephone TEXT UNIQUE NOT
 CREATE TABLE starvibe_subscriptions (id SERIAL PRIMARY KEY, account_id INT, plan TEXT, montant_attendu INT, montant_recu INT, methode TEXT, statut TEXT, started_at TIMESTAMPTZ, expires_at TIMESTAMPTZ, updated_at TIMESTAMPTZ DEFAULT now(), payeur_account_id INT, beneficiaire_nom TEXT DEFAULT '');
 CREATE TABLE starvibe_keydou_requests (id SERIAL PRIMARY KEY, account_id INT, service TEXT, ville TEXT, montant_attendu INT, montant_recu INT, reference_transaction TEXT DEFAULT '', statut TEXT, paid_at TIMESTAMPTZ, updated_at TIMESTAMPTZ DEFAULT now());
 CREATE TABLE starvibe_pub (id SERIAL PRIMARY KEY, account_id INT, jours INT, montant_attendu INT, montant_recu INT, statut TEXT, started_at TIMESTAMPTZ, expires_at TIMESTAMPTZ, created_at TIMESTAMPTZ DEFAULT now());
+CREATE TABLE starvibe_messages (id SERIAL PRIMARY KEY, account_id INT, kind TEXT, titre TEXT, texte TEXT, lien TEXT DEFAULT '', lu BOOLEAN DEFAULT false, created_at TIMESTAMPTZ DEFAULT now());
 CREATE TABLE starvibe_recus (id SERIAL PRIMARY KEY, kind TEXT NOT NULL, ref_id INTEGER NOT NULL, role TEXT NOT NULL DEFAULT 'client', account_id INTEGER, telephone TEXT NOT NULL DEFAULT '', numero TEXT NOT NULL DEFAULT '', titre TEXT NOT NULL DEFAULT '', montant INTEGER NOT NULL DEFAULT 0, expire_le TIMESTAMPTZ, texte TEXT NOT NULL DEFAULT '', variables JSONB NOT NULL DEFAULT '[]'::jsonb, statut TEXT NOT NULL DEFAULT 'a_envoyer', erreur TEXT NOT NULL DEFAULT '', wa_message_id TEXT NOT NULL DEFAULT '', envoye_le TIMESTAMPTZ, created_at TIMESTAMPTZ NOT NULL DEFAULT now(), UNIQUE (kind, ref_id, role));
 INSERT INTO starvibe_accounts (telephone) VALUES ('+242 06 111 22 33'), ('+242 06 444 55 66'), ('abc');
 INSERT INTO starvibe_subscriptions (account_id, plan, montant_attendu, montant_recu, methode, statut, started_at, expires_at, payeur_account_id, beneficiaire_nom) VALUES
@@ -62,8 +63,9 @@ ok(rows.length === 6, "6 reçus attendus, obtenu " + rows.length);
 ok(rows.filter((r) => r.kind === "abo" && r.ref_id === 1).length === 1, "pas de doublon");
 ok(rows.some((r) => r.role === "payeur" && r.telephone === "242061112233"), "payeur = compte 1");
 ok(rows.some((r) => r.role === "beneficiaire" && r.telephone === "242064445566"), "bénéficiaire = compte 2");
-ok(rows.some((r) => r.ref_id === 3 && r.statut === "sans_numero"), "sans numéro");
-ok(rows.filter((r) => r.statut === "a_envoyer").length === 5, "5 à envoyer (WhatsApp non branché)");
+ok(rows.every((r) => r.statut === "messagerie"), "tous livrés dans la messagerie KOMYO (WhatsApp non branché)");
+const nm = (await pg.query("SELECT COUNT(*)::int AS n FROM starvibe_messages")).rows[0] as any;
+ok(nm.n === 6, "6 messages dans les boîtes, obtenu " + nm.n);
 ok(rows.every((r) => /^REC-2026-\d{6}$/.test(r.numero)), "numéros de reçu");
 const tx = (await pg.query("SELECT texte FROM starvibe_recus WHERE kind='pub'")).rows[0] as any;
 ok(tx.texte.includes("Annonce visible par tous") && tx.texte.includes("Valable jusqu'au") && tx.texte.includes("recu.html?id="), "reçu annonce avec lien facture");

@@ -1,15 +1,16 @@
-// KOMYO — REÇUS DE PAIEMENT par WhatsApp.
-// À chaque paiement confirmé (abonnement Famille/Business, annonce, demande Keydou), la personne reçoit un reçu détaillé
-// sur son numéro : ce qu'elle a acheté, le montant, la date, et jusqu'à quand c'est valable (espace enfants, annonce…).
+// KOMYO — REÇUS ET ACCUSÉS DE RÉCEPTION.
+// À chaque paiement confirmé (abonnement Famille/Business, annonce, demande Keydou, achat dans une boutique KOMYO Business, frais hebdomadaires),
+// la personne reçoit un reçu détaillé DANS SA MESSAGERIE KOMYO (gratuit, instantané) : ce qu'elle a acheté, le montant, la date,
+// et jusqu'à quand c'est valable (espace enfants, annonce…), avec la facture KOMYO (logo + slogan).
 //
-// Envoi automatique : API WhatsApp Business (Meta). Il faut dans Netlify → Environment variables :
-//   WHATSAPP_TOKEN, WHATSAPP_PHONE_ID, et (facultatif) WHATSAPP_TEMPLATE_RECU (défaut « komyo_recu »), WHATSAPP_TEMPLATE_LANG (défaut « fr »).
-// Sans ces variables, le reçu est quand même créé et visible dans l'application ; l'équipe peut l'envoyer en un geste (lien WhatsApp pré-rempli).
+// Option : envoi WhatsApp par l'API officielle de Meta (payante, désactivée tant que WHATSAPP_TOKEN et WHATSAPP_PHONE_ID ne sont pas
+// dans Netlify). L'équipe peut aussi renvoyer le reçu en un geste par un lien WhatsApp pré-rempli (gratuit).
 // Un paiement ne doit JAMAIS échouer à cause d'un reçu : tout est protégé par try/catch.
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { chiffres, indicatif } from "./_tel.mts";
+import { poster } from "./_msg.mts";
 
-export type KindRecu = "abo" | "keydou" | "pub";
+export type KindRecu = "abo" | "keydou" | "pub" | "vente" | "frais";
 export interface RecuInfo {
   titre: string;            // ce qui a été acheté
   montant: number;          // FCFA
@@ -39,12 +40,13 @@ export function numeroWhatsApp(brut: string): string {
 }
 
 /** Texte complet du reçu (affiché dans l'application et envoyé tel quel en lien WhatsApp). */
-export function texteRecu(numero: string, r: RecuInfo, role: "client" | "payeur" | "beneficiaire" = "client", nomAutre = "", lien = ""): string {
+export function texteRecu(numero: string, r: RecuInfo, role: "client" | "payeur" | "beneficiaire" | "vendeur" = "client", nomAutre = "", lien = ""): string {
   const l: string[] = [];
   l.push(`🧾 Reçu KOMYO n° ${numero}`);
   l.push("");
   if (role === "payeur" && nomAutre) l.push(`Vous avez offert : ${r.titre} à ${nomAutre}.`);
   else if (role === "beneficiaire" && nomAutre) l.push(`${nomAutre} vous a offert : ${r.titre}.`);
+  else if (role === "vendeur") l.push(`Vente confirmée : ${r.titre}${nomAutre ? ` (client : ${nomAutre})` : ""}`);
   else l.push(`Achat : ${r.titre}`);
   l.push(`Montant : ${r.montant.toLocaleString("fr-FR").replace(/[  ]/g, " ")} FCFA`);
   l.push(`Payé le : ${dateFr(r.payeLe, true)}${r.methode ? ` (${r.methode.replace(/_/g, " ")})` : ""}`);
@@ -117,7 +119,7 @@ async function emettre(sql: Sql, kind: KindRecu, refId: number, role: string, ac
   const wa = numeroWhatsApp(telephone);
   const ins = (await sql`
     INSERT INTO starvibe_recus (kind, ref_id, role, account_id, telephone, titre, montant, expire_le, statut)
-    VALUES (${kind}, ${refId}, ${role}, ${accountId}, ${wa || telephone || ""}, ${r.titre}, ${r.montant}, ${r.fin ?? null}, ${wa ? "a_envoyer" : "sans_numero"})
+    VALUES (${kind}, ${refId}, ${role}, ${accountId}, ${wa || telephone || ""}, ${r.titre}, ${r.montant}, ${r.fin ?? null}, ${accountId ? "messagerie" : wa ? "a_envoyer" : "sans_numero"})
     ON CONFLICT (kind, ref_id, role) DO NOTHING RETURNING id
   `) as { id: number }[];
   if (!ins[0]) return;   // reçu déjà émis (paiement confirmé deux fois : un seul reçu)
@@ -127,7 +129,8 @@ async function emettre(sql: Sql, kind: KindRecu, refId: number, role: string, ac
   const texte = texteRecu(numero, r, role as "client", nomAutre, lien);
   const variables = variablesModele(numero, r, lien);
   await sql`UPDATE starvibe_recus SET numero = ${numero}, texte = ${texte}, variables = ${JSON.stringify(variables)}::jsonb WHERE id = ${id}`;
-  if (!wa) return;
+  await poster(sql, accountId, { kind: role === "vendeur" ? "vente" : "recu", titre: `🧾 ${role === "vendeur" ? "Vente" : "Reçu"} ${numero} — ${r.titre}`, texte, lien });
+  if (!wa || !process.env.WHATSAPP_TOKEN) return;   // envoi WhatsApp automatique : seulement si l'option Meta est branchée
   const res = await envoyerWhatsApp(wa, variables);
   await sql`UPDATE starvibe_recus SET statut = ${res.etat}, erreur = ${res.erreur || ""}, wa_message_id = ${res.id || ""}, envoye_le = ${res.etat === "envoye" ? sql`now()` : null} WHERE id = ${id}`;
 }
@@ -197,4 +200,45 @@ export async function recuAnnonce(sql: Sql, pubId: number, libellePlan = ""): Pr
       reference: `PUB-${pubId}`,
     });
   } catch (e) { console.error("recuAnnonce", e); }
+}
+
+/** Accusé de réception d'un achat dans une boutique KOMYO Business : le client reçoit son reçu, le vendeur sa notification de vente. */
+export async function recuVente(sql: Sql, commandeId: number): Promise<void> {
+  try {
+    const c = ((await sql`
+      SELECT c.*, b.nom AS boutique_nom, b.account_id AS vendeur_id, av.telephone AS tel_vendeur, ac.telephone AS tel_client
+      FROM starvibe_commandes c
+      JOIN starvibe_boutiques b ON b.id = c.boutique_id
+      JOIN starvibe_accounts av ON av.id = b.account_id
+      JOIN starvibe_accounts ac ON ac.id = c.client_account_id
+      WHERE c.id = ${commandeId} AND c.statut = 'payee' LIMIT 1
+    `) as Record<string, unknown>[])[0];
+    if (!c) return;
+    const lignes = (Array.isArray(c.lignes) ? c.lignes : []) as { titre: string; prix: number; qte: number }[];
+    const resume = lignes.map((x) => `${x.qte} × ${x.titre}`).join(", ");
+    const info: RecuInfo = {
+      titre: `Achat chez ${c.boutique_nom}`, montant: Number(c.total), payeLe: new Date(String(c.paid_at || c.created_at)),
+      detail: resume || "commande KOMYO Business", reference: `CMD-${commandeId}`, methode: "mobile money, payé directement au vendeur",
+    };
+    await emettre(sql, "vente", commandeId, "client", Number(c.client_account_id), String(c.tel_client || ""), info);
+    await emettre(sql, "vente", commandeId, "vendeur", Number(c.vendeur_id), String(c.tel_vendeur || ""), { ...info, titre: `Vente à un client KOMYO — ${resume || "commande"}` }, `commande CMD-${commandeId}`);
+  } catch (e) { console.error("recuVente", e); }
+}
+
+/** Reçu des frais hebdomadaires de la boutique (500 FCFA, semaines avec ventes). */
+export async function recuFrais(sql: Sql, fraisId: number): Promise<void> {
+  try {
+    const f = ((await sql`
+      SELECT f.*, b.nom AS boutique_nom, b.account_id AS vendeur_id, a.telephone AS tel
+      FROM starvibe_frais f JOIN starvibe_boutiques b ON b.id = f.boutique_id JOIN starvibe_accounts a ON a.id = b.account_id
+      WHERE f.id = ${fraisId} AND f.statut = 'paye' LIMIT 1
+    `) as Record<string, unknown>[])[0];
+    if (!f) return;
+    await emettre(sql, "frais", fraisId, "client", Number(f.vendeur_id), String(f.tel || ""), {
+      titre: `Frais KOMYO Business — semaine du ${dateFr(new Date(String(f.semaine) + "T12:00:00Z"))}`,
+      montant: Number(f.montant), payeLe: new Date(String(f.paid_at || f.created_at)),
+      detail: `${f.ventes_n} vente(s) dans la semaine pour ${Number(f.ventes_total).toLocaleString("fr-FR").replace(/[\u202f\u00a0]/g, " ")} FCFA — boutique ${f.boutique_nom}`,
+      reference: `FRS-${fraisId}`, methode: "mobile money",
+    });
+  } catch (e) { console.error("recuFrais", e); }
 }

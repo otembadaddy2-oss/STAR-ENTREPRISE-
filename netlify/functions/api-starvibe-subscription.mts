@@ -26,7 +26,7 @@ const NUMERO_RECEPTION = "+242 06 656 50 50";
 const PLANS: Record<string, { label: string; montant: number; description: string }> = {
   gratuit: { label: "Découverte", montant: 0, description: "Compte personnel, fil KOMYO, publication de vidéos, fonctions sociales de base." },
   famille: { label: "Famille (PIOUPIOU)", montant: 1500, description: "Contenus PIOUPIOU premium, profils enfants illimités, priorité de modération." },
-  business: { label: "Business", montant: 5000, description: "Mise en avant des vidéos, statistiques, futurs outils de promotion KOMYO Business." },
+  business: { label: "Business", montant: 5000, description: "Mise en avant des vidéos, statistiques, boutique (tes clients te paient directement ; reçus dans leur messagerie KOMYO ; 500 FCFA par semaine seulement les semaines avec ventes)." },
 };
 
 function clean(value: unknown, maxLen: number): string {

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="assets/i18n-v1.js"></script>
+<title>KOMYO — Ma boutique</title>
+<meta name="theme-color" content="#FFFBF3">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+<link rel="stylesheet" href="assets/komyo-boutique-v1.css">
+<link rel="manifest" href="manifest-komyo.json">
+</head>
+<body>
+<div class="topbar"><div class="row"><h1>Ma boutique KOMYO Business</h1><a class="back" href="accueil.html">← Mon espace</a></div><p>Tes clients te paient directement. Chaque vente donne un reçu à ton client et une notification à toi.</p></div>
+<div class="wrap">
+  <div id="etat" class="state">Chargement…</div>
+  <div id="sortie" class="state" hidden>Tu n'es pas connecté.<br><a href="inscription.html?mode=login">Se connecter / Créer un compte</a></div>
+  <div id="pasBusiness" class="card" hidden><h2>Il te faut KOMYO Business</h2><p class="hint">Pour ouvrir une boutique, active l'abonnement Business (5 000 FCFA par mois). Ensuite, KOMYO ne prend que 500 FCFA par semaine, et seulement les semaines où tu as des ventes.</p><a class="btn block" href="abonnement.html">Voir l'abonnement Business</a></div>
+
+  <div id="ouvrir" class="card" hidden>
+    <h2>Ouvre ta boutique</h2>
+    <p class="hint">Coche ce que tu proposes, donne ton numéro Mobile Money : c'est là que tes clients te paieront. KOMYO ne touche pas l'argent de tes ventes.</p>
+    <label class="lbl" for="fNom">Nom de ta boutique</label><input type="text" id="fNom" maxlength="60" autocomplete="off">
+    <label class="lbl" for="fVille">Ville</label><input type="text" id="fVille" maxlength="40" autocomplete="off" placeholder="Brazzaville, Pointe-Noire…">
+    <label class="lbl" for="fDesc">Présentation (facultatif)</label><textarea id="fDesc" maxlength="400"></textarea>
+    <label class="lbl" for="fNum">Ton numéro Mobile Money (avec l'indicatif)</label><input type="tel" id="fNum" maxlength="30" autocomplete="off" placeholder="+242 06 123 45 67">
+    <label class="lbl">Ce que tu proposes (1 à 5)</label><div class="chips" id="fServices"></div>
+    <label class="lbl" style="display:flex;gap:8px;align-items:flex-start;font-weight:500"><input type="checkbox" id="fAccepte" style="margin-top:3px"><span>Je vends seulement des articles légaux et honnêtes (pas de médicaments, d'armes, de contrefaçons ni d'arnaque). KOMYO peut mettre une boutique en pause en cas de plainte.</span></label>
+    <button class="btn block" id="btnOuvrir" style="margin-top:14px">Ouvrir ma boutique</button><div class="msg" id="msgOuvrir"></div>
+  </div>
+
+  <div id="maBoutique" hidden>
+    <div class="card"><div class="row2"><div><h2 id="bNom" style="margin:0"></h2><div class="mut" id="bVille"></div></div><span class="pill" id="bStatut"></span></div>
+      <div class="mut" style="margin-top:8px">Ton numéro de paiement : <b id="bNum"></b></div>
+      <a class="btn small light" id="bPublic" style="margin-top:10px" href="#">Voir ma boutique comme un client</a></div>
+    <div id="fraisBox"></div>
+    <div class="card"><h2>Commandes</h2><div id="cmdList"></div></div>
+    <div class="card"><h2>Mes articles</h2><div id="artList"></div>
+      <div class="sep"></div><h3>Ajouter un article</h3>
+      <label class="lbl" for="aTitre">Nom</label><input type="text" id="aTitre" maxlength="80">
+      <label class="lbl" for="aPrix">Prix (FCFA)</label><input type="number" id="aPrix" inputmode="numeric" min="100">
+      <label class="lbl" for="aDesc">Description (facultatif)</label><input type="text" id="aDesc" maxlength="300">
+      <button class="btn block" id="btnArt" style="margin-top:12px">Ajouter</button><div class="msg" id="msgArt"></div></div>
+  </div>
+</div>
+<script>
+(function(){
+  var token = ''; try{ token = localStorage.getItem('starvibe_token') || ''; }catch(e){}
+  var $ = function(i){ return document.getElementById(i); };
+  if (!token){ $('etat').hidden = true; $('sortie').hidden = false; return; }
+  function esc(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+  function fc(n){ return Number(n).toLocaleString('fr-FR') + ' FCFA'; }
+  function api(body, query){
+    var o = body ? { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body:JSON.stringify(body) } : { headers:{'Authorization':'Bearer '+token} };
+    return fetch('/api/starvibe-boutique' + (query || ''), o).then(function(r){ return r.json().then(function(d){ return { ok:r.ok, status:r.status, d:d }; }); });
+  }
+  var choisis = {};
+  function chips(services){
+    $('fServices').innerHTML = Object.keys(services).map(function(k){ return '<button type="button" class="chip" data-k="' + k + '">' + esc(services[k]) + '</button>'; }).join('');
+    $('fServices').querySelectorAll('.chip').forEach(function(c){ c.addEventListener('click', function(){ var k = c.getAttribute('data-k'); if (choisis[k]){ delete choisis[k]; c.classList.remove('on'); } else if (Object.keys(choisis).length < 5){ choisis[k] = 1; c.classList.add('on'); } }); });
+  }
+  var STAT = { en_attente:['En attente de paiement','warn'], declaree:['Le client dit avoir payé','warn'], payee:['Payée ✓','ok'], annulee:['Annulée','err'] };
+  function charge(){
+    api(null, '?ma=1').then(function(x){
+      if (x.status === 401){ try{ localStorage.removeItem('starvibe_token'); }catch(e){} $('etat').hidden = true; $('sortie').hidden = false; return; }
+      var d = x.d; $('etat').hidden = true;
+      if (!d.boutique){ if (!d.business){ $('pasBusiness').hidden = false; return; } $('ouvrir').hidden = false; chips(d.services); return; }
+      $('ouvrir').hidden = true; $('maBoutique').hidden = false; var b = d.boutique;
+      $('bNom').textContent = b.nom; $('bVille').textContent = b.ville || ''; $('bNum').textContent = b.numero_paiement; $('bPublic').href = 'boutiques.html?id=' + b.id;
+      var st = $('bStatut'); st.textContent = b.statut === 'active' ? 'Ouverte' : 'En pause'; st.className = 'pill ' + (b.statut === 'active' ? 'ok' : 'err');
+      var f = (d.frais || []).filter(function(z){ return z.statut === 'a_payer' || z.statut === 'declare'; });
+      $('fraisBox').innerHTML = f.map(function(z){ return '<div class="card" style="border-color:var(--gold)"><h3>Facture KOMYO ' + esc(z.reference) + ' · ' + fc(z.montant) + '</h3><p class="hint">Semaine du ' + esc(String(z.semaine).slice(0,10)) + ' : ' + z.ventes_n + ' vente(s). Paie par Mobile Money au <b>' + esc(d.numeroKomyo) + '</b> avec la référence <b>' + esc(z.reference) + '</b>. Sans paiement sous 7 jours, ta boutique est mise en pause.</p>' + (z.statut === 'a_payer' ? '<button class="btn block" data-frais="' + z.id + '">J\'ai payé</button>' : '<span class="pill warn">En attente de confirmation par l\'équipe</span>') + '</div>'; }).join('');
+      $('fraisBox').querySelectorAll('button[data-frais]').forEach(function(bt){ bt.addEventListener('click', function(){ bt.disabled = true; api({ action:'frais_declarer', fraisId:Number(bt.getAttribute('data-frais')) }).then(charge); }); });
+      var cs = d.commandes || [];
+      $('cmdList').innerHTML = cs.length ? cs.map(function(c){ var s = STAT[c.statut] || [c.statut,'']; var l = (c.lignes || []).map(function(x){ return x.qte + ' × ' + esc(x.titre); }).join(', ');
+        return '<div class="item"><div class="row2"><b>' + esc(c.reference) + ' · ' + fc(c.total) + '</b><span class="pill ' + s[1] + '">' + s[0] + '</span></div><div class="mut">' + l + (c.client ? ' — ' + esc(c.client) : '') + '</div>' +
+          ((c.statut === 'en_attente' || c.statut === 'declaree') ? '<div style="display:flex;gap:8px;margin-top:8px"><button class="btn small ok" data-conf="' + c.id + '">J\'ai reçu l\'argent : confirmer</button><button class="btn small light" data-ann="' + c.id + '">Annuler</button></div>' : '') + '</div>'; }).join('') : '<div class="mut">Aucune commande pour le moment.</div>';
+      $('cmdList').querySelectorAll('[data-conf]').forEach(function(bt){ bt.addEventListener('click', function(){ if (!confirm('Confirmer que tu as bien reçu l\'argent sur ton Mobile Money ? Le client recevra son reçu.')) return; bt.disabled = true; api({ action:'confirmer', commandeId:Number(bt.getAttribute('data-conf')) }).then(charge); }); });
+      $('cmdList').querySelectorAll('[data-ann]').forEach(function(bt){ bt.addEventListener('click', function(){ bt.disabled = true; api({ action:'annuler', commandeId:Number(bt.getAttribute('data-ann')) }).then(charge); }); });
+      var as = d.articles || [];
+      $('artList').innerHTML = as.length ? as.map(function(a){ return '<div class="item row2"><div><b>' + esc(a.titre) + '</b><div class="mut">' + esc(a.description || '') + '</div></div><div style="text-align:right"><div class="prix">' + fc(a.prix) + '</div><button class="btn small light" data-ret="' + a.id + '">Retirer</button></div></div>'; }).join('') : '<div class="mut">Ajoute ton premier article ci-dessous.</div>';
+      $('artList').querySelectorAll('[data-ret]').forEach(function(bt){ bt.addEventListener('click', function(){ bt.disabled = true; api({ action:'article_retirer', articleId:Number(bt.getAttribute('data-ret')) }).then(charge); }); });
+    });
+  }
+  $('btnOuvrir').addEventListener('click', function(){
+    var m = $('msgOuvrir'); m.className = 'msg'; m.textContent = '';
+    api({ action:'ouvrir', nom:$('fNom').value, ville:$('fVille').value, description:$('fDesc').value, numeroPaiement:$('fNum').value, services:Object.keys(choisis), accepte:$('fAccepte').checked }).then(function(x){
+      if (!x.ok){ m.className = 'msg err'; m.textContent = x.d.error || 'Impossible d\'ouvrir la boutique.'; return; } charge();
+    });
+  });
+  $('btnArt').addEventListener('click', function(){
+    var m = $('msgArt'); m.className = 'msg'; m.textContent = '';
+    api({ action:'article_ajouter', titre:$('aTitre').value, prix:$('aPrix').value, description:$('aDesc').value }).then(function(x){
+      if (!x.ok){ m.className = 'msg err'; m.textContent = x.d.error || 'Impossible d\'ajouter.'; return; }
+      $('aTitre').value = ''; $('aPrix').value = ''; $('aDesc').value = ''; m.className = 'msg ok'; m.textContent = 'Article ajouté ✓'; charge();
+    });
+  });
+  charge();
+})();
+</script>
+</body>
+</html>
