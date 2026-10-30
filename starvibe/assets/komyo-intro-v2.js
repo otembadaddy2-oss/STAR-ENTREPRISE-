@@ -17,7 +17,7 @@
   if (reduce) return;
   try { if (sessionStorage.getItem('komyo_intro_vu') === '1') return; sessionStorage.setItem('komyo_intro_vu', '1'); } catch (e) {}
 
-  var LOGO = '/starvibe/assets/img/icons/komyo-logo-officiel-v1.png';
+  var LOGO = '/starvibe/assets/img/icons/komyo-logo-officiel-v2.webp';
   var BW = 900, BH = 721;                                      // repère de l'image du logo
   var DUREE = 3.5, SORTIE = 450;                                // secondes / millisecondes
   // courbe de l'étoile filante (centre du « swoosh »), dans le repère du logo

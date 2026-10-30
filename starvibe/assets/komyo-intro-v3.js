@@ -19,7 +19,7 @@
   if (reduce) return;
   try { if (sessionStorage.getItem('komyo_intro_vu') === '1') return; sessionStorage.setItem('komyo_intro_vu', '1'); } catch (e) {}
 
-  var LOGO = '/starvibe/assets/img/icons/komyo-logo-officiel-v1.png';
+  var LOGO = '/starvibe/assets/img/icons/komyo-logo-officiel-v2.webp';
   var BW = 900, BH = 721;                                      // repère de l'image du logo
   var DUREE = 5.6, SORTIE = 500;                                // secondes / millisecondes
   var PATH = [[262,440],[300,398],[350,352],[425,293],[500,238],[560,196],[620,152],[690,114],[735,92]];

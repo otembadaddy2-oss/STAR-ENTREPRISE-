@@ -14,7 +14,7 @@
   if (reduce) return;
   try { if (sessionStorage.getItem('komyo_intro_vu') === '1') return; sessionStorage.setItem('komyo_intro_vu', '1'); } catch (e) {}
 
-  var LOGO = '/starvibe/assets/img/icons/komyo-logo-officiel-v1.png';
+  var LOGO = '/starvibe/assets/img/icons/komyo-logo-officiel-v2.webp';
   var DUREE = 3000, SORTIE = 500;
 
   var css =

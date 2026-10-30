@@ -156,7 +156,7 @@
     }
     var tag = el.tagName;
     // images qui portent du texte français (devise du logo) : version anglaise
-    if (tag === 'IMG' && el.getAttribute('src') && /komyo-logo-officiel-v1\.png/.test(el.getAttribute('src'))) el.setAttribute('src', el.getAttribute('src').replace('komyo-logo-officiel-v1', 'komyo-logo-officiel-en-v1'));
+    if (tag === 'IMG' && el.getAttribute('src') && /komyo-logo-officiel-v[12]\.(png|webp)/.test(el.getAttribute('src'))) el.setAttribute('src', el.getAttribute('src').replace(/komyo-logo-officiel-v[12]/, function(m){ return m.replace('officiel', 'officiel-en'); }));
     if ((tag === 'INPUT' && /^(button|submit|reset)$/i.test(el.type)) || tag === 'OPTION') {
       var vv = el.getAttribute('value');
       if (vv && tag === 'INPUT') { var tv = traduit(vv); if (tv !== vv) el.setAttribute('value', tv); }
