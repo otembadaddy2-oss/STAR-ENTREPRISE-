@@ -411,7 +411,9 @@ async function lireSms(req: Request): Promise<{ message: string; from: string }>
   try { obj = JSON.parse(raw); } catch {
     try { obj = Object.fromEntries(new URLSearchParams(raw)); } catch { obj = {}; }
   }
-  const message = pick(obj, ["message", "content", "text", "body", "msg", "sms"]) || (Object.keys(obj).length ? "" : raw);
+  // Si l'application envoie un JSON cassé par un guillemet ou un retour à la ligne du SMS, ou du texte brut :
+  // on lit le corps tel quel (le numéro et le montant sont retrouvés dans le texte du SMS).
+  const message = pick(obj, ["message", "content", "text", "body", "msg", "sms"]) || raw;
   return { message, from: pick(obj, ["from", "sender", "number", "address", "phone"]) };
 }
 
