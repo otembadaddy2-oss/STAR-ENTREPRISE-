@@ -198,7 +198,7 @@
 <body class="pg-index">
 <script src="assets/komyo-intro-v5.js"></script>
 
-<audio id="introVoice" preload="none" src="assets/audio/komyo-intro-voix-monde-v2.mp3"></audio>
+<audio id="introVoice" preload="auto" src="assets/audio/komyo-intro-voix-monde-v2.mp3"></audio>
 <button id="voiceHint" class="voice-hint" type="button" aria-label="Écouter le message de bienvenue" hidden>
   <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>
 </button>
@@ -409,11 +409,16 @@
   function markPlayed(){ try{ sessionStorage.setItem(KEY, '1'); }catch(e){} }
   audio.addEventListener('ended', function(){ hint.hidden = true; });
   audio.play().then(markPlayed).catch(function(){
+    // Le navigateur refuse de lancer un son tout seul : la voix part dès le premier toucher, où que ce soit sur la page
+    // (ou en touchant le petit haut-parleur).
     hint.hidden = false;
-    hint.addEventListener('click', function(){
-      audio.play().then(markPlayed).catch(function(){});
+    var evts = ['pointerdown', 'touchend', 'click', 'keydown'];
+    function lancer(){
+      evts.forEach(function(n){ document.removeEventListener(n, lancer, true); });
       hint.hidden = true;
-    });
+      audio.play().then(markPlayed).catch(function(){});
+    }
+    evts.forEach(function(n){ document.addEventListener(n, lancer, true); });
   });
 })();
 </script>
