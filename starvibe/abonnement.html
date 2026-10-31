@@ -65,8 +65,8 @@
   .pay-steps li{margin:4px 0;}
   .pay-num{display:flex;align-items:center;gap:10px;background:#FFF8E8;border:1.5px solid #EDD8A0;border-radius:14px;padding:12px 14px;margin:6px 0 10px;flex-wrap:wrap;}
   .pay-num span{font-size:11.5px;color:var(--text-dim);width:100%;}
-  .pay-num b{font-family:'Sora',sans-serif;font-size:18px;letter-spacing:.01em;color:var(--navy);flex:1;min-width:0;white-space:nowrap;}
-  .pay-num button{border:none;background:var(--navy);color:#fff;font:700 13px 'Sora',sans-serif;border-radius:10px;padding:9px 14px;cursor:pointer;}
+  .pay-num b{font-family:'Sora',sans-serif;font-size:19px;letter-spacing:.01em;color:var(--navy);flex:1 1 100%;min-width:0;white-space:nowrap;}
+  .pay-num button{border:none;background:var(--navy);color:#fff;font:700 14px 'Sora',sans-serif;border-radius:10px;padding:11px 14px;cursor:pointer;width:100%;}
   .pay-wait{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:var(--navy);background:#EAF7EF;border:1px solid #BFE5CC;border-radius:12px;padding:11px 12px;margin-top:10px;}
   .pay-wait i{width:14px;height:14px;border-radius:50%;border:2.5px solid #2fb35f;border-right-color:transparent;animation:payspin .9s linear infinite;flex:none;}
   @keyframes payspin{to{transform:rotate(360deg)}}
@@ -164,7 +164,7 @@
         '<div class="amount">' + montant + ' FCFA</div>' +
         '<ol class="pay-steps">' +
           '<li>Ouvre <b>MTN Mobile Money</b> ou <b>Airtel Money</b> sur ton téléphone.</li>' +
-          '<li>Envoie exactement <b>' + montant + ' FCFA</b> au numéro ci-dessous, <b>avec le numéro de ton compte</b>.</li>' +
+          '<li>Envoie exactement <b>' + montant + ' FCFA</b> au numéro ci-dessous, <b>depuis le téléphone dont le numéro est celui de ton compte KOMYO</b>.</li>' +
           '<li>C\'est tout : ton plan s\'active tout seul et cette page s\'ouvre sur ton espace.</li>' +
         '</ol>' +
         '<div class="pay-num"><span>Numéro de dépôt</span><b id="payNumero">' + sub.numeroReception + '</b><button type="button" id="btnCopie">Copier</button></div>' +
@@ -297,8 +297,8 @@
           '<label class="m" data-m="airtel_money"><input type="radio" name="gm" value="airtel_money"> Airtel Money</label>' +
           '<label class="m off"><input type="radio" name="gm" disabled> Carte bancaire (Visa, Mastercard) — bientôt</label>' +
         '</div>' +
-        '<div class="secu"><b>Ton code secret Mobile Money (PIN) ne se tape jamais ici.</b> Tu fais le dépôt sur ton propre téléphone, au numéro indiqué à l\'étape suivante. Le bouton devient vert uniquement quand le paiement est réellement confirmé.</div>' +
-        '<button type="button" class="go" id="gGo" disabled>Valider le paiement</button>' +
+        '<div class="secu"><b>Tu paies depuis ton téléphone</b>, dans le menu MTN ou Airtel Money. Ici, sur KOMYO, <b>tu ne tapes jamais ton code secret</b>.</div>' +
+        '<button type="button" class="go" id="gGo" disabled>Continuer vers le paiement</button>' +
         '<div class="suivi" id="gSuivi" aria-live="polite"></div>' +
       '</div>';
     var tel = document.getElementById('gTel'), found = document.getElementById('gFound'), go = document.getElementById('gGo');
@@ -320,12 +320,12 @@
     go.addEventListener('click', function(){
       if (go.disabled) return; go.disabled = true; go.textContent = 'Création de la demande…';
       giftApi({ action: 'abonner_autre', telephone: tel.value.trim(), enfantNom: document.getElementById('gEnfant').value.trim(), methode: gift.methode }).then(function(r){
-        if (!r.ok){ go.textContent = 'Valider le paiement'; document.getElementById('gSuivi').innerHTML = '<div class="err">' + esc2(r.d.error || 'Impossible de créer la demande.') + '</div>'; maj(); return; }
-        gift.abo = r.d.abonnement; go.textContent = 'En attente de confirmation du paiement…';
+        if (!r.ok){ go.textContent = 'Continuer vers le paiement'; document.getElementById('gSuivi').innerHTML = '<div class="err">' + esc2(r.d.error || 'Impossible de créer la demande.') + '</div>'; maj(); return; }
+        gift.abo = r.d.abonnement; go.textContent = 'En attente de ton dépôt…';
         var a = gift.abo, n = Number(a.montantAttendu).toLocaleString('fr-FR');
         document.getElementById('gSuivi').innerHTML =
-          '<b>1.</b> Dépose exactement <b>' + n + ' FCFA</b> par ' + (gift.methode === 'airtel_money' ? 'Airtel Money' : 'MTN Mobile Money') + ' au <b>' + esc2(a.numeroReception) + '</b>.<br>' +
-          '<b>2.</b> Indique la référence <b>' + esc2(a.referencePaiement) + '</b>.<br><b>3.</b> Reste sur cette page : elle se met à jour seule.';
+          '<b>1.</b> Ouvre ' + (gift.methode === 'airtel_money' ? 'Airtel Money' : 'MTN Mobile Money') + ' sur ton téléphone et envoie exactement <b>' + n + ' FCFA</b> au <b>' + esc2(a.numeroReception) + '</b>.<br>' +
+          '<b>2.</b> Si on te demande une référence : <b>' + esc2(a.referencePaiement) + '</b>.<br><b>3.</b> Reste sur cette page : elle se met à jour toute seule dès que le dépôt est reconnu.';
         gift.timer = setInterval(function(){
           authFetch(API + '?suivi=' + encodeURIComponent(a.id)).then(function(x){ return x.json(); }).then(function(d){
             var st = d.abonnement && d.abonnement.statut;
