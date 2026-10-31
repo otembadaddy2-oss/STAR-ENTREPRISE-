@@ -163,7 +163,7 @@
       '<div class="meta"><b>' + esc(d.auteur) + '</b> — ' + esc(d.telephone) + ' — réf. ' + esc(d.referencePaiement) + '</div>' +
       (d.payeurTelephone ? '<div class="meta">🎁 Payé par un autre membre : <b>' + esc(d.payeurTelephone) + '</b>' + (d.beneficiaireNom ? ' — pour l\'enfant : ' + esc(d.beneficiaireNom) : '') + '</div>' : '') +
       '<div class="confirm-row">' +
-        '<input type="number" placeholder="Montant reçu (FCFA)" id="montant-' + d.id + '">' +
+        '<input type="number" placeholder="Montant reçu (FCFA)" id="montant-' + d.id + '" value="' + d.montantAttendu + '">' +
         '<button data-approve>Confirmer</button>' +
       '</div>' +
       '<div class="itemerr" id="err-' + d.id + '"></div>';
@@ -211,7 +211,7 @@
         (det.nom ? '<b>' + esc(det.nom) + '</b> — ' + esc(det.contact) + '<br>' + esc(det.ville) + (det.lieu ? ', ' + esc(det.lieu) : '') + '<br>Date : ' + esc(det.date || '—') + ' · Budget : ' + esc(det.budget || '—') + (det.precisions ? '<br>' + esc(det.precisions) : '') : '<i>Payé, coordonnées pas encore saisies par le client.</i>') +
         '</div><div class="confirm-row"><button data-done>Marquer comme traité</button></div>';
     } else {
-      html += '<div class="confirm-row"><input type="number" placeholder="Montant reçu (FCFA)" data-m><button data-ok>Confirmer</button></div><div class="itemerr"></div>';
+      html += '<div class="confirm-row"><input type="number" placeholder="Montant reçu (FCFA)" data-m value="' + d.montantAttendu + '"><button data-ok>Confirmer</button></div><div class="itemerr"></div>';
     }
     item.innerHTML = html;
     var err = item.querySelector('.itemerr');

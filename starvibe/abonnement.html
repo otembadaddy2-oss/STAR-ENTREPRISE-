@@ -61,6 +61,20 @@
   .pay-row{display:flex;justify-content:space-between;font-size:12.5px;padding:9px 0;border-bottom:1px solid var(--line);}
   .pay-row:last-of-type{border-bottom:none;}
   .pay-row b{color:var(--navy);}
+  .pay-steps{margin:0 0 12px;padding-left:20px;font-size:13.5px;line-height:1.55;color:var(--navy);}
+  .pay-steps li{margin:4px 0;}
+  .pay-num{display:flex;align-items:center;gap:10px;background:#FFF8E8;border:1.5px solid #EDD8A0;border-radius:14px;padding:12px 14px;margin:6px 0 10px;flex-wrap:wrap;}
+  .pay-num span{font-size:11.5px;color:var(--text-dim);width:100%;}
+  .pay-num b{font-family:'Sora',sans-serif;font-size:18px;letter-spacing:.01em;color:var(--navy);flex:1;min-width:0;white-space:nowrap;}
+  .pay-num button{border:none;background:var(--navy);color:#fff;font:700 13px 'Sora',sans-serif;border-radius:10px;padding:9px 14px;cursor:pointer;}
+  .pay-wait{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:var(--navy);background:#EAF7EF;border:1px solid #BFE5CC;border-radius:12px;padding:11px 12px;margin-top:10px;}
+  .pay-wait i{width:14px;height:14px;border-radius:50%;border:2.5px solid #2fb35f;border-right-color:transparent;animation:payspin .9s linear infinite;flex:none;}
+  @keyframes payspin{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){.pay-wait i{animation:none}}
+  .succes{background:linear-gradient(135deg,#1f8f4a,#2fb35f);color:#fff;border-radius:18px;padding:20px;margin-bottom:16px;text-align:center;}
+  .succes h2{margin:0 0 6px;font-size:18px;color:#fff;}
+  .succes p{margin:0 0 12px;font-size:13.5px;opacity:.95;}
+  .succes a{display:inline-block;background:#fff;color:#1f8f4a;font:800 15px 'Sora',sans-serif;border-radius:12px;padding:12px 18px;text-decoration:none;}
   .pay-note{font-size:11.5px;color:var(--text-dim);line-height:1.6;background:#FBF3E1;border:1px solid #EDD8A0;border-radius:10px;padding:10px 12px;margin-top:12px;}
   .btn-refresh{width:100%;border:1.5px solid var(--line);background:#fff;color:var(--navy);font-family:'Sora',sans-serif;font-weight:700;
     font-size:13px;padding:12px 0;border-radius:12px;cursor:pointer;margin-top:12px;transition:border-color .2s ease, transform .2s ease;}
@@ -143,30 +157,26 @@
   function renderPayBox(sub){
     if (sub.statut !== 'en_attente_paiement'){ payBox.hidden = true; payBox.innerHTML = ''; return; }
     payBox.hidden = false;
+    var montant = sub.montantAttendu.toLocaleString('fr-FR');
     payBox.innerHTML =
       '<div class="pay-box">' +
-        '<h2>Paiement en attente</h2>' +
-        '<div class="amount">' + sub.montantAttendu.toLocaleString('fr-FR') + ' FCFA</div>' +
-        '<div class="pay-row"><span>Envoyer via Mobile Money au</span><b>' + sub.numeroReception + '</b></div>' +
-        '<div class="pay-row"><span>Référence à indiquer</span><b>' + sub.referencePaiement + '</b></div>' +
-        '<div class="pay-note">Envoie le montant exact avec la référence ci-dessus. Dès que ton dépôt est reconnu, ton plan s\'active pour 30 jours et ton reçu arrive dans ta messagerie KOMYO. Cette page se met à jour toute seule : pas besoin de la rafraîchir.</div>' +
-        '<label for="payMontant" style="display:block;margin-top:12px;font-weight:700;font-size:14px">Montant que tu as déposé (en FCFA)</label>' +
-        '<input id="payMontant" type="text" inputmode="numeric" maxlength="12" autocomplete="off" placeholder="' + sub.montantAttendu.toLocaleString('fr-FR') + '" style="width:100%;margin-top:6px;padding:11px 12px;border:1.5px solid #eee2cc;border-radius:12px;font:600 15px inherit">' +
-        '<div id="payMontantMsg" data-noconv class="pay-note" aria-live="polite">Écris le montant de ton dépôt : exactement ' + sub.montantAttendu.toLocaleString('fr-FR') + ' FCFA.</div>' +
-        '<button class="btn-refresh" id="btnRefresh" disabled>Actualiser mon statut</button>' +
+        '<h2>Dernière étape : ton dépôt</h2>' +
+        '<div class="amount">' + montant + ' FCFA</div>' +
+        '<ol class="pay-steps">' +
+          '<li>Ouvre <b>MTN Mobile Money</b> ou <b>Airtel Money</b> sur ton téléphone.</li>' +
+          '<li>Envoie exactement <b>' + montant + ' FCFA</b> au numéro ci-dessous, <b>avec le numéro de ton compte</b>.</li>' +
+          '<li>C\'est tout : ton plan s\'active tout seul et cette page s\'ouvre sur ton espace.</li>' +
+        '</ol>' +
+        '<div class="pay-num"><span>Numéro de dépôt</span><b id="payNumero">' + sub.numeroReception + '</b><button type="button" id="btnCopie">Copier</button></div>' +
+        '<div class="pay-row"><span>Référence (si on te la demande)</span><b>' + sub.referencePaiement + '</b></div>' +
+        '<div class="pay-wait" role="status" aria-live="polite"><i></i>En attente de ton dépôt… cette page se met à jour toute seule, tu n\'as rien à toucher.</div>' +
+        '<div class="pay-note">Ne donne jamais ton code secret Mobile Money à personne. Un reçu détaillé arrive dans ta messagerie KOMYO dès que le dépôt est reconnu.</div>' +
       '</div>';
-    var attendu = sub.montantAttendu, champ = document.getElementById('payMontant'), msg = document.getElementById('payMontantMsg'), bt = document.getElementById('btnRefresh');
-    function fmt(n){ return n.toLocaleString('fr-FR'); }
-    function controle(){
-      var d = String(champ.value).replace(/[^0-9]/g, ''), m = d ? parseInt(d, 10) : null, ok = false;
-      if (m === null) msg.textContent = 'Écris le montant de ton dépôt : exactement ' + fmt(attendu) + ' FCFA.';
-      else if (m < attendu) msg.textContent = 'Montant incorrect : ' + fmt(m) + ' FCFA est inférieur. Dépose exactement ' + fmt(attendu) + ' FCFA, puis écris-le ici.';
-      else if (m > attendu) msg.textContent = 'Montant incorrect : ' + fmt(m) + ' FCFA est supérieur. Le montant exact est ' + fmt(attendu) + ' FCFA.';
-      else { msg.textContent = 'Montant correct ✓ Ton plan s\'active dès que ton dépôt est reconnu. Cette page se met à jour toute seule.'; ok = true; }
-      bt.disabled = !ok;
-    }
-    champ.addEventListener('input', controle);
-    bt.addEventListener('click', load);
+    var cp = document.getElementById('btnCopie');
+    if (cp) cp.addEventListener('click', function(){
+      var n = sub.numeroReception;
+      try { navigator.clipboard.writeText(String(n).replace(/\s/g, '')).then(function(){ cp.textContent = 'Copié ✓'; setTimeout(function(){ cp.textContent = 'Copier'; }, 2000); }); } catch (e) { cp.textContent = 'Appuie longtemps sur le numéro'; }
+    });
   }
 
   function renderPlans(current, plans){
@@ -224,11 +234,13 @@
         clearInterval(veille); veille = null;
         load();
         if (d.abonnement.statut === 'actif'){
-          var b = document.createElement('div'); b.setAttribute('role', 'status');
-          b.style.cssText = 'position:fixed;left:16px;right:16px;top:calc(12px + env(safe-area-inset-top));z-index:50;background:#1f8f4a;color:#fff;border-radius:16px;padding:14px 16px;font:800 15px Sora,Arial,sans-serif;text-align:center;box-shadow:0 14px 30px -10px rgba(0,0,0,.4)';
-          b.textContent = '✅ Paiement reçu ! Ton plan est maintenant actif.';
-          document.body.appendChild(b); setTimeout(function(){ b.remove(); }, 6000);
+          var plan = d.abonnement.plan, fam = plan === 'famille';
+          var c = document.createElement('div'); c.className = 'succes'; c.setAttribute('role', 'status');
+          c.innerHTML = '<h2>✅ Paiement reçu !</h2><p>' + (fam ? 'Ton abonnement Famille est actif. Ton reçu est dans ta messagerie KOMYO.' : 'Ton plan est actif. Ton reçu est dans ta messagerie KOMYO.') + '</p>' +
+            '<a href="' + (fam ? 'pioupiou.html' : 'boutique.html') + '" id="lienSucces">' + (fam ? 'Ouvrir PIOUPIOU 🐥' : 'Ouvrir ma boutique') + '</a>' + (fam ? '<p id="compte" style="margin:10px 0 0;font-size:12px">Ouverture automatique dans 6 secondes…</p>' : '');
+          appState.insertBefore(c, appState.firstChild);
           try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) {}
+          if (fam){ var t = 6, iv = setInterval(function(){ t--; var el = document.getElementById('compte'); if (el) el.textContent = 'Ouverture automatique dans ' + t + ' seconde' + (t > 1 ? 's' : '') + '…'; if (t <= 0){ clearInterval(iv); location.href = 'pioupiou.html'; } }, 1000); c.addEventListener('click', function(){ clearInterval(iv); var el = document.getElementById('compte'); if (el) el.remove(); }); }
         }
       }).catch(function(){});
     }, 5000);
