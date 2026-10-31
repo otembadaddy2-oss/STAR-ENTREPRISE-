@@ -30,6 +30,9 @@ export const EPISODES_OFFICIELS: EpisodeOfficiel[] = [
   { cle: "officiel-a5-v2.mp4", fichier: "a5v2.mp4", titre: "A5 · Merci !", affiche: "/starvibe/assets/pioupiou/affiche_A5-v1.webp" },
 ];
 
+// Anciennes versions remplacées : leur fichier est supprimé du stockage au prochain passage.
+const ANCIENNES_VERSIONS = ["officiel-a5.mp4"];
+
 export const estOfficiel = (cle: string) => cle.startsWith(PREFIXE_OFFICIEL);
 
 // Les épisodes dont le fichier est bien en stockage (mémorisé : on ne le redemande pas à chaque requête une fois trouvé).
@@ -47,6 +50,7 @@ async function lireFichierLivre(fichier: string): Promise<Buffer | null> {
 export async function installerEpisodesOfficiels(): Promise<{ cle: string; etat: "deja" | "installe" | "absent" }[]> {
   const store = getStore(STORE);
   const bilan: { cle: string; etat: "deja" | "installe" | "absent" }[] = [];
+  for (const k of ANCIENNES_VERSIONS) { try { await store.delete(k); } catch { /* déjà supprimé */ } }
   for (const ep of EPISODES_OFFICIELS) {
     if (presents.has(ep.cle)) { bilan.push({ cle: ep.cle, etat: "deja" }); continue; }
     const meta = await store.getMetadata(ep.cle);
