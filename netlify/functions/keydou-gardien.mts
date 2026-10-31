@@ -11,4 +11,6 @@ export default async () => {
   return Response.json({ analyses: faits.length });
 };
 
-export const config: Config = { schedule: "*/5 * * * *" };
+// Une fois par heure suffit : chaque vidéo est déjà contrôlée dès sa publication (fonction « background »). Ce balayage ne sert que de rattrapage,
+// et un passage toutes les 5 minutes gardait la base de données éveillée jour et nuit (crédits Netlify « Compute »).
+export const config: Config = { schedule: "0 * * * *" };
