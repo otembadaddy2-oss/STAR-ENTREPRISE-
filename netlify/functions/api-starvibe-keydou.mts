@@ -221,10 +221,11 @@ async function appliquerPaiement(
 async function validerDepot(sql: any, kind: string, id: number, methode: string, reference = ""): Promise<{ ok: boolean; statut: string }> {
   if (kind === "abo") {
     const r = (await sql`
-      UPDATE starvibe_subscriptions
-      SET montant_recu = montant_attendu, methode = ${methode}, reference_transaction = ${reference},
-          statut = 'actif', started_at = now(), expires_at = now() + interval '30 days', updated_at = now()
-      WHERE id = ${id} AND statut = 'en_attente_paiement' RETURNING id
+      UPDATE starvibe_subscriptions AS s
+      SET montant_recu = s.montant_attendu, methode = ${methode}, reference_transaction = ${reference},
+          statut = 'actif', started_at = now(), updated_at = now(),
+          expires_at = GREATEST(now(), COALESCE((SELECT MAX(o.expires_at) FROM starvibe_subscriptions o WHERE o.account_id = s.account_id AND o.plan = s.plan AND o.statut = 'actif' AND o.expires_at > now()), now())) + make_interval(days => 30 * s.mois)
+      WHERE s.id = ${id} AND s.statut = 'en_attente_paiement' RETURNING s.id
     `) as { id: number }[];
     if (r.length) await recuAbonnement(sql, id);
     return { ok: r.length > 0, statut: r.length ? "actif" : "deja_traite" };

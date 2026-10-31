@@ -13,7 +13,7 @@ export function db() {
 // Version du schéma = empreinte du texte de ensureSchema() ci-dessous (vérifiée par tools/test-schema.mts).
 // Quand tu modifies une instruction du schéma : lance « node --experimental-strip-types tools/test-schema.mts --ecrire »
 // pour mettre à jour cette ligne. Sans cela, la base ne serait pas mise à jour (le test échoue pour te le rappeler).
-const SCHEMA_VERSION = "1d82b251c895d60e";
+const SCHEMA_VERSION = "611455b3e05966b5";
 
 // Idempotent schema setup — safe to call on every cold start.
 // Rapide : les ~80 instructions ne sont rejouées que si SCHEMA_VERSION a changé depuis la dernière fois
@@ -508,6 +508,8 @@ export async function ensureSchema() {
   await sql`ALTER TABLE starvibe_subscriptions ADD COLUMN IF NOT EXISTS rappel_fin_at TIMESTAMPTZ`;
   // Abonnement Famille offert / payé par une autre personne : account_id = le compte qui en profite, payeur = celui qui paie.
   await sql`ALTER TABLE starvibe_subscriptions ADD COLUMN IF NOT EXISTS payeur_account_id INTEGER`;
+  // Durée payée d'un coup, en mois de 30 jours (1 = un mois ; 2 = le parent a payé le double, etc.).
+  await sql`ALTER TABLE starvibe_subscriptions ADD COLUMN IF NOT EXISTS mois INTEGER NOT NULL DEFAULT 1`;
   await sql`ALTER TABLE starvibe_subscriptions ADD COLUMN IF NOT EXISTS beneficiaire_nom TEXT NOT NULL DEFAULT ''`;
 
   // Installations de l'application KOMYO (suivi des abonnés, en direct dans le backend).
