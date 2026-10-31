@@ -149,7 +149,7 @@
         '<div class="amount">' + sub.montantAttendu.toLocaleString('fr-FR') + ' FCFA</div>' +
         '<div class="pay-row"><span>Envoyer via Mobile Money au</span><b>' + sub.numeroReception + '</b></div>' +
         '<div class="pay-row"><span>Référence à indiquer</span><b>' + sub.referencePaiement + '</b></div>' +
-        '<div class="pay-note">Envoie le montant exact avec la référence ci-dessus. Un compte STAR ENTREPRISE confirme la réception et active ton plan pour 30 jours ; tu reçois ensuite ton reçu détaillé par WhatsApp.</div>' +
+        '<div class="pay-note">Envoie le montant exact avec la référence ci-dessus. Dès que ton dépôt est reconnu, ton plan s\'active pour 30 jours et ton reçu arrive dans ta messagerie KOMYO. Cette page se met à jour toute seule : pas besoin de la rafraîchir.</div>' +
         '<label for="payMontant" style="display:block;margin-top:12px;font-weight:700;font-size:14px">Montant que tu as déposé (en FCFA)</label>' +
         '<input id="payMontant" type="text" inputmode="numeric" maxlength="12" autocomplete="off" placeholder="' + sub.montantAttendu.toLocaleString('fr-FR') + '" style="width:100%;margin-top:6px;padding:11px 12px;border:1.5px solid #eee2cc;border-radius:12px;font:600 15px inherit">' +
         '<div id="payMontantMsg" data-noconv class="pay-note" aria-live="polite">Écris le montant de ton dépôt : exactement ' + sub.montantAttendu.toLocaleString('fr-FR') + ' FCFA.</div>' +
@@ -162,7 +162,7 @@
       if (m === null) msg.textContent = 'Écris le montant de ton dépôt : exactement ' + fmt(attendu) + ' FCFA.';
       else if (m < attendu) msg.textContent = 'Montant incorrect : ' + fmt(m) + ' FCFA est inférieur. Dépose exactement ' + fmt(attendu) + ' FCFA, puis écris-le ici.';
       else if (m > attendu) msg.textContent = 'Montant incorrect : ' + fmt(m) + ' FCFA est supérieur. Le montant exact est ' + fmt(attendu) + ' FCFA.';
-      else { msg.textContent = 'Montant correct ✓ L\'équipe active ton plan dès qu\'elle voit ton dépôt.'; ok = true; }
+      else { msg.textContent = 'Montant correct ✓ Ton plan s\'active dès que ton dépôt est reconnu. Cette page se met à jour toute seule.'; ok = true; }
       bt.disabled = !ok;
     }
     champ.addEventListener('input', controle);
@@ -208,11 +208,38 @@
     }).then(function(res){ return res.json(); }).then(function(){ load(); });
   }
 
+  // Surveillance du paiement : tant que le plan attend son dépôt, on interroge le serveur toutes les 5 secondes (sans toucher à la saisie en cours) ;
+  // dès que le dépôt est reconnu (automatiquement ou par l'équipe), la page se met à jour toute seule et le dit.
+  var veille = null, veilleDebut = 0;
+  function surveiller(sub){
+    var attend = sub && sub.statut === 'en_attente_paiement';
+    if (!attend){ clearInterval(veille); veille = null; return; }
+    if (veille) return;
+    veilleDebut = Date.now();
+    veille = setInterval(function(){
+      if (document.hidden) return;
+      if (Date.now() - veilleDebut > 30 * 60 * 1000){ clearInterval(veille); veille = null; return; }
+      authFetch(API).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+        if (!d || !d.abonnement || d.abonnement.statut === 'en_attente_paiement') return;
+        clearInterval(veille); veille = null;
+        load();
+        if (d.abonnement.statut === 'actif'){
+          var b = document.createElement('div'); b.setAttribute('role', 'status');
+          b.style.cssText = 'position:fixed;left:16px;right:16px;top:calc(12px + env(safe-area-inset-top));z-index:50;background:#1f8f4a;color:#fff;border-radius:16px;padding:14px 16px;font:800 15px Sora,Arial,sans-serif;text-align:center;box-shadow:0 14px 30px -10px rgba(0,0,0,.4)';
+          b.textContent = '✅ Paiement reçu ! Ton plan est maintenant actif.';
+          document.body.appendChild(b); setTimeout(function(){ b.remove(); }, 6000);
+          try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) {}
+        }
+      }).catch(function(){});
+    }, 5000);
+  }
+
   function load(){
     authFetch(API).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
       .then(function(result){
         if (!result.ok){ localStorage.removeItem('starvibe_token'); loadingState.hidden = true; loggedOutState.hidden = false; return; }
         renderPayBox(result.data.abonnement);
+        surveiller(result.data.abonnement);
         renderPlans(result.data.abonnement, result.data.plans);
         loadingState.hidden = true;
         appState.hidden = false;
