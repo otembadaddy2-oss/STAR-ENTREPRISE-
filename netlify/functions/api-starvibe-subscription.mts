@@ -241,6 +241,13 @@ export default async (req: Request, _context: Context) => {
       const actif = (await sql`SELECT plan FROM starvibe_subscriptions WHERE account_id = ${cible.id} AND statut = 'actif' AND montant_attendu > 0 AND expires_at > now() ORDER BY id DESC LIMIT 1`) as { plan: string }[];
       if (actif[0]?.plan === "business") return json({ error: "Ce compte a déjà un abonnement Business actif." }, 409);
       const enfantNom = clean(body.enfantNom, 80).replace(/[\u0000-\u001f\u007f<>]/g, "");
+      // Le parent a déjà une demande identique en attente : on la reprend au lieu d'en créer une de plus (le dépôt reste reconnaissable).
+      const dejaCadeau = (await sql`
+        SELECT * FROM starvibe_subscriptions
+        WHERE account_id = ${cible.id} AND plan = 'famille' AND statut = 'en_attente_paiement' AND payeur_account_id = ${accountId} AND created_at > now() - interval '48 hours'
+        ORDER BY id DESC LIMIT 1
+      `) as SubRow[];
+      if (dejaCadeau[0]) return json({ abonnement: toApi(dejaCadeau[0]), nomMasque: masque }, 200);
       const ligne = (await sql`
         INSERT INTO starvibe_subscriptions (account_id, plan, montant_attendu, statut, methode, payeur_account_id, beneficiaire_nom)
         VALUES (${cible.id}, 'famille', ${PLANS.famille.montant}, 'en_attente_paiement', ${methode}, ${accountId}, ${enfantNom})
@@ -255,6 +262,16 @@ export default async (req: Request, _context: Context) => {
 
       const montant = PLANS[plan].montant;
       const statut = montant === 0 ? "actif" : "en_attente_paiement";
+
+      // Une demande identique est déjà en attente (le client a touché plusieurs fois) : on la reprend, sans en créer une de plus.
+      if (statut === "en_attente_paiement") {
+        const deja = (await sql`
+          SELECT * FROM starvibe_subscriptions
+          WHERE account_id = ${accountId} AND plan = ${plan} AND statut = 'en_attente_paiement' AND payeur_account_id IS NULL AND created_at > now() - interval '48 hours'
+          ORDER BY id DESC LIMIT 1
+        `) as SubRow[];
+        if (deja[0]) return json({ abonnement: toApi(deja[0]) }, 200);
+      }
 
       const rows = (await sql`
         INSERT INTO starvibe_subscriptions (account_id, plan, montant_attendu, statut, started_at)

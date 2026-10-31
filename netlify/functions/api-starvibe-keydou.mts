@@ -502,6 +502,8 @@ export default async (req: Request, _context: Context) => {
       const sure = cands.filter((c) => c.byRef || c.byPhone);
       const byRef = sure.filter((c) => c.byRef);
       let unique = byRef.length === 1 ? byRef : (sure.length === 1 ? sure : []);
+      // Plusieurs demandes d'abonnement identiques du même numéro (le client a touché plusieurs fois « Choisir ») : la plus récente compte.
+      if (!unique.length && sure.length > 1 && sure.every((c) => c.kind === "abo")) unique = [sure.reduce((a, b) => (b.id > a.id ? b : a))];
       // Repli : le client a payé depuis un autre numéro. Si UNE SEULE demande de ce montant attend
       // (et que le client a touché "J'ai payé" il y a moins de 20 min), le dépôt lui revient.
       let repli = false;
