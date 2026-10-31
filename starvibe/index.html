@@ -373,7 +373,7 @@
     bt.disabled=true; etat.style.color='#241536'; etat.textContent='Envoi…';
     fetch('/api/leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'komyo-contact',nom:nom||'Visiteur KOMYO',email:estMail?joindre:'',telephone:estMail?'':joindre,service:'KOMYO',message:msg,site:(document.getElementById('ctSite')||{}).value||''})})
       .then(function(r){ bt.disabled=false; if(r.status===429){ etat.style.color='#b3261e'; etat.textContent='Beaucoup de messages en ce moment. Réessaie dans un petit moment.'; return; } if(!r.ok) throw 0;
-        etat.style.color='#1a7f37'; etat.textContent='Merci ! Ton message est bien envoyé à l\'équipe KOMYO. Nous te répondons vite.'; f.reset(); })
+        return r.json().then(function(d){ return d; }, function(){ return {}; }).then(function(d){ etat.style.color='#1a7f37'; etat.textContent='Merci ! Ton message est bien envoyé à l\'équipe KOMYO. Nous te répondons vite.' + (d.accuse==='messagerie' ? ' Un petit mot de Keydou t\'attend dans ta messagerie KOMYO.' : d.accuse==='email' ? ' Un accusé de réception vient de partir sur ton e-mail.' : ''); f.reset(); }); })
       .catch(function(){ bt.disabled=false; etat.style.color='#b3261e'; etat.textContent='L\'envoi n\'a pas marché. Réessaie dans un instant.'; });
   });
 })();
