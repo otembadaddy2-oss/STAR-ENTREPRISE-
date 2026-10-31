@@ -14,6 +14,7 @@ import { randomBytes } from "node:crypto";
 import { ensureSchema, db, json } from "./_db.mts";
 import { requireAuth } from "./_auth.mts";
 import { signedVideoUrl, hasActiveFamille } from "./_premium.mts";
+import { episodesOfficiels, installerEpisodesOfficiels } from "./_pioupiou_officiel.mts";
 
 const ORG = "star_vibe";
 const STAFF_ORG = "star_entreprise";
@@ -624,6 +625,11 @@ export default async (req: Request, _context: Context) => {
     return json({ evenements, nonLues: Number(countRows[0]?.n || 0), now: new Date().toISOString() });
   }
 
+  // Dépôt des épisodes officiels PIOUPIOU livrés avec le déploiement : sans paramètre, idempotent, ne révèle rien (état seulement).
+  if (req.method === "GET" && url.searchParams.get("seed") === "officiel") {
+    return json({ ok: true, episodes: await installerEpisodesOfficiels() });
+  }
+
   // --- Lecture du fil (utilisateur STAR VIBE) ---
   const session = await requireAuth(req);
   if (!session || session.org !== ORG) return json({ error: "Non authentifié" }, 401);
@@ -685,7 +691,9 @@ export default async (req: Request, _context: Context) => {
   const likedSet = new Set(likedRows.map((r) => r.video_id));
 
   const canWatchPremium = await hasActiveFamille(sql, accountId);
-  return json({ videos: rows.map((r) => toApi(r, likedSet.has(r.id), canWatchPremium, accountId)), abonneFamille: canWatchPremium });
+  // Espace PIOUPIOU : les épisodes officiels de STAR ENTREPRISE passent en premier, dans l'ordre du programme.
+  const officiels = wantKids && !before ? await episodesOfficiels(canWatchPremium) : [];
+  return json({ videos: [...officiels, ...rows.map((r) => toApi(r, likedSet.has(r.id), canWatchPremium, accountId))], abonneFamille: canWatchPremium });
 };
 
 export const config: Config = {

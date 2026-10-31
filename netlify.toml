@@ -1,2 +1,4 @@
 [functions]
   directory = "netlify/functions"
+  # Épisodes officiels PIOUPIOU (fichiers non versionnés, déposés en stockage au premier passage — voir _pioupiou_officiel.mts)
+  included_files = ["netlify/functions/pioupiou-officiel/*.mp4"]

@@ -8,31 +8,36 @@
     {
      "id": "A1",
      "titre": "Bonjour papa, bonjour maman",
-     "duree": "60 s",
+     "dispo": true,
+     "duree": "42 s",
      "objectif": "Dire bonjour à ses parents dès le réveil."
     },
     {
      "id": "A2",
      "titre": "Les dents du matin",
-     "duree": "75 s",
+     "dispo": true,
+     "duree": "37 s",
      "objectif": "Se brosser les dents 2 minutes, en haut, en bas, devant, derrière."
     },
     {
      "id": "A3",
      "titre": "Les mains propres avant de manger",
-     "duree": "60 s",
+     "dispo": true,
+     "duree": "20 s",
      "objectif": "Se laver les mains avant chaque repas (savon, 20 secondes, rinçage, séchage)."
     },
     {
      "id": "A4",
      "titre": "Les mains propres après le repas",
-     "duree": "60 s",
+     "dispo": true,
+     "duree": "15 s",
      "objectif": "Se laver les mains après le repas, les toilettes, le jeu."
     },
     {
      "id": "A5",
      "titre": "Merci !",
-     "duree": "60 s",
+     "dispo": true,
+     "duree": "13 s",
      "objectif": "Dire merci quand on reçoit quelque chose."
     },
     {

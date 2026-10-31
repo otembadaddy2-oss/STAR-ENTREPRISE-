@@ -1,17 +1,19 @@
 # PIOUPIOU — Programme des vidéos éducatives (43 épisodes)
 
-Mis à jour le 30 octobre 2026. ☑ = terminé · ☐ = à faire. Âges : 3-4, 4-5, 5-6 ans (espace enfants 3-6 ans).
+Mis à jour le 31 octobre 2026. ☑ = terminé · ☐ = à faire. Âges : 3-4, 4-5, 5-6 ans (espace enfants 3-6 ans).
 
-**Avancement : 3 / 43 validés (A1, A2, A3).**
+**Avancement : 5 / 43 terminés et en ligne (A1 à A5), tous réservés aux abonnés Famille.**
+
+Mise en ligne : les épisodes officiels sont servis par `netlify/functions/_pioupiou_officiel.mts` (liste `EPISODES_OFFICIELS`), sans passer par la file de modération des vidéos d'utilisateurs ; chaque épisode est validé par Carry avant d'y figurer. Les fichiers vidéo (dossier `netlify/functions/pioupiou-officiel/`, non versionné car le dépôt est public) sont déposés dans Netlify Blobs au premier passage après un déploiement qui les contient (`GET /api/starvibe-videos?seed=officiel`), puis y restent. Pour ajouter un épisode : ajouter sa vidéo `aN.mp4` dans ce dossier, son affiche dans `starvibe/assets/pioupiou/`, une ligne dans `EPISODES_OFFICIELS`, `"dispo": true` dans `pioupiou-episodes-v1.json`, déployer, puis appeler l'adresse de dépôt.
 
 
 ## A · Routines de la journée
 
-- [x] **A1** — Bonjour papa, bonjour maman (60 s, 3-6 ans) — *terminé (version 2, parents visibles)*
-- [x] **A2** — Les dents du matin (75 s, 3-6 ans) — *terminé et validé (37 s, bouches synchronisées)*
-- [x] **A3** — Les mains propres avant de manger (20 s, 3-6 ans) — *terminé et validé (bouches synchronisées)*
-- [ ] **A4** — Les mains propres après le repas (60 s, 3-6 ans)
-- [ ] **A5** — Merci ! (60 s, 3-6 ans)
+- [x] **A1** — Bonjour papa, bonjour maman (60 s, 3-6 ans) — *terminé, en ligne (version 2, parents visibles)*
+- [x] **A2** — Les dents du matin (75 s, 3-6 ans) — *terminé, en ligne (37 s, bouches synchronisées)*
+- [x] **A3** — Les mains propres avant de manger (20 s, 3-6 ans) — *terminé, en ligne (bouches synchronisées)*
+- [x] **A4** — Les mains propres après le repas (15 s, 3-6 ans) — *terminé, en ligne (bouches synchronisées)*
+- [x] **A5** — Merci ! (13 s, 3-6 ans) — *terminé, en ligne (bouches synchronisées)*
 - [ ] **A6** — S'il te plaît (60 s, 3-6 ans)
 - [ ] **A7** — Au revoir (60 s, 3-6 ans)
 - [ ] **A8** — Les dents du soir (60 s, 3-6 ans)

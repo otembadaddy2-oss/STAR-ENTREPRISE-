@@ -200,6 +200,7 @@ I18N.add({
   "Abonne-toi pour 1 500 FCFA par mois et regarde tous les dessins animés PIOUPIOU.": "Subscribe for 1,500 FCFA a month and watch all the PIOUPIOU cartoons.",
   "Découvrir l'abonnement Famille": "Discover the Family subscription",
   "petites histoires arrivent": "little stories are coming",
+  "Disponible": "Available",
   "épisodes": "episodes",
 
   /* ================= installation ================= */
@@ -283,6 +284,7 @@ I18N.pat([
   [/^Installe KOMYO sur ton téléphone, c'est gratuit : (.+)$/, "Install KOMYO on your phone, it's free: $1"],
   [/^Diagnostic KOMYO — (.+)$/, "KOMYO diagnostic — $1"],
   [/^(\d+) petites histoires arrivent$/, "$1 little stories are coming"],
+  [/^(\d+) histoires à regarder, (\d+) arrivent$/, "$1 stories to watch, $2 coming soon"],
   [/^(\d+) épisodes$/, "$1 episodes"]
 ]);
 

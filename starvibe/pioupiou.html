@@ -69,6 +69,7 @@
   .avenir li{display:flex;gap:10px;justify-content:space-between;align-items:baseline;padding:8px 0;border-top:1px solid rgba(255,255,255,.14);font-size:13px;line-height:1.4;}
   .avenir li small{color:rgba(255,255,255,.72);white-space:nowrap;}
   .avenir li .bientot{display:block;font-size:11px;color:#ffe08a;font-weight:700;}
+  .avenir li .bientot.dispo{color:#9be7a0;}
   .lock{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:24px;
     background:linear-gradient(160deg,rgba(15,74,55,.92),rgba(30,152,102,.9));z-index:3;}
   .lock.show{display:flex;}
@@ -209,10 +210,11 @@
     if (aVenirHtml !== null){ Array.prototype.forEach.call(hotes, function(h){ h.innerHTML = aVenirHtml; }); return; }
     fetch('/starvibe/assets/pioupiou-episodes-v1.json').then(function(r){ return r.json(); }).then(function(d){
       var total = d.familles.reduce(function(n, f){ return n + f.episodes.length; }, 0);
-      var h = '<h3>' + total + ' petites histoires arrivent</h3>';
+      var dispo = d.familles.reduce(function(n, f){ return n + f.episodes.filter(function(e){ return e.dispo; }).length; }, 0);
+      var h = '<h3>' + (dispo ? dispo + ' histoires à regarder, ' + (total - dispo) + ' arrivent' : total + ' petites histoires arrivent') + '</h3>';
       d.familles.forEach(function(f){
         h += '<details><summary><span>' + f.emoji + '</span> ' + esc(f.nom) + '<span class="n">' + f.episodes.length + ' épisodes</span></summary><ul>';
-        f.episodes.forEach(function(e){ h += '<li><span>' + esc(e.titre) + '<span class="bientot">Bientôt</span></span><small>' + esc(e.duree) + '</small></li>'; });
+        f.episodes.forEach(function(e){ h += '<li><span>' + esc(e.titre) + (e.dispo ? '<span class="bientot dispo">Disponible</span>' : '<span class="bientot">Bientôt</span>') + '</span><small>' + esc(e.duree) + '</small></li>'; });
         h += '</ul></details>';
       });
       aVenirHtml = h; Array.prototype.forEach.call(hotes, function(x){ x.innerHTML = h; });

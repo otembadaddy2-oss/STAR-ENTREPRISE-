@@ -80,7 +80,7 @@ _Fiches (min.) = nombre minimum de fiches dans la mémoire de Keydou : annuaire 
 
 | Offre | Prix | À savoir |
 |---|---|---|
-| Famille (vidéos premium, espace enfants) | 1 500 FCFA / mois | Paiement Mobile Money, confirmation manuelle, montant exact. |
+| Famille (vidéos premium, espace enfants) | 1 500 FCFA / mois | Paiement Mobile Money, confirmation manuelle, montant exact. 5 dessins animés disponibles (A1 à A5), 43 prévus : n'annonce aucune date pour les suivants. |
 | Business (espace professionnel) | 5 000 FCFA / mois | Idem. |
 | Annonce visible par tous – essai | 2 000 FCFA (1 semaine) | Le message défile chez tous les abonnés. |
 | Annonce 2 semaines | 4 000 FCFA | Idem. |

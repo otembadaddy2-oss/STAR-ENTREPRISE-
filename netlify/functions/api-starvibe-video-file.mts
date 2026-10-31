@@ -5,6 +5,7 @@ import type { Context, Config } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 import { ensureSchema, db } from "./_db.mts";
 import { verifySignature } from "./_premium.mts";
+import { estOfficiel } from "./_pioupiou_officiel.mts";
 
 const RECENT = new Map<string, { data: ArrayBuffer; typeMime: string }>();
 const MAX_RECENT_BYTES = 120_000_000;
@@ -18,8 +19,9 @@ export default async (req: Request, _context: Context) => {
   // délivré seulement aux abonnés Famille actifs (voir _premium.mts).
   await ensureSchema();
   const { sql } = db();
-  const meta = (await sql`SELECT premium FROM starvibe_videos WHERE blob_key = ${key} LIMIT 1`) as { premium: boolean }[];
-  const premium = Boolean(meta[0]?.premium);
+  // Les épisodes officiels PIOUPIOU (clé « officiel-… ») sont toujours premium et n'ont pas de ligne en base.
+  const meta = estOfficiel(key) ? [] : (await sql`SELECT premium FROM starvibe_videos WHERE blob_key = ${key} LIMIT 1`) as { premium: boolean }[];
+  const premium = estOfficiel(key) || Boolean(meta[0]?.premium);
   if (premium && !verifySignature(key, url.searchParams.get("exp"), url.searchParams.get("sig"))) {
     return new Response("Contenu réservé aux abonnés", { status: 403 });
   }
