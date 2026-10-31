@@ -304,8 +304,8 @@ export default async (req: Request, _context: Context) => {
       `) as VideoRow[];
       const created = rows[0];
       for (const key of tmpKeys) { try { await tmp.delete(key); } catch { /* sans gravité : ménage seulement */ } }
-      // Espace enfants : Keydou contrôle la vidéo tout de suite (tâche de fond). En cas d'échec, le balayage régulier prend le relais.
-      if (pourEnfants) {
+      // Espaces de mineurs (PIOUPIOU, KOMYO Jeunes) : Keydou contrôle la vidéo tout de suite (tâche de fond). En cas d'échec, le balayage régulier prend le relais.
+      if (pourEnfants || espace === "jeunes") {
         try {
           await fetch(new URL(`/.netlify/functions/keydou-gardien-background?id=${created.id}&sig=${signerAnalyse(created.id)}`, req.url), { method: "POST", signal: AbortSignal.timeout(4000) });
         } catch { /* le balayage de rattrapage s'en charge */ }

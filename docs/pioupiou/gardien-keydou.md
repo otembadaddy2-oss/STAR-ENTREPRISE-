@@ -1,4 +1,4 @@
-# Keydou, gardien de l'espace enfants (PIOUPIOU)
+# Keydou, gardien des espaces de mineurs (PIOUPIOU et KOMYO Jeunes)
 
 Mis en service le 31 octobre 2026. Chaque vidéo publiée pour les enfants est contrôlée automatiquement.
 
@@ -15,4 +15,6 @@ Mis en service le 31 octobre 2026. Chaque vidéo publiée pour les enfants est c
 - État des outils : `/api/keydou-gardien-etat` (ffmpeg, présence de la clé ; aucun secret).
 - Colonnes `gardien_verdict`, `gardien_raison`, `gardien_essais`, `gardien_le` dans `starvibe_videos`.
 - Test : `node --experimental-strip-types tools/test-gardien.mts une_video.mp4`.
-- Hors périmètre : KOMYO Jeunes (13-17 ans) et les épisodes officiels (validés par Carry).
+- KOMYO Jeunes (13-17 ans) : même contrôle avec des règles d'adolescents (nudité, images sexuelles, pornographie, violence, drogue, harcèlement, démarchage de mineurs bloqués).
+- Hors périmètre : les épisodes officiels (validés par Carry).
+- Prévu : transcription du son (service payant) en deuxième étape.

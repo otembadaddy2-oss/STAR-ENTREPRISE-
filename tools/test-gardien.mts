@@ -28,14 +28,14 @@ ok(imgs.every((b) => b[0] === 0xff && b[1] === 0xd8), "ce sont des JPEG");
 
 // base + flux complet
 const pg = new PGlite();
-await pg.exec(`CREATE TABLE starvibe_videos (id SERIAL PRIMARY KEY, account_id INT, legende TEXT, blob_key TEXT, pour_enfants BOOLEAN DEFAULT false, moderation_statut TEXT DEFAULT 'approuve', gardien_verdict TEXT NOT NULL DEFAULT '', gardien_raison TEXT NOT NULL DEFAULT '', gardien_essais INT NOT NULL DEFAULT 0, gardien_le TIMESTAMPTZ);`);
+await pg.exec(`CREATE TABLE starvibe_videos (id SERIAL PRIMARY KEY, account_id INT, legende TEXT, blob_key TEXT, espace TEXT NOT NULL DEFAULT 'general', pour_enfants BOOLEAN DEFAULT false, moderation_statut TEXT DEFAULT 'approuve', gardien_verdict TEXT NOT NULL DEFAULT '', gardien_raison TEXT NOT NULL DEFAULT '', gardien_essais INT NOT NULL DEFAULT 0, gardien_le TIMESTAMPTZ);`);
 class Q { s: readonly string[]; v: unknown[]; constructor(s: readonly string[], v: unknown[]) { this.s = s; this.v = v; } then(res: (x: unknown) => unknown, rej?: (e: unknown) => unknown) { return run(this).then(res, rej); } }
 const flat = (q: Q, o: { text: string; vals: unknown[] }) => { q.s.forEach((p, i) => { o.text += p; if (i < q.v.length) { o.vals.push(q.v[i]); o.text += "$" + o.vals.length; } }); };
 const run = async (q: Q) => { const o = { text: "", vals: [] as unknown[] }; flat(q, o); return (await pg.query(o.text, o.vals)).rows; };
 const sql: any = (s: TemplateStringsArray, ...v: unknown[]) => new Q(s, v);
-const msgs: any[] = [], alertes: string[] = [];
+const msgs: any[] = [], alertes: string[] = [], espaces: string[] = [];
 let reponse: any = J("ok", 0.95, "Joyeux et adapté.");
-const dep = { lireVideo: async () => video, extraire: G.extraireImages, juger: async () => reponse, poster: async (id: number, m: any) => { msgs.push({ id, ...m }); }, alerter: async (t: string) => { alertes.push(t); } };
+const dep = { lireVideo: async () => video, extraire: G.extraireImages, juger: async (_i: unknown, _l: string, e: string) => { espaces.push(e); return reponse; }, poster: async (id: number, m: any) => { msgs.push({ id, ...m }); }, alerter: async (t: string) => { alertes.push(t); } };
 const ajouter = async (kids: boolean, legende: string) => (await pg.query(`INSERT INTO starvibe_videos (account_id, legende, blob_key, pour_enfants, moderation_statut) VALUES (1,$1,'k',$2,'en_attente') RETURNING id`, [legende, kids])).rows[0].id as number;
 const statut = async (id: number) => (await pg.query(`SELECT moderation_statut s, gardien_verdict v FROM starvibe_videos WHERE id=${id}`)).rows[0];
 
@@ -56,6 +56,12 @@ ok((await statut(id)).s === "en_attente" && (await statut(id)).v === "doute" && 
 
 id = await ajouter(false, "fil normal");
 ok(await G.analyserVideo(sql, id, dep as any) === null && (await statut(id)).s === "en_attente", "vidéos hors espace enfants ignorées");
+
+// KOMYO Jeunes : même contrôle, règles d'adolescents
+reponse = J("refuse", 0.95, "Elle montre des images à caractère sexuel.");
+const idJ = (await pg.query(`INSERT INTO starvibe_videos (account_id, legende, blob_key, espace, pour_enfants, moderation_statut) VALUES (1,'ado','k','jeunes',false,'en_attente') RETURNING id`)).rows[0].id as number;
+ok(await G.analyserVideo(sql, idJ, dep as any) === "rejete", "KOMYO Jeunes : contenu sexuel refusé");
+ok(espaces.at(-1) === "jeunes" && msgs.at(-1).titre.includes("KOMYO Jeunes") && msgs.at(-1).texte.includes("13 à 17 ans"), "règles et message adaptés aux ados");
 
 // panne de l'IA : réessais puis doute
 reponse = null;
