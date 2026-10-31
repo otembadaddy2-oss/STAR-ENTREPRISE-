@@ -223,7 +223,7 @@ export async function diagnostic(): Promise<{ ffmpeg: string; cleIA: boolean; pa
       const r = await fetch(`${(process.env.ANTHROPIC_BASE_URL || "https://api.anthropic.com").replace(/\/+$/, "")}/v1/messages`, {
         method: "POST",
         headers: { "content-type": "application/json", "x-api-key": process.env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
-        body: JSON.stringify({ model: modele, max_tokens: 8, messages: [{ role: "user", content: "Réponds seulement : ok" }] }),
+        body: JSON.stringify({ model: process.env.KEYDOU_MODEL || "claude-sonnet-5-5", max_tokens: 40, output_config: { effort: "low" }, system: [{ type: "text", text: "Réponds en un mot.", cache_control: { type: "ephemeral" } }], messages: [{ role: "user", content: "Réponds seulement : ok" }] }),
         signal: AbortSignal.timeout(15_000),
       });
       appelIA = r.ok ? "ok" : `refusé (${r.status})`;

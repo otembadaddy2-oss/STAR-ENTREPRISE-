@@ -334,7 +334,13 @@ async function chatKeydou(sql: any, req: Request, body: Record<string, unknown>)
     const r = await fetch(`${(process.env.ANTHROPIC_BASE_URL || "https://api.anthropic.com").replace(/\/+$/, "")}/v1/messages`, {
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
-      body: JSON.stringify({ model: process.env.KEYDOU_MODEL || "claude-haiku-5-5", max_tokens: 500, system: promptKeydou(await resumeAnnuaire(sql), req.headers.get("x-komyo-lang") === "en"), messages: propres }),
+      // Modèle de qualité (Sonnet) : réponses plus fines pour l'aide et l'explication. Les consignes, identiques à chaque message, sont mises en mémoire
+      // (cache) pour être facturées bien moins cher ; effort « low » : réponse rapide, peu de réflexion. À réévaluer vers 2 500 abonnements.
+      body: JSON.stringify({
+        model: process.env.KEYDOU_MODEL || "claude-sonnet-5-5", max_tokens: 1200, output_config: { effort: "low" },
+        system: [{ type: "text", text: promptKeydou(await resumeAnnuaire(sql), req.headers.get("x-komyo-lang") === "en"), cache_control: { type: "ephemeral" } }],
+        messages: propres,
+      }),
     });
     if (!r.ok) return json({ fallback: true });
     const data = (await r.json()) as { content?: { type: string; text?: string }[] };
