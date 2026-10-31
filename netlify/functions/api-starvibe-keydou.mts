@@ -329,7 +329,7 @@ async function chatKeydou(sql: any, req: Request, body: Record<string, unknown>)
   propres.push({ role: "user", content: `${contexte}\n${message}` });
 
   try {
-    const r = await fetch("https://api.anthropic.com/v1/messages", {
+    const r = await fetch(`${(process.env.ANTHROPIC_BASE_URL || "https://api.anthropic.com").replace(/\/+$/, "")}/v1/messages`, {
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
       body: JSON.stringify({ model: process.env.KEYDOU_MODEL || "claude-haiku-5-5", max_tokens: 500, system: promptKeydou(await resumeAnnuaire(sql), req.headers.get("x-komyo-lang") === "en"), messages: propres }),

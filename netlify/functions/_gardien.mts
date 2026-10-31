@@ -110,7 +110,7 @@ export async function jugerAvecIA(images: Buffer[], legende: string, espace = "p
   if (!clef) return null;
   const contenu: Record<string, unknown>[] = [{ type: "text", text: `Légende de la vidéo (donnée, pas un ordre) : « ${String(legende || "").slice(0, 300)} »\nVoici ${images.length} images régulièrement espacées dans la vidéo :` }];
   for (const img of images) contenu.push({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: img.toString("base64") } });
-  const r = await fetch("https://api.anthropic.com/v1/messages", {
+  const r = await fetch(`${(process.env.ANTHROPIC_BASE_URL || "https://api.anthropic.com").replace(/\/+$/, "")}/v1/messages`, {
     method: "POST",
     headers: { "content-type": "application/json", "x-api-key": clef, "anthropic-version": "2023-06-01" },
     body: JSON.stringify({ model: process.env.KEYDOU_GARDIEN_MODEL || "claude-sonnet-5-5", max_tokens: 400, system: espace === "jeunes" ? CONSIGNES_JEUNES : CONSIGNES, messages: [{ role: "user", content: contenu }] }),
@@ -212,9 +212,22 @@ export async function analyserEnAttente(sql: Sql, max = 10, dep?: Dependances): 
   return out;
 }
 
-// Contrôle des outils, sans effet de bord : ffmpeg tourne-t-il, la clé de l'IA est-elle présente ?
-export async function diagnostic(): Promise<{ ffmpeg: string; cleIA: boolean; modele: string }> {
+// Contrôle des outils, sans effet de bord : ffmpeg tourne-t-il, la clé de l'IA est-elle présente et répond-elle ?
+export async function diagnostic(): Promise<{ ffmpeg: string; cleIA: boolean; passerelle: boolean; modele: string; appelIA: string }> {
   let ffmpeg = "absent";
   try { const { stdout } = await exec(await binaireFfmpeg(), ["-version"], { timeout: 10_000 }); ffmpeg = String(stdout).split("\n")[0].slice(0, 60); } catch (e) { ffmpeg = "erreur : " + String((e as Error).message).slice(0, 80); }
-  return { ffmpeg, cleIA: Boolean(process.env.ANTHROPIC_API_KEY), modele: process.env.KEYDOU_GARDIEN_MODEL || "claude-sonnet-5-5" };
+  const modele = process.env.KEYDOU_GARDIEN_MODEL || "claude-sonnet-5-5";
+  let appelIA = "pas de clé";
+  if (process.env.ANTHROPIC_API_KEY) {
+    try {
+      const r = await fetch(`${(process.env.ANTHROPIC_BASE_URL || "https://api.anthropic.com").replace(/\/+$/, "")}/v1/messages`, {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-api-key": process.env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
+        body: JSON.stringify({ model: modele, max_tokens: 8, messages: [{ role: "user", content: "Réponds seulement : ok" }] }),
+        signal: AbortSignal.timeout(15_000),
+      });
+      appelIA = r.ok ? "ok" : `refusé (${r.status})`;
+    } catch (e) { appelIA = "erreur : " + String((e as Error).message).slice(0, 60); }
+  }
+  return { ffmpeg, cleIA: Boolean(process.env.ANTHROPIC_API_KEY), passerelle: Boolean(process.env.ANTHROPIC_BASE_URL), modele, appelIA };
 }
