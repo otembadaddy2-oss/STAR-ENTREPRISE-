@@ -21,9 +21,12 @@
   var texteRange = store(KEY) === jour;
 
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var avecVideo = true; // « économie de données » ne bloque plus (≈ 170 Ko) ; « moins d'animations » → quelques secondes puis il se fige
+  // « économie de données » ne bloque plus (≈ 170 Ko) ; « moins d'animations » → quelques secondes puis il se fige.
+  // Téléphone d'entrée de gamme (2 cœurs ou moins, 1 Go de mémoire ou moins) : l'image fixe suffit, pour garder l'application fluide.
+  var faible = (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2) || (navigator.deviceMemory && navigator.deviceMemory <= 1);
+  var avecVideo = !faible;
   var BASE = '/starvibe/';
-  var SZ = 180;
+  var SZ = 128;   // la vignette s'affiche à 76-92 px : 128 px suffisent (2× moins de calcul par image)
 
   var css =
     '.kdb{position:fixed;z-index:34;left:12px;bottom:calc(14px + env(safe-area-inset-bottom,0px));display:flex;align-items:flex-end;gap:6px;' +
@@ -85,7 +88,7 @@
       if (!t0) t0 = t;
       if (reduce && t - t0 > 4500){ cancelAnimationFrame(raf); vid.pause(); return; }
       raf = requestAnimationFrame(dessiner);
-      if (document.hidden || vid.readyState < 2 || t - last < 55) return; // ~18 images/s, suffisant pour une petite vignette
+      if (document.hidden || vid.readyState < 2 || t - last < 70) return; // ~14 images/s, suffisant pour une petite vignette
       last = t;
       g.drawImage(vid, 0, 0, SZ, SZ);
       var im = g.getImageData(0, 0, SZ, SZ), d = im.data;
@@ -102,6 +105,6 @@
     var p = vid.play(); if (p && p.catch) p.catch(function(){});
     raf = requestAnimationFrame(dessiner);
   }
-  var go = function(){ setTimeout(demarrer, 1200); };
+  var go = function(){ setTimeout(demarrer, 2500); };   // après que la page soit prête et utilisable
   if (document.readyState === 'complete') go(); else window.addEventListener('load', go);
 })();

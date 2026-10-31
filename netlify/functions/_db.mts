@@ -10,10 +10,22 @@ export function db() {
   return getDatabase();
 }
 
+// Version du schéma = empreinte du texte de ensureSchema() ci-dessous (vérifiée par tools/test-schema.mts).
+// Quand tu modifies une instruction du schéma : lance « node --experimental-strip-types tools/test-schema.mts --ecrire »
+// pour mettre à jour cette ligne. Sans cela, la base ne serait pas mise à jour (le test échoue pour te le rappeler).
+const SCHEMA_VERSION = "a4c0bf335d6aaf05";
+
 // Idempotent schema setup — safe to call on every cold start.
+// Rapide : les ~80 instructions ne sont rejouées que si SCHEMA_VERSION a changé depuis la dernière fois
+// (gardée dans schema_meta). Sinon, un seul petit SELECT au démarrage à froid d'une fonction.
 export async function ensureSchema() {
   if (initialized) return;
   const { sql } = db();
+  const empreinte = SCHEMA_VERSION;
+  try {
+    const r = (await sql`SELECT valeur FROM schema_meta WHERE cle = 'ddl'`) as { valeur: string }[];
+    if (r[0] && r[0].valeur === empreinte) { initialized = true; return; }
+  } catch { /* la table n'existe pas encore : première fois, on crée tout */ }
 
   await sql`
     CREATE TABLE IF NOT EXISTS accounts (
@@ -767,6 +779,8 @@ export async function ensureSchema() {
     )
   `;
 
+  await sql`CREATE TABLE IF NOT EXISTS schema_meta (cle TEXT PRIMARY KEY, valeur TEXT NOT NULL, maj TIMESTAMPTZ NOT NULL DEFAULT now())`;
+  await sql`INSERT INTO schema_meta (cle, valeur) VALUES ('ddl', ${empreinte}) ON CONFLICT (cle) DO UPDATE SET valeur = EXCLUDED.valeur, maj = now()`;
   initialized = true;
 }
 
