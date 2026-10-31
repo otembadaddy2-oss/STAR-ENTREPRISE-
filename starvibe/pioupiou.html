@@ -146,15 +146,15 @@
   <div class="player">
     <video id="videoEl" loop muted playsinline preload="metadata"></video>
     <div class="tapzone" id="tapZone"></div>
-    <span class="premium-tag" id="premiumTag" hidden>⭐ Famille</span>
+    <span class="premium-tag" id="premiumTag" hidden>⭐ Pack</span>
     <div class="affiche" id="afficheEl"><div class="fallback"><div class="gros">🎬</div><b id="afficheTitre"></b></div></div>
-    <div class="etiquette ferme" id="etqFerme" hidden>FERMÉ<small id="etqRaison"></small><a href="abonnement.html" id="etqLien" hidden>Ouvrir avec l'abonnement Famille</a></div>
+    <div class="etiquette ferme" id="etqFerme" hidden>FERMÉ<small id="etqRaison"></small><a href="abonnement.html" id="etqLien" hidden>Ouvrir avec le Pack Routine de la journée</a></div>
     <div class="etiquette ouvert" id="etqOuvert" hidden>OUVERT</div>
     <div class="lock" id="lockEl">
       <div class="cadenas">🔒</div>
-      <h3>Dessin animé réservé aux abonnés Famille</h3>
-      <p>Abonne-toi pour 1 500 FCFA par mois et regarde tous les dessins animés PIOUPIOU.</p>
-      <a href="abonnement.html">Découvrir l'abonnement Famille</a>
+      <h3>Dessin animé du Pack Routine de la journée</h3>
+      <p>Pour 1 500 FCFA (30 jours), regarde les 10 dessins animés du pack : 5 disponibles, 5 à venir.</p>
+      <a href="abonnement.html">Voir le pack et le prix</a>
     </div>
     <button type="button" class="btn-son" id="btnSon" hidden></button>
     <button type="button" class="btn-fs" id="btnFs" aria-label="Agrandir la vidéo en plein écran" hidden>
@@ -362,7 +362,7 @@
       aff.querySelector('.fallback').style.display = v.afficheUrl ? 'none' : 'flex';
       document.getElementById('afficheTitre').textContent = v.legende || 'Dessin animé PIOUPIOU';
       var quand = v.disponibleLe ? new Date(v.disponibleLe).toLocaleString('fr-FR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) : '';
-      document.getElementById('etqRaison').textContent = v.raisonFermee === 'date' ? 'S\'ouvre automatiquement le ' + quand : 'Abonnement Famille requis (1 500 FCFA par mois)';
+      document.getElementById('etqRaison').textContent = v.raisonFermee === 'date' ? 'S\'ouvre automatiquement le ' + quand : 'Pack Routine de la journée requis (1 500 FCFA, 30 jours)';
       document.getElementById('etqLien').hidden = v.raisonFermee === 'date';
       if (v.raisonFermee === 'date' && v.disponibleLe) programmerOuverture(new Date(v.disponibleLe).getTime());
     }

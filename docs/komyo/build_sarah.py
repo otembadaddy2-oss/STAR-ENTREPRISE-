@@ -87,7 +87,7 @@ table([["Situation","Quoi faire"],
  ["Client qui dit avoir payé","Demande l'heure, le numéro et la référence du message reçu. Vérifie dans la page Paiements. Ne donne rien tant que ce n'est pas confirmé."]],[55,119])
 h2("6. Les autres clients KOMYO")
 table([["Offre","Prix","À savoir"],
- ["Famille (vidéos premium, espace enfants)","1 500 FCFA / mois","Paiement Mobile Money, confirmation manuelle, montant exact. 5 dessins animés disponibles (A1 à A5), 43 prévus : n'annonce aucune date pour les suivants."],
+ ["Pack Routine de la journée (espace enfants PIOUPIOU)","1 500 FCFA / 30 jours","Valable 30 jours, sans renouvellement automatique. 10 dessins animés (A1 à A10) : 5 disponibles (A1 à A5), 5 à venir (A6 à A10) ajoutés sans frais pendant la période. Paiement Mobile Money, montant exact, reconnu automatiquement. N'annonce aucune date pour les suivants."],
  ["Business (espace professionnel)","5 000 FCFA / mois","Idem."],
  ["Annonce visible par tous – essai","2 000 FCFA (1 semaine)","Le message défile chez tous les abonnés."],
  ["Annonce 2 semaines","4 000 FCFA","Idem."],
@@ -100,7 +100,7 @@ bl(["<b>Boutique</b> : un vendeur avec l'offre Business (adulte) coche ses servi
 "<b>Réouverture</b> : en bas de Ma boutique, la case « Renouvellement dette » est Ouverte s'il y a une dette, Fermée sinon. Le vendeur écrit son nom et prénom et ses activités, coche la dette (montant affiché), dépose le montant, touche « J'ai payé » ; quand l'équipe valide, la boutique rouvre et il retrouve sa page.",
 "<b>Reçus</b> : à chaque paiement confirmé (abonnement, annonce, Keydou, frais de boutique), la personne reçoit un reçu détaillé dans sa messagerie KOMYO : achat, date, date de fin de validité, référence et facture avec logo. L'équipe peut le renvoyer à la main par WhatsApp ; il n'y a pas d'envoi automatique par WhatsApp.",
 "<b>Installation</b> : gratuite, sans magasin d'applications, sur komyo.starentreprise.com/starvibe/installer.html. À l'ouverture, une grande carte « Installer KOMYO » propose l'installation (« Plus tard » la range pour 24 h). À quelqu'un qui a oublié : renvoie ce lien (il est aussi dans le message de bienvenue de sa messagerie).",
-"<b>Proposer sans pression</b> : propose l'offre qui répond au besoin (annonce, Business, Famille, Keydou) avec le prix exact. Litige, remboursement ou plainte sur une boutique : transmets à Carry. Jamais de code PIN."])
+"<b>Proposer sans pression</b> : propose l'offre qui répond au besoin (annonce, Business, Pack Routine de la journée, Keydou) avec le prix exact. Litige, remboursement ou plainte sur une boutique : transmets à Carry. Jamais de code PIN."])
 h2("7. Messages types (WhatsApp ou e-mail)")
 msg("<b>Accueil.</b> Bonjour, je suis Sarah de STAR ENTREPRISE. Merci de votre demande sur KOMYO. Pour bien vous aider, pouvez-vous me confirmer votre ville et ce que vous cherchez ?")
 msg("<b>Précisions.</b> Pour trouver ce qu'il vous faut : pour quelle date ? Combien de personnes ? Avez-vous un budget en tête ?")

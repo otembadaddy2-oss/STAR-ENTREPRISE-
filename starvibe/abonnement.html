@@ -53,6 +53,26 @@
   .current-tag{font-size:11px;font-weight:700;color:var(--gold);text-align:center;padding:10px 0;}
   .current-tag.famille{color:var(--kids);}
 
+
+  .cat{background:#fff;border:1.5px solid rgba(47,143,110,.35);border-radius:18px;padding:18px;margin-bottom:16px;}
+  .cat h2{font-size:16px;margin:0 0 4px;}
+  .cat .cat-sub{font-size:12.5px;color:var(--text-dim);line-height:1.5;margin:0 0 12px;}
+  .cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .cat-item{border-radius:14px;overflow:hidden;background:#fff;border:1px solid var(--line);}
+  .cat-item .poster{aspect-ratio:3/4;width:100%;object-fit:cover;background:#e9f5ee;}
+  .cat-item.bientot .poster{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;background:repeating-linear-gradient(135deg,#f3efe6,#f3efe6 10px,#ece6d8 10px,#ece6d8 20px);color:var(--text-dim);font:800 13px 'Sora',sans-serif;}
+  .cat-item .poster small{font:600 11px 'Inter',sans-serif;}
+  .cat-item .lbl2{padding:8px 10px 10px;font-size:12px;line-height:1.35;color:var(--navy);}
+  .cat-item .lbl2 b{display:block;font-family:'Sora',sans-serif;font-size:11px;color:var(--kids);margin-bottom:2px;}
+  .cat-item.bientot .lbl2 b{color:var(--text-dim);}
+  .cat-prix{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);}
+  .cat-prix .p{font:800 22px 'Sora',sans-serif;color:var(--navy);} .cat-prix .p span{font-size:12px;font-weight:600;color:var(--text-faint);}
+  .cat-prix .n{font-size:11.5px;color:var(--text-dim);}
+  .cat-cta{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
+  .cat-cta a{display:block;text-align:center;text-decoration:none;border-radius:12px;padding:13px 0;font:800 13.5px 'Sora',sans-serif;}
+  .cat-cta a.go{background:linear-gradient(135deg,#3fae82,var(--kids));color:#fff;}
+  .cat-cta a.alt{background:#f3ede0;color:var(--navy);}
+
   .pay-box{background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:20px;margin-bottom:16px;
     animation:fadeUp .5s ease both;}
   @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
@@ -110,7 +130,16 @@
 <body class="pg-abonnement">
 
 <div id="loadingState" class="state"><p>Chargement…</p></div>
-<div id="loggedOutState" class="state" hidden><p>Tu n'es pas connecté.<br><a href="inscription.html?mode=login">Se connecter / Créer un compte</a></p></div>
+<div id="loggedOutState" class="state" hidden>
+  <div class="wrap" style="padding-top:20px">
+    <p style="text-align:center;margin:0 0 14px;font-size:13px;color:var(--text-dim)">Découvre le catalogue et le prix. Le paiement se fait ensuite depuis ton compte KOMYO.</p>
+    <div id="catalogueOut"></div>
+    <div class="cat-cta" style="margin-bottom:24px">
+      <a class="go" href="inscription.html?mode=login">J'ai déjà un compte — me connecter pour payer</a>
+      <a class="alt" href="inscription.html">Je n'ai pas encore de compte — en créer un (gratuit)</a>
+    </div>
+  </div>
+</div>
 
 <div id="appState" hidden>
   <div class="topbar">
@@ -123,6 +152,7 @@
 
   <div class="wrap content">
     <div id="payBox" hidden></div>
+    <div id="catalogueIn"></div>
     <div id="plansList"></div>
     <div id="autreEnfant"></div>
     <div id="mesRecus"></div>
@@ -143,6 +173,28 @@
   var appState = document.getElementById('appState');
   var plansList = document.getElementById('plansList');
   var payBox = document.getElementById('payBox');
+
+
+  // ---------- Catalogue du pack (visible avant de payer, même sans compte) ----------
+  var EPISODES_A = [
+    ['A1', 'Bonjour papa, bonjour maman', true], ['A2', 'Les dents du matin', true], ['A3', 'Les mains propres avant de manger', true],
+    ['A4', 'Les mains propres après le repas', true], ['A5', 'Merci !', true],
+    ['A6', 'S\'il te plaît', false], ['A7', 'Au revoir', false], ['A8', 'Les dents du soir', false],
+    ['A9', 'Bonne nuit papa, bonne nuit maman', false], ['A10', 'Bravo, quelle belle journée !', false]
+  ];
+  function catalogueHtml(){
+    var dispo = EPISODES_A.filter(function(e){ return e[2]; }).length;
+    var h = '<div class="cat"><h2>Pack « Routine de la journée »</h2>' +
+      '<p class="cat-sub">10 dessins animés pour les 3 à 6 ans : dire bonjour, se brosser les dents, se laver les mains, dire merci… ' +
+      '<b>' + dispo + ' disponibles aujourd\'hui, ' + (EPISODES_A.length - dispo) + ' à venir</b> : ils s\'ajoutent à ton pack dès qu\'ils sont prêts, sans payer de plus pendant ta période.</p><div class="cat-grid">';
+    EPISODES_A.forEach(function(e){
+      if (e[2]) h += '<div class="cat-item"><img class="poster" loading="lazy" src="assets/pioupiou/affiche_' + e[0] + '-v1.webp" alt="Affiche ' + e[0] + '"><div class="lbl2"><b>' + e[0] + '</b>' + e[1] + '</div></div>';
+      else h += '<div class="cat-item bientot"><div class="poster">À venir<small>Bientôt disponible</small></div><div class="lbl2"><b>' + e[0] + '</b>' + e[1] + '</div></div>';
+    });
+    return h + '</div><div class="cat-prix"><div class="p">1 500 FCFA <span>/ 30 jours</span></div><div class="n">Valable 30 jours, <b>sans renouvellement automatique</b> : tu renouvelles quand tu veux.</div></div></div>';
+  }
+  document.getElementById('catalogueOut').innerHTML = catalogueHtml();
+  document.getElementById('catalogueIn').innerHTML = catalogueHtml();
 
   if (!token){ loadingState.hidden = true; loggedOutState.hidden = false; return; }
 
@@ -236,7 +288,7 @@
         if (d.abonnement.statut === 'actif'){
           var plan = d.abonnement.plan, fam = plan === 'famille';
           var c = document.createElement('div'); c.className = 'succes'; c.setAttribute('role', 'status');
-          c.innerHTML = '<h2>✅ Paiement reçu !</h2><p>' + (fam ? 'Ton abonnement Famille est actif. Ton reçu est dans ta messagerie KOMYO.' : 'Ton plan est actif. Ton reçu est dans ta messagerie KOMYO.') + '</p>' +
+          c.innerHTML = '<h2>✅ Paiement reçu !</h2><p>' + (fam ? 'Ton Pack Routine de la journée est actif. Ton reçu est dans ta messagerie KOMYO.' : 'Ton plan est actif. Ton reçu est dans ta messagerie KOMYO.') + '</p>' +
             '<a href="' + (fam ? 'pioupiou.html' : 'boutique.html') + '" id="lienSucces">' + (fam ? 'Ouvrir PIOUPIOU 🐥' : 'Ouvrir ma boutique') + '</a>' + (fam ? '<p id="compte" style="margin:10px 0 0;font-size:12px">Ouverture automatique dans 6 secondes…</p>' : '');
           appState.insertBefore(c, appState.firstChild);
           try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) {}
@@ -272,7 +324,7 @@
     });
   }
 
-  // ---------- Abonnement Famille pour un autre enfant (payé par un parent, un proche…) ----------
+  // ---------- Pack Routine de la journée pour un autre enfant (payé par un parent, un proche…) ----------
   var autreBox = document.getElementById('autreEnfant');
   var params = new URLSearchParams(location.search);
   var gift = { compte: false, methode: '', abo: null, timer: null };
@@ -284,8 +336,8 @@
   function renderGift(){
     autreBox.innerHTML =
       '<div class="gift" id="giftCard">' +
-        '<h2>Abonnement Famille pour un autre enfant</h2>' +
-        '<p class="hint">Tu peux payer l\'abonnement Famille (1 500 FCFA par mois) pour l\'enfant d\'un proche : il suffit du numéro du parent, qui doit avoir un compte KOMYO (gratuit).</p>' +
+        '<h2>Pack Routine de la journée pour un autre enfant</h2>' +
+        '<p class="hint">Tu peux payer le Pack Routine de la journée (1 500 FCFA pour 30 jours) pour l\'enfant d\'un proche : il suffit du numéro du parent, qui doit avoir un compte KOMYO (gratuit).</p>' +
         '<label class="lbl" for="gTel">Numéro du parent de l\'enfant</label>' +
         '<input type="tel" id="gTel" autocomplete="off" placeholder="Avec l\'indicatif, ex. +242 06 123 45 67" value="' + esc2(params.get('pour') || '') + '">' +
         '<div id="gFound"></div>' +
@@ -330,7 +382,7 @@
           authFetch(API + '?suivi=' + encodeURIComponent(a.id)).then(function(x){ return x.json(); }).then(function(d){
             var st = d.abonnement && d.abonnement.statut;
             if (st === 'actif'){ clearInterval(gift.timer); go.className = 'go ok'; go.textContent = 'Paiement validé ✓';
-              document.getElementById('gSuivi').innerHTML = '<div class="found">Paiement validé ✓ L\'abonnement Famille est actif pour 30 jours.</div>'; }
+              document.getElementById('gSuivi').innerHTML = '<div class="found">Paiement validé ✓ Le Pack Routine de la journée est actif pour 30 jours.</div>'; }
             else if (st === 'paiement_invalide'){ clearInterval(gift.timer); go.className = 'go'; go.textContent = 'Paiement non valide';
               document.getElementById('gSuivi').innerHTML = '<div class="err">Le montant reçu ne correspond pas. Écris-nous à contact@starentreprise.com avec ta référence.</div>'; }
           }).catch(function(){});

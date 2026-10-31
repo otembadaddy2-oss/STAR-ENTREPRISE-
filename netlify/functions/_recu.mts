@@ -147,7 +147,7 @@ export async function recuAbonnement(sql: Sql, subId: number): Promise<void> {
     `) as Record<string, unknown>[])[0];
     if (!s) return;
     const plan = String(s.plan);
-    const titre = plan === "famille" ? "Abonnement Famille PIOUPIOU (1 mois)" : plan === "business" ? "Abonnement Business KOMYO (1 mois)" : `Abonnement ${plan}`;
+    const titre = plan === "famille" ? "Pack Routine de la journée PIOUPIOU (30 jours)" : plan === "business" ? "Abonnement Business KOMYO (1 mois)" : `Abonnement ${plan}`;
     const detail = plan === "famille"
       ? "dessins animés éducatifs premium pour les 3 à 6 ans, profils enfants illimités, priorité de modération"
       : plan === "business" ? "mise en avant de vos vidéos et statistiques (vues, durée regardée, j'aime)" : "services KOMYO";
