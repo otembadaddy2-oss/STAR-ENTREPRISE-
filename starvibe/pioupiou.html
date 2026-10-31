@@ -136,7 +136,7 @@
   <div class="avenir" data-avenir></div>
 </div>
 <div id="doneState" class="state" hidden>
-  <div class="emoji">🎉</div>
+  <div class="emoji">🎆</div>
   <h2>Bravo, tu as tout regardé !</h2>
   <p>De nouvelles vidéos arrivent bientôt.</p>
   <div class="avenir" data-avenir></div>
@@ -221,7 +221,40 @@
     }).catch(function(){});
   }
 
-  function show(el){ if (el === emptyState || el === doneState) remplirAVenir(); [loadingState, loggedOutState, emptyState, doneState, stageWrap].forEach(function(e){ e.hidden = (e !== el); }); }
+  // Feu d'artifice (une seule fois par arrivée sur la page, à l'écran « Bravo ») : quelques gerbes de couleur sur toute la page, puis plus rien.
+  var feuFait = false;
+  function feuArtifice(){
+    if (feuFait) return; feuFait = true;
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var c = document.createElement('canvas'), ctx = c.getContext && c.getContext('2d'); if (!ctx) return;
+    c.setAttribute('aria-hidden', 'true');
+    c.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;z-index:60;pointer-events:none;';
+    var dpr = Math.min(window.devicePixelRatio || 1, 2), W = innerWidth, H = innerHeight;
+    c.width = W * dpr; c.height = H * dpr; ctx.scale(dpr, dpr); document.body.appendChild(c);
+    var couleurs = ['#ffd91f', '#ff7a2e', '#ff4d6d', '#4dd2ff', '#7cff6b', '#ffffff', '#c77dff'], parts = [], t0 = performance.now(), lances = 0;
+    function gerbe(){
+      var x = W * (0.15 + Math.random() * 0.7), y = H * (0.12 + Math.random() * 0.4), col = couleurs[Math.floor(Math.random() * couleurs.length)], col2 = couleurs[Math.floor(Math.random() * couleurs.length)];
+      for (var i = 0; i < 70; i++){
+        var a = Math.PI * 2 * i / 70 + Math.random() * 0.1, v = 1.5 + Math.random() * 3.6;
+        parts.push({ x: x, y: y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, vie: 1, d: 0.011 + Math.random() * 0.01, col: i % 3 ? col : col2, r: 1.6 + Math.random() * 1.6 });
+      }
+    }
+    var prochain = 0;
+    (function image(now){
+      var t = now - t0;
+      if (lances < 6 && t >= prochain){ gerbe(); lances++; prochain += 380 + Math.random() * 260; }
+      ctx.clearRect(0, 0, W, H);
+      parts = parts.filter(function(p){ return p.vie > 0; });
+      parts.forEach(function(p){
+        p.x += p.vx; p.y += p.vy; p.vx *= 0.985; p.vy = p.vy * 0.985 + 0.045; p.vie -= p.d;
+        ctx.globalAlpha = Math.max(0, p.vie); ctx.fillStyle = p.col; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832); ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+      if (lances < 6 || parts.length) requestAnimationFrame(image); else c.remove();
+    })(t0);
+  }
+
+  function show(el){ if (el === doneState) setTimeout(feuArtifice, 250); if (el === emptyState || el === doneState) remplirAVenir(); [loadingState, loggedOutState, emptyState, doneState, stageWrap].forEach(function(e){ e.hidden = (e !== el); }); }
 
   if (!token){ show(loggedOutState); return; }
 

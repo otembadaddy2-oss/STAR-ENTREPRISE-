@@ -1003,14 +1003,14 @@
     var started = false;
     function hello(){
       if (started) return; started = true;
-      document.removeEventListener('pointerdown', hello, true);
+      ['pointerdown','touchend','click','keydown'].forEach(function(n){ document.removeEventListener(n, hello, true); });
       setState('wave');
       speak('hello', TXT.hello).then(function(){ setState('idle'); setTimeout(lifeTick, 3000); });
     }
     aud.src = 'assets/audio/keydou/hello.mp3';
     var p = aud.play();
-    if (p && p.then){ p.then(function(){ aud.pause(); aud.currentTime = 0; hello(); }).catch(function(){ document.addEventListener('pointerdown', hello, true); }); }
-    else document.addEventListener('pointerdown', hello, true);
+    if (p && p.then){ p.then(function(){ aud.pause(); aud.currentTime = 0; hello(); }).catch(function(){ ['pointerdown','touchend','click','keydown'].forEach(function(n){ document.addEventListener(n, hello, true); }); }); }
+    else ['pointerdown','touchend','click','keydown'].forEach(function(n){ document.addEventListener(n, hello, true); });
   }
   if (komyoToken){
     fetch(AUTH, { headers:{ 'Authorization':'Bearer ' + komyoToken } }).then(function(r){
