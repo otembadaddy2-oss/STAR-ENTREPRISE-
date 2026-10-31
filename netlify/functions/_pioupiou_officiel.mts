@@ -27,7 +27,7 @@ export const EPISODES_OFFICIELS: EpisodeOfficiel[] = [
   { cle: "officiel-a2.mp4", fichier: "a2.mp4", titre: "A2 · Les dents du matin", affiche: "/starvibe/assets/pioupiou/affiche_A2-v1.webp" },
   { cle: "officiel-a3.mp4", fichier: "a3.mp4", titre: "A3 · Les mains propres avant de manger", affiche: "/starvibe/assets/pioupiou/affiche_A3-v1.webp" },
   { cle: "officiel-a4.mp4", fichier: "a4.mp4", titre: "A4 · Les mains propres après le repas", affiche: "/starvibe/assets/pioupiou/affiche_A4-v1.webp" },
-  { cle: "officiel-a5.mp4", fichier: "a5.mp4", titre: "A5 · Merci !", affiche: "/starvibe/assets/pioupiou/affiche_A5-v1.webp" },
+  { cle: "officiel-a5-v2.mp4", fichier: "a5v2.mp4", titre: "A5 · Merci !", affiche: "/starvibe/assets/pioupiou/affiche_A5-v1.webp" },
 ];
 
 export const estOfficiel = (cle: string) => cle.startsWith(PREFIXE_OFFICIEL);

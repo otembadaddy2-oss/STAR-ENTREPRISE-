@@ -13,7 +13,7 @@ Mise en ligne : les épisodes officiels sont servis par `netlify/functions/_piou
 - [x] **A2** — Les dents du matin (75 s, 3-6 ans) — *terminé, en ligne (37 s, bouches synchronisées)*
 - [x] **A3** — Les mains propres avant de manger (20 s, 3-6 ans) — *terminé, en ligne (bouches synchronisées)*
 - [x] **A4** — Les mains propres après le repas (15 s, 3-6 ans) — *terminé, en ligne (bouches synchronisées)*
-- [x] **A5** — Merci ! (13 s, 3-6 ans) — *terminé, en ligne (bouches synchronisées)*
+- [x] **A5** — Merci ! (16 s, 3-6 ans) — *terminé, en ligne (bouches synchronisées)*
 - [ ] **A6** — S'il te plaît (60 s, 3-6 ans)
 - [ ] **A7** — Au revoir (60 s, 3-6 ans)
 - [ ] **A8** — Les dents du soir (60 s, 3-6 ans)
