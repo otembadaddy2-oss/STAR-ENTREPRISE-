@@ -51,7 +51,7 @@
     <div id="list"></div>
   </div>
 </div>
-<script src="assets/myo-v1.js"></script>
+<script src="assets/myo-v2.js"></script>
 <script>
 (function(){
   var token = ''; try { token = localStorage.getItem('starvibe_token') || ''; } catch (e) {}
@@ -109,7 +109,7 @@
   list.addEventListener('click', function(e){
     var b = e.target.closest('button'); if (!b) return;
     if (b.hasAttribute('data-rep')){ b.disabled = true; window.komyoMyo.api({ body: { action: 'repondre', id: Number(b.getAttribute('data-id')), reponse: b.getAttribute('data-rep') } }).then(function(r){ return r.json(); }).then(function(d){ if (d.error) erreur(d.error); window.komyoMyo.verifier(); voir(); }); }
-    else if (b.hasAttribute('data-inv')){ b.disabled = true; window.komyoMyo.inviter(b.getAttribute('data-inv')).then(function(r){ if (!r.ok){ erreur(r.d.error || 'Invitation impossible.'); b.disabled = false; return; } erreur(''); b.className = 'b off'; b.textContent = r.d.etat === 'amis' ? 'Amis ✓' : 'Envoyée'; }); }
+    else if (b.hasAttribute('data-inv')){ b.disabled = true; window.komyoMyo.inviter(b.getAttribute('data-inv')).then(function(r){ if (!r.ok){ erreur(r.d.error || ('Invitation impossible pour le moment' + (r.status ? ' (code ' + r.status + ')' : '') + '. Réessaie dans un instant.')); b.disabled = false; return; } erreur(''); b.className = 'b off'; b.textContent = r.d.etat === 'amis' ? 'Amis ✓' : 'Envoyée'; }); }
     else if (b.hasAttribute('data-kaba')){ var box = document.getElementById('kc-' + b.getAttribute('data-kaba')); if (box) box.hidden = !box.hidden; }
     else if (b.hasAttribute('data-kt')){ b.disabled = true; window.komyoMyo.api({ body: { action: 'kaba_demander', profilId: Number(b.getAttribute('data-p')), type: b.getAttribute('data-kt') } }).then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); }).then(function(res){ b.disabled = false; if (!res.ok){ erreur(res.d.error || 'Demande impossible.'); return; } erreur(''); var box = document.getElementById('kc-' + b.getAttribute('data-p')); box.innerHTML = '<span>' + (res.d.etat === 'recu' ? 'Tu as déjà reçu ce contact (voir Contacts).' : 'Demande envoyée ✓ Ton ami la verra tout de suite.') + '</span>'; }); }
     else if (b.hasAttribute('data-copy')){ try { navigator.clipboard.writeText(b.getAttribute('data-copy')); b.textContent = 'Copié ✓'; } catch (x) {} }

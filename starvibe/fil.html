@@ -193,6 +193,8 @@
   .espaces::-webkit-scrollbar{display:none;}
   .espaces a{flex:none;color:#fff;text-decoration:none;font:700 12px 'Sora',sans-serif;padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(6px);}
   .espaces a.on{background:linear-gradient(135deg,var(--coral),var(--gold));border-color:transparent;}
+  .espaces{transition:opacity .7s ease;}
+  .espaces.cache{opacity:0;pointer-events:none;}
   .esp-intro{position:fixed;left:14px;right:14px;top:calc(100px + env(safe-area-inset-top));z-index:28;color:#fff;font:600 12px/1.4 'Inter',sans-serif;text-shadow:0 1px 6px rgba(0,0,0,.7);pointer-events:none;max-width:420px;}
   .src-row{display:flex;gap:10px;margin-bottom:12px;}
   .src-btn{flex:1;border:1.5px solid #eee2cc;background:#fffaf0;color:#241536;font-family:'Sora',sans-serif;font-weight:800;font-size:13px;padding:14px 8px;border-radius:14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;line-height:1.2;}
@@ -448,7 +450,7 @@
     var b = e.target.closest && e.target.closest('button[data-p]'); if (!b || !videoPartagee) return;
     b.disabled = true; b.textContent = '…';
     window.komyoMyo.regarder(b.getAttribute('data-p'), videoPartagee.id).then(function(r){
-      if (!r.ok){ b.disabled = false; b.textContent = 'Inviter'; amiInfo.textContent = r.d.error || 'Invitation impossible.'; return; }
+      if (!r.ok){ b.disabled = false; b.textContent = 'Inviter'; amiInfo.textContent = r.d.error || ('Invitation impossible pour le moment' + (r.status ? ' (code ' + r.status + ')' : '') + '. Réessaie dans un instant.'); return; }
       b.textContent = 'Invitation envoyée ✓'; amiInfo.textContent = 'Invitation envoyée ✓ — si ton ami accepte, la vidéo s\'ouvre sur son téléphone.';
     }).catch(function(){ b.disabled = false; b.textContent = 'Inviter'; amiInfo.textContent = 'Connexion interrompue. Réessaie.'; });
   });
@@ -769,7 +771,7 @@
     var b = e.target.closest && e.target.closest('.myo-btn'); if (!b || !window.komyoMyo) return;
     e.stopPropagation(); if (b.disabled) return; b.disabled = true; b.textContent = '…';
     window.komyoMyo.inviter(b.getAttribute('data-p')).then(function(r){
-      if (!r.ok){ b.disabled = false; b.textContent = '+ Inviter'; alert(r.d.error || 'Invitation impossible.'); return; }
+      if (!r.ok){ b.disabled = false; b.textContent = '+ Inviter'; alert(r.d.error || ('Invitation impossible pour le moment' + (r.status ? ' (code ' + r.status + ')' : '') + '. Réessaie dans un instant.')); return; }
       b.classList.add('ok'); b.textContent = r.d.etat === 'amis' ? 'Amis ✓' : 'Invitation envoyée ✓';
     }).catch(function(){ b.disabled = false; b.textContent = '+ Inviter'; });
   }, true);
@@ -1000,11 +1002,46 @@
 })();
 </script>
 <script src="assets/bulle-komyo.js" defer></script>
-<script src="assets/myo-v1.js" defer></script>
+<script src="assets/myo-v2.js" defer></script>
 <script src="assets/rappel-v1.js" defer></script>
 <script src="assets/pub-v1.js" defer></script>
 <script src="assets/keydou-bulle-v2.js" defer></script>
 <script src="assets/komyo-installer-v6.js" defer></script>
 <script src="assets/guide-v1.js" defer></script>
+<script>
+// Barre des espaces (Tous · Talents · Business…) : si personne n'y touche, elle défile doucement de la droite vers la gauche, revient sur « Tous »
+// (toujours en tête), recommence ; elle apparaît 4 secondes, s'efface un instant, puis réapparaît. Le moindre toucher la fige et la montre.
+(function(){
+  var nav = document.getElementById('espaces'); if (!nav) return;
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var ATTENTE = 5000, VISIBLE = 4000, CACHEE = 3000, VITESSE = 26, PAUSE = 1400;
+  var actif = false, raf = 0, pos = 0, sens = 1, pause = 0, dernier = 0, minuteurs = [];
+  function vider(){ minuteurs.forEach(clearTimeout); minuteurs = []; }
+  function plus(f, ms){ minuteurs.push(setTimeout(f, ms)); }
+  function boucle(t){
+    if (!actif) return;
+    var dt = Math.min(64, t - (dernier || t)); dernier = t;
+    var max = nav.scrollWidth - nav.clientWidth;
+    if (max > 4){
+      if (pause > 0) pause -= dt;
+      else {
+        pos += sens * VITESSE * dt / 1000;
+        if (pos >= max){ pos = max; sens = -1; pause = PAUSE; }
+        else if (pos <= 0){ pos = 0; sens = 1; pause = PAUSE; }
+        nav.scrollLeft = Math.round(pos);
+      }
+    }
+    raf = requestAnimationFrame(boucle);
+  }
+  function cycle(){ if (!actif) return; nav.classList.remove('cache'); plus(function(){ if (!actif) return; nav.classList.add('cache'); plus(cycle, CACHEE); }, VISIBLE); }
+  function demarrer(){ if (actif || document.hidden || document.getElementById('feedWrap').hidden) { attendre(); return; } actif = true; pos = nav.scrollLeft; sens = 1; pause = PAUSE; dernier = 0; raf = requestAnimationFrame(boucle); cycle(); }
+  function attendre(){ vider(); plus(demarrer, ATTENTE); }
+  function arreter(){ actif = false; cancelAnimationFrame(raf); vider(); nav.classList.remove('cache'); attendre(); }
+  ['pointerdown','touchstart','touchmove','wheel','keydown','click'].forEach(function(n){ document.addEventListener(n, arreter, { passive: true, capture: true }); });
+  document.addEventListener('visibilitychange', function(){ if (document.hidden) arreter(); });
+  nav.addEventListener('scroll', function(){ if (!actif) pos = nav.scrollLeft; }, { passive: true });
+  attendre();
+})();
+</script>
 </body>
 </html>
