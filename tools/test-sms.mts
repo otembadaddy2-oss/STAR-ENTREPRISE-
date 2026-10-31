@@ -11,9 +11,13 @@ const cas: [string, boolean][] = [
  ["Depot de 1500 FCFA recu de 066123456", true],
  ["Vous avez envoye 1500 FCFA a 066123456", false],
  ["Retrait de 5000 FCFA effectue", false],
+ // Forme réelle d'un SMS de dépôt MTN Congo (31/10/2026) ; nom et numéro fictifs.
+ ["Vous avez recu 1500 XAF de NOM PRENOM (242061234567) sur votre compte mobile money 2026-10-31 22:37:34. Message de l'exp diteur: . Solde: 5525 XAF. FRAIS: FCFA 0. ID: 1234567890.", true],
  ["Vous avez reçu un paiement de 1500 FCFA de 066123456. Solde: 3000 FCFA", true],
 ];
 let bad=0;
 for (const [t,att] of cas){ const r=m.parseSms(t); const ok=r.depot===att; if(!ok)bad++; console.log(ok?"OK ":"KO ", r.depot, r.montant, t.slice(0,60)); }
+const vrai = m.parseSms("Vous avez recu 1500 XAF de NOM PRENOM (242061234567) sur votre compte mobile money 2026-10-31 22:37:34. Solde: 5525 XAF. FRAIS: FCFA 0. ID: 1234567890.");
+if (vrai.montant !== 1500 || vrai.numero !== "061234567") { bad++; console.log("KO SMS réel : montant", vrai.montant, "numéro", vrai.numero); }
 console.log(bad ? "ÉCHECS : " + bad : "tous les tests passent");
 if (bad) process.exit(1);
