@@ -15,6 +15,7 @@ import { ensureSchema, db, json } from "./_db.mts";
 import { requireAuth } from "./_auth.mts";
 import { signedVideoUrl, hasActiveFamille } from "./_premium.mts";
 import { episodesOfficiels, installerEpisodesOfficiels } from "./_pioupiou_officiel.mts";
+import { signerAnalyse } from "./_gardien.mts";
 
 const ORG = "star_vibe";
 const STAFF_ORG = "star_entreprise";
@@ -59,6 +60,7 @@ interface VideoRow {
   premium: boolean;
   disponible_le?: string | null;
   affiche_key?: string | null;
+  gardien_raison?: string;
   created_at: string;
   auteur_nom?: string;
   telephone?: string;
@@ -123,6 +125,7 @@ function toModerationApi(row: VideoRow) {
     telephone: row.telephone || "",
     createdAt: row.created_at,
     videoUrl: signedVideoUrl(row.blob_key),
+    gardien: row.gardien_raison || "",
   };
 }
 
@@ -301,6 +304,12 @@ export default async (req: Request, _context: Context) => {
       `) as VideoRow[];
       const created = rows[0];
       for (const key of tmpKeys) { try { await tmp.delete(key); } catch { /* sans gravité : ménage seulement */ } }
+      // Espace enfants : Keydou contrôle la vidéo tout de suite (tâche de fond). En cas d'échec, le balayage régulier prend le relais.
+      if (pourEnfants) {
+        try {
+          await fetch(new URL(`/.netlify/functions/keydou-gardien-background?id=${created.id}&sig=${signerAnalyse(created.id)}`, req.url), { method: "POST", signal: AbortSignal.timeout(4000) });
+        } catch { /* le balayage de rattrapage s'en charge */ }
+      }
       created.premium = false;
       created.auteur_nom = (await sql`SELECT nom FROM starvibe_profiles WHERE id = ${profileId}`)[0]?.nom || "";
 

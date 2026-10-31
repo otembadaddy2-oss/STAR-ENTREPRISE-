@@ -13,7 +13,7 @@ export function db() {
 // Version du schéma = empreinte du texte de ensureSchema() ci-dessous (vérifiée par tools/test-schema.mts).
 // Quand tu modifies une instruction du schéma : lance « node --experimental-strip-types tools/test-schema.mts --ecrire »
 // pour mettre à jour cette ligne. Sans cela, la base ne serait pas mise à jour (le test échoue pour te le rappeler).
-const SCHEMA_VERSION = "a4c0bf335d6aaf05";
+const SCHEMA_VERSION = "1d82b251c895d60e";
 
 // Idempotent schema setup — safe to call on every cold start.
 // Rapide : les ~80 instructions ne sont rejouées que si SCHEMA_VERSION a changé depuis la dernière fois
@@ -349,6 +349,11 @@ export async function ensureSchema() {
   await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS affiche_key TEXT`;
   // espace de la vidéo : general (fil principal), talents, business ou decouverte (PIOUPIOU reste marqué par pour_enfants)
   await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS espace TEXT NOT NULL DEFAULT 'general'`;
+  // Keydou, gardien de l'espace enfants : verdict du contrôle automatique ('' = pas encore analysée, ok, refuse ou doute), raison, essais
+  await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS gardien_verdict TEXT NOT NULL DEFAULT ''`;
+  await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS gardien_raison TEXT NOT NULL DEFAULT ''`;
+  await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS gardien_essais INTEGER NOT NULL DEFAULT 0`;
+  await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS gardien_le TIMESTAMPTZ`;
 
   // Keydou, assistant multiservices : une demande = un service payant (1 000 FCFA).
   await sql`

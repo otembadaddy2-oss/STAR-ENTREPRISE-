@@ -148,6 +148,7 @@
         '<div class="auteur">' + esc(v.auteur) + '</div>' +
         '<div class="tel">' + esc(v.telephone) + '</div>' +
         '<div class="legende">' + (v.legende ? esc(v.legende) : '<em>Sans légende</em>') + '</div>' +
+        (v.gardien ? '<div class="legende" style="color:#b45309;font-weight:700">🐻 Keydou hésite : ' + esc(v.gardien) + '</div>' : '') +
         '<label class="prem"><input type="checkbox" class="chk-premium"> ⭐ Réservé aux abonnés Famille (premium)</label>' +
         '<div class="prem-opts" hidden style="margin:8px 0;font-size:13px;line-height:1.5">' +
           '<label style="display:block">Ouverture à partir du (facultatif) <input type="datetime-local" class="in-date" style="width:100%"></label>' +

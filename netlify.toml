@@ -1,4 +1,18 @@
 [functions]
   directory = "netlify/functions"
-  # Épisodes officiels PIOUPIOU (fichiers non versionnés, déposés en stockage au premier passage — voir _pioupiou_officiel.mts)
-  included_files = ["netlify/functions/pioupiou-officiel/*.mp4"]
+
+# Keydou, gardien de l'espace enfants : extrait des images des vidéos avec ffmpeg (fichier livré uniquement avec ces deux fonctions).
+[functions."keydou-gardien"]
+  external_node_modules = ["ffmpeg-static"]
+  included_files = ["node_modules/ffmpeg-static/ffmpeg", "node_modules/ffmpeg-static/index.js", "node_modules/ffmpeg-static/package.json"]
+
+[functions."keydou-gardien-background"]
+  external_node_modules = ["ffmpeg-static"]
+  included_files = ["node_modules/ffmpeg-static/ffmpeg", "node_modules/ffmpeg-static/index.js", "node_modules/ffmpeg-static/package.json"]
+
+# Épisodes officiels PIOUPIOU : pour en ajouter un, déposer sa vidéo dans netlify/functions/pioupiou-officiel/ et ajouter
+# temporairement  [functions."api-starvibe-videos"] included_files = ["netlify/functions/pioupiou-officiel/*.mp4"]  (voir _pioupiou_officiel.mts).
+
+[functions."api-keydou-gardien-etat"]
+  external_node_modules = ["ffmpeg-static"]
+  included_files = ["node_modules/ffmpeg-static/ffmpeg", "node_modules/ffmpeg-static/index.js", "node_modules/ffmpeg-static/package.json"]
