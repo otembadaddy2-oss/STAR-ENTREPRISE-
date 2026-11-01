@@ -139,6 +139,18 @@
   .ami-row .av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
   .ami-row b{flex:1;font:700 14px 'Sora',Arial,sans-serif;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .ami-row button{flex:none;border:none;border-radius:999px;padding:8px 14px;font:800 12px 'Sora',Arial,sans-serif;background:linear-gradient(135deg,#FF6B4A,#E8A93D);color:#fff;cursor:pointer;width:auto;}
+  .ami-row input[type=checkbox]{width:22px;height:22px;flex:none;accent-color:#FF6B4A;margin:0;}
+  .ami-row a{flex:none;width:auto;padding:8px 14px;border-radius:999px;background:#25D366;color:#fff;font:800 12px 'Sora',Arial,sans-serif;text-decoration:none;}
+  .ami-liste label.ami-row{cursor:pointer;}
+  #amiEnvoyer{justify-content:center;background:linear-gradient(135deg,#FF6B4A,#E8A93D);}
+  #amiEnvoyer:disabled{opacity:.45;}
+  .share-panel .inv-choix small{display:block;font:600 12px 'Inter',Arial,sans-serif;opacity:.8;margin-top:2px;}
+  .share-panel .inv-choix span.t{flex:1;text-align:left;}
+  /* Le bouton « + Inviter » à côté du nom : visible 3 secondes, caché 3 secondes, en boucle. */
+  .myo-btn{animation:myoCycle 6s ease-in-out infinite;}
+  .myo-btn.ok{animation:none;}
+  @keyframes myoCycle{0%,44%{opacity:1;visibility:visible}50%,94%{opacity:0;visibility:hidden}100%{opacity:1;visibility:visible}}
+  @media (prefers-reduced-motion:reduce){.myo-btn{animation:none;}}
   .ami-row button[disabled]{background:#1f8f4a;opacity:1;}
   .mute-hint svg{width:26px;height:26px;}
 
@@ -266,11 +278,26 @@
   </div>
 </div>
 
+<div class="share-sheet" id="invSheet" hidden>
+  <div class="share-panel" role="dialog" aria-label="Inviter un ami">
+    <h2>Inviter un(e) ami(e)</h2>
+    <p class="sp-info" id="invInfo" role="status">Choisis ce que tu veux faire.</p>
+    <div id="invMenu" style="display:grid;gap:8px">
+      <button type="button" class="inv-choix" id="invRegarder">👥<span class="t">Regarder cette vidéo avec des amis<small>Tu choisis dans ta liste d'amis KOMYO</small></span></button>
+      <button type="button" class="inv-choix" id="invKomyo">📲<span class="t">Inviter quelqu'un à rejoindre KOMYO<small>Tu choisis tes contacts, l'invitation part sur WhatsApp</small></span></button>
+      <a class="inv-choix" id="invMyo" href="myo.html?onglet=chercher">🤝<span class="t">Devenir ami avec quelqu'un déjà sur KOMYO<small>Chercher une personne et l'inviter</small></span></a>
+    </div>
+    <div id="invListe" class="ami-liste"></div>
+    <button type="button" class="sp-x" id="invClose">Fermer</button>
+  </div>
+</div>
+
 <div class="share-sheet" id="amiSheet" hidden>
-  <div class="share-panel" role="dialog" aria-label="Regarder avec un ami">
-    <h2>Regarder avec un ami</h2>
-    <p class="sp-info" id="amiInfo" role="status">Ton ami reçoit une invitation. S'il accepte, la même vidéo s'ouvre sur son téléphone.</p>
+  <div class="share-panel" role="dialog" aria-label="Regarder avec des amis">
+    <h2>Regarder avec des amis</h2>
+    <p class="sp-info" id="amiInfo" role="status">Coche un ou plusieurs amis. Chacun reçoit une invitation ; s'il accepte, la même vidéo s'ouvre sur son téléphone.</p>
     <div id="amiListe" class="ami-liste"></div>
+    <button type="button" id="amiEnvoyer" disabled>Inviter les personnes choisies</button>
     <button type="button" class="sp-x" id="amiClose">Fermer</button>
   </div>
 </div>
@@ -430,29 +457,70 @@
     spInfo.textContent = ''; shareSheet.hidden = false;
   }
 
-  // ---------- Regarder avec un ami : on choisit un ami Myo, il reçoit une invitation (Oui = la même vidéo s'ouvre chez lui) ----------
-  var amiSheet = document.getElementById('amiSheet'), amiListe = document.getElementById('amiListe'), amiInfo = document.getElementById('amiInfo'), videoPartagee = null;
+  // ---------- Inviter : un seul endroit, trois choix simples ----------
+  var amiSheet = document.getElementById('amiSheet'), amiListe = document.getElementById('amiListe'), amiInfo = document.getElementById('amiInfo'), amiEnvoyer = document.getElementById('amiEnvoyer'), videoPartagee = null;
+  var invSheet = document.getElementById('invSheet'), invInfo = document.getElementById('invInfo'), invMenu = document.getElementById('invMenu'), invListe = document.getElementById('invListe');
+  var MSG_INVITATION = 'Je suis sur KOMYO : vidéos, talents, business et amis, partout dans le monde. Rejoins-moi : ' + location.origin + '/starvibe/';
+  function initialesAmi(n){ var p = String(n || '?').trim().split(/\s+/); return ((p[0] || '?')[0] + (p[1] ? p[1][0] : '')).toUpperCase(); }
+  function fermerInviter(){ invSheet.hidden = true; invListe.innerHTML = ''; invMenu.hidden = false; }
+  function ouvrirInviter(v){ videoPartagee = v; invInfo.textContent = 'Choisis ce que tu veux faire.'; invListe.innerHTML = ''; invMenu.hidden = false; invSheet.hidden = false; }
+  document.getElementById('invClose').addEventListener('click', fermerInviter);
+  invSheet.addEventListener('click', function(e){ if (e.target === invSheet) fermerInviter(); });
   document.getElementById('amiClose').addEventListener('click', function(){ amiSheet.hidden = true; });
   amiSheet.addEventListener('click', function(e){ if (e.target === amiSheet) amiSheet.hidden = true; });
-  function initialesAmi(n){ var p = String(n || '?').trim().split(/\s+/); return ((p[0] || '?')[0] + (p[1] ? p[1][0] : '')).toUpperCase(); }
-  document.getElementById('spAmi').addEventListener('click', function(){
-    if (!window.komyoMyo || !videoPartagee){ spInfo.textContent = 'Connecte-toi pour inviter un ami.'; return; }
-    fermerPartage(); amiSheet.hidden = false; amiListe.innerHTML = '<p class="sp-info">Chargement de tes amis…</p>';
+
+  // 1) Regarder cette vidéo avec des amis : on coche un ou plusieurs amis Myo, chacun reçoit une invitation.
+  function ouvrirAmis(){
+    if (!window.komyoMyo || !videoPartagee){ invInfo.textContent = 'Connecte-toi pour inviter un ami.'; invSheet.hidden = false; return; }
+    amiSheet.hidden = false; amiEnvoyer.disabled = true; amiEnvoyer.textContent = 'Inviter les personnes choisies';
+    amiListe.innerHTML = '<p class="sp-info">Chargement de tes amis…</p>';
     window.komyoMyo.api({ q: '?amis=1' }).then(function(r){ return r.json(); }).then(function(d){
       var amis = d.amis || [];
-      if (!amis.length){ amiListe.innerHTML = '<p class="sp-info">Tu n\'as pas encore d\'ami Myo.<br>Touche « + Inviter » à côté du nom d\'une personne pour l\'inviter.</p>'; return; }
+      if (!amis.length){ amiListe.innerHTML = '<p class="sp-info">Tu n\'as pas encore d\'ami KOMYO.<br>Ouvre « Inviter » puis « Devenir ami avec quelqu\'un déjà sur KOMYO ».</p>'; return; }
       amiListe.innerHTML = amis.map(function(a){
-        return '<div class="ami-row"><span class="av">' + esc(initialesAmi(a.nom)) + (a.photoUrl ? '<img src="' + esc(a.photoUrl) + '" alt="" onerror="this.remove()">' : '') + '</span><b>' + esc(a.nom) + '</b><button type="button" data-p="' + esc(a.profilId) + '">Inviter</button></div>';
+        return '<label class="ami-row"><input type="checkbox" value="' + esc(a.profilId) + '"><span class="av">' + esc(initialesAmi(a.nom)) + (a.photoUrl ? '<img src="' + esc(a.photoUrl) + '" alt="" onerror="this.remove()">' : '') + '</span><b>' + esc(a.nom) + '</b></label>';
       }).join('');
     }).catch(function(){ amiListe.innerHTML = '<p class="sp-info">Impossible de charger tes amis pour le moment.</p>'; });
+  }
+  amiListe.addEventListener('change', function(){
+    var n = amiListe.querySelectorAll('input:checked').length;
+    amiEnvoyer.disabled = !n; amiEnvoyer.textContent = n ? 'Inviter ' + n + ' personne' + (n > 1 ? 's' : '') : 'Inviter les personnes choisies';
   });
-  amiListe.addEventListener('click', function(e){
-    var b = e.target.closest && e.target.closest('button[data-p]'); if (!b || !videoPartagee) return;
-    b.disabled = true; b.textContent = '…';
-    window.komyoMyo.regarder(b.getAttribute('data-p'), videoPartagee.id).then(function(r){
-      if (!r.ok){ b.disabled = false; b.textContent = 'Inviter'; amiInfo.textContent = r.d.error || ('Invitation impossible pour le moment' + (r.status ? ' (code ' + r.status + ')' : '') + '. Réessaie dans un instant.'); return; }
-      b.textContent = 'Invitation envoyée ✓'; amiInfo.textContent = 'Invitation envoyée ✓ — si ton ami accepte, la vidéo s\'ouvre sur son téléphone.';
-    }).catch(function(){ b.disabled = false; b.textContent = 'Inviter'; amiInfo.textContent = 'Connexion interrompue. Réessaie.'; });
+  amiEnvoyer.addEventListener('click', function(){
+    var coches = [].slice.call(amiListe.querySelectorAll('input:checked')); if (!coches.length || !videoPartagee) return;
+    amiEnvoyer.disabled = true; amiInfo.textContent = 'Envoi…';
+    var ok = 0, erreurs = [];
+    coches.reduce(function(p, c){
+      return p.then(function(){
+        return window.komyoMyo.regarder(c.value, videoPartagee.id).then(function(r){
+          if (r.ok){ ok++; c.checked = false; c.disabled = true; c.parentNode.style.opacity = '.55'; } else erreurs.push((r.d && r.d.error) || 'Invitation impossible');
+        }).catch(function(){ erreurs.push('Connexion interrompue'); });
+      });
+    }, Promise.resolve()).then(function(){
+      amiInfo.textContent = (ok ? ok + ' invitation' + (ok > 1 ? 's envoyées' : ' envoyée') + ' ✓ — si ton ami accepte, la vidéo s\'ouvre sur son téléphone.' : '') + (erreurs.length ? (ok ? ' · ' : '') + erreurs.length + ' non envoyée' + (erreurs.length > 1 ? 's' : '') + ' : ' + erreurs[0] : '');
+      var n = amiListe.querySelectorAll('input:checked').length; amiEnvoyer.disabled = !n; amiEnvoyer.textContent = n ? 'Inviter ' + n + ' personne' + (n > 1 ? 's' : '') : 'Inviter les personnes choisies';
+    });
+  });
+  document.getElementById('invRegarder').addEventListener('click', function(){ invSheet.hidden = true; ouvrirAmis(); });
+  document.getElementById('spAmi').addEventListener('click', function(){ if (!window.komyoMyo || !videoPartagee){ spInfo.textContent = 'Connecte-toi pour inviter un ami.'; return; } fermerPartage(); ouvrirAmis(); });
+
+  // 2) Inviter quelqu'un à rejoindre KOMYO : on choisit dans les contacts du téléphone (si le téléphone le permet), puis WhatsApp.
+  function numeroWa(t){ var d = String(t || '').replace(/[^\d+]/g, ''); if (d[0] === '+') return d.slice(1); if (d.slice(0, 2) === '00') return d.slice(2); if (d[0] === '0' && d.length === 9) return '242' + d; return d; }
+  document.getElementById('invKomyo').addEventListener('click', function(){
+    if (navigator.contacts && navigator.contacts.select){
+      navigator.contacts.select(['name', 'tel'], { multiple: true }).then(function(liste){
+        liste = (liste || []).filter(function(c){ return c.tel && c.tel.length; });
+        if (!liste.length){ invInfo.textContent = 'Aucun contact choisi.'; return; }
+        invMenu.hidden = true; invInfo.textContent = 'Touche « WhatsApp » à côté de chaque personne pour lui envoyer ton invitation.';
+        invListe.innerHTML = liste.map(function(c){
+          var nom = (c.name && c.name[0]) || c.tel[0];
+          return '<div class="ami-row"><span class="av">' + esc(initialesAmi(nom)) + '</span><b>' + esc(nom) + '</b><a target="_blank" rel="noopener" href="https://wa.me/' + esc(numeroWa(c.tel[0])) + '?text=' + encodeURIComponent(MSG_INVITATION) + '">WhatsApp</a></div>';
+        }).join('');
+      }).catch(function(){ invInfo.textContent = 'Impossible d\'ouvrir tes contacts.'; });
+    } else {
+      window.open('https://wa.me/?text=' + encodeURIComponent(MSG_INVITATION), '_blank');
+      invInfo.textContent = 'WhatsApp s\'ouvre : choisis tes amis dans ta liste.';
+    }
   });
 
   var premiereVideo = true;   // la 1re vidéo se charge tout de suite ; les suivantes se préparent quand on approche
@@ -475,6 +543,9 @@
           '<button class="share-btn" type="button" aria-label="Partager cette vidéo">' +
             '<span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.7 15.7 6.3M8.3 13.3l7.4 4.4"/></svg></span><span class="lbl">Partager</span>' +
           '</button>' +
+          '<button class="inv-btn" type="button" aria-label="Inviter un ami">' +
+            '<span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M19 8v6M16 11h6"/></svg></span><span class="lbl">Inviter</span>' +
+          '</button>' +
         (v.estMoi ? '<button class="del-btn" data-id="' + v.id + '" aria-label="Supprimer ma vidéo"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2m-9 0 1 14h8l1-14M10 11v6M14 11v6"/></svg></span><span class="lbl">Supprimer</span></button>' : '') +
         '</div>' +
       '</div>' +
@@ -490,6 +561,7 @@
     videoEl.addEventListener('error', function(){ attente.classList.remove('on'); });
     var share = slide.querySelector('.share-btn');
     share.addEventListener('click', function(){ fermerOpts(); ouvrirPartage(v); });
+    slide.querySelector('.inv-btn').addEventListener('click', function(){ fermerOpts(); ouvrirInviter(v); });
     var plus = slide.querySelector('.plus-btn'), opts = slide.querySelector('.opts'), optsTimer = null;
     function fermerOpts(){ clearTimeout(optsTimer); opts.hidden = true; plus.setAttribute('aria-expanded', 'false'); }
     function ouvrirOpts(){ opts.hidden = false; plus.setAttribute('aria-expanded', 'true'); }
