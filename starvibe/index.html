@@ -114,6 +114,17 @@
   .universe-card .age{display:inline-block;font-size:9.5px;font-weight:700;color:var(--text-faint);background:var(--cream-2);
     border-radius:20px;padding:2px 9px;margin-bottom:6px;}
   .universe-card p{font-size:11px;color:var(--text-dim);margin:0;line-height:1.5;}
+  /* KOMYO Découverte : les photos défilent en fond, bien visibles ; le texte reste lisible grâce à un voile clair derrière lui. */
+  .universe-defile{padding:0;overflow:hidden;min-height:210px;display:flex;align-items:center;justify-content:center;}
+  .u-fond{position:absolute;inset:0;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 8px;}
+  .u-col{overflow:hidden;}
+  .u-track{display:flex;flex-direction:column;gap:8px;will-change:transform;animation:mscroll 36s linear infinite;}
+  .u-col.up .u-track{animation-direction:reverse;animation-duration:44s;}
+  .u-track img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:12px;flex:none;background:var(--cream-2);}
+  .u-texte{position:relative;z-index:1;margin:18px 14px;padding:14px 16px;border-radius:16px;background:rgba(255,251,243,.84);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);box-shadow:0 8px 24px -10px rgba(36,21,54,.35);text-align:center;}
+  .u-texte p{font-size:12px;color:var(--ink);}
+  .u-texte .u-icon{margin-bottom:6px;}
+  @media (prefers-reduced-motion:reduce){.u-track{animation:none;}}
   .universe-card .soon{position:absolute;top:10px;right:10px;font-size:8.5px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;
     color:var(--gold-deep);background:#FBF0DA;border-radius:20px;padding:3px 8px;}
   .universe-tagline{text-align:center;font-size:13px;font-weight:700;color:var(--ink);margin:-6px 0 22px;font-family:'Sora',sans-serif;}
@@ -291,11 +302,14 @@
       <h3>KOMYO Musique</h3>
       <p>Clips, sons et nouveautés des artistes. Annonces pour faire connaître ta musique.</p>
     </a>
-    <a class="universe-card reveal" href="fil.html?espace=decouverte" style="grid-column:1/-1;">
-      <div class="u-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.3"><circle cx="12" cy="12" r="9"/><path d="m14.5 9.5-2 5-3 2 2-5 3-2z"/></svg></div>
-      <span class="age">Le monde entier</span>
-      <h3>KOMYO Découverte</h3>
-      <p>Explore le monde et ses cultures à travers les vidéos de la communauté. Ouvert maintenant.</p>
+    <a class="universe-card universe-defile reveal" href="fil.html?espace=decouverte" style="grid-column:1/-1;">
+      <div class="u-fond" aria-hidden="true"><div class="u-col down"><div class="u-track"><img src="https://images.unsplash.com/photo-1770842655322-bcfd1c4be229?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1764145177622-8317fbfe1877?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1643818656778-714d7ba6b420?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1770842655322-bcfd1c4be229?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1764145177622-8317fbfe1877?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1643818656778-714d7ba6b420?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"></div></div><div class="u-col up"><div class="u-track"><img src="https://images.unsplash.com/photo-1643818657367-491080baeece?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1643818653783-2f818a205bb6?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1571417800906-5a5058dbd45d?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1643818657367-491080baeece?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1643818653783-2f818a205bb6?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1571417800906-5a5058dbd45d?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"></div></div><div class="u-col down"><div class="u-track"><img src="https://images.unsplash.com/photo-1768244016603-7a8f46acc462?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1633539656332-d0861676473a?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1751580471264-7f8cd53d82d8?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1768244016603-7a8f46acc462?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1633539656332-d0861676473a?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1751580471264-7f8cd53d82d8?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"></div></div><div class="u-col up"><div class="u-track"><img src="https://images.unsplash.com/photo-1719086249857-4e6b77012f1e?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1596768453551-c1e07b6fc1b6?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1596510914965-9ae08acae566?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1719086249857-4e6b77012f1e?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1596768453551-c1e07b6fc1b6?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1596510914965-9ae08acae566?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"></div></div></div>
+      <div class="u-texte">
+        <div class="u-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.3"><circle cx="12" cy="12" r="9"/><path d="m14.5 9.5-2 5-3 2 2-5 3-2z"/></svg></div>
+        <span class="age">Le monde entier</span>
+        <h3>KOMYO Découverte</h3>
+        <p>Explore le monde et ses cultures à travers les vidéos de la communauté. Ouvert maintenant.</p>
+      </div>
     </a>
   </div>
 </section>

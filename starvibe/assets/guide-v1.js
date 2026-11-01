@@ -11,7 +11,7 @@
   var ETAPES = [
     { cible: '#btnAdd', titre: 'Publier', texte: 'Touche ici pour filmer ou publier ta vidéo.' },
     { cible: '#navFil', titre: 'Le fil', texte: 'Ici, tu reviens aux vidéos. Fais glisser vers le haut pour voir la suivante.' },
-    { cible: '.slide .plus-btn', titre: 'Aimer, commenter, partager', texte: 'Touche le « + » sur une vidéo : le cœur pour aimer, la bulle pour commenter.' },
+    { cible: '.slide .plus-btn', titre: 'Aimer, commenter, partager', texte: 'Touche le « + » sur une vidéo : le cœur pour aimer, la bulle pour commenter, le bonhomme pour inviter des amis.' },
     { cible: '#espaces', titre: 'Les espaces', texte: 'Talents, Business, Musique, Découverte… choisis ce qui te plaît.' },
     { cible: '.eclat-btn', titre: 'ÉCLAT', texte: 'Le direct de KOMYO : touche pour voir ce qui se passe en ce moment.' },
     { cible: '.kdb-btn', titre: 'Keydou', texte: 'Un service, une question ? Keydou t\'aide en direct.' },

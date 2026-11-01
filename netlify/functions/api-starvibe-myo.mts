@@ -166,6 +166,42 @@ export default async (req: Request, _context: Context) => {
       }
       return json({ profils: out });
     }
+    // Membres à inviter : mes amis d'abord, puis d'autres membres KOMYO (photo en premier). Seulement des adultes avec des adultes,
+    // des mineurs avec des mineurs, jamais un profil enfant PIOUPIOU, jamais un compte invité, jamais quelqu'un qui m'a refusé récemment.
+    if (url.searchParams.get("membres")) {
+      const mien = await monProfil();
+      if (!mien) return json({ membres: [], fin: true });
+      const decalage = Math.min(Math.max(Number(url.searchParams.get("decalage")) || 0, 0), 2000);
+      const lignes = (await sql`SELECT * FROM starvibe_myo WHERE de_account = ${moi} OR vers_account = ${moi}`) as Ligne[];
+      const parCompte = new Map<number, Ligne[]>();
+      for (const l of lignes) { const autre = l.de_account === moi ? l.vers_account : l.de_account; parCompte.set(autre, [...(parCompte.get(autre) || []), l]); }
+      const out: { profilId: number; nom: string; photoUrl: string | null; etat: string }[] = [];
+      if (decalage === 0) {
+        // amis (toujours en tête de liste)
+        const amis = (await sql`
+          SELECT p.id, p.account_id, p.nom, p.date_naissance, p.photo_key FROM starvibe_myo m
+          JOIN starvibe_profiles p ON p.type_profil = 'personnel' AND p.account_id = CASE WHEN m.de_account = ${moi} THEN m.vers_account ELSE m.de_account END
+          WHERE (m.de_account = ${moi} OR m.vers_account = ${moi}) AND m.statut = 'acceptee' ORDER BY p.nom ASC LIMIT 100
+        `) as Perso[];
+        for (const p of amis) out.push({ profilId: p.id, nom: p.nom, photoUrl: photoUrl(p.photo_key), etat: "amis" });
+      }
+      const autres = (await sql`
+        SELECT p.id, p.account_id, p.nom, p.date_naissance, p.photo_key FROM starvibe_profiles p
+        JOIN starvibe_accounts a ON a.id = p.account_id AND a.guest = false
+        WHERE p.type_profil = 'personnel' AND p.account_id <> ${moi} AND length(trim(p.nom)) > 1
+        ORDER BY (p.photo_key IS NOT NULL) DESC, p.id DESC LIMIT 200 OFFSET ${decalage}
+      `) as Perso[];
+      let lus = 0;
+      for (const p of autres) {
+        lus++;
+        if (!compatibles(mien, p)) continue;
+        const etat = relation(parCompte.get(p.account_id) || []);
+        if (etat === "amis" || etat === "attente") continue;
+        out.push({ profilId: p.id, nom: p.nom, photoUrl: photoUrl(p.photo_key), etat });
+        if (out.filter((x) => x.etat !== "amis").length >= 40) break;
+      }
+      return json({ membres: out, suivant: decalage + lus, fin: autres.length < 200 && lus >= autres.length });
+    }
     return json({ error: "Demande inconnue" }, 400);
   }
 
