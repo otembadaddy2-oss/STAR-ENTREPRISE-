@@ -73,6 +73,20 @@
   .duree label small{display:block;font:600 11px 'Inter',sans-serif;color:var(--text-dim);}
   .duree input{position:absolute;opacity:0;pointer-events:none;}
   .duree label.on{border-color:var(--kids);background:#EAF7EF;}
+  .pay-stop{font-size:13px;line-height:1.5;color:var(--navy);background:#FFF6E0;border:1px solid #EDD8A0;border-radius:12px;padding:12px;margin-top:10px;}
+  .pay-stop b{display:block;margin-bottom:4px;}
+  .pay-stop .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+  .pay-stop button{flex:1 1 140px;border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:10px 8px;font:700 12.5px 'Sora',sans-serif;color:var(--navy);cursor:pointer;}
+  .pay-stop button.sec{color:#9a2f2a;}
+  .cat-autres{margin-top:16px;}
+  .cat-autres h3{font:800 13px 'Sora',sans-serif;margin:0 0 8px;color:var(--navy);}
+  .cat-pack{border:1px solid var(--line);border-radius:12px;background:#fff;margin-bottom:8px;}
+  .cat-pack summary{list-style:none;cursor:pointer;padding:11px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;}
+  .cat-pack summary::-webkit-details-marker{display:none;}
+  .cat-pack summary b{font-family:'Sora',sans-serif;}
+  .cat-pack summary small{color:var(--text-dim);font-size:11.5px;white-space:nowrap;}
+  .cat-pack ol{margin:0;padding:0 14px 6px 34px;font-size:12.5px;line-height:1.7;color:var(--text-dim);}
+  .cat-pack p{margin:0;padding:0 14px 12px;font-size:12px;color:var(--text-dim);}
   .cat-cta{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
   .cat-cta a{display:block;text-align:center;text-decoration:none;border-radius:12px;padding:13px 0;font:800 13.5px 'Sora',sans-serif;}
   .cat-cta a.go{background:linear-gradient(135deg,#3fae82,var(--kids));color:#fff;}
@@ -196,10 +210,21 @@
       if (e[2]) h += '<div class="cat-item"><img class="poster" loading="lazy" src="assets/pioupiou/affiche_' + e[0] + '-v1.webp" alt="Affiche ' + e[0] + '"><div class="lbl2"><b>' + e[0] + '</b>' + e[1] + '</div></div>';
       else h += '<div class="cat-item bientot"><div class="poster">À venir<small>Bientôt disponible</small></div><div class="lbl2"><b>' + e[0] + '</b>' + e[1] + '</div></div>';
     });
-    return h + '</div><div class="cat-prix"><div class="p">1 500 FCFA <span>/ 30 jours</span></div><div class="n">Valable 30 jours, <b>sans renouvellement automatique</b> : tu renouvelles quand tu veux. Tu peux aussi payer 2 mois (3 000 FCFA) ou 3 mois (4 500 FCFA) d\'un coup.</div></div></div>';
+    return h + '</div><div class="cat-prix"><div class="p">1 500 FCFA <span>/ 30 jours</span></div><div class="n">Valable 30 jours, <b>sans renouvellement automatique</b> : tu renouvelles quand tu veux. Tu peux aussi payer 2 mois (3 000 FCFA) ou 3 mois (4 500 FCFA) d\'un coup.</div></div><div class="cat-autres" data-autres></div></div>';
   }
   document.getElementById('catalogueOut').innerHTML = catalogueHtml();
   document.getElementById('catalogueIn').innerHTML = catalogueHtml();
+  // Les autres programmes PIOUPIOU (hymnes, compter, alphabet…) : mêmes catalogues, rangés au même endroit, « bientôt ».
+  fetch('assets/pioupiou-episodes-v1.json').then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+    if (!d || !d.familles) return;
+    var h = '<h3>D\'autres packs arrivent</h3>';
+    d.familles.forEach(function(f){
+      if (f.lettre === 'A') return;
+      h += '<details class="cat-pack"><summary><span><b>' + esc2(f.lettre) + ' · ' + esc2(f.nom) + '</b></span><small>' + f.episodes.length + ' vidéos · bientôt</small></summary><ol>' +
+        f.episodes.map(function(e){ return '<li>' + esc2(e.titre) + '</li>'; }).join('') + '</ol><p>Prix et date de sortie annoncés bientôt sur ce site.</p></details>';
+    });
+    [].forEach.call(document.querySelectorAll('[data-autres]'), function(el){ el.innerHTML = h; });
+  }).catch(function(){});
 
   if (!token){ loadingState.hidden = true; loggedOutState.hidden = false; return; }
 
@@ -211,9 +236,13 @@
 
   var PLAN_ORDER = ['gratuit', 'famille', 'business'];
 
+  var lastSub = null, attenteArretee = false;
   function renderPayBox(sub){
+    lastSub = sub;
     if (sub.statut !== 'en_attente_paiement'){ payBox.hidden = true; payBox.innerHTML = ''; return; }
     payBox.hidden = false;
+    // Une demande vieille de plus de 30 minutes n'est plus « en train d'attendre » : on arrête l'animation et on propose quoi faire.
+    var vieille = attenteArretee || (sub.createdAt && Date.now() - Date.parse(sub.createdAt) > 30 * 60 * 1000);
     var montant = sub.montantAttendu.toLocaleString('fr-FR');
     payBox.innerHTML =
       '<div class="pay-box">' +
@@ -227,9 +256,24 @@
         '</ol>' +
         '<div class="pay-num"><span>Numéro de dépôt</span><b id="payNumero">' + sub.numeroReception + '</b><button type="button" id="btnCopie">Copier</button></div>' +
         '<div class="pay-row"><span>Référence (si on te la demande)</span><b>' + sub.referencePaiement + '</b></div>' +
-        '<div class="pay-wait" role="status" aria-live="polite"><i></i>En attente de ton dépôt… cette page se met à jour toute seule, tu n\'as rien à toucher.</div>' +
+        (vieille
+          ? '<div class="pay-stop" role="status"><b>Nous n\'avons pas encore reçu ton dépôt.</b>Si tu as déjà envoyé l\'argent, touche « Vérifier maintenant ». Si tu as changé d\'avis, tu peux annuler cette demande.<div class="acts"><button type="button" id="btnVerif">Vérifier maintenant</button><button type="button" class="sec" id="btnAnnuler">Annuler ma demande</button></div><div id="verifMsg" style="margin-top:8px;font-size:12px"></div></div>'
+          : '<div class="pay-wait" role="status" aria-live="polite"><i></i>En attente de ton dépôt… cette page se met à jour toute seule, tu n\'as rien à toucher.</div>') +
         '<div class="pay-note">Ne donne jamais ton code secret Mobile Money à personne. Un reçu détaillé arrive dans ta messagerie KOMYO dès que le dépôt est reconnu.</div>' +
       '</div>';
+    var bv = document.getElementById('btnVerif'), ba = document.getElementById('btnAnnuler');
+    if (bv) bv.addEventListener('click', function(){
+      var m = document.getElementById('verifMsg'); m.textContent = 'Vérification…';
+      authFetch(API).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+        if (d && d.abonnement && d.abonnement.statut !== 'en_attente_paiement'){ attenteArretee = false; load(); }
+        else m.textContent = 'Toujours pas reçu pour le moment. Si tu viens de payer, réessaie dans une minute.';
+      }).catch(function(){ m.textContent = 'Impossible de vérifier. Réessaie.'; });
+    });
+    if (ba) ba.addEventListener('click', function(){
+      if (!window.confirm('Annuler cette demande de paiement ? Tu pourras en refaire une quand tu veux.')) return;
+      authFetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'annuler_demande', id: sub.id }) })
+        .then(function(){ attenteArretee = false; load(); }).catch(function(){});
+    });
     var cp = document.getElementById('btnCopie');
     if (cp) cp.addEventListener('click', function(){
       var n = sub.numeroReception;
@@ -293,12 +337,13 @@
   var veille = null, veilleDebut = 0;
   function surveiller(sub){
     var attend = sub && sub.statut === 'en_attente_paiement';
-    if (!attend){ clearInterval(veille); veille = null; return; }
+    if (!attend){ clearInterval(veille); veille = null; attenteArretee = false; return; }
+    if (sub.createdAt && Date.now() - Date.parse(sub.createdAt) > 30 * 60 * 1000) return;
     if (veille) return;
     veilleDebut = Date.now();
     veille = setInterval(function(){
       if (document.hidden) return;
-      if (Date.now() - veilleDebut > 30 * 60 * 1000){ clearInterval(veille); veille = null; return; }
+      if (Date.now() - veilleDebut > 30 * 60 * 1000){ clearInterval(veille); veille = null; attenteArretee = true; if (lastSub) renderPayBox(lastSub); return; }
       authFetch(API).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
         if (!d || !d.abonnement || d.abonnement.statut === 'en_attente_paiement') return;
         clearInterval(veille); veille = null;
@@ -399,11 +444,13 @@
         document.getElementById('gSuivi').innerHTML =
           '<b>1.</b> Ouvre ' + (gift.methode === 'airtel_money' ? 'Airtel Money' : 'MTN Mobile Money') + ' sur ton téléphone et envoie exactement <b>' + n + ' FCFA</b> au <b>' + esc2(a.numeroReception) + '</b>.<br>' +
           '<b>2.</b> Si on te demande une référence : <b>' + esc2(a.referencePaiement) + '</b>.<br><b>3.</b> Reste sur cette page : elle se met à jour toute seule dès que le dépôt est reconnu.';
+        var debutG = Date.now();
         gift.timer = setInterval(function(){
+          if (Date.now() - debutG > 30 * 60 * 1000){ clearInterval(gift.timer); go.className = 'go'; go.textContent = 'Dépôt non reçu'; document.getElementById('gSuivi').innerHTML += '<div class="err" style="margin-top:8px">Nous n\'avons pas encore reçu ton dépôt. Si tu as payé, écris-nous à contact@starentreprise.com avec la référence ' + esc2(a.referencePaiement) + '.</div>'; return; }
           authFetch(API + '?suivi=' + encodeURIComponent(a.id)).then(function(x){ return x.json(); }).then(function(d){
             var st = d.abonnement && d.abonnement.statut;
             if (st === 'actif'){ clearInterval(gift.timer); go.className = 'go ok'; go.textContent = 'Paiement validé ✓';
-              document.getElementById('gSuivi').innerHTML = '<div class="found">Paiement validé ✓ Le Pack « Les bonnes habitudes » est actif pour 30 jours.</div>'; }
+              document.getElementById('gSuivi').innerHTML = '<div class="found">Paiement validé ✓ Le Pack « Les bonnes habitudes » est actif pour ' + (30 * (a.mois || 1)) + ' jours.</div>'; }
             else if (st === 'paiement_invalide'){ clearInterval(gift.timer); go.className = 'go'; go.textContent = 'Paiement non valide';
               document.getElementById('gSuivi').innerHTML = '<div class="err">Le montant reçu ne correspond pas. Écris-nous à contact@starentreprise.com avec ta référence.</div>'; }
           }).catch(function(){});

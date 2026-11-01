@@ -207,6 +207,18 @@ export default async (req: Request, _context: Context) => {
     if (!session || session.org !== ORG) return json({ error: "Non authentifié" }, 401);
     const accountId = Number(session.sub);
 
+    // --- Annuler une demande de paiement restée sans dépôt (le client la retire lui-même) ---
+    if (action === "annuler_demande") {
+      const id = Number(body.id);
+      if (!id) return json({ error: "id requis" }, 400);
+      const r = (await sql`
+        UPDATE starvibe_subscriptions SET statut = 'annule', updated_at = now()
+        WHERE id = ${id} AND statut = 'en_attente_paiement' AND (account_id = ${accountId} OR payeur_account_id = ${accountId})
+        RETURNING id
+      `) as unknown[];
+      return json({ ok: r.length > 0 });
+    }
+
     if (action === "rappel_vu") {
       const quoi = clean(body.type, 10);
       if (quoi === "bientot") {
@@ -328,7 +340,8 @@ export default async (req: Request, _context: Context) => {
   }
 
   const rows = (await sql`
-    SELECT * FROM starvibe_subscriptions WHERE account_id = ${accountId} ORDER BY id DESC LIMIT 1
+    SELECT * FROM starvibe_subscriptions WHERE account_id = ${accountId}
+    ORDER BY (statut = 'en_attente_paiement') DESC, (statut = 'actif' AND montant_attendu > 0 AND expires_at > now()) DESC, id DESC LIMIT 1
   `) as SubRow[];
 
   const courant = rows[0] ? toApi(rows[0]) : { plan: "gratuit", statut: "actif", montantAttendu: 0, montantRecu: null, expiresAt: null };

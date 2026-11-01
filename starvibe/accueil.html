@@ -174,8 +174,7 @@
     <div class="menu-tete"><div><b>Menu</b><small>Tout ce que tu peux faire dans KOMYO</small></div><button type="button" class="menu-x" id="menuX" aria-label="Fermer le menu">✕</button></div>
 
     <div class="menu-titre">Mon compte</div>
-    <button type="button" class="mi" id="btnEditProfil"><span class="ic">✏️</span><span><b>Modifier mon profil</b><span class="d">Mon nom, ma ville et ma photo</span></span></button>
-    <button type="button" class="mi" id="mPhoto"><span class="ic">📷</span><span><b>Changer ma photo</b><span class="d">Choisir une nouvelle photo de profil</span></span></button>
+    <button type="button" class="mi" id="btnEditProfil"><span class="ic">✏️</span><span><b>Modifier mon profil</b><span class="d">Mon nom, ma ville, ma photo</span></span></button>
     <a class="mi" href="abonnement.html"><span class="ic">💳</span><span><b>Mon abonnement</b><span class="d">Voir mon pack, payer ou renouveler</span></span></a>
     <a class="mi" href="messages.html"><span class="ic">✉️</span><span><b>Ma messagerie</b><span class="d">Mes reçus, mes ventes et mes factures</span></span></a>
     <a class="mi" href="statistiques.html"><span class="ic">📊</span><span><b>Mes statistiques</b><span class="d">Combien de personnes regardent mes vidéos</span></span></a>
@@ -535,10 +534,6 @@
     document.getElementById('menuX').addEventListener('click', function(){ fermer(); btn.focus(); });
     document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && panel.classList.contains('on')){ fermer(); btn.focus(); } });
     panel.addEventListener('click', function(e){ if (e.target.closest && e.target.closest('.mi')) fermer(); });
-    document.getElementById('mPhoto').addEventListener('click', function(){
-      var chip = profileList.querySelector('.profile-chip.perso');
-      if (monProfil && chip) choisirPhoto(monProfil.id, chip);
-    });
   })();
 
   btnLogout.addEventListener('click', function(){
