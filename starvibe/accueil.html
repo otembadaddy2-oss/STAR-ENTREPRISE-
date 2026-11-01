@@ -121,6 +121,29 @@
   footer{padding:20px;text-align:center;}
   footer .credit{font-size:10px;color:var(--text-faint);}
   footer .credit b{color:var(--text-dim);}
+
+  /* Menu ☰ : tout ce qu'on peut faire dans KOMYO, en mots simples */
+  .menu-btn{width:42px;height:42px;border-radius:14px;border:1.5px solid rgba(255,255,255,.45);background:rgba(255,255,255,.14);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s ease;}
+  .menu-btn:hover{background:rgba(255,255,255,.28);}
+  .menu-btn svg{width:22px;height:22px;}
+  .menu-fond{position:fixed;inset:0;background:rgba(36,21,54,.55);opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:80;}
+  .menu-fond.on{opacity:1;pointer-events:auto;}
+  .menu-panel{position:fixed;top:0;right:0;bottom:0;width:min(360px,90vw);background:#fff;z-index:81;transform:translateX(105%);transition:transform .28s ease;overflow-y:auto;overscroll-behavior:contain;padding:0 0 calc(24px + env(safe-area-inset-bottom,0px));box-shadow:-18px 0 40px -20px rgba(36,21,54,.45);}
+  .menu-panel.on{transform:none;}
+  .menu-tete{position:sticky;top:0;background:linear-gradient(120deg,var(--coral),var(--gold));color:#fff;padding:calc(16px + env(safe-area-inset-top,0px)) 18px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;z-index:1;}
+  .menu-tete b{font-family:'Sora',sans-serif;font-size:16px;}
+  .menu-tete small{display:block;font-size:12px;opacity:.9;margin-top:2px;}
+  .menu-x{width:38px;height:38px;border-radius:12px;border:1.5px solid rgba(255,255,255,.5);background:rgba(255,255,255,.14);color:#fff;font-size:20px;cursor:pointer;line-height:1;}
+  .menu-titre{font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--text-faint);padding:18px 18px 6px;}
+  .mi{display:flex;align-items:center;gap:12px;width:100%;padding:11px 18px;border:0;background:none;text-align:left;text-decoration:none;color:var(--ink);font:inherit;cursor:pointer;}
+  .mi:hover,.mi:focus-visible{background:#fff6e3;outline:none;}
+  .mi .ic{flex:none;width:34px;height:34px;border-radius:10px;background:#fff1d2;display:flex;align-items:center;justify-content:center;font-size:17px;}
+  .mi b{display:block;font-family:'Sora',sans-serif;font-size:14px;line-height:1.25;}
+  .mi span.d{display:block;font-size:12px;color:var(--text-dim);line-height:1.35;margin-top:1px;}
+  .mi.sortir .ic{background:#fde7e5;}
+  .menu-sep{height:1px;background:var(--line);margin:12px 18px 0;}
+  html.menu-ouvert,html.menu-ouvert body{overflow:hidden;}
+  @media (prefers-reduced-motion:reduce){.menu-panel,.menu-fond{transition:none;}}
 </style>
 <link rel="manifest" href="manifest-komyo.json">
 <meta name="mobile-web-app-capable" content="yes">
@@ -142,9 +165,45 @@
   <div class="topbar">
     <div class="row">
       <div class="greet">Bonjour<b id="greetName">—</b></div>
-      <div style="display:flex;align-items:center;gap:10px"><button data-komyo-messages hidden></button><button class="logout" id="btnLogout">Déconnexion</button></div>
+      <div style="display:flex;align-items:center;gap:10px"><button data-komyo-messages hidden></button><button type="button" class="menu-btn" id="btnMenu" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menuPanel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button></div>
     </div>
   </div>
+
+  <div class="menu-fond" id="menuFond"></div>
+  <nav class="menu-panel" id="menuPanel" aria-label="Menu KOMYO" aria-hidden="true">
+    <div class="menu-tete"><div><b>Menu</b><small>Tout ce que tu peux faire dans KOMYO</small></div><button type="button" class="menu-x" id="menuX" aria-label="Fermer le menu">✕</button></div>
+
+    <div class="menu-titre">Mon compte</div>
+    <button type="button" class="mi" id="btnEditProfil"><span class="ic">✏️</span><span><b>Modifier mon profil</b><span class="d">Mon nom, ma ville et ma photo</span></span></button>
+    <button type="button" class="mi" id="mPhoto"><span class="ic">📷</span><span><b>Changer ma photo</b><span class="d">Choisir une nouvelle photo de profil</span></span></button>
+    <a class="mi" href="abonnement.html"><span class="ic">💳</span><span><b>Mon abonnement</b><span class="d">Voir mon pack, payer ou renouveler</span></span></a>
+    <a class="mi" href="messages.html"><span class="ic">✉️</span><span><b>Ma messagerie</b><span class="d">Mes reçus, mes ventes et mes factures</span></span></a>
+    <a class="mi" href="statistiques.html"><span class="ic">📊</span><span><b>Mes statistiques</b><span class="d">Combien de personnes regardent mes vidéos</span></span></a>
+
+    <div class="menu-titre">Regarder et partager</div>
+    <a class="mi" href="fil.html?publier=1"><span class="ic">🎥</span><span><b>Publier une vidéo</b><span class="d">Me filmer et partager avec tout le monde</span></span></a>
+    <a class="mi" href="fil.html"><span class="ic">▶️</span><span><b>Le fil de vidéos</b><span class="d">Regarder ce que les autres publient</span></span></a>
+    <a class="mi" href="fil.html?espace=talents"><span class="ic">⭐</span><span><b>Talents</b><span class="d">Chant, danse, cuisine, sport, humour…</span></span></a>
+    <a class="mi" href="fil.html?espace=business"><span class="ic">🛍️</span><span><b>Business</b><span class="d">Produits, services et boutiques</span></span></a>
+    <a class="mi" href="fil.html?espace=musique"><span class="ic">🎵</span><span><b>Musique</b><span class="d">Clips et sons d'artistes</span></span></a>
+    <a class="mi" href="fil.html?espace=decouverte"><span class="ic">🌍</span><span><b>Découverte</b><span class="d">Des pays, des villes, des cultures</span></span></a>
+    <a class="mi" href="pioupiou.html"><span class="ic">🐥</span><span><b>PIOUPIOU</b><span class="d">Dessins animés pour les enfants de 3 à 6 ans</span></span></a>
+    <a class="mi" href="myo.html"><span class="ic">🤝</span><span><b>Myo · mes amis</b><span class="d">Inviter des amis et les retrouver</span></span></a>
+
+    <div class="menu-titre">Acheter et se faire connaître</div>
+    <a class="mi" href="boutiques.html"><span class="ic">🏪</span><span><b>Boutiques KOMYO</b><span class="d">Acheter chez des vendeurs</span></span></a>
+    <a class="mi" href="promouvoir.html"><span class="ic">📣</span><span><b>Faire connaître ma musique ou mon activité</b><span class="d">Une annonce vue par tous les abonnés</span></span></a>
+    <a class="mi" href="tarifs.html"><span class="ic">💰</span><span><b>Voir les prix</b><span class="d">Tous les tarifs en FCFA</span></span></a>
+
+    <div class="menu-titre">Besoin d'aide ?</div>
+    <a class="mi" href="keydou.html"><span class="ic">🤖</span><span><b>Keydou, mon assistant</b><span class="d">Trouver un hôtel, un restaurant, un dépannage…</span></span></a>
+    <a class="mi" href="fil.html?guide=1"><span class="ic">🧭</span><span><b>Revoir le guide de démarrage</b><span class="d">Comment utiliser KOMYO, pas à pas</span></span></a>
+    <a class="mi" href="mailto:contact@starentreprise.com"><span class="ic">📩</span><span><b>Écrire à l'équipe</b><span class="d">contact@starentreprise.com</span></span></a>
+    <a class="mi" href="installer.html"><span class="ic">📱</span><span><b>Installer l'application</b><span class="d">L'ajouter sur l'écran d'accueil du téléphone</span></span></a>
+
+    <div class="menu-sep"></div>
+    <button type="button" class="mi sortir" id="btnLogout"><span class="ic">🚪</span><span><b>Me déconnecter</b><span class="d">Fermer ma session sur ce téléphone</span></span></button>
+  </nav>
 
   <div class="wrap content">
 
@@ -152,7 +211,6 @@
       <div class="profiles-title">Mes profils</div>
       <div class="profile-list" id="profileList"></div>
       <input type="file" id="photoInput" accept="image/*" hidden>
-      <button type="button" class="edit-profile" id="btnEditProfil">Modifier mon profil</button>
       <p class="photo-msg" id="photoMsg" hidden></p>
     </div>
     <dialog id="profilDlg">
@@ -466,6 +524,22 @@
       })
       .catch(function(){ b.disabled = false; pfMsg('Impossible de contacter le serveur. Réessaie.'); });
   });
+
+  // ---- Menu ☰ ----
+  (function(){
+    var btn = document.getElementById('btnMenu'), panel = document.getElementById('menuPanel'), fond = document.getElementById('menuFond');
+    function ouvrir(){ panel.classList.add('on'); fond.classList.add('on'); panel.setAttribute('aria-hidden', 'false'); btn.setAttribute('aria-expanded', 'true'); document.documentElement.classList.add('menu-ouvert'); setTimeout(function(){ var x = document.getElementById('menuX'); if (x) x.focus(); }, 60); }
+    function fermer(){ panel.classList.remove('on'); fond.classList.remove('on'); panel.setAttribute('aria-hidden', 'true'); btn.setAttribute('aria-expanded', 'false'); document.documentElement.classList.remove('menu-ouvert'); }
+    btn.addEventListener('click', ouvrir);
+    fond.addEventListener('click', fermer);
+    document.getElementById('menuX').addEventListener('click', function(){ fermer(); btn.focus(); });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && panel.classList.contains('on')){ fermer(); btn.focus(); } });
+    panel.addEventListener('click', function(e){ if (e.target.closest && e.target.closest('.mi')) fermer(); });
+    document.getElementById('mPhoto').addEventListener('click', function(){
+      var chip = profileList.querySelector('.profile-chip.perso');
+      if (monProfil && chip) choisirPhoto(monProfil.id, chip);
+    });
+  })();
 
   btnLogout.addEventListener('click', function(){
     localStorage.removeItem('starvibe_token');
