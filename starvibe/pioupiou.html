@@ -48,6 +48,13 @@
   .btn-next{flex:1;background:linear-gradient(135deg,var(--sun),#ff8f3d);color:#5c3200;border:none;font-family:'Sora',sans-serif;
     font-weight:800;font-size:15px;padding:16px 0;border-radius:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
     box-shadow:0 10px 22px -10px rgba(255,143,61,.6);transition:transform .2s ease, box-shadow .2s ease;}
+  .btn-prev{flex:none;width:62px;background:rgba(255,255,255,.16);color:#fff;border:2px solid rgba(255,255,255,.55);border-radius:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:transform .2s ease, background .2s ease, opacity .2s ease;}
+  .btn-prev svg{width:24px;height:24px;}
+  .btn-prev:hover:not(:disabled){background:rgba(255,255,255,.28);transform:translateY(-3px);}
+  .btn-prev:active:not(:disabled){transform:scale(.95);}
+  .btn-prev:disabled{opacity:.35;cursor:default;}
+  .btn-revoir{margin-top:18px;border:0;border-radius:18px;padding:14px 22px;background:linear-gradient(135deg,var(--sun),#ff8f3d);color:#5c3200;font-family:'Sora',sans-serif;font-weight:800;font-size:15px;cursor:pointer;}
   .btn-next:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 14px 26px -10px rgba(255,143,61,.75);}
   .btn-next:active{transform:scale(.97);}
   .btn-next svg{width:20px;height:20px;}
@@ -139,6 +146,7 @@
   <div class="emoji">🎆</div>
   <h2>Bravo, tu as tout regardé !</h2>
   <p>De nouvelles vidéos arrivent bientôt.</p>
+  <button type="button" class="btn-revoir" id="btnRevoir">↺ Revoir les vidéos</button>
   <div class="avenir" data-avenir></div>
 </div>
 
@@ -168,6 +176,7 @@
     <div class="legende" id="legendeEl"></div>
   </div>
   <div class="controls">
+    <button class="btn-prev" id="btnPrev" type="button" aria-label="Vidéo précédente : revoir ce qui vient de passer" title="Vidéo précédente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg></button>
     <button class="btn-next" id="btnNext">Vidéo suivante <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="m9 6 6 6-6 6"/></svg></button>
   </div>
 </div>
@@ -199,6 +208,7 @@
   var auteurEl = document.getElementById('auteurEl');
   var legendeEl = document.getElementById('legendeEl');
   var btnNext = document.getElementById('btnNext');
+  var btnPrev = document.getElementById('btnPrev');
   var lockEl = document.getElementById('lockEl');
   var premiumTag = document.getElementById('premiumTag');
 
@@ -353,6 +363,7 @@
   function playCurrent(){
     if (index >= videos.length){ show(doneState); return; }
     var v = videos[index];
+    btnPrev.disabled = index <= 0;
     premiumTag.hidden = !v.premium;
     lockEl.classList.remove('show');   // l'ancien écran « cadenas » est remplacé par l'affiche + FERMÉ
     var aff = document.getElementById('afficheEl'), etqF = document.getElementById('etqFerme'), etqO = document.getElementById('etqOuvert');
@@ -387,6 +398,11 @@
     index++;
     playCurrent();
   });
+  // Flèche « précédente » : on revoit la vidéo d'avant ; depuis l'écran « Bravo », « Revoir les vidéos » repart de la première.
+  btnPrev.addEventListener('click', function(){
+    if (index > 0){ index--; playCurrent(); }
+  });
+  document.getElementById('btnRevoir').addEventListener('click', function(){ index = 0; playCurrent(); });
 
   tapZone.addEventListener('click', function(){
     activerSon(!sonActif);
