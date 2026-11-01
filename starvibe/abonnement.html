@@ -241,8 +241,8 @@
     lastSub = sub;
     if (sub.statut !== 'en_attente_paiement'){ payBox.hidden = true; payBox.innerHTML = ''; return; }
     payBox.hidden = false;
-    // Une demande vieille de plus de 30 minutes n'est plus « en train d'attendre » : on arrête l'animation et on propose quoi faire.
-    var vieille = attenteArretee || (sub.createdAt && Date.now() - Date.parse(sub.createdAt) > 30 * 60 * 1000);
+    // Une demande vieille de plus de 10 minutes n'est plus « en train d'attendre » : on arrête l'animation et on propose quoi faire.
+    var vieille = attenteArretee || (sub.createdAt && Date.now() - Date.parse(sub.createdAt) > 10 * 60 * 1000);
     var montant = sub.montantAttendu.toLocaleString('fr-FR');
     payBox.innerHTML =
       '<div class="pay-box">' +
@@ -338,12 +338,12 @@
   function surveiller(sub){
     var attend = sub && sub.statut === 'en_attente_paiement';
     if (!attend){ clearInterval(veille); veille = null; attenteArretee = false; return; }
-    if (sub.createdAt && Date.now() - Date.parse(sub.createdAt) > 30 * 60 * 1000) return;
+    if (sub.createdAt && Date.now() - Date.parse(sub.createdAt) > 10 * 60 * 1000) return;
     if (veille) return;
     veilleDebut = Date.now();
     veille = setInterval(function(){
       if (document.hidden) return;
-      if (Date.now() - veilleDebut > 30 * 60 * 1000){ clearInterval(veille); veille = null; attenteArretee = true; if (lastSub) renderPayBox(lastSub); return; }
+      if (Date.now() - veilleDebut > 10 * 60 * 1000){ clearInterval(veille); veille = null; attenteArretee = true; if (lastSub) renderPayBox(lastSub); return; }
       authFetch(API).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
         if (!d || !d.abonnement || d.abonnement.statut === 'en_attente_paiement') return;
         clearInterval(veille); veille = null;
@@ -446,7 +446,7 @@
           '<b>2.</b> Si on te demande une référence : <b>' + esc2(a.referencePaiement) + '</b>.<br><b>3.</b> Reste sur cette page : elle se met à jour toute seule dès que le dépôt est reconnu.';
         var debutG = Date.now();
         gift.timer = setInterval(function(){
-          if (Date.now() - debutG > 30 * 60 * 1000){ clearInterval(gift.timer); go.className = 'go'; go.textContent = 'Dépôt non reçu'; document.getElementById('gSuivi').innerHTML += '<div class="err" style="margin-top:8px">Nous n\'avons pas encore reçu ton dépôt. Si tu as payé, écris-nous à contact@starentreprise.com avec la référence ' + esc2(a.referencePaiement) + '.</div>'; return; }
+          if (Date.now() - debutG > 10 * 60 * 1000){ clearInterval(gift.timer); go.className = 'go'; go.textContent = 'Dépôt non reçu'; document.getElementById('gSuivi').innerHTML += '<div class="err" style="margin-top:8px">Nous n\'avons pas encore reçu ton dépôt. Si tu as payé, écris-nous à contact@starentreprise.com avec la référence ' + esc2(a.referencePaiement) + '.</div>'; return; }
           authFetch(API + '?suivi=' + encodeURIComponent(a.id)).then(function(x){ return x.json(); }).then(function(d){
             var st = d.abonnement && d.abonnement.statut;
             if (st === 'actif'){ clearInterval(gift.timer); go.className = 'go ok'; go.textContent = 'Paiement validé ✓';
