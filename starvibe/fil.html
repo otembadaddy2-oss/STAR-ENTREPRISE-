@@ -602,14 +602,14 @@
     business: { nom: 'KOMYO Business', intro: 'Présente ton activité : produit, service, boutique. Écris dans la légende comment te contacter.', vide: 'Aucune activité publiée pour le moment.<br>Présente la tienne !' },
     musique: { nom: 'KOMYO Musique', intro: 'Clips, sons, nouveautés : artistes, DJ, chanteurs, groupes… fais écouter ta musique.', vide: 'Aucune musique publiée pour le moment.<br>Sois le premier à jouer !' },
     jeunes: { nom: 'KOMYO Jeunes', intro: 'L\'espace des 13–17 ans : crée, découvre et partage entre jeunes. Chaque vidéo est vérifiée avant d\'apparaître.', vide: 'Aucune vidéo pour le moment.<br>Sois le premier à publier !' },
-    decouverte: { nom: 'KOMYO Découverte', intro: 'Fais découvrir ton pays, ta ville, ta culture, tes plus beaux endroits.', vide: 'Aucune découverte publiée pour le moment.<br>Montre-nous ton coin du monde !' }
+    decouverte: { nom: 'KOMYO Découverte', intro: '', vide: 'Aucune découverte publiée pour le moment.<br>Montre-nous ton coin du monde !' }
   };
   var ESPACE = (function(){ var m = /[?&]espace=([a-z]+)/.exec(location.search); return m && ESPACES[m[1]] ? m[1] : ''; })();
   (function(){
     var bar = document.getElementById('espaces'); if (!bar) return;
     [].forEach.call(bar.querySelectorAll('a'), function(a){ a.classList.toggle('on', a.getAttribute('data-e') === ESPACE); });
     if (ESPACE){
-      var intro = document.getElementById('espIntro'); intro.textContent = ESPACES[ESPACE].intro; intro.hidden = false;
+      var intro = document.getElementById('espIntro'); intro.textContent = ESPACES[ESPACE].intro; intro.hidden = !ESPACES[ESPACE].intro;
       if (ESPACE === 'business' || ESPACE === 'musique' || ESPACE === 'talents'){ var ep = document.getElementById('espPromo'); if (ep) ep.hidden = false; }
       document.title = ESPACES[ESPACE].nom + ' — KOMYO';
       var br = document.querySelector('.topbar .brand'); if (br) br.lastChild.nodeValue = ESPACES[ESPACE].nom.replace('KOMYO ', '');
