@@ -63,6 +63,8 @@ interface VideoRow {
   gardien_raison?: string;
   created_at: string;
   auteur_nom?: string;
+  auteur_activite?: string;
+  auteur_wa?: string;
   telephone?: string;
 }
 
@@ -77,6 +79,8 @@ function toApi(row: VideoRow, likedByMe: boolean, canWatchPremium = false, viewe
     id: String(row.id),
     legende: row.legende,
     auteur: row.auteur_nom || "",
+    auteurActivite: row.pour_enfants ? "" : (row.auteur_activite || ""),
+    auteurWa: row.pour_enfants ? "" : (row.auteur_wa || ""),
     likes: row.likes_count,
     vues: row.vues_count,
     commentaires: row.comments_count || 0,
@@ -677,14 +681,14 @@ export default async (req: Request, _context: Context) => {
 
   const rows = (before
     ? await sql`
-        SELECT v.*, p.nom AS auteur_nom
+        SELECT v.*, p.nom AS auteur_nom, p.activite AS auteur_activite, p.contact_wa AS auteur_wa
         FROM starvibe_videos v
         JOIN starvibe_profiles p ON p.id = v.profile_id
         WHERE v.pour_enfants = ${wantKids} AND v.moderation_statut = 'approuve' AND (v.premium = false OR ${wantKids}) AND ((${espaceFiltre} = '' AND v.espace <> 'jeunes') OR (${espaceFiltre} <> '' AND v.espace = ${espaceFiltre})) AND v.id < ${before}
         ORDER BY v.id DESC LIMIT 10
       `
     : await sql`
-        SELECT v.*, p.nom AS auteur_nom
+        SELECT v.*, p.nom AS auteur_nom, p.activite AS auteur_activite, p.contact_wa AS auteur_wa
         FROM starvibe_videos v
         JOIN starvibe_profiles p ON p.id = v.profile_id
         WHERE v.pour_enfants = ${wantKids} AND v.moderation_statut = 'approuve' AND (v.premium = false OR ${wantKids}) AND ((${espaceFiltre} = '' AND v.espace <> 'jeunes') OR (${espaceFiltre} <> '' AND v.espace = ${espaceFiltre}))

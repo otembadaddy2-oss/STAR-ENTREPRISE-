@@ -13,7 +13,7 @@ export function db() {
 // Version du schéma = empreinte du texte de ensureSchema() ci-dessous (vérifiée par tools/test-schema.mts).
 // Quand tu modifies une instruction du schéma : lance « node --experimental-strip-types tools/test-schema.mts --ecrire »
 // pour mettre à jour cette ligne. Sans cela, la base ne serait pas mise à jour (le test échoue pour te le rappeler).
-const SCHEMA_VERSION = "611455b3e05966b5";
+const SCHEMA_VERSION = "3fdb28397dc6a6b1";
 
 // Idempotent schema setup — safe to call on every cold start.
 // Rapide : les ~80 instructions ne sont rejouées que si SCHEMA_VERSION a changé depuis la dernière fois
@@ -329,6 +329,9 @@ export async function ensureSchema() {
   // seule la clé est gardée ici. Affichée dans la bulle flottante, les
   // notifications et les commentaires.
   await sql`ALTER TABLE starvibe_profiles ADD COLUMN IF NOT EXISTS photo_key TEXT`;
+  // Carte de visite facultative (profil personnel) : l'activité et un numéro WhatsApp affichés sous les vidéos, pour que les clients puissent écrire.
+  await sql`ALTER TABLE starvibe_profiles ADD COLUMN IF NOT EXISTS activite TEXT NOT NULL DEFAULT ''`;
+  await sql`ALTER TABLE starvibe_profiles ADD COLUMN IF NOT EXISTS contact_wa TEXT NOT NULL DEFAULT ''`;
 
   // Dernière ouverture de la liste des notifications KOMYO (bulle flottante) :
   // tout ce qui est arrivé après est "non lu". Fermer la bulle ne touche pas
