@@ -7,6 +7,16 @@ Mis à jour le 31 octobre 2026. ☑ = terminé · ☐ = à faire. Âges : 3-4, 4
 Mise en ligne : les épisodes officiels sont servis par `netlify/functions/_pioupiou_officiel.mts` (liste `EPISODES_OFFICIELS`), sans passer par la file de modération des vidéos d'utilisateurs ; chaque épisode est validé par Carry avant d'y figurer. Les fichiers vidéo (dossier `netlify/functions/pioupiou-officiel/`, non versionné car le dépôt est public) sont déposés dans Netlify Blobs au premier passage après un déploiement qui les contient (`GET /api/starvibe-videos?seed=officiel`), puis y restent. Pour ajouter un épisode : ajouter sa vidéo `aN.mp4` dans ce dossier, son affiche dans `starvibe/assets/pioupiou/`, une ligne dans `EPISODES_OFFICIELS`, `"dispo": true` dans `pioupiou-episodes-v1.json`, déployer, puis appeler l'adresse de dépôt.
 
 
+## Prochaines étapes (noté le 1er novembre 2026, accord de Carry)
+
+1. **Ordre de production** : finir **A6 à A10** (le pack « Les bonnes habitudes » est vendu avec « 5 disponibles, 5 à venir »), puis **C (compter)**, puis **D (alphabet)**, puis **B (hymnes)** en dernier.
+2. **Démarrage** : dès que Carry donne le signe et recharge les crédits Higgsfield (500 crédits = 29 $). On calcule alors le coût réel par épisode.
+3. **Compteur de vues et de revoir** pour les épisodes officiels (à ajouter, noté, sur signe de Carry).
+4. **Test avant de produire B, C et D** : montrer A1 à A5 à 3 ou 5 parents et observer si l'enfant regarde jusqu'au bout et redemande.
+5. **Légèreté de l'application** : épisodes de 30 à 60 s en vertical, 4 à 5 Mo maximum chacun (recompresser A1, 7 Mo), affiches WebP d'environ 50 Ko, une liste par pack chargée à l'ouverture, aucune vidéo préchargée.
+6. **Prix des futurs packs** : même modèle que le pack A (1 500 FCFA pour 30 jours, ou 2 et 3 mois d'un coup) ; un tarif « tous les packs » à décider quand il y en aura deux ou plus.
+7. **Nouveaux épisodes** : annonce par publicité sur le site à chaque sortie, jamais de date promise à l'avance.
+
 ## A · Les bonnes habitudes
 
 - [x] **A1** — Bonjour papa, bonjour maman (60 s, 3-6 ans) — *terminé, en ligne (version 2, parents visibles)*
