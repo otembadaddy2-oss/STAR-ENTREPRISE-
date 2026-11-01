@@ -208,7 +208,7 @@
   <div class="wrap content">
 
     <div class="card">
-      <div class="profiles-title">Mes profils</div>
+      <div class="profiles-title" id="profilesTitre">Mon profil</div>
       <div class="profile-list" id="profileList"></div>
       <input type="file" id="photoInput" accept="image/*" hidden>
       <p class="photo-msg" id="photoMsg" hidden></p>
@@ -382,6 +382,8 @@
 
   function renderProfiles(profiles){
     profileList.innerHTML = '';
+    // Un seul profil : « Mon profil ». Avec des profils enfants (PIOUPIOU) en plus : « Mes profils ».
+    var pt = document.getElementById('profilesTitre'); if (pt) pt.textContent = (profiles || []).length > 1 ? 'Mes profils' : 'Mon profil';
     (profiles || []).forEach(function(p){
       var perso = p.type_profil !== 'enfant';
       var chip = document.createElement('div');
