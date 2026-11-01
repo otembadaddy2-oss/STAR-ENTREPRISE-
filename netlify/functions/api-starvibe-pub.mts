@@ -43,7 +43,7 @@ const toApi = (r: PubRow) => ({ id: r.id, texte: r.texte, lien: r.lien, categori
 
 export default async (req: Request, _context: Context) => {
   await ensureSchema();
-  const sql = db();
+  const { sql } = db();
   const url = new URL(req.url);
 
   // ---------- côté staff ----------

@@ -41,7 +41,7 @@ interface Perso { id: number; account_id: number; nom: string; date_naissance: s
 
 export default async (req: Request, _context: Context) => {
   await ensureSchema();
-  const sql = db();
+  const { sql } = db();
   const session = await requireAuth(req);
   if (!session || session.org !== ORG) return json({ error: "Non authentifié" }, 401);
   const moi = Number(session.sub);
