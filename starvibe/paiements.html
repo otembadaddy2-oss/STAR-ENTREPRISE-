@@ -253,7 +253,8 @@
       '<div class="top"><div class="plan">' + esc(d.planLabel) + ' · ' + esc(d.categorie) + '</div><div class="amount">' + d.montantAttendu.toLocaleString('fr-FR') + ' FCFA</div></div>' +
       '<div class="meta" style="font-size:15px;color:#fff"><b>« ' + esc(d.texte) + ' »</b></div>' +
       '<div class="meta"><b>' + esc(d.auteur) + '</b> — ' + esc(d.telephone) + ' — réf. ' + esc(d.referencePaiement) + (d.lien ? '<br>Lien : ' + esc(d.lien) : '') + '</div>' +
-      '<div class="confirm-row"><input type="number" placeholder="Montant reçu (FCFA)" data-m><button data-ok>Confirmer et publier</button><button data-no style="background:#5a2a2a">Refuser</button></div><div class="itemerr"></div>';
+      (d.statut === 'payee' ? '<div class="meta" style="color:#7fe3a0"><b>✅ Dépôt de ' + d.montantAttendu.toLocaleString('fr-FR') + ' FCFA reconnu automatiquement.</b> Relis le message, puis valide : l\'annonce démarre.</div>' : '') +
+      '<div class="confirm-row"><input type="number" placeholder="Montant reçu (FCFA)" data-m value="' + (d.statut === 'payee' ? d.montantAttendu : '') + '"><button data-ok>' + (d.statut === 'payee' ? 'Message relu : démarrer' : 'Confirmer et publier') + '</button><button data-no style="background:#5a2a2a">Refuser</button></div><div class="itemerr"></div>';
     var err = item.querySelector('.itemerr');
     item.querySelector('[data-ok]').addEventListener('click', function(){
       var m = Number(item.querySelector('[data-m]').value);

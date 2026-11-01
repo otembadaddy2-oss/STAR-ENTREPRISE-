@@ -13,6 +13,7 @@ import { ensureSchema, db, json } from "./_db.mts";
 import { randomUUID } from "node:crypto";
 import { requireAuth, issueToken } from "./_auth.mts";
 import { recuAbonnement, recuKeydou } from "./_recu.mts";
+import { poster } from "./_msg.mts";
 import annuaireSeed from "./keydou-annuaire.json";
 import annuaire2026 from "./keydou-annuaire-2026.json";
 import urgences from "./keydou-urgences.json";
@@ -230,6 +231,18 @@ async function validerDepot(sql: any, kind: string, id: number, methode: string,
     if (r.length) await recuAbonnement(sql, id);
     return { ok: r.length > 0, statut: r.length ? "actif" : "deja_traite" };
   }
+  if (kind === "pub") {
+    // Annonce visible par tous : le dépôt est reconnu tout de suite ; le message n'est affiché qu'après relecture par l'équipe.
+    const r = (await sql`
+      UPDATE starvibe_pub SET statut = 'payee', montant_recu = montant_attendu, reference_transaction = ${reference || methode}
+      WHERE id = ${id} AND statut = 'en_attente_paiement' RETURNING account_id, montant_attendu, texte
+    `) as { account_id: number; montant_attendu: number; texte: string }[];
+    if (r.length) {
+      await poster(sql, r[0].account_id, { kind: "info", titre: "✅ Paiement reçu", texte: `Ton paiement de ${r[0].montant_attendu} FCFA est bien reçu. L'équipe relit ton message, puis ton annonce démarre : tu recevras ton reçu à ce moment-là.`, lien: "promouvoir.html" });
+      try { await pushAll(sql, { title: "📣 Annonce payée, à relire", body: `« ${String(r[0].texte).slice(0, 70)} » — ${r[0].montant_attendu} FCFA. Ouvre Paiements pour la valider.`, tag: `pub-${id}`, url: "/starvibe/paiements.html" }); } catch { /* ignore */ }
+    }
+    return { ok: r.length > 0, statut: r.length ? "payee" : "deja_traite" };
+  }
   const rows = (await sql`SELECT * FROM starvibe_keydou_requests WHERE id = ${id} LIMIT 1`) as Row[];
   if (!rows[0] || rows[0].statut !== "en_attente_paiement") return { ok: false, statut: rows[0]?.statut || "introuvable" };
   await appliquerPaiement(sql, rows[0], rows[0].montant_attendu, reference || methode);
@@ -241,6 +254,10 @@ async function validerDepot(sql: any, kind: string, id: number, methode: string,
 async function refuserDepot(sql: any, kind: string, id: number): Promise<{ ok: boolean }> {
   if (kind === "abo") {
     const r = (await sql`UPDATE starvibe_subscriptions SET statut = 'paiement_invalide', updated_at = now() WHERE id = ${id} AND statut = 'en_attente_paiement' RETURNING id`) as unknown[];
+    return { ok: r.length > 0 };
+  }
+  if (kind === "pub") {
+    const r = (await sql`UPDATE starvibe_pub SET statut = 'refusee', refus_motif = 'Dépôt non trouvé par l''équipe' WHERE id = ${id} AND statut = 'en_attente_paiement' RETURNING id`) as unknown[];
     return { ok: r.length > 0 };
   }
   const rows = (await sql`
@@ -388,7 +405,7 @@ async function creerDemande(sql: any, accountId: number, body: Record<string, un
   return { body: { demande: toApi(rows[0]) }, status: 201 };
 }
 
-const KIND_LABEL: Record<string, string> = { keydou: "Keydou", abo: "Abonnement KOMYO" };
+const KIND_LABEL: Record<string, string> = { keydou: "Keydou", abo: "Abonnement KOMYO", pub: "Annonce" };
 
 // Notification "Valider le dépôt ?" avec boutons Oui / Non sur le téléphone du staff.
 // deno-lint-ignore no-explicit-any
@@ -452,8 +469,17 @@ export default async (req: Request, _context: Context) => {
   // --- Détail d'une demande à valider (page ouverte depuis la notification) ---
   if (req.method === "GET" && url.searchParams.get("decide_info") === "1") {
     const kind = clean(url.searchParams.get("k"), 10), id = Number(url.searchParams.get("r"));
-    if (!["keydou", "abo"].includes(kind) || !id || !checkDecisionToken(kind, id, Number(url.searchParams.get("exp")), url.searchParams.get("t") || "")) {
+    if (!["keydou", "abo", "pub"].includes(kind) || !id || !checkDecisionToken(kind, id, Number(url.searchParams.get("exp")), url.searchParams.get("t") || "")) {
       return json({ error: "Lien expiré ou invalide" }, 403);
+    }
+    if (kind === "pub") {
+      const r = (await sql`
+        SELECT g.id, g.texte, g.plan, g.montant_attendu, g.statut, a.telephone, p.nom
+        FROM starvibe_pub g JOIN starvibe_accounts a ON a.id = g.account_id
+        LEFT JOIN starvibe_profiles p ON p.account_id = a.id AND p.type_profil = 'personnel' WHERE g.id = ${id}
+      `) as { id: number; texte: string; plan: string; montant_attendu: number; statut: string; telephone: string; nom: string | null }[];
+      if (!r[0]) return json({ error: "Introuvable" }, 404);
+      return json({ kind, id, objet: `Annonce : ${String(r[0].texte).slice(0, 60)}`, montant: r[0].montant_attendu, statut: r[0].statut, nom: r[0].nom || "", telephone: r[0].telephone, ville: "", reference: `PUB-${id}` });
     }
     if (kind === "abo") {
       const r = (await sql`
@@ -496,15 +522,20 @@ export default async (req: Request, _context: Context) => {
         SELECT s.id, a.telephone FROM starvibe_subscriptions s JOIN starvibe_accounts a ON a.id = s.account_id
         WHERE s.statut = 'en_attente_paiement' AND s.montant_attendu = ${p.montant} AND s.created_at > now() - interval '48 hours'
       `) as { id: number; telephone: string }[];
+      const pb = (await sql`
+        SELECT g.id, a.telephone FROM starvibe_pub g JOIN starvibe_accounts a ON a.id = g.account_id
+        WHERE g.statut = 'en_attente_paiement' AND g.montant_attendu = ${p.montant} AND g.created_at > now() - interval '48 hours'
+      `) as { id: number; telephone: string }[];
       const cands = [
         ...kd.map((r) => ({ kind: "keydou", id: r.id, byRef: p.reference === r.id, byPhone: !!p.numero && (last9(r.numero_paiement) === last9(p.numero) || last9(r.telephone) === last9(p.numero)) })),
         ...ab.map((r) => ({ kind: "abo", id: r.id, byRef: false, byPhone: !!p.numero && last9(r.telephone) === last9(p.numero) })),
+        ...pb.map((r) => ({ kind: "pub", id: r.id, byRef: false, byPhone: !!p.numero && last9(r.telephone) === last9(p.numero) })),
       ];
       const sure = cands.filter((c) => c.byRef || c.byPhone);
       const byRef = sure.filter((c) => c.byRef);
       let unique = byRef.length === 1 ? byRef : (sure.length === 1 ? sure : []);
       // Plusieurs demandes d'abonnement identiques du même numéro (le client a touché plusieurs fois « Choisir ») : la plus récente compte.
-      if (!unique.length && sure.length > 1 && sure.every((c) => c.kind === "abo")) unique = [sure.reduce((a, b) => (b.id > a.id ? b : a))];
+      if (!unique.length && sure.length > 1 && sure.every((c) => c.kind !== "keydou" && c.kind === sure[0].kind)) unique = [sure.reduce((a, b) => (b.id > a.id ? b : a))];
       // Repli : le client a payé depuis un autre numéro. Si UNE SEULE demande de ce montant attend
       // (et que le client a touché "J'ai payé" il y a moins de 20 min), le dépôt lui revient.
       let repli = false;
@@ -659,7 +690,7 @@ export default async (req: Request, _context: Context) => {
     // --- Décision "Oui / Non" depuis la notification ou la page de validation (lien signé, 24 h) ---
     if (action === "decider") {
       const kind = clean(body.k, 10), id = Number(body.r), d = clean(body.d, 5);
-      if (!["keydou", "abo"].includes(kind) || !id || !["oui", "non"].includes(d) || !checkDecisionToken(kind, id, Number(body.exp), clean(body.t, 80))) {
+      if (!["keydou", "abo", "pub"].includes(kind) || !id || !["oui", "non"].includes(d) || !checkDecisionToken(kind, id, Number(body.exp), clean(body.t, 80))) {
         return json({ error: "Lien expiré ou invalide" }, 403);
       }
       if (d === "oui") {
