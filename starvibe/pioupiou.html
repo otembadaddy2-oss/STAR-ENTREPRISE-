@@ -148,11 +148,11 @@
     <div class="tapzone" id="tapZone"></div>
     <span class="premium-tag" id="premiumTag" hidden>⭐ Pack</span>
     <div class="affiche" id="afficheEl"><div class="fallback"><div class="gros">🎬</div><b id="afficheTitre"></b></div></div>
-    <div class="etiquette ferme" id="etqFerme" hidden>FERMÉ<small id="etqRaison"></small><a href="abonnement.html" id="etqLien" hidden>Ouvrir avec le Pack Routine de la journée</a></div>
+    <div class="etiquette ferme" id="etqFerme" hidden>FERMÉ<small id="etqRaison"></small><a href="abonnement.html" id="etqLien" hidden>Ouvrir avec le Pack « Les bonnes habitudes »</a></div>
     <div class="etiquette ouvert" id="etqOuvert" hidden>OUVERT</div>
     <div class="lock" id="lockEl">
       <div class="cadenas">🔒</div>
-      <h3>Dessin animé du Pack Routine de la journée</h3>
+      <h3>Dessin animé du Pack « Les bonnes habitudes »</h3>
       <p>Pour 1 500 FCFA (30 jours), regarde les 10 dessins animés du pack : 5 disponibles, 5 à venir.</p>
       <a href="abonnement.html">Voir le pack et le prix</a>
     </div>
@@ -362,7 +362,7 @@
       aff.querySelector('.fallback').style.display = v.afficheUrl ? 'none' : 'flex';
       document.getElementById('afficheTitre').textContent = v.legende || 'Dessin animé PIOUPIOU';
       var quand = v.disponibleLe ? new Date(v.disponibleLe).toLocaleString('fr-FR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) : '';
-      document.getElementById('etqRaison').textContent = v.raisonFermee === 'date' ? 'S\'ouvre automatiquement le ' + quand : 'Pack Routine de la journée requis (1 500 FCFA, 30 jours)';
+      document.getElementById('etqRaison').textContent = v.raisonFermee === 'date' ? 'S\'ouvre automatiquement le ' + quand : 'Pack « Les bonnes habitudes » requis (1 500 FCFA, 30 jours)';
       document.getElementById('etqLien').hidden = v.raisonFermee === 'date';
       if (v.raisonFermee === 'date' && v.disponibleLe) programmerOuverture(new Date(v.disponibleLe).getTime());
     }

@@ -189,7 +189,7 @@
   ];
   function catalogueHtml(){
     var dispo = EPISODES_A.filter(function(e){ return e[2]; }).length;
-    var h = '<div class="cat"><h2>Pack « Routine de la journée »</h2>' +
+    var h = '<div class="cat"><h2>Pack « Les bonnes habitudes »</h2>' +
       '<p class="cat-sub">10 dessins animés pour les 3 à 6 ans : dire bonjour, se brosser les dents, se laver les mains, dire merci… ' +
       '<b>' + dispo + ' disponibles aujourd\'hui, ' + (EPISODES_A.length - dispo) + ' à venir</b> : ils s\'ajoutent à ton pack dès qu\'ils sont prêts, sans payer de plus pendant ta période.</p><div class="cat-grid">';
     EPISODES_A.forEach(function(e){
@@ -219,7 +219,7 @@
       '<div class="pay-box">' +
         '<h2>Dernière étape : ton dépôt</h2>' +
         '<div class="amount">' + montant + ' FCFA</div>' +
-        (sub.plan === 'famille' ? '<p style="margin:-6px 0 12px;font-size:13px;color:var(--text-dim)"><b>Pack Routine de la journée</b> · ' + (sub.mois > 1 ? sub.mois + ' mois (' + (30 * sub.mois) + ' jours)' : '1 mois (30 jours)') + '</p>' : '') +
+        (sub.plan === 'famille' ? '<p style="margin:-6px 0 12px;font-size:13px;color:var(--text-dim)"><b>Pack « Les bonnes habitudes »</b> · ' + (sub.mois > 1 ? sub.mois + ' mois (' + (30 * sub.mois) + ' jours)' : '1 mois (30 jours)') + '</p>' : '') +
         '<ol class="pay-steps">' +
           '<li>Ouvre <b>MTN Mobile Money</b> ou <b>Airtel Money</b> sur ton téléphone.</li>' +
           '<li>Envoie exactement <b>' + montant + ' FCFA</b> au numéro ci-dessous, <b>depuis le téléphone dont le numéro est celui de ton compte KOMYO</b>.</li>' +
@@ -306,7 +306,7 @@
         if (d.abonnement.statut === 'actif'){
           var plan = d.abonnement.plan, fam = plan === 'famille';
           var c = document.createElement('div'); c.className = 'succes'; c.setAttribute('role', 'status');
-          c.innerHTML = '<h2>✅ Paiement reçu !</h2><p>' + (fam ? 'Ton Pack Routine de la journée est actif. Ton reçu est dans ta messagerie KOMYO.' : 'Ton plan est actif. Ton reçu est dans ta messagerie KOMYO.') + '</p>' +
+          c.innerHTML = '<h2>✅ Paiement reçu !</h2><p>' + (fam ? 'Ton Pack « Les bonnes habitudes » est actif. Ton reçu est dans ta messagerie KOMYO.' : 'Ton plan est actif. Ton reçu est dans ta messagerie KOMYO.') + '</p>' +
             '<a href="' + (fam ? 'pioupiou.html' : 'boutique.html') + '" id="lienSucces">' + (fam ? 'Ouvrir PIOUPIOU 🐥' : 'Ouvrir ma boutique') + '</a>' + (fam ? '<p id="compte" style="margin:10px 0 0;font-size:12px">Ouverture automatique dans 6 secondes…</p>' : '');
           appState.insertBefore(c, appState.firstChild);
           try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) {}
@@ -342,7 +342,7 @@
     });
   }
 
-  // ---------- Pack Routine de la journée pour un autre enfant (payé par un parent, un proche…) ----------
+  // ---------- Pack « Les bonnes habitudes » pour un autre enfant (payé par un parent, un proche…) ----------
   var autreBox = document.getElementById('autreEnfant');
   autreBox.addEventListener('change', function(e){ if (e.target && e.target.name === 'gd'){ autreBox.querySelectorAll('#gDuree label').forEach(function(x){ x.className = ''; }); e.target.parentNode.className = 'on'; } });
   var params = new URLSearchParams(location.search);
@@ -355,8 +355,8 @@
   function renderGift(){
     autreBox.innerHTML =
       '<div class="gift" id="giftCard">' +
-        '<h2>Pack Routine de la journée pour un autre enfant</h2>' +
-        '<p class="hint">Tu peux payer le Pack Routine de la journée (1 500 FCFA pour 30 jours) pour l\'enfant d\'un proche : il suffit du numéro du parent, qui doit avoir un compte KOMYO (gratuit).</p>' +
+        '<h2>Pack « Les bonnes habitudes » pour un autre enfant</h2>' +
+        '<p class="hint">Tu peux payer le Pack « Les bonnes habitudes » (1 500 FCFA pour 30 jours) pour l\'enfant d\'un proche : il suffit du numéro du parent, qui doit avoir un compte KOMYO (gratuit).</p>' +
         '<label class="lbl" for="gTel">Numéro du parent de l\'enfant</label>' +
         '<input type="tel" id="gTel" autocomplete="off" placeholder="Avec l\'indicatif, ex. +242 06 123 45 67" value="' + esc2(params.get('pour') || '') + '">' +
         '<div id="gFound"></div>' +
@@ -403,7 +403,7 @@
           authFetch(API + '?suivi=' + encodeURIComponent(a.id)).then(function(x){ return x.json(); }).then(function(d){
             var st = d.abonnement && d.abonnement.statut;
             if (st === 'actif'){ clearInterval(gift.timer); go.className = 'go ok'; go.textContent = 'Paiement validé ✓';
-              document.getElementById('gSuivi').innerHTML = '<div class="found">Paiement validé ✓ Le Pack Routine de la journée est actif pour 30 jours.</div>'; }
+              document.getElementById('gSuivi').innerHTML = '<div class="found">Paiement validé ✓ Le Pack « Les bonnes habitudes » est actif pour 30 jours.</div>'; }
             else if (st === 'paiement_invalide'){ clearInterval(gift.timer); go.className = 'go'; go.textContent = 'Paiement non valide';
               document.getElementById('gSuivi').innerHTML = '<div class="err">Le montant reçu ne correspond pas. Écris-nous à contact@starentreprise.com avec ta référence.</div>'; }
           }).catch(function(){});

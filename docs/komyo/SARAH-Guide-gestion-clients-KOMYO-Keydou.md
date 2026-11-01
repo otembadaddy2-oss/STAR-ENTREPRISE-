@@ -80,7 +80,7 @@ _Fiches (min.) = nombre minimum de fiches dans la mémoire de Keydou : annuaire 
 
 | Offre | Prix | À savoir |
 |---|---|---|
-| Pack Routine de la journée (espace enfants PIOUPIOU) | 1 500 FCFA / 30 jours | Valable 30 jours, sans renouvellement automatique ; 2 mois = 3 000 FCFA, 3 mois = 4 500 FCFA (le reçu précise le pack, la durée, le calcul et la date de fin). 10 dessins animés (A1 à A10) : 5 disponibles (A1 à A5), 5 à venir (A6 à A10) ajoutés sans frais pendant la période. Paiement Mobile Money, montant exact, reconnu automatiquement. N'annonce aucune date pour les suivants. |
+| Pack « Les bonnes habitudes » (espace enfants PIOUPIOU) | 1 500 FCFA / 30 jours | Valable 30 jours, sans renouvellement automatique ; 2 mois = 3 000 FCFA, 3 mois = 4 500 FCFA (le reçu précise le pack, la durée, le calcul et la date de fin). 10 dessins animés (A1 à A10) : 5 disponibles (A1 à A5), 5 à venir (A6 à A10) ajoutés sans frais pendant la période. Paiement Mobile Money, montant exact, reconnu automatiquement. N'annonce aucune date pour les suivants. |
 | Business (espace professionnel) | 5 000 FCFA / mois | Idem. |
 | Annonce visible par tous – essai | 2 000 FCFA (1 semaine) | Le message défile chez tous les abonnés. |
 | Annonce 2 semaines | 4 000 FCFA | Idem. |
@@ -97,7 +97,7 @@ _Prix en vigueur dans l'application au 30/10/2026. Les équivalents en euros ou 
 - **Réouverture** : en bas de Ma boutique, la case « Renouvellement dette » est Ouverte s'il y a une dette, Fermée sinon. Le vendeur écrit son nom et prénom et ses activités, coche la dette (montant affiché), dépose le montant, touche « J'ai payé » ; quand l'équipe valide, la boutique rouvre et il retrouve sa page.
 - **Reçus** : à chaque paiement confirmé (abonnement, annonce, Keydou, frais de boutique), la personne reçoit un reçu détaillé dans sa messagerie KOMYO : achat, date, date de fin de validité, référence et facture avec logo. L'équipe peut le renvoyer à la main par WhatsApp ; il n'y a pas d'envoi automatique par WhatsApp.
 - **Installation** : gratuite, sans magasin d'applications, sur komyo.starentreprise.com/starvibe/installer.html. À l'ouverture, une grande carte « Installer KOMYO » propose l'installation (« Plus tard » la range pour 24 h). À quelqu'un qui a oublié : renvoie ce lien (il est aussi dans le message de bienvenue de sa messagerie).
-- **Proposer sans pression** : propose l'offre qui répond au besoin (annonce, Business, Pack Routine de la journée, Keydou) avec le prix exact. Litige, remboursement ou plainte sur une boutique : transmets à Carry. Jamais de code PIN.
+- **Proposer sans pression** : propose l'offre qui répond au besoin (annonce, Business, Pack « Les bonnes habitudes », Keydou) avec le prix exact. Litige, remboursement ou plainte sur une boutique : transmets à Carry. Jamais de code PIN.
 
 
 ## 7. Messages types (WhatsApp ou e-mail)

@@ -28,7 +28,7 @@ const NUMERO_RECEPTION = "+242 06 656 50 50";
 
 const PLANS: Record<string, { label: string; montant: number; description: string }> = {
   gratuit: { label: "Découverte", montant: 0, description: "Compte personnel, fil KOMYO, publication de vidéos, fonctions sociales de base." },
-  famille: { label: "Pack Routine de la journée (PIOUPIOU)", montant: 1500, description: "10 dessins animés pour les 3 à 6 ans (5 disponibles, 5 à venir, ajoutés sans frais pendant ta période), profils enfants illimités. Valable 30 jours, sans renouvellement automatique." },
+  famille: { label: "Pack « Les bonnes habitudes » (PIOUPIOU)", montant: 1500, description: "10 dessins animés pour les 3 à 6 ans (5 disponibles, 5 à venir, ajoutés sans frais pendant ta période), profils enfants illimités. Valable 30 jours, sans renouvellement automatique." },
   business: { label: "Business", montant: 5000, description: "Mise en avant des vidéos, statistiques, boutique (tes clients te paient directement ; reçus dans leur messagerie KOMYO ; 500 FCFA par semaine d'ouverture, avec ou sans vente)." },
 };
 
