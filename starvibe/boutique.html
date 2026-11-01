@@ -16,9 +16,18 @@
 <body>
 <div class="topbar"><div class="row"><h1>Ma boutique KOMYO Business</h1><a class="back" href="accueil.html">← Mon espace</a></div><p>Tes clients te paient directement. Chaque vente donne un reçu à ton client et une notification à toi.</p></div>
 <div class="wrap">
+  <div id="etapes" class="card" hidden>
+    <h2>Ouvrir ma boutique : 3 étapes</h2>
+    <ol style="margin:8px 0 0;padding-left:20px;line-height:1.7;font-size:14px">
+      <li><b>Un compte KOMYO</b> (gratuit)</li>
+      <li><b>L'abonnement Business</b> : 5 000 FCFA par mois, payé en Mobile Money</li>
+      <li><b>Ta boutique</b> : un nom, ta ville, ton numéro Mobile Money, et tu vends</li>
+    </ol>
+    <p class="hint" style="margin:10px 0 0">Tes clients te paient directement : KOMYO ne touche pas l'argent de tes ventes.</p>
+  </div>
   <div id="etat" class="state">Chargement…</div>
-  <div id="sortie" class="state" hidden>Tu n'es pas connecté.<br><a href="inscription.html?mode=login">Se connecter / Créer un compte</a></div>
-  <div id="pasBusiness" class="card" hidden><h2>Il te faut KOMYO Business</h2><p class="hint">Pour ouvrir une boutique, active l'abonnement Business (5 000 FCFA par mois). Ensuite, KOMYO prend 500 FCFA par semaine d'ouverture, avec ou sans vente (la semaine d'ouverture est offerte).</p><a class="btn block" href="abonnement.html">Voir l'abonnement Business</a></div>
+  <div id="sortie" class="state" hidden><a class="btn block" href="inscription.html?mode=login" style="margin-bottom:8px">J'ai déjà un compte : me connecter</a><a class="btn block light" href="inscription.html">Je n'ai pas encore de compte : en créer un (gratuit)</a></div>
+  <div id="pasBusiness" class="card" hidden><h2>Il te faut KOMYO Business</h2><p class="hint">Pour ouvrir une boutique, active l'abonnement Business (5 000 FCFA par mois). Ensuite, KOMYO prend 500 FCFA par semaine d'ouverture, avec ou sans vente (la semaine d'ouverture est offerte).</p><a class="btn block" href="abonnement.html">Activer Business : 5 000 FCFA par mois</a></div>
 
   <div id="ouvrir" class="card" hidden>
     <h2>Ouvre ta boutique</h2>
@@ -65,7 +74,7 @@
 (function(){
   var token = ''; try{ token = localStorage.getItem('starvibe_token') || ''; }catch(e){}
   var $ = function(i){ return document.getElementById(i); };
-  if (!token){ $('etat').hidden = true; $('sortie').hidden = false; return; }
+  if (!token){ $('etat').hidden = true; $('sortie').hidden = false; $('etapes').hidden = false; return; }
   function esc(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
   function fc(n){ return Number(n).toLocaleString('fr-FR') + ' FCFA'; }
   function api(body, query){
@@ -80,9 +89,9 @@
   var STAT = { en_attente:['En attente de paiement','warn'], declaree:['Le client dit avoir payé','warn'], payee:['Payée ✓','ok'], annulee:['Annulée','err'] };
   function charge(){
     api(null, '?ma=1').then(function(x){
-      if (x.status === 401){ try{ localStorage.removeItem('starvibe_token'); }catch(e){} $('etat').hidden = true; $('sortie').hidden = false; return; }
+      if (x.status === 401){ try{ localStorage.removeItem('starvibe_token'); }catch(e){} $('etat').hidden = true; $('sortie').hidden = false; $('etapes').hidden = false; return; }
       var d = x.d; $('etat').hidden = true;
-      if (!d.boutique){ if (!d.business){ $('pasBusiness').hidden = false; return; } $('ouvrir').hidden = false; chips(d.services); return; }
+      if (!d.boutique){ $('etapes').hidden = false; if (!d.business){ $('pasBusiness').hidden = false; return; } $('ouvrir').hidden = false; chips(d.services); return; }
       $('ouvrir').hidden = true; $('maBoutique').hidden = false; var b = d.boutique;
       $('bNom').textContent = b.nom; $('bVille').textContent = b.ville || ''; $('bNum').textContent = b.numero_paiement; $('bPublic').href = 'boutiques.html?id=' + b.id;
       var st = $('bStatut'); st.textContent = b.statut === 'active' ? 'Ouverte' : 'En pause'; st.className = 'pill ' + (b.statut === 'active' ? 'ok' : 'err');
