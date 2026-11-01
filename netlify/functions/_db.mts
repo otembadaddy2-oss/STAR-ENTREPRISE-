@@ -10,10 +10,22 @@ export function db() {
   return getDatabase();
 }
 
+// Version du schéma = empreinte du texte de ensureSchema() ci-dessous (vérifiée par tools/test-schema.mts).
+// Quand tu modifies une instruction du schéma : lance « node --experimental-strip-types tools/test-schema.mts --ecrire »
+// pour mettre à jour cette ligne. Sans cela, la base ne serait pas mise à jour (le test échoue pour te le rappeler).
+const SCHEMA_VERSION = "3fdb28397dc6a6b1";
+
 // Idempotent schema setup — safe to call on every cold start.
+// Rapide : les ~80 instructions ne sont rejouées que si SCHEMA_VERSION a changé depuis la dernière fois
+// (gardée dans schema_meta). Sinon, un seul petit SELECT au démarrage à froid d'une fonction.
 export async function ensureSchema() {
   if (initialized) return;
   const { sql } = db();
+  const empreinte = SCHEMA_VERSION;
+  try {
+    const r = (await sql`SELECT valeur FROM schema_meta WHERE cle = 'ddl'`) as { valeur: string }[];
+    if (r[0] && r[0].valeur === empreinte) { initialized = true; return; }
+  } catch { /* la table n'existe pas encore : première fois, on crée tout */ }
 
   await sql`
     CREATE TABLE IF NOT EXISTS accounts (
@@ -317,6 +329,9 @@ export async function ensureSchema() {
   // seule la clé est gardée ici. Affichée dans la bulle flottante, les
   // notifications et les commentaires.
   await sql`ALTER TABLE starvibe_profiles ADD COLUMN IF NOT EXISTS photo_key TEXT`;
+  // Carte de visite facultative (profil personnel) : l'activité et un numéro WhatsApp affichés sous les vidéos, pour que les clients puissent écrire.
+  await sql`ALTER TABLE starvibe_profiles ADD COLUMN IF NOT EXISTS activite TEXT NOT NULL DEFAULT ''`;
+  await sql`ALTER TABLE starvibe_profiles ADD COLUMN IF NOT EXISTS contact_wa TEXT NOT NULL DEFAULT ''`;
 
   // Dernière ouverture de la liste des notifications KOMYO (bulle flottante) :
   // tout ce qui est arrivé après est "non lu". Fermer la bulle ne touche pas
@@ -337,6 +352,11 @@ export async function ensureSchema() {
   await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS affiche_key TEXT`;
   // espace de la vidéo : general (fil principal), talents, business ou decouverte (PIOUPIOU reste marqué par pour_enfants)
   await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS espace TEXT NOT NULL DEFAULT 'general'`;
+  // Keydou, gardien de l'espace enfants : verdict du contrôle automatique ('' = pas encore analysée, ok, refuse ou doute), raison, essais
+  await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS gardien_verdict TEXT NOT NULL DEFAULT ''`;
+  await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS gardien_raison TEXT NOT NULL DEFAULT ''`;
+  await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS gardien_essais INTEGER NOT NULL DEFAULT 0`;
+  await sql`ALTER TABLE starvibe_videos ADD COLUMN IF NOT EXISTS gardien_le TIMESTAMPTZ`;
 
   // Keydou, assistant multiservices : une demande = un service payant (1 000 FCFA).
   await sql`
@@ -491,6 +511,8 @@ export async function ensureSchema() {
   await sql`ALTER TABLE starvibe_subscriptions ADD COLUMN IF NOT EXISTS rappel_fin_at TIMESTAMPTZ`;
   // Abonnement Famille offert / payé par une autre personne : account_id = le compte qui en profite, payeur = celui qui paie.
   await sql`ALTER TABLE starvibe_subscriptions ADD COLUMN IF NOT EXISTS payeur_account_id INTEGER`;
+  // Durée payée d'un coup, en mois de 30 jours (1 = un mois ; 2 = le parent a payé le double, etc.).
+  await sql`ALTER TABLE starvibe_subscriptions ADD COLUMN IF NOT EXISTS mois INTEGER NOT NULL DEFAULT 1`;
   await sql`ALTER TABLE starvibe_subscriptions ADD COLUMN IF NOT EXISTS beneficiaire_nom TEXT NOT NULL DEFAULT ''`;
 
   // Installations de l'application KOMYO (suivi des abonnés, en direct dans le backend).
@@ -767,6 +789,8 @@ export async function ensureSchema() {
     )
   `;
 
+  await sql`CREATE TABLE IF NOT EXISTS schema_meta (cle TEXT PRIMARY KEY, valeur TEXT NOT NULL, maj TIMESTAMPTZ NOT NULL DEFAULT now())`;
+  await sql`INSERT INTO schema_meta (cle, valeur) VALUES ('ddl', ${empreinte}) ON CONFLICT (cle) DO UPDATE SET valeur = EXCLUDED.valeur, maj = now()`;
   initialized = true;
 }
 

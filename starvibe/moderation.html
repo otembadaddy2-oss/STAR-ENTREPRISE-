@@ -3,14 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<script src="assets/i18n-v1.js"></script>
+<script src="assets/i18n-v2.js"></script>
 <title>KOMYO — Modération PIOUPIOU</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#050B18">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+<link rel="preload" href="/starvibe/assets/fonts/inter-latin-v1.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/starvibe/assets/fonts/komyo-fonts-v1.css">
 <style>
   :root{--navy:#0d1830;--navy-deep:#050B18;--gold:#c8942f;--gold-light:#e8b85c;--cream:#fbf9f4;--text-dim:#5b6478;--line:#e4ded0;--kids:#2f8f6e;--err:#b3261e;}
   *{box-sizing:border-box;}
@@ -150,6 +148,7 @@
         '<div class="auteur">' + esc(v.auteur) + '</div>' +
         '<div class="tel">' + esc(v.telephone) + '</div>' +
         '<div class="legende">' + (v.legende ? esc(v.legende) : '<em>Sans légende</em>') + '</div>' +
+        (v.gardien ? '<div class="legende" style="color:#b45309;font-weight:700">🐻 Keydou hésite : ' + esc(v.gardien) + '</div>' : '') +
         '<label class="prem"><input type="checkbox" class="chk-premium"> ⭐ Réservé aux abonnés Famille (premium)</label>' +
         '<div class="prem-opts" hidden style="margin:8px 0;font-size:13px;line-height:1.5">' +
           '<label style="display:block">Ouverture à partir du (facultatif) <input type="datetime-local" class="in-date" style="width:100%"></label>' +

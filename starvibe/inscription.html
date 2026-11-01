@@ -3,15 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<script src="assets/i18n-v1.js"></script>
+<script src="assets/i18n-v2.js"></script>
 <title>KOMYO — Créer mon compte</title>
 <meta name="description" content="Crée ton vrai compte KOMYO — numéro de téléphone et un code PIN que tu inventes, sans Mobile Money.">
 <meta name="theme-color" content="#FFFBF3">
+<link rel="preconnect" href="https://images.unsplash.com" crossorigin>
 <link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+<link rel="preload" href="/starvibe/assets/fonts/inter-latin-v1.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/starvibe/assets/fonts/komyo-fonts-v1.css">
 <style>
   :root{
     --ink:#241536; --gold:#E8A93D; --gold-deep:#C8942F; --coral:#FF6B4A;
@@ -128,9 +127,9 @@
 <body class="pg-inscription">
 
 <div class="hero">
-  <img src="https://images.unsplash.com/photo-1751580471264-7f8cd53d82d8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=72&w=720" alt="">
-  <img src="https://images.unsplash.com/photo-1778894926879-07308f00c4a9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=72&w=720" alt="">
-  <img src="https://images.unsplash.com/photo-1600682806492-b2a020079ae0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=72&w=720" alt="">
+  <img src="https://images.unsplash.com/photo-1751580471264-7f8cd53d82d8?crop=entropy&cs=tinysrgb&fit=max&fm=webp&q=72&w=420" alt="">
+  <img src="https://images.unsplash.com/photo-1778894926879-07308f00c4a9?crop=entropy&cs=tinysrgb&fit=max&fm=webp&q=72&w=420" alt="">
+  <img src="https://images.unsplash.com/photo-1600682806492-b2a020079ae0?crop=entropy&cs=tinysrgb&fit=max&fm=webp&q=72&w=420" alt="">
   <div class="hero-content">
     <div class="hero-icon"><img src="assets/img/icons/komyo-192-v2.png" alt="KOMYO"></div>
     <div class="hero-title">KOMYO</div>
@@ -142,11 +141,6 @@
   <div class="wrap" style="max-width:100%;padding-inline:0;">
 
     <div id="formView">
-      <div class="tabs">
-        <button type="button" id="tabRegister" class="active">Créer un compte</button>
-        <button type="button" id="tabLogin">Se connecter</button>
-      </div>
-
       <div class="errmsg" id="errBox"></div>
 
       <form id="regForm">
@@ -261,10 +255,11 @@
   try { dejaInscrit = /[?&]mode=login\b/.test(location.search) || location.hash === '#connexion' || localStorage.getItem('komyo_deja_inscrit') === '1'; } catch (e) {}
   if (/[?&]mode=register\b/.test(location.search)) dejaInscrit = false;
   var mode = dejaInscrit ? 'login' : 'register';
+  // La personne a elle-même touché « J'ai déjà un compte » : pas la peine de lui reproposer « Créer un compte » juste en dessous.
+  var choixConnexion = false;
+  try { choixConnexion = /[?&]mode=login\b/.test(location.search) || location.hash === '#connexion'; } catch (e) {}
   var profileType = 'personnel';
 
-  var tabRegister = document.getElementById('tabRegister');
-  var tabLogin = document.getElementById('tabLogin');
   var registerOnlyFields = document.getElementById('registerOnlyFields');
   var btnSubmit = document.getElementById('btnSubmit');
   var errBox = document.getElementById('errBox');
@@ -279,8 +274,6 @@
 
   function setMode(next){
     mode = next;
-    tabRegister.classList.toggle('active', mode === 'register');
-    tabLogin.classList.toggle('active', mode === 'login');
     registerOnlyFields.hidden = mode === 'login';
     document.getElementById('typeAutreRow').hidden = mode !== 'login';
     document.getElementById('noteAge').hidden = mode === 'login';
@@ -290,15 +283,14 @@
     btnSubmit.textContent = mode === 'register' ? 'Valider mon inscription' : 'Me connecter';
     switchHint.innerHTML = mode === 'register'
       ? 'Déjà inscrit ? <a id="linkToLogin">Se connecter</a>'
-      : '<a id="linkPinOublie" style="display:inline-block;margin-top:8px">Code PIN oublié ?</a>';
+      : '<a id="linkPinOublie" style="display:inline-block;margin-top:8px">Code PIN oublié ?</a>' + (choixConnexion ? '' : '<br><span style="display:inline-block;margin-top:10px">Pas encore de compte ? <a id="linkToRegister">Créer un compte</a></span>');
     var l2l = document.getElementById('linkToLogin'); if (l2l) l2l.onclick = function(){ setMode('login'); };
     var lp = document.getElementById('linkPinOublie'); if (lp) lp.onclick = ouvrirPinOublie;
+    var l2r = document.getElementById('linkToRegister'); if (l2r) l2r.onclick = function(){ setMode('register'); };
     clearError();
   }
 
   setMode(mode);
-  tabRegister.addEventListener('click', function(){ setMode('register'); });
-  tabLogin.addEventListener('click', function(){ setMode('login'); });
   linkToLogin.addEventListener('click', function(){ setMode('login'); });
 
   var typeAutre = document.getElementById('typeAutre');
@@ -410,7 +402,7 @@
         setMode(mode);
         if (!result.ok){
           var msg = result.data.error || 'Une erreur est survenue.';
-          if (msg === 'Numéro ou code PIN incorrect') msg += '. Vérifie ton numéro (avec ou sans espaces, avec ou sans l\'indicatif) et ton code PIN. Pas encore de compte ? Touche « Créer un compte ».';
+          if (msg === 'Numéro ou code PIN incorrect') msg += '. Vérifie ton numéro (avec ou sans espaces, avec ou sans l\'indicatif) et ton code PIN. Pas encore de compte ? Touche « S\'inscrire » en bas de la page.';
           showError(msg);
           return;
         }
@@ -441,7 +433,7 @@
 <script src="/assets/js/oeil-mdp-v2.js" defer></script>
 <script src="/assets/js/date-roue-v1.js" defer></script>
 <script src="assets/komyo-prix-v2.js" defer></script>
-<script src="assets/keydou-bulle-v1.js" defer></script>
-<script src="assets/komyo-installer-v5.js" defer></script>
+<script src="assets/keydou-bulle-v2.js" defer></script>
+<script src="assets/komyo-installer-v6.js" defer></script>
 </body>
 </html>

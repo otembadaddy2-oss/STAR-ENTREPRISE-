@@ -3,11 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<script src="assets/i18n-v1.js"></script>
+<script src="assets/i18n-v2.js"></script>
 <title>KOMYO — Faire connaître mon annonce</title>
 <meta name="theme-color" content="#FFFBF3">
 <link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<link rel="preload" href="/starvibe/assets/fonts/inter-latin-v1.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/starvibe/assets/fonts/komyo-fonts-v1.css">
 <style>
   :root{--ink:#241536;--gold:#E8A93D;--coral:#FF6B4A;--cream:#FFFBF3;--dim:#6b5f80;--line:#eee2cc;--ok:#1f8f4a;}
   *{box-sizing:border-box;}
@@ -43,8 +44,20 @@
   .note{font-size:12.5px;color:var(--dim);line-height:1.5;margin-top:10px;}
   .warn{background:#fff7e0;border:1px solid #ecd9a0;border-radius:10px;padding:9px 12px;font-size:12.5px;margin-top:10px;line-height:1.45;}
   .st{display:inline-block;font:800 11px 'Sora',Arial,sans-serif;padding:3px 9px;border-radius:999px;background:#eee;}
-  .st.actif{background:#e4f6ea;color:var(--ok);}.st.att{background:#fff3d6;color:#8a6318;}.st.non{background:#fdecea;color:#b3261e;}
+  .st.actif{background:#e4f6ea;color:var(--ok);}.st.payee{background:#e4f0ff;color:#1f4f9a;}.st.att{background:#fff3d6;color:#8a6318;}.st.non{background:#fdecea;color:#b3261e;}
   .mini{font-size:12px;color:var(--dim);}
+  .num{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:#FFF8E8;border:1.5px solid #EDD8A0;border-radius:14px;padding:12px 14px;margin:10px 0;}
+  .num span{width:100%;font-size:11.5px;color:var(--dim);}
+  .num b{font:800 19px 'Sora',Arial,sans-serif;flex:1 1 100%;white-space:nowrap;}
+  .num button{width:100%;border:none;background:#241536;color:#fff;font:700 14px 'Sora',Arial,sans-serif;border-radius:10px;padding:11px 14px;cursor:pointer;}
+  .attend{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;background:#EAF7EF;border:1px solid #BFE5CC;border-radius:12px;padding:11px 12px;margin-top:10px;}
+  .attend i{width:18px;height:18px;border-radius:50%;border:3px solid #2fb35f;border-top-color:transparent;animation:tourne 1s linear infinite;flex:none;}
+  @keyframes tourne{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){.attend i{animation:none;}}
+  .stop{background:#FFF6E0;border:1px solid #EDD8A0;border-radius:12px;padding:12px;margin-top:10px;font-size:13px;line-height:1.5;}
+  .stop .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+  .stop button{flex:1 1 140px;border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:10px 8px;font:700 12.5px 'Sora',Arial,sans-serif;cursor:pointer;}
+  .okbox{background:#e4f6ea;border:1px solid #bfe5cc;border-radius:14px;padding:14px;margin-top:10px;font-size:14px;line-height:1.5;}
 </style>
 <link rel="stylesheet" href="assets/komyo-bureau-v2.css" media="(min-width:1000px)">
 </head>
@@ -120,8 +133,38 @@
     $('payCard').innerHTML = '<h2 style="margin:0 0 8px;font-size:17px">Paiement de ' + fmt(a.montantAttendu) + ' FCFA</h2>' +
       '<div class="row"><span>Annonce</span><b>' + esc(a.texte) + '</b></div><div class="row"><span>Durée</span><b>' + esc(a.planLabel) + '</b></div>' +
       '<div class="row"><span>Montant exact</span><b>' + fmt(a.montantAttendu) + ' FCFA</b></div><div class="row"><span>Dépôt Mobile Money au</span><b>' + esc(a.numeroReception) + '</b></div><div class="row"><span>Référence</span><b>' + esc(a.referencePaiement) + '</b></div>' +
-      '<p class="note">1. Fais ton dépôt (MTN Mobile Money ou Airtel Money) au numéro ci-dessus, <b>avec la référence</b>.<br>2. Ton annonce démarre dès que l\'équipe a reçu le montant exact et relu ton message.</p>' +
-      '<div class="warn"><b>Montant exact : ' + fmt(a.montantAttendu) + ' FCFA.</b> Un montant différent (moins ou plus) ne démarre pas l\'annonce : contacte l\'équipe STAR ENTREPRISE au ' + esc(a.numeroReception) + '. Ne donne jamais ton code secret Mobile Money.</div>';
+      '<p class="note">1. Ouvre <b>MTN Mobile Money</b> ou <b>Airtel Money</b> sur ton téléphone.<br>2. Envoie exactement <b>' + fmt(a.montantAttendu) + ' FCFA</b> au numéro ci-dessus, <b>depuis le téléphone dont le numéro est celui de ton compte KOMYO</b>.<br>3. C\'est tout : ton paiement est reconnu tout seul, puis l\'équipe relit ton message et ton annonce démarre.</p>' +
+      '<div id="attendBox"><div class="attend" role="status" aria-live="polite"><i></i>En attente de ton dépôt… cette page se met à jour toute seule, tu n\'as rien à toucher.</div></div>' +
+      '<div class="warn"><b>Montant exact : ' + fmt(a.montantAttendu) + ' FCFA.</b> Un montant différent (moins ou plus) ne démarre pas l\'annonce. Ne donne jamais ton code secret Mobile Money à personne.</div>';
+    surveillerPaiement(a);
+  }
+  // Même système que les 1 500 FCFA : le dépôt est reconnu par le SMS ; on vérifie toutes les 6 secondes pendant 10 minutes.
+  var veille = null;
+  function surveillerPaiement(a){
+    clearInterval(veille); var debut = Date.now();
+    function fin(html){ var b = $('attendBox'); if (b) b.innerHTML = html; }
+    function arret(){
+      clearInterval(veille); veille = null;
+      fin('<div class="stop"><b>Nous n\'avons pas encore reçu ton dépôt.</b><br>Si tu as déjà envoyé l\'argent, touche « Vérifier maintenant ». Si tu as changé d\'avis, tu peux annuler cette demande.<div class="acts"><button type="button" id="btnVerif">Vérifier maintenant</button><button type="button" id="btnAnnul" style="color:#9a2f2a">Annuler cette demande</button></div><div id="verifMsg" class="mini" style="margin-top:8px"></div></div>');
+      $('btnVerif').addEventListener('click', function(){ $('verifMsg').textContent = 'Vérification…'; verifier(function(ok){ if (!ok) $('verifMsg').textContent = 'Toujours pas reçu pour le moment. Si tu viens de payer, réessaie dans une minute.'; }); });
+      $('btnAnnul').addEventListener('click', function(){ if (!window.confirm('Annuler cette annonce non payée ?')) return; api({ body:{ action:'annuler', id:a.id } }).then(function(){ $('btnAutre').click(); mes(); }); });
+    }
+    function verifier(cb){
+      api({ q:'?mes=1' }).then(function(r){ return r.json(); }).then(function(d){
+        var x = (d.annonces || []).filter(function(y){ return String(y.id) === String(a.id); })[0];
+        if (x && (x.statut === 'payee' || x.statut === 'actif')){
+          clearInterval(veille); veille = null; mes();
+          fin('<div class="okbox"><b>✅ Paiement reçu !</b><br>' + (x.statut === 'actif' ? 'Ton annonce est en ligne.' : 'L\'équipe relit ton message : ton annonce démarre dès qu\'elle est validée. Ton reçu arrive alors dans ta messagerie KOMYO.') + '</div>');
+          if (cb) cb(true); return;
+        }
+        if (cb) cb(false);
+      }).catch(function(){ if (cb) cb(false); });
+    }
+    veille = setInterval(function(){
+      if (document.hidden) return;
+      if (Date.now() - debut > 10 * 60 * 1000){ arret(); return; }
+      verifier();
+    }, 6000);
   }
   $('btnAutre').addEventListener('click', function(){ $('payView').hidden = true; $('formView').hidden = false; $('texte').value = ''; $('nb').textContent = '0'; $('prev').textContent = 'Ton message apparaîtra ici…'; erreur(''); });
   function jolie(d){ try { return new Date(d).toLocaleDateString('fr-FR', { day:'numeric', month:'long' }); } catch (e) { return ''; } }
@@ -130,7 +173,7 @@
       var a = d.annonces || [];
       $('mes').innerHTML = a.length ? a.map(function(x){
         var exp = x.statut === 'actif' && x.expiresAt && new Date(x.expiresAt) < new Date();
-        var st = exp ? '<span class="st">Terminée</span>' : x.statut === 'actif' ? '<span class="st actif">Active jusqu\'au ' + esc(jolie(x.expiresAt)) + '</span>' : x.statut === 'en_attente_paiement' ? '<span class="st att">En attente de paiement</span>' : x.statut === 'refusee' ? '<span class="st non">Refusée' + (x.refusMotif ? ' : ' + esc(x.refusMotif) : '') + '</span>' : '<span class="st non">Montant reçu incorrect</span>';
+        var st = exp ? '<span class="st">Terminée</span>' : x.statut === 'actif' ? '<span class="st actif">Active jusqu\'au ' + esc(jolie(x.expiresAt)) + '</span>' : x.statut === 'payee' ? '<span class="st payee">Payée · en relecture</span>' : x.statut === 'en_attente_paiement' ? '<span class="st att">En attente de paiement</span>' : x.statut === 'refusee' ? '<span class="st non">Refusée' + (x.refusMotif ? ' : ' + esc(x.refusMotif) : '') + '</span>' : '<span class="st non">Montant reçu incorrect</span>';
         return '<div class="card" style="margin-top:10px"><div style="font-weight:600;font-size:14px;margin-bottom:6px">' + esc(x.texte) + '</div>' + st + ' <span class="mini">· ' + esc(x.planLabel) + ' · ' + fmt(x.montantAttendu) + ' FCFA' + (x.statut === 'en_attente_paiement' ? ' · réf. ' + esc(x.referencePaiement) : '') + '</span></div>';
       }).join('') : '<div class="note">Aucune annonce pour le moment.</div>';
     });

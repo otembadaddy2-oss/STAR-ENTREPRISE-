@@ -21,11 +21,14 @@ const STAFF_ORG = "star_entreprise";
 
 // Numéro Mobile Money de réception — à remplacer par un vrai compte
 // marchand une fois un agrégateur (CinetPay, Flutterwave, etc.) branché.
+// Nombre maximal de mois payables d'un coup.
+const MOIS_MAX = 6;
+
 const NUMERO_RECEPTION = "+242 06 656 50 50";
 
 const PLANS: Record<string, { label: string; montant: number; description: string }> = {
   gratuit: { label: "Découverte", montant: 0, description: "Compte personnel, fil KOMYO, publication de vidéos, fonctions sociales de base." },
-  famille: { label: "Famille (PIOUPIOU)", montant: 1500, description: "Contenus PIOUPIOU premium, profils enfants illimités, priorité de modération." },
+  famille: { label: "Pack « Les bonnes habitudes » (PIOUPIOU)", montant: 1500, description: "10 dessins animés pour les 3 à 6 ans (5 disponibles, 5 à venir, ajoutés sans frais pendant ta période), profils enfants illimités. Valable 30 jours, sans renouvellement automatique." },
   business: { label: "Business", montant: 5000, description: "Mise en avant des vidéos, statistiques, boutique (tes clients te paient directement ; reçus dans leur messagerie KOMYO ; 500 FCFA par semaine d'ouverture, avec ou sans vente)." },
 };
 
@@ -44,6 +47,7 @@ interface SubRow {
   statut: string;
   started_at: string | null;
   expires_at: string | null;
+  mois?: number;
   created_at: string;
   telephone?: string;
   auteur_nom?: string;
@@ -61,6 +65,7 @@ function toApi(row: SubRow) {
     statut: row.statut,
     startedAt: row.started_at,
     expiresAt: row.expires_at,
+    mois: row.mois ?? 1,
     createdAt: row.created_at,
     referencePaiement: `KOMYO-${row.id}`,
     numeroReception: NUMERO_RECEPTION,
@@ -109,13 +114,13 @@ export default async (req: Request, _context: Context) => {
 
     const valide = montantRecu === sub.montant_attendu;
     await sql`
-      UPDATE starvibe_subscriptions
+      UPDATE starvibe_subscriptions AS s
       SET montant_recu = ${montantRecu}, methode = ${methode}, reference_transaction = ${transactionId},
           statut = ${valide ? "actif" : "paiement_invalide"},
           started_at = ${valide ? sql`now()` : null},
-          expires_at = ${valide ? sql`now() + interval '30 days'` : null},
+          expires_at = ${valide ? sql`GREATEST(now(), COALESCE((SELECT MAX(o.expires_at) FROM starvibe_subscriptions o WHERE o.account_id = s.account_id AND o.plan = s.plan AND o.statut = 'actif' AND o.expires_at > now()), now())) + make_interval(days => 30 * s.mois)` : null},
           updated_at = now()
-      WHERE id = ${subscriptionId}
+      WHERE s.id = ${subscriptionId}
     `;
 
     if (valide) await recuAbonnement(sql, subscriptionId);
@@ -177,13 +182,13 @@ export default async (req: Request, _context: Context) => {
 
       const valide = montantRecu === sub.montant_attendu;
       await sql`
-        UPDATE starvibe_subscriptions
+        UPDATE starvibe_subscriptions AS s
         SET montant_recu = ${montantRecu}, methode = ${methode}, reference_transaction = ${reference},
             statut = ${valide ? "actif" : "paiement_invalide"},
             started_at = ${valide ? sql`now()` : null},
-            expires_at = ${valide ? sql`now() + interval '30 days'` : null},
+            expires_at = ${valide ? sql`GREATEST(now(), COALESCE((SELECT MAX(o.expires_at) FROM starvibe_subscriptions o WHERE o.account_id = s.account_id AND o.plan = s.plan AND o.statut = 'actif' AND o.expires_at > now()), now())) + make_interval(days => 30 * s.mois)` : null},
             updated_at = now()
-        WHERE id = ${subscriptionId}
+        WHERE s.id = ${subscriptionId}
       `;
 
       if (valide) await recuAbonnement(sql, subscriptionId);
@@ -192,7 +197,7 @@ export default async (req: Request, _context: Context) => {
         montantAttendu: sub.montant_attendu,
         montantRecu,
         message: valide
-          ? `Paiement confirmé — plan "${PLANS[sub.plan]?.label || sub.plan}" activé pour 30 jours.`
+          ? `Paiement confirmé — plan "${PLANS[sub.plan]?.label || sub.plan}" activé pour ${30 * (sub.mois || 1)} jours.`
           : `Montant reçu (${montantRecu}) différent du montant attendu (${sub.montant_attendu}) — paiement rejeté.`,
       });
     }
@@ -201,6 +206,18 @@ export default async (req: Request, _context: Context) => {
     const session = await requireAuth(req);
     if (!session || session.org !== ORG) return json({ error: "Non authentifié" }, 401);
     const accountId = Number(session.sub);
+
+    // --- Annuler une demande de paiement restée sans dépôt (le client la retire lui-même) ---
+    if (action === "annuler_demande") {
+      const id = Number(body.id);
+      if (!id) return json({ error: "id requis" }, 400);
+      const r = (await sql`
+        UPDATE starvibe_subscriptions SET statut = 'annule', updated_at = now()
+        WHERE id = ${id} AND statut = 'en_attente_paiement' AND (account_id = ${accountId} OR payeur_account_id = ${accountId})
+        RETURNING id
+      `) as unknown[];
+      return json({ ok: r.length > 0 });
+    }
 
     if (action === "rappel_vu") {
       const quoi = clean(body.type, 10);
@@ -241,9 +258,17 @@ export default async (req: Request, _context: Context) => {
       const actif = (await sql`SELECT plan FROM starvibe_subscriptions WHERE account_id = ${cible.id} AND statut = 'actif' AND montant_attendu > 0 AND expires_at > now() ORDER BY id DESC LIMIT 1`) as { plan: string }[];
       if (actif[0]?.plan === "business") return json({ error: "Ce compte a déjà un abonnement Business actif." }, 409);
       const enfantNom = clean(body.enfantNom, 80).replace(/[\u0000-\u001f\u007f<>]/g, "");
+      // Le parent a déjà une demande identique en attente : on la reprend au lieu d'en créer une de plus (le dépôt reste reconnaissable).
+      const dejaCadeau = (await sql`
+        SELECT * FROM starvibe_subscriptions
+        WHERE account_id = ${cible.id} AND plan = 'famille' AND statut = 'en_attente_paiement' AND payeur_account_id = ${accountId} AND mois = ${Math.min(Math.max(Math.round(Number(body.mois)) || 1, 1), MOIS_MAX)} AND created_at > now() - interval '48 hours'
+        ORDER BY id DESC LIMIT 1
+      `) as SubRow[];
+      if (dejaCadeau[0]) return json({ abonnement: toApi(dejaCadeau[0]), nomMasque: masque }, 200);
+      const moisG = Math.min(Math.max(Math.round(Number(body.mois)) || 1, 1), MOIS_MAX);
       const ligne = (await sql`
-        INSERT INTO starvibe_subscriptions (account_id, plan, montant_attendu, statut, methode, payeur_account_id, beneficiaire_nom)
-        VALUES (${cible.id}, 'famille', ${PLANS.famille.montant}, 'en_attente_paiement', ${methode}, ${accountId}, ${enfantNom})
+        INSERT INTO starvibe_subscriptions (account_id, plan, montant_attendu, statut, methode, payeur_account_id, beneficiaire_nom, mois)
+        VALUES (${cible.id}, 'famille', ${PLANS.famille.montant * moisG}, 'en_attente_paiement', ${methode}, ${accountId}, ${enfantNom}, ${moisG})
         RETURNING *
       `) as SubRow[];
       return json({ abonnement: toApi(ligne[0]), nomMasque: masque }, 201);
@@ -253,12 +278,24 @@ export default async (req: Request, _context: Context) => {
       const plan = clean(body.plan, 20);
       if (!PLANS[plan]) return json({ error: "Plan inconnu" }, 400);
 
-      const montant = PLANS[plan].montant;
+      // Durée payée d'un coup : 1, 2, 3… mois (30 jours chacun). Le montant est celui d'un mois multiplié par le nombre de mois.
+      const mois = PLANS[plan].montant === 0 ? 1 : Math.min(Math.max(Math.round(Number(body.mois)) || 1, 1), MOIS_MAX);
+      const montant = PLANS[plan].montant * mois;
       const statut = montant === 0 ? "actif" : "en_attente_paiement";
 
+      // Une demande identique est déjà en attente (le client a touché plusieurs fois) : on la reprend, sans en créer une de plus.
+      if (statut === "en_attente_paiement") {
+        const deja = (await sql`
+          SELECT * FROM starvibe_subscriptions
+          WHERE account_id = ${accountId} AND plan = ${plan} AND statut = 'en_attente_paiement' AND payeur_account_id IS NULL AND mois = ${mois} AND created_at > now() - interval '48 hours'
+          ORDER BY id DESC LIMIT 1
+        `) as SubRow[];
+        if (deja[0]) return json({ abonnement: toApi(deja[0]) }, 200);
+      }
+
       const rows = (await sql`
-        INSERT INTO starvibe_subscriptions (account_id, plan, montant_attendu, statut, started_at)
-        VALUES (${accountId}, ${plan}, ${montant}, ${statut}, ${statut === "actif" ? sql`now()` : null})
+        INSERT INTO starvibe_subscriptions (account_id, plan, montant_attendu, statut, started_at, mois)
+        VALUES (${accountId}, ${plan}, ${montant}, ${statut}, ${statut === "actif" ? sql`now()` : null}, ${mois})
         RETURNING *
       `) as SubRow[];
 
@@ -303,7 +340,8 @@ export default async (req: Request, _context: Context) => {
   }
 
   const rows = (await sql`
-    SELECT * FROM starvibe_subscriptions WHERE account_id = ${accountId} ORDER BY id DESC LIMIT 1
+    SELECT * FROM starvibe_subscriptions WHERE account_id = ${accountId}
+    ORDER BY (statut = 'en_attente_paiement') DESC, (statut = 'actif' AND montant_attendu > 0 AND expires_at > now()) DESC, id DESC LIMIT 1
   `) as SubRow[];
 
   const courant = rows[0] ? toApi(rows[0]) : { plan: "gratuit", statut: "actif", montantAttendu: 0, montantRecu: null, expiresAt: null };

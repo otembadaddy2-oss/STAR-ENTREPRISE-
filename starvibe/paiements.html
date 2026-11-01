@@ -3,14 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<script src="assets/i18n-v1.js"></script>
+<script src="assets/i18n-v2.js"></script>
 <title>KOMYO — Paiements en attente</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#050B18">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+<link rel="preload" href="/starvibe/assets/fonts/inter-latin-v1.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/starvibe/assets/fonts/komyo-fonts-v1.css">
 <style>
   :root{--navy:#0d1830;--navy-deep:#050B18;--gold:#c8942f;--gold-light:#e8b85c;--line:rgba(255,255,255,.1);--err:#b3261e;}
   *{box-sizing:border-box;}
@@ -165,7 +163,7 @@
       '<div class="meta"><b>' + esc(d.auteur) + '</b> — ' + esc(d.telephone) + ' — réf. ' + esc(d.referencePaiement) + '</div>' +
       (d.payeurTelephone ? '<div class="meta">🎁 Payé par un autre membre : <b>' + esc(d.payeurTelephone) + '</b>' + (d.beneficiaireNom ? ' — pour l\'enfant : ' + esc(d.beneficiaireNom) : '') + '</div>' : '') +
       '<div class="confirm-row">' +
-        '<input type="number" placeholder="Montant reçu (FCFA)" id="montant-' + d.id + '">' +
+        '<input type="number" placeholder="Montant reçu (FCFA)" id="montant-' + d.id + '" value="' + d.montantAttendu + '">' +
         '<button data-approve>Confirmer</button>' +
       '</div>' +
       '<div class="itemerr" id="err-' + d.id + '"></div>';
@@ -213,7 +211,7 @@
         (det.nom ? '<b>' + esc(det.nom) + '</b> — ' + esc(det.contact) + '<br>' + esc(det.ville) + (det.lieu ? ', ' + esc(det.lieu) : '') + '<br>Date : ' + esc(det.date || '—') + ' · Budget : ' + esc(det.budget || '—') + (det.precisions ? '<br>' + esc(det.precisions) : '') : '<i>Payé, coordonnées pas encore saisies par le client.</i>') +
         '</div><div class="confirm-row"><button data-done>Marquer comme traité</button></div>';
     } else {
-      html += '<div class="confirm-row"><input type="number" placeholder="Montant reçu (FCFA)" data-m><button data-ok>Confirmer</button></div><div class="itemerr"></div>';
+      html += '<div class="confirm-row"><input type="number" placeholder="Montant reçu (FCFA)" data-m value="' + d.montantAttendu + '"><button data-ok>Confirmer</button></div><div class="itemerr"></div>';
     }
     item.innerHTML = html;
     var err = item.querySelector('.itemerr');
@@ -255,7 +253,8 @@
       '<div class="top"><div class="plan">' + esc(d.planLabel) + ' · ' + esc(d.categorie) + '</div><div class="amount">' + d.montantAttendu.toLocaleString('fr-FR') + ' FCFA</div></div>' +
       '<div class="meta" style="font-size:15px;color:#fff"><b>« ' + esc(d.texte) + ' »</b></div>' +
       '<div class="meta"><b>' + esc(d.auteur) + '</b> — ' + esc(d.telephone) + ' — réf. ' + esc(d.referencePaiement) + (d.lien ? '<br>Lien : ' + esc(d.lien) : '') + '</div>' +
-      '<div class="confirm-row"><input type="number" placeholder="Montant reçu (FCFA)" data-m><button data-ok>Confirmer et publier</button><button data-no style="background:#5a2a2a">Refuser</button></div><div class="itemerr"></div>';
+      (d.statut === 'payee' ? '<div class="meta" style="color:#7fe3a0"><b>✅ Dépôt de ' + d.montantAttendu.toLocaleString('fr-FR') + ' FCFA reconnu automatiquement.</b> Relis le message, puis valide : l\'annonce démarre.</div>' : '') +
+      '<div class="confirm-row"><input type="number" placeholder="Montant reçu (FCFA)" data-m value="' + (d.statut === 'payee' ? d.montantAttendu : '') + '"><button data-ok>' + (d.statut === 'payee' ? 'Message relu : démarrer' : 'Confirmer et publier') + '</button><button data-no style="background:#5a2a2a">Refuser</button></div><div class="itemerr"></div>';
     var err = item.querySelector('.itemerr');
     item.querySelector('[data-ok]').addEventListener('click', function(){
       var m = Number(item.querySelector('[data-m]').value);

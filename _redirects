@@ -28,3 +28,4 @@ http://komyo.starentreprise.com/   /starvibe/  301!
 /docs/komyo/*           /404.html  404!
 /docs/film/*            /404.html  404!
 /docs/pub-komyo-monde/* /404.html  404!
+/.claude/*       /404.html  404!

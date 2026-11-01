@@ -3,14 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<script src="assets/i18n-v1.js"></script>
+<script src="assets/i18n-v2.js"></script>
 <title>KOMYO — Mon abonnement</title>
 <meta name="theme-color" content="#FFFBF3">
 <link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+<link rel="preload" href="/starvibe/assets/fonts/inter-latin-v1.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/starvibe/assets/fonts/komyo-fonts-v1.css">
 <style>
   :root{--navy:#241536;--coral:#FF6B4A;--gold:#E8A93D;--gold-light:#f0c47a;--cream:#FFFBF3;--text-dim:#6b5f80;--text-faint:#a49bb8;--line:#eee2cc;--kids:#2f8f6e;}
   *{box-sizing:border-box;}
@@ -55,6 +53,45 @@
   .current-tag{font-size:11px;font-weight:700;color:var(--gold);text-align:center;padding:10px 0;}
   .current-tag.famille{color:var(--kids);}
 
+
+  .cat{background:#fff;border:1.5px solid rgba(47,143,110,.35);border-radius:18px;padding:18px;margin-bottom:16px;}
+  .cat h2{font-size:16px;margin:0 0 4px;}
+  .cat .cat-sub{font-size:12.5px;color:var(--text-dim);line-height:1.5;margin:0 0 12px;}
+  .cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .cat-item{border-radius:14px;overflow:hidden;background:#fff;border:1px solid var(--line);}
+  .cat-item .poster{aspect-ratio:3/4;width:100%;object-fit:cover;background:#e9f5ee;}
+  .cat-item.bientot .poster{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;background:repeating-linear-gradient(135deg,#f3efe6,#f3efe6 10px,#ece6d8 10px,#ece6d8 20px);color:var(--text-dim);font:800 13px 'Sora',sans-serif;}
+  .cat-item .poster small{font:600 11px 'Inter',sans-serif;}
+  .cat-item .lbl2{padding:8px 10px 10px;font-size:12px;line-height:1.35;color:var(--navy);}
+  .cat-item .lbl2 b{display:block;font-family:'Sora',sans-serif;font-size:11px;color:var(--kids);margin-bottom:2px;}
+  .cat-item.bientot .lbl2 b{color:var(--text-dim);}
+  .cat-prix{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);}
+  .cat-prix .p{font:800 22px 'Sora',sans-serif;color:var(--navy);} .cat-prix .p span{font-size:12px;font-weight:600;color:var(--text-faint);}
+  .cat-prix .n{font-size:11.5px;color:var(--text-dim);}
+  .duree{display:flex;gap:8px;margin:2px 0 12px;}
+  .duree label{flex:1;text-align:center;border:1.5px solid var(--line);border-radius:12px;padding:9px 4px;font:700 12.5px 'Sora',sans-serif;cursor:pointer;background:#fff;line-height:1.3;}
+  .duree label small{display:block;font:600 11px 'Inter',sans-serif;color:var(--text-dim);}
+  .duree input{position:absolute;opacity:0;pointer-events:none;}
+  .duree label.on{border-color:var(--kids);background:#EAF7EF;}
+  .pay-stop{font-size:13px;line-height:1.5;color:var(--navy);background:#FFF6E0;border:1px solid #EDD8A0;border-radius:12px;padding:12px;margin-top:10px;}
+  .pay-stop b{display:block;margin-bottom:4px;}
+  .pay-stop .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+  .pay-stop button{flex:1 1 140px;border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:10px 8px;font:700 12.5px 'Sora',sans-serif;color:var(--navy);cursor:pointer;}
+  .pay-stop button.sec{color:#9a2f2a;}
+  .cat-autres{margin-top:16px;}
+  .cat-autres h3{font:800 13px 'Sora',sans-serif;margin:0 0 8px;color:var(--navy);}
+  .cat-pack{border:1px solid var(--line);border-radius:12px;background:#fff;margin-bottom:8px;}
+  .cat-pack summary{list-style:none;cursor:pointer;padding:11px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;}
+  .cat-pack summary::-webkit-details-marker{display:none;}
+  .cat-pack summary b{font-family:'Sora',sans-serif;}
+  .cat-pack summary small{color:var(--text-dim);font-size:11.5px;white-space:nowrap;}
+  .cat-pack ol{margin:0;padding:0 14px 6px 34px;font-size:12.5px;line-height:1.7;color:var(--text-dim);}
+  .cat-pack p{margin:0;padding:0 14px 12px;font-size:12px;color:var(--text-dim);}
+  .cat-cta{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
+  .cat-cta a{display:block;text-align:center;text-decoration:none;border-radius:12px;padding:13px 0;font:800 13.5px 'Sora',sans-serif;}
+  .cat-cta a.go{background:linear-gradient(135deg,#3fae82,var(--kids));color:#fff;}
+  .cat-cta a.alt{background:#f3ede0;color:var(--navy);}
+
   .pay-box{background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:20px;margin-bottom:16px;
     animation:fadeUp .5s ease both;}
   @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
@@ -63,6 +100,20 @@
   .pay-row{display:flex;justify-content:space-between;font-size:12.5px;padding:9px 0;border-bottom:1px solid var(--line);}
   .pay-row:last-of-type{border-bottom:none;}
   .pay-row b{color:var(--navy);}
+  .pay-steps{margin:0 0 12px;padding-left:20px;font-size:13.5px;line-height:1.55;color:var(--navy);}
+  .pay-steps li{margin:4px 0;}
+  .pay-num{display:flex;align-items:center;gap:10px;background:#FFF8E8;border:1.5px solid #EDD8A0;border-radius:14px;padding:12px 14px;margin:6px 0 10px;flex-wrap:wrap;}
+  .pay-num span{font-size:11.5px;color:var(--text-dim);width:100%;}
+  .pay-num b{font-family:'Sora',sans-serif;font-size:19px;letter-spacing:.01em;color:var(--navy);flex:1 1 100%;min-width:0;white-space:nowrap;}
+  .pay-num button{border:none;background:var(--navy);color:#fff;font:700 14px 'Sora',sans-serif;border-radius:10px;padding:11px 14px;cursor:pointer;width:100%;}
+  .pay-wait{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:var(--navy);background:#EAF7EF;border:1px solid #BFE5CC;border-radius:12px;padding:11px 12px;margin-top:10px;}
+  .pay-wait i{width:14px;height:14px;border-radius:50%;border:2.5px solid #2fb35f;border-right-color:transparent;animation:payspin .9s linear infinite;flex:none;}
+  @keyframes payspin{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){.pay-wait i{animation:none}}
+  .succes{background:linear-gradient(135deg,#1f8f4a,#2fb35f);color:#fff;border-radius:18px;padding:20px;margin-bottom:16px;text-align:center;}
+  .succes h2{margin:0 0 6px;font-size:18px;color:#fff;}
+  .succes p{margin:0 0 12px;font-size:13.5px;opacity:.95;}
+  .succes a{display:inline-block;background:#fff;color:#1f8f4a;font:800 15px 'Sora',sans-serif;border-radius:12px;padding:12px 18px;text-decoration:none;}
   .pay-note{font-size:11.5px;color:var(--text-dim);line-height:1.6;background:#FBF3E1;border:1px solid #EDD8A0;border-radius:10px;padding:10px 12px;margin-top:12px;}
   .btn-refresh{width:100%;border:1.5px solid var(--line);background:#fff;color:var(--navy);font-family:'Sora',sans-serif;font-weight:700;
     font-size:13px;padding:12px 0;border-radius:12px;cursor:pointer;margin-top:12px;transition:border-color .2s ease, transform .2s ease;}
@@ -98,7 +149,16 @@
 <body class="pg-abonnement">
 
 <div id="loadingState" class="state"><p>Chargement…</p></div>
-<div id="loggedOutState" class="state" hidden><p>Tu n'es pas connecté.<br><a href="inscription.html?mode=login">Se connecter / Créer un compte</a></p></div>
+<div id="loggedOutState" class="state" hidden>
+  <div class="wrap" style="padding-top:20px">
+    <p style="text-align:center;margin:0 0 14px;font-size:13px;color:var(--text-dim)">Découvre le catalogue et le prix. Le paiement se fait ensuite depuis ton compte KOMYO.</p>
+    <div id="catalogueOut"></div>
+    <div class="cat-cta" style="margin-bottom:24px">
+      <a class="go" href="inscription.html?mode=login">J'ai déjà un compte — me connecter pour payer</a>
+      <a class="alt" href="inscription.html">Je n'ai pas encore de compte — en créer un (gratuit)</a>
+    </div>
+  </div>
+</div>
 
 <div id="appState" hidden>
   <div class="topbar">
@@ -111,6 +171,7 @@
 
   <div class="wrap content">
     <div id="payBox" hidden></div>
+    <div id="catalogueIn"></div>
     <div id="plansList"></div>
     <div id="autreEnfant"></div>
     <div id="mesRecus"></div>
@@ -132,6 +193,39 @@
   var plansList = document.getElementById('plansList');
   var payBox = document.getElementById('payBox');
 
+
+  // ---------- Catalogue du pack (visible avant de payer, même sans compte) ----------
+  var EPISODES_A = [
+    ['A1', 'Bonjour papa, bonjour maman', true], ['A2', 'Les dents du matin', true], ['A3', 'Les mains propres avant de manger', true],
+    ['A4', 'Les mains propres après le repas', true], ['A5', 'Merci !', true],
+    ['A6', 'S\'il te plaît', false], ['A7', 'Au revoir', false], ['A8', 'Les dents du soir', false],
+    ['A9', 'Bonne nuit papa, bonne nuit maman', false], ['A10', 'Bravo, quelle belle journée !', false]
+  ];
+  function catalogueHtml(){
+    var dispo = EPISODES_A.filter(function(e){ return e[2]; }).length;
+    var h = '<div class="cat"><h2>Pack « Les bonnes habitudes »</h2>' +
+      '<p class="cat-sub">10 dessins animés pour les 3 à 6 ans : dire bonjour, se brosser les dents, se laver les mains, dire merci… ' +
+      '<b>' + dispo + ' disponibles aujourd\'hui, ' + (EPISODES_A.length - dispo) + ' à venir</b> : ils s\'ajoutent à ton pack dès qu\'ils sont prêts, sans payer de plus pendant ta période.</p><div class="cat-grid">';
+    EPISODES_A.forEach(function(e){
+      if (e[2]) h += '<div class="cat-item"><img class="poster" loading="lazy" src="assets/pioupiou/affiche_' + e[0] + '-v1.webp" alt="Affiche ' + e[0] + '"><div class="lbl2"><b>' + e[0] + '</b>' + e[1] + '</div></div>';
+      else h += '<div class="cat-item bientot"><div class="poster">À venir<small>Bientôt disponible</small></div><div class="lbl2"><b>' + e[0] + '</b>' + e[1] + '</div></div>';
+    });
+    return h + '</div><div class="cat-prix"><div class="p">1 500 FCFA <span>/ 30 jours</span></div><div class="n">Valable 30 jours, <b>sans renouvellement automatique</b> : tu renouvelles quand tu veux. Tu peux aussi payer 2 mois (3 000 FCFA) ou 3 mois (4 500 FCFA) d\'un coup.</div></div><div class="cat-autres" data-autres></div></div>';
+  }
+  document.getElementById('catalogueOut').innerHTML = catalogueHtml();
+  document.getElementById('catalogueIn').innerHTML = catalogueHtml();
+  // Les autres programmes PIOUPIOU (hymnes, compter, alphabet…) : mêmes catalogues, rangés au même endroit, « bientôt ».
+  fetch('assets/pioupiou-episodes-v1.json').then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+    if (!d || !d.familles) return;
+    var h = '<h3>D\'autres packs arrivent</h3>';
+    d.familles.forEach(function(f){
+      if (f.lettre === 'A') return;
+      h += '<details class="cat-pack"><summary><span><b>' + esc2(f.lettre) + ' · ' + esc2(f.nom) + '</b></span><small>' + f.episodes.length + ' vidéos · bientôt</small></summary><ol>' +
+        f.episodes.map(function(e){ return '<li>' + esc2(e.titre) + '</li>'; }).join('') + '</ol><p>Prix et date de sortie annoncés bientôt sur ce site.</p></details>';
+    });
+    [].forEach.call(document.querySelectorAll('[data-autres]'), function(el){ el.innerHTML = h; });
+  }).catch(function(){});
+
   if (!token){ loadingState.hidden = true; loggedOutState.hidden = false; return; }
 
   function authFetch(url, opts){
@@ -142,33 +236,49 @@
 
   var PLAN_ORDER = ['gratuit', 'famille', 'business'];
 
+  var lastSub = null, attenteArretee = false;
   function renderPayBox(sub){
+    lastSub = sub;
     if (sub.statut !== 'en_attente_paiement'){ payBox.hidden = true; payBox.innerHTML = ''; return; }
     payBox.hidden = false;
+    // Une demande vieille de plus de 10 minutes n'est plus « en train d'attendre » : on arrête l'animation et on propose quoi faire.
+    var vieille = attenteArretee || (sub.createdAt && Date.now() - Date.parse(sub.createdAt) > 10 * 60 * 1000);
+    var montant = sub.montantAttendu.toLocaleString('fr-FR');
     payBox.innerHTML =
       '<div class="pay-box">' +
-        '<h2>Paiement en attente</h2>' +
-        '<div class="amount">' + sub.montantAttendu.toLocaleString('fr-FR') + ' FCFA</div>' +
-        '<div class="pay-row"><span>Envoyer via Mobile Money au</span><b>' + sub.numeroReception + '</b></div>' +
-        '<div class="pay-row"><span>Référence à indiquer</span><b>' + sub.referencePaiement + '</b></div>' +
-        '<div class="pay-note">Envoie le montant exact avec la référence ci-dessus. Un compte STAR ENTREPRISE confirme la réception et active ton plan pour 30 jours ; tu reçois ensuite ton reçu détaillé par WhatsApp.</div>' +
-        '<label for="payMontant" style="display:block;margin-top:12px;font-weight:700;font-size:14px">Montant que tu as déposé (en FCFA)</label>' +
-        '<input id="payMontant" type="text" inputmode="numeric" maxlength="12" autocomplete="off" placeholder="' + sub.montantAttendu.toLocaleString('fr-FR') + '" style="width:100%;margin-top:6px;padding:11px 12px;border:1.5px solid #eee2cc;border-radius:12px;font:600 15px inherit">' +
-        '<div id="payMontantMsg" data-noconv class="pay-note" aria-live="polite">Écris le montant de ton dépôt : exactement ' + sub.montantAttendu.toLocaleString('fr-FR') + ' FCFA.</div>' +
-        '<button class="btn-refresh" id="btnRefresh" disabled>Actualiser mon statut</button>' +
+        '<h2>Dernière étape : ton dépôt</h2>' +
+        '<div class="amount">' + montant + ' FCFA</div>' +
+        (sub.plan === 'famille' ? '<p style="margin:-6px 0 12px;font-size:13px;color:var(--text-dim)"><b>Pack « Les bonnes habitudes »</b> · ' + (sub.mois > 1 ? sub.mois + ' mois (' + (30 * sub.mois) + ' jours)' : '1 mois (30 jours)') + '</p>' : '') +
+        '<ol class="pay-steps">' +
+          '<li>Ouvre <b>MTN Mobile Money</b> ou <b>Airtel Money</b> sur ton téléphone.</li>' +
+          '<li>Envoie exactement <b>' + montant + ' FCFA</b> au numéro ci-dessous, <b>depuis le téléphone dont le numéro est celui de ton compte KOMYO</b>.</li>' +
+          '<li>C\'est tout : ton plan s\'active tout seul et cette page s\'ouvre sur ton espace.</li>' +
+        '</ol>' +
+        '<div class="pay-num"><span>Numéro de dépôt</span><b id="payNumero">' + sub.numeroReception + '</b><button type="button" id="btnCopie">Copier</button></div>' +
+        '<div class="pay-row"><span>Référence (si on te la demande)</span><b>' + sub.referencePaiement + '</b></div>' +
+        (vieille
+          ? '<div class="pay-stop" role="status"><b>Nous n\'avons pas encore reçu ton dépôt.</b>Si tu as déjà envoyé l\'argent, touche « Vérifier maintenant ». Si tu as changé d\'avis, tu peux annuler cette demande.<div class="acts"><button type="button" id="btnVerif">Vérifier maintenant</button><button type="button" class="sec" id="btnAnnuler">Annuler ma demande</button></div><div id="verifMsg" style="margin-top:8px;font-size:12px"></div></div>'
+          : '<div class="pay-wait" role="status" aria-live="polite"><i></i>En attente de ton dépôt… cette page se met à jour toute seule, tu n\'as rien à toucher.</div>') +
+        '<div class="pay-note">Ne donne jamais ton code secret Mobile Money à personne. Un reçu détaillé arrive dans ta messagerie KOMYO dès que le dépôt est reconnu.</div>' +
       '</div>';
-    var attendu = sub.montantAttendu, champ = document.getElementById('payMontant'), msg = document.getElementById('payMontantMsg'), bt = document.getElementById('btnRefresh');
-    function fmt(n){ return n.toLocaleString('fr-FR'); }
-    function controle(){
-      var d = String(champ.value).replace(/[^0-9]/g, ''), m = d ? parseInt(d, 10) : null, ok = false;
-      if (m === null) msg.textContent = 'Écris le montant de ton dépôt : exactement ' + fmt(attendu) + ' FCFA.';
-      else if (m < attendu) msg.textContent = 'Montant incorrect : ' + fmt(m) + ' FCFA est inférieur. Dépose exactement ' + fmt(attendu) + ' FCFA, puis écris-le ici.';
-      else if (m > attendu) msg.textContent = 'Montant incorrect : ' + fmt(m) + ' FCFA est supérieur. Le montant exact est ' + fmt(attendu) + ' FCFA.';
-      else { msg.textContent = 'Montant correct ✓ L\'équipe active ton plan dès qu\'elle voit ton dépôt.'; ok = true; }
-      bt.disabled = !ok;
-    }
-    champ.addEventListener('input', controle);
-    bt.addEventListener('click', load);
+    var bv = document.getElementById('btnVerif'), ba = document.getElementById('btnAnnuler');
+    if (bv) bv.addEventListener('click', function(){
+      var m = document.getElementById('verifMsg'); m.textContent = 'Vérification…';
+      authFetch(API).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+        if (d && d.abonnement && d.abonnement.statut !== 'en_attente_paiement'){ attenteArretee = false; load(); }
+        else m.textContent = 'Toujours pas reçu pour le moment. Si tu viens de payer, réessaie dans une minute.';
+      }).catch(function(){ m.textContent = 'Impossible de vérifier. Réessaie.'; });
+    });
+    if (ba) ba.addEventListener('click', function(){
+      if (!window.confirm('Annuler cette demande de paiement ? Tu pourras en refaire une quand tu veux.')) return;
+      authFetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'annuler_demande', id: sub.id }) })
+        .then(function(){ attenteArretee = false; load(); }).catch(function(){});
+    });
+    var cp = document.getElementById('btnCopie');
+    if (cp) cp.addEventListener('click', function(){
+      var n = sub.numeroReception;
+      try { navigator.clipboard.writeText(String(n).replace(/\s/g, '')).then(function(){ cp.textContent = 'Copié ✓'; setTimeout(function(){ cp.textContent = 'Copier'; }, 2000); }); } catch (e) { cp.textContent = 'Appuie longtemps sur le numéro'; }
+    });
   }
 
   function renderPlans(current, plans){
@@ -179,7 +289,7 @@
       var isPending = current.plan === key && current.statut === 'en_attente_paiement';
       var card = document.createElement('div');
       card.className = 'plan-card ' + key + (isActive ? ' active' : '');
-      var priceLabel = p.montant === 0 ? 'Gratuit' : p.montant.toLocaleString('fr-FR') + ' <span>FCFA / mois</span> <small class="eq" data-fcfa="' + p.montant + '"></small>';
+      var priceLabel = p.montant === 0 ? 'Gratuit' : p.montant.toLocaleString('fr-FR') + ' <span>FCFA / 30 jours</span> <small class="eq" data-fcfa="' + p.montant + '"></small>';
       card.innerHTML =
         (isActive ? '<div class="plan-badge">Plan actuel</div>' : '') +
         '<div class="plan-name">' + p.label + '</div>' +
@@ -192,22 +302,63 @@
         tag.textContent = key === 'gratuit' ? 'Ton plan actuel' : 'Actif jusqu\'au ' + new Date(current.expiresAt).toLocaleDateString('fr-FR');
         card.appendChild(tag);
       } else {
+        var mois = 1;
         var btn = document.createElement('button');
         btn.className = 'plan-btn ' + key;
-        btn.textContent = isPending ? 'Paiement en attente...' : (key === 'gratuit' ? 'Revenir au plan gratuit' : 'Choisir — ' + p.montant.toLocaleString('fr-FR') + ' FCFA');
+        var libelle = function(){ return isPending ? 'Paiement en attente...' : (key === 'gratuit' ? 'Revenir au plan gratuit' : 'Choisir — ' + (p.montant * mois).toLocaleString('fr-FR') + ' FCFA' + (mois > 1 ? ' (' + mois + ' mois)' : '')); };
+        if (key === 'famille' && !isPending){
+          var d = document.createElement('div'); d.className = 'duree'; d.setAttribute('role', 'radiogroup'); d.setAttribute('aria-label', 'Durée');
+          [1, 2, 3].forEach(function(n){
+            var l = document.createElement('label'); l.className = n === 1 ? 'on' : '';
+            l.innerHTML = '<input type="radio" name="duree-' + key + '" value="' + n + '"' + (n === 1 ? ' checked' : '') + '>' + n + ' mois<small>' + (p.montant * n).toLocaleString('fr-FR') + ' FCFA</small>';
+            l.querySelector('input').addEventListener('change', function(){ mois = n; Array.prototype.forEach.call(d.children, function(c){ c.className = ''; }); l.className = 'on'; btn.textContent = libelle(); });
+            d.appendChild(l);
+          });
+          card.appendChild(d);
+        }
+        btn.textContent = libelle();
         btn.disabled = isPending;
-        btn.addEventListener('click', function(){ choisirPlan(key); });
+        btn.addEventListener('click', function(){ choisirPlan(key, mois); });
         card.appendChild(btn);
       }
       plansList.appendChild(card);
     });
   }
 
-  function choisirPlan(plan){
+  function choisirPlan(plan, mois){
     authFetch(API, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'choisir_plan', plan: plan })
+      body: JSON.stringify({ action: 'choisir_plan', plan: plan, mois: mois || 1 })
     }).then(function(res){ return res.json(); }).then(function(){ load(); });
+  }
+
+  // Surveillance du paiement : tant que le plan attend son dépôt, on interroge le serveur toutes les 5 secondes (sans toucher à la saisie en cours) ;
+  // dès que le dépôt est reconnu (automatiquement ou par l'équipe), la page se met à jour toute seule et le dit.
+  var veille = null, veilleDebut = 0;
+  function surveiller(sub){
+    var attend = sub && sub.statut === 'en_attente_paiement';
+    if (!attend){ clearInterval(veille); veille = null; attenteArretee = false; return; }
+    if (sub.createdAt && Date.now() - Date.parse(sub.createdAt) > 10 * 60 * 1000) return;
+    if (veille) return;
+    veilleDebut = Date.now();
+    veille = setInterval(function(){
+      if (document.hidden) return;
+      if (Date.now() - veilleDebut > 10 * 60 * 1000){ clearInterval(veille); veille = null; attenteArretee = true; if (lastSub) renderPayBox(lastSub); return; }
+      authFetch(API).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+        if (!d || !d.abonnement || d.abonnement.statut === 'en_attente_paiement') return;
+        clearInterval(veille); veille = null;
+        load();
+        if (d.abonnement.statut === 'actif'){
+          var plan = d.abonnement.plan, fam = plan === 'famille';
+          var c = document.createElement('div'); c.className = 'succes'; c.setAttribute('role', 'status');
+          c.innerHTML = '<h2>✅ Paiement reçu !</h2><p>' + (fam ? 'Ton Pack « Les bonnes habitudes » est actif. Ton reçu est dans ta messagerie KOMYO.' : 'Ton plan est actif. Ton reçu est dans ta messagerie KOMYO.') + '</p>' +
+            '<a href="' + (fam ? 'pioupiou.html' : 'boutique.html') + '" id="lienSucces">' + (fam ? 'Ouvrir PIOUPIOU 🐥' : 'Ouvrir ma boutique') + '</a>' + (fam ? '<p id="compte" style="margin:10px 0 0;font-size:12px">Ouverture automatique dans 6 secondes…</p>' : '');
+          appState.insertBefore(c, appState.firstChild);
+          try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) {}
+          if (fam){ var t = 6, iv = setInterval(function(){ t--; var el = document.getElementById('compte'); if (el) el.textContent = 'Ouverture automatique dans ' + t + ' seconde' + (t > 1 ? 's' : '') + '…'; if (t <= 0){ clearInterval(iv); location.href = 'pioupiou.html'; } }, 1000); c.addEventListener('click', function(){ clearInterval(iv); var el = document.getElementById('compte'); if (el) el.remove(); }); }
+        }
+      }).catch(function(){});
+    }, 5000);
   }
 
   function load(){
@@ -215,6 +366,7 @@
       .then(function(result){
         if (!result.ok){ localStorage.removeItem('starvibe_token'); loadingState.hidden = true; loggedOutState.hidden = false; return; }
         renderPayBox(result.data.abonnement);
+        surveiller(result.data.abonnement);
         renderPlans(result.data.abonnement, result.data.plans);
         loadingState.hidden = true;
         appState.hidden = false;
@@ -235,8 +387,9 @@
     });
   }
 
-  // ---------- Abonnement Famille pour un autre enfant (payé par un parent, un proche…) ----------
+  // ---------- Pack « Les bonnes habitudes » pour un autre enfant (payé par un parent, un proche…) ----------
   var autreBox = document.getElementById('autreEnfant');
+  autreBox.addEventListener('change', function(e){ if (e.target && e.target.name === 'gd'){ autreBox.querySelectorAll('#gDuree label').forEach(function(x){ x.className = ''; }); e.target.parentNode.className = 'on'; } });
   var params = new URLSearchParams(location.search);
   var gift = { compte: false, methode: '', abo: null, timer: null };
   function esc2(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
@@ -247,11 +400,13 @@
   function renderGift(){
     autreBox.innerHTML =
       '<div class="gift" id="giftCard">' +
-        '<h2>Abonnement Famille pour un autre enfant</h2>' +
-        '<p class="hint">Tu peux payer l\'abonnement Famille (1 500 FCFA par mois) pour l\'enfant d\'un proche : il suffit du numéro du parent, qui doit avoir un compte KOMYO (gratuit).</p>' +
+        '<h2>Pack « Les bonnes habitudes » pour un autre enfant</h2>' +
+        '<p class="hint">Tu peux payer le Pack « Les bonnes habitudes » (1 500 FCFA pour 30 jours) pour l\'enfant d\'un proche : il suffit du numéro du parent, qui doit avoir un compte KOMYO (gratuit).</p>' +
         '<label class="lbl" for="gTel">Numéro du parent de l\'enfant</label>' +
         '<input type="tel" id="gTel" autocomplete="off" placeholder="Avec l\'indicatif, ex. +242 06 123 45 67" value="' + esc2(params.get('pour') || '') + '">' +
         '<div id="gFound"></div>' +
+        '<label class="lbl">Durée</label>' +
+        '<div class="duree" id="gDuree">' + [1, 2, 3].map(function(n){ return '<label' + (n === 1 ? ' class="on"' : '') + '><input type="radio" name="gd" value="' + n + '"' + (n === 1 ? ' checked' : '') + '>' + n + ' mois<small>' + (1500 * n).toLocaleString('fr-FR') + ' FCFA</small></label>'; }).join('') + '</div>' +
         '<label class="lbl" for="gEnfant">Prénom ou nom de l\'enfant (facultatif)</label>' +
         '<input type="text" id="gEnfant" maxlength="80" autocomplete="off" value="' + esc2(params.get('enfant') || '') + '">' +
         '<label class="lbl">Comment veux-tu payer ?</label>' +
@@ -260,8 +415,8 @@
           '<label class="m" data-m="airtel_money"><input type="radio" name="gm" value="airtel_money"> Airtel Money</label>' +
           '<label class="m off"><input type="radio" name="gm" disabled> Carte bancaire (Visa, Mastercard) — bientôt</label>' +
         '</div>' +
-        '<div class="secu"><b>Ton code secret Mobile Money (PIN) ne se tape jamais ici.</b> Tu fais le dépôt sur ton propre téléphone, au numéro indiqué à l\'étape suivante. Le bouton devient vert uniquement quand le paiement est réellement confirmé.</div>' +
-        '<button type="button" class="go" id="gGo" disabled>Valider le paiement</button>' +
+        '<div class="secu"><b>Tu paies depuis ton téléphone</b>, dans le menu MTN ou Airtel Money. Ici, sur KOMYO, <b>tu ne tapes jamais ton code secret</b>.</div>' +
+        '<button type="button" class="go" id="gGo" disabled>Continuer vers le paiement</button>' +
         '<div class="suivi" id="gSuivi" aria-live="polite"></div>' +
       '</div>';
     var tel = document.getElementById('gTel'), found = document.getElementById('gFound'), go = document.getElementById('gGo');
@@ -282,18 +437,20 @@
     });
     go.addEventListener('click', function(){
       if (go.disabled) return; go.disabled = true; go.textContent = 'Création de la demande…';
-      giftApi({ action: 'abonner_autre', telephone: tel.value.trim(), enfantNom: document.getElementById('gEnfant').value.trim(), methode: gift.methode }).then(function(r){
-        if (!r.ok){ go.textContent = 'Valider le paiement'; document.getElementById('gSuivi').innerHTML = '<div class="err">' + esc2(r.d.error || 'Impossible de créer la demande.') + '</div>'; maj(); return; }
-        gift.abo = r.d.abonnement; go.textContent = 'En attente de confirmation du paiement…';
+      giftApi({ action: 'abonner_autre', telephone: tel.value.trim(), enfantNom: document.getElementById('gEnfant').value.trim(), methode: gift.methode, mois: Number((document.querySelector('input[name=gd]:checked') || {}).value) || 1 }).then(function(r){
+        if (!r.ok){ go.textContent = 'Continuer vers le paiement'; document.getElementById('gSuivi').innerHTML = '<div class="err">' + esc2(r.d.error || 'Impossible de créer la demande.') + '</div>'; maj(); return; }
+        gift.abo = r.d.abonnement; go.textContent = 'En attente de ton dépôt…';
         var a = gift.abo, n = Number(a.montantAttendu).toLocaleString('fr-FR');
         document.getElementById('gSuivi').innerHTML =
-          '<b>1.</b> Dépose exactement <b>' + n + ' FCFA</b> par ' + (gift.methode === 'airtel_money' ? 'Airtel Money' : 'MTN Mobile Money') + ' au <b>' + esc2(a.numeroReception) + '</b>.<br>' +
-          '<b>2.</b> Indique la référence <b>' + esc2(a.referencePaiement) + '</b>.<br><b>3.</b> Reste sur cette page : elle se met à jour seule.';
+          '<b>1.</b> Ouvre ' + (gift.methode === 'airtel_money' ? 'Airtel Money' : 'MTN Mobile Money') + ' sur ton téléphone et envoie exactement <b>' + n + ' FCFA</b> au <b>' + esc2(a.numeroReception) + '</b>.<br>' +
+          '<b>2.</b> Si on te demande une référence : <b>' + esc2(a.referencePaiement) + '</b>.<br><b>3.</b> Reste sur cette page : elle se met à jour toute seule dès que le dépôt est reconnu.';
+        var debutG = Date.now();
         gift.timer = setInterval(function(){
+          if (Date.now() - debutG > 10 * 60 * 1000){ clearInterval(gift.timer); go.className = 'go'; go.textContent = 'Dépôt non reçu'; document.getElementById('gSuivi').innerHTML += '<div class="err" style="margin-top:8px">Nous n\'avons pas encore reçu ton dépôt. Si tu as payé, écris-nous à contact@starentreprise.com avec la référence ' + esc2(a.referencePaiement) + '.</div>'; return; }
           authFetch(API + '?suivi=' + encodeURIComponent(a.id)).then(function(x){ return x.json(); }).then(function(d){
             var st = d.abonnement && d.abonnement.statut;
             if (st === 'actif'){ clearInterval(gift.timer); go.className = 'go ok'; go.textContent = 'Paiement validé ✓';
-              document.getElementById('gSuivi').innerHTML = '<div class="found">Paiement validé ✓ L\'abonnement Famille est actif pour 30 jours.</div>'; }
+              document.getElementById('gSuivi').innerHTML = '<div class="found">Paiement validé ✓ Le Pack « Les bonnes habitudes » est actif pour ' + (30 * (a.mois || 1)) + ' jours.</div>'; }
             else if (st === 'paiement_invalide'){ clearInterval(gift.timer); go.className = 'go'; go.textContent = 'Paiement non valide';
               document.getElementById('gSuivi').innerHTML = '<div class="err">Le montant reçu ne correspond pas. Écris-nous à contact@starentreprise.com avec ta référence.</div>'; }
           }).catch(function(){});
@@ -310,7 +467,7 @@
 <script src="assets/komyo-prix-v2.js" defer></script>
 <script src="assets/rappel-v1.js" defer></script>
 <script src="assets/bulle-komyo.js" defer></script>
-<script src="assets/keydou-bulle-v1.js" defer></script>
-<script src="assets/komyo-installer-v5.js" defer></script>
+<script src="assets/keydou-bulle-v2.js" defer></script>
+<script src="assets/komyo-installer-v6.js" defer></script>
 </body>
 </html>

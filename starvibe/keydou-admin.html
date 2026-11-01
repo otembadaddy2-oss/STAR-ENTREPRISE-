@@ -3,14 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<script src="assets/i18n-v1.js"></script>
+<script src="assets/i18n-v2.js"></script>
 <title>KOMYO — Espace Keydou</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#050B18">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+<link rel="preload" href="/starvibe/assets/fonts/inter-latin-v1.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/starvibe/assets/fonts/komyo-fonts-v1.css">
 <style>
   :root{--navy:#0d1830;--navy-deep:#050B18;--card:#12213F;--gold:#c8942f;--gold-light:#e8b85c;--ok:#6fd6ab;--err:#ff8a80;--dim:rgba(255,255,255,.55);}
   *{box-sizing:border-box;}
@@ -298,7 +296,7 @@
 
   /* ---------- connexion ---------- */
   function showLogin(){ $('loginView').hidden = false; $('mainView').hidden = true; clearInterval(timer); }
-  function showMain(){ $('loginView').hidden = true; $('mainView').hidden = false; loadDash(); loadClients(true); loadContacts(true); loadSubs(true); loadPins(true); loadAnnuaire(); clearInterval(timer); timer = setInterval(function(){ if (!$('paneClients').hidden) loadClients(false); if (!$('paneContacts').hidden) loadContacts(false); if (!$('paneSubs').hidden) loadSubs(false); loadPins(false); }, 6000); }
+  function showMain(){ $('loginView').hidden = true; $('mainView').hidden = false; loadDash(); loadClients(true); loadContacts(true); loadSubs(true); loadPins(true); loadAnnuaire(); clearInterval(timer); timer = setInterval(function(){ if (document.hidden) return; if (!$('paneClients').hidden) loadClients(false); if (!$('paneContacts').hidden) loadContacts(false); if (!$('paneSubs').hidden) loadSubs(false); loadPins(false); }, 6000); }
   var timer = null;
   var API_ACCES = '/api/staff-acces';
   function showErr(id, msg){ var e = $(id); e.textContent = msg; e.classList.add('show'); }

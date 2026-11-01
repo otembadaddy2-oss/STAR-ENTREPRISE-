@@ -14,6 +14,8 @@ import { randomBytes } from "node:crypto";
 import { ensureSchema, db, json } from "./_db.mts";
 import { requireAuth } from "./_auth.mts";
 import { signedVideoUrl, hasActiveFamille } from "./_premium.mts";
+import { episodesOfficiels, installerEpisodesOfficiels } from "./_pioupiou_officiel.mts";
+import { signerAnalyse } from "./_gardien.mts";
 
 const ORG = "star_vibe";
 const STAFF_ORG = "star_entreprise";
@@ -58,8 +60,11 @@ interface VideoRow {
   premium: boolean;
   disponible_le?: string | null;
   affiche_key?: string | null;
+  gardien_raison?: string;
   created_at: string;
   auteur_nom?: string;
+  auteur_activite?: string;
+  auteur_wa?: string;
   telephone?: string;
 }
 
@@ -74,6 +79,8 @@ function toApi(row: VideoRow, likedByMe: boolean, canWatchPremium = false, viewe
     id: String(row.id),
     legende: row.legende,
     auteur: row.auteur_nom || "",
+    auteurActivite: row.pour_enfants ? "" : (row.auteur_activite || ""),
+    auteurWa: row.pour_enfants ? "" : (row.auteur_wa || ""),
     likes: row.likes_count,
     vues: row.vues_count,
     commentaires: row.comments_count || 0,
@@ -122,6 +129,7 @@ function toModerationApi(row: VideoRow) {
     telephone: row.telephone || "",
     createdAt: row.created_at,
     videoUrl: signedVideoUrl(row.blob_key),
+    gardien: row.gardien_raison || "",
   };
 }
 
@@ -300,6 +308,12 @@ export default async (req: Request, _context: Context) => {
       `) as VideoRow[];
       const created = rows[0];
       for (const key of tmpKeys) { try { await tmp.delete(key); } catch { /* sans gravité : ménage seulement */ } }
+      // Espaces de mineurs (PIOUPIOU, KOMYO Jeunes) : Keydou contrôle la vidéo tout de suite (tâche de fond). En cas d'échec, le balayage régulier prend le relais.
+      if (pourEnfants || espace === "jeunes") {
+        try {
+          await fetch(new URL(`/.netlify/functions/keydou-gardien-background?id=${created.id}&sig=${signerAnalyse(created.id)}`, req.url), { method: "POST", signal: AbortSignal.timeout(4000) });
+        } catch { /* le balayage de rattrapage s'en charge */ }
+      }
       created.premium = false;
       created.auteur_nom = (await sql`SELECT nom FROM starvibe_profiles WHERE id = ${profileId}`)[0]?.nom || "";
 
@@ -624,6 +638,11 @@ export default async (req: Request, _context: Context) => {
     return json({ evenements, nonLues: Number(countRows[0]?.n || 0), now: new Date().toISOString() });
   }
 
+  // Dépôt des épisodes officiels PIOUPIOU livrés avec le déploiement : sans paramètre, idempotent, ne révèle rien (état seulement).
+  if (req.method === "GET" && url.searchParams.get("seed") === "officiel") {
+    return json({ ok: true, episodes: await installerEpisodesOfficiels() });
+  }
+
   // --- Lecture du fil (utilisateur STAR VIBE) ---
   const session = await requireAuth(req);
   if (!session || session.org !== ORG) return json({ error: "Non authentifié" }, 401);
@@ -662,14 +681,14 @@ export default async (req: Request, _context: Context) => {
 
   const rows = (before
     ? await sql`
-        SELECT v.*, p.nom AS auteur_nom
+        SELECT v.*, p.nom AS auteur_nom, p.activite AS auteur_activite, p.contact_wa AS auteur_wa
         FROM starvibe_videos v
         JOIN starvibe_profiles p ON p.id = v.profile_id
         WHERE v.pour_enfants = ${wantKids} AND v.moderation_statut = 'approuve' AND (v.premium = false OR ${wantKids}) AND ((${espaceFiltre} = '' AND v.espace <> 'jeunes') OR (${espaceFiltre} <> '' AND v.espace = ${espaceFiltre})) AND v.id < ${before}
         ORDER BY v.id DESC LIMIT 10
       `
     : await sql`
-        SELECT v.*, p.nom AS auteur_nom
+        SELECT v.*, p.nom AS auteur_nom, p.activite AS auteur_activite, p.contact_wa AS auteur_wa
         FROM starvibe_videos v
         JOIN starvibe_profiles p ON p.id = v.profile_id
         WHERE v.pour_enfants = ${wantKids} AND v.moderation_statut = 'approuve' AND (v.premium = false OR ${wantKids}) AND ((${espaceFiltre} = '' AND v.espace <> 'jeunes') OR (${espaceFiltre} <> '' AND v.espace = ${espaceFiltre}))
@@ -685,7 +704,9 @@ export default async (req: Request, _context: Context) => {
   const likedSet = new Set(likedRows.map((r) => r.video_id));
 
   const canWatchPremium = await hasActiveFamille(sql, accountId);
-  return json({ videos: rows.map((r) => toApi(r, likedSet.has(r.id), canWatchPremium, accountId)), abonneFamille: canWatchPremium });
+  // Espace PIOUPIOU : les épisodes officiels de STAR ENTREPRISE passent en premier, dans l'ordre du programme.
+  const officiels = wantKids && !before ? await episodesOfficiels(canWatchPremium) : [];
+  return json({ videos: [...officiels, ...rows.map((r) => toApi(r, likedSet.has(r.id), canWatchPremium, accountId))], abonneFamille: canWatchPremium });
 };
 
 export const config: Config = {

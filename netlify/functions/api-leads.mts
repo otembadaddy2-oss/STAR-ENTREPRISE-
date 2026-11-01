@@ -6,6 +6,7 @@ import type { Context, Config } from "@netlify/functions";
 import { ensureSchema, db, json } from "./_db.mts";
 import { requireGroupAuth as requireAuth } from "./_auth.mts";   // back-office : refuse les jetons KOMYO / Keydou / Marketplace / Guichet
 import { pushAll } from "./_push.mts";
+import { accuserReception } from "./_accuse.mts";
 
 function clean(value: unknown, maxLen: number): string {
   return String(value ?? "").trim().slice(0, maxLen);
@@ -85,7 +86,9 @@ export default async (req: Request, _context: Context) => {
       try { await pushAll(sql, { title: "Nouveau message KOMYO", body: `${nom || "Visiteur"} : ${message.slice(0, 90)}`, tag: "komyo-contact", url: "/admin.html" }); } catch { /* sans gravité : le message est enregistré */ }
     }
 
-    return json({ lead: toApi(rows[0]) }, 201);
+    // Accusé de réception (messagerie KOMYO ou e-mail) : la personne sait que son message est bien arrivé.
+    const accuse = type === "komyo-contact" ? await accuserReception(sql, { email, telephone }) : "aucun";
+    return json({ lead: toApi(rows[0]), accuse }, 201);
   }
 
   // Tout le reste (consulter, mettre à jour le statut, supprimer) exige

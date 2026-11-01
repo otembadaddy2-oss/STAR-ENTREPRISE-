@@ -66,7 +66,7 @@
     function repondre(oui) {
       if (v.fini()) return; v.stop();
       var bs = t.querySelectorAll('button'); for (var i = 0; i < bs.length; i++) bs[i].disabled = true;
-      api({ body: { action: 'repondre', id: inv.id, reponse: oui ? 'oui' : 'non' } }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); }).then(function (res) {
+      api({ body: { action: 'repondre', id: inv.id, reponse: oui ? 'oui' : 'non' } }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d, status: r.status }; }); }).then(function (res) {
         var msg = !res.ok ? (res.d.error || 'Réponse impossible pour le moment.') : (oui ? 'Vous êtes amis avec ' + inv.de.nom + ' ✓' : 'Invitation refusée.');
         t.innerHTML = '<div class="myoDone" style="color:' + (res.ok && oui ? '#1f8f4a' : '#241536') + '">' + esc(msg) + '</div>';
         if (res.ok) majCompteur(Math.max(0, nonRepondues - 1));
@@ -85,7 +85,7 @@
     function repondre(oui) {
       if (v.fini()) return; v.stop();
       var bs = t.querySelectorAll('button'); for (var i = 0; i < bs.length; i++) bs[i].disabled = true;
-      api({ body: { action: 'regarder_repondre', id: g.id, reponse: oui ? 'oui' : 'non' } }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); }).then(function (res) {
+      api({ body: { action: 'regarder_repondre', id: g.id, reponse: oui ? 'oui' : 'non' } }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d, status: r.status }; }); }).then(function (res) {
         if (!oui) { retirer(t, 0); return; }                                   // Non : rien ne se passe, le message disparaît
         if (!res.ok || !res.d.videoId) { t.innerHTML = '<div class="myoDone">' + esc(res.d.error || 'Cette invitation n\'existe plus.') + '</div>'; retirer(t, FIN_MS); return; }
         t.innerHTML = '<div class="myoDone" style="color:#1f8f4a">Ouverture de la vidéo…</div>';
@@ -116,7 +116,7 @@
       }
       v.stop(); var bs = t.querySelectorAll('button'); for (var i = 0; i < bs.length; i++) bs[i].disabled = true;
       var mem = t.querySelector('.myoMem');
-      api({ body: { action: 'kaba_repondre', id: k.id, reponse: oui ? 'oui' : 'non', valeur: champ.value.trim(), memoriser: !!(mem && mem.checked) } }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); }).then(function (res) {
+      api({ body: { action: 'kaba_repondre', id: k.id, reponse: oui ? 'oui' : 'non', valeur: champ.value.trim(), memoriser: !!(mem && mem.checked) } }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d, status: r.status }; }); }).then(function (res) {
         if (!res.ok && oui) { err.textContent = res.d.error || 'Partage impossible.'; err.hidden = false; for (var j = 0; j < bs.length; j++) bs[j].disabled = false; return; }
         t.innerHTML = '<div class="myoDone" style="color:' + (oui ? '#1f8f4a' : '#241536') + '">' + esc(oui ? nom + ' partagé avec ' + k.de.nom + ' ✓' : 'Demande refusée.') + '</div>';
         retirer(t, FIN_MS);
@@ -157,12 +157,12 @@
 
   // Inviter quelqu'un (utilisé par le bouton « Inviter » du fil et par la page Myo)
   function inviter(profilId) {
-    return api({ body: { action: 'inviter', profilId: Number(profilId) } }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); });
+    return api({ body: { action: 'inviter', profilId: Number(profilId) } }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d, status: r.status }; }); });
   }
 
   // Inviter un ami à regarder une vidéo (utilisé par le bouton « Regarder avec un ami » du fil)
   function regarder(profilId, videoId) {
-    return api({ body: { action: 'regarder_inviter', profilId: Number(profilId), videoId: Number(videoId) } }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); });
+    return api({ body: { action: 'regarder_inviter', profilId: Number(profilId), videoId: Number(videoId) } }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d, status: r.status }; }); });
   }
 
   window.komyoMyo = { inviter: inviter, regarder: regarder, verifier: verifier, api: api };

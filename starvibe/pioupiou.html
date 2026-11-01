@@ -3,14 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<script src="assets/i18n-v1.js"></script>
+<script src="assets/i18n-v2.js"></script>
 <title>PIOUPIOU — Vidéos pour enfants</title>
 <meta name="theme-color" content="#0f4a37">
 <link rel="icon" href="../assets/img/icons/favicon-star-rounded-v1.png" type="image/png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@500;600;700&display=swap" rel="stylesheet"></noscript>
+<link rel="preload" href="/starvibe/assets/fonts/inter-latin-v1.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/starvibe/assets/fonts/komyo-fonts-v1.css">
 <style>
   :root{--kids:#2f8f6e;--kids-deep:#12744f;--kids-light:#eafff3;--cream:#fffdf5;--sun:#ffb648;}
   *{box-sizing:border-box;}
@@ -50,6 +48,13 @@
   .btn-next{flex:1;background:linear-gradient(135deg,var(--sun),#ff8f3d);color:#5c3200;border:none;font-family:'Sora',sans-serif;
     font-weight:800;font-size:15px;padding:16px 0;border-radius:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
     box-shadow:0 10px 22px -10px rgba(255,143,61,.6);transition:transform .2s ease, box-shadow .2s ease;}
+  .btn-prev{flex:none;width:62px;background:rgba(255,255,255,.16);color:#fff;border:2px solid rgba(255,255,255,.55);border-radius:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:transform .2s ease, background .2s ease, opacity .2s ease;}
+  .btn-prev svg{width:24px;height:24px;}
+  .btn-prev:hover:not(:disabled){background:rgba(255,255,255,.28);transform:translateY(-3px);}
+  .btn-prev:active:not(:disabled){transform:scale(.95);}
+  .btn-prev:disabled{opacity:.35;cursor:default;}
+  .btn-revoir{margin-top:18px;border:0;border-radius:18px;padding:14px 22px;background:linear-gradient(135deg,var(--sun),#ff8f3d);color:#5c3200;font-family:'Sora',sans-serif;font-weight:800;font-size:15px;cursor:pointer;}
   .btn-next:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 14px 26px -10px rgba(255,143,61,.75);}
   .btn-next:active{transform:scale(.97);}
   .btn-next svg{width:20px;height:20px;}
@@ -71,6 +76,7 @@
   .avenir li{display:flex;gap:10px;justify-content:space-between;align-items:baseline;padding:8px 0;border-top:1px solid rgba(255,255,255,.14);font-size:13px;line-height:1.4;}
   .avenir li small{color:rgba(255,255,255,.72);white-space:nowrap;}
   .avenir li .bientot{display:block;font-size:11px;color:#ffe08a;font-weight:700;}
+  .avenir li .bientot.dispo{color:#9be7a0;}
   .lock{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:24px;
     background:linear-gradient(160deg,rgba(15,74,55,.92),rgba(30,152,102,.9));z-index:3;}
   .lock.show{display:flex;}
@@ -137,9 +143,10 @@
   <div class="avenir" data-avenir></div>
 </div>
 <div id="doneState" class="state" hidden>
-  <div class="emoji">🎉</div>
+  <div class="emoji">🎆</div>
   <h2>Bravo, tu as tout regardé !</h2>
   <p>De nouvelles vidéos arrivent bientôt.</p>
+  <button type="button" class="btn-revoir" id="btnRevoir">↺ Revoir les vidéos</button>
   <div class="avenir" data-avenir></div>
 </div>
 
@@ -147,15 +154,15 @@
   <div class="player">
     <video id="videoEl" loop muted playsinline preload="metadata"></video>
     <div class="tapzone" id="tapZone"></div>
-    <span class="premium-tag" id="premiumTag" hidden>⭐ Famille</span>
+    <span class="premium-tag" id="premiumTag" hidden>⭐ Pack</span>
     <div class="affiche" id="afficheEl"><div class="fallback"><div class="gros">🎬</div><b id="afficheTitre"></b></div></div>
-    <div class="etiquette ferme" id="etqFerme" hidden>FERMÉ<small id="etqRaison"></small><a href="abonnement.html" id="etqLien" hidden>Ouvrir avec l'abonnement Famille</a></div>
+    <div class="etiquette ferme" id="etqFerme" hidden>FERMÉ<small id="etqRaison"></small><a href="abonnement.html" id="etqLien" hidden>Ouvrir avec le Pack « Les bonnes habitudes »</a></div>
     <div class="etiquette ouvert" id="etqOuvert" hidden>OUVERT</div>
     <div class="lock" id="lockEl">
       <div class="cadenas">🔒</div>
-      <h3>Dessin animé réservé aux abonnés Famille</h3>
-      <p>Abonne-toi pour 1 500 FCFA par mois et regarde tous les dessins animés PIOUPIOU.</p>
-      <a href="abonnement.html">Découvrir l'abonnement Famille</a>
+      <h3>Dessin animé du Pack « Les bonnes habitudes »</h3>
+      <p>Pour 1 500 FCFA (30 jours), regarde les 10 dessins animés du pack : 5 disponibles, 5 à venir.</p>
+      <a href="abonnement.html">Voir le pack et le prix</a>
     </div>
     <button type="button" class="btn-son" id="btnSon" hidden></button>
     <button type="button" class="btn-fs" id="btnFs" aria-label="Agrandir la vidéo en plein écran" hidden>
@@ -169,6 +176,7 @@
     <div class="legende" id="legendeEl"></div>
   </div>
   <div class="controls">
+    <button class="btn-prev" id="btnPrev" type="button" aria-label="Vidéo précédente : revoir ce qui vient de passer" title="Vidéo précédente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg></button>
     <button class="btn-next" id="btnNext">Vidéo suivante <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="m9 6 6 6-6 6"/></svg></button>
   </div>
 </div>
@@ -200,10 +208,11 @@
   var auteurEl = document.getElementById('auteurEl');
   var legendeEl = document.getElementById('legendeEl');
   var btnNext = document.getElementById('btnNext');
+  var btnPrev = document.getElementById('btnPrev');
   var lockEl = document.getElementById('lockEl');
   var premiumTag = document.getElementById('premiumTag');
 
-  // La liste des petites histoires à venir (39 épisodes), affichée tant qu'il n'y a pas (ou plus) de vidéo à regarder.
+  // La liste des petites histoires à venir (43 épisodes), affichée tant qu'il n'y a pas (ou plus) de vidéo à regarder.
   function esc(t){ return String(t).replace(/[&<>"]/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   var aVenirHtml = null;
   function remplirAVenir(){
@@ -211,17 +220,51 @@
     if (aVenirHtml !== null){ Array.prototype.forEach.call(hotes, function(h){ h.innerHTML = aVenirHtml; }); return; }
     fetch('/starvibe/assets/pioupiou-episodes-v1.json').then(function(r){ return r.json(); }).then(function(d){
       var total = d.familles.reduce(function(n, f){ return n + f.episodes.length; }, 0);
-      var h = '<h3>' + total + ' petites histoires arrivent</h3>';
+      var dispo = d.familles.reduce(function(n, f){ return n + f.episodes.filter(function(e){ return e.dispo; }).length; }, 0);
+      var h = '<h3>' + (dispo ? dispo + ' histoires à regarder, ' + (total - dispo) + ' arrivent' : total + ' petites histoires arrivent') + '</h3>';
       d.familles.forEach(function(f){
         h += '<details><summary><span>' + f.emoji + '</span> ' + esc(f.nom) + '<span class="n">' + f.episodes.length + ' épisodes</span></summary><ul>';
-        f.episodes.forEach(function(e){ h += '<li><span>' + esc(e.titre) + '<span class="bientot">Bientôt</span></span><small>' + esc(e.duree) + '</small></li>'; });
+        f.episodes.forEach(function(e){ h += '<li><span>' + esc(e.titre) + (e.dispo ? '<span class="bientot dispo">Disponible</span>' : '<span class="bientot">Bientôt</span>') + '</span><small>' + esc(e.duree) + '</small></li>'; });
         h += '</ul></details>';
       });
       aVenirHtml = h; Array.prototype.forEach.call(hotes, function(x){ x.innerHTML = h; });
     }).catch(function(){});
   }
 
-  function show(el){ if (el === emptyState || el === doneState) remplirAVenir(); [loadingState, loggedOutState, emptyState, doneState, stageWrap].forEach(function(e){ e.hidden = (e !== el); }); }
+  // Feu d'artifice (une seule fois par arrivée sur la page, à l'écran « Bravo ») : quelques gerbes de couleur sur toute la page, puis plus rien.
+  var feuFait = false;
+  function feuArtifice(){
+    if (feuFait) return; feuFait = true;
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var c = document.createElement('canvas'), ctx = c.getContext && c.getContext('2d'); if (!ctx) return;
+    c.setAttribute('aria-hidden', 'true');
+    c.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;z-index:60;pointer-events:none;';
+    var dpr = Math.min(window.devicePixelRatio || 1, 2), W = innerWidth, H = innerHeight;
+    c.width = W * dpr; c.height = H * dpr; ctx.scale(dpr, dpr); document.body.appendChild(c);
+    var couleurs = ['#ffd91f', '#ff7a2e', '#ff4d6d', '#4dd2ff', '#7cff6b', '#ffffff', '#c77dff'], parts = [], t0 = performance.now(), lances = 0;
+    function gerbe(){
+      var x = W * (0.15 + Math.random() * 0.7), y = H * (0.12 + Math.random() * 0.4), col = couleurs[Math.floor(Math.random() * couleurs.length)], col2 = couleurs[Math.floor(Math.random() * couleurs.length)];
+      for (var i = 0; i < 70; i++){
+        var a = Math.PI * 2 * i / 70 + Math.random() * 0.1, v = 1.5 + Math.random() * 3.6;
+        parts.push({ x: x, y: y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, vie: 1, d: 0.011 + Math.random() * 0.01, col: i % 3 ? col : col2, r: 1.6 + Math.random() * 1.6 });
+      }
+    }
+    var prochain = 0;
+    (function image(now){
+      var t = now - t0;
+      if (lances < 6 && t >= prochain){ gerbe(); lances++; prochain += 380 + Math.random() * 260; }
+      ctx.clearRect(0, 0, W, H);
+      parts = parts.filter(function(p){ return p.vie > 0; });
+      parts.forEach(function(p){
+        p.x += p.vx; p.y += p.vy; p.vx *= 0.985; p.vy = p.vy * 0.985 + 0.045; p.vie -= p.d;
+        ctx.globalAlpha = Math.max(0, p.vie); ctx.fillStyle = p.col; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832); ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+      if (lances < 6 || parts.length) requestAnimationFrame(image); else c.remove();
+    })(t0);
+  }
+
+  function show(el){ if (el === doneState) setTimeout(feuArtifice, 250); if (el === emptyState || el === doneState) remplirAVenir(); [loadingState, loggedOutState, emptyState, doneState, stageWrap].forEach(function(e){ e.hidden = (e !== el); }); }
 
   if (!token){ show(loggedOutState); return; }
 
@@ -320,6 +363,7 @@
   function playCurrent(){
     if (index >= videos.length){ show(doneState); return; }
     var v = videos[index];
+    btnPrev.disabled = index <= 0;
     premiumTag.hidden = !v.premium;
     lockEl.classList.remove('show');   // l'ancien écran « cadenas » est remplacé par l'affiche + FERMÉ
     var aff = document.getElementById('afficheEl'), etqF = document.getElementById('etqFerme'), etqO = document.getElementById('etqOuvert');
@@ -329,7 +373,7 @@
       aff.querySelector('.fallback').style.display = v.afficheUrl ? 'none' : 'flex';
       document.getElementById('afficheTitre').textContent = v.legende || 'Dessin animé PIOUPIOU';
       var quand = v.disponibleLe ? new Date(v.disponibleLe).toLocaleString('fr-FR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) : '';
-      document.getElementById('etqRaison').textContent = v.raisonFermee === 'date' ? 'S\'ouvre automatiquement le ' + quand : 'Abonnement Famille requis (1 500 FCFA par mois)';
+      document.getElementById('etqRaison').textContent = v.raisonFermee === 'date' ? 'S\'ouvre automatiquement le ' + quand : 'Pack « Les bonnes habitudes » requis (1 500 FCFA, 30 jours)';
       document.getElementById('etqLien').hidden = v.raisonFermee === 'date';
       if (v.raisonFermee === 'date' && v.disponibleLe) programmerOuverture(new Date(v.disponibleLe).getTime());
     }
@@ -354,6 +398,11 @@
     index++;
     playCurrent();
   });
+  // Flèche « précédente » : on revoit la vidéo d'avant ; depuis l'écran « Bravo », « Revoir les vidéos » repart de la première.
+  btnPrev.addEventListener('click', function(){
+    if (index > 0){ index--; playCurrent(); }
+  });
+  document.getElementById('btnRevoir').addEventListener('click', function(){ index = 0; playCurrent(); });
 
   tapZone.addEventListener('click', function(){
     activerSon(!sonActif);

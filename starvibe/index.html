@@ -3,15 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<script src="assets/i18n-v1.js"></script>
+<script src="assets/i18n-v2.js"></script>
 <title>KOMYO — Apprendre • Créer • Partager</title>
 <meta name="description" content="KOMYO : l'application vidéo verticale pensée pour le monde entier. Un vrai compte, un espace enfants séparé (PIOUPIOU), 100% sécurisé.">
 <meta name="theme-color" content="#FFFBF3">
+<link rel="preconnect" href="https://images.unsplash.com" crossorigin>
 <link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet"></noscript>
+<link rel="preload" href="/starvibe/assets/fonts/inter-latin-v1.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/starvibe/assets/fonts/komyo-fonts-v1.css">
 <style>
   :root{
     --ink:#241536; --ink-soft:#4a3d63; --gold:#E8A93D; --gold-deep:#C8942F; --coral:#FF6B4A;
@@ -115,6 +114,17 @@
   .universe-card .age{display:inline-block;font-size:9.5px;font-weight:700;color:var(--text-faint);background:var(--cream-2);
     border-radius:20px;padding:2px 9px;margin-bottom:6px;}
   .universe-card p{font-size:11px;color:var(--text-dim);margin:0;line-height:1.5;}
+  /* KOMYO Découverte : les photos défilent en fond, bien visibles ; le texte reste lisible grâce à un voile clair derrière lui. */
+  .universe-defile{padding:0;overflow:hidden;min-height:210px;display:flex;align-items:center;justify-content:center;}
+  .u-fond{position:absolute;inset:0;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 8px;}
+  .u-col{overflow:hidden;}
+  .u-track{display:flex;flex-direction:column;gap:8px;will-change:transform;animation:mscroll 36s linear infinite;}
+  .u-col.up .u-track{animation-direction:reverse;animation-duration:44s;}
+  .u-track img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:12px;flex:none;background:var(--cream-2);}
+  .u-texte{position:relative;z-index:1;margin:18px 14px;padding:14px 16px;border-radius:16px;background:rgba(255,251,243,.84);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);box-shadow:0 8px 24px -10px rgba(36,21,54,.35);text-align:center;}
+  .u-texte p{font-size:12px;color:var(--ink);}
+  .u-texte .u-icon{margin-bottom:6px;}
+  @media (prefers-reduced-motion:reduce){.u-track{animation:none;}}
   .universe-card .soon{position:absolute;top:10px;right:10px;font-size:8.5px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;
     color:var(--gold-deep);background:#FBF0DA;border-radius:20px;padding:3px 8px;}
   .universe-tagline{text-align:center;font-size:13px;font-weight:700;color:var(--ink);margin:-6px 0 22px;font-family:'Sora',sans-serif;}
@@ -207,15 +217,14 @@
 <nav class="nav">
   <div class="wrap">
     <div class="brand"><img src="assets/img/icons/komyo-k-v3.webp" alt="">KOMYO</div>
-    <a class="cta" href="inscription.html">Créer un compte</a>
   </div>
 </nav>
 
 <div class="hero">
   <div class="mosaic">
-    <div class="mcol down"><div class="mtrack"><img src="https://images.unsplash.com/photo-1770842655322-bcfd1c4be229?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Enfant qui rit aux éclats" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1643818657367-491080baeece?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Famille qui saute de joie" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1768244016603-7a8f46acc462?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Jeune homme qui éclate de rire" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1719086249857-4e6b77012f1e?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Enfants complices et rieurs" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1770842655322-bcfd1c4be229?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1643818657367-491080baeece?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1768244016603-7a8f46acc462?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1719086249857-4e6b77012f1e?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"></div></div>
-    <div class="mcol up"><div class="mtrack"><img src="https://images.unsplash.com/photo-1764145177622-8317fbfe1877?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Fillette au grand sourire" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1643818653783-2f818a205bb6?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Famille bras ouverts dans l'herbe" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1633539656332-d0861676473a?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Garçon hilare" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1596768453551-c1e07b6fc1b6?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Amies qui rient devant un téléphone" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1764145177622-8317fbfe1877?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1643818653783-2f818a205bb6?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1633539656332-d0861676473a?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1596768453551-c1e07b6fc1b6?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"></div></div>
-    <div class="mcol down"><div class="mtrack"><img src="https://images.unsplash.com/photo-1643818656778-714d7ba6b420?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Fillette sur les épaules de son papa" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1571417800906-5a5058dbd45d?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Cinq garçons souriants" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1751580471264-7f8cd53d82d8?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Maman et ses trois enfants" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1596510914965-9ae08acae566?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="Parents et bébé heureux" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1643818656778-714d7ba6b420?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1571417800906-5a5058dbd45d?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1751580471264-7f8cd53d82d8?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1596510914965-9ae08acae566?crop=faces&fit=crop&fm=jpg&q=72&w=360&h=480" alt="" aria-hidden="true" loading="eager" decoding="async"></div></div>
+    <div class="mcol down"><div class="mtrack"><img src="https://images.unsplash.com/photo-1770842655322-bcfd1c4be229?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="Enfant qui rit aux éclats" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1643818657367-491080baeece?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="Famille qui saute de joie" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1768244016603-7a8f46acc462?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="Jeune homme qui éclate de rire" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1719086249857-4e6b77012f1e?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="Enfants complices et rieurs" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1770842655322-bcfd1c4be229?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1643818657367-491080baeece?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1768244016603-7a8f46acc462?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1719086249857-4e6b77012f1e?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" aria-hidden="true" loading="eager" decoding="async"></div></div>
+    <div class="mcol up"><div class="mtrack"><img src="https://images.unsplash.com/photo-1764145177622-8317fbfe1877?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="Fillette au grand sourire" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1643818653783-2f818a205bb6?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="Famille bras ouverts dans l'herbe" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1633539656332-d0861676473a?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="Garçon hilare" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1596768453551-c1e07b6fc1b6?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="Amies qui rient devant un téléphone" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1764145177622-8317fbfe1877?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1643818653783-2f818a205bb6?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1633539656332-d0861676473a?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1596768453551-c1e07b6fc1b6?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" aria-hidden="true" loading="eager" decoding="async"></div></div>
+    <div class="mcol down"><div class="mtrack"><img src="https://images.unsplash.com/photo-1643818656778-714d7ba6b420?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="Fillette sur les épaules de son papa" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1571417800906-5a5058dbd45d?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="Cinq garçons souriants" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1751580471264-7f8cd53d82d8?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="Maman et ses trois enfants" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1596510914965-9ae08acae566?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="Parents et bébé heureux" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1643818656778-714d7ba6b420?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1571417800906-5a5058dbd45d?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1751580471264-7f8cd53d82d8?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" aria-hidden="true" loading="eager" decoding="async"><img src="https://images.unsplash.com/photo-1596510914965-9ae08acae566?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" aria-hidden="true" loading="eager" decoding="async"></div></div>
   </div>
   <div class="hero-body">
     <img class="hero-logo" src="assets/img/icons/komyo-logo-officiel-v2.webp" alt="KOMYO — Le monde en mouvement" width="260" height="208">
@@ -293,13 +302,23 @@
       <h3>KOMYO Musique</h3>
       <p>Clips, sons et nouveautés des artistes. Annonces pour faire connaître ta musique.</p>
     </a>
-    <a class="universe-card reveal" href="fil.html?espace=decouverte" style="grid-column:1/-1;">
-      <div class="u-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.3"><circle cx="12" cy="12" r="9"/><path d="m14.5 9.5-2 5-3 2 2-5 3-2z"/></svg></div>
-      <span class="age">Le monde entier</span>
-      <h3>KOMYO Découverte</h3>
-      <p>Explore le monde et ses cultures à travers les vidéos de la communauté. Ouvert maintenant.</p>
+    <a class="universe-card universe-defile reveal" href="fil.html?espace=decouverte" style="grid-column:1/-1;">
+      <div class="u-fond" aria-hidden="true"><div class="u-col down"><div class="u-track"><img src="https://images.unsplash.com/photo-1770842655322-bcfd1c4be229?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1764145177622-8317fbfe1877?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1643818656778-714d7ba6b420?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1770842655322-bcfd1c4be229?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1764145177622-8317fbfe1877?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1643818656778-714d7ba6b420?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"></div></div><div class="u-col up"><div class="u-track"><img src="https://images.unsplash.com/photo-1643818657367-491080baeece?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1643818653783-2f818a205bb6?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1571417800906-5a5058dbd45d?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1643818657367-491080baeece?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1643818653783-2f818a205bb6?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1571417800906-5a5058dbd45d?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"></div></div><div class="u-col down"><div class="u-track"><img src="https://images.unsplash.com/photo-1768244016603-7a8f46acc462?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1633539656332-d0861676473a?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1751580471264-7f8cd53d82d8?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1768244016603-7a8f46acc462?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1633539656332-d0861676473a?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1751580471264-7f8cd53d82d8?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"></div></div><div class="u-col up"><div class="u-track"><img src="https://images.unsplash.com/photo-1719086249857-4e6b77012f1e?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1596768453551-c1e07b6fc1b6?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1596510914965-9ae08acae566?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1719086249857-4e6b77012f1e?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1596768453551-c1e07b6fc1b6?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"><img src="https://images.unsplash.com/photo-1596510914965-9ae08acae566?crop=faces&fit=crop&fm=webp&q=72&w=300&h=400" alt="" loading="lazy" decoding="async"></div></div></div>
+      <div class="u-texte">
+        <div class="u-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.3"><circle cx="12" cy="12" r="9"/><path d="m14.5 9.5-2 5-3 2 2-5 3-2z"/></svg></div>
+        <span class="age">Le monde entier</span>
+        <h3>KOMYO Découverte</h3>
+        <p>Explore le monde et ses cultures à travers les vidéos de la communauté. Ouvert maintenant.</p>
+      </div>
     </a>
   </div>
+</section>
+
+<section class="wrap" style="padding-top:0;">
+  <a class="reveal" href="boutique.html" style="display:flex;align-items:center;gap:14px;padding:18px 18px;border-radius:20px;background:linear-gradient(135deg,#1f8f4a,#2fb35f);color:#fff;text-decoration:none;box-shadow:0 16px 30px -16px rgba(31,143,74,.65);">
+    <span style="font-size:34px;line-height:1;">🏪</span>
+    <span style="display:block;text-align:left;"><b style="display:block;font-family:'Sora',sans-serif;font-size:17px;">Tu vends quelque chose ? Ouvre ta boutique KOMYO</b><span style="font-size:13px;opacity:.95;">3 étapes : un compte gratuit, l'abonnement Business (5 000 FCFA par mois), ta boutique. Tes clients te paient directement.</span><b style="display:inline-block;margin-top:8px;font-family:'Sora',sans-serif;font-size:13px;text-decoration:underline;">Ouvrir ma boutique →</b></span>
+  </a>
 </section>
 
 <section class="wrap" style="padding-top:0;">
@@ -315,7 +334,7 @@
 
 <section class="wrap" style="padding-top:0;">
   <div class="kids-banner reveal">
-    <img src="assets/img/kids-joie.jpg" alt="Des enfants qui rient à la balançoire, au foot et au château de sable" width="736" height="736">
+    <img src="assets/img/kids-joie.webp" alt="Des enfants qui rient à la balançoire, au foot et au château de sable" width="736" height="736">
     <span class="kids-badge"><img src="assets/img/pioupiou-logo-slogan-v2.webp" alt="PIOUPIOU — Le bonheur dans chaque croquant !"></span>
     <div class="kids-banner-body">
       <h3>Un monde à part pour les tout-petits</h3>
@@ -375,7 +394,7 @@
     bt.disabled=true; etat.style.color='#241536'; etat.textContent='Envoi…';
     fetch('/api/leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'komyo-contact',nom:nom||'Visiteur KOMYO',email:estMail?joindre:'',telephone:estMail?'':joindre,service:'KOMYO',message:msg,site:(document.getElementById('ctSite')||{}).value||''})})
       .then(function(r){ bt.disabled=false; if(r.status===429){ etat.style.color='#b3261e'; etat.textContent='Beaucoup de messages en ce moment. Réessaie dans un petit moment.'; return; } if(!r.ok) throw 0;
-        etat.style.color='#1a7f37'; etat.textContent='Merci ! Ton message est bien envoyé à l\'équipe KOMYO. Nous te répondons vite.'; f.reset(); })
+        return r.json().then(function(d){ return d; }, function(){ return {}; }).then(function(d){ etat.style.color='#1a7f37'; etat.textContent='Merci ! Ton message est bien envoyé à l\'équipe KOMYO. Nous te répondons vite.' + (d.accuse==='messagerie' ? ' Un petit mot de Keydou t\'attend dans ta messagerie KOMYO.' : d.accuse==='email' ? ' Un accusé de réception vient de partir sur ton e-mail.' : ''); f.reset(); }); })
       .catch(function(){ bt.disabled=false; etat.style.color='#b3261e'; etat.textContent='L\'envoi n\'a pas marché. Réessaie dans un instant.'; });
   });
 })();
@@ -411,18 +430,23 @@
   function markPlayed(){ try{ sessionStorage.setItem(KEY, '1'); }catch(e){} }
   audio.addEventListener('ended', function(){ hint.hidden = true; });
   audio.play().then(markPlayed).catch(function(){
+    // Le navigateur refuse de lancer un son tout seul : la voix part dès le premier toucher, où que ce soit sur la page
+    // (ou en touchant le petit haut-parleur).
     hint.hidden = false;
-    hint.addEventListener('click', function(){
-      audio.play().then(markPlayed).catch(function(){});
+    var evts = ['pointerdown', 'touchend', 'click', 'keydown'];
+    function lancer(){
+      evts.forEach(function(n){ document.removeEventListener(n, lancer, true); });
       hint.hidden = true;
-    });
+      audio.play().then(markPlayed).catch(function(){});
+    }
+    evts.forEach(function(n){ document.addEventListener(n, lancer, true); });
   });
 })();
 </script>
 
-<script src="assets/keydou-bulle-v1.js" defer></script>
+<script src="assets/keydou-bulle-v2.js" defer></script>
 <script src="assets/keydou-vignette-v1.js" defer></script>
-<script src="assets/komyo-installer-v5.js" defer></script>
+<script src="assets/komyo-installer-v6.js" defer></script>
 <script src="assets/bulle-komyo.js" defer></script>
 </body>
 </html>

@@ -43,7 +43,7 @@ const toApi = (r: PubRow) => ({ id: r.id, texte: r.texte, lien: r.lien, categori
 
 export default async (req: Request, _context: Context) => {
   await ensureSchema();
-  const sql = db();
+  const { sql } = db();
   const url = new URL(req.url);
 
   // ---------- côté staff ----------
@@ -55,7 +55,7 @@ export default async (req: Request, _context: Context) => {
       SELECT g.*, a.telephone, p.nom AS auteur_nom FROM starvibe_pub g
       JOIN starvibe_accounts a ON a.id = g.account_id
       LEFT JOIN starvibe_profiles p ON p.account_id = a.id AND p.type_profil = 'personnel'
-      WHERE g.statut = 'en_attente_paiement' ORDER BY g.created_at ASC LIMIT 50
+      WHERE g.statut IN ('en_attente_paiement', 'payee') ORDER BY g.created_at ASC LIMIT 50
     `) as PubRow[];
     return json({ annonces: rows.map((r) => ({ ...toApi(r), telephone: r.telephone, auteur: r.auteur_nom || "" })) });
   }
@@ -68,16 +68,18 @@ export default async (req: Request, _context: Context) => {
       const pubId = Number(body.pubId);
       const r = (await sql`SELECT * FROM starvibe_pub WHERE id = ${pubId} LIMIT 1`) as PubRow[];
       if (!r[0]) return json({ error: "Annonce introuvable" }, 404);
-      if (r[0].statut !== "en_attente_paiement") return json({ error: `Cette annonce est déjà « ${r[0].statut} »` }, 409);
+      // « payee » = dépôt reconnu automatiquement par SMS, il reste la relecture du message par l'équipe.
+      const dejaPayee = r[0].statut === "payee";
+      if (r[0].statut !== "en_attente_paiement" && !dejaPayee) return json({ error: `Cette annonce est déjà « ${r[0].statut} »` }, 409);
       if (action === "refuser") {
         await sql`UPDATE starvibe_pub SET statut = 'refusee', refus_motif = ${clean(body.motif, 200)} WHERE id = ${pubId}`;
         return json({ statut: "refusee" });
       }
-      const montantRecu = Math.round(Number(body.montantRecu));
+      const montantRecu = dejaPayee ? r[0].montant_attendu : Math.round(Number(body.montantRecu));
       if (!Number.isFinite(montantRecu)) return json({ error: "montantRecu requis" }, 400);
       const valide = montantRecu === r[0].montant_attendu;   // montant EXACT, sinon rien ne s'active
       await sql`
-        UPDATE starvibe_pub SET montant_recu = ${montantRecu}, reference_transaction = ${clean(body.reference, 120)},
+        UPDATE starvibe_pub SET montant_recu = ${montantRecu}, reference_transaction = ${clean(body.reference, 120) || r[0].reference_transaction},
           statut = ${valide ? "actif" : "paiement_invalide"},
           started_at = ${valide ? sql`now()` : null},
           expires_at = ${valide ? sql`now() + (${r[0].jours} * interval '1 day')` : null}
@@ -107,6 +109,12 @@ export default async (req: Request, _context: Context) => {
   }
 
   if (req.method === "POST") {
+    // Le client retire lui-même une annonce restée sans dépôt.
+    if (clean(body.action, 20) === "annuler") {
+      const id = Number(body.id);
+      const a = (await sql`UPDATE starvibe_pub SET statut = 'annulee' WHERE id = ${id} AND account_id = ${accountId} AND statut = 'en_attente_paiement' RETURNING id`) as unknown[];
+      return json({ ok: a.length > 0 });
+    }
     if (clean(body.action, 20) === "creer") {
       const texte = clean(body.texte, 100), lien = clean(body.lien, 200), plan = clean(body.plan, 20);
       const categorie = CATEGORIES.includes(clean(body.categorie, 20)) ? clean(body.categorie, 20) : "autre";

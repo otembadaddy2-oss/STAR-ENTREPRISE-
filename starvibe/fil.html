@@ -3,14 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<script src="assets/i18n-v1.js"></script>
+<script src="assets/i18n-v2.js"></script>
 <title>KOMYO — Fil</title>
 <meta name="theme-color" content="#050B18">
 <link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+<link rel="preload" href="/starvibe/assets/fonts/inter-latin-v1.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/starvibe/assets/fonts/komyo-fonts-v1.css">
 <style>
   :root{--navy:#241536;--coral:#FF6B4A;--gold:#E8A93D;--gold-light:#f0c47a;--kids:#2f8f6e;}
   *{box-sizing:border-box;}
@@ -141,6 +139,46 @@
   .ami-row .av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
   .ami-row b{flex:1;font:700 14px 'Sora',Arial,sans-serif;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .ami-row button{flex:none;border:none;border-radius:999px;padding:8px 14px;font:800 12px 'Sora',Arial,sans-serif;background:linear-gradient(135deg,#FF6B4A,#E8A93D);color:#fff;cursor:pointer;width:auto;}
+  .ami-row input[type=checkbox]{width:22px;height:22px;flex:none;accent-color:#FF6B4A;margin:0;}
+  /* Page « Inviter des amis » : grandes cartes façon galerie, on touche pour sélectionner */
+  .invp{position:fixed;inset:0;z-index:60;background:#0f0a18;color:#fff;display:flex;flex-direction:column;}
+  .invp[hidden]{display:none;}
+  .invp-tete{flex:none;display:flex;align-items:center;gap:10px;padding:calc(12px + env(safe-area-inset-top,0px)) 14px 10px;border-bottom:1px solid rgba(255,255,255,.1);}
+  .invp-tete button{border:1.5px solid rgba(255,255,255,.4);background:rgba(255,255,255,.1);color:#fff;border-radius:999px;padding:8px 14px;font:700 13px 'Sora',Arial,sans-serif;cursor:pointer;}
+  .invp-tete h2{margin:0;font:800 17px 'Sora',Arial,sans-serif;flex:1;}
+  .invp-aide{flex:none;margin:0;padding:8px 14px;font-size:12.5px;line-height:1.4;opacity:.85;}
+  .invp-grille{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:4px 10px 150px;display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start;align-content:start;}
+  .invp-col{display:flex;flex-direction:column;gap:10px;min-width:0;}
+  .invp-carte{display:block;position:relative;width:100%;margin:0;padding:0;border:3px solid transparent;border-radius:20px;overflow:hidden;background:#241a34;cursor:pointer;color:#fff;text-align:left;transition:border-color .2s ease,transform .2s ease;}
+  .invp-carte:active{transform:scale(.97);}
+  .invp-carte .ph{display:block;width:100%;object-fit:cover;}
+  .invp-carte .ini{display:flex;align-items:center;justify-content:center;width:100%;font:800 44px 'Sora',Arial,sans-serif;background:linear-gradient(135deg,#FF6B4A,#E8A93D);}
+  .invp-carte .nom{position:absolute;left:0;right:0;bottom:0;padding:26px 10px 9px;background:linear-gradient(0deg,rgba(0,0,0,.78),transparent);font:800 13.5px 'Sora',Arial,sans-serif;line-height:1.25;}
+  .invp-carte .nom small{display:block;font:600 11px 'Inter',Arial,sans-serif;opacity:.9;margin-top:2px;}
+  .invp-carte .badge{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.55);border-radius:999px;padding:3px 9px;font:700 10.5px 'Sora',Arial,sans-serif;}
+  .invp-carte .coche{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.45);border:2px solid rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;font-size:15px;color:transparent;}
+  .invp-carte.on{border-color:#E8A93D;}
+  .invp-carte.on .coche{background:#E8A93D;border-color:#E8A93D;color:#241536;font-weight:900;}
+  .invp-carte.deja{opacity:.55;cursor:default;}
+  .invp-carte .etq{position:absolute;top:44px;right:8px;background:#E8A93D;color:#241536;border-radius:999px;padding:3px 9px;font:800 10.5px 'Sora',Arial,sans-serif;display:none;}
+  .invp-carte.on .etq{display:block;}
+  .invp-bas{position:absolute;left:0;right:0;bottom:0;padding:12px 14px calc(12px + env(safe-area-inset-bottom,0px));background:linear-gradient(0deg,#0f0a18 70%,transparent);display:grid;gap:8px;}
+  .invp-bas .compte{font:700 13px 'Sora',Arial,sans-serif;text-align:center;min-height:18px;}
+  .invp-bas .compte small{display:block;font:500 11.5px 'Inter',Arial,sans-serif;opacity:.8;}
+  .invp-bas .go{border:0;border-radius:16px;padding:14px;background:linear-gradient(135deg,#FF6B4A,#E8A93D);color:#fff;font:800 15px 'Sora',Arial,sans-serif;cursor:pointer;}
+  .invp-bas .go:disabled{opacity:.45;cursor:default;}
+  .invp-bas .wa{background:none;border:0;color:#fff;opacity:.85;text-decoration:underline;font:600 12.5px 'Inter',Arial,sans-serif;cursor:pointer;padding:4px;}
+  .invp-vide{grid-column:1/-1;padding:30px 14px;text-align:center;font-size:13px;opacity:.85;}
+  @media (prefers-reduced-motion:reduce){.invp-carte{transition:none;}}
+  .ami-row a{flex:none;width:auto;padding:8px 14px;border-radius:999px;background:#25D366;color:#fff;font:800 12px 'Sora',Arial,sans-serif;text-decoration:none;}
+  .ami-liste label.ami-row{cursor:pointer;}
+  .share-panel .inv-choix small{display:block;font:600 12px 'Inter',Arial,sans-serif;opacity:.8;margin-top:2px;}
+  .share-panel .inv-choix span.t{flex:1;text-align:left;}
+  /* Le bouton « + Inviter » à côté du nom : visible 3 secondes, caché 3 secondes, en boucle. */
+  .myo-btn{animation:myoCycle 6s ease-in-out infinite;}
+  .myo-btn.ok{animation:none;}
+  @keyframes myoCycle{0%,44%{opacity:1;visibility:visible}50%,94%{opacity:0;visibility:hidden}100%{opacity:1;visibility:visible}}
+  @media (prefers-reduced-motion:reduce){.myo-btn{animation:none;}}
   .ami-row button[disabled]{background:#1f8f4a;opacity:1;}
   .mute-hint svg{width:26px;height:26px;}
 
@@ -162,6 +200,22 @@
 
   .feed-empty{height:100dvh;display:flex;align-items:center;justify-content:center;text-align:center;padding:30px;scroll-snap-align:start;}
   .feed-empty p{font-size:13px;color:rgba(255,255,255,.7);line-height:1.7;}
+  /* Fiche d'un espace vide : ce qui est gratuit, ce qui est payant, et où toucher */
+  .carte-visite{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:4px 0 2px;pointer-events:auto;}
+  .carte-visite span{background:rgba(0,0,0,.45);border-radius:999px;padding:3px 10px;font:700 11.5px 'Sora',Arial,sans-serif;color:#fff;}
+  .carte-visite a{background:#25D366;color:#fff;border-radius:999px;padding:4px 12px;font:800 11.5px 'Sora',Arial,sans-serif;text-decoration:none;}
+  .feed-vide .esp-promo,.feed-vide .esp-intro{display:none!important;}
+  .fiche{width:100%;max-width:360px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:22px;padding:22px 18px;text-align:left;}
+  .fiche h3{margin:0 0 6px;font:800 18px 'Sora',Arial,sans-serif;color:#fff;}
+  .fiche p{margin:0 0 12px;}
+  .fiche ul{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px;}
+  .fiche li{font-size:13.5px;line-height:1.45;color:#fff;background:rgba(255,255,255,.07);border-radius:12px;padding:9px 12px;}
+  .fiche li b{font-family:'Sora',Arial,sans-serif;}
+  .fiche .gratuit{color:#7fe3a0;}
+  .fiche .actions-f{display:grid;gap:8px;}
+  .fiche .actions-f button,.fiche .actions-f a{display:block;text-align:center;text-decoration:none;border:0;border-radius:14px;padding:13px 10px;font:800 14px 'Sora',Arial,sans-serif;color:#fff;cursor:pointer;background:linear-gradient(135deg,#FF6B4A,#E8A93D);}
+  .fiche .actions-f a.alt{background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.4);}
+  .fiche .actions-f a.vert{background:linear-gradient(135deg,#1f8f4a,#2fb35f);}
 
   /* Upload modal */
   @keyframes slideUp{from{transform:translateY(30px);opacity:0;}to{transform:translateY(0);opacity:1;}}
@@ -195,6 +249,8 @@
   .espaces::-webkit-scrollbar{display:none;}
   .espaces a{flex:none;color:#fff;text-decoration:none;font:700 12px 'Sora',sans-serif;padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(6px);}
   .espaces a.on{background:linear-gradient(135deg,var(--coral),var(--gold));border-color:transparent;}
+  .espaces{transition:opacity .7s ease;}
+  .espaces.cache{opacity:0;pointer-events:none;}
   .esp-intro{position:fixed;left:14px;right:14px;top:calc(100px + env(safe-area-inset-top));z-index:28;color:#fff;font:600 12px/1.4 'Inter',sans-serif;text-shadow:0 1px 6px rgba(0,0,0,.7);pointer-events:none;max-width:420px;}
   .src-row{display:flex;gap:10px;margin-bottom:12px;}
   .src-btn{flex:1;border:1.5px solid #eee2cc;background:#fffaf0;color:#241536;font-family:'Sora',sans-serif;font-weight:800;font-size:13px;padding:14px 8px;border-radius:14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;line-height:1.2;}
@@ -241,6 +297,7 @@
   </nav>
   <div class="esp-intro" id="espIntro" hidden></div>
   <a class="esp-promo" id="espPromo" href="promouvoir.html" hidden>Faire connaître mon activité ou ma musique →</a>
+  <a class="esp-promo" id="espBoutique" href="boutique.html" hidden style="top:calc(184px + env(safe-area-inset-top));background:linear-gradient(135deg,#1f8f4a,#2fb35f);">🏪 Ouvrir ma boutique →</a>
   <div class="feed" id="feed"></div>
   <div class="activity-wrap" id="activityWrap"></div>
   <div class="deskNav" aria-label="Vidéo précédente ou suivante"><button type="button" id="dnUp" aria-label="Vidéo précédente">▲</button><button type="button" id="dnDown" aria-label="Vidéo suivante">▼</button></div>
@@ -266,12 +323,26 @@
   </div>
 </div>
 
-<div class="share-sheet" id="amiSheet" hidden>
-  <div class="share-panel" role="dialog" aria-label="Regarder avec un ami">
-    <h2>Regarder avec un ami</h2>
-    <p class="sp-info" id="amiInfo" role="status">Ton ami reçoit une invitation. S'il accepte, la même vidéo s'ouvre sur son téléphone.</p>
-    <div id="amiListe" class="ami-liste"></div>
-    <button type="button" class="sp-x" id="amiClose">Fermer</button>
+<div class="invp" id="invPage" hidden role="dialog" aria-label="Inviter des amis">
+  <div class="invp-tete"><button type="button" id="invpRetour">← Retour</button><h2>Inviter des amis</h2></div>
+  <p class="invp-aide" id="invpAide">Touche une photo pour la sélectionner. Tu peux en sélectionner plus : chacun reçoit son invitation.</p>
+  <div class="invp-grille" id="invpGrille"></div>
+  <div class="invp-bas">
+    <div class="compte" id="invpCompte"></div>
+    <button type="button" class="go" id="invpGo" disabled>Inviter</button>
+    <button type="button" class="wa" id="invpWa">Quelqu'un qui n'est pas encore sur KOMYO ? L'inviter par WhatsApp</button>
+  </div>
+</div>
+
+<div class="share-sheet" id="invSheet" hidden>
+  <div class="share-panel" role="dialog" aria-label="Inviter quelqu'un qui n'est pas encore sur KOMYO">
+    <h2>Inviter quelqu'un sur KOMYO</h2>
+    <p class="sp-info" id="invInfo" role="status">Choisis des contacts de ton téléphone : l'invitation part sur WhatsApp.</p>
+    <div id="invMenu" style="display:grid;gap:8px">
+      <button type="button" class="inv-choix" id="invKomyo">📲<span class="t">Choisir dans mes contacts<small>Plusieurs personnes possibles</small></span></button>
+    </div>
+    <div id="invListe" class="ami-liste"></div>
+    <button type="button" class="sp-x" id="invClose">Fermer</button>
   </div>
 </div>
 
@@ -430,29 +501,104 @@
     spInfo.textContent = ''; shareSheet.hidden = false;
   }
 
-  // ---------- Regarder avec un ami : on choisit un ami Myo, il reçoit une invitation (Oui = la même vidéo s'ouvre chez lui) ----------
-  var amiSheet = document.getElementById('amiSheet'), amiListe = document.getElementById('amiListe'), amiInfo = document.getElementById('amiInfo'), videoPartagee = null;
-  document.getElementById('amiClose').addEventListener('click', function(){ amiSheet.hidden = true; });
-  amiSheet.addEventListener('click', function(e){ if (e.target === amiSheet) amiSheet.hidden = true; });
+  // ---------- Inviter des amis : une grande page de photos à sélectionner ----------
+  var invPage = document.getElementById('invPage'), invpGrille = document.getElementById('invpGrille'), invpGo = document.getElementById('invpGo'), invpCompte = document.getElementById('invpCompte'), invpAide = document.getElementById('invpAide');
+  var invSheet = document.getElementById('invSheet'), invInfo = document.getElementById('invInfo'), invMenu = document.getElementById('invMenu'), invListe = document.getElementById('invListe');
+  var videoPartagee = null, invpChoix = {}, invpSuivant = 0, invpFin = false, invpCharge = false, invpN = 0, invpPremier = true;
+  var MSG_INVITATION = 'Je suis sur KOMYO : vidéos, talents, business et amis, partout dans le monde. Rejoins-moi : ' + location.origin + '/starvibe/';
   function initialesAmi(n){ var p = String(n || '?').trim().split(/\s+/); return ((p[0] || '?')[0] + (p[1] ? p[1][0] : '')).toUpperCase(); }
-  document.getElementById('spAmi').addEventListener('click', function(){
-    if (!window.komyoMyo || !videoPartagee){ spInfo.textContent = 'Connecte-toi pour inviter un ami.'; return; }
-    fermerPartage(); amiSheet.hidden = false; amiListe.innerHTML = '<p class="sp-info">Chargement de tes amis…</p>';
-    window.komyoMyo.api({ q: '?amis=1' }).then(function(r){ return r.json(); }).then(function(d){
-      var amis = d.amis || [];
-      if (!amis.length){ amiListe.innerHTML = '<p class="sp-info">Tu n\'as pas encore d\'ami Myo.<br>Touche « + Inviter » à côté du nom d\'une personne pour l\'inviter.</p>'; return; }
-      amiListe.innerHTML = amis.map(function(a){
-        return '<div class="ami-row"><span class="av">' + esc(initialesAmi(a.nom)) + (a.photoUrl ? '<img src="' + esc(a.photoUrl) + '" alt="" onerror="this.remove()">' : '') + '</span><b>' + esc(a.nom) + '</b><button type="button" data-p="' + esc(a.profilId) + '">Inviter</button></div>';
-      }).join('');
-    }).catch(function(){ amiListe.innerHTML = '<p class="sp-info">Impossible de charger tes amis pour le moment.</p>'; });
+  function invpMaj(){
+    var n = Object.keys(invpChoix).length;
+    invpGo.disabled = !n;
+    invpGo.textContent = n ? 'Inviter ' + n + ' personne' + (n > 1 ? 's' : '') : 'Inviter';
+    invpCompte.innerHTML = n ? 'Sélectionné : ' + n + '<small>Sélectionne-en plus si tu veux</small>' : '<small>Aucune personne sélectionnée</small>';
+  }
+  function invpCarte(m){
+    var hauteurs = ['125%', '100%', '140%', '115%'];
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'invp-carte'; b.setAttribute('data-p', m.profilId); b.setAttribute('aria-pressed', 'false');
+    var deja = m.etat === 'envoyee';
+    if (deja) b.className += ' deja';
+    var h = hauteurs[invpN++ % hauteurs.length];
+    b.innerHTML = (m.photoUrl ? '<img class="ph" loading="lazy" alt="" src="' + esc(m.photoUrl) + '" style="aspect-ratio:100/' + parseInt(h, 10) + '">' : '<span class="ini" style="aspect-ratio:100/' + parseInt(h, 10) + '">' + esc(initialesAmi(m.nom)) + '</span>') +
+      (m.etat === 'amis' ? '<span class="badge">Ami(e)</span>' : '') + '<span class="coche">✓</span><span class="etq">Sélectionné</span>' +
+      '<span class="nom">' + esc(m.nom) + (deja ? '<small>Invitation déjà envoyée</small>' : '') + '</span>';
+    var img = b.querySelector('img'); if (img) img.addEventListener('error', function(){ img.remove(); var s2 = document.createElement('span'); s2.className = 'ini'; s2.style.aspectRatio = '100/' + parseInt(h, 10); s2.textContent = initialesAmi(m.nom); b.insertBefore(s2, b.firstChild); });
+    if (!deja) b.addEventListener('click', function(){
+      var id = String(m.profilId);
+      if (invpChoix[id]){ delete invpChoix[id]; b.classList.remove('on'); b.setAttribute('aria-pressed', 'false'); }
+      else { invpChoix[id] = m; b.classList.add('on'); b.setAttribute('aria-pressed', 'true'); }
+      invpMaj();
+    });
+    return b;
+  }
+  function invpCharger(){
+    if (invpCharge || invpFin) return; invpCharge = true;
+    window.komyoMyo.api({ q: '?membres=1&decalage=' + invpSuivant }).then(function(r){ return r.json(); }).then(function(d){
+      var liste = d.membres || [];
+      if (invpPremier){ invpGrille.innerHTML = ''; invpPremier = false; }
+      if (!invpSuivant && !liste.length){ invpGrille.innerHTML = '<p class="invp-vide">Personne à inviter pour le moment.<br>Dès que d\'autres personnes rejoignent KOMYO, tu les verras ici.</p>'; }
+      if (!invpGrille.querySelector('.invp-col') && liste.length){ invpGrille.innerHTML = '<div class="invp-col"></div><div class="invp-col"></div>'; }
+      var cols = invpGrille.querySelectorAll('.invp-col');
+      liste.forEach(function(m){ if (!cols.length) return; var c = cols[0].offsetHeight <= cols[1].offsetHeight ? cols[0] : cols[1]; c.appendChild(invpCarte(m)); });
+      invpSuivant = d.suivant || invpSuivant; invpFin = !!d.fin; invpCharge = false;
+    }).catch(function(){ invpCharge = false; if (!invpGrille.children.length) invpGrille.innerHTML = '<p class="invp-vide">Impossible de charger la liste pour le moment. Réessaie dans un instant.</p>'; });
+  }
+  invpGrille.addEventListener('scroll', function(){ if (invpGrille.scrollTop + invpGrille.clientHeight > invpGrille.scrollHeight - 400) invpCharger(); });
+  function fermerInviterPage(){ invPage.hidden = true; document.documentElement.style.overflow = ''; }
+  function ouvrirInviter(v){
+    videoPartagee = v;
+    if (!window.komyoMyo){ invInfo.textContent = 'Connecte-toi pour inviter des amis.'; invListe.innerHTML = ''; invMenu.hidden = true; invSheet.hidden = false; return; }
+    invpChoix = {}; invpSuivant = 0; invpFin = false; invpCharge = false; invpN = 0; invpPremier = true; invpGrille.innerHTML = '<p class="invp-vide">Chargement…</p>';
+    invpAide.textContent = 'Touche une photo pour la sélectionner. Tu peux en sélectionner plus : chacun reçoit son invitation' + (v && !v.verrouille ? ' à regarder cette vidéo.' : '.');
+    invpMaj(); invPage.hidden = false; document.documentElement.style.overflow = 'hidden';
+    invpGrille.scrollTop = 0; invpCharger();
+  }
+  document.getElementById('invpRetour').addEventListener('click', fermerInviterPage);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !invPage.hidden) fermerInviterPage(); });
+  invpGo.addEventListener('click', function(){
+    var ids = Object.keys(invpChoix); if (!ids.length) return;
+    invpGo.disabled = true; invpCompte.innerHTML = 'Envoi…';
+    var ok = 0, erreurs = [];
+    ids.reduce(function(p, id){
+      return p.then(function(){
+        var m = invpChoix[id];
+        // un ami : invitation à regarder la vidéo ; une autre personne : invitation à devenir ami (elle répond Oui / Non)
+        var envoi = (m.etat === 'amis' && videoPartagee && !videoPartagee.verrouille) ? window.komyoMyo.regarder(id, videoPartagee.id) : (m.etat === 'amis' ? Promise.resolve({ ok: true, d: {} }) : window.komyoMyo.inviter(id));
+        return envoi.then(function(r){ if (r.ok) ok++; else erreurs.push((r.d && r.d.error) || 'Invitation impossible'); }).catch(function(){ erreurs.push('Connexion interrompue'); });
+      });
+    }, Promise.resolve()).then(function(){
+      if (ok && !erreurs.length){
+        invpCompte.innerHTML = ok + ' invitation' + (ok > 1 ? 's envoyées' : ' envoyée') + ' ✓<small>Retour sur ta vidéo…</small>';
+        setTimeout(fermerInviterPage, 1100);   // on revient automatiquement là où on était
+      } else {
+        invpCompte.innerHTML = (ok ? ok + ' envoyée' + (ok > 1 ? 's' : '') + ' ✓ · ' : '') + erreurs.length + ' non envoyée' + (erreurs.length > 1 ? 's' : '') + '<small>' + esc(erreurs[0]) + '</small>';
+        invpGo.disabled = false;
+      }
+    });
   });
-  amiListe.addEventListener('click', function(e){
-    var b = e.target.closest && e.target.closest('button[data-p]'); if (!b || !videoPartagee) return;
-    b.disabled = true; b.textContent = '…';
-    window.komyoMyo.regarder(b.getAttribute('data-p'), videoPartagee.id).then(function(r){
-      if (!r.ok){ b.disabled = false; b.textContent = 'Inviter'; amiInfo.textContent = r.d.error || 'Invitation impossible.'; return; }
-      b.textContent = 'Invitation envoyée ✓'; amiInfo.textContent = 'Invitation envoyée ✓ — si ton ami accepte, la vidéo s\'ouvre sur son téléphone.';
-    }).catch(function(){ b.disabled = false; b.textContent = 'Inviter'; amiInfo.textContent = 'Connexion interrompue. Réessaie.'; });
+  document.getElementById('invpWa').addEventListener('click', function(){ invInfo.textContent = 'Choisis des contacts de ton téléphone : l\'invitation part sur WhatsApp.'; invMenu.hidden = false; invListe.innerHTML = ''; invSheet.hidden = false; });
+  function fermerInviter(){ invSheet.hidden = true; invListe.innerHTML = ''; invMenu.hidden = false; }
+  document.getElementById('invClose').addEventListener('click', fermerInviter);
+  invSheet.addEventListener('click', function(e){ if (e.target === invSheet) fermerInviter(); });
+  document.getElementById('spAmi').addEventListener('click', function(){ fermerPartage(); ouvrirInviter(videoPartagee); });
+
+  // 2) Inviter quelqu'un à rejoindre KOMYO : on choisit dans les contacts du téléphone (si le téléphone le permet), puis WhatsApp.
+  function numeroWa(t){ var d = String(t || '').replace(/[^\d+]/g, ''); if (d[0] === '+') return d.slice(1); if (d.slice(0, 2) === '00') return d.slice(2); if (d[0] === '0' && d.length === 9) return '242' + d; return d; }
+  document.getElementById('invKomyo').addEventListener('click', function(){
+    if (navigator.contacts && navigator.contacts.select){
+      navigator.contacts.select(['name', 'tel'], { multiple: true }).then(function(liste){
+        liste = (liste || []).filter(function(c){ return c.tel && c.tel.length; });
+        if (!liste.length){ invInfo.textContent = 'Aucun contact choisi.'; return; }
+        invMenu.hidden = true; invInfo.textContent = 'Touche « WhatsApp » à côté de chaque personne pour lui envoyer ton invitation.';
+        invListe.innerHTML = liste.map(function(c){
+          var nom = (c.name && c.name[0]) || c.tel[0];
+          return '<div class="ami-row"><span class="av">' + esc(initialesAmi(nom)) + '</span><b>' + esc(nom) + '</b><a target="_blank" rel="noopener" href="https://wa.me/' + esc(numeroWa(c.tel[0])) + '?text=' + encodeURIComponent(MSG_INVITATION) + '">WhatsApp</a></div>';
+        }).join('');
+      }).catch(function(){ invInfo.textContent = 'Impossible d\'ouvrir tes contacts.'; });
+    } else {
+      window.open('https://wa.me/?text=' + encodeURIComponent(MSG_INVITATION), '_blank');
+      invInfo.textContent = 'WhatsApp s\'ouvre : choisis tes amis dans ta liste.';
+    }
   });
 
   var premiereVideo = true;   // la 1re vidéo se charge tout de suite ; les suivantes se préparent quand on approche
@@ -475,10 +621,13 @@
           '<button class="share-btn" type="button" aria-label="Partager cette vidéo">' +
             '<span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.7 15.7 6.3M8.3 13.3l7.4 4.4"/></svg></span><span class="lbl">Partager</span>' +
           '</button>' +
+          '<button class="inv-btn" type="button" aria-label="Inviter un ami">' +
+            '<span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M19 8v6M16 11h6"/></svg></span><span class="lbl">Inviter</span>' +
+          '</button>' +
         (v.estMoi ? '<button class="del-btn" data-id="' + v.id + '" aria-label="Supprimer ma vidéo"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2m-9 0 1 14h8l1-14M10 11v6M14 11v6"/></svg></span><span class="lbl">Supprimer</span></button>' : '') +
         '</div>' +
       '</div>' +
-      '<div class="meta"><div class="auteur">@' + esc(v.auteur) + (!v.estMoi && v.auteurProfilId ? ' <button type="button" class="myo-btn" data-p="' + esc(v.auteurProfilId) + '">+ Inviter</button>' : '') + '</div><div class="legende">' + esc(v.legende || '') + '</div></div>';
+      '<div class="meta"><div class="auteur">@' + esc(v.auteur) + (!v.estMoi && v.auteurProfilId ? ' <button type="button" class="myo-btn" data-p="' + esc(v.auteurProfilId) + '">+ Inviter</button>' : '') + '</div>' + carteVisite(v) + '<div class="legende">' + esc(v.legende || '') + '</div></div>';
 
     var videoEl = slide.querySelector('video');
     premiereVideo = false;
@@ -490,6 +639,7 @@
     videoEl.addEventListener('error', function(){ attente.classList.remove('on'); });
     var share = slide.querySelector('.share-btn');
     share.addEventListener('click', function(){ fermerOpts(); ouvrirPartage(v); });
+    slide.querySelector('.inv-btn').addEventListener('click', function(){ fermerOpts(); ouvrirInviter(v); });
     var plus = slide.querySelector('.plus-btn'), opts = slide.querySelector('.opts'), optsTimer = null;
     function fermerOpts(){ clearTimeout(optsTimer); opts.hidden = true; plus.setAttribute('aria-expanded', 'false'); }
     function ouvrirOpts(){ opts.hidden = false; plus.setAttribute('aria-expanded', 'true'); }
@@ -602,15 +752,36 @@
     business: { nom: 'KOMYO Business', intro: 'Présente ton activité : produit, service, boutique. Écris dans la légende comment te contacter.', vide: 'Aucune activité publiée pour le moment.<br>Présente la tienne !' },
     musique: { nom: 'KOMYO Musique', intro: 'Clips, sons, nouveautés : artistes, DJ, chanteurs, groupes… fais écouter ta musique.', vide: 'Aucune musique publiée pour le moment.<br>Sois le premier à jouer !' },
     jeunes: { nom: 'KOMYO Jeunes', intro: 'L\'espace des 13–17 ans : crée, découvre et partage entre jeunes. Chaque vidéo est vérifiée avant d\'apparaître.', vide: 'Aucune vidéo pour le moment.<br>Sois le premier à publier !' },
-    decouverte: { nom: 'KOMYO Découverte', intro: 'Fais découvrir ton pays, ta ville, ta culture, tes plus beaux endroits.', vide: 'Aucune découverte publiée pour le moment.<br>Montre-nous ton coin du monde !' }
+    decouverte: { nom: 'KOMYO Découverte', intro: '', vide: 'Aucune découverte publiée pour le moment.<br>Montre-nous ton coin du monde !' }
   };
+  // Ce qui est gratuit et ce qui est payant dans chaque espace, dit simplement quand l'espace est encore vide.
+  var OFFRES = { talents: ['annonce'], business: ['annonce', 'boutique'], musique: ['annonce'], decouverte: [], jeunes: [] };
+  // Carte de visite facultative : l'activité de l'auteur et un bouton pour lui écrire sur WhatsApp.
+  function carteVisite(v){
+    if (!v || (!v.auteurActivite && !v.auteurWa)) return '';
+    var num = String(v.auteurWa || '').replace(/[^\d]/g, '');
+    return '<div class="carte-visite">' + (v.auteurActivite ? '<span>' + esc(v.auteurActivite) + '</span>' : '') +
+      (num.length >= 8 ? '<a href="https://wa.me/' + num + '?text=' + encodeURIComponent('Bonjour, je vous ai vu sur KOMYO : ' + (v.legende || '')) + '" target="_blank" rel="noopener">💬 WhatsApp</a>' : '') + '</div>';
+  }
+  function ficheEspace(){
+    var e = ESPACE ? ESPACES[ESPACE] : null, offres = ESPACE ? (OFFRES[ESPACE] || []) : ['annonce'];
+    var h = '<div class="fiche"><h3>' + (e ? e.nom : 'KOMYO') + '</h3><p>' + (e ? e.vide : 'Aucune vidéo pour le moment.<br>Sois le premier à publier !') + '</p><ul>' +
+      '<li>📹 Publier ta vidéo : <b class="gratuit">gratuit</b></li>';
+    if (offres.indexOf('annonce') >= 0) h += '<li>📣 Être vu par tous les abonnés : <b>annonce dès 2 000 FCFA</b> (1 semaine)</li>';
+    if (offres.indexOf('boutique') >= 0) h += '<li>🏪 Vendre : <b>boutique avec Business, 5 000 FCFA par mois</b></li>';
+    h += '</ul><div class="actions-f"><button type="button" id="ficheAdd">📹 Publier ma vidéo (gratuit)</button>';
+    if (offres.indexOf('annonce') >= 0) h += '<a class="alt" href="promouvoir.html">📣 Faire connaître mon activité</a>';
+    if (offres.indexOf('boutique') >= 0) h += '<a class="vert" href="boutique.html">🏪 Ouvrir ma boutique</a>';
+    return h + '</div></div>';
+  }
   var ESPACE = (function(){ var m = /[?&]espace=([a-z]+)/.exec(location.search); return m && ESPACES[m[1]] ? m[1] : ''; })();
   (function(){
     var bar = document.getElementById('espaces'); if (!bar) return;
     [].forEach.call(bar.querySelectorAll('a'), function(a){ a.classList.toggle('on', a.getAttribute('data-e') === ESPACE); });
     if (ESPACE){
-      var intro = document.getElementById('espIntro'); intro.textContent = ESPACES[ESPACE].intro; intro.hidden = false;
+      var intro = document.getElementById('espIntro'); intro.textContent = ESPACES[ESPACE].intro; intro.hidden = !ESPACES[ESPACE].intro;
       if (ESPACE === 'business' || ESPACE === 'musique' || ESPACE === 'talents'){ var ep = document.getElementById('espPromo'); if (ep) ep.hidden = false; }
+      if (ESPACE === 'business'){ var eb = document.getElementById('espBoutique'); if (eb) eb.hidden = false; }
       document.title = ESPACES[ESPACE].nom + ' — KOMYO';
       var br = document.querySelector('.topbar .brand'); if (br) br.lastChild.nodeValue = ESPACES[ESPACE].nom.replace('KOMYO ', '');
       var h2 = document.querySelector('#uploadModal h2'); if (h2) h2.textContent = 'Publier dans ' + ESPACES[ESPACE].nom;
@@ -627,7 +798,9 @@
       if (!videos.length && data.reserve){
         feed.innerHTML = '<div class="feed-empty"><p>KOMYO Jeunes est réservé aux 13–17 ans.</p></div>';
       } else if (!videos.length){
-        feed.innerHTML = '<div class="feed-empty"><p>' + (ESPACE ? ESPACES[ESPACE].vide : 'Aucune vidéo pour le moment.<br>Sois le premier à publier !') + '</p></div>';
+        feed.innerHTML = '<div class="feed-empty">' + ficheEspace() + '</div>';
+        document.body.classList.add('feed-vide');
+        var fa = document.getElementById('ficheAdd'); if (fa) fa.addEventListener('click', function(){ btnAdd.click(); });
       } else {
         videos.forEach(function(v){ feed.appendChild(renderVideo(v)); });
       }
@@ -771,7 +944,7 @@
     var b = e.target.closest && e.target.closest('.myo-btn'); if (!b || !window.komyoMyo) return;
     e.stopPropagation(); if (b.disabled) return; b.disabled = true; b.textContent = '…';
     window.komyoMyo.inviter(b.getAttribute('data-p')).then(function(r){
-      if (!r.ok){ b.disabled = false; b.textContent = '+ Inviter'; alert(r.d.error || 'Invitation impossible.'); return; }
+      if (!r.ok){ b.disabled = false; b.textContent = '+ Inviter'; alert(r.d.error || ('Invitation impossible pour le moment' + (r.status ? ' (code ' + r.status + ')' : '') + '. Réessaie dans un instant.')); return; }
       b.classList.add('ok'); b.textContent = r.d.etat === 'amis' ? 'Amis ✓' : 'Invitation envoyée ✓';
     }).catch(function(){ b.disabled = false; b.textContent = '+ Inviter'; });
   }, true);
@@ -1002,11 +1175,46 @@
 })();
 </script>
 <script src="assets/bulle-komyo.js" defer></script>
-<script src="assets/myo-v1.js" defer></script>
+<script src="assets/myo-v2.js" defer></script>
 <script src="assets/rappel-v1.js" defer></script>
 <script src="assets/pub-v1.js" defer></script>
-<script src="assets/keydou-bulle-v1.js" defer></script>
-<script src="assets/komyo-installer-v5.js" defer></script>
+<script src="assets/keydou-bulle-v2.js" defer></script>
+<script src="assets/komyo-installer-v6.js" defer></script>
 <script src="assets/guide-v1.js" defer></script>
+<script>
+// Barre des espaces (Tous · Talents · Business…) : si personne n'y touche, elle défile doucement de la droite vers la gauche, revient sur « Tous »
+// (toujours en tête), recommence ; elle apparaît 4 secondes, s'efface un instant, puis réapparaît. Le moindre toucher la fige et la montre.
+(function(){
+  var nav = document.getElementById('espaces'); if (!nav) return;
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var ATTENTE = 5000, VISIBLE = 4000, CACHEE = 3000, VITESSE = 26, PAUSE = 1400;
+  var actif = false, raf = 0, pos = 0, sens = 1, pause = 0, dernier = 0, minuteurs = [];
+  function vider(){ minuteurs.forEach(clearTimeout); minuteurs = []; }
+  function plus(f, ms){ minuteurs.push(setTimeout(f, ms)); }
+  function boucle(t){
+    if (!actif) return;
+    var dt = Math.min(64, t - (dernier || t)); dernier = t;
+    var max = nav.scrollWidth - nav.clientWidth;
+    if (max > 4){
+      if (pause > 0) pause -= dt;
+      else {
+        pos += sens * VITESSE * dt / 1000;
+        if (pos >= max){ pos = max; sens = -1; pause = PAUSE; }
+        else if (pos <= 0){ pos = 0; sens = 1; pause = PAUSE; }
+        nav.scrollLeft = Math.round(pos);
+      }
+    }
+    raf = requestAnimationFrame(boucle);
+  }
+  function cycle(){ if (!actif) return; nav.classList.remove('cache'); plus(function(){ if (!actif) return; nav.classList.add('cache'); plus(cycle, CACHEE); }, VISIBLE); }
+  function demarrer(){ if (actif || document.hidden || document.getElementById('feedWrap').hidden) { attendre(); return; } actif = true; pos = nav.scrollLeft; sens = 1; pause = PAUSE; dernier = 0; raf = requestAnimationFrame(boucle); cycle(); }
+  function attendre(){ vider(); plus(demarrer, ATTENTE); }
+  function arreter(){ actif = false; cancelAnimationFrame(raf); vider(); nav.classList.remove('cache'); attendre(); }
+  ['pointerdown','touchstart','touchmove','wheel','keydown','click'].forEach(function(n){ document.addEventListener(n, arreter, { passive: true, capture: true }); });
+  document.addEventListener('visibilitychange', function(){ if (document.hidden) arreter(); });
+  nav.addEventListener('scroll', function(){ if (!actif) pos = nav.scrollLeft; }, { passive: true });
+  attendre();
+})();
+</script>
 </body>
 </html>

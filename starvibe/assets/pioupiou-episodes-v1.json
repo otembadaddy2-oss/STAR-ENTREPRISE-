@@ -8,31 +8,36 @@
     {
      "id": "A1",
      "titre": "Bonjour papa, bonjour maman",
-     "duree": "60 s",
+     "dispo": true,
+     "duree": "42 s",
      "objectif": "Dire bonjour à ses parents dès le réveil."
     },
     {
      "id": "A2",
      "titre": "Les dents du matin",
-     "duree": "75 s",
+     "dispo": true,
+     "duree": "37 s",
      "objectif": "Se brosser les dents 2 minutes, en haut, en bas, devant, derrière."
     },
     {
      "id": "A3",
      "titre": "Les mains propres avant de manger",
-     "duree": "60 s",
+     "dispo": true,
+     "duree": "20 s",
      "objectif": "Se laver les mains avant chaque repas (savon, 20 secondes, rinçage, séchage)."
     },
     {
      "id": "A4",
      "titre": "Les mains propres après le repas",
-     "duree": "60 s",
+     "dispo": true,
+     "duree": "15 s",
      "objectif": "Se laver les mains après le repas, les toilettes, le jeu."
     },
     {
      "id": "A5",
      "titre": "Merci !",
-     "duree": "60 s",
+     "dispo": true,
+     "duree": "16 s",
      "objectif": "Dire merci quand on reçoit quelque chose."
     },
     {
@@ -204,6 +209,30 @@
      "titre": "Le grand jeu : de 1 à 20",
      "duree": "90 s",
      "objectif": "Quiz chronométré de fin de thème."
+    },
+    {
+     "id": "C7",
+     "titre": "La chanson de 20 à 30",
+     "duree": "75 s",
+     "objectif": "Compter de 20 à 30 en groupant par dizaines."
+    },
+    {
+     "id": "C8",
+     "titre": "La chanson de 30 à 40",
+     "duree": "75 s",
+     "objectif": "Compter de 30 à 40."
+    },
+    {
+     "id": "C9",
+     "titre": "Le décollage : de 10 à 0",
+     "duree": "60 s",
+     "objectif": "Compter à rebours de 10 à 0 (comprendre « avant » et « après »)."
+    },
+    {
+     "id": "C10",
+     "titre": "Le grand jeu : de 1 à 40",
+     "duree": "90 s",
+     "objectif": "Quiz de fin de thème : compter jusqu'à 40 par dizaines (10, 20, 30, 40)."
     }
    ]
   },

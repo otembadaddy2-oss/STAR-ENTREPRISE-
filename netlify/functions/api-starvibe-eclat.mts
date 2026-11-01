@@ -9,7 +9,7 @@ const ORG = "star_vibe";
 
 export default async (req: Request, _context: Context) => {
   await ensureSchema();
-  const sql = db();
+  const { sql } = db();
   const session = await requireAuth(req);
   if (!session || session.org !== ORG) return json({ error: "Non authentifié" }, 401);
   const accountId = Number(session.sub);

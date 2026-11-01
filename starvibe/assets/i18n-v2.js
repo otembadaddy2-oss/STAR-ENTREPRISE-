@@ -24,7 +24,13 @@
   var lang = 'fr';
   try {
     var q = /[?&]lang=(fr|en)\b/i.exec(location.search);
-    if (q) { lang = q[1].toLowerCase(); ecrire(KEY, lang); ecrire(KEY + '_bouton', '1'); }
+    if (!ANGLAIS_OUVERT) {
+      // L'anglais n'est pas ouvert : le français est toujours la langue, même si un essai ancien a mémorisé « en » sur cet appareil
+      // (Keydou se mettait à parler anglais). Seul ?lang=en dans l'adresse l'ouvre, pour la page ouverte uniquement.
+      lang = (q && q[1].toLowerCase() === 'en') ? 'en' : 'fr';
+      if (lire(KEY) === 'en') ecrire(KEY, 'fr');
+    }
+    else if (q) { lang = q[1].toLowerCase(); ecrire(KEY, lang); ecrire(KEY + '_bouton', '1'); }
     else {
       var saved = lire(KEY);
       if (saved === 'fr' || saved === 'en') lang = saved;
@@ -40,7 +46,7 @@
 
   // ---- petit sélecteur de langue, discret, en bas de page : Français · English ----
   function bouton() {
-    if (!ANGLAIS_OUVERT && lire(KEY + '_bouton') !== '1') return;      // pas encore ouvert au public
+    if (!ANGLAIS_OUVERT) return;      // pas encore ouvert au public : aucun sélecteur de langue
     if (document.getElementById('komyoLang') || document.documentElement.hasAttribute('data-no-lang-switch') || (script && script.getAttribute('data-switch') === 'off')) return;
     var pied = document.querySelector('footer');
     if (!pied && (document.body.classList.contains('pg-fil') || !document.body)) return;

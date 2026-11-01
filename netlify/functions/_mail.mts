@@ -36,3 +36,25 @@ export async function envoyerContact(m: MailContact): Promise<boolean> {
     return false;
   }
 }
+
+// Accusé de réception pour la personne qui a écrit via le formulaire (aucun texte du visiteur n'y est repris).
+export function messageAccuse(email: string) {
+  return {
+    from: `"Keydou — KOMYO" <${USER()}>`,
+    to: email,
+    subject: "KOMYO : nous avons bien reçu ton message",
+    text: "Bonjour,\n\nTon message est bien arrivé à l'équipe STAR ENTREPRISE (KOMYO). Nous te répondons dès que possible.\n\nEn attendant, tu peux découvrir KOMYO sur komyo.starentreprise.com : l'application vidéo pour apprendre, créer et partager.\n\nÀ très vite,\nKeydou, de l'équipe STAR ENTREPRISE\n\n—\nCet e-mail est un accusé de réception automatique. Si tu n'as écrit à personne, tu peux l'ignorer.",
+  };
+}
+
+export async function envoyerAccuse(email: string): Promise<boolean> {
+  const pass = process.env.SMTP_PASS;
+  if (!pass) return false;
+  try {
+    const t = nodemailer.createTransport({ host: HOST(), port: PORT(), secure: PORT() === 465, auth: { user: USER(), pass }, connectionTimeout: 8000, greetingTimeout: 8000, socketTimeout: 12000 });
+    await t.sendMail(messageAccuse(email));
+    return true;
+  } catch {
+    return false;
+  }
+}

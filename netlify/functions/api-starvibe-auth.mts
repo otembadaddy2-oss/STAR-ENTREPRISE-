@@ -81,7 +81,7 @@ export default async (req: Request, _context: Context) => {
     const account = accRows[0] as any;
     if (!account) return json({ error: "Compte introuvable" }, 404);
     const profiles = await sql`
-      SELECT id, nom, date_naissance, type_profil, photo_key, created_at
+      SELECT id, nom, date_naissance, type_profil, photo_key, activite, contact_wa, created_at
       FROM starvibe_profiles WHERE account_id = ${accountId} ORDER BY id ASC
     `;
     return json({
@@ -338,6 +338,13 @@ export default async (req: Request, _context: Context) => {
     const rows = (await sql`SELECT id, type_profil FROM starvibe_profiles WHERE id = ${profileId} AND account_id = ${accountId} LIMIT 1`) as { id: number; type_profil: string }[];
     if (!rows[0]) return json({ error: "Profil introuvable" }, 404);
     await sql`UPDATE starvibe_profiles SET nom = ${nom} WHERE id = ${profileId}`;
+    // Carte de visite facultative (profil personnel seulement) : activité + WhatsApp. Un champ laissé vide efface l'information.
+    if (rows[0].type_profil === "personnel" && (body.activite !== undefined || body.contactWa !== undefined)) {
+      const activite = clean(body.activite, 60).replace(/[\u0000-\u001f\u007f<>]/g, "").trim();
+      const wa = clean(body.contactWa, 30).replace(/[^\d+ ]/g, "").trim();
+      if (wa && wa.replace(/\D/g, "").length < 8) return json({ error: "Écris ton numéro WhatsApp avec l'indicatif, par exemple +242 06 123 45 67." }, 400);
+      await sql`UPDATE starvibe_profiles SET activite = ${activite}, contact_wa = ${wa} WHERE id = ${profileId}`;
+    }
     if (rows[0].type_profil === "personnel" && body.ville !== undefined) {
       await sql`UPDATE starvibe_accounts SET ville = ${ville} WHERE id = ${accountId}`;
     }

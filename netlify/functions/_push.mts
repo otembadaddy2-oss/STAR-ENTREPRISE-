@@ -99,7 +99,11 @@ export function parseSms(message: string): SmsParsed {
   const numero = phones.size === 1 ? [...phones][0] : "";
   const ref = /KDU-?\s?(\d+)/i.exec(t);
   // Seuls les SMS de réception d'argent comptent : jamais un SMS d'envoi ou de solde.
-  const depot = /re[cç]u|received|d[ée]p[oô]t|cr[ée]dit/i.test(t) && !/envoy[eé]|sent to|retrait|paiement de/i.test(t);
+  // « crédit » seul ne suffit pas : « Votre achat de credit de 200 XAF a été réalisé » est une dépense, pas un dépôt.
+  const sansAchat = t.replace(/achat\s+de\s+cr[ée]dit/gi, " ");
+  const entree = /re[cç]u|received|d[ée]p[oô]t|cr[ée]dit[ée]/i.test(sansAchat);
+  const sortie = /envoy[eé]|sent to|retrait|votre\s+paiement|votre\s+achat|achat\s+de|forfait|airtime|facture/i.test(t);
+  const depot = entree && !sortie;
   return { montant, numero, reference: ref ? Number(ref[1]) : null, ambigu, depot };
 }
 

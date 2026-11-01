@@ -200,6 +200,7 @@ I18N.add({
   "Abonne-toi pour 1 500 FCFA par mois et regarde tous les dessins animés PIOUPIOU.": "Subscribe for 1,500 FCFA a month and watch all the PIOUPIOU cartoons.",
   "Découvrir l'abonnement Famille": "Discover the Family subscription",
   "petites histoires arrivent": "little stories are coming",
+  "Disponible": "Available",
   "épisodes": "episodes",
 
   /* ================= installation ================= */
@@ -283,6 +284,7 @@ I18N.pat([
   [/^Installe KOMYO sur ton téléphone, c'est gratuit : (.+)$/, "Install KOMYO on your phone, it's free: $1"],
   [/^Diagnostic KOMYO — (.+)$/, "KOMYO diagnostic — $1"],
   [/^(\d+) petites histoires arrivent$/, "$1 little stories are coming"],
+  [/^(\d+) histoires à regarder, (\d+) arrivent$/, "$1 stories to watch, $2 coming soon"],
   [/^(\d+) épisodes$/, "$1 episodes"]
 ]);
 
@@ -356,13 +358,14 @@ I18N.add({
   "La chanson de 1 à 10": "The song from 1 to 10", "Comptons les poussins": "Let's count the chicks",
   "La chanson de 10 à 20": "The song from 10 to 20", "Comptons les fruits du marché": "Let's count the market fruits",
   "Compter de deux en deux": "Counting by twos", "Le grand jeu : de 1 à 20": "The big game: from 1 to 20",
+  "La chanson de 20 à 30": "The song from 20 to 30", "La chanson de 30 à 40": "The song from 30 to 40", "Le décollage : de 10 à 0": "Blast off: from 10 to 0", "Le grand jeu : de 1 à 40": "The big game: from 1 to 40",
   "La chanson de l'alphabet": "The alphabet song", "L'alphabet de A à E": "The alphabet from A to E",
   "L'alphabet de F à J": "The alphabet from F to J", "L'alphabet de K à O": "The alphabet from K to O",
   "L'alphabet de P à T": "The alphabet from P to T", "L'alphabet de U à Z": "The alphabet from U to Z",
   "Cherche la lettre": "Find the letter", "Ton prénom en lettres": "Your name in letters"
 });
 
-/* ---- carte « Installer KOMYO » (komyo-installer-v5.js) : phrases avec mots en gras, traduites d'un bloc ---- */
+/* ---- carte « Installer KOMYO » (komyo-installer-v6.js) : phrases avec mots en gras, traduites d'un bloc ---- */
 I18N.add({
   "📱 Installer KOMYO": "📱 Install KOMYO", "📲 Installer KOMYO": "📲 Install KOMYO", "Application officielle · gratuite": "Official app · free",
   "Garde <b>KOMYO</b> et <b>Keydou</b> sur ton écran d'accueil : un seul toucher pour tes vidéos et tous les services du Congo, en plein écran, même quand le réseau est lent.": "Keep <b>KOMYO</b> and <b>Keydou</b> on your home screen: one tap for your videos and all the services in Congo, full screen, even when the network is slow.",
