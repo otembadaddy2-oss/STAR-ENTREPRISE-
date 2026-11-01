@@ -255,6 +255,9 @@
   try { dejaInscrit = /[?&]mode=login\b/.test(location.search) || location.hash === '#connexion' || localStorage.getItem('komyo_deja_inscrit') === '1'; } catch (e) {}
   if (/[?&]mode=register\b/.test(location.search)) dejaInscrit = false;
   var mode = dejaInscrit ? 'login' : 'register';
+  // La personne a elle-même touché « J'ai déjà un compte » : pas la peine de lui reproposer « Créer un compte » juste en dessous.
+  var choixConnexion = false;
+  try { choixConnexion = /[?&]mode=login\b/.test(location.search) || location.hash === '#connexion'; } catch (e) {}
   var profileType = 'personnel';
 
   var registerOnlyFields = document.getElementById('registerOnlyFields');
@@ -280,7 +283,7 @@
     btnSubmit.textContent = mode === 'register' ? 'Valider mon inscription' : 'Me connecter';
     switchHint.innerHTML = mode === 'register'
       ? 'Déjà inscrit ? <a id="linkToLogin">Se connecter</a>'
-      : '<a id="linkPinOublie" style="display:inline-block;margin-top:8px">Code PIN oublié ?</a><br><span style="display:inline-block;margin-top:10px">Première visite ? <a id="linkToRegister">S\'inscrire</a></span>';
+      : '<a id="linkPinOublie" style="display:inline-block;margin-top:8px">Code PIN oublié ?</a>' + (choixConnexion ? '' : '<br><span style="display:inline-block;margin-top:10px">Pas encore de compte ? <a id="linkToRegister">Créer un compte</a></span>');
     var l2l = document.getElementById('linkToLogin'); if (l2l) l2l.onclick = function(){ setMode('login'); };
     var lp = document.getElementById('linkPinOublie'); if (lp) lp.onclick = ouvrirPinOublie;
     var l2r = document.getElementById('linkToRegister'); if (l2r) l2r.onclick = function(){ setMode('register'); };
