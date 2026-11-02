@@ -32,6 +32,9 @@
   .b{border:none;border-radius:12px;padding:9px 12px;font:800 12.5px 'Sora',Arial,sans-serif;cursor:pointer;}
   .b.yes{background:linear-gradient(135deg,#2fb35f,#1f8f4a);color:#fff;}.b.no{background:#f1ecf7;color:var(--ink);}.b.inv{background:linear-gradient(135deg,var(--coral),var(--gold));color:#fff;}.b.off{background:#eef6f0;color:var(--ok);cursor:default;}
   .b:disabled{opacity:.6;}
+  .item{flex-wrap:wrap;}
+  .b.blk{background:#fdecea;color:#b3261e;}
+  .bloques{margin-top:22px;}.bloques h2{font-size:14px;margin:0 0 8px;}
   .search{width:100%;border:1.5px solid var(--line);border-radius:14px;padding:13px 14px;font:500 15px 'Inter',Arial,sans-serif;background:#fff;margin-bottom:12px;}
   .search:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(232,169,61,.2);}
   .empty{text-align:center;color:var(--dim);font-size:14px;padding:26px 10px;line-height:1.5;}
@@ -69,9 +72,19 @@
   function amis(){
     get('?amis=1').then(function(d){
       var a = d.amis || [];
-      list.innerHTML = a.length ? a.map(function(p){ return '<div class="item">' + av(p) + '<div class="nm">' + esc(p.nom) + '<small>Ami · vous vous suivez</small></div><button class="b inv" data-kaba="' + p.profilId + '">Kaba+</button><button class="b no" data-retirer="' + p.profilId + '">Retirer</button></div><div class="kaba-choix" id="kc-' + p.profilId + '" hidden><span>Demander son :</span><button class="b inv" data-kt="gmail" data-p="' + p.profilId + '">Gmail</button><button class="b inv" data-kt="whatsapp" data-p="' + p.profilId + '">WhatsApp</button></div>'; }).join('') :
+      list.innerHTML = a.length ? a.map(function(p){ return '<div class="item">' + av(p) + '<div class="nm">' + esc(p.nom) + '<small>Ami · vous vous suivez</small></div><button class="b inv" data-kaba="' + p.profilId + '">Kaba+</button><button class="b no" data-retirer="' + p.profilId + '">Retirer</button><button class="b blk" data-bloquer="' + p.profilId + '" aria-label="Bloquer ' + esc(p.nom) + '">Bloquer</button></div><div class="kaba-choix" id="kc-' + p.profilId + '" hidden><span>Demander son :</span><button class="b inv" data-kt="gmail" data-p="' + p.profilId + '">Gmail</button><button class="b inv" data-kt="whatsapp" data-p="' + p.profilId + '">WhatsApp</button></div>'; }).join('') :
         '<div class="empty">Tu n\'as pas encore d\'amis sur Myo.<br>Va dans « Chercher » ou touche « Inviter » sur le fil.</div>';
+      bloquesListe();
     });
+  }
+  // Personnes bloquées : elles ne peuvent plus t'inviter ni te retrouver, et tu ne les vois plus. « Débloquer » annule.
+  function bloquesListe(){
+    get('?bloques=1').then(function(d){
+      var b = d.bloques || []; if (!b.length) return;
+      var z = document.createElement('div'); z.className = 'bloques';
+      z.innerHTML = '<h2>Personnes bloquées</h2>' + b.map(function(p){ return '<div class="item">' + av(p) + '<div class="nm">' + esc(p.nom) + '<small>Bloquée</small></div><button class="b no" data-debloquer="' + p.profilId + '">Débloquer</button></div>'; }).join('');
+      list.appendChild(z);
+    }).catch(function(){});
   }
   function recues(){
     get('?recues=1').then(function(d){
@@ -113,6 +126,8 @@
     else if (b.hasAttribute('data-kaba')){ var box = document.getElementById('kc-' + b.getAttribute('data-kaba')); if (box) box.hidden = !box.hidden; }
     else if (b.hasAttribute('data-kt')){ b.disabled = true; window.komyoMyo.api({ body: { action: 'kaba_demander', profilId: Number(b.getAttribute('data-p')), type: b.getAttribute('data-kt') } }).then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); }).then(function(res){ b.disabled = false; if (!res.ok){ erreur(res.d.error || 'Demande impossible.'); return; } erreur(''); var box = document.getElementById('kc-' + b.getAttribute('data-p')); box.innerHTML = '<span>' + (res.d.etat === 'recu' ? 'Tu as déjà reçu ce contact (voir Contacts).' : 'Demande envoyée ✓ Ton ami la verra tout de suite.') + '</span>'; }); }
     else if (b.hasAttribute('data-copy')){ try { navigator.clipboard.writeText(b.getAttribute('data-copy')); b.textContent = 'Copié ✓'; } catch (x) {} }
+    else if (b.hasAttribute('data-bloquer')){ if (!confirm('Bloquer cette personne ? Elle ne pourra plus t\'inviter ni te retrouver, et vous ne serez plus amis. Tu pourras la débloquer quand tu veux.')) return; b.disabled = true; window.komyoMyo.api({ body: { action: 'bloquer', profilId: Number(b.getAttribute('data-bloquer')) } }).then(function(r){ return r.json(); }).then(function(d){ if (d.error) erreur(d.error); voir(); }).catch(function(){ b.disabled = false; erreur('Connexion interrompue. Réessaie.'); }); }
+    else if (b.hasAttribute('data-debloquer')){ b.disabled = true; window.komyoMyo.api({ body: { action: 'debloquer', profilId: Number(b.getAttribute('data-debloquer')) } }).then(function(){ voir(); }).catch(function(){ b.disabled = false; }); }
     else if (b.hasAttribute('data-retirer')){ if (!confirm('Retirer cette personne de tes amis ?')) return; b.disabled = true; window.komyoMyo.api({ body: { action: 'retirer', profilId: Number(b.getAttribute('data-retirer')) } }).then(function(){ voir(); }); }
   });
   if (/[?&]onglet=(recues|chercher|contacts)/.test(location.search)){ tab = RegExp.$1; [].forEach.call(document.querySelectorAll('.tabs button'), function(x){ x.classList.toggle('on', x.getAttribute('data-t') === tab); }); }

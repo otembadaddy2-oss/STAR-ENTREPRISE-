@@ -143,7 +143,6 @@
   <div class="avenir" data-avenir></div>
 </div>
 <div id="doneState" class="state" hidden>
-  <div class="emoji">🎆</div>
   <h2>Bravo, tu as tout regardé !</h2>
   <p>De nouvelles vidéos arrivent bientôt.</p>
   <button type="button" class="btn-revoir" id="btnRevoir">↺ Revoir les vidéos</button>
@@ -243,16 +242,16 @@
     c.width = W * dpr; c.height = H * dpr; ctx.scale(dpr, dpr); document.body.appendChild(c);
     var couleurs = ['#ffd91f', '#ff7a2e', '#ff4d6d', '#4dd2ff', '#7cff6b', '#ffffff', '#c77dff'], parts = [], t0 = performance.now(), lances = 0;
     function gerbe(){
-      var x = W * (0.15 + Math.random() * 0.7), y = H * (0.12 + Math.random() * 0.4), col = couleurs[Math.floor(Math.random() * couleurs.length)], col2 = couleurs[Math.floor(Math.random() * couleurs.length)];
-      for (var i = 0; i < 70; i++){
-        var a = Math.PI * 2 * i / 70 + Math.random() * 0.1, v = 1.5 + Math.random() * 3.6;
-        parts.push({ x: x, y: y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, vie: 1, d: 0.011 + Math.random() * 0.01, col: i % 3 ? col : col2, r: 1.6 + Math.random() * 1.6 });
+      var x = W * (0.15 + Math.random() * 0.7), y = H * (0.14 + Math.random() * 0.42), col = couleurs[Math.floor(Math.random() * couleurs.length)], col2 = couleurs[Math.floor(Math.random() * couleurs.length)];
+      for (var i = 0; i < 90; i++){
+        var a = Math.PI * 2 * i / 90 + Math.random() * 0.1, v = 1.9 + Math.random() * 4.4;
+        parts.push({ x: x, y: y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, vie: 1, d: 0.011 + Math.random() * 0.01, col: i % 3 ? col : col2, r: 2.1 + Math.random() * 2.1 });
       }
     }
     var prochain = 0;
     (function image(now){
       var t = now - t0;
-      if (lances < 6 && t >= prochain){ gerbe(); lances++; prochain += 380 + Math.random() * 260; }
+      if (lances < 8 && t >= prochain){ gerbe(); lances++; prochain += 380 + Math.random() * 260; }
       ctx.clearRect(0, 0, W, H);
       parts = parts.filter(function(p){ return p.vie > 0; });
       parts.forEach(function(p){
@@ -260,7 +259,7 @@
         ctx.globalAlpha = Math.max(0, p.vie); ctx.fillStyle = p.col; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832); ctx.fill();
       });
       ctx.globalAlpha = 1;
-      if (lances < 6 || parts.length) requestAnimationFrame(image); else c.remove();
+      if (lances < 8 || parts.length) requestAnimationFrame(image); else c.remove();
     })(t0);
   }
 

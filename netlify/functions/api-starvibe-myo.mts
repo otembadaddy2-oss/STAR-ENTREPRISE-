@@ -13,7 +13,8 @@
 // REGARDER ENSEMBLE : un ami Myo (même tranche d'âge) t'invite à regarder une vidéo. « Oui » ouvre la même vidéo chez toi ; « Non » : rien ne se passe
 // (la personne n'est pas prévenue du refus). L'invitation se retire seule au bout de 24 h. Pas de nouvelle invitation pour la même vidéo pendant 7 jours après un refus ; 20 invitations par jour au maximum.
 //
-// GET  ?recues=1 | ?amis=1 | ?envoyees=1 | ?etat=<profilId> | ?chercher=<texte> | ?contacts=1
+// GET  ?recues=1 | ?amis=1 | ?envoyees=1 | ?etat=<profilId> | ?chercher=<texte> | ?contacts=1 | ?bloques=1
+// POST { action: "bloquer", profilId } | { action: "debloquer", profilId }   (blocage : plus d'invitation dans aucun sens, fin de l'amitié)
 // POST { action: "inviter", profilId } | { action: "repondre", id, reponse: "oui"|"non" } | { action: "retirer", profilId }
 //      { action: "regarder_inviter", profilId, videoId } | { action: "regarder_repondre", id, reponse: "oui"|"non" }
 //      { action: "kaba_demander", profilId, type: "gmail"|"whatsapp" } | { action: "kaba_repondre", id, reponse, valeur, memoriser } | { action: "kaba_vu" }
@@ -61,6 +62,11 @@ export default async (req: Request, _context: Context) => {
   type Ligne = { id: number; de_account: number; vers_account: number; statut: string; created_at: string; repondu_at: string | null };
   const entre = async (a: number, b: number): Promise<Ligne[]> =>
     (await sql`SELECT * FROM starvibe_myo WHERE (de_account = ${a} AND vers_account = ${b}) OR (de_account = ${b} AND vers_account = ${a})`) as Ligne[];
+  // Personnes bloquées dans un sens ou dans l'autre (comptes).
+  const bloquesAvec = async (): Promise<Set<number>> => {
+    const r = (await sql`SELECT blocker, blocked FROM starvibe_blocks WHERE blocker = ${moi} OR blocked = ${moi}`) as { blocker: number; blocked: number }[];
+    return new Set(r.map((x) => (x.blocker === moi ? x.blocked : x.blocker)));
+  };
   const relation = (lignes: Ligne[]): string => {
     if (lignes.some((l) => l.statut === "acceptee")) return "amis";
     const rec = lignes.find((l) => l.vers_account === moi && l.statut === "en_attente");
@@ -121,6 +127,14 @@ export default async (req: Request, _context: Context) => {
       `) as { id: number; type: string; valeur: string; repondu_at: string; profil_id: number; nom: string; photo_key: string | null }[];
       return json({ contacts: rows.map((r) => ({ id: r.id, type: r.type, valeur: r.valeur, createdAt: r.repondu_at, de: { profilId: r.profil_id, nom: r.nom, photoUrl: photoUrl(r.photo_key) } })) });
     }
+    if (url.searchParams.get("bloques")) {
+      const rows = (await sql`
+        SELECT b.created_at, p.id AS profil_id, p.nom, p.photo_key
+        FROM starvibe_blocks b JOIN starvibe_profiles p ON p.account_id = b.blocked AND p.type_profil = 'personnel'
+        WHERE b.blocker = ${moi} ORDER BY b.created_at DESC LIMIT 200
+      `) as { created_at: string; profil_id: number; nom: string; photo_key: string | null }[];
+      return json({ bloques: rows.map((r) => ({ profilId: r.profil_id, nom: r.nom, photoUrl: photoUrl(r.photo_key), depuis: r.created_at })) });
+    }
     if (url.searchParams.get("amis")) {
       const rows = (await sql`
         SELECT m.repondu_at, p.id AS profil_id, p.nom, p.photo_key
@@ -146,6 +160,7 @@ export default async (req: Request, _context: Context) => {
       const cible = await profilParId(etat);
       if (!cible) return json({ etat: "inconnu" });
       if (cible.account_id === moi) return json({ etat: "moi" });
+      if ((await bloquesAvec()).has(cible.account_id)) return json({ etat: "attente" });
       return json({ etat: relation(await entre(moi, cible.account_id)) });
     }
     const q = clean(url.searchParams.get("chercher"), 40);
@@ -159,7 +174,9 @@ export default async (req: Request, _context: Context) => {
         ORDER BY nom ASC LIMIT 20
       `) as Perso[];
       const out = [];
+      const bl = await bloquesAvec();
       for (const p of rows) {
+        if (bl.has(p.account_id)) continue;
         if (mien && !compatibles(mien, p)) continue;
         out.push({ profilId: p.id, nom: p.nom, photoUrl: photoUrl(p.photo_key), etat: relation(await entre(moi, p.account_id)) });
         if (out.length >= 10) break;
@@ -192,8 +209,10 @@ export default async (req: Request, _context: Context) => {
         ORDER BY (p.photo_key IS NOT NULL) DESC, p.id DESC LIMIT 200 OFFSET ${decalage}
       `) as Perso[];
       let lus = 0;
+      const bl = await bloquesAvec();
       for (const p of autres) {
         lus++;
+        if (bl.has(p.account_id)) continue;
         if (!compatibles(mien, p)) continue;
         const etat = relation(parCompte.get(p.account_id) || []);
         if (etat === "amis" || etat === "attente") continue;
@@ -218,6 +237,7 @@ export default async (req: Request, _context: Context) => {
     if (!cible) return json({ error: "Personne introuvable." }, 404);
     if (cible.account_id === moi) return json({ error: "Tu ne peux pas t'inviter toi-même." }, 400);
     if (!compatibles(mien, cible)) return json({ error: "Les invitations entre adultes et mineurs ne sont pas possibles sur KOMYO." }, 403);
+    if ((await bloquesAvec()).has(cible.account_id)) return json({ error: "Invitation impossible." }, 403);
     const lignes = await entre(moi, cible.account_id);
     const rel = relation(lignes);
     if (rel === "amis") return json({ etat: "amis" });
@@ -245,6 +265,20 @@ export default async (req: Request, _context: Context) => {
     if (!r[0]) return json({ error: "Cette invitation n'existe plus." }, 404);
     await sql`UPDATE starvibe_myo SET statut = ${reponse === "oui" ? "acceptee" : "refusee"}, repondu_at = now() WHERE id = ${id}`;
     return json({ etat: reponse === "oui" ? "amis" : "refusee" });
+  }
+
+  if (action === "bloquer" || action === "debloquer") {
+    const cible = await profilParId(Number(body.profilId));
+    if (!cible || cible.account_id === moi) return json({ error: "Personne introuvable." }, 404);
+    if (action === "debloquer") {
+      await sql`DELETE FROM starvibe_blocks WHERE blocker = ${moi} AND blocked = ${cible.account_id}`;
+      return json({ etat: "debloque" });
+    }
+    await sql`INSERT INTO starvibe_blocks (blocker, blocked) VALUES (${moi}, ${cible.account_id}) ON CONFLICT DO NOTHING`;
+    // fin de l'amitié, invitations et demandes Kaba+ entre les deux
+    await sql`DELETE FROM starvibe_myo WHERE (de_account = ${moi} AND vers_account = ${cible.account_id}) OR (de_account = ${cible.account_id} AND vers_account = ${moi})`;
+    await sql`DELETE FROM starvibe_kaba WHERE (de_account = ${moi} AND vers_account = ${cible.account_id}) OR (de_account = ${cible.account_id} AND vers_account = ${moi})`;
+    return json({ etat: "bloque" });
   }
 
   if (action === "retirer") {

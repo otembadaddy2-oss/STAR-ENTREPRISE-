@@ -115,15 +115,18 @@
     border-radius:20px;padding:2px 9px;margin-bottom:6px;}
   .universe-card p{font-size:11px;color:var(--text-dim);margin:0;line-height:1.5;}
   /* KOMYO Découverte : les photos défilent en fond, bien visibles ; le texte reste lisible grâce à un voile clair derrière lui. */
-  .universe-defile{padding:0;overflow:hidden;min-height:210px;display:flex;align-items:center;justify-content:center;}
+  .universe-defile{padding:0;overflow:hidden;min-height:180px;display:flex;align-items:center;justify-content:center;}
   .u-fond{position:absolute;inset:0;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 8px;}
   .u-col{overflow:hidden;}
   .u-track{display:flex;flex-direction:column;gap:8px;will-change:transform;animation:mscroll 36s linear infinite;}
   .u-col.up .u-track{animation-direction:reverse;animation-duration:44s;}
   .u-track img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:12px;flex:none;background:var(--cream-2);}
-  .u-texte{position:relative;z-index:1;margin:18px 14px;padding:14px 16px;border-radius:16px;background:rgba(255,251,243,.84);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);box-shadow:0 8px 24px -10px rgba(36,21,54,.35);text-align:center;}
-  .u-texte p{font-size:12px;color:var(--ink);}
-  .u-texte .u-icon{margin-bottom:6px;}
+  .u-texte{position:relative;z-index:1;margin:10px 18px;padding:8px 12px;border-radius:14px;background:rgba(255,251,243,.34);-webkit-backdrop-filter:blur(1px);backdrop-filter:blur(1px);text-align:center;text-shadow:0 0 6px rgba(255,251,243,.95),0 0 2px rgba(255,251,243,.95),0 1px 1px rgba(255,251,243,.9);}
+  .u-texte h3,.u-texte strong{font-weight:800;}
+  .u-texte p{font-size:12px;color:var(--ink);font-weight:600;}
+  .u-texte .u-icon{width:30px;height:30px;border-radius:10px;margin:0 auto 4px;text-shadow:none;}
+  .u-texte .u-icon svg{width:16px;height:16px;}
+  .u-texte .age{background:rgba(255,251,243,.55);}
   @media (prefers-reduced-motion:reduce){.u-track{animation:none;}}
   .universe-card .soon{position:absolute;top:10px;right:10px;font-size:8.5px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;
     color:var(--gold-deep);background:#FBF0DA;border-radius:20px;padding:3px 8px;}

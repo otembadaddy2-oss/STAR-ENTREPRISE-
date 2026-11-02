@@ -65,6 +65,11 @@
   .actions .opts button:hover,.actions .opts button:focus-visible{background:rgba(255,255,255,.14);}
   .actions .opts .icon{width:34px;height:34px;flex:none;}.actions .opts svg{width:20px;height:20px;}
   .actions .opts .lbl{flex:1;}.actions .opts .count{font-size:12px;opacity:.85;}
+  /* Cœurs qui s'envolent quand on touche « J'aime » (comme dans les directs) */
+  .coeur-vol{position:fixed;z-index:80;pointer-events:none;width:26px;height:26px;margin:-13px 0 0 -13px;opacity:0;animation:coeurVol var(--d,1.7s) cubic-bezier(.25,.6,.35,1) var(--w,0s) forwards;will-change:transform,opacity;}
+  .coeur-vol svg{width:100%;height:100%;fill:#ff4f6d;stroke:#fff;stroke-width:1.2;filter:drop-shadow(0 2px 4px rgba(0,0,0,.35));}
+  @keyframes coeurVol{0%{opacity:0;transform:translate(0,0) scale(.4);}12%{opacity:1;transform:translate(0,-18px) scale(1.15);}55%{opacity:.95;transform:translate(var(--x1,10px),-170px) scale(1);}100%{opacity:0;transform:translate(var(--x2,-14px),-330px) scale(.8) rotate(var(--r,12deg));}}
+  @media (prefers-reduced-motion:reduce){.coeur-vol{animation-duration:.01s;}}
   .like-btn.liked .icon{background:rgba(255,79,109,.25);animation:pop .3s ease;}
   .like-btn.liked svg{fill:#ff4f6d;stroke:#ff4f6d;}
   @keyframes pop{0%{transform:scale(1);}40%{transform:scale(1.28);}100%{transform:scale(1);}}
@@ -601,6 +606,24 @@
     }
   });
 
+  // Les cœurs partent du bouton « + » (qui reste marqué en rouge) et s'envolent vers le haut en s'effaçant.
+  function volerCoeurs(depuis){
+    try {
+      if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var r = depuis.getBoundingClientRect(), x0 = r.left + r.width / 2, y0 = r.top + r.height / 2;
+      for (var i = 0; i < 6; i++){
+        var c = document.createElement('div'); c.className = 'coeur-vol'; c.setAttribute('aria-hidden', 'true');
+        c.style.left = x0 + 'px'; c.style.top = y0 + 'px';
+        c.style.setProperty('--x1', (Math.random() * 60 - 40) + 'px'); c.style.setProperty('--x2', (Math.random() * 90 - 60) + 'px');
+        c.style.setProperty('--w', (i * 0.11) + 's'); c.style.setProperty('--d', (1.5 + Math.random() * 0.7) + 's'); c.style.setProperty('--r', (Math.random() * 40 - 20) + 'deg');
+        var sc = 0.75 + Math.random() * 0.7; c.style.width = c.style.height = (26 * sc) + 'px';
+        c.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-10-9.3C.4 8 2 4.5 5.6 4c2-.3 3.9.6 6.4 3 2.5-2.4 4.4-3.3 6.4-3C22 4.5 23.6 8 22 11.7 19.5 16.4 12 21 12 21z"/></svg>';
+        document.body.appendChild(c);
+        setTimeout((function(el){ return function(){ el.remove(); }; })(c), 2800);
+      }
+    } catch (e) {}
+  }
+
   var premiereVideo = true;   // la 1re vidéo se charge tout de suite ; les suivantes se préparent quand on approche
   function renderVideo(v){
     var slide = document.createElement('div');
@@ -680,6 +703,7 @@
         btn.querySelector('.icon').innerHTML = heartIcon(!liked);
         btn.querySelector('.count').textContent = data.likes;
         plus.classList.toggle('liked', !liked);
+        if (!liked) volerCoeurs(plus);
         clearTimeout(optsTimer); optsTimer = setTimeout(fermerOpts, 900);   // l'option est appliquée tout de suite, la fenêtre se referme seule
       });
     });
