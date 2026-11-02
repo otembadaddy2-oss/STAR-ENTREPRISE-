@@ -15,6 +15,12 @@ Liste tenue par Claude et Carry. Claude relit ce fichier au début d'une session
 - Aujourd'hui : page « Bientôt en direct » seulement.
 - À construire : caméra en direct, commentaires qui défilent, cœurs qui s'envolent, blocage d'un spectateur dans le direct. Demande un service de diffusion en direct (coût mensuel). Claude prépare un plan avec le service et son prix, Carry décide.
 
+## 2 bis. KOMYO Fly — livraison de repas et petits articles (idée de Carry, 2 novembre 2026) — pour plus tard
+- **Idée** : commander dans KOMYO, position GPS du téléphone, prix unique livraison comprise, paiement Mobile Money à l'arrivée, appel de validation dans l'app (agent IA), livraison par drone qui revient à la base STAR ENTREPRISE.
+- **Avis de Claude** : faisable par étapes. Logiciel (commande, position, prix, paiement reconnu par SMS, appel, carte de suivi) : simple. Drone : difficile (autorisation de l'aviation civile du Congo, vol hors vue interdit en général, coût du drone et des batteries, météo, sécurité, pilote qualifié obligatoire). Le drone ne « détecte » pas les abonnés : il suit les coordonnées GPS du téléphone.
+- **Plan conseillé** : (1) KOMYO Fly SANS drone, avec livreur à moto, pour tester la demande et construire le logiciel ; (2) test avec un petit drone, trajet court et en vue directe, autorisation obtenue, restaurant partenaire ; (3) extension ou partenariat avec une société de drones déjà active en Afrique (ex. Zipline).
+- **Premier pas quand Carry dit « on reprend KOMYO Fly »** : vérifier la réglementation locale (aviation civile du Congo) et chiffrer le coût réel.
+
 ## 3. Autres points ouverts
 - Airtel Money : nom de l'expéditeur + exemple de SMS, puis deuxième règle MacroDroid.
 - Paiement par carte (Visa / Mastercard) : réponse du service de paiement.
