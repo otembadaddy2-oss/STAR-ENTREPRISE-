@@ -23,6 +23,7 @@ Liste tenue par Claude et Carry. Claude relit ce fichier au début d'une session
 
 ## 3. Autres points ouverts
 - Airtel Money : nom de l'expéditeur + exemple de SMS, puis deuxième règle MacroDroid.
+- Côte d'Ivoire (proposition de la belle-sœur de Carry, 2 novembre 2026) : recevoir les paiements là-bas avec une SIM ivoirienne. **Ne jamais partager ni recevoir de code PIN Mobile Money** : inutile pour KOMYO. Méthode : un téléphone Android en Côte d'Ivoire avec la SIM + MacroDroid qui transfère les SMS de dépôt au site (comme pour le Congo), avec un code pays. Il faudra : nom de l'expéditeur et un exemple de SMS de chaque opérateur (ex. Orange Money, MTN, Moov, Wave), numéro de dépôt par pays, vue par pays dans l'espace équipe. Côté légal : compte au nom d'une personne identifiée ou d'une société, idéalement un compte « marchand / business » ; voir un comptable pour le transfert d'argent vers le Congo.
 - Paiement par carte (Visa / Mastercard) : réponse du service de paiement.
 - Netlify : recharge automatique avec un plafond avant le lancement public.
 - Bissa POP (pub animée) : en pause ; reprendre quand Higgsfield est rechargé (voix et destination à choisir).
