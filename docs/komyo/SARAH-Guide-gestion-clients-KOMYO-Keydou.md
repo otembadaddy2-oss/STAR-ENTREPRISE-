@@ -100,6 +100,16 @@ _Prix en vigueur dans l'application au 30/10/2026. Les équivalents en euros ou 
 - **Proposer sans pression** : propose l'offre qui répond au besoin (annonce, Business, Pack « Les bonnes habitudes », Keydou) avec le prix exact. Litige, remboursement ou plainte sur une boutique : transmets à Carry. Jamais de code PIN.
 
 
+## 6 ter. Nouveautés de l'application (novembre 2026)
+
+- **Fil** : une image de la vidéo s'affiche tout de suite, puis la vidéo démarre (ça peut prendre quelques secondes sur un réseau lent). Quand on touche « J'aime », des cœurs rouges s'envolent et le petit menu (J'aime, Commenter, Partager, Inviter, Supprimer pour ses propres vidéos) se referme tout seul ; le bouton « + » reste marqué en rouge.
+- **Messagerie** : le bouton « Écrire un message » permet d'écrire à KOMYO (l'équipe STAR ENTREPRISE). Le message arrive dans la boîte contact@starentreprise.com et l'équipe est prévenue ; la réponse se fait par téléphone ou WhatsApp au numéro du compte. Limite : 5 messages par heure. Les reçus, accusés de réception et e-mails de KOMYO se terminent par la signature officielle : logo, « KOMYO — le monde en mouvement » et komyo.starentreprise.com.
+- **Myo** : on peut bloquer une personne (page Myo, onglet Amis, bouton « Bloquer »). Le blocage met fin à l'amitié, empêche toute invitation dans les deux sens et la fait disparaître des recherches et des listes. Pour annuler : « Personnes bloquées », bouton « Débloquer ».
+- **Abonnement** : « Paiement en attente » ne bloque le bouton que pendant 10 minutes ; ensuite il redevient « Choisir », avec « Vérifier maintenant » et « Annuler ma demande » en haut de la page. Le Pack « Les bonnes habitudes » se prend pour 1, 2 ou 3 mois.
+- **PIOUPIOU** : flèche « Vidéo précédente », bouton « Revoir les vidéos » à l'écran Bravo (grand feu d'artifice). Sans Pack actif, la vidéo affiche « FERMÉ » et le bouton pour ouvrir avec le Pack.
+- **Pas encore ouvert** : ÉCLAT (le direct, « bientôt » : la personne peut demander à être prévenue) et le paiement par carte Visa / Mastercard (« bientôt »). Ne rien promettre de plus sur ces deux points.
+
+
 ## 7. Messages types (WhatsApp ou e-mail)
 
 > **Accueil.** Bonjour, je suis Sarah de STAR ENTREPRISE. Merci de votre demande sur KOMYO. Pour bien vous aider, pouvez-vous me confirmer votre ville et ce que vous cherchez ?
