@@ -133,6 +133,21 @@ function toModerationApi(row: VideoRow) {
   };
 }
 
+// Affiche d'une vidéo (première image) : petite image enregistrée dans « starvibe-photos », affichée tout de suite à la place de l'écran noir
+// pendant que la vidéo se charge. Retourne la clé, ou null si l'image est refusée (jamais d'erreur bloquante pour la publication).
+async function enregistrerAffiche(sql: ReturnType<typeof db>["sql"], videoId: number, brut: unknown, mimeBrut: unknown): Promise<string | null> {
+  const img = String(brut ?? "");
+  if (!img) return null;
+  const mime = clean(mimeBrut, 40) || "image/jpeg";
+  if (!["image/jpeg", "image/png", "image/webp"].includes(mime)) return null;
+  const octets = Buffer.from(img.includes(",") ? img.split(",")[1] : img, "base64");
+  if (!octets.byteLength || octets.byteLength > 250_000) return null;
+  const cle = `affiche-${videoId}-${Date.now()}-${randomBytes(4).toString("hex")}`;
+  await getStore("starvibe-photos").set(cle, octets, { metadata: { typeMime: mime } });
+  await sql`UPDATE starvibe_videos SET affiche_key = ${cle} WHERE id = ${videoId}`;
+  return cle;
+}
+
 export default async (req: Request, _context: Context) => {
   await ensureSchema();
   const { sql } = db();
@@ -314,10 +329,22 @@ export default async (req: Request, _context: Context) => {
           await fetch(new URL(`/.netlify/functions/keydou-gardien-background?id=${created.id}&sig=${signerAnalyse(created.id)}`, req.url), { method: "POST", signal: AbortSignal.timeout(4000) });
         } catch { /* le balayage de rattrapage s'en charge */ }
       }
+      try { const cle = await enregistrerAffiche(sql, created.id, earlyBody.afficheBase64, earlyBody.afficheMime); if (cle) created.affiche_key = cle; } catch { /* sans affiche : la vidéo est publiée quand même */ }
       created.premium = false;
       created.auteur_nom = (await sql`SELECT nom FROM starvibe_profiles WHERE id = ${profileId}`)[0]?.nom || "";
 
       return json({ video: toApi(created, false) }, 201);
+    }
+
+    // --- Affiche d'une de mes vidéos qui n'en a pas encore (vidéos publiées avant l'affiche automatique) : une seule fois, jamais remplacée ---
+    if (action === "poster_video") {
+      const videoId = Number(earlyBody.videoId);
+      if (!videoId) return json({ error: "videoId requis" }, 400);
+      const v = (await sql`SELECT id, affiche_key FROM starvibe_videos WHERE id = ${videoId} AND account_id = ${accountId} AND premium = false LIMIT 1`) as { id: number; affiche_key: string | null }[];
+      if (!v[0]) return json({ error: "Vidéo introuvable, ou ce n'est pas la tienne." }, 404);
+      if (v[0].affiche_key) return json({ ok: true, deja: true });
+      const cle = await enregistrerAffiche(sql, videoId, earlyBody.afficheBase64, earlyBody.afficheMime);
+      return cle ? json({ ok: true, afficheUrl: `/api/starvibe-photo?key=${encodeURIComponent(cle)}` }) : json({ error: "Image refusée" }, 400);
     }
 
     // --- Supprimer sa propre vidéo (la vidéo, ses j'aime, ses commentaires et son fichier) ---

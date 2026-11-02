@@ -9,6 +9,8 @@ import { estOfficiel } from "./_pioupiou_officiel.mts";
 
 const RECENT = new Map<string, { data: ArrayBuffer; typeMime: string }>();
 const MAX_RECENT_BYTES = 120_000_000;
+// Le drapeau « premium » d'une vidéo est gardé 60 s en mémoire : on évite une requête à la base à chaque morceau de vidéo.
+const META = new Map<string, { premium: boolean; t: number }>();
 
 export default async (req: Request, _context: Context) => {
   const url = new URL(req.url);
@@ -20,8 +22,17 @@ export default async (req: Request, _context: Context) => {
   await ensureSchema();
   const { sql } = db();
   // Les épisodes officiels PIOUPIOU (clé « officiel-… ») sont toujours premium et n'ont pas de ligne en base.
-  const meta = estOfficiel(key) ? [] : (await sql`SELECT premium FROM starvibe_videos WHERE blob_key = ${key} LIMIT 1`) as { premium: boolean }[];
-  const premium = estOfficiel(key) || Boolean(meta[0]?.premium);
+  let premium = estOfficiel(key);
+  if (!premium) {
+    const m = META.get(key);
+    if (m && Date.now() - m.t < 60_000) premium = m.premium;
+    else {
+      const meta = (await sql`SELECT premium FROM starvibe_videos WHERE blob_key = ${key} LIMIT 1`) as { premium: boolean }[];
+      premium = Boolean(meta[0]?.premium);
+      if (META.size > 500) META.clear();
+      META.set(key, { premium, t: Date.now() });
+    }
+  }
   if (premium && !verifySignature(key, url.searchParams.get("exp"), url.searchParams.get("sig"))) {
     return new Response("Contenu réservé aux abonnés", { status: 403 });
   }
