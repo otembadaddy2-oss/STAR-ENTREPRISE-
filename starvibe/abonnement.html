@@ -405,7 +405,7 @@
         '<h2>Pack « Les bonnes habitudes » pour un autre enfant</h2>' +
         '<p class="hint">Tu peux payer le Pack « Les bonnes habitudes » (1 500 FCFA pour 30 jours) pour l\'enfant d\'un proche : il suffit du numéro du parent, qui doit avoir un compte KOMYO (gratuit).</p>' +
         '<label class="lbl" for="gTel">Numéro du parent de l\'enfant</label>' +
-        '<input type="tel" id="gTel" autocomplete="off" placeholder="Avec l\'indicatif, ex. +242 06 123 45 67" value="' + esc2(params.get('pour') || '') + '">' +
+        '<input type="tel" id="gTel" autocomplete="off" placeholder="ex. +242 06 123 45 67" value="' + esc2(params.get('pour') || '') + '">' +
         '<div id="gFound"></div>' +
         '<label class="lbl">Durée</label>' +
         '<div class="duree" id="gDuree">' + [1, 2, 3].map(function(n){ return '<label' + (n === 1 ? ' class="on"' : '') + '><input type="radio" name="gd" value="' + n + '"' + (n === 1 ? ' checked' : '') + '>' + n + ' mois<small>' + (1500 * n).toLocaleString('fr-FR') + ' FCFA</small></label>'; }).join('') + '</div>' +
