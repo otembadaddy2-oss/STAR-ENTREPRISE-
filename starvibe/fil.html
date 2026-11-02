@@ -67,7 +67,7 @@
   .actions .opts .lbl{flex:1;}.actions .opts .count{font-size:12px;opacity:.85;}
   /* Cœurs qui s'envolent quand on touche « J'aime » (comme dans les directs) */
   .coeur-vol{position:fixed;z-index:80;pointer-events:none;width:26px;height:26px;margin:-13px 0 0 -13px;opacity:0;animation:coeurVol var(--d,1.7s) cubic-bezier(.25,.6,.35,1) var(--w,0s) forwards;will-change:transform,opacity;}
-  .coeur-vol svg{width:100%;height:100%;fill:#ff4f6d;stroke:#fff;stroke-width:1.2;filter:drop-shadow(0 2px 4px rgba(0,0,0,.35));}
+  .coeur-vol svg{width:100%;height:100%;fill:#ff2d55;stroke:none;filter:drop-shadow(0 0 3px rgba(255,45,85,.95)) drop-shadow(0 0 9px rgba(255,45,85,.7));}
   @keyframes coeurVol{0%{opacity:0;transform:translate(0,0) scale(.4);}12%{opacity:1;transform:translate(0,-18px) scale(1.15);}55%{opacity:.95;transform:translate(var(--x1,10px),-170px) scale(1);}100%{opacity:0;transform:translate(var(--x2,-14px),-330px) scale(.8) rotate(var(--r,12deg));}}
   @media (prefers-reduced-motion:reduce){.coeur-vol{animation-duration:.01s;}}
   .like-btn.liked .icon{background:rgba(255,79,109,.25);animation:pop .3s ease;}
@@ -640,7 +640,7 @@
         c.style.setProperty('--x1', (Math.random() * 60 - 40) + 'px'); c.style.setProperty('--x2', (Math.random() * 90 - 60) + 'px');
         c.style.setProperty('--w', (i * 0.11) + 's'); c.style.setProperty('--d', (1.5 + Math.random() * 0.7) + 's'); c.style.setProperty('--r', (Math.random() * 40 - 20) + 'deg');
         var sc = 0.75 + Math.random() * 0.7; c.style.width = c.style.height = (26 * sc) + 'px';
-        c.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-10-9.3C.4 8 2 4.5 5.6 4c2-.3 3.9.6 6.4 3 2.5-2.4 4.4-3.3 6.4-3C22 4.5 23.6 8 22 11.7 19.5 16.4 12 21 12 21z"/></svg>';
+        c.innerHTML = '<svg viewBox="0 0 24 24"><defs><radialGradient id="hg' + i + '" cx="35%" cy="28%" r="75%"><stop offset="0" stop-color="#ff7a93"/><stop offset=".45" stop-color="#ff2d55"/><stop offset="1" stop-color="#e0103c"/></radialGradient></defs><path fill="url(#hg' + i + ')" d="M12 21s-7.5-4.6-10-9.3C.4 8 2 4.5 5.6 4c2-.3 3.9.6 6.4 3 2.5-2.4 4.4-3.3 6.4-3C22 4.5 23.6 8 22 11.7 19.5 16.4 12 21 12 21z"/></svg>';
         document.body.appendChild(c);
         setTimeout((function(el){ return function(){ el.remove(); }; })(c), 2800);
       }
