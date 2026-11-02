@@ -32,6 +32,7 @@
   <div id="liste" hidden></div>
   <button class="btn light block" id="toutLu" hidden style="margin-top:6px">Tout marquer comme lu</button>
 </div>
+<style>.sig{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding-top:10px;border-top:1.5px solid #E8A93D;font-size:12.5px;line-height:1.45;color:#241536}.sig b{display:block;font-size:13px}.sig a{color:#c2410c;font-weight:800;text-decoration:none}.sig img{width:84px;height:auto;flex:none}</style>
 <script>
 (function(){
   var token = ''; try{ token = localStorage.getItem('starvibe_token') || ''; }catch(e){}
@@ -40,6 +41,7 @@
   function esc(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
   function api(body){ return fetch('/api/starvibe-messages', body ? { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body:JSON.stringify(body) } : { headers:{'Authorization':'Bearer '+token} }); }
   function quand(d){ return new Date(d).toLocaleString('fr-FR', { day:'numeric', month:'long', hour:'2-digit', minute:'2-digit', timeZone:'Africa/Brazzaville' }); }
+  var SIGNATURE = '<div class="sig"><div><b>KOMYO — le monde en mouvement</b><a href="https://komyo.starentreprise.com">komyo.starentreprise.com</a></div><img src="assets/img/icons/komyo-logo-officiel-v2.webp" alt="KOMYO"></div>';
   var BOUTON = { commande:['Ouvrir Ma boutique','boutique.html'], frais:['Ouvrir Ma boutique','boutique.html'], boutique:['Ouvrir Ma boutique','boutique.html'] };
   function charge(){
     api().then(function(r){ if (r.status === 401){ try{ localStorage.removeItem('starvibe_token'); }catch(e){} etat.hidden = true; sortie.hidden = false; return null; } return r.json(); }).then(function(d){
@@ -50,7 +52,7 @@
         var b = BOUTON[m.kind];
         var facture = m.lien ? '<a class="btn small" style="margin-top:10px" target="_blank" rel="noopener" href="' + esc(m.lien) + '">Voir la facture KOMYO</a>' : '';
         var corps = esc(m.texte).replace(/https?:\/\/\S+/g, '').replace(/Votre facture \(avec le logo KOMYO\) :\s*/g, '');
-        return '<details class="msgitem' + (m.lu ? '' : ' nonlu') + '" data-id="' + m.id + '"' + (m.lu ? '' : ' open') + '><summary>' + (m.lu ? '' : '<span class="dot"></span>') + esc(m.titre) + '<span class="date">' + esc(quand(m.date)) + '</span></summary><div class="corps">' + corps + (facture ? '<br>' + facture : '') + (b ? '<br><a class="btn small light" style="margin-top:10px" href="' + b[1] + '">' + b[0] + '</a>' : '') + '</div></details>';
+        return '<details class="msgitem' + (m.lu ? '' : ' nonlu') + '" data-id="' + m.id + '"' + (m.lu ? '' : ' open') + '><summary>' + (m.lu ? '' : '<span class="dot"></span>') + esc(m.titre) + '<span class="date">' + esc(quand(m.date)) + '</span></summary><div class="corps">' + corps + (facture ? '<br>' + facture : '') + (b ? '<br><a class="btn small light" style="margin-top:10px" href="' + b[1] + '">' + b[0] + '</a>' : '') + SIGNATURE + '</div></details>';
       }).join('');
       liste.querySelectorAll('details').forEach(function(el){ el.addEventListener('toggle', function(){ if (el.open && el.classList.contains('nonlu')){ el.classList.remove('nonlu'); var dot = el.querySelector('.dot'); if (dot) dot.remove(); api({ action:'lu', id:Number(el.getAttribute('data-id')) }); } }); });
     }).catch(function(){ etat.textContent = 'Impossible de charger tes messages. Vérifie ta connexion.'; });
