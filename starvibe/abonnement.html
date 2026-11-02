@@ -286,7 +286,9 @@
     PLAN_ORDER.forEach(function(key){
       var p = plans[key];
       var isActive = current.plan === key && current.statut === 'actif';
-      var isPending = current.plan === key && current.statut === 'en_attente_paiement';
+      // « Paiement en attente » ne bloque le bouton que pendant les 10 premières minutes ; ensuite le bouton redevient normal (et « Annuler » est dans l'encadré du haut).
+      var attenteRecente = !attenteArretee && !(current.createdAt && Date.now() - Date.parse(current.createdAt) > 10 * 60 * 1000);
+      var isPending = current.plan === key && current.statut === 'en_attente_paiement' && attenteRecente;
       var card = document.createElement('div');
       card.className = 'plan-card ' + key + (isActive ? ' active' : '');
       var priceLabel = p.montant === 0 ? 'Gratuit' : p.montant.toLocaleString('fr-FR') + ' <span>FCFA / 30 jours</span> <small class="eq" data-fcfa="' + p.montant + '"></small>';

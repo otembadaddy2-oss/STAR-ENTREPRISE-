@@ -21,7 +21,7 @@
      elle-même qui doit ressortir, pas un choix "site sombre". Les écrans
      sans vidéo (chargement, messages, modale) restent clairs. */
   .feed{height:100dvh;overflow-y:scroll;scroll-snap-type:y mandatory;}
-  .slide{height:100dvh;scroll-snap-align:start;position:relative;display:flex;align-items:flex-end;background:#000;}
+  .slide{height:100dvh;scroll-snap-align:start;position:relative;display:flex;align-items:flex-end;background:#000 center/cover no-repeat;}
   .slide video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
   .slide::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg, rgba(0,0,0,.75) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,.35) 100%);pointer-events:none;}
 
@@ -65,6 +65,11 @@
   .actions .opts button:hover,.actions .opts button:focus-visible{background:rgba(255,255,255,.14);}
   .actions .opts .icon{width:34px;height:34px;flex:none;}.actions .opts svg{width:20px;height:20px;}
   .actions .opts .lbl{flex:1;}.actions .opts .count{font-size:12px;opacity:.85;}
+  /* Cœurs qui s'envolent quand on touche « J'aime » (comme dans les directs) */
+  .coeur-vol{position:fixed;z-index:80;pointer-events:none;width:26px;height:26px;margin:-13px 0 0 -13px;opacity:0;animation:coeurVol var(--d,1.7s) cubic-bezier(.25,.6,.35,1) var(--w,0s) forwards;will-change:transform,opacity;}
+  .coeur-vol svg{width:100%;height:100%;fill:#ff4f6d;stroke:#fff;stroke-width:1.2;filter:drop-shadow(0 2px 4px rgba(0,0,0,.35));}
+  @keyframes coeurVol{0%{opacity:0;transform:translate(0,0) scale(.4);}12%{opacity:1;transform:translate(0,-18px) scale(1.15);}55%{opacity:.95;transform:translate(var(--x1,10px),-170px) scale(1);}100%{opacity:0;transform:translate(var(--x2,-14px),-330px) scale(.8) rotate(var(--r,12deg));}}
+  @media (prefers-reduced-motion:reduce){.coeur-vol{animation-duration:.01s;}}
   .like-btn.liked .icon{background:rgba(255,79,109,.25);animation:pop .3s ease;}
   .like-btn.liked svg{fill:#ff4f6d;stroke:#ff4f6d;}
   @keyframes pop{0%{transform:scale(1);}40%{transform:scale(1.28);}100%{transform:scale(1);}}
@@ -601,12 +606,54 @@
     }
   });
 
+  // Affiche = première image de la vidéo, réduite (≈ 20 Ko). Elle apparaît tout de suite pendant que la vidéo se charge, comme sur TikTok.
+  function imageDeVideo(el){
+    try {
+      var w = el.videoWidth, h = el.videoHeight; if (!w || !h) return null;
+      var k = Math.min(1, 480 / Math.max(w, h)), c = document.createElement('canvas'); c.width = Math.round(w * k); c.height = Math.round(h * k);
+      c.getContext('2d').drawImage(el, 0, 0, c.width, c.height);
+      var d = c.toDataURL('image/jpeg', 0.7); return d && d.length > 1500 ? d : null;
+    } catch (e) { return null; }
+  }
+  function afficheDepuisFichier(file){
+    return new Promise(function(resolve){
+      var u = '', v = document.createElement('video'), fini = false;
+      function fin(r){ if (fini) return; fini = true; try { URL.revokeObjectURL(u); } catch (e) {} v.removeAttribute('src'); resolve(r); }
+      try { u = URL.createObjectURL(file); } catch (e) { resolve(null); return; }
+      v.muted = true; v.playsInline = true; v.preload = 'auto'; v.setAttribute('playsinline', '');
+      v.onloadeddata = function(){ try { v.currentTime = Math.min(0.4, (v.duration || 1) / 2); } catch (e) { fin(imageDeVideo(v)); } };
+      v.onseeked = function(){ fin(imageDeVideo(v)); };
+      v.onerror = function(){ fin(null); };
+      setTimeout(function(){ fin(null); }, 7000);
+      v.src = u;
+    });
+  }
+
+  // Les cœurs partent du bouton « + » (qui reste marqué en rouge) et s'envolent vers le haut en s'effaçant.
+  function volerCoeurs(depuis){
+    try {
+      if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var r = depuis.getBoundingClientRect(), x0 = r.left + r.width / 2, y0 = r.top + r.height / 2;
+      for (var i = 0; i < 6; i++){
+        var c = document.createElement('div'); c.className = 'coeur-vol'; c.setAttribute('aria-hidden', 'true');
+        c.style.left = x0 + 'px'; c.style.top = y0 + 'px';
+        c.style.setProperty('--x1', (Math.random() * 60 - 40) + 'px'); c.style.setProperty('--x2', (Math.random() * 90 - 60) + 'px');
+        c.style.setProperty('--w', (i * 0.11) + 's'); c.style.setProperty('--d', (1.5 + Math.random() * 0.7) + 's'); c.style.setProperty('--r', (Math.random() * 40 - 20) + 'deg');
+        var sc = 0.75 + Math.random() * 0.7; c.style.width = c.style.height = (26 * sc) + 'px';
+        c.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-10-9.3C.4 8 2 4.5 5.6 4c2-.3 3.9.6 6.4 3 2.5-2.4 4.4-3.3 6.4-3C22 4.5 23.6 8 22 11.7 19.5 16.4 12 21 12 21z"/></svg>';
+        document.body.appendChild(c);
+        setTimeout((function(el){ return function(){ el.remove(); }; })(c), 2800);
+      }
+    } catch (e) {}
+  }
+
   var premiereVideo = true;   // la 1re vidéo se charge tout de suite ; les suivantes se préparent quand on approche
   function renderVideo(v){
     var slide = document.createElement('div');
     slide.className = 'slide';
+    if (v.afficheUrl) slide.style.backgroundImage = 'url("' + v.afficheUrl + '")';   // l'image s'affiche tout de suite, avant la vidéo
     slide.innerHTML =
-      '<video src="' + v.videoUrl + '" loop muted playsinline preload="' + (premiereVideo ? 'auto' : 'metadata') + '"></video>' +
+      '<video src="' + v.videoUrl + '"' + (v.afficheUrl ? ' poster="' + v.afficheUrl + '"' : '') + ' loop muted playsinline preload="' + (premiereVideo ? 'auto' : 'metadata') + '"></video>' +
       '<div class="vid-wait" aria-hidden="true"><i></i></div>' +
       '<div class="mute-hint"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M19 9a5 5 0 0 1 0 6M22 6a9 9 0 0 1 0 12"/></svg></div>' +
       '<div class="actions">' +
@@ -636,6 +683,13 @@
     function tenter(){ if (visible && videoEl.paused) { var p = videoEl.play(); if (p && p.catch) p.catch(function(){}); } }
     videoEl.addEventListener('waiting', function(){ attente.classList.add('on'); });
     ['playing', 'canplay', 'loadeddata'].forEach(function(ev){ videoEl.addEventListener(ev, function(){ if (ev === 'playing') attente.classList.remove('on'); tenter(); }); });
+    // Ma vidéo publiée avant les affiches : le téléphone prend la première image une fois, la garde sur le serveur (une seule fois, jamais remplacée).
+    if (v.estMoi && !v.afficheUrl && !v.premium){
+      videoEl.addEventListener('playing', function(){
+        var d = imageDeVideo(videoEl); if (!d) return;
+        authFetch(API_VIDEOS, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'poster_video', videoId: Number(v.id), afficheBase64: d, afficheMime: 'image/jpeg' }) }).catch(function(){});
+      }, { once: true });
+    }
     videoEl.addEventListener('error', function(){ attente.classList.remove('on'); });
     var share = slide.querySelector('.share-btn');
     share.addEventListener('click', function(){ fermerOpts(); ouvrirPartage(v); });
@@ -680,6 +734,7 @@
         btn.querySelector('.icon').innerHTML = heartIcon(!liked);
         btn.querySelector('.count').textContent = data.likes;
         plus.classList.toggle('liked', !liked);
+        if (!liked) volerCoeurs(plus);
         clearTimeout(optsTimer); optsTimer = setTimeout(fermerOpts, 900);   // l'option est appliquée tout de suite, la fenêtre se referme seule
       });
     });
@@ -1113,6 +1168,7 @@
     // La vidéo part en morceaux de 3 Mo (un seul envoi dépasserait la limite du serveur), chaque morceau est retenté si le réseau flanche.
     var CH = 3000000, n = Math.max(1, Math.ceil(file.size / CH));
     var id = Math.random().toString(36).slice(2, 12) + Date.now().toString(36);
+    var afficheP = afficheDepuisFichier(file).catch(function(){ return null; });   // la première image se prépare pendant l'envoi
     function morceau(i, essai){
       return authFetch(API_VIDEOS + '?chunk=1&id=' + id + '&i=' + i + '&n=' + n, {
         method: 'POST', headers: { 'Content-Type': 'application/octet-stream' }, body: file.slice(i * CH, (i + 1) * CH)
@@ -1132,7 +1188,7 @@
       return morceau(i, 1).then(function(){ return envoyer(i + 1); });
     }
 
-    envoyer(0).then(function(){
+    envoyer(0).then(function(){ return afficheP; }).then(function(affiche){
       btnPublish.textContent = 'Publication...';
       return authFetch(API_VIDEOS, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -1144,7 +1200,9 @@
           uploadId: id,
           nChunks: n,
           pourEnfants: ESPACE ? false : pourEnfants.checked,
-          espace: ESPACE
+          espace: ESPACE,
+          afficheBase64: affiche || '',
+          afficheMime: 'image/jpeg'
         })
       });
     }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })

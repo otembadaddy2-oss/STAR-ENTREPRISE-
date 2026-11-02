@@ -13,7 +13,7 @@ export function db() {
 // Version du schéma = empreinte du texte de ensureSchema() ci-dessous (vérifiée par tools/test-schema.mts).
 // Quand tu modifies une instruction du schéma : lance « node --experimental-strip-types tools/test-schema.mts --ecrire »
 // pour mettre à jour cette ligne. Sans cela, la base ne serait pas mise à jour (le test échoue pour te le rappeler).
-const SCHEMA_VERSION = "3fdb28397dc6a6b1";
+const SCHEMA_VERSION = "8d1b2225a7e24e04";
 
 // Idempotent schema setup — safe to call on every cold start.
 // Rapide : les ~80 instructions ne sont rejouées que si SCHEMA_VERSION a changé depuis la dernière fois
@@ -602,6 +602,17 @@ export async function ensureSchema() {
     )
   `;
   await sql`CREATE INDEX IF NOT EXISTS starvibe_myo_vers_idx ON starvibe_myo (vers_account, statut)`;
+
+  // Blocage d'une personne (comme sur Facebook) : plus d'invitation dans aucun sens, plus de Kaba+, la personne disparaît des listes.
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_blocks (
+      blocker INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      blocked INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      PRIMARY KEY (blocker, blocked)
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_blocks_blocked_idx ON starvibe_blocks (blocked)`;
 
   // KABA+ : partage de contact (Gmail ou WhatsApp) entre amis Myo adultes, uniquement avec l'accord de la personne
   await sql`ALTER TABLE starvibe_accounts ADD COLUMN IF NOT EXISTS contact_gmail TEXT NOT NULL DEFAULT ''`;

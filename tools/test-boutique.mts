@@ -62,7 +62,7 @@ ok((await q("SELECT 1 FROM starvibe_messages WHERE account_id=1 AND kind='vente'
 await B.genererFrais(sql, bid);
 ok((await q("SELECT 1 FROM starvibe_frais")).length === 0, "semaine d'ouverture offerte : pas de facture");
 const c2 = await B.creerCommande(sql, 2, bid, [{ articleId: (a1 as any).data.id, qte: 1 }]); await B.confirmerCommande(sql, 1, (c2 as any).data.id);
-await pg.exec(`UPDATE starvibe_commandes SET paid_at = now() - interval '8 days' WHERE id IN (${cid}, ${(c2 as any).data.id})`);   // les deux ventes passent à la semaine précédente
+await pg.exec(`UPDATE starvibe_commandes SET paid_at = (date_trunc('week', now() AT TIME ZONE 'Africa/Brazzaville') - interval '3 days') AT TIME ZONE 'Africa/Brazzaville' WHERE id IN (${cid}, ${(c2 as any).data.id})`);   // les deux ventes passent à la semaine précédente
 // on recule le curseur de 2 semaines : 2 semaines terminées à facturer (une avec 2 ventes, une SANS aucune vente)
 await pg.exec("UPDATE starvibe_boutiques SET frais_curseur = (date_trunc('week', now() AT TIME ZONE 'Africa/Brazzaville') - interval '14 days')::date");
 await B.genererFrais(sql, bid); await B.genererFrais(sql, bid);
