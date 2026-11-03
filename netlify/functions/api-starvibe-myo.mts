@@ -14,6 +14,7 @@
 // (la personne n'est pas prévenue du refus). L'invitation se retire seule au bout de 24 h. Pas de nouvelle invitation pour la même vidéo pendant 7 jours après un refus ; 20 invitations par jour au maximum.
 //
 // GET  ?recues=1 | ?amis=1 | ?envoyees=1 | ?etat=<profilId> | ?chercher=<texte> | ?contacts=1 | ?bloques=1
+// POST { action: "suivre", profilId } | { action: "ne_plus_suivre", profilId }   (S'abonner : suivre l'auteur d'une vidéo, annulable)
 // POST { action: "bloquer", profilId } | { action: "debloquer", profilId }   (blocage : plus d'invitation dans aucun sens, fin de l'amitié)
 // POST { action: "inviter", profilId } | { action: "repondre", id, reponse: "oui"|"non" } | { action: "retirer", profilId }
 //      { action: "regarder_inviter", profilId, videoId } | { action: "regarder_repondre", id, reponse: "oui"|"non" }
@@ -160,8 +161,12 @@ export default async (req: Request, _context: Context) => {
       const cible = await profilParId(etat);
       if (!cible) return json({ etat: "inconnu" });
       if (cible.account_id === moi) return json({ etat: "moi" });
-      if ((await bloquesAvec()).has(cible.account_id)) return json({ etat: "attente" });
-      return json({ etat: relation(await entre(moi, cible.account_id)) });
+      const bloque = (await bloquesAvec()).has(cible.account_id);
+      if (bloque) return json({ etat: "attente", possible: false, abonne: false });
+      const mienEtat = await monProfil();
+      const possible = Boolean(mienEtat && compatibles(mienEtat, cible));
+      const abo = (await sql`SELECT 1 FROM starvibe_follows WHERE follower = ${moi} AND followed = ${cible.account_id} LIMIT 1`) as unknown[];
+      return json({ etat: relation(await entre(moi, cible.account_id)), possible, abonne: abo.length > 0 });
     }
     const q = clean(url.searchParams.get("chercher"), 40);
     if (q) {
@@ -267,6 +272,19 @@ export default async (req: Request, _context: Context) => {
     return json({ etat: reponse === "oui" ? "amis" : "refusee" });
   }
 
+  if (action === "suivre" || action === "ne_plus_suivre") {
+    const cible = await profilParId(Number(body.profilId));
+    if (!cible || cible.account_id === moi) return json({ error: "Personne introuvable." }, 404);
+    if (action === "ne_plus_suivre") {
+      await sql`DELETE FROM starvibe_follows WHERE follower = ${moi} AND followed = ${cible.account_id}`;
+      return json({ abonne: false });
+    }
+    if (!compatibles(mien, cible)) return json({ error: "Cet abonnement n'est pas possible entre un adulte et un mineur sur KOMYO." }, 403);
+    if ((await bloquesAvec()).has(cible.account_id)) return json({ error: "Abonnement impossible." }, 403);
+    await sql`INSERT INTO starvibe_follows (follower, followed) VALUES (${moi}, ${cible.account_id}) ON CONFLICT DO NOTHING`;
+    return json({ abonne: true });
+  }
+
   if (action === "bloquer" || action === "debloquer") {
     const cible = await profilParId(Number(body.profilId));
     if (!cible || cible.account_id === moi) return json({ error: "Personne introuvable." }, 404);
@@ -278,6 +296,7 @@ export default async (req: Request, _context: Context) => {
     // fin de l'amitié, invitations et demandes Kaba+ entre les deux
     await sql`DELETE FROM starvibe_myo WHERE (de_account = ${moi} AND vers_account = ${cible.account_id}) OR (de_account = ${cible.account_id} AND vers_account = ${moi})`;
     await sql`DELETE FROM starvibe_kaba WHERE (de_account = ${moi} AND vers_account = ${cible.account_id}) OR (de_account = ${cible.account_id} AND vers_account = ${moi})`;
+    await sql`DELETE FROM starvibe_follows WHERE (follower = ${moi} AND followed = ${cible.account_id}) OR (follower = ${cible.account_id} AND followed = ${moi})`;
     return json({ etat: "bloque" });
   }
 

@@ -4,6 +4,7 @@ Liste tenue par Claude et Carry. Claude relit ce fichier au début d'une session
 
 ## 1. Vidéo professionnelle (Cloudflare Stream ou Mux) — quand KOMYO aura beaucoup d'utilisateurs
 - **Pourquoi** : aujourd'hui les vidéos passent par une fonction Netlify. Mesuré le 2 novembre 2026 : le fichier vidéo met 1,7 s en médiane, 5 s pour 1 vidéo sur 10, jusqu'à 17 s au pire. Une affiche (première image) masque l'attente, mais le démarrage n'est pas instantané comme sur TikTok.
+- **Priorité relevée (3 novembre 2026)** : des parents trouvent les épisodes PIOUPIOU lents à démarrer, même sur le wifi d'un bureau. À faire EN PREMIER pour PIOUPIOU seulement (une quarantaine d'épisodes de 1 à 2 minutes) : héberger les épisodes sur un service vidéo (Cloudflare Stream ou Mux) avec liens signés pour les abonnés. Coût estimé très faible à ce volume (à confirmer à l'inscription : Cloudflare Stream facture environ 5 $ pour 1 000 minutes stockées et 1 $ pour 1 000 minutes regardées). Carry doit créer le compte ; Claude branche le reste. Le fil général passe ensuite quand KOMYO grandit.
 - **Solution** : un service spécialisé (Cloudflare Stream, Mux) : vidéos découpées et servies depuis un réseau mondial, miniatures automatiques, démarrage immédiat. Coût mensuel à prévoir (au volume vu, quelques dizaines de dollars par mois au début).
 - **Quand en reparler** (le premier des signes) :
   - environ 300 membres actifs, ou

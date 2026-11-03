@@ -35,6 +35,15 @@
     box-shadow:0 20px 50px -12px rgba(15,74,55,.5);border:5px solid rgba(255,255,255,.35);background:#000;animation:fadeIn .4s ease both;}
   .player video{width:100%;height:100%;object-fit:cover;}
   .player .tapzone{position:absolute;inset:0;}
+  /* Attente de la vidéo : image de l'épisode + petit rond qui tourne + message, pour que personne ne croie à une panne. */
+  .vwait{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;pointer-events:none;opacity:0;transition:opacity .25s;background:rgba(0,0,0,.18);}
+  .vwait.on{opacity:1;}
+  .vwait i{display:block;width:52px;height:52px;border-radius:50%;border:5px solid rgba(255,255,255,.3);border-top-color:#fff;animation:vwspin .8s linear infinite;}
+  .vwait span{font:800 13px 'Sora',Arial,sans-serif;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.7);text-align:center;padding:0 22px;opacity:0;transition:opacity .3s;}
+  .vwait.lent span{opacity:1;}
+  @keyframes vwspin{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){.vwait i{animation-duration:2.4s;}}
+
   .mute-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.45);
     width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;pointer-events:none;}
   .mute-hint.show{opacity:1;}
@@ -154,6 +163,7 @@
   <div class="player">
     <video id="videoEl" loop muted playsinline preload="metadata"></video>
     <div class="tapzone" id="tapZone"></div>
+    <div class="vwait" id="vwait" role="status" aria-live="polite"><i></i><span>La vidéo arrive… un petit instant</span></div>
     <span class="premium-tag" id="premiumTag" hidden>⭐ Pack</span>
     <div class="affiche" id="afficheEl"><div class="fallback"><div class="gros">🎬</div><b id="afficheTitre"></b></div></div>
     <div class="etiquette ferme" id="etqFerme" hidden>FERMÉ<small id="etqRaison"></small><a href="abonnement.html" id="etqLien" hidden>Ouvrir avec le Pack « Les bonnes habitudes »</a></div>
@@ -360,6 +370,22 @@
     else { document.getElementById('gateErr').textContent = 'Ce n\'est pas la bonne réponse. Demande à un parent.'; document.getElementById('gateR').value = ''; }
   });
 
+  // Attente de la vidéo (rond + message au bout de 2 secondes) et préchargement de la suivante dès que celle-ci joue.
+  var vwait = document.getElementById('vwait'), lentTimer = null, preTimer = null, preEl = null;
+  function attenteOn(){ vwait.classList.add('on'); clearTimeout(lentTimer); lentTimer = setTimeout(function(){ vwait.classList.add('lent'); }, 2000); }
+  function attenteOff(){ clearTimeout(lentTimer); vwait.classList.remove('on', 'lent'); }
+  videoEl.addEventListener('waiting', attenteOn);
+  videoEl.addEventListener('playing', function(){
+    attenteOff();
+    clearTimeout(preTimer);
+    preTimer = setTimeout(precharger, 2500);
+  });
+  videoEl.addEventListener('error', attenteOff);
+  function precharger(){
+    var n = videos[index + 1]; if (!n || n.verrouille || !n.videoUrl) return;
+    if (!preEl) { preEl = document.createElement('video'); preEl.muted = true; preEl.preload = 'auto'; preEl.setAttribute('playsinline', ''); }
+    if (preEl.getAttribute('data-u') !== n.videoUrl){ preEl.setAttribute('data-u', n.videoUrl); preEl.src = n.videoUrl; try { preEl.load(); } catch (e) {} }
+  }
   function playCurrent(){
     if (index >= videos.length){ show(doneState); return; }
     var v = videos[index];
@@ -382,7 +408,10 @@
     if (v.verrouille && enPleinEcran()) quitterFs();   // une vidéo fermée ne s'agrandit pas
     if (v.verrouille || !v.videoUrl){
       videoEl.pause(); videoEl.removeAttribute('src'); videoEl.load();
+      attenteOff();
     } else {
+      if (v.afficheUrl) videoEl.poster = v.afficheUrl; else videoEl.removeAttribute('poster');   // l'image de l'épisode reste affichée pendant le chargement
+      attenteOn();
       videoEl.src = v.videoUrl;
       videoEl.muted = !sonActif;
       videoEl.play().catch(function(){ if (sonActif){ sonActif = false; videoEl.muted = true; majSon(); videoEl.play().catch(function(){}); } });

@@ -128,6 +128,9 @@
   .esp-promo[hidden]{display:none;}
   .vid-wait{position:absolute;top:50%;left:50%;width:46px;height:46px;margin:-23px 0 0 -23px;z-index:6;opacity:0;pointer-events:none;transition:opacity .2s;}
   .vid-wait.on{opacity:1;}
+  .vid-msg{position:absolute;top:calc(50% + 36px);left:0;right:0;z-index:6;text-align:center;padding:0 24px;font:800 13px 'Sora',Arial,sans-serif;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.75);opacity:0;transition:opacity .3s;pointer-events:none;}
+  .slide.lent .vid-msg{opacity:1;}
+
   .vid-wait i{display:block;width:100%;height:100%;border-radius:50%;border:4px solid rgba(255,255,255,.25);border-top-color:#fff;animation:vwspin .8s linear infinite;}
   @keyframes vwspin{to{transform:rotate(360deg);}}
   .share-sheet{position:fixed;inset:0;z-index:45;display:flex;align-items:flex-end;background:rgba(0,0,0,.55);}
@@ -179,11 +182,13 @@
   .ami-liste label.ami-row{cursor:pointer;}
   .share-panel .inv-choix small{display:block;font:600 12px 'Inter',Arial,sans-serif;opacity:.8;margin-top:2px;}
   .share-panel .inv-choix span.t{flex:1;text-align:left;}
-  /* Le bouton « + Inviter » à côté du nom : visible 3 secondes, caché 3 secondes, en boucle. */
-  .myo-btn{animation:myoCycle 6s ease-in-out infinite;}
-  .myo-btn.ok{animation:none;}
-  @keyframes myoCycle{0%,44%{opacity:1;visibility:visible}50%,94%{opacity:0;visibility:hidden}100%{opacity:1;visibility:visible}}
-  @media (prefers-reduced-motion:reduce){.myo-btn{animation:none;}}
+  /* S'abonner : le bouton apparaît 3 secondes au-dessus du « + », se cache 3 secondes, en boucle ; une fois abonné il reste affiché (« Abonné ✓ ») et un toucher annule. */
+  .abo-btn{position:absolute;right:0;bottom:54px;border:0;border-radius:999px;padding:8px 14px;font:800 12.5px 'Sora',Arial,sans-serif;color:#fff;background:linear-gradient(135deg,#ff6b4a,#e8a93d);box-shadow:0 6px 16px -6px rgba(0,0,0,.6);cursor:pointer;white-space:nowrap;animation:aboCycle 6s ease-in-out infinite;}
+  .abo-btn[hidden]{display:none;}
+  .abo-btn.on{background:rgba(31,143,74,.92);animation:none;}
+  .plus-btn[aria-expanded=true] + .abo-btn{display:none;}
+  @keyframes aboCycle{0%,44%{opacity:1;visibility:visible;transform:none}50%,94%{opacity:0;visibility:hidden;transform:translateY(6px)}100%{opacity:1;visibility:visible;transform:none}}
+  @media (prefers-reduced-motion:reduce){.abo-btn{animation:none;}}
   .ami-row button[disabled]{background:#1f8f4a;opacity:1;}
   .mute-hint svg{width:26px;height:26px;}
 
@@ -245,8 +250,6 @@
   .modal .errmsg.show{display:block;}
   .modal .infomsg{display:none;font-size:12px;color:#8A6318;background:#FBF3E1;border:1px solid #EDD8A0;border-radius:8px;padding:9px 12px;margin-bottom:12px;}
   .modal .infomsg.show{display:block;}
-  .myo-btn{margin-left:8px;border:1.5px solid rgba(255,255,255,.7);background:rgba(0,0,0,.25);color:#fff;font:800 11px 'Sora',Arial,sans-serif;padding:4px 10px;border-radius:999px;cursor:pointer;vertical-align:middle;backdrop-filter:blur(4px);}
-  .myo-btn.ok{background:#1f8f4a;border-color:#1f8f4a;}
   .eclat-btn{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:#fff;font:800 12px 'Sora',Arial,sans-serif;letter-spacing:.08em;padding:8px 12px;border-radius:999px;background:linear-gradient(135deg,#ff2d3d,#ff6b4a 60%,#e8a93d);box-shadow:0 6px 16px -6px rgba(255,45,61,.8);}
   .eclat-btn i{width:8px;height:8px;border-radius:50%;background:#fff;animation:eclatpulse 1.4s infinite;}
   @keyframes eclatpulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.9)}70%,100%{box-shadow:0 0 0 8px rgba(255,255,255,0)}}
@@ -655,9 +658,11 @@
     slide.innerHTML =
       '<video src="' + v.videoUrl + '"' + (v.afficheUrl ? ' poster="' + v.afficheUrl + '"' : '') + ' loop muted playsinline preload="' + (premiereVideo ? 'auto' : 'metadata') + '"></video>' +
       '<div class="vid-wait" aria-hidden="true"><i></i></div>' +
+      '<div class="vid-msg" aria-hidden="true">La vidéo arrive… un petit instant</div>' +
       '<div class="mute-hint"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M19 9a5 5 0 0 1 0 6M22 6a9 9 0 0 1 0 12"/></svg></div>' +
       '<div class="actions">' +
         '<button type="button" class="plus-btn' + (v.likedByMe ? ' liked' : '') + '" aria-label="Options : j\'aime, commentaire…" aria-expanded="false"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path class="hrt" transform="translate(0 3) scale(.92)" d="M12 21s-7.5-4.6-10-9.3C.4 8 2 4.5 5.6 4c2-.3 3.9.6 6.4 3 2.5-2.4 4.4-3.3 6.4-3C22 4.5 23.6 8 22 11.7 19.5 16.4 12 21 12 21z"/><g class="pl"><path d="M19 1.5v7M15.5 5h7"/></g></svg></button>' +
+        (!v.estMoi && v.auteurProfilId && !v.pourEnfants ? '<button type="button" class="abo-btn" data-p="' + esc(v.auteurProfilId) + '" hidden>S\'abonner</button>' : '') +
         '<div class="opts" hidden>' +
           '<button class="like-btn' + (v.likedByMe ? ' liked' : '') + '" data-id="' + v.id + '">' +
             '<span class="icon">' + heartIcon(v.likedByMe) + '</span><span class="lbl">J\'aime</span><span class="count">' + v.likes + '</span>' +
@@ -674,15 +679,19 @@
         (v.estMoi ? '<button class="del-btn" data-id="' + v.id + '" aria-label="Supprimer ma vidéo"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2m-9 0 1 14h8l1-14M10 11v6M14 11v6"/></svg></span><span class="lbl">Supprimer</span></button>' : '') +
         '</div>' +
       '</div>' +
-      '<div class="meta"><div class="auteur">@' + esc(v.auteur) + (!v.estMoi && v.auteurProfilId ? ' <button type="button" class="myo-btn" data-p="' + esc(v.auteurProfilId) + '">+ Inviter</button>' : '') + '</div>' + carteVisite(v) + '<div class="legende">' + esc(v.legende || '') + '</div></div>';
+      '<div class="meta"><div class="auteur">@' + esc(v.auteur) + '</div>' + carteVisite(v) + '<div class="legende">' + esc(v.legende || '') + '</div></div>';
 
     var videoEl = slide.querySelector('video');
     premiereVideo = false;
+    initAbo(slide);
     var attente = slide.querySelector('.vid-wait');
     var visible = false;
     function tenter(){ if (visible && videoEl.paused) { var p = videoEl.play(); if (p && p.catch) p.catch(function(){}); } }
-    videoEl.addEventListener('waiting', function(){ attente.classList.add('on'); });
-    ['playing', 'canplay', 'loadeddata'].forEach(function(ev){ videoEl.addEventListener(ev, function(){ if (ev === 'playing') attente.classList.remove('on'); tenter(); }); });
+    var lentT = null;
+    function attenteOn(){ attente.classList.add('on'); clearTimeout(lentT); lentT = setTimeout(function(){ slide.classList.add('lent'); }, 2000); }
+    function attenteOff(){ clearTimeout(lentT); attente.classList.remove('on'); slide.classList.remove('lent'); }
+    videoEl.addEventListener('waiting', attenteOn);
+    ['playing', 'canplay', 'loadeddata'].forEach(function(ev){ videoEl.addEventListener(ev, function(){ if (ev === 'playing') attenteOff(); tenter(); }); });
     // Ma vidéo publiée avant les affiches : le téléphone prend la première image une fois, la garde sur le serveur (une seule fois, jamais remplacée).
     if (v.estMoi && !v.afficheUrl && !v.premium){
       videoEl.addEventListener('playing', function(){
@@ -690,7 +699,7 @@
         authFetch(API_VIDEOS, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'poster_video', videoId: Number(v.id), afficheBase64: d, afficheMime: 'image/jpeg' }) }).catch(function(){});
       }, { once: true });
     }
-    videoEl.addEventListener('error', function(){ attente.classList.remove('on'); });
+    videoEl.addEventListener('error', attenteOff);
     var share = slide.querySelector('.share-btn');
     share.addEventListener('click', function(){ fermerOpts(); ouvrirPartage(v); });
     slide.querySelector('.inv-btn').addEventListener('click', function(){ fermerOpts(); ouvrirInviter(v); });
@@ -774,7 +783,7 @@
     var io = new IntersectionObserver(function(entries){
       entries.forEach(function(entry){
         if (entry.isIntersecting && entry.intersectionRatio > 0.6){
-          visible = true; tenter(); setTimeout(tenter, 600); setTimeout(tenter, 1800);
+          visible = true; if (videoEl.paused || videoEl.readyState < 3) attenteOn(); tenter(); setTimeout(tenter, 600); setTimeout(tenter, 1800);
           var suivante = slide.nextElementSibling && slide.nextElementSibling.querySelector('video');
           if (suivante && suivante.preload !== 'auto') suivante.preload = 'auto';
           if (!watchStart) watchStart = Date.now();
@@ -994,14 +1003,33 @@
   commentInput.addEventListener('keydown', function(e){ if (e.key === 'Enter') sendComment(); });
 
 
-  // Myo : bouton « + Inviter » à côté du nom de l'auteur
+  // S'abonner (au-dessus du « + ») : un toucher abonne, « Abonné ✓ » reste affiché ; un toucher dessus propose de se désabonner.
+  var etatAuteurs = {};   // profilId -> promesse { possible, abonne }
+  function etatAuteur(pid){
+    if (!etatAuteurs[pid]) etatAuteurs[pid] = (window.komyoMyo ? window.komyoMyo.api({ q: '?etat=' + encodeURIComponent(pid) }).then(function(r){ return r.ok ? r.json() : { possible: false }; }) : Promise.resolve({ possible: false })).catch(function(){ return { possible: false }; });
+    return etatAuteurs[pid];
+  }
+  function majAbo(pid, abonne){
+    [].forEach.call(document.querySelectorAll('.abo-btn[data-p="' + pid + '"]'), function(b){
+      b.hidden = false; b.classList.toggle('on', !!abonne); b.textContent = abonne ? 'Abonné ✓' : 'S\'abonner'; b.disabled = false;
+    });
+    etatAuteurs[pid] = Promise.resolve({ possible: true, abonne: !!abonne });
+  }
+  function initAbo(slide){
+    var b = slide.querySelector('.abo-btn'); if (!b) return;
+    var pid = b.getAttribute('data-p');
+    etatAuteur(pid).then(function(d){ if (d && d.possible) majAbo(pid, d.abonne); });
+  }
   document.addEventListener('click', function(e){
-    var b = e.target.closest && e.target.closest('.myo-btn'); if (!b || !window.komyoMyo) return;
-    e.stopPropagation(); if (b.disabled) return; b.disabled = true; b.textContent = '…';
-    window.komyoMyo.inviter(b.getAttribute('data-p')).then(function(r){
-      if (!r.ok){ b.disabled = false; b.textContent = '+ Inviter'; alert(r.d.error || ('Invitation impossible pour le moment' + (r.status ? ' (code ' + r.status + ')' : '') + '. Réessaie dans un instant.')); return; }
-      b.classList.add('ok'); b.textContent = r.d.etat === 'amis' ? 'Amis ✓' : 'Invitation envoyée ✓';
-    }).catch(function(){ b.disabled = false; b.textContent = '+ Inviter'; });
+    var b = e.target.closest && e.target.closest('.abo-btn'); if (!b || !window.komyoMyo) return;
+    e.stopPropagation(); if (b.disabled) return;
+    var pid = b.getAttribute('data-p'), abonne = b.classList.contains('on');
+    if (abonne && !window.confirm('Ne plus être abonné à cette personne ?')) return;
+    b.disabled = true;
+    window.komyoMyo.api({ body: { action: abonne ? 'ne_plus_suivre' : 'suivre', profilId: Number(pid) } }).then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); }).then(function(r){
+      if (!r.ok){ b.disabled = false; window.alert(r.d.error || 'Abonnement impossible pour le moment. Réessaie dans un instant.'); return; }
+      majAbo(pid, r.d.abonne);
+    }).catch(function(){ b.disabled = false; window.alert('Connexion interrompue. Réessaie.'); });
   }, true);
 
   // Upload modal
