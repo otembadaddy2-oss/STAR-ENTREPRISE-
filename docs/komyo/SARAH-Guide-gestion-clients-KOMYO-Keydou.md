@@ -109,6 +109,10 @@ _Prix en vigueur dans l'application au 30/10/2026. Les équivalents en euros ou 
 - **PIOUPIOU** : flèche « Vidéo précédente », bouton « Revoir les vidéos » à l'écran Bravo (grand feu d'artifice). Sans Pack actif, la vidéo affiche « FERMÉ » et le bouton pour ouvrir avec le Pack.
 - **Pas encore ouvert** : ÉCLAT (le direct, « bientôt » : la personne peut demander à être prévenue) et le paiement par carte Visa / Mastercard (« bientôt »). Ne rien promettre de plus sur ces deux points.
 
+- **Ma vitrine** : chaque personne a une vitrine, un carrousel doré avec ses vidéos (8 à la fois, bouton « Voir toutes les vidéos »), ses vues, ses cœurs et son nombre d'abonnés. On l'ouvre depuis le menu ☰, « Ma vitrine », ou en touchant le nom d'un auteur dans le fil. On touche la vidéo de devant pour la regarder, et « Partager » envoie le lien de la vitrine. Les vidéos des enfants n'y apparaissent jamais.
+- **S'abonner** : sur une vidéo du fil, un bouton « S'abonner » apparaît 3 secondes au-dessus du « + » puis se cache, en boucle ; une fois abonné il reste affiché « Abonné ✓ » et un toucher dessus permet de se désabonner. Pas de bouton sur ses propres vidéos ni sur celles des enfants ; pas d'abonnement entre adulte et mineur. Ce n'est pas l'invitation d'ami Myo, qui reste dans le menu « Inviter ».
+- **Attente des vidéos** : un rond qui tourne et le message « La vidéo arrive… un petit instant » s'affichent pendant le chargement (fil et PIOUPIOU), avec l'image de l'épisode. Ce n'est pas une panne : sur un réseau lent ou un wifi de bureau qui limite la vidéo, ça peut prendre quelques secondes.
+
 
 ## 7. Messages types (WhatsApp ou e-mail)
 
