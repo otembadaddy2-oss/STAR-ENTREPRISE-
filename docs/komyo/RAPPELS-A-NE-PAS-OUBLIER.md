@@ -22,6 +22,11 @@ Liste tenue par Claude et Carry. Claude relit ce fichier au début d'une session
 - **Plan conseillé** : (1) KOMYO Fly SANS drone, avec livreur à moto, pour tester la demande et construire le logiciel ; (2) test avec un petit drone, trajet court et en vue directe, autorisation obtenue, restaurant partenaire ; (3) extension ou partenariat avec une société de drones déjà active en Afrique (ex. Zipline).
 - **Premier pas quand Carry dit « on reprend KOMYO Fly »** : vérifier la réglementation locale (aviation civile du Congo) et chiffrer le coût réel.
 
+## 2 ter. Vitrine des auteurs — décision de Carry du 3 novembre 2026
+- **Choisi : « Carrousel doré »** pour la vitrine de chaque auteur (vidéos en tambour 3D, celle de devant éclairée en or, aperçu au toucher, flèches). Maquette de référence : page Artifact « Vitrine KOMYO » (https://claude.ai/artifact/3UsCinfoeeSnj676b9pAt2).
+- **« Constellation » gardée pour plus tard**, pour une page spéciale (par exemple les vidéos les plus vues de KOMYO), à améliorer. « Pellicule dorée » non retenue.
+- À construire : page « Ma vitrine » (depuis Mon espace), ouverte aussi en touchant le nom d'un auteur ; 8 vidéos à la fois + « Voir toutes » ; exclure les vidéos d'enfants ; mêmes règles d'âge que Myo ; vraies vidéos, vraies vues et vrais cœurs.
+
 ## 3. Autres points ouverts
 - Airtel Money : nom de l'expéditeur + exemple de SMS, puis deuxième règle MacroDroid.
 - Côte d'Ivoire (proposition de la belle-sœur de Carry, 2 novembre 2026) : recevoir les paiements là-bas avec une SIM ivoirienne. **Ne jamais partager ni recevoir de code PIN Mobile Money** : inutile pour KOMYO. Méthode : un téléphone Android en Côte d'Ivoire avec la SIM + MacroDroid qui transfère les SMS de dépôt au site (comme pour le Congo), avec un code pays. Il faudra : nom de l'expéditeur et un exemple de SMS de chaque opérateur (ex. Orange Money, MTN, Moov, Wave), numéro de dépôt par pays, vue par pays dans l'espace équipe. Côté légal : compte au nom d'une personne identifiée ou d'une société, idéalement un compte « marchand / business » ; voir un comptable pour le transfert d'argent vers le Congo.
