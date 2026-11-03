@@ -31,6 +31,15 @@ Liste tenue par Claude et Carry. Claude relit ce fichier au début d'une session
 - **« Constellation » gardée pour plus tard**, pour une page spéciale (par exemple les vidéos les plus vues de KOMYO), à améliorer. « Pellicule dorée » non retenue.
 - À construire : page « Ma vitrine » (depuis Mon espace), ouverte aussi en touchant le nom d'un auteur ; 8 vidéos à la fois + « Voir toutes » ; exclure les vidéos d'enfants ; mêmes règles d'âge que Myo ; vraies vidéos, vraies vues et vrais cœurs.
 
+## 2 quater. KOMYO Mboté (bonus, médailles) — décisions de Carry du 3 novembre 2026
+- **Médailles** : Or 30 jours, Argent 7 jours, Bronze 3 jours (SVG légers déjà faits : `starvibe/assets/img/medailles/`, fabriqués par `tools/fabrique-medailles.py`). **Versions définitives à refaire avec Higgsfield** quand les crédits seront rechargés, en s'inspirant des médailles de référence envoyées par Carry (rosette plissée, ruban, anneau d'étoiles) et en gardant 30 / 7 / 3 jours. Images à garder LÉGÈRES (WebP/SVG, quelques Ko).
+- **Gagner une médaille** : nombre d'amis invités ET connectés sur KOMYO. Seuils proposés : Bronze 10 amis, Argent 50, Or 200 (plafond évoqué par Carry : 200 ou plus). À confirmer par Carry.
+- **Récompense** : PAS d'activation automatique. À l'atteinte d'une médaille, un message de l'équipe est envoyé d'abord ; l'avantage (jours de Pack ou autre) se choisit ensemble avant activation.
+- **Compteurs équipe** : nombre exact de nouveaux membres (jour/semaine/mois), nombre venus par parrainage, classement des parrains (qui a le plus). À construire dans l'espace équipe.
+- **Bandeau Bonus** et **post-it BONUS** : seulement quand les bonus sont réellement actifs (pas de fausse promesse). Jamais dans PIOUPIOU.
+- **Boutons de verre** (maquette 5) : pile de cercles en verre avec bande d'information, ouverture de bas en haut, fermeture de haut en bas ; pour les réseaux de la carte de visite (WhatsApp, Facebook, Instagram, YouTube…), 10 ou plus possibles. Salon : de 4 à 12 personnes dans la maquette.
+- Maquettes de référence : Artifact « KOMYO Mboté et Salon » (https://claude.ai/artifact/TcEyWsCvZ1LnvSG9LRK3NR).
+
 ## 3. Autres points ouverts
 - Airtel Money : nom de l'expéditeur + exemple de SMS, puis deuxième règle MacroDroid.
 - Côte d'Ivoire (proposition de la belle-sœur de Carry, 2 novembre 2026) : recevoir les paiements là-bas avec une SIM ivoirienne. **Ne jamais partager ni recevoir de code PIN Mobile Money** : inutile pour KOMYO. Méthode : un téléphone Android en Côte d'Ivoire avec la SIM + MacroDroid qui transfère les SMS de dépôt au site (comme pour le Congo), avec un code pays. Il faudra : nom de l'expéditeur et un exemple de SMS de chaque opérateur (ex. Orange Money, MTN, Moov, Wave), numéro de dépôt par pays, vue par pays dans l'espace équipe. Côté légal : compte au nom d'une personne identifiée ou d'une société, idéalement un compte « marchand / business » ; voir un comptable pour le transfert d'argent vers le Congo.
