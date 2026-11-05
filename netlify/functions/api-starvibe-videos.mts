@@ -680,6 +680,40 @@ export default async (req: Request, _context: Context) => {
   // publication ; pour PIOUPIOU (pour_enfants = true), ça n'arrive qu'après
   // validation par un compte staff (voir plus haut, action "moderer").
   // Une seule vidéo (invitation « Regarder ensemble ») : mêmes règles que le fil — approuvée, jamais PIOUPIOU, KOMYO Jeunes réservé aux 13-17 ans.
+  // --- Vitrine d'un auteur : ses vidéos (jamais celles des enfants ni les vidéos premium), ses chiffres, sa carte de visite ---
+  // GET ?vitrine=<profilId>|me [&decalage=N] : 8 vidéos à la fois. KOMYO Jeunes reste réservé aux 13-17 ans.
+  const vit = url.searchParams.get("vitrine");
+  if (vit) {
+    const cible = (vit === "me"
+      ? await sql`SELECT id, account_id, nom, photo_key, activite, contact_wa, date_naissance FROM starvibe_profiles WHERE account_id = ${accountId} AND type_profil = 'personnel' ORDER BY id ASC LIMIT 1`
+      : await sql`SELECT id, account_id, nom, photo_key, activite, contact_wa, date_naissance FROM starvibe_profiles WHERE id = ${Number(vit) || 0} AND type_profil = 'personnel' LIMIT 1`) as
+      { id: number; account_id: number; nom: string; photo_key: string | null; activite: string; contact_wa: string; date_naissance: string }[];
+    if (!cible[0]) return json({ error: "Vitrine introuvable" }, 404);
+    const a = cible[0];
+    const moi = (await sql`SELECT date_naissance FROM starvibe_profiles WHERE account_id = ${accountId} AND type_profil = 'personnel' LIMIT 1`) as { date_naissance: string }[];
+    const voitJeunes = Boolean(moi[0] && estJeune(ageFromDate(String(moi[0].date_naissance))));
+    const decalage = Math.min(Math.max(Number(url.searchParams.get("decalage")) || 0, 0), 5000);
+    const tot = (await sql`
+      SELECT COUNT(*)::int AS n, COALESCE(SUM(vues_count),0)::int AS vues, COALESCE(SUM(likes_count),0)::int AS coeurs FROM starvibe_videos
+      WHERE profile_id = ${a.id} AND pour_enfants = false AND premium = false AND moderation_statut = 'approuve' AND (espace <> 'jeunes' OR ${voitJeunes})
+    `) as { n: number; vues: number; coeurs: number }[];
+    const abos = (await sql`SELECT COUNT(*)::int AS n FROM starvibe_follows WHERE followed = ${a.account_id}`) as { n: number }[];
+    const rows = (await sql`
+      SELECT v.*, p.nom AS auteur_nom FROM starvibe_videos v JOIN starvibe_profiles p ON p.id = v.profile_id
+      WHERE v.profile_id = ${a.id} AND v.pour_enfants = false AND v.premium = false AND v.moderation_statut = 'approuve' AND (v.espace <> 'jeunes' OR ${voitJeunes})
+      ORDER BY v.id DESC LIMIT 8 OFFSET ${decalage}
+    `) as VideoRow[];
+    const ids = rows.map((r) => r.id);
+    const aimes = ids.length ? ((await sql`SELECT video_id FROM starvibe_likes WHERE account_id = ${accountId} AND video_id = ANY(${ids})`) as { video_id: number }[]) : [];
+    const aimeSet = new Set(aimes.map((r) => r.video_id));
+    return json({
+      auteur: { profilId: a.id, nom: a.nom, photoUrl: photoUrl(a.photo_key), activite: a.activite || "", wa: a.contact_wa || "", estMoi: a.account_id === accountId },
+      chiffres: { videos: tot[0]?.n || 0, vues: tot[0]?.vues || 0, coeurs: tot[0]?.coeurs || 0, abonnes: abos[0]?.n || 0 },
+      videos: rows.map((r) => toApi(r, aimeSet.has(r.id), false, accountId)),
+      suivant: decalage + rows.length, fin: rows.length < 8,
+    });
+  }
+
   const une = Number(url.searchParams.get("une"));
   if (une) {
     const r = (await sql`

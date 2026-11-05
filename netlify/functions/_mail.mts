@@ -2,6 +2,7 @@
 // Le mot de passe de la boîte n'est JAMAIS dans le code : il se met dans Netlify → Environment variables (SMTP_PASS).
 // Sans SMTP_PASS, rien n'est envoyé et le message reste quand même enregistré dans le back-office.
 import nodemailer from "nodemailer";
+import { LOGO_MAIL_PNG_BASE64 } from "./_logo_mail.mts";
 
 export interface MailContact { nom: string; contact: string; message: string; email?: string }
 
@@ -14,7 +15,8 @@ const TO = () => process.env.CONTACT_TO || "contact@starentreprise.com";
 // ----- Signature officielle KOMYO : logo + slogan + adresse, au bas de chaque e-mail important -----
 const SITE = "https://komyo.starentreprise.com";
 export const SLOGAN = "KOMYO, le monde en mouvement";
-export const LOGO_MAIL = `${SITE}/starvibe/assets/img/icons/komyo-logo-officiel-mail-v1.png`;
+export const LOGO_MAIL = `${SITE}/starvibe/assets/img/icons/komyo-logo-officiel-mail-v1.png`;   // copie en ligne (page de test) ; les e-mails joignent le logo eux-mêmes
+export const PIECE_LOGO = { filename: "komyo-logo.png", content: Buffer.from(LOGO_MAIL_PNG_BASE64, "base64"), cid: "komyo-logo", contentType: "image/png", contentDisposition: "inline" as const };
 export const SIGNATURE_TEXTE = `\n\n—\nKOMYO — le monde en mouvement\nkomyo.starentreprise.com · une application STAR ENTREPRISE\ncontact@starentreprise.com`;
 const esc = (t: string) => String(t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] as string);
 export function signatureHtml(): string {
@@ -23,7 +25,7 @@ export function signatureHtml(): string {
     `<b style="font-size:16px;color:#241536">KOMYO — le monde en mouvement</b><br>` +
     `<a href="${SITE}" style="color:#c2410c;font-weight:bold;text-decoration:none">komyo.starentreprise.com</a><br>` +
     `<span style="color:#6b5f80;font-size:12px">Une application STAR ENTREPRISE · contact@starentreprise.com</span></td>` +
-    `<td style="padding-top:14px;vertical-align:middle;text-align:right;width:130px"><a href="${SITE}"><img src="${LOGO_MAIL}" alt="KOMYO" width="116" style="display:block;margin-left:auto;border:0;max-width:116px;height:auto"></a></td>` +
+    `<td style="padding-top:14px;vertical-align:middle;text-align:right;width:130px"><a href="${SITE}"><img src="cid:komyo-logo" alt="KOMYO" width="116" style="display:block;margin-left:auto;border:0;max-width:116px;height:auto"></a></td>` +
     `</tr></table>`;
 }
 // Texte brut -> HTML (échappé) avec la signature : le texte reste lisible partout, la version HTML porte le logo.
@@ -44,6 +46,7 @@ export function messageContact(m: MailContact) {
     subject: `Message KOMYO de ${nom}`,
     text: corps + SIGNATURE_TEXTE,
     html: enHtml(corps),
+    attachments: [PIECE_LOGO],
   };
 }
 
@@ -69,6 +72,7 @@ export function messageAccuse(email: string) {
     subject: "KOMYO : nous avons bien reçu ton message",
     text: ACCUSE_CORPS + SIGNATURE_TEXTE,
     html: enHtml(ACCUSE_CORPS),
+    attachments: [PIECE_LOGO],
   };
 }
 
