@@ -113,6 +113,9 @@ _Prix en vigueur dans l'application au 30/10/2026. Les équivalents en euros ou 
 - **S'abonner** : sur une vidéo du fil, un bouton « S'abonner » apparaît 3 secondes au-dessus du « + » puis se cache, en boucle ; une fois abonné il reste affiché « Abonné ✓ » et un toucher dessus permet de se désabonner. Pas de bouton sur ses propres vidéos ni sur celles des enfants ; pas d'abonnement entre adulte et mineur. Ce n'est pas l'invitation d'ami Myo, qui reste dans le menu « Inviter ».
 - **Attente des vidéos** : un rond qui tourne et le message « La vidéo arrive… un petit instant » s'affichent pendant le chargement (fil et PIOUPIOU), avec l'image de l'épisode. Ce n'est pas une panne : sur un réseau lent ou un wifi de bureau qui limite la vidéo, ça peut prendre quelques secondes.
 
+- **Pas encore disponible, à ne PAS promettre ni présenter comme ouvert** : KOMYO Mboté (programme de bonus et médailles Bronze, Argent, Or, avec jours de Pack offerts pour les amis invités), le vœu d'anniversaire de Keydou à 500 FCFA (voix de Clémence, enveloppe et carte de Keydou), le Salon (appel vidéo en groupe Famille ou Amis), le bandeau et le post-it BONUS. Ces idées sont en préparation : si on demande, répondre « c'est en préparation, nous prévenons les membres dès que c'est ouvert », sans date ni prix définitif.
+- **E-mails et reçus** : tous les e-mails de KOMYO (accusés de réception, messages du formulaire) se terminent par la signature officielle avec le logo KOMYO, « KOMYO, le monde en mouvement » et komyo.starentreprise.com ; le logo est joint au message, donc visible même quand la messagerie bloque les images. Les reçus et factures portent la même signature. Pour répondre à un client, le numéro à rappeler est dans le message ; ne jamais demander de code PIN.
+
 
 ## 7. Messages types (WhatsApp ou e-mail)
 
