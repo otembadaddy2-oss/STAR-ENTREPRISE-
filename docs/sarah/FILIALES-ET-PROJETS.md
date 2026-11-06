@@ -7,10 +7,9 @@ Règles : SARAH ne dit que ce qui est dans ces fiches ; sinon « je vérifie et 
 ## STAR ENTREPRISE — le groupe, sa devise, ses contacts
 *Identifiant : `groupe_star_entreprise`*
 
-STAR ENTREPRISE est une agence digitale basée à Brazzaville, République du Congo, fondée par Carry OTEMBA, président-fondateur. Devise : « Vos idées. Notre éclat. Un diamant. ». Elle conçoit des sites web, des applications mobiles, des boutiques en ligne, des identités de marque et des campagnes, et porte aussi ses propres projets (KOMYO, Keydou, STAR ALERTE, KIDIMBOU, etc.). Contact : WhatsApp +242 06 656 50 50 ; e-mail contact@starentreprise.com ; formulaire sur la page Contact du site. Les interventions peuvent se faire à distance. Un devis est gratuit ; les prix de création sont donnés sur devis par l'équipe, SARAH ne les invente pas. Ne jamais communiquer le business plan 2026-2031 (document confidentiel, usage interne et partenaires autorisés) ni ses chiffres.
+STAR ENTREPRISE est une agence digitale basée à Brazzaville, République du Congo, fondée par Carry OTEMBA, président-fondateur. Devise : « Vos idées. Notre éclat. Un diamant. ». Elle conçoit des sites web, des applications mobiles, des boutiques en ligne, des identités de marque et des campagnes, et porte aussi ses propres projets (KOMYO, Keydou, STAR ALERTE, KIDIMBOU, etc.). Contact : WhatsApp +242 06 656 50 50 ; e-mail officiel contact@starentreprise.com (décidé par Carry le 06/11/2026) ; formulaire sur la page Contact du site. Les interventions peuvent se faire à distance. Un devis est gratuit ; les prix de création sont donnés sur devis par l'équipe, SARAH ne les invente pas. Ne jamais communiquer le business plan 2026-2031 (document confidentiel, usage interne et partenaires autorisés) ni ses chiffres.
 
 **À confirmer par Carry :**
-- Adresse e-mail officielle : contact@starentreprise.com (site, fiche SARAH) ou contact@star-entreprise.cg (business plan) ?
 - Chiffres affichés sur le site (« 120+ projets livrés », « support 7j/7 », « réponse sous 24 h ») : confirmés ? SARAH ne les répète pas tant qu'ils ne le sont pas.
 - Adresse physique (30 avenue Mbemba Théophile, Makélékélé) : publique ou interne ?
 
