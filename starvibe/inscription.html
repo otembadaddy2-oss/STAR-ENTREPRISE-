@@ -254,6 +254,7 @@
   var dejaInscrit = false;
   try { dejaInscrit = /[?&]mode=login\b/.test(location.search) || location.hash === '#connexion' || localStorage.getItem('komyo_deja_inscrit') === '1'; } catch (e) {}
   if (/[?&]mode=register\b/.test(location.search)) dejaInscrit = false;
+  try { var _ref = new URLSearchParams(location.search).get('ref'); if (_ref) localStorage.setItem('komyo_ref', _ref.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,12)); } catch(e){}
   var mode = dejaInscrit ? 'login' : 'register';
   // La personne a elle-même touché « J'ai déjà un compte » : pas la peine de lui reproposer « Créer un compte » juste en dessous.
   var choixConnexion = false;
@@ -384,6 +385,7 @@
       payload.ville = ville;
       payload.pays = window.KOMYO_PAYS || '';
       payload.typeProfil = profileType;
+      try { payload.ref = localStorage.getItem('komyo_ref') || ''; } catch(e){}
     } else {
       payload.action = 'login';
     }

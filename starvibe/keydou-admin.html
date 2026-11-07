@@ -127,6 +127,7 @@
     <button class="tab" id="tabPins">PIN oubliés <span id="pinBadge" class="pill warn" hidden style="margin-left:4px"></span></button>
     <button class="tab" id="tabContacts">Contacts en direct</button>
     <button class="tab" id="tabAnnuaire">Annuaire de Keydou</button>
+    <button class="tab" id="tabParr">Parrainage</button>
     <button class="tab" id="tabPhone">Mon téléphone (validation)</button>
   </div>
 
@@ -201,6 +202,17 @@
         <button class="btn" id="pinModalClose" type="button">Fermer</button>
       </div>
     </div>
+  </div>
+
+  <!-- PARRAINAGE : classement du mois, médailles, message aux gagnants -->
+  <div id="paneParr" hidden>
+    <div class="formcard" style="margin-bottom:12px">
+      <b>Classement du parrainage</b>
+      <p class="muted" style="margin:6px 0 0;line-height:1.55">Un ami compte quand il s'est inscrit avec le lien du parrain et connecté sur 2 jours différents. Il faut <b>50 amis connectés dans le mois</b> pour être classé : 1er médaille d'or (30 jours de Pack), 2e argent (7 jours), 3e bronze (3 jours). Le bouton envoie un message de félicitations dans la messagerie du gagnant ; <b>rien ne s'active tout seul</b> : contacte-le ensuite pour choisir l'avantage.</p>
+      <div class="bar" style="margin-top:10px"><label class="muted" for="parrMois">Mois</label> <input id="parrMois" type="month" style="padding:8px;border-radius:10px"> <button class="btn" id="parrOk" type="button">Afficher</button></div>
+    </div>
+    <div class="muted" id="parrMsg" style="margin-bottom:8px"></div>
+    <div class="tablewrap"><table style="min-width:560px"><thead><tr><th>Rang</th><th>Parrain</th><th>Téléphone</th><th>Amis connectés</th><th>Médaille</th><th>Message</th></tr></thead><tbody id="parrBody"></tbody></table></div>
   </div>
 
   <!-- CONTACTS -->
@@ -416,16 +428,44 @@
   }
 
   function tab(name){
-    ['Dash','Clients','Subs','Pins','Contacts','Annuaire','Phone'].forEach(function(n){ $('tab' + n).classList.toggle('on', n === name); $('pane' + n).hidden = (n !== name); });
+    ['Dash','Clients','Subs','Pins','Contacts','Annuaire','Parr','Phone'].forEach(function(n){ $('tab' + n).classList.toggle('on', n === name); $('pane' + n).hidden = (n !== name); });
     if (name === 'Phone') loadPhone();
+    if (name === 'Parr') loadParr();
     if (name === 'Dash') { loadDash(); } else { clearInterval(dashTimer); dashTimer = null; }
   }
+
+  // ---- Parrainage : classement du mois et message aux gagnants ----
+  function loadParr(){
+    var m = $('parrMois').value || '';
+    $('parrMsg').textContent = 'Chargement…';
+    authFetch('/api/starvibe-parrainage?equipe=1' + (m ? '&mois=' + encodeURIComponent(m) : '')).then(function(r){ return r.json().then(function(d){ return { ok:r.ok, d:d }; }); }).then(function(x){
+      if (!x.ok){ $('parrMsg').textContent = x.d.error || 'Erreur'; return; }
+      var d = x.d; $('parrMois').value = d.mois;
+      $('parrMsg').textContent = d.lignes.length ? ('Minimum pour être classé : ' + d.minimum + ' amis connectés.') : 'Personne n\u2019a encore d\u2019ami connecté grâce au parrainage ce mois-ci.';
+      $('parrBody').innerHTML = d.lignes.map(function(l){
+        var med = l.medaille ? ({or:'🥇 Or · 30 j', argent:'🥈 Argent · 7 j', bronze:'🥉 Bronze · 3 j'}[l.medaille]) : (l.classe ? '—' : '<span class="muted">sous ' + d.minimum + ' amis</span>');
+        var act = l.medaille ? (l.dejaEnvoye ? '<span class="pill pay">Envoyé ✓</span>' : '<button class="btn ok" type="button" data-rang="' + l.rang + '">Envoyer le message</button>') : '';
+        return '<tr><td>' + (l.rang || '—') + '</td><td>' + esc(l.nom || '—') + '</td><td>' + esc(l.tel) + '</td><td><b>' + l.amis + '</b></td><td>' + med + '</td><td>' + act + '</td></tr>';
+      }).join('');
+      Array.prototype.forEach.call($('parrBody').querySelectorAll('button[data-rang]'), function(b){
+        b.addEventListener('click', function(){
+          if (!confirm('Envoyer le message de félicitations au n°' + b.getAttribute('data-rang') + ' ? Il ne pourra être envoyé qu\u2019une seule fois.')) return;
+          b.disabled = true;
+          authFetch('/api/starvibe-parrainage', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'envoyer', mois:d.mois, rang:Number(b.getAttribute('data-rang')) }) }).then(function(r){ return r.json(); }).then(function(res){
+            alert(res.ok ? 'Message envoyé dans la messagerie du gagnant. Contacte-le maintenant pour choisir son avantage.' : (res.error || 'Erreur')); loadParr();
+          });
+        });
+      });
+    }).catch(function(){ $('parrMsg').textContent = 'Impossible de charger le classement.'; });
+  }
+  $('parrOk').addEventListener('click', loadParr);
   $('tabDash').addEventListener('click', function(){ goTab('Dash'); });
   $('tabClients').addEventListener('click', function(){ goTab('Clients'); });
   $('tabSubs').addEventListener('click', function(){ goTab('Subs'); loadSubs(false); });
   $('tabPins').addEventListener('click', function(){ goTab('Pins'); loadPins(false); });
   $('tabContacts').addEventListener('click', function(){ goTab('Contacts'); });
   $('tabAnnuaire').addEventListener('click', function(){ goTab('Annuaire'); });
+  $('tabParr').addEventListener('click', function(){ goTab('Parr'); });
   $('tabPhone').addEventListener('click', function(){ goTab('Phone'); });
 
 

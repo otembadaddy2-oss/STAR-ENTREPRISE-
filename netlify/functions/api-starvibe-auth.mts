@@ -13,6 +13,7 @@ import { ensureSchema, db, json } from "./_db.mts";
 import { issueToken, requireAuth } from "./_auth.mts";
 import { pushAll } from "./_push.mts";
 import { poster } from "./_msg.mts";
+import { noterConnexion, parrainDuCode } from "./_parrainage.mts";
 import { ipHash, verrou, echec, effacer, msgBloque } from "./_guard.mts";
 
 function clean(value: unknown, maxLen: number): string {
@@ -234,6 +235,7 @@ export default async (req: Request, _context: Context) => {
       await sql`UPDATE starvibe_accounts SET failed_attempts = 0, locked_until = NULL WHERE id = ${acc.id}`;
     }
 
+    await noterConnexion(sql, acc.id);
     const profiles = await sql`
       SELECT id, nom, date_naissance, type_profil FROM starvibe_profiles
       WHERE account_id = ${acc.id} ORDER BY id ASC
@@ -281,6 +283,12 @@ export default async (req: Request, _context: Context) => {
       RETURNING id, telephone, ville
     `;
     const acc = accRows[0] as any;
+    // Parrainage : le lien ou le code d'un membre (le parrain ne peut pas être le nouveau compte lui-même).
+    try {
+      const parrain = await parrainDuCode(sql, clean(body.ref, 20));
+      if (parrain && parrain !== acc.id) await sql`UPDATE starvibe_accounts SET parrain_id = ${parrain} WHERE id = ${acc.id}`;
+    } catch (e) { console.error("parrain", e); }
+    await noterConnexion(sql, acc.id);
 
     const profRows = await sql`
       INSERT INTO starvibe_profiles (account_id, nom, date_naissance, type_profil)
