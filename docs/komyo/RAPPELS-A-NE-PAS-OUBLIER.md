@@ -114,3 +114,8 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - À faire avant de publier : vérifier que komyo.starentreprise.com s'ouvre bien sur un téléphone ; mention « personnages virtuels » dans le texte de la publication ; la phrase « Keydou vous répond » ne promet pas d'infos gratuites (la réponse de l'annuaire reste après paiement).
 - Naël utilise la voix Chloé = voix de PIOUPIOU (choix de Carry le 30/10, « à trancher »).
 - Affiches à corriger avant republication : Kids (« 1 000 – 1 500 FCFA / semaines » faux, c'est 1 500 FCFA / 30 jours), badges Google Play / App Store (faux : installation depuis le navigateur), « Artistes » (« promotion du Mois » alors que 2 000 FCFA = 1 semaine ; « Postie » → « Poste »), affiche « Tu as des enfants ? » : logos Paw Patrol, Peppa Pig, Bluey, Masha et Michka, Roi Lion, Tom & Jerry = marques de tiers, ne pas publier telle quelle.
+
+## Pub KOMYO v2 (7 nov, soir) — corrections de Carry intégrées, envoyée, NON publiée
+- Clémence = version ORIGINALE des spots (visage rond, silhouette pleine / plus-size, référence `assets/img/pub/clemence-bleu-9x16.jpg`), PAS la version mince de la fiche staff B ; à répéter dans tout prompt : « plus-size, full-figured, ne pas amincir ». Naël = silhouette à formes (sablier), même visage ; les deux avec encolures sobres (public familial / autorités).
+- Partie téléphone refaite en 3D avec Blender (module `bpy` 4.5 installé dans /tmp/bpyenv, rendu Cycles CPU, ≈ 4,3 s/image) : séquences d'interface rendues image par image (30 i/s, mouvements avec accélération/décélération) puis posées sur un téléphone 3D qui tourne doucement. Android (Installer) puis iPhone (Partager → Sur l'écran d'accueil).
+- 50 s au total. Coût Higgsfield cumulé de la pub ≈ 80 crédits.
