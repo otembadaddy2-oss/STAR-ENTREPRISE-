@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KOMYO — Parrainage</title>
+<meta name="theme-color" content="#FFFBF3">
+<link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">
+<link rel="preload" href="/starvibe/assets/fonts/inter-latin-v1.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/starvibe/assets/fonts/komyo-fonts-v1.css">
+<style>
+  :root{--ink:#241536;--gold:#E8A93D;--coral:#FF6B4A;--cream:#FFFBF3;--dim:#6b5f80;--line:#eee2cc;--ok:#1f8f4a;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Inter',Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:'Sora',Arial,sans-serif;}
+  .top{background:linear-gradient(135deg,#FF6B4A,#E8A93D);color:#fff;padding:calc(16px + env(safe-area-inset-top)) 20px 28px;border-radius:0 0 26px 26px;}
+  .top a{color:#fff;text-decoration:none;font:700 13px 'Sora',Arial,sans-serif;}
+  .top h1{margin:10px 0 4px;font-size:27px;line-height:1.15;}
+  .top p{margin:0;font-size:14px;opacity:.95;line-height:1.45;}
+  .wrap{max-width:520px;margin:0 auto;padding:18px 20px 60px;display:grid;gap:14px;}
+  .card{background:#fff;border:1.5px solid var(--line);border-radius:20px;padding:18px;box-shadow:0 10px 24px -18px rgba(36,21,54,.25);}
+  .card h2{margin:0 0 6px;font-size:19px;}
+  .note{font-size:13px;color:var(--dim);line-height:1.5;margin:6px 0 0;}
+  .lien{word-break:break-all;background:#fff6e6;border:1.5px dashed var(--gold);border-radius:12px;padding:10px 12px;font-size:13px;margin:10px 0 12px;}
+  .actions{display:grid;gap:10px;}
+  .barre{height:14px;border-radius:99px;background:#f1e8d8;overflow:hidden;margin:10px 0 6px;}
+  .barre i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--coral),var(--gold));border-radius:99px;transition:width .6s ease;}
+  .gros{font:800 28px 'Sora',Arial,sans-serif;}
+  .gros small{font:600 14px 'Inter',Arial,sans-serif;color:var(--dim);}
+  .podium{display:grid;gap:10px;margin-top:8px;}
+  .pod{display:flex;align-items:center;gap:12px;padding:8px 4px;border-top:1px solid var(--line);}
+  .pod:first-child{border-top:0;}
+  .pod img{width:54px;height:54px;object-fit:contain;flex:none;}
+  .pod b{font-family:'Sora',Arial,sans-serif;display:block;}
+  .pod span{font-size:13px;color:var(--dim);}
+  .gagne{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px;}
+  .gagne:first-of-type{border-top:0;}
+  .gagne img{width:40px;height:40px;object-fit:contain;}
+  .vide{text-align:center;padding:30px 10px;color:var(--dim);}
+  ol{margin:8px 0 0;padding-left:20px;font-size:14px;line-height:1.55;color:#3a2c52;}
+</style>
+<link rel="stylesheet" href="assets/komyo-bureau-v2.css" media="(min-width:1000px)">
+<link rel="stylesheet" href="assets/komyo-verre-v2.css">
+</head>
+<body>
+<div class="top">
+  <a href="accueil.html">← Mon espace</a>
+  <h1>Parrainage</h1>
+  <p>Invite tes amis sur KOMYO : les plus actifs gagnent une médaille chaque mois.</p>
+</div>
+<div class="wrap">
+  <div id="out" class="card vide" hidden>Connecte-toi à KOMYO pour inviter tes amis.<br><a href="inscription.html" style="color:var(--coral);font-weight:700">Se connecter / Créer un compte</a></div>
+
+  <div id="moi" hidden>
+    <div class="card">
+      <h2>Mon lien d'invitation</h2>
+      <div class="lien" id="lien">…</div>
+      <div class="actions">
+        <a class="verre verre-fort verre-c verre-vert" id="wa" target="_blank" rel="noopener"><span class="verre-txt"><b>Envoyer par WhatsApp</b></span></a>
+        <button type="button" class="verre verre-fort verre-c verre-bleu" id="copie"><span class="verre-txt"><b>Copier mon lien</b></span></button>
+      </div>
+      <p class="note">Mon code : <b id="code">…</b>. Un ami peut aussi l'écrire à l'inscription.</p>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h2>Ce mois-ci</h2>
+      <div class="gros"><span id="amis">0</span> <small>ami(s) connecté(s) sur <span id="min">50</span></small></div>
+      <div class="barre"><i id="bar"></i></div>
+      <p class="note" id="etat"></p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Le classement du mois</h2>
+    <div class="podium">
+      <div class="pod"><img src="assets/img/medaille-or.webp" alt="Médaille d'or"><div><b>1er : médaille d'or</b><span>30 jours de Pack « Les bonnes habitudes »</span></div></div>
+      <div class="pod"><img src="assets/img/medaille-argent.webp" alt="Médaille d'argent"><div><b>2e : médaille d'argent</b><span>7 jours de Pack</span></div></div>
+      <div class="pod"><img src="assets/img/medaille-bronze.webp" alt="Médaille de bronze"><div><b>3e : médaille de bronze</b><span>3 jours de Pack</span></div></div>
+    </div>
+    <ol>
+      <li>Un ami compte quand il crée son compte avec ton lien et se connecte sur <b>au moins 2 jours différents</b>.</li>
+      <li>Il faut <b>au moins 50 amis connectés dans le mois</b> pour être classé.</li>
+      <li>Le classement repart à zéro chaque mois.</li>
+      <li>Rien ne s'active tout seul : l'équipe KOMYO t'écrit dans ta messagerie pour te remettre ton avantage.</li>
+    </ol>
+  </div>
+
+  <div class="card" id="mes" hidden>
+    <h2>Mes médailles</h2>
+    <div id="mesListe"></div>
+  </div>
+</div>
+<script>
+(function(){
+  var token=''; try{ token=localStorage.getItem('starvibe_token')||''; }catch(e){}
+  var $=function(i){ return document.getElementById(i); };
+  var NOMS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  if(!token){ $('out').hidden=false; return; }
+  fetch('/api/starvibe-parrainage',{headers:{Authorization:'Bearer '+token}}).then(function(r){
+    if(r.status===401){ try{ localStorage.removeItem('starvibe_token'); }catch(e){} $('out').hidden=false; return null; }
+    return r.json();
+  }).then(function(d){
+    if(!d||d.error){ return; }
+    $('moi').hidden=false;
+    $('lien').textContent=d.lien; $('code').textContent=d.code; $('amis').textContent=d.amis; $('min').textContent=d.minimum;
+    $('bar').style.width=Math.min(100,Math.round(d.amis/d.minimum*100))+'%';
+    $('etat').textContent = d.rang ? ('Tu es n°'+d.rang+' du classement ce mois-ci. Continue !')
+      : (d.restants>0 ? ('Encore '+d.restants+' ami(s) connecté(s) pour entrer dans le classement ce mois-ci.') : 'Tu es dans le classement ce mois-ci.');
+    var msg='Rejoins-moi sur KOMYO, c’est gratuit : '+d.lien;
+    $('wa').href='https://wa.me/?text='+encodeURIComponent(msg);
+    $('copie').addEventListener('click',function(){
+      var b=$('copie').querySelector('b');
+      function ok(){ b.textContent='Lien copié ✓'; setTimeout(function(){ b.textContent='Copier mon lien'; },2000); }
+      if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(d.lien).then(ok,function(){ window.prompt('Copie ton lien :',d.lien); }); }
+      else{ window.prompt('Copie ton lien :',d.lien); }
+    });
+    if(d.medailles&&d.medailles.length){
+      $('mes').hidden=false;
+      $('mesListe').innerHTML=d.medailles.map(function(m){
+        var p=m.mois.split('-'); var img={or:'medaille-or',argent:'medaille-argent',bronze:'medaille-bronze'}[m.medaille]||'medaille-or';
+        return '<div class="gagne"><img src="assets/img/'+img+'.webp" alt=""><div><b>Médaille '+(m.medaille==='bronze'?'de bronze':(m.medaille==='argent'?'d’argent':'d’or'))+'</b><br><span class="note">'+NOMS[Number(p[1])-1]+' '+p[0]+' · '+m.amis+' amis · '+m.jours+' jours de Pack</span></div></div>';
+      }).join('');
+    }
+  }).catch(function(){});
+})();
+</script>
+</body>
+</html>

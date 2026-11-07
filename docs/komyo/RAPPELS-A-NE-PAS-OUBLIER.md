@@ -146,3 +146,10 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - Livraison temporaire des mp4 retirée de netlify.toml (les vidéos sont dans Blobs).
 - Les affiches (Kids, Artistes, Marketplace) ne font pas partie du site : images pour réseaux sociaux/impression, envoyées à Carry en fichiers. Reste « ≈ 3.50 USD » à corriger et l'affiche aux logos de marques tierces à ne pas publier.
 - Médailles et BONUS : non codés tant que Carry n'a pas fixé les règles (qui gagne quelle médaille, parrainage).
+
+## 7 nov. (nuit) — PARRAINAGE et médailles : règles validées par Carry, codées
+- Règles (validées 👍) : un ami compte quand il s'inscrit avec le lien/code du parrain ET se connecte sur au moins 2 jours différents ; classement chaque mois (heure de Brazzaville) ; il faut AU MOINS 50 amis connectés dans le mois pour être classé ; 1er médaille d'or (30 jours de Pack « Les bonnes habitudes »), 2e argent (7 jours), 3e bronze (3 jours). Rien ne s'active tout seul : message de l'équipe, puis l'avantage se choisit avec le gagnant.
+- Code : `_parrainage.mts` (règles, classement SQL testé sur une base locale : égalités départagées par la date d'atteinte), `api-starvibe-parrainage.mts` (membre : lien, amis, rang, médailles ; équipe : classement + bouton « Envoyer le message », une seule fois par mois et par rang), tables `starvibe_connexions`, `starvibe_parrainage_gagnants`, colonnes `code_parrain` et `parrain_id` (SCHEMA_VERSION mise à jour). Pages : `parrainage.html` (membre, dans le menu ☰), onglet « Parrainage » dans `keydou-admin.html`, `inscription.html?ref=CODE`.
+- Jours de connexion notés à la connexion, à l'inscription et à l'ouverture du fil (une ligne par jour et par compte).
+- Keydou, guide et agent Sarah, Sarah 3.0 : parrainage annoncé comme ouvert ; plus d'« à venir » pour le parrainage (le Salon, le vœu d'anniversaire, le bandeau BONUS restent à venir).
+- Reste à faire : tester avec un vrai compte (inscription par lien, 2 connexions), puis fin du mois : l'équipe ouvre l'onglet Parrainage et envoie les messages.

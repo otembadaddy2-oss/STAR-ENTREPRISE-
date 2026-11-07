@@ -15,6 +15,7 @@ import { ensureSchema, db, json } from "./_db.mts";
 import { requireAuth } from "./_auth.mts";
 import { signedVideoUrl, hasActiveFamille } from "./_premium.mts";
 import { episodesOfficiels, installerEpisodesOfficiels } from "./_pioupiou_officiel.mts";
+import { noterConnexion } from "./_parrainage.mts";
 import { signerAnalyse } from "./_gardien.mts";
 
 const ORG = "star_vibe";
@@ -729,6 +730,7 @@ export default async (req: Request, _context: Context) => {
     return json({ video: toApi(r[0], aime.length > 0, await hasActiveFamille(sql, accountId), accountId) });
   }
 
+  await noterConnexion(sql, accountId);   // parrainage : une ligne par jour d'ouverture de la liste
   const espaceParam = (url.searchParams.get("espace") || "").toLowerCase();
   const wantKids = espaceParam === "pioupiou";
   const espaceFiltre = ESPACES_OUVERTS.includes(espaceParam) ? espaceParam : "";   // "" = fil principal : toutes les vidéos non enfants

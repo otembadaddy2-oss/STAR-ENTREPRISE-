@@ -13,7 +13,7 @@ export function db() {
 // Version du schéma = empreinte du texte de ensureSchema() ci-dessous (vérifiée par tools/test-schema.mts).
 // Quand tu modifies une instruction du schéma : lance « node --experimental-strip-types tools/test-schema.mts --ecrire »
 // pour mettre à jour cette ligne. Sans cela, la base ne serait pas mise à jour (le test échoue pour te le rappeler).
-const SCHEMA_VERSION = "ca43f1adf9bfafa9";
+const SCHEMA_VERSION = "dc7568256519c025";
 
 // Idempotent schema setup — safe to call on every cold start.
 // Rapide : les ~80 instructions ne sont rejouées que si SCHEMA_VERSION a changé depuis la dernière fois
@@ -798,6 +798,14 @@ export async function ensureSchema() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     )
   `;
+
+  // Parrainage KOMYO : code personnel de chaque membre, parrain de chaque nouveau compte, jours de connexion (un ami « compte » dès sa 2e journée de connexion),
+  // et trace des messages de félicitations envoyés aux gagnants du classement mensuel (1er or, 2e argent, 3e bronze ; minimum 50 amis connectés).
+  await sql`ALTER TABLE starvibe_accounts ADD COLUMN IF NOT EXISTS code_parrain TEXT`;
+  await sql`ALTER TABLE starvibe_accounts ADD COLUMN IF NOT EXISTS parrain_id INTEGER`;
+  await sql`CREATE UNIQUE INDEX IF NOT EXISTS starvibe_accounts_code_parrain_idx ON starvibe_accounts (code_parrain) WHERE code_parrain IS NOT NULL`;
+  await sql`CREATE TABLE IF NOT EXISTS starvibe_connexions (account_id INTEGER NOT NULL, jour DATE NOT NULL, PRIMARY KEY (account_id, jour))`;
+  await sql`CREATE TABLE IF NOT EXISTS starvibe_parrainage_gagnants (mois TEXT NOT NULL, rang INTEGER NOT NULL, account_id INTEGER NOT NULL, amis INTEGER NOT NULL DEFAULT 0, envoye_le TIMESTAMPTZ NOT NULL DEFAULT now(), PRIMARY KEY (mois, rang))`;
 
   // Visites : un appareil compté une fois par jour (identifiant tiré au hasard par l'appareil, aucune adresse IP, aucun nom).
   await sql`
