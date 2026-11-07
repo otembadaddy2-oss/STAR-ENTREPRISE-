@@ -82,3 +82,9 @@ Aussi à régler avec ce lot : accès réseau de l'environnement au domaine `ele
 - Netlify : recharge automatique avec un plafond avant le lancement public.
 - Bissa POP (pub animée) : en pause ; reprendre quand Higgsfield est rechargé (voix et destination à choisir).
 - Commentaires des personnes bloquées : à cacher aussi sur les vidéos.
+
+## PIOUPIOU pack A — état au 7 novembre (fin de production)
+- A6, A7 (corrigé : Zola regarde Maman Poule), A8 validés par Carry ; A9 en attente de son OK explicite ; A10 « Bravo, quelle belle journée ! » produit (20 s, 6 plans, enfants divers dont garçon en fauteuil), envoyé à Carry pour validation.
+- Fichiers prêts dans `netlify/functions/pioupiou-officiel/` : a6 à a10 (.mp4). Rien n'est encore enregistré dans le code ni déployé.
+- Au moment de la publication (UN seul lot, sur « vas-y » de Carry) : EPISODES_OFFICIELS (a6–a10), affiches webp, `included_files` temporaire dans netlify.toml, Keydou + Sarah + guide « 10 disponibles sur 10 », programme-videos-educatives.md.
+- Crédits Higgsfield après A10 : 352,84.
