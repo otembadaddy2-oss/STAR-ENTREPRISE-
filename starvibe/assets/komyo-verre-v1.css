@@ -1,0 +1,20 @@
+/* KOMYO — boutons « verre liquide » : 8 couleurs. Usage : <a class="verre verre-or"><span class="verre-ico">★</span><span class="verre-txt"><b>Titre</b><small>Sous-titre</small></span></a> */
+.verre{--c:255,196,60;--c2:255,150,20;position:relative;display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 10px 8px 18px;border-radius:999px;color:#fff;text-decoration:none;font:600 15px/1.2 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;cursor:pointer;border:1px solid rgba(255,255,255,.38);
+  background:
+    radial-gradient(120% 140% at 12% -20%,rgba(255,255,255,.55) 0%,rgba(255,255,255,0) 46%),
+    linear-gradient(135deg,rgba(var(--c),.55) 0%,rgba(var(--c2),.30) 55%,rgba(var(--c),.45) 100%);
+  -webkit-backdrop-filter:blur(14px) saturate(1.7);backdrop-filter:blur(14px) saturate(1.7);
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.75),inset 0 -10px 18px rgba(var(--c2),.30),inset 0 0 0 1px rgba(255,255,255,.10),0 10px 24px rgba(var(--c2),.30),0 2px 6px rgba(0,0,0,.35);
+  text-shadow:0 1px 2px rgba(0,0,0,.45);transition:transform .15s ease,box-shadow .15s ease;-webkit-tap-highlight-color:transparent}
+.verre::before{content:"";position:absolute;left:14px;right:14px;top:3px;height:42%;border-radius:999px;background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,0));pointer-events:none}
+.verre:active{transform:scale(.97)}
+.verre:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.verre-txt{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.verre-txt b{font-weight:700;font-size:15px}.verre-txt small{font-weight:500;font-size:12px;opacity:.88}
+.verre-ico{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:18px;order:2;
+  background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.85),rgba(255,255,255,.12) 42%),linear-gradient(145deg,rgba(var(--c),.95),rgba(var(--c2),.9));
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.9),inset 0 -4px 8px rgba(0,0,0,.18),0 3px 8px rgba(0,0,0,.35)}
+.verre-or{--c:255,196,60;--c2:230,130,10}.verre-orange{--c:255,138,52;--c2:214,72,20}.verre-rouge{--c:255,82,96;--c2:196,24,52}.verre-rose{--c:255,112,190;--c2:204,50,140}
+.verre-violet{--c:158,110,255;--c2:96,52,214}.verre-bleu{--c:70,160,255;--c2:20,92,220}.verre-vert{--c:60,214,150;--c2:16,150,98}.verre-argent{--c:214,224,240;--c2:120,138,170}
+@media (prefers-reduced-motion:reduce){.verre{transition:none}}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.verre{background:linear-gradient(135deg,rgba(var(--c),.9),rgba(var(--c2),.9))}}

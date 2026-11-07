@@ -28,6 +28,11 @@ export const EPISODES_OFFICIELS: EpisodeOfficiel[] = [
   { cle: "officiel-a3.mp4", fichier: "a3.mp4", titre: "A3 · Les mains propres avant de manger", affiche: "/starvibe/assets/pioupiou/affiche_A3-v1.webp" },
   { cle: "officiel-a4.mp4", fichier: "a4.mp4", titre: "A4 · Les mains propres après le repas", affiche: "/starvibe/assets/pioupiou/affiche_A4-v1.webp" },
   { cle: "officiel-a5-v2.mp4", fichier: "a5v2.mp4", titre: "A5 · Merci !", affiche: "/starvibe/assets/pioupiou/affiche_A5-v1.webp" },
+  { cle: "officiel-a6.mp4", fichier: "a6.mp4", titre: "A6 · S'il te plaît", affiche: "/starvibe/assets/pioupiou/affiche_A6-v1.webp" },
+  { cle: "officiel-a7.mp4", fichier: "a7.mp4", titre: "A7 · Au revoir", affiche: "/starvibe/assets/pioupiou/affiche_A7-v1.webp" },
+  { cle: "officiel-a8.mp4", fichier: "a8.mp4", titre: "A8 · Les dents du soir", affiche: "/starvibe/assets/pioupiou/affiche_A8-v1.webp" },
+  { cle: "officiel-a9.mp4", fichier: "a9.mp4", titre: "A9 · Bonne nuit papa, bonne nuit maman", affiche: "/starvibe/assets/pioupiou/affiche_A9-v1.webp" },
+  { cle: "officiel-a10.mp4", fichier: "a10.mp4", titre: "A10 · Bravo, quelle belle journée !", affiche: "/starvibe/assets/pioupiou/affiche_A10-v1.webp" },
 ];
 
 // Anciennes versions remplacées : leur fichier est supprimé du stockage au prochain passage.

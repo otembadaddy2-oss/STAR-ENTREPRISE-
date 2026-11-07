@@ -4,7 +4,14 @@ Liste tenue par Claude et Carry. Claude relit ce fichier au début d'une session
 
 ## 0. Consigne permanente de Carry (3 novembre 2026)
 - **Ne rien déployer ni publier sans son accord explicite** : crédits Netlify à 493 (798,2 le 1er novembre). Un déploiement coûte environ 15 crédits ; le reste de la baisse vient du calcul (« Compute », surtout le passage des vidéos par la fonction). Regrouper les modifications en UN seul déploiement, au feu vert de Carry.
-- Lot en attente (rien n'est en ligne) : vitrine Carrousel doré, « S'abonner », écran d'attente des vidéos (fil + PIOUPIOU), logo joint aux e-mails, précision Keydou/Sarah sur le déblocage automatique.
+- Mise à jour du 6 novembre 2026 : le lot 4 est EN LIGNE depuis le 5 novembre (vitrine Carrousel doré, « S'abonner », écran d'attente des vidéos, logo joint aux e-mails, Keydou et Sarah à jour). La règle « pas de publication sans l'accord de Carry » reste valable pour tout le reste.
+- Crédits Netlify : 413,3 le 5 novembre au soir. L'achat de 1 000 crédits (10 $) avait d'abord ÉCHOUÉ côté carte Noupia (solde insuffisant : 10 $ + frais de transaction, message « Échoué » du 5 novembre 16h11). Refait avec succès le 6 novembre : solde 1 352,6 (le suivi de consommation de Netlify peut avoir du retard, bandeau « problèmes de facturation »). Les crédits achetés n'expirent pas et servent après les crédits mensuels.
+- **Plan « ne jamais être mis en pause »** (Netlify met les projets en pause quand les crédits tombent à zéro) : (1) seuil d'alerte à 300 crédits, capture du solde avant chaque annonce importante ; (2) recharge automatique avec plafond mensuel, à activer une fois le bandeau de facturation disparu, et la carte Noupia doit garder une réserve (15 à 20 $ de plus que la recharge, sinon la recharge échoue et le site est mis en pause) ; (3) avant le lien officiel : vidéos sur Cloudflare Stream ou Mux (voir section 1) pour réduire la consommation ; (4) plan de secours : copie du site chez un autre hébergeur, seulement si Netlify reste instable (chantier de plusieurs jours, le connecteur Cloudflare devra être autorisé par Carry).
+- **Sarah 24 h sur 24 (décidé le 6 novembre 2026)** : WhatsApp +242 06 656 50 50, bulle de chat sur tous les sites, tous les projets et filiales, jusqu'à ~50 conversations en même temps (même exigence pour Keydou). Existant : l'application SARAH 3.0 (zip « Agent_SARAH_STAR_ENTREPRISE », Python, WhatsApp Business, widget de site, e-mail, console, 3 niveaux d'autonomie) est prête mais NON hébergée et NON connectée (aucune clé IA, aucun jeton Meta). Base de connaissances des filiales : brouillon `docs/sarah/FILIALES-ET-PROJETS.md` + `public_seed_filiales.json` (18 fiches, 18 points à confirmer), en attente d'approbation de Carry. À décider : hébergement de Sarah (Render ≈ 26 $/mois ou autre, séparé de Netlify pour ne pas être pénalisé par les crédits), compte Meta WhatsApp Business (le numéro 06 656 50 50 est celui de Carry : vérifier la « coexistence » avec l'application WhatsApp Business), clé IA et budget par jour, rôle de Jardissa face à Sarah, politique de remboursement. Aucun test réel n'a été fait avec WhatsApp, Gmail, Anthropic ou OpenAI.
+- **Accords de Carry du 6 novembre 2026** : e-mail officiel contact@starentreprise.com ; hébergement Render ≈ 26 $/mois accordé (hors Netlify) ; Sarah peut utiliser le numéro +242 06 656 50 50 (Meta/coexistence à vérifier) ; moteur Claude recommandé accepté, clé et plafond quotidien à installer par Carry en privé. SARAH 3.0 est poussée dans le dépôt privé `agent-sarah-star-entreprise` (branche main, sans secret, tests locaux OK, un bug de démarrage corrigé). RIEN n'est encore déployé sur Render ni connecté à WhatsApp : ces deux étapes demandent la connexion de Carry à Render et à Meta.
+- Keydou et 50 personnes en même temps : OK techniquement (fonction serveur). Garde-fous de coût : 30 messages IA par heure par personne et 600 conversations IA par jour au total (`api-starvibe-keydou.mts`), réglable ; au-delà, repli sur la compréhension par mots-clés.
+
+- **PIOUPIOU pack A (7 novembre 2026)** : A6 « S'il te plaît » (17 s), A7 « Au revoir » (14 s, version corrigée : Zola regarde Maman Poule) et A8 « Les dents du soir » (18 s) sont terminés, validés pour A6, fichiers déposés dans `netlify/functions/pioupiou-officiel/` (a6.mp4, a7.mp4, a8.mp4, ignorés par git). Restent A9 et A10 (A10 = grand final avec TOUS les enfants de l'affiche de groupe, dont l'enfant en fauteuil roulant ; prénoms à choisir avec Carry). Pour publier : ajouter les entrées dans `EPISODES_OFFICIELS` (`_pioupiou_officiel.mts`), les affiches webp dans `starvibe/assets/pioupiou/`, `included_files` temporaire dans `netlify.toml`, puis mettre à jour Keydou/Sarah (« 10 disponibles sur 10 ») et UN seul déploiement au feu vert de Carry. Voix : Chloé (PIOUPIOU), Chicadi (Mawa), Aquilas (Zola), Peter +3 demi-tons (Kiki), Fatou (Maman Poule, à valider). Domaine `elevenlabsusercontent.com` autorisé dans l'environnement (7 nov.). Higgsfield : 419 crédits au soir du 7 nov.
 
 ## 1. Vidéo professionnelle (Cloudflare Stream ou Mux) — quand KOMYO aura beaucoup d'utilisateurs
 - **Pourquoi** : aujourd'hui les vidéos passent par une fonction Netlify. Mesuré le 2 novembre 2026 : le fichier vidéo met 1,7 s en médiane, 5 s pour 1 vidéo sur 10, jusqu'à 17 s au pire. Une affiche (première image) masque l'attente, mais le démarrage n'est pas instantané comme sur TikTok.
@@ -75,3 +82,67 @@ Aussi à régler avec ce lot : accès réseau de l'environnement au domaine `ele
 - Netlify : recharge automatique avec un plafond avant le lancement public.
 - Bissa POP (pub animée) : en pause ; reprendre quand Higgsfield est rechargé (voix et destination à choisir).
 - Commentaires des personnes bloquées : à cacher aussi sur les vidéos.
+
+## PIOUPIOU pack A — état au 7 novembre (fin de production)
+- A6, A7 (corrigé : Zola regarde Maman Poule), A8 validés par Carry ; A9 en attente de son OK explicite ; A10 « Bravo, quelle belle journée ! » produit (20 s, 6 plans, enfants divers dont garçon en fauteuil), envoyé à Carry pour validation.
+- Fichiers prêts dans `netlify/functions/pioupiou-officiel/` : a6 à a10 (.mp4). Rien n'est encore enregistré dans le code ni déployé.
+- Au moment de la publication (UN seul lot, sur « vas-y » de Carry) : EPISODES_OFFICIELS (a6–a10), affiches webp, `included_files` temporaire dans netlify.toml, Keydou + Sarah + guide « 10 disponibles sur 10 », programme-videos-educatives.md.
+- Crédits Higgsfield après A10 : 352,84.
+- A10 prolongé (7 nov) : outro de PIOUPIOU (voix Chloé, texte validé par Carry : résumé A1→A10, conseil, « abonnez-vous », « à bientôt sur KOMYO ») → A10 = 51 s (a10.mp4, 10,7 Mo). Crédits Higgsfield : 305,34. En attente de son OK. Option non tranchée : mini-outro (4-5 s) à la fin de chaque épisode A1–A10.
+
+## Prénoms des 7 enfants du groupe PIOUPIOU (7 nov) — noms de Carry : Lato, Sita, Sarah, Malik, Inza, Carry ; 7e : Kurt (choisi par Carry)
+Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien n'est encore utilisé dans une vidéo ni sur le site) :
+- Sita : fille aux nattes, haut jaune · Lato : fille aux cheveux noirs courts, robe rose · Sarah : fille aux boucles, noeud violet
+- Carry : garçon aux cheveux crépus, sweat orange · Inza : garçon aux cheveux noirs, chemise verte · Malik : garçon en fauteuil roulant, t-shirt rouge · Kurt : garçon aux cheveux châtains, veste bleue
+- Attention : « Sarah » est aussi le nom de l'assistante numérique ; à garder en tête pour éviter la confusion (par ex. toujours dire « la petite Sarah » dans les épisodes).
+
+## LOT PIOUPIOU A6–A10 — PRÊT, EN ATTENTE DU « VAS-Y » DE CARRY (7 nov)
+- OK de Carry reçu sur A9 et sur A10 complet (51 s). Code prêt dans la branche, NON déployé :
+  `_pioupiou_officiel.mts` (a6–a10), `netlify.toml` (livraison temporaire des 5 mp4 pour api-starvibe-videos — à retirer au déploiement suivant), affiches `affiche_A6…A10-v1.webp`, page abonnement (10/10), pioupiou.html, tarifs.html, abonnement (description), prompt Keydou, build_sarah.py + guide Sarah + sarah-star.md, programme-videos-educatives.md, Sarah 3.0 (public_seed.json + manifeste vérifié).
+- Après le déploiement : ouvrir l'espace PIOUPIOU avec un compte Famille et vérifier que A6–A10 se lisent (installation dans Blobs au premier passage) ; vérifier la page abonnement.
+- Puis : retirer l'`included_files` temporaire de netlify.toml (déploiement suivant).
+- Test Sarah 3.0 : 209/210 ; seul échec = modèle de voix local absent (fichier .onnx), sans rapport.
+
+## Améliorations KOMYO — maquettes envoyées à Carry (7 nov, 16 h) — à valider avant intégration
+- Boutons en verre 8 couleurs (or, orange, rouge, rose, violet, bleu, vert, argent) : `docs/komyo/maquettes/verre.css` + `boutons-verre.html` (CSS pur, texte net). Pas encore dans le site.
+- Médailles Or / Argent / Bronze (rosette de la référence de Carry, n° 1-2-3) et 2 photos de jeune femme joyeuse pour le post-it BONUS : générées sur Higgsfield (jobs aeaadc05, 71cf8dd4, 6b647f53 ; photos f18d6076, edd09fba). En attente du choix de Carry. Coût : ≈ 1,3 crédit.
+- Pub KOMYO avec Clémence + Naël + Keydou + « Nous sommes tous KOMYO » + logo animé : estimation de coût envoyée, rien généré. Règle du registre staff B : mention « personnages virtuels » dans le texte de publication (pas sur la vidéo).
+
+## Pub KOMYO v1 (7 nov, soir) — produite, envoyée à Carry, NON publiée
+- 48 s, vertical 720×1280 : Clémence (tailleur crème) + Naël (blouse blanche, debout), message « KOMYO est disponible, gratuit, sans magasin » ; démo d'installation Android + iPhone (animation par code, `scratchpad/pub/demo`) ; « il faut une connexion internet » (KOMYO n'est PAS hors ligne : service worker réseau d'abord) ; Keydou danse (« montez le volume, appuyez sur le micro et parlez, il vous écoute et vous répond ») ; photo « Ensemble nous sommes tous KOMYO » animée avec voix de groupe ; fin = animation du logo de la pub « dame blanche » + « Gratuit · sans magasin d'applications · komyo.starentreprise.com ».
+- Coût Higgsfield ≈ 43 crédits (reste 262,34) ; ElevenLabs ≈ 900 crédits.
+- À faire avant de publier : vérifier que komyo.starentreprise.com s'ouvre bien sur un téléphone ; mention « personnages virtuels » dans le texte de la publication ; la phrase « Keydou vous répond » ne promet pas d'infos gratuites (la réponse de l'annuaire reste après paiement).
+- Naël utilise la voix Chloé = voix de PIOUPIOU (choix de Carry le 30/10, « à trancher »).
+- Affiches à corriger avant republication : Kids (« 1 000 – 1 500 FCFA / semaines » faux, c'est 1 500 FCFA / 30 jours), badges Google Play / App Store (faux : installation depuis le navigateur), « Artistes » (« promotion du Mois » alors que 2 000 FCFA = 1 semaine ; « Postie » → « Poste »), affiche « Tu as des enfants ? » : logos Paw Patrol, Peppa Pig, Bluey, Masha et Michka, Roi Lion, Tom & Jerry = marques de tiers, ne pas publier telle quelle.
+
+## Pub KOMYO v2 (7 nov, soir) — corrections de Carry intégrées, envoyée, NON publiée
+- Clémence = version ORIGINALE des spots (visage rond, silhouette pleine / plus-size, référence `assets/img/pub/clemence-bleu-9x16.jpg`), PAS la version mince de la fiche staff B ; à répéter dans tout prompt : « plus-size, full-figured, ne pas amincir ». Naël = silhouette à formes (sablier), même visage ; les deux avec encolures sobres (public familial / autorités).
+- Partie téléphone refaite en 3D avec Blender (module `bpy` 4.5 installé dans /tmp/bpyenv, rendu Cycles CPU, ≈ 4,3 s/image) : séquences d'interface rendues image par image (30 i/s, mouvements avec accélération/décélération) puis posées sur un téléphone 3D qui tourne doucement. Android (Installer) puis iPhone (Partager → Sur l'écran d'accueil).
+- 50 s au total. Coût Higgsfield cumulé de la pub ≈ 80 crédits.
+
+## Pub KOMYO v3 (7 nov, nuit) — retouches de Carry intégrées, envoyée, NON publiée
+- Carry : Clémence = version V2 (celle de la pub v2) à garder ; « N'utilise pas Soul » (testé : Soul 2 ne garde pas le visage depuis une seule photo → il avait raison de s'en passer sans identité entraînée). Générateur d'images : gpt_image_2_5 avec références ; vidéos : Wan 2.7.
+- v3 : entrée en marchant dans le hall + caméra qui bouge (plans larges et travelling), phrase de Clémence complétée (« Et c'est pour ça que je vous le dis : vous êtes toujours formidables, »), homme blanc en costume qui évite la caméra derrière Naël pendant « il y a Keydou », Keydou plus grand (danse, saut, salut, fête), scène de groupe refaite (ils se rassemblent, plein écran, sans logo ni barres), texte « Ensemble nous sommes tous KOMYO » avec étincelles et ligne finale avec reflet (script `build_group.py`), animation du logo COMPLÈTE de la pub « dame blanche » (éclair, boule d'or qui s'ouvre, billes colorées, logo, voix « le monde en mouvement »).
+- Coût de cette reprise ≈ 50 crédits Higgsfield (reste 157,73) + ≈ 100 crédits ElevenLabs. Durée 58 s.
+- Image de référence « femme au téléphone » envoyée par Carry sans explication : non utilisée, à lui redemander.
+- Pub v4 (7 nov, nuit) : scène de groupe à 9 personnes (les 7 de la photo de Carry + une femme blanche en chemisier bleu clair + un homme blanc en costume gris), demandée par Carry ; reste identique à la v3. Coût ≈ 10 crédits Higgsfield. Fichier de travail `scratchpad/pub/KOMYO_pub_v4.mp4` (non publié).
+
+## 7 nov, soir — retouches pub v5, affiches corrigées, assets du site (rien déployé)
+- Pub v5 : voix mises au même niveau (toutes ≈ −17,5 LUFS avant mixage, les voix de Clémence étaient 7 à 12 dB trop basses), voix de fin du logo +4 dB, Keydou dégagé des sous-titres, texte du groupe réduit (ne cache plus les visages). Aucun crédit Higgsfield.
+- Affiches corrigées (par code, dans `docs/komyo/affiches-corrigees/`, non publiées) : Kids (prix « 1 500 FCFA / 30 jours », Orange Money retiré car absent au Congo-Brazzaville, badges magasins remplacés par « Installe KOMYO gratuitement · komyo.starentreprise.com »), Artistes (« Poste et crée… publie-les », « promotion de la semaine », badges remplacés), Marketplace (badges remplacés). NON corrigées : « ≈ 3.50 USD » (≈ 3,4 $ au taux du 15/10), affiche « Tu as des enfants ? » (logos de marques tierces : ne pas publier).
+- Site (dans le dépôt, à déployer) : `starvibe/assets/komyo-verre-v1.css` (boutons en verre, 8 couleurs), médailles Or/Argent/Bronze en WebP transparent, photos BONUS (`bonus-femme-joyeuse.webp` et `-2`), bouton WhatsApp de la vitrine en verre. Les SVG provisoires `medailles/*.svg` et `bonus/postit-bonus-v1.svg` ne sont utilisés nulle part : les fonctions « médailles » et « BONUS parrainage » ne sont pas codées (règles à définir par Carry).
+- Pub v6 (7 nov, soir) : synchro voix/bouches mesurée (corrélation audio de chaque plan Wan ↔ fichier voix : décalage 0 ms ; mes voix étaient mixées 100 à 150 ms trop tard, C1 de 150 ms). Corrigé : C1 à +2,60 s (piste avec 2,6 s de silence), N1/N2/N4/C7 à +0 s, N3 à +0,5 s. Limite : le dessin de la bouche lui-même est généré par Wan, seule la mise en place dans le temps est garantie. Aucun crédit.
+
+## Pub KOMYO v7 (7 nov.)
+- Retours de Carry sur v5 : étoiles du texte retirées ; groupe démarre calme (bouches fermées, sourires) puis crie ensemble ; Naël (« Il vous suffit d'une connexion… ») refaite, parle face caméra (bouche fermée pendant la voix : 62 % -> 0 %, mesuré).
+- Coût : ~6 crédits (plan Naël) + ~10,5 (groupe) + ~0,25 (image de départ).
+- À vérifier encore : plan 1 (Clémence qui marche, « Bonjour ») trop petit pour mesurer.
+- Rien n'est publié : en attente du « vas-y » de Carry.
+- v8 (7 nov.) : Carry demande de couper la vidéo de 41 s à 44 s (début calme du groupe) et de garder la suite jusqu'à la fin. Fait par montage (aucun crédit), durée 55 s. Carry : « le reste serait bon » après cette correction.
+
+## 7 nov. — mise en ligne du lot (déploiement 6aef8b1e…) et suite
+- A6–A10 installés dans Netlify Blobs (vérifié : « installé »). Les 10 épisodes A1–A10 en ligne, accès Famille inchangé.
+- Boutons en verre étendus (komyo-verre-v2.css, variante « fort » pour fonds clairs) : accueil (index), tarifs, installer, vitrine.
+- Livraison temporaire des mp4 retirée de netlify.toml (les vidéos sont dans Blobs).
+- Les affiches (Kids, Artistes, Marketplace) ne font pas partie du site : images pour réseaux sociaux/impression, envoyées à Carry en fichiers. Reste « ≈ 3.50 USD » à corriger et l'affiche aux logos de marques tierces à ne pas publier.
+- Médailles et BONUS : non codés tant que Carry n'a pas fixé les règles (qui gagne quelle médaille, parrainage).
