@@ -10,6 +10,7 @@
 <link rel="preload" href="/starvibe/assets/fonts/inter-latin-v1.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/starvibe/assets/fonts/komyo-fonts-v1.css">
 <link rel="manifest" href="manifest-komyo.json">
+<link rel="stylesheet" href="assets/komyo-verre-v1.css">
 <style>
   :root{--nuit:#0e0b1c;--nuit-2:#191330;--or:#e8a93d;--or-clair:#ffd27a;--corail:#ff6b4a;--creme:#fff4df;--dim:#b9aec9;--coeur:#ee1228;--ok:#1f8f4a;}
   *{box-sizing:border-box;}
@@ -194,7 +195,7 @@
     } else {
       var bo = document.createElement('button'); bo.type = 'button'; bo.className = 'b or'; bo.id = 'abo'; bo.textContent = 'S\'abonner'; bo.hidden = true; ac.appendChild(bo);
       initAbo(bo, a.profilId);
-      if (a.wa){ var w = document.createElement('a'); w.className = 'b wa'; w.target = '_blank'; w.rel = 'noopener'; w.href = 'https://wa.me/' + String(a.wa).replace(/[^0-9]/g, ''); w.textContent = 'Écrire sur WhatsApp'; ac.appendChild(w); }
+      if (a.wa){ var w = document.createElement('a'); w.className = 'verre verre-vert'; w.target = '_blank'; w.rel = 'noopener'; w.href = 'https://wa.me/' + String(a.wa).replace(/[^0-9]/g, ''); w.innerHTML = '<span class="verre-txt"><b>Écrire sur WhatsApp</b></span><span class="verre-ico" aria-hidden="true">✆</span>'; ac.appendChild(w); }
     }
     $('partager').hidden = false;
     if (videos.length){
