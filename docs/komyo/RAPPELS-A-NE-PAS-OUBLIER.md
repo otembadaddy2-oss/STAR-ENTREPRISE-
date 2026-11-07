@@ -138,3 +138,4 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - Coût : ~6 crédits (plan Naël) + ~10,5 (groupe) + ~0,25 (image de départ).
 - À vérifier encore : plan 1 (Clémence qui marche, « Bonjour ») trop petit pour mesurer.
 - Rien n'est publié : en attente du « vas-y » de Carry.
+- v8 (7 nov.) : Carry demande de couper la vidéo de 41 s à 44 s (début calme du groupe) et de garder la suite jusqu'à la fin. Fait par montage (aucun crédit), durée 55 s. Carry : « le reste serait bon » après cette correction.
