@@ -153,3 +153,7 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - Jours de connexion notés à la connexion, à l'inscription et à l'ouverture du fil (une ligne par jour et par compte).
 - Keydou, guide et agent Sarah, Sarah 3.0 : parrainage annoncé comme ouvert ; plus d'« à venir » pour le parrainage (le Salon, le vœu d'anniversaire, le bandeau BONUS restent à venir).
 - Reste à faire : tester avec un vrai compte (inscription par lien, 2 connexions), puis fin du mois : l'équipe ouvre l'onglet Parrainage et envoie les messages.
+
+## 7 nov. (nuit) — Guide d'utilisation refait (PDF) et question « livraison de repas » pour Keydou
+- Guide PDF refait : 16 pages « Page X sur N », sommaire avec numéros de page, polices Sora + Inter (celles de l'application), captures d'écran, affiches des 10 épisodes PIOUPIOU, chapitres Parrainage et PIOUPIOU. Script : `docs/komyo/build_guide_utilisation.py` (polices et images dans `docs/komyo/guide-assets/`). Pas publié sur le site (docs/* est bloqué).
+- Keydou n'a PAS de catégorie « livraison de repas à domicile » (19 secteurs, aucun). Recherche web du 7 nov. : aucune liste fiable ; plateformes citées sans contact vérifié (Gozem, Noki Noki, Bilengi/BilengiGo, DigiShopping, Waza). Rien inventé. À faire avec Carry : constituer une liste vérifiée (appeler les restaurants de l'annuaire : « livrez-vous ? » + numéros WhatsApp des livreurs), puis ajouter la catégorie (SERVICES, keydou.html, prompt, guide Sarah) et importer les fiches ; ne pas ouvrir la catégorie au public tant qu'elle est vide.
