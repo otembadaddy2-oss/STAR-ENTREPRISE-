@@ -90,8 +90,8 @@ Aussi à régler avec ce lot : accès réseau de l'environnement au domaine `ele
 - Crédits Higgsfield après A10 : 352,84.
 - A10 prolongé (7 nov) : outro de PIOUPIOU (voix Chloé, texte validé par Carry : résumé A1→A10, conseil, « abonnez-vous », « à bientôt sur KOMYO ») → A10 = 51 s (a10.mp4, 10,7 Mo). Crédits Higgsfield : 305,34. En attente de son OK. Option non tranchée : mini-outro (4-5 s) à la fin de chaque épisode A1–A10.
 
-## Prénoms des 7 enfants du groupe PIOUPIOU (7 nov) — noms de Carry : Lato, Sita, Sarah, Malik, Inza, Carry ; 7e proposé : Exaucé
-Attribution PROPOSÉE (à confirmer par Carry, rien n'est encore utilisé dans une vidéo ni sur le site) :
+## Prénoms des 7 enfants du groupe PIOUPIOU (7 nov) — noms de Carry : Lato, Sita, Sarah, Malik, Inza, Carry ; 7e : Kurt (choisi par Carry)
+Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien n'est encore utilisé dans une vidéo ni sur le site) :
 - Sita : fille aux nattes, haut jaune · Lato : fille aux cheveux noirs courts, robe rose · Sarah : fille aux boucles, noeud violet
-- Carry : garçon aux cheveux crépus, sweat orange · Inza : garçon aux cheveux noirs, chemise verte · Malik : garçon en fauteuil roulant, t-shirt rouge · Exaucé : garçon aux cheveux châtains, veste bleue
+- Carry : garçon aux cheveux crépus, sweat orange · Inza : garçon aux cheveux noirs, chemise verte · Malik : garçon en fauteuil roulant, t-shirt rouge · Kurt : garçon aux cheveux châtains, veste bleue
 - Attention : « Sarah » est aussi le nom de l'assistante numérique ; à garder en tête pour éviter la confusion (par ex. toujours dire « la petite Sarah » dans les épisodes).
