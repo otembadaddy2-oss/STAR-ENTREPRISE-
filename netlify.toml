@@ -13,10 +13,6 @@
 # Épisodes officiels PIOUPIOU : pour en ajouter un, déposer sa vidéo dans netlify/functions/pioupiou-officiel/ et ajouter
 # temporairement  [functions."api-starvibe-videos"] included_files = ["netlify/functions/pioupiou-officiel/*.mp4"]  (voir _pioupiou_officiel.mts).
 
-# LIVRAISON TEMPORAIRE (A6 à A10) : à retirer au déploiement suivant, une fois les épisodes installés dans Netlify Blobs.
-[functions."api-starvibe-videos"]
-  included_files = ["netlify/functions/pioupiou-officiel/a6.mp4", "netlify/functions/pioupiou-officiel/a7.mp4", "netlify/functions/pioupiou-officiel/a8.mp4", "netlify/functions/pioupiou-officiel/a9.mp4", "netlify/functions/pioupiou-officiel/a10.mp4"]
-
 [functions."api-keydou-gardien-etat"]
   external_node_modules = ["ffmpeg-static"]
   included_files = ["node_modules/ffmpeg-static/ffmpeg", "node_modules/ffmpeg-static/index.js", "node_modules/ffmpeg-static/package.json"]

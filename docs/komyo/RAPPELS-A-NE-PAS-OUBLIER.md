@@ -139,3 +139,10 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - À vérifier encore : plan 1 (Clémence qui marche, « Bonjour ») trop petit pour mesurer.
 - Rien n'est publié : en attente du « vas-y » de Carry.
 - v8 (7 nov.) : Carry demande de couper la vidéo de 41 s à 44 s (début calme du groupe) et de garder la suite jusqu'à la fin. Fait par montage (aucun crédit), durée 55 s. Carry : « le reste serait bon » après cette correction.
+
+## 7 nov. — mise en ligne du lot (déploiement 6aef8b1e…) et suite
+- A6–A10 installés dans Netlify Blobs (vérifié : « installé »). Les 10 épisodes A1–A10 en ligne, accès Famille inchangé.
+- Boutons en verre étendus (komyo-verre-v2.css, variante « fort » pour fonds clairs) : accueil (index), tarifs, installer, vitrine.
+- Livraison temporaire des mp4 retirée de netlify.toml (les vidéos sont dans Blobs).
+- Les affiches (Kids, Artistes, Marketplace) ne font pas partie du site : images pour réseaux sociaux/impression, envoyées à Carry en fichiers. Reste « ≈ 3.50 USD » à corriger et l'affiche aux logos de marques tierces à ne pas publier.
+- Médailles et BONUS : non codés tant que Carry n'a pas fixé les règles (qui gagne quelle médaille, parrainage).
