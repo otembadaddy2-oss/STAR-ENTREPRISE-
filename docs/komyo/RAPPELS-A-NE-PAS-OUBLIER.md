@@ -102,3 +102,8 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - Après le déploiement : ouvrir l'espace PIOUPIOU avec un compte Famille et vérifier que A6–A10 se lisent (installation dans Blobs au premier passage) ; vérifier la page abonnement.
 - Puis : retirer l'`included_files` temporaire de netlify.toml (déploiement suivant).
 - Test Sarah 3.0 : 209/210 ; seul échec = modèle de voix local absent (fichier .onnx), sans rapport.
+
+## Améliorations KOMYO — maquettes envoyées à Carry (7 nov, 16 h) — à valider avant intégration
+- Boutons en verre 8 couleurs (or, orange, rouge, rose, violet, bleu, vert, argent) : `docs/komyo/maquettes/verre.css` + `boutons-verre.html` (CSS pur, texte net). Pas encore dans le site.
+- Médailles Or / Argent / Bronze (rosette de la référence de Carry, n° 1-2-3) et 2 photos de jeune femme joyeuse pour le post-it BONUS : générées sur Higgsfield (jobs aeaadc05, 71cf8dd4, 6b647f53 ; photos f18d6076, edd09fba). En attente du choix de Carry. Coût : ≈ 1,3 crédit.
+- Pub KOMYO avec Clémence + Naël + Keydou + « Nous sommes tous KOMYO » + logo animé : estimation de coût envoyée, rien généré. Règle du registre staff B : mention « personnages virtuels » dans le texte de publication (pas sur la vidéo).
