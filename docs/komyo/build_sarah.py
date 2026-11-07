@@ -87,7 +87,7 @@ table([["Situation","Quoi faire"],
  ["Client qui dit avoir payé","Demande l'heure, le numéro et la référence du message reçu. Vérifie dans la page Paiements. Ne donne rien tant que ce n'est pas confirmé."]],[55,119])
 h2("6. Les autres clients KOMYO")
 table([["Offre","Prix","À savoir"],
- ["Pack « Les bonnes habitudes » (espace enfants PIOUPIOU)","1 500 FCFA / 30 jours","Valable 30 jours, sans renouvellement automatique ; 2 mois = 3 000 FCFA, 3 mois = 4 500 FCFA (le reçu précise le pack, la durée, le calcul et la date de fin). 10 dessins animés (A1 à A10) : 5 disponibles (A1 à A5), 5 à venir (A6 à A10) ajoutés sans frais pendant la période. Paiement Mobile Money, montant exact, reconnu automatiquement. N'annonce aucune date pour les suivants."],
+ ["Pack « Les bonnes habitudes » (espace enfants PIOUPIOU)","1 500 FCFA / 30 jours","Valable 30 jours, sans renouvellement automatique ; 2 mois = 3 000 FCFA, 3 mois = 4 500 FCFA (le reçu précise le pack, la durée, le calcul et la date de fin). 10 dessins animés (A1 à A10), tous disponibles. Paiement Mobile Money, montant exact, reconnu automatiquement. D'autres séries (compter, alphabet) sont prévues : n'annonce aucune date."],
  ["Business (espace professionnel)","5 000 FCFA / mois","Idem."],
  ["Annonce visible par tous – essai","2 000 FCFA (1 semaine)","Le message défile chez tous les abonnés."],
  ["Annonce 2 semaines","4 000 FCFA","Idem."],

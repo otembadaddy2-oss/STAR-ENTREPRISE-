@@ -198,14 +198,14 @@
   var EPISODES_A = [
     ['A1', 'Bonjour papa, bonjour maman', true], ['A2', 'Les dents du matin', true], ['A3', 'Les mains propres avant de manger', true],
     ['A4', 'Les mains propres après le repas', true], ['A5', 'Merci !', true],
-    ['A6', 'S\'il te plaît', false], ['A7', 'Au revoir', false], ['A8', 'Les dents du soir', false],
-    ['A9', 'Bonne nuit papa, bonne nuit maman', false], ['A10', 'Bravo, quelle belle journée !', false]
+    ['A6', 'S\'il te plaît', true], ['A7', 'Au revoir', true], ['A8', 'Les dents du soir', true],
+    ['A9', 'Bonne nuit papa, bonne nuit maman', true], ['A10', 'Bravo, quelle belle journée !', true]
   ];
   function catalogueHtml(){
     var dispo = EPISODES_A.filter(function(e){ return e[2]; }).length;
     var h = '<div class="cat"><h2>Pack « Les bonnes habitudes »</h2>' +
       '<p class="cat-sub">10 dessins animés pour les 3 à 6 ans : dire bonjour, se brosser les dents, se laver les mains, dire merci… ' +
-      '<b>' + dispo + ' disponibles aujourd\'hui, ' + (EPISODES_A.length - dispo) + ' à venir</b> : ils s\'ajoutent à ton pack dès qu\'ils sont prêts, sans payer de plus pendant ta période.</p><div class="cat-grid">';
+      (dispo === EPISODES_A.length ? '<b>Les ' + dispo + ' sont disponibles dès aujourd\'hui</b>, à regarder autant de fois que tu veux pendant ta période.' : '<b>' + dispo + ' disponibles aujourd\'hui, ' + (EPISODES_A.length - dispo) + ' à venir</b> : ils s\'ajoutent à ton pack dès qu\'ils sont prêts, sans payer de plus pendant ta période.') + '</p><div class="cat-grid">';
     EPISODES_A.forEach(function(e){
       if (e[2]) h += '<div class="cat-item"><img class="poster" loading="lazy" src="assets/pioupiou/affiche_' + e[0] + '-v1.webp" alt="Affiche ' + e[0] + '"><div class="lbl2"><b>' + e[0] + '</b>' + e[1] + '</div></div>';
       else h += '<div class="cat-item bientot"><div class="poster">À venir<small>Bientôt disponible</small></div><div class="lbl2"><b>' + e[0] + '</b>' + e[1] + '</div></div>';

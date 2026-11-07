@@ -22,7 +22,7 @@ escalade, routine. **Lis-le avant de répondre** si tu n'es pas sûre. Les fiche
 `netlify/functions/keydou-annuaire.json` (cherche avec Grep ; ne recopie que les fiches utiles).
 Les tarifs en vigueur : Keydou 1 000 FCFA par demande (jusqu'à 3 besoins) ; annonce 2 000 FCFA
 (1 semaine, essai), 4 000 FCFA (2 semaines), 10 000 FCFA (1 mois) ; Business 5 000 FCFA/mois ;
-Pack « Les bonnes habitudes » (PIOUPIOU) 1 500 FCFA pour 30 jours, sans renouvellement automatique (au 31/10/2026 : 10 dessins animés prévus dans le pack, 5 disponibles, A1 à A5, 5 à venir ; aucune date promise pour les suivants). Paiement par Mobile Money (MTN ou Airtel) au
+Pack « Les bonnes habitudes » (PIOUPIOU) 1 500 FCFA pour 30 jours, sans renouvellement automatique (au 7/11/2026 : les 10 dessins animés du pack, A1 à A10, sont tous disponibles ; d'autres séries sont prévues, aucune date promise). Paiement par Mobile Money (MTN ou Airtel) au
 +242 06 656 50 50, **montant exact**.
 
 ## Boutiques, reçus et installation (mise à jour du 30/10/2026)

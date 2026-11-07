@@ -95,3 +95,10 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - Sita : fille aux nattes, haut jaune · Lato : fille aux cheveux noirs courts, robe rose · Sarah : fille aux boucles, noeud violet
 - Carry : garçon aux cheveux crépus, sweat orange · Inza : garçon aux cheveux noirs, chemise verte · Malik : garçon en fauteuil roulant, t-shirt rouge · Kurt : garçon aux cheveux châtains, veste bleue
 - Attention : « Sarah » est aussi le nom de l'assistante numérique ; à garder en tête pour éviter la confusion (par ex. toujours dire « la petite Sarah » dans les épisodes).
+
+## LOT PIOUPIOU A6–A10 — PRÊT, EN ATTENTE DU « VAS-Y » DE CARRY (7 nov)
+- OK de Carry reçu sur A9 et sur A10 complet (51 s). Code prêt dans la branche, NON déployé :
+  `_pioupiou_officiel.mts` (a6–a10), `netlify.toml` (livraison temporaire des 5 mp4 pour api-starvibe-videos — à retirer au déploiement suivant), affiches `affiche_A6…A10-v1.webp`, page abonnement (10/10), pioupiou.html, tarifs.html, abonnement (description), prompt Keydou, build_sarah.py + guide Sarah + sarah-star.md, programme-videos-educatives.md, Sarah 3.0 (public_seed.json + manifeste vérifié).
+- Après le déploiement : ouvrir l'espace PIOUPIOU avec un compte Famille et vérifier que A6–A10 se lisent (installation dans Blobs au premier passage) ; vérifier la page abonnement.
+- Puis : retirer l'`included_files` temporaire de netlify.toml (déploiement suivant).
+- Test Sarah 3.0 : 209/210 ; seul échec = modèle de voix local absent (fichier .onnx), sans rapport.
