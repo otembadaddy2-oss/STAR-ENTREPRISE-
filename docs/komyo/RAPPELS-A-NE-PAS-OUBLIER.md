@@ -181,3 +181,9 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - Dès qu'une passerelle automatique existe : Keydou-admin › Téléphone › coller le lien (avec {ref}) et cocher « Paiement par carte ouvert ».
 - Lot 2 de fiches (France : Dalloyau Paris/Marseille, Une Part de Gâteau, N'zadette M'foua, 2 salles IdF ; Abidjan : 6 pâtisseries, Bushman Café, Chez Marcene). Beaucoup sans téléphone (fiabilité C) : à compléter par appel.
 - Toujours manquant : restaurants congolais avec numéro vérifié à Paris/Lyon/Marseille, salles de mariage africaines vérifiées, pâtisseries africaines. Les annuaires publics ne donnent pas les numéros : il faut appeler ou demander à la communauté.
+
+## Mise en ligne du 8/11/2026
+- Hymnes complets B1 (Congo), B7 (Guinée), B8 (Côte d'Ivoire) en ligne pour les abonnés Famille (déposés en stockage, bloc temporaire de netlify.toml retiré ensuite). Hors Pack A : pas de prix défini, à décider.
+- Affiches A6 à A10 (version v2) et hymnes avec titre, logo PIOUPIOU et pastille d'épisode. A5 garde son ancienne affiche (image plus petite sur fond flou) : à refaire si Carry le souhaite.
+- Keydou multi-pays + paiement manuel hors Congo + fiches lot 2 en ligne.
+- À FAIRE : captures d'écran des SMS de dépôt reçus en Côte d'Ivoire et en Guinée-Conakry (Orange, MTN, Moov, Wave…) pour brancher MacroDroid : reconnaissance du dépôt, notification en temps réel pour chaque numéro, et la Guinée (franc guinéen) n'est pas encore un pays de Keydou.
