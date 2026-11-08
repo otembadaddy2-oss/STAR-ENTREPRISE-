@@ -245,3 +245,8 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - Keydou (prompt, point 12) et Sarah (`star_energie`, `sarah-star.md`, `FILIALES-ET-PROJETS.md`) sont à jour. Rien d'inventé : ni puissance, ni nombre de panneaux, ni délai, ni garantie.
 - À demander à Carry : nombre et puissance des panneaux, puissance de l'onduleur, capacité des batteries (4 sur la photo), ce que le prix inclut (installation ?), délais, garantie, zones, numéro de rappel. Keydou ne prend pas encore de « demande » STAR Énergie : pas de service dans l'annuaire pour cela.
 - Pas encore en ligne : l'affiche n'est pas sur le site ; le prompt Keydou part au prochain déploiement.
+
+## 8 novembre 2026 — PUBLICATION (go de Carry) et Bissa POP
+- **Déployé en ligne** (deploy 6af07b9f) : tout le lot KOMYO en attente, dont Keydou Compagnon (installation protégée : refusée sans dépôt validé, suivi dans le Backend), Keydou vivant, voix, niveau et « + », rappel la veille, prompt Keydou avec STAR Énergie.
+- **Reste à faire par Carry avant d'envoyer le lien** : cocher « Ouvert à l'abonnement » (Backend, onglet Compagnon). Tant que ce n'est pas coché, seuls les testeurs invités et les abonnés déjà payants y accèdent.
+- **Pub Bissa POP** : animation Blender faite (sachet découpé en 9 tranches qui se recolle, comme la boîte Labbaik des vidéos de Carry) ; fichiers de travail hors dépôt. Fin : « Créé par STAR ENTREPRISE — Un seul groupe, Toutes les solutions pour votre vie » avec le logo officiel. Zéro crédit Higgsfield.
