@@ -130,6 +130,16 @@ JARDIS est l'assistant personnel de Carry OTEMBA (documents, synthèses) : usage
 **À confirmer par Carry :**
 - Jardissa continue-t-elle seule sur le site vitrine, ou SARAH la remplace-t-elle ?
 
+## STAR Énergie — kit solaire complet (filiale)
+*Identifiant : `star_energie`*
+
+STAR Énergie est la filiale énergie solaire de STAR ENTREPRISE (Congo-Brazzaville). Offre présentée par le président-fondateur : un kit solaire complet, avec batteries, pour une grande maison de 2 chambres + salon + 3 salles de bains, avec 2 split (climatiseurs), un suppresseur, les ampoules, une grande télévision et 2 congélateurs. Prix : 2 860 000 FCFA. Le kit montré sur l'affiche comprend : panneaux solaires, régulateur solaire MPPT MYAMI, onduleur-chargeur EUROMET série SHARK, batteries gel Sunpal 6-GFM(G)-280 (quatre sur la photo de l'installation), coffret de protection avec disjoncteurs et commutateur rotatif. Autonomie annoncée : très grande, jusqu'à 18 h, c'est-à-dire jusqu'à demain matin, puis le soleil reprend le relais de la charge ; elle dépend de ce qui est branché, SARAH ne la garantit pas. Pour plus d'infos : sur l'application réseaux sociaux KOMYO, demander à Keydou. SARAH ne donne ni puissance, ni nombre de panneaux, ni délai d'installation, ni garantie, ni autre prix : elle dit qu'elle vérifie et prévient Carry. SARAH ne prend aucun paiement.
+
+**À confirmer par Carry :**
+- Nombre et puissance des panneaux, puissance de l'onduleur, capacité totale des batteries (nombre exact : quatre sur la photo).
+- Ce que comprennent le prix et l'installation, délais, garantie, zones desservies, autres kits.
+- Comment le client est rappelé (numéro, WhatsApp) quand il demande plus d'infos.
+
 ## Noms de projets non confirmés (ne pas présenter comme existants)
 *Identifiant : `projets_non_confirmes`*
 

@@ -238,3 +238,10 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - Suivi dans le Backend (onglet Keydou Compagnon) : colonne « Appli Keydou installée » (date) ; l'appareil KOMYO reste dans la colonne précédente.
 - Menu KOMYO ☰ : entrée « Keydou Compagnon » visible seulement pour un testeur, un abonné (même terminé) ou quand l'offre est ouverte.
 - Android, iPhone, Google Play : Play Store et App Store seulement après l'ouverture et les premiers abonnés.
+
+## STAR Énergie — kit solaire complet (8 novembre 2026)
+- Affiche faite (fond blanc, couleurs douces) : `docs/komyo/STAR-Energie-affiche-kit-solaire.png`. Équipements découpés à partir des photos de Carry, sans la pièce ; photo de toit avec panneaux = photo libre de droits (Unsplash).
+- Offre : kit complet avec batteries, grande maison (2 chambres + salon + 3 salles de bains, 2 split, suppresseur, ampoules, grande télévision, 2 congélateurs), **2 860 000 FCFA**, autonomie annoncée jusqu'à 18 h puis le soleil recharge. Plus d'infos : application KOMYO, demander à Keydou.
+- Keydou (prompt, point 12) et Sarah (`star_energie`, `sarah-star.md`, `FILIALES-ET-PROJETS.md`) sont à jour. Rien d'inventé : ni puissance, ni nombre de panneaux, ni délai, ni garantie.
+- À demander à Carry : nombre et puissance des panneaux, puissance de l'onduleur, capacité des batteries (4 sur la photo), ce que le prix inclut (installation ?), délais, garantie, zones, numéro de rappel. Keydou ne prend pas encore de « demande » STAR Énergie : pas de service dans l'annuaire pour cela.
+- Pas encore en ligne : l'affiche n'est pas sur le site ; le prompt Keydou part au prochain déploiement.
