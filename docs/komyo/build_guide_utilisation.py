@@ -15,7 +15,7 @@ from reportlab.pdfgen import canvas as rl_canvas
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 A = os.path.join(ROOT, 'docs', 'komyo', 'guide-assets')
 OUT = os.path.join(ROOT, 'docs', 'komyo', 'KOMYO-Guide-utilisation.pdf')
-LOGO = os.path.join(ROOT, 'starvibe', 'assets', 'img', 'komyo-logo-monde-v1.png')
+LOGO = os.path.join(ROOT, 'starvibe', 'assets', 'img', 'icons', 'komyo-logo-officiel-v1.png')
 for name, f in [('Sora', 'sora-600.ttf'), ('Sora-Bold', 'sora-800.ttf'), ('Inter', 'inter-400.ttf'), ('Inter-Semi', 'inter-600.ttf'), ('Inter-Bold', 'inter-700.ttf')]:
     pdfmetrics.registerFont(TTFont(name, os.path.join(A, f)))
 pdfmetrics.registerFontFamily('Inter', normal='Inter', bold='Inter-Bold', italic='Inter', boldItalic='Inter-Bold')
@@ -133,7 +133,7 @@ def cover(c, d):
     for i in range(16):
         a = math.radians(i * 22.5 + 5); c.line(W / 2, H * 0.60, W / 2 + math.cos(a) * 520, H * 0.60 + math.sin(a) * 520)
     c.setFillColor(colors.Color(0.04, 0.03, 0.06, alpha=0.82)); c.circle(W / 2, H * 0.60, 108 * mm, stroke=0, fill=1)
-    lw = 116 * mm; lh = lw * 536 / 800
+    lw = 100 * mm; lh = lw * 721 / 900
     c.drawImage(LOGO, (W - lw) / 2, H * 0.60 - lh / 2 + 4 * mm, lw, lh, mask='auto')
     c.setFillColor(GOLD); c.rect(W / 2 - 18 * mm, 118 * mm, 36 * mm, 1.3, stroke=0, fill=1)
     c.setFillColor(colors.white); c.setFont('Sora-Bold', 30); c.drawCentredString(W / 2, 100 * mm, "Guide d'utilisation")
