@@ -16,6 +16,7 @@ import { recuAbonnement, recuKeydou } from "./_recu.mts";
 import { poster } from "./_msg.mts";
 import annuaireSeed from "./keydou-annuaire.json";
 import annuaire2026 from "./keydou-annuaire-2026.json";
+import annuaireCanadaLot2 from "./keydou-annuaire-canada-lot2-2026.json";
 import annuaireLot2 from "./keydou-annuaire-lot2-2026.json";
 import annuaireFrance from "./keydou-annuaire-france-2026.json";
 import annuaireCanada from "./keydou-annuaire-canada-2026.json";
@@ -130,6 +131,7 @@ async function importAnnuaire2026(sql: any) {
   const lot2 = annuaireLot2 as (Lieu2026 & { pays: string })[];
   await importListe(sql, "annuaire_lot2_fr", lot2.filter((l) => l.pays === "FR"), "FR");
   await importListe(sql, "annuaire_lot2_ci", lot2.filter((l) => l.pays === "CI"), "CI");
+  await importListe(sql, "annuaire_canada_lot2", annuaireCanadaLot2 as Lieu2026[], "CA");
 }
 
 // Journal : chaque contact avec Keydou est enregistré (jamais bloquant pour le client).
