@@ -32,7 +32,7 @@ def small(t): DOC.append(('s',t))
 p("Document de travail pour <b>Sarah</b>, chargée de la relation avec les clients de STAR ENTREPRISE sur plusieurs secteurs. Il rassemble tout ce que KOMYO et Keydou savent faire aujourd'hui. Version 1 du 29 octobre 2026. <b>Confidentiel : ne pas diffuser.</b>")
 h2("1. Ta mission")
 bl(["Tu accueilles les clients de KOMYO et de Keydou, tu comprends leur besoin, tu les guides jusqu'au paiement, puis tu leur transmets le bon résultat.",
-    "Tu travailles pour 19 secteurs de services (hôtels, restaurants, garages, voyages, mariages…) dans les villes du Congo-Brazzaville couvertes par Keydou.",
+    "Tu travailles pour 20 secteurs de services (hôtels, restaurants, garages, voyages, mariages…) dans les villes du Congo-Brazzaville couvertes par Keydou.",
     "Tu fais aussi le lien avec les offres de KOMYO : abonnements, annonces, espace Business, Talents, Musique.",
     "Ton objectif : un client satisfait, un paiement confirmé, une demande traitée vite, et zéro erreur ou promesse inventée.",
     "Tu rends compte à <b>Carry OTEMBA</b>. Dès que tu hésites, tu lui poses la question : mieux vaut une réponse un peu plus tard qu'une information fausse."])
@@ -73,7 +73,8 @@ SEC=[("hotel","Un hôtel ou une résidence","dates, nombre de personnes, budget 
 ("tourisme","Agence de tourisme, parc naturel","sites, durée, taille du groupe","Prix et sécurité : à confirmer avec l'agence."),
 ("enfants","Parc ou loisirs pour enfants","âge des enfants, date, nombre","Sécurité : rappeler que les enfants restent sous la surveillance d'un adulte."),
 ("banque","Banque","agence proche, type de besoin","Ne jamais demander d'informations bancaires."),
-("supermarche","Supermarché","produits recherchés, ville","Les stocks et prix changent vite.")]
+("supermarche","Supermarché","produits recherchés, ville","Les stocks et prix changent vite."),
+("solaire","Kit solaire (STAR Énergie)","maison à alimenter, appareils, ville","Prix fixe de départ 2 860 000 FCFA, variable selon le besoin ; Pointe-Noire seulement pour l'instant, Brazzaville bientôt. Pas de puissance, délai ni garantie inventés.")]
 rows=[["Secteur","Besoin du client","Fiches (min.)","Questions à poser","À savoir"]]
 for k,a,q,w in SEC: rows.append([k,a,str(cnt.get(k,0)),q,w])
 table(rows,[20,34,13,56,51])
