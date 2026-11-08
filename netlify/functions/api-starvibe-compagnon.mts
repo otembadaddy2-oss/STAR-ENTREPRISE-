@@ -178,7 +178,7 @@ export default async (req: Request, _context: Context) => {
   // Menu KOMYO : l'entrée « Keydou Compagnon » est visible pour un testeur, un abonné (même terminé) ou quand l'offre est ouverte. Aucun effet de bord.
   if (req.method === "GET" && url.searchParams.get("acces") === "1") {
     const visible = !!acces || ouvert || (await aDejaAbonne(sql, accountId)).deja;
-    return json({ visible });
+    return json({ visible, acces: !!acces, ouvert });
   }
 
   // L'effacement et l'export sont toujours possibles (droit de la personne), même sans abonnement actif.
