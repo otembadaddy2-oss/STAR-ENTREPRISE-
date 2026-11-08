@@ -32,6 +32,15 @@ const PLANS: Record<string, { label: string; montant: number; description: strin
   business: { label: "Business", montant: 5000, description: "Mise en avant des vidéos, statistiques, boutique (tes clients te paient directement ; reçus dans leur messagerie KOMYO ; 500 FCFA par semaine d'ouverture, avec ou sans vente)." },
 };
 
+// Keydou Compagnon (assistant personnel) : volontairement HORS de la liste « plans » montrée au public.
+// Cette offre ne peut être choisie que lorsque l'équipe l'a ouverte (réglage « compagnon_ouvert ») ; jusque-là, accès par invitation de test.
+// Essentiel : 5 000 FCFA (65 messages par jour) ; Complet : 19 $ ≈ 11 100 FCFA (200 messages par jour), taux à réviser.
+const PLANS_COMPAGNON: Record<string, { label: string; montant: number; description: string }> = {
+  compagnon: { label: "Keydou Compagnon · Essentiel", montant: 5000, description: "Assistant personnel : rappels, culture générale, recherche Internet limitée. 65 messages par jour. Valable 30 jours." },
+  compagnon_complet: { label: "Keydou Compagnon · Complet", montant: 11100, description: "Assistant personnel complet : 200 messages par jour, rappels illimités, recherche Internet approfondie. Valable 30 jours." },
+};
+const PLANS_TOUS: Record<string, { label: string; montant: number; description: string }> = { ...PLANS, ...PLANS_COMPAGNON };
+
 function clean(value: unknown, maxLen: number): string {
   return String(value ?? "").trim().slice(0, maxLen);
 }
@@ -197,7 +206,7 @@ export default async (req: Request, _context: Context) => {
         montantAttendu: sub.montant_attendu,
         montantRecu,
         message: valide
-          ? `Paiement confirmé — plan "${PLANS[sub.plan]?.label || sub.plan}" activé pour ${30 * (sub.mois || 1)} jours.`
+          ? `Paiement confirmé — plan "${PLANS_TOUS[sub.plan]?.label || sub.plan}" activé pour ${30 * (sub.mois || 1)} jours.`
           : `Montant reçu (${montantRecu}) différent du montant attendu (${sub.montant_attendu}) — paiement rejeté.`,
       });
     }
@@ -276,11 +285,15 @@ export default async (req: Request, _context: Context) => {
 
     if (action === "choisir_plan") {
       const plan = clean(body.plan, 20);
-      if (!PLANS[plan]) return json({ error: "Plan inconnu" }, 400);
+      if (!PLANS_TOUS[plan]) return json({ error: "Plan inconnu" }, 400);
+      if (PLANS_COMPAGNON[plan]) {
+        const ouvert = ((await sql`SELECT value FROM starvibe_settings WHERE key = 'compagnon_ouvert'`) as { value: string }[])[0]?.value === "on";
+        if (!ouvert) return json({ error: "Keydou Compagnon n'est pas encore ouvert à l'abonnement : il est en période de test.", code: "compagnon_ferme" }, 403);
+      }
 
       // Durée payée d'un coup : 1, 2, 3… mois (30 jours chacun). Le montant est celui d'un mois multiplié par le nombre de mois.
-      const mois = PLANS[plan].montant === 0 ? 1 : Math.min(Math.max(Math.round(Number(body.mois)) || 1, 1), MOIS_MAX);
-      const montant = PLANS[plan].montant * mois;
+      const mois = PLANS_TOUS[plan].montant === 0 ? 1 : Math.min(Math.max(Math.round(Number(body.mois)) || 1, 1), MOIS_MAX);
+      const montant = PLANS_TOUS[plan].montant * mois;
       const statut = montant === 0 ? "actif" : "en_attente_paiement";
 
       // Une demande identique est déjà en attente (le client a touché plusieurs fois) : on la reprend, sans en créer une de plus.
@@ -333,7 +346,7 @@ export default async (req: Request, _context: Context) => {
     const a = r[0];
     if (!a) return json({ rappel: null });
     const nom = (await sql`SELECT nom FROM starvibe_profiles WHERE account_id = ${accountId} AND type_profil = 'personnel' ORDER BY id LIMIT 1`) as { nom: string }[];
-    const base = { nom: nom[0]?.nom || "", plan: a.plan, planLabel: PLANS[a.plan]?.label || a.plan, expiresAt: a.expires_at };
+    const base = { nom: nom[0]?.nom || "", plan: a.plan, planLabel: PLANS_TOUS[a.plan]?.label || a.plan, expiresAt: a.expires_at };
     if (!a.fini && a.jours <= 3 && !a.rappel_j3_at) return json({ rappel: { ...base, type: "bientot", jours: Math.max(1, a.jours) } });
     if (a.fini && !a.rappel_fin_at && Date.now() - new Date(a.expires_at).getTime() < 7 * 86400000) return json({ rappel: { ...base, type: "expire", jours: 0 } });
     return json({ rappel: null });
