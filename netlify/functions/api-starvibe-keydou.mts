@@ -331,10 +331,10 @@ let comptesCache: { at: number; txt: string } | null = null;
 // deno-lint-ignore no-explicit-any
 async function resumeAnnuaire(sql: any): Promise<string> {
   if (comptesCache && Date.now() - comptesCache.at < 10 * 60 * 1000) return comptesCache.txt;
-  const rows = (await sql`SELECT service, pays, COUNT(*) AS n FROM starvibe_keydou_lieux WHERE actif = true GROUP BY service, pays ORDER BY service, pays`) as { service: string; pays: string; n: string }[];
+  const rows = (await sql`SELECT service, pays, ville, COUNT(*) AS n FROM starvibe_keydou_lieux WHERE actif = true GROUP BY service, pays, ville ORDER BY service, pays, ville`) as { service: string; pays: string; ville: string; n: string }[];
   const par: Record<string, string[]> = {};
-  for (const r of rows) (par[r.service] ||= []).push(`${r.pays || "CG"} ${r.n}`);
-  const txt = Object.entries(par).map(([svc, l]) => `${svc} (${SERVICES[svc] || svc}) : fiches par pays — ${l.join(", ")}`).join("\n");
+  for (const r of rows) (par[r.service] ||= []).push(`${r.pays || "CG"} ${r.ville} ${r.n}`);
+  const txt = Object.entries(par).map(([svc, l]) => `${svc} (${SERVICES[svc] || svc}) : fiches par pays et par ville — ${l.join(", ")}`).join("\n");
   comptesCache = { at: Date.now(), txt };
   return txt;
 }
