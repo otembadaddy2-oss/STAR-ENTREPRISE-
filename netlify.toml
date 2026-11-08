@@ -16,3 +16,7 @@
 [functions."api-keydou-gardien-etat"]
   external_node_modules = ["ffmpeg-static"]
   included_files = ["node_modules/ffmpeg-static/ffmpeg", "node_modules/ffmpeg-static/index.js", "node_modules/ffmpeg-static/package.json"]
+
+# TEMPORAIRE : livraison des hymnes B1, B7, B8 pour dépôt en stockage (à retirer après le déploiement)
+[functions."api-starvibe-videos"]
+  included_files = ["netlify/functions/pioupiou-officiel/*.mp4"]

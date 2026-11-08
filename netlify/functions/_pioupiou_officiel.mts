@@ -28,11 +28,15 @@ export const EPISODES_OFFICIELS: EpisodeOfficiel[] = [
   { cle: "officiel-a3.mp4", fichier: "a3.mp4", titre: "A3 · Les mains propres avant de manger", affiche: "/starvibe/assets/pioupiou/affiche_A3-v1.webp" },
   { cle: "officiel-a4.mp4", fichier: "a4.mp4", titre: "A4 · Les mains propres après le repas", affiche: "/starvibe/assets/pioupiou/affiche_A4-v1.webp" },
   { cle: "officiel-a5-v2.mp4", fichier: "a5v2.mp4", titre: "A5 · Merci !", affiche: "/starvibe/assets/pioupiou/affiche_A5-v1.webp" },
-  { cle: "officiel-a6.mp4", fichier: "a6.mp4", titre: "A6 · S'il te plaît", affiche: "/starvibe/assets/pioupiou/affiche_A6-v1.webp" },
-  { cle: "officiel-a7.mp4", fichier: "a7.mp4", titre: "A7 · Au revoir", affiche: "/starvibe/assets/pioupiou/affiche_A7-v1.webp" },
-  { cle: "officiel-a8.mp4", fichier: "a8.mp4", titre: "A8 · Les dents du soir", affiche: "/starvibe/assets/pioupiou/affiche_A8-v1.webp" },
-  { cle: "officiel-a9.mp4", fichier: "a9.mp4", titre: "A9 · Bonne nuit papa, bonne nuit maman", affiche: "/starvibe/assets/pioupiou/affiche_A9-v1.webp" },
-  { cle: "officiel-a10.mp4", fichier: "a10.mp4", titre: "A10 · Bravo, quelle belle journée !", affiche: "/starvibe/assets/pioupiou/affiche_A10-v1.webp" },
+  { cle: "officiel-a6.mp4", fichier: "a6.mp4", titre: "A6 · S'il te plaît", affiche: "/starvibe/assets/pioupiou/affiche_A6-v2.webp" },
+  { cle: "officiel-a7.mp4", fichier: "a7.mp4", titre: "A7 · Au revoir", affiche: "/starvibe/assets/pioupiou/affiche_A7-v2.webp" },
+  { cle: "officiel-a8.mp4", fichier: "a8.mp4", titre: "A8 · Les dents du soir", affiche: "/starvibe/assets/pioupiou/affiche_A8-v2.webp" },
+  { cle: "officiel-a9.mp4", fichier: "a9.mp4", titre: "A9 · Bonne nuit papa, bonne nuit maman", affiche: "/starvibe/assets/pioupiou/affiche_A9-v2.webp" },
+  { cle: "officiel-a10.mp4", fichier: "a10.mp4", titre: "A10 · Bravo, quelle belle journée !", affiche: "/starvibe/assets/pioupiou/affiche_A10-v2.webp" },
+  // Hymnes nationaux complets (validés par Carry le 8/11/2026), avec PIOUPIOU en ouverture et en clôture.
+  { cle: "officiel-b1.mp4", fichier: "b1.mp4", titre: "B1 · Hymne national du Congo-Brazzaville", affiche: "/starvibe/assets/pioupiou/affiche_B1-v1.webp" },
+  { cle: "officiel-b7.mp4", fichier: "b7.mp4", titre: "B7 · Hymne national de la Guinée-Conakry", affiche: "/starvibe/assets/pioupiou/affiche_B7-v1.webp" },
+  { cle: "officiel-b8.mp4", fichier: "b8.mp4", titre: "B8 · Hymne national de la Côte d'Ivoire", affiche: "/starvibe/assets/pioupiou/affiche_B8-v1.webp" },
 ];
 
 // Anciennes versions remplacées : leur fichier est supprimé du stockage au prochain passage.

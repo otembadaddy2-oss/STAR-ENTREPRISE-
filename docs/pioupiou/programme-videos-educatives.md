@@ -32,14 +32,14 @@ Mise en ligne : les épisodes officiels sont servis par `netlify/functions/_piou
 
 ## B · Hymnes et pays du monde (refrain + premier couplet)
 
-- [~] **B1** — Hymne : le Congo-Brazzaville (extrait de 10,7 s, 4-6 ans) — *produit le 8/11/2026, en attente de l'OK de Carry (Malik et Kurt ; audio de l'enregistrement fourni par Carry)*
+- [x] **B1** — Hymne : le Congo-Brazzaville (version COMPLÈTE 3 min 38, 4-6 ans) — *validé par Carry le 8/11/2026, mis en ligne (abonnés Famille) ; PIOUPIOU voix Chloé en ouverture et clôture ; Malik et Kurt*
 - [ ] **B2** — Hymne : la RDC (Congo-Kinshasa) (90 s, 4-6 ans)
 - [ ] **B3** — Hymne : le Cameroun (90 s, 4-6 ans)
 - [ ] **B4** — Hymne : le Gabon (90 s, 4-6 ans)
 - [ ] **B5** — Hymne : le Mali (90 s, 4-6 ans)
 - [ ] **B6** — Hymne : la Guinée-Bissau (90 s, 4-6 ans)
-- [~] **B7** — Hymne : la Guinée (Conakry) (extrait de 10,8 s, 4-6 ans) — *produit le 8/11/2026, en attente de l'OK de Carry (Lato, Inza et Malik)*
-- [~] **B8** — Hymne : la Côte d'Ivoire (extrait de 12,9 s, 4-6 ans) — *produit le 8/11/2026, en attente de l'OK de Carry (Sita et Sarah)*
+- [x] **B7** — Hymne : la Guinée (Conakry) (version COMPLÈTE 1 min 30, 4-6 ans) — *validé par Carry le 8/11/2026, mis en ligne ; Lato, Inza et Malik*
+- [x] **B8** — Hymne : la Côte d'Ivoire (version COMPLÈTE 1 min 40, 4-6 ans) — *validé par Carry le 8/11/2026, mis en ligne ; Sita et Sarah*
 - [ ] **B9** — Hymne : le Burkina Faso (90 s, 4-6 ans)
 - [ ] **B10** — Hymne : le Ghana (90 s, 4-6 ans)
 - [ ] **B11** — Hymne : le Togo (90 s, 4-6 ans)
