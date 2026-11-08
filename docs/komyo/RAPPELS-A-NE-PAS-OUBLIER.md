@@ -200,3 +200,8 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - 35 fiches ajoutées : 13 stations-service (Petro-Canada Montréal, Ottawa, Toronto), 7 agences événementielles, 3 offices de tourisme, 10 restaurants africains, 2 pâtisseries (dont Maison Aïdo). Fiabilité B = adresse et téléphone dans la source ; C = il manque l'un des deux.
 - Seules les informations écrites dans les sources ont été gardées (rien deviné). Fiches à reconfirmer par appel.
 - Trous restants : aucune agence événementielle avec coordonnées à Ottawa ; aucune station à Québec ; tourisme de Toronto et de Québec non trouvé ; pâtisserie africaine à Toronto/Ottawa/Québec non trouvée.
+
+## Congo : sites touristiques (8/11/2026)
+- Avant : 6 fiches « tourisme » seulement, toutes des agences ou guides. Ajout de 15 sites : Basilique Sainte-Anne, Mémorial de Brazza, Case de Gaulle, île Mbamou, chutes de Loufoulakari, réserve de gorilles de Lésio-Louna / Léfini, Côte Sauvage, Pointe-Indienne, Musée du Cercle Africain, Musée de Diosso, Tchimpounga (non ouvert au public), parc d'Odzala-Kokoua (Ouesso), chutes de Sossi et Lac bleu (Dolisie), marché et gare de Dolisie, grotte de Nkila Ntari.
+- Aucun numéro officiel pour la plupart des sites : fiabilité C, localisation, accès et conditions de visite seulement. Seul Lésio-Louna a des numéros (anciens, 2006) à confirmer.
+- Manques : Nkayi, Oyo, Ouesso (en dehors d'Odzala), numéros du ministère du Tourisme (nom changé : « industrie culturelle, touristique, artistique et des loisirs »), prix d'entrée, horaires fiables. À obtenir par appel ou auprès des offices.
