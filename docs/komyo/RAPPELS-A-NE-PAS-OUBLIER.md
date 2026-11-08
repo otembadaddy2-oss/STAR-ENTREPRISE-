@@ -187,3 +187,8 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - Affiches A6 à A10 (version v2) et hymnes avec titre, logo PIOUPIOU et pastille d'épisode. A5 garde son ancienne affiche (image plus petite sur fond flou) : à refaire si Carry le souhaite.
 - Keydou multi-pays + paiement manuel hors Congo + fiches lot 2 en ligne.
 - À FAIRE : captures d'écran des SMS de dépôt reçus en Côte d'Ivoire et en Guinée-Conakry (Orange, MTN, Moov, Wave…) pour brancher MacroDroid : reconnaissance du dépôt, notification en temps réel pour chaque numéro, et la Guinée (franc guinéen) n'est pas encore un pays de Keydou.
+
+## Carte du pack B (8/11/2026, soir)
+- La carte « B · Les hymnes d'Afrique et du monde » montre les 3 hymnes en ligne avec affiche et titre, puis « 12 autres bientôt », et la ligne de prix : « Inclus, sans supplément » dans l'abonnement Famille (1 500 FCFA / 30 jours). Le prix des hymnes à venir sera annoncé à leur sortie.
+- Packs C et D : texte seulement, affiches « bientôt » pas encore faites. Affiche A5 à refaire au format de A6–A10 si Carry le souhaite.
+- Keydou et Sarah mis à jour (hymnes, paiement hors Congo, fiches).
