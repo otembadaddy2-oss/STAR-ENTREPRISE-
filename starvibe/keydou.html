@@ -357,7 +357,7 @@
       ['mariage','Une salle de mariage ou de réception',['mariage','fete','anniversaire','ceremonie','reception','salle de mariage','banquet','salle des fetes']],
       ['evenement','Une agence événementielle',['evenement','evenementielle','organiser','organisateur','animation','traiteur','decoration','conference']],
       ['bureau','Un bureau ou un espace de coworking',['bureau','bureaux','coworking','espace de travail','salle de reunion','reunion']],
-      ['tourisme','Une agence de tourisme ou un parc naturel',['tourisme','touristique','parc national','safari','visite','excursion','nature']],
+      ['tourisme','Un site touristique, une agence ou un parc naturel',['tourisme','touristique','site touristique','plage','chutes','cascade','musée','musee','parc national','safari','visite','excursion','nature','gorilles','grotte']],
       ['enfants','Un parc ou des loisirs pour enfants',['enfant','enfants','jeux','gonflable','gonflables','loisirs','parc d attraction']]]],
     ['Argent et courses', [
       ['banque','Une banque',['banque','banques','argent','compte bancaire','retrait','retirer','agence bancaire','credit']],
@@ -390,7 +390,7 @@
   if (EN) VILLE_KEYS.Autres = VILLE_KEYS.Autres.concat(['other city','other town','other towns','other cities','elsewhere','on the road','along the road','another city']);
   var SERVICES = [], labels = {};
   GROUPES.forEach(function(g){ g[1].forEach(function(s){ SERVICES.push({ id:s[0], label:s[1], keys:s[2] }); labels[s[0]] = s[1]; }); });
-  var PHRASE = { hotel:"un hôtel ou une résidence", restaurant:"une table au restaurant", patisserie:"une boulangerie ou une pâtisserie", cafe:"un rendez-vous dans un café", coiffure:"un salon de coiffure ou de beauté", spa:"un salon de spa", sport:"une salle de sport", voiture:"la location d'un véhicule", vente_auto:"l'achat ou la vente d'une voiture", mecanique:"un garage, un dépannage ou un remorquage", station:"une station-service", voyage:"une agence de voyages ou un billet", mariage:"une salle de mariage ou de réception", evenement:"une agence événementielle", bureau:"un bureau ou un espace de coworking", tourisme:"une agence de tourisme ou un parc naturel", enfants:"un parc ou des loisirs pour enfants", banque:"une banque", supermarche:"un supermarché" };
+  var PHRASE = { hotel:"un hôtel ou une résidence", restaurant:"une table au restaurant", patisserie:"une boulangerie ou une pâtisserie", cafe:"un rendez-vous dans un café", coiffure:"un salon de coiffure ou de beauté", spa:"un salon de spa", sport:"une salle de sport", voiture:"la location d'un véhicule", vente_auto:"l'achat ou la vente d'une voiture", mecanique:"un garage, un dépannage ou un remorquage", station:"une station-service", voyage:"une agence de voyages ou un billet", mariage:"une salle de mariage ou de réception", evenement:"une agence événementielle", bureau:"un bureau ou un espace de coworking", tourisme:"un site touristique, une agence ou un parc naturel", enfants:"un parc ou des loisirs pour enfants", banque:"une banque", supermarche:"un supermarché" };
   VILLE_KEYS['Paris'] = ['paris'];
   VILLE_KEYS['Île-de-France'] = ['ile de france','île de france','île-de-france','idf','banlieue parisienne','saint-denis','saint denis','roissy','orly','versailles','creteil','créteil','argenteuil','montreuil'];
   VILLE_KEYS['Lyon'] = ['lyon','villeurbanne','venissieux','vénissieux'];
