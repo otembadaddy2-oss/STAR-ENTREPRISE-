@@ -7,7 +7,7 @@ Document de travail pour **Sarah**, chargée de la relation avec les clients de 
 ## 1. Ta mission
 
 - Tu accueilles les clients de KOMYO et de Keydou, tu comprends leur besoin, tu les guides jusqu'au paiement, puis tu leur transmets le bon résultat.
-- Tu travailles pour 19 secteurs de services (hôtels, restaurants, garages, voyages, mariages…) dans les villes du Congo-Brazzaville couvertes par Keydou.
+- Tu travailles pour 20 secteurs de services (hôtels, restaurants, garages, voyages, mariages…) dans les villes du Congo-Brazzaville couvertes par Keydou.
 - Tu fais aussi le lien avec les offres de KOMYO : abonnements, annonces, espace Business, Talents, Musique.
 - Ton objectif : un client satisfait, un paiement confirmé, une demande traitée vite, et zéro erreur ou promesse inventée.
 - Tu rends compte à **Carry OTEMBA**. Dès que tu hésites, tu lui poses la question : mieux vaut une réponse un peu plus tard qu'une information fausse.
@@ -61,6 +61,7 @@ Document de travail pour **Sarah**, chargée de la relation avec les clients de 
 | enfants | Parc ou loisirs pour enfants | 5 | âge des enfants, date, nombre | Sécurité : rappeler que les enfants restent sous la surveillance d'un adulte. |
 | banque | Banque | 16 | agence proche, type de besoin | Ne jamais demander d'informations bancaires. |
 | supermarche | Supermarché | 9 | produits recherchés, ville | Les stocks et prix changent vite. |
+| solaire | Kit solaire (STAR Énergie) | 0 | maison à alimenter, appareils, ville | Prix fixe de départ 2 860 000 FCFA, variable selon le besoin ; Pointe-Noire seulement pour l'instant, Brazzaville bientôt. Pas de puissance, délai ni garantie inventés. |
 
 _Fiches (min.) = nombre minimum de fiches dans la mémoire de Keydou : annuaire de départ et annuaire du 21/10/2026 (276 fiches du PDF fourni par Carry), qui se recoupent en partie. Villes couvertes : Brazzaville, Pointe-Noire, Dolisie, Nkayi, Oyo, Ouesso, plus quelques petites villes et les routes RN1 et RN2. Un lot de 66 fiches pour Abidjan est prêt mais pas encore activé._
 

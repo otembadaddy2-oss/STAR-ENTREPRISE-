@@ -361,7 +361,8 @@
       ['enfants','Un parc ou des loisirs pour enfants',['enfant','enfants','jeux','gonflable','gonflables','loisirs','parc d attraction']]]],
     ['Argent et courses', [
       ['banque','Une banque',['banque','banques','argent','compte bancaire','retrait','retirer','agence bancaire','credit']],
-      ['supermarche','Un supermarché',['supermarche','courses','grande surface','magasin','alimentation','super u']]]]
+      ['supermarche','Un supermarché',['supermarche','courses','grande surface','magasin','alimentation','super u']],
+      ['solaire','Un kit solaire (STAR Énergie)',['solaire','solaires','panneau solaire','panneaux solaires','panneaux','énergie solaire','energie solaire','kit solaire','onduleur','photovoltaïque','photovoltaique']]]]
   ];
   // Version anglaise : les clients comprennent aussi les mots anglais (le « cerveau » de Keydou, lui, comprend toute phrase).
   var EN = window.KOMYO_LANG === 'en';
@@ -384,13 +385,14 @@
     tourisme:['tourism','tourist','tourists','tour','tours','national park','park','sightseeing','holiday','vacation'],
     enfants:['kids','child','children','play','playground','bouncy castle','bouncy castles','amusement','fun park'],
     banque:['bank','banks','money','withdraw','withdrawal','account','loan','atm','cash'],
-    supermarche:['supermarket','supermarkets','groceries','grocery','shopping','shop','market','store','food shop']
+    supermarche:['supermarket','supermarkets','groceries','grocery','shopping','shop','market','store','food shop'],
+    solaire:['solar','solar panel','solar panels','solar kit','inverter','photovoltaic']
   };
   if (EN) GROUPES.forEach(function(g){ g[1].forEach(function(sv){ if (EN_KEYS[sv[0]]) sv[2] = sv[2].concat(EN_KEYS[sv[0]]); }); });
   if (EN) VILLE_KEYS.Autres = VILLE_KEYS.Autres.concat(['other city','other town','other towns','other cities','elsewhere','on the road','along the road','another city']);
   var SERVICES = [], labels = {};
   GROUPES.forEach(function(g){ g[1].forEach(function(s){ SERVICES.push({ id:s[0], label:s[1], keys:s[2] }); labels[s[0]] = s[1]; }); });
-  var PHRASE = { hotel:"un hôtel ou une résidence", restaurant:"une table au restaurant", patisserie:"une boulangerie ou une pâtisserie", cafe:"un rendez-vous dans un café", coiffure:"un salon de coiffure ou de beauté", spa:"un salon de spa", sport:"une salle de sport", voiture:"la location d'un véhicule", vente_auto:"l'achat ou la vente d'une voiture", mecanique:"un garage, un dépannage ou un remorquage", station:"une station-service", voyage:"une agence de voyages ou un billet", mariage:"une salle de mariage ou de réception", evenement:"une agence événementielle", bureau:"un bureau ou un espace de coworking", tourisme:"un site touristique, une agence ou un parc naturel", enfants:"un parc ou des loisirs pour enfants", banque:"une banque", supermarche:"un supermarché" };
+  var PHRASE = { hotel:"un hôtel ou une résidence", restaurant:"une table au restaurant", patisserie:"une boulangerie ou une pâtisserie", cafe:"un rendez-vous dans un café", coiffure:"un salon de coiffure ou de beauté", spa:"un salon de spa", sport:"une salle de sport", voiture:"la location d'un véhicule", vente_auto:"l'achat ou la vente d'une voiture", mecanique:"un garage, un dépannage ou un remorquage", station:"une station-service", voyage:"une agence de voyages ou un billet", mariage:"une salle de mariage ou de réception", evenement:"une agence événementielle", bureau:"un bureau ou un espace de coworking", tourisme:"un site touristique, une agence ou un parc naturel", enfants:"un parc ou des loisirs pour enfants", banque:"une banque", supermarche:"un supermarché", solaire:"un kit solaire" };
   VILLE_KEYS['Paris'] = ['paris'];
   VILLE_KEYS['Île-de-France'] = ['ile de france','île de france','île-de-france','idf','banlieue parisienne','saint-denis','saint denis','roissy','orly','versailles','creteil','créteil','argenteuil','montreuil'];
   VILLE_KEYS['Lyon'] = ['lyon','villeurbanne','venissieux','vénissieux'];
