@@ -274,15 +274,16 @@
           <h2 style="margin:0">Mon inscription Keydou</h2>
           <button class="sosbtn" id="btnSos" type="button">🆘 SOS gratuit</button>
         </div>
-        <p style="margin-top:6px">Écrivez vos coordonnées, cochez votre besoin, validez le paiement de 1 000 FCFA : Keydou se lève, vous dit merci et vous donne la réponse.</p>
+        <p style="margin-top:6px">Écrivez vos coordonnées, cochez votre besoin, validez le paiement de <span id="introPrix">1 000 FCFA</span> : Keydou se lève, vous dit merci et vous donne la réponse.</p>
         <div class="field"><label for="fNom">Nom et prénom</label><input id="fNom" type="text" maxlength="80" autocomplete="off" placeholder="ex. Carry Otemba"></div>
-        <div class="field"><label for="fTel">Numéro de téléphone</label><input id="fTel" type="tel" maxlength="30" autocomplete="off" inputmode="tel" placeholder="ex. 06 123 45 67"></div>
+        <div class="field"><label for="fTel">Numéro de téléphone</label><input id="fTel" type="tel" maxlength="30" autocomplete="off" inputmode="tel" placeholder="ex. 06 123 45 67 · ou +33 6 12 34 56 78"></div>
+        <div class="note" id="paysNote" hidden style="margin:-4px 0 8px"></div>
         <div class="field"><label for="fVille">Ville</label><select id="fVille"></select></div>
         <div class="count" id="count">Cochez votre besoin (jusqu'à 3)</div>
         <div id="svcGroups"></div>
         <div class="formule" style="margin-top:14px">
           <div class="tag">Formule Assistance</div>
-          <div class="price">1 000 FCFA <span>une seule fois pour vos besoins cochés</span></div>
+          <div class="price"><span id="prixTxt" style="font:inherit;color:inherit">1 000 FCFA</span> <span>une seule fois pour vos besoins cochés</span></div>
           <button class="btn main block" id="btnValider">Valider et payer 1 000 FCFA</button>
           <div class="errmsg" id="fErr" hidden></div>
         </div>
@@ -313,6 +314,27 @@
 
   var MAX = 3;
   var VILLES = [['Brazzaville','Brazzaville'],['Pointe-Noire','Pointe-Noire'],['Dolisie','Dolisie'],['Nkayi','Nkayi'],['Oyo','Oyo'],['Ouesso','Ouesso'],['Autres','Autres villes et routes (RN1, RN2)']];
+  // Pays reconnu par l'indicatif du numéro : +242 Congo, +225 Côte d'Ivoire, +33 France, +1 Canada. Sans indicatif : Congo.
+  var VILLES_CG = VILLES;
+  var PAYS = {
+    CG:{ nom:'République du Congo', villes:VILLES_CG, prix:'1 000 FCFA', carte:false },
+    CI:{ nom:"Côte d'Ivoire", villes:[['Abidjan','Abidjan']], prix:'1 000 FCFA', carte:true },
+    FR:{ nom:'France', villes:[['Paris','Paris'],['Île-de-France','Île-de-France'],['Lyon','Lyon'],['Marseille','Marseille']], prix:'1,52 €', carte:true },
+    CA:{ nom:'Canada', villes:[['Montréal','Montréal'],['Ottawa','Ottawa'],['Toronto','Toronto'],['Québec','Québec']], prix:'2,50 CAD', carte:true }
+  };
+  var CA_AC = '204 226 236 249 250 263 289 306 343 354 365 367 368 382 403 416 418 431 437 438 450 468 474 506 514 519 548 579 581 584 587 604 613 639 647 672 683 705 709 742 753 778 780 782 807 819 825 867 873 879 902 905 942'.split(' ');
+  function paysDuNumero(t){
+    t = String(t || '').trim();
+    var intl = t.indexOf('+') === 0 || t.indexOf('00') === 0;
+    var d = t.replace(/\D/g, '').replace(/^00/, '');
+    if (!intl) return 'CG';
+    if (d.indexOf('242') === 0) return 'CG';
+    if (d.indexOf('225') === 0) return 'CI';
+    if (d.indexOf('33') === 0) return 'FR';
+    if (d.charAt(0) === '1') return CA_AC.indexOf(d.slice(1, 4)) !== -1 ? 'CA' : 'AUTRE';
+    return 'AUTRE';
+  }
+  var paysCur = 'CG', PRIX = '1 000 FCFA';
   var VILLE_KEYS = { 'Brazzaville':['brazzaville','brazza','bzv'], 'Pointe-Noire':['pointe noire','pointe-noire','pointenoire','ponton','pnr'], 'Dolisie':['dolisie','dolisy'], 'Nkayi':['nkayi','nkaye'], 'Oyo':['oyo'], 'Ouesso':['ouesso'],
     'Autres':['rn1','rn2','route nationale','sur la route','owando','madingou','loutete','etoumbi','bouansa','ollombo','ailleurs','autre ville','autres villes'] };
   var GROUPES = [
@@ -369,7 +391,22 @@
   var SERVICES = [], labels = {};
   GROUPES.forEach(function(g){ g[1].forEach(function(s){ SERVICES.push({ id:s[0], label:s[1], keys:s[2] }); labels[s[0]] = s[1]; }); });
   var PHRASE = { hotel:"un hôtel ou une résidence", restaurant:"une table au restaurant", patisserie:"une boulangerie ou une pâtisserie", cafe:"un rendez-vous dans un café", coiffure:"un salon de coiffure ou de beauté", spa:"un salon de spa", sport:"une salle de sport", voiture:"la location d'un véhicule", vente_auto:"l'achat ou la vente d'une voiture", mecanique:"un garage, un dépannage ou un remorquage", station:"une station-service", voyage:"une agence de voyages ou un billet", mariage:"une salle de mariage ou de réception", evenement:"une agence événementielle", bureau:"un bureau ou un espace de coworking", tourisme:"une agence de tourisme ou un parc naturel", enfants:"un parc ou des loisirs pour enfants", banque:"une banque", supermarche:"un supermarché" };
-  var VPHRASE = { 'Brazzaville':'à Brazzaville','Pointe-Noire':'à Pointe-Noire','Dolisie':'à Dolisie','Nkayi':'à Nkayi','Oyo':'à Oyo','Ouesso':'à Ouesso','Autres':'dans les petites villes et sur les routes' };
+  VILLE_KEYS['Paris'] = ['paris'];
+  VILLE_KEYS['Île-de-France'] = ['ile de france','île de france','île-de-france','idf','banlieue parisienne','saint-denis','saint denis','roissy','orly','versailles','creteil','créteil','argenteuil','montreuil'];
+  VILLE_KEYS['Lyon'] = ['lyon','villeurbanne','venissieux','vénissieux'];
+  VILLE_KEYS['Marseille'] = ['marseille'];
+  VILLE_KEYS['Abidjan'] = ['abidjan','cocody','marcory','yopougon','treichville'];
+  VILLE_KEYS['Montréal'] = ['montreal','montréal'];
+  VILLE_KEYS['Ottawa'] = ['ottawa'];
+  VILLE_KEYS['Toronto'] = ['toronto'];
+  VILLE_KEYS['Québec'] = ['quebec','québec'];
+  function paysDeVille(v){ for (var k in PAYS){ for (var i = 0; i < PAYS[k].villes.length; i++) if (PAYS[k].villes[i][0] === v) return k; } return v === 'Autres' ? 'CG' : ''; }
+  function setVille(v){
+    var k = paysDeVille(v);
+    if (k && k !== paysCur && $('fTel').value.replace(/\D/g,'').length < 8){ paysCur = k; PRIX = PAYS[k].prix; VILLES = PAYS[k].villes; fillVilles(); fillChips(); $('prixTxt').textContent = PRIX; $('btnValider').textContent = 'Valider et payer ' + PRIX; $('introPrix').textContent = PRIX; }
+    $('fVille').value = v;
+  }
+  var VPHRASE = {'Paris':'à Paris','Île-de-France':'en Île-de-France','Lyon':'à Lyon','Marseille':'à Marseille','Abidjan':'à Abidjan','Montréal':'à Montréal','Ottawa':'à Ottawa','Toronto':'à Toronto','Québec':'à Québec', 'Brazzaville':'à Brazzaville','Pointe-Noire':'à Pointe-Noire','Dolisie':'à Dolisie','Nkayi':'à Nkayi','Oyo':'à Oyo','Ouesso':'à Ouesso','Autres':'dans les petites villes et sur les routes' };
 
   function authFetch(url, opts){
     opts = opts || {};
@@ -616,7 +653,12 @@
      Formulaire (cases à cocher) — Keydou peut les cocher à la place du client
   ------------------------------------------------------------------ */
   var picked = [];
-  VILLES.forEach(function(v){ var o = document.createElement('option'); o.value = v[0]; o.textContent = v[1]; $('fVille').appendChild(o); });
+  function fillVilles(){
+    var sel = $('fVille'), old = sel.value; sel.innerHTML = '';
+    VILLES.forEach(function(v){ var o = document.createElement('option'); o.value = v[0]; o.textContent = v[1]; sel.appendChild(o); });
+    if (old) for (var i = 0; i < sel.options.length; i++) if (sel.options[i].value === old) sel.selectedIndex = i;
+  }
+  fillVilles();
   var boxes = {};
   function updateCount(){ $('count').textContent = picked.length ? picked.length + ' besoin' + (picked.length > 1 ? 's' : '') + ' coché' + (picked.length > 1 ? 's' : '') + ' sur ' + MAX : 'Cochez votre besoin (jusqu\'à ' + MAX + ')'; }
   function syncChecks(){ Object.keys(boxes).forEach(function(id){ var on = picked.indexOf(id) !== -1; boxes[id].cb.checked = on; boxes[id].lab.classList.toggle('on', on); }); updateCount(); }
@@ -630,7 +672,7 @@
       boxes[s[0]] = { cb:cb, lab:l };
       cb.addEventListener('change', function(){
         if (cb.checked){
-          if (picked.length >= MAX){ cb.checked = false; $('count').textContent = 'Vous pouvez cocher ' + MAX + ' besoins au maximum pour 1 000 FCFA.'; return; }
+          if (picked.length >= MAX){ cb.checked = false; $('count').textContent = 'Vous pouvez cocher ' + MAX + ' besoins au maximum pour ' + PRIX + '.'; return; }
           picked.push(s[0]); track('choix_service', s[1], picked.join(','), $('fVille').value);
         } else { picked = picked.filter(function(x){ return x !== s[0]; }); }
         syncChecks();
@@ -648,12 +690,15 @@
     if (!picked.length){ err.textContent = 'Cochez au moins un besoin dans la liste, ou dites-le à Keydou.'; err.hidden = false; return; }
     var btn = this; btn.disabled = true; btn.textContent = 'Un instant…';
     var data = { nom:nom, contact:tel, ville:ville, services:picked, demandeVocale:lastSaid };
-    function fail(msg){ btn.disabled = false; btn.textContent = 'Valider et payer 1 000 FCFA'; err.textContent = msg; err.hidden = false; }
+    var pv = paysDeVille(ville), pn = paysDuNumero(tel);
+    if (pn !== 'AUTRE' && pv && pv !== pn){ btn.disabled = false; btn.textContent = 'Valider et payer ' + PRIX; err.textContent = 'Votre ville est en ' + PAYS[pv].nom + ' : écrivez votre numéro avec l\'indicatif du pays (' + ({CG:'+242',CI:'+225',FR:'+33',CA:'+1'})[pv] + ').'; err.hidden = false; $('fTel').focus(); return; }
+    if (paysDuNumero(tel) === 'AUTRE'){ btn.disabled = false; btn.textContent = 'Valider et payer ' + PRIX; err.textContent = "Écrivez votre numéro avec l'indicatif de votre pays (+242, +225, +33 ou +1)."; err.hidden = false; return; }
+    function fail(msg){ btn.disabled = false; btn.textContent = 'Valider et payer ' + PRIX; err.textContent = msg; err.hidden = false; }
     function done(res){
       if (res.data.token){ token = res.data.token; try{ localStorage.setItem('keydou_guest_token', token); }catch(e){} }
-      btn.disabled = false; btn.textContent = 'Valider et payer 1 000 FCFA';
+      btn.disabled = false; btn.textContent = 'Valider et payer ' + PRIX;
       current = res.data.demande; track('choix_ville', ville, picked.join(','), ville);
-      showPay(nom, tel);
+      if (res.data.paiement && res.data.paiement.mode === 'carte') showPayCarte(nom, tel, res.data.paiement); else showPay(nom, tel);
     }
     function asGuest(){ return post(Object.assign({ action:'guest_start', events:outbox.splice(0, 25) }, data)); }
     (token ? post(Object.assign({ action:'demande' }, data)) : asGuest()).then(function(res){
@@ -749,7 +794,7 @@
   }
   // Le « cerveau » : Keydou comprend toute question. Il ne donne jamais de coordonnées avant paiement (le serveur ne les lui transmet pas).
   function cerveau(text){
-    return post({ action:'chat', message:text, history:histo, etat:{ services:picked, ville:$('fVille').value } }).then(function(res){
+    return post({ action:'chat', message:text, history:histo, etat:{ services:picked, ville:$('fVille').value, pays:paysCur } }).then(function(res){
       if (!res.ok || !res.data || res.data.fallback || !res.data.reponse){ llmOn = false; return localAnswer(text); }
       var d = res.data;
       histo.push({ role:'user', text:text }); histo.push({ role:'keydou', text:d.reponse }); histo = histo.slice(-8);
@@ -758,10 +803,10 @@
       if (svcs.length){
         intent.services = svcs; if (d.ville) intent.ville = d.ville;
         picked = svcs.slice(0, MAX); syncChecks();
-        if (intent.ville) $('fVille').value = intent.ville;
+        if (intent.ville) setVille(intent.ville);
         track('choix_service', text, picked.join(','), intent.ville);
         stage = intent.ville ? 'ready' : 'askville'; $('villeAsk').hidden = !!intent.ville;
-      } else if (d.ville && intent.services.length){ intent.ville = d.ville; $('fVille').value = d.ville; stage = 'ready'; $('villeAsk').hidden = true; }
+      } else if (d.ville && intent.services.length){ intent.ville = d.ville; setVille(d.ville); stage = 'ready'; $('villeAsk').hidden = true; }
       return speakSeq([], d.reponse).then(function(){
         release();
         if (stage === 'ready' && intent.services.length && !d.sos){
@@ -774,7 +819,7 @@
   }
   function confirmIntent(){
     picked = intent.services.slice(0, MAX); syncChecks();
-    if (intent.ville) $('fVille').value = intent.ville;
+    if (intent.ville) setVille(intent.ville);
     track('choix_service', lastSaid, picked.join(','), intent.ville);
     var names = ['iu'].concat(listClips(picked));
     var txt = "Si j'ai bien compris, vous cherchez " + listPhrases(picked) + (intent.ville ? ' ' + VPHRASE[intent.ville] : '') + '.';
@@ -790,16 +835,49 @@
     stage = 'askville'; $('villeAsk').hidden = false;
     return speakSeq(names, txt).then(function(){ return speak('askville', TXT.askville); }).then(function(){ release(); });
   }
-  VILLES.forEach(function(v){
-    var b = document.createElement('button'); b.className = 'chip'; b.textContent = v[1];
-    b.addEventListener('click', function(){ if (busy || !intent.services.length) return; busy = true; intent.ville = v[0]; lastSaid = lastSaid || v[1]; confirmIntent(); });
-    $('villeChips').appendChild(b);
-  });
+  function fillChips(){
+    $('villeChips').innerHTML = '';
+    VILLES.forEach(function(v){
+      var b = document.createElement('button'); b.className = 'chip'; b.textContent = v[1];
+      b.addEventListener('click', function(){ if (busy || !intent.services.length) return; busy = true; intent.ville = v[0]; lastSaid = lastSaid || v[1]; confirmIntent(); });
+      $('villeChips').appendChild(b);
+    });
+  }
+  fillChips();
+  // Le numéro décide du pays : villes, prix et mode de paiement s'adaptent tout seuls.
+  function appliquerPays(){
+    var p = paysDuNumero($('fTel').value), n = $('paysNote');
+    if (p === 'AUTRE'){ n.textContent = "Keydou n'est pas encore ouvert dans ce pays. Écrivez votre numéro avec l'indicatif du Congo (+242), de la Côte d'Ivoire (+225), de la France (+33) ou du Canada (+1)."; n.hidden = false; return; }
+    n.hidden = true;
+    if (p === paysCur) return;
+    paysCur = p; PRIX = PAYS[p].prix; VILLES = PAYS[p].villes; fillVilles(); fillChips();
+    $('prixTxt').textContent = PRIX; $('btnValider').textContent = 'Valider et payer ' + PRIX; $('introPrix').textContent = PRIX;
+    if (p !== 'CG'){ n.textContent = 'Pays reconnu : ' + PAYS[p].nom + '. Villes disponibles : ' + VILLES.map(function(v){ return v[1]; }).join(', ') + '. Paiement par carte bancaire (Mastercard, Visa…).'; n.hidden = false; }
+  }
+  $('fTel').addEventListener('input', appliquerPays);
 
   /* ------------------------------------------------------------------
      Paiement
   ------------------------------------------------------------------ */
   var pollTimer = null;
+  function showPayCarte(nom, tel, paiement){
+    var p = $('stepPay'), lien = paiement && paiement.lien;
+    p.innerHTML =
+      '<h2>Paiement de ' + esc(PRIX) + '</h2>' +
+      '<div class="pay-row"><span>Nom</span><b>' + esc(nom) + '</b></div>' +
+      '<div class="pay-row"><span>Téléphone</span><b>' + esc(tel) + '</b></div>' +
+      '<div class="pay-row"><span>Besoins</span><b>' + esc(current.serviceLabel) + '</b></div>' +
+      '<div class="pay-row"><span>Ville</span><b>' + esc($('fVille').selectedOptions[0].textContent) + '</b></div>' +
+      '<div class="pay-row"><span>Montant</span><b>' + esc(PRIX) + '</b></div>' +
+      '<div class="pay-row"><span>Référence</span><b>' + esc(current.referencePaiement) + '</b></div>' +
+      (lien ? '<a class="btn ok block" style="text-decoration:none;text-align:center" target="_blank" rel="noopener" href="' + esc(lien) + '">Payer par carte bancaire</a>'
+            : '<div class="warn">Le lien de paiement par carte vous est envoyé par l\'équipe STAR ENTREPRISE (WhatsApp ou e-mail) avec la référence ci-dessus.</div>') +
+      '<div class="status" id="payStatus"><span class="dots"><i></i><i></i><i></i></span><span>Keydou attend la confirmation de votre paiement…</span></div>' +
+      '<div class="warn"><b>Ne donnez jamais le code secret de votre carte</b> (ni le code reçu par SMS) à Keydou, à STAR ENTREPRISE ni à personne.</div>' +
+      '<div class="note">Dès que le paiement est reconnu, Keydou revient, se lève et vous répond. Paiement sécurisé par la passerelle bancaire : KOMYO ne voit jamais votre numéro de carte.</div>';
+    stage = 'pay'; showView('pay');
+    attendre();
+  }
   function showPay(nom, tel){
     var p = $('stepPay');
     p.innerHTML =
