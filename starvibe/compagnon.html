@@ -53,6 +53,19 @@
   .chk{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.45;margin:12px 0;} .chk input{margin-top:3px;width:18px;height:18px;flex:none;}
   ul{margin:6px 0 0;padding-left:18px;font-size:13.5px;line-height:1.55;}
   .err{color:var(--bad);font-size:13px;margin-top:8px;}
+  .planrow{display:flex;align-items:center;gap:8px;padding:10px 14px 0;flex:none;}
+  .chip{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:6px 12px;font:700 12.5px 'Sora',Arial,sans-serif;border:1.5px solid var(--ink);background:#fff;color:var(--ink);}
+  .chip.pro{background:linear-gradient(120deg,var(--coral),var(--gold));border-color:transparent;color:#fff;}
+  .chip small{font:600 11px 'Inter',Arial,sans-serif;opacity:.85;}
+  .planrow .sp{flex:1;}
+  .iconbtn{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--line);background:#fff;font-size:17px;line-height:1;color:var(--ink);padding:0;flex:none;}
+  .iconbtn.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .iconbtn.plus{font:800 22px 'Sora',Arial,sans-serif;background:var(--ink);color:#fff;border-color:var(--ink);}
+  .compose .mic{flex:none;width:46px;height:46px;border-radius:50%;border:1.5px solid var(--line);background:#fff;font-size:20px;padding:0;align-self:flex-end;}
+  .compose .mic.ecoute{background:var(--bad);border-color:var(--bad);color:#fff;animation:pls 1s infinite;}
+  @keyframes pls{50%{box-shadow:0 0 0 8px rgba(192,57,43,.18);}}
+  .lire{border:0;background:none;font-size:14px;padding:2px 0 0 6px;opacity:.6;cursor:pointer;}
+  .actuel{display:inline-block;background:#dcf3e8;color:#1f6b4f;font:700 11px 'Inter',Arial,sans-serif;border-radius:99px;padding:3px 9px;margin-left:6px;vertical-align:middle;}
 </style>
 </head>
 <body>
@@ -65,12 +78,13 @@
 
   <div class="pane" id="offres" hidden>
     <div class="card"><h2 id="offresTitre">Choisis ton offre</h2><p class="note" id="offresTxt">Ton accès s'ouvre dès que ton dépôt est reconnu. Jamais gratuit.</p></div>
-    <div class="card"><h2>Essentiel · 5 000 FCFA <small style="font:600 12px 'Inter',Arial,sans-serif;color:var(--dim)">par mois</small></h2>
+    <div class="card"><h2>Essentiel · 5 000 FCFA<span class="actuel" id="actEss" hidden>Ton offre</span> <small style="font:600 12px 'Inter',Arial,sans-serif;color:var(--dim)">par mois</small></h2>
       <ul><li>65 messages par jour</li><li>10 rappels actifs</li><li>Culture générale + 5 recherches Internet par jour</li></ul>
       <button class="btn" data-plan="compagnon" style="margin-top:10px">Choisir Essentiel</button></div>
-    <div class="card" style="border-color:var(--gold)"><h2>Complet · 19 $ <small style="font:600 12px 'Inter',Arial,sans-serif;color:var(--dim)">par mois (≈ 11 100 FCFA)</small></h2>
+    <div class="card" style="border-color:var(--gold)"><h2>Complet · 19 $<span class="actuel" id="actPro" hidden>Ton offre</span> <small style="font:600 12px 'Inter',Arial,sans-serif;color:var(--dim)">par mois (≈ 11 100 FCFA)</small></h2>
       <ul><li>200 messages par jour</li><li>Rappels illimités</li><li>Recherche Internet approfondie, sources citées</li></ul>
       <button class="btn gold" data-plan="compagnon_complet" style="margin-top:10px">Choisir Complet</button></div>
+    <button class="btn line" id="offresRetour" hidden>Retour à Keydou</button>
     <div class="err" id="offresErr"></div>
     <p class="note">Abonnement de 30 jours, à reconduire quand tu veux. Ton accès est ouvert automatiquement dès que le paiement est reconnu.</p>
   </div>
@@ -98,13 +112,19 @@
 
   <div id="app" hidden style="flex:1;min-height:0;display:flex;flex-direction:column">
     <div class="limite" id="finBandeau" hidden style="margin-top:10px"><span id="finTxt"></span> <button class="btn gold" id="finBtn" style="margin-top:8px">Reconduire mon abonnement</button></div>
+    <div class="planrow">
+      <span class="chip" id="chipNiveau">Essentiel</span>
+      <span class="sp"></span>
+      <button class="iconbtn" id="btnVoix" type="button" title="Keydou lit ses réponses à voix haute" aria-label="Lecture à voix haute">🔇</button>
+      <button class="iconbtn plus" id="btnPlus" type="button" title="Changer d'offre" aria-label="Changer d'offre">+</button>
+    </div>
     <div class="tabs"><button data-t="chat" class="on">Discuter</button><button data-t="rappels">Rappels</button><button data-t="donnees">Mes données</button></div>
 
     <section id="t-chat" style="flex:1;min-height:0;display:flex;flex-direction:column">
       <div class="pane" id="fil"><div class="chat" id="chat"></div></div>
       <div class="limite" id="limite" hidden></div>
       <div class="quota" id="quota"></div>
-      <div class="compose"><textarea id="msg" rows="1" maxlength="1500" placeholder="Écris à Keydou…"></textarea><button id="envoi">Envoyer</button></div>
+      <div class="compose"><button class="mic" id="mic" type="button" aria-label="Parler à Keydou" title="Parler à Keydou">🎤</button><textarea id="msg" rows="1" maxlength="1500" placeholder="Écris à Keydou…"></textarea><button id="envoi">Envoyer</button></div>
     </section>
 
     <section id="t-rappels" class="pane" hidden>
@@ -153,6 +173,7 @@
     var d=document.createElement('div'); d.className='m '+(role==='user'?'me':'ky'); d.textContent=txt;
     if(extra&&extra.sources&&extra.sources.length){ var s=document.createElement('div'); s.className='src'; s.innerHTML='Sources : '+extra.sources.map(function(x){ return '<a href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer">'+esc(x.titre)+'</a>'; }).join(' · '); d.appendChild(s); }
     if(extra&&extra.ajoutes&&extra.ajoutes.length){ var a=document.createElement('div'); a.className='add'; a.textContent='✓ Rappel ajouté : '+extra.ajoutes.map(function(x){ return x.titre; }).join(', '); d.appendChild(a); }
+    if(role!=='user'&&window.speechSynthesis){ var lb=document.createElement('button'); lb.className='lire'; lb.type='button'; lb.textContent='🔊'; lb.setAttribute('aria-label','Lire à voix haute'); lb.addEventListener('click',function(){ parle(txt); }); d.appendChild(lb); }
     $('chat').appendChild(d); var f=$('fil'); f.scrollTop=f.scrollHeight;
   }
   function charge(){
@@ -170,6 +191,8 @@
       if(!etat.consentement){ show('consent'); return; }
       show('app'); quota(etat.quota);
       $('finBandeau').hidden=!etat.finBientot; if(etat.finBientot) $('finTxt').textContent=etat.texteFin;
+      var pro=etat.acces.niveau==='complet'; var ch=$('chipNiveau');
+      ch.className='chip'+(pro?' pro':''); ch.innerHTML='🐻 '+(pro?'Complet · Pro':'Essentiel')+' <small>'+(pro?'200':'65')+' messages/jour'+(etat.acces.source==='test'?' · test':'')+'</small>';
       $('aboTxt').textContent='Offre '+etat.acces.label+(etat.acces.source==='test'?' (invitation de test)':'')+(etat.acces.fin?' · valable jusqu’au '+new Date(etat.acces.fin).toLocaleDateString('fr-FR'):'')+'.';
       if(etat.notifications>0){ $('notifTxt').textContent='Notifications activées sur '+etat.notifications+' appareil(s).'; $('notifBtn').textContent='Réactiver sur ce téléphone'; }
       call('GET','?historique=1').then(function(h){
@@ -186,7 +209,19 @@
       .then(function(r){ return r.json().catch(function(){return {};}).then(function(d){ return {ok:r.ok,status:r.status,data:d}; }); });
   }
   function fcfa(n){ return Number(n).toLocaleString('fr-FR')+' FCFA'; }
-  function ouvrirOffres(titre,txt){ $('offresTitre').textContent=titre; $('offresTxt').textContent=txt; $('offresErr').textContent=''; show('offres'); }
+  function ouvrirOffres(titre,txt){
+    $('offresTitre').textContent=titre; $('offresTxt').textContent=txt; $('offresErr').textContent='';
+    var a=etat&&etat.acces; $('offresRetour').hidden=!a;
+    $('actEss').hidden=!(a&&a.niveau==='essentiel'); $('actPro').hidden=!(a&&a.niveau==='complet');
+    show('offres');
+  }
+  $('offresRetour').addEventListener('click',function(){ show('app'); });
+  $('btnPlus').addEventListener('click',function(){
+    var a=etat&&etat.acces;
+    ouvrirOffres('Changer d\u2019offre', a&&a.niveau==='complet'
+      ? 'Tu es en Complet (Pro). Tu peux le reconduire, ou passer à Essentiel à la fin de ta période.'
+      : 'Passe à Complet (Pro) pour 19 $ par mois : 200 messages par jour, rappels illimités, recherche Internet approfondie. Ton Essentiel en cours n\u2019est pas perdu : il reprend après ton Complet.');
+  });
   $('finBtn').addEventListener('click',function(){ ouvrirOffres('Reconduire mon abonnement','Choisis ton offre : la nouvelle période s\u2019ajoute à la fin de ton abonnement actuel, sans perdre un jour.'); });
   $('reconduire').addEventListener('click',function(){ ouvrirOffres('Reconduire mon abonnement','Choisis ton offre : la nouvelle période s\u2019ajoute à la fin de ton abonnement actuel, sans perdre un jour.'); });
   Array.prototype.forEach.call(document.querySelectorAll('[data-plan]'),function(b){ b.addEventListener('click',function(){
@@ -223,20 +258,54 @@
     if(b.dataset.t==='rappels') listeRappels();
   }); });
 
-  var occupe=false;
+  var occupe=false, vientDeLaVoix=false;
   function envoyer(){
     var t=$('msg').value.trim(); if(!t||occupe) return;
     occupe=true; $('envoi').disabled=true; bulle('user',t); $('msg').value='';
     var att=document.createElement('div'); att.className='m ky'; att.textContent='Keydou réfléchit…'; $('chat').appendChild(att); $('fil').scrollTop=$('fil').scrollHeight;
     call('POST','',{action:'chat',message:t}).then(function(r){
       att.remove(); occupe=false;
-      if(r.ok){ bulle('assistant',r.data.reponse,{sources:r.data.sources,ajoutes:r.data.rappelsAjoutes}); quota(r.data.quota); }
+      if(r.ok){ bulle('assistant',r.data.reponse,{sources:r.data.sources,ajoutes:r.data.rappelsAjoutes}); quota(r.data.quota); if(voixOn||vientDeLaVoix) parle(r.data.reponse); vientDeLaVoix=false; }
       else if(r.status===429){ bulle('assistant',r.data.error); quota(r.data.quota); }
       else{ bulle('assistant',r.data.error||'Keydou est indisponible un instant.'); $('envoi').disabled=false; }
     }).catch(function(){ att.remove(); occupe=false; $('envoi').disabled=false; bulle('assistant','Connexion impossible. Réessaie.'); });
   }
   $('envoi').addEventListener('click',envoyer);
   $('msg').addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); envoyer(); } });
+
+  // ---- Voix : Keydou lit ses réponses (synthèse du téléphone) et on lui parle avec le micro (reconnaissance du navigateur) ----
+  var LANG='fr-FR'; try{ if(navigator.language&&navigator.language.slice(0,2)!=='fr') LANG=navigator.language; }catch(e){}
+  var voixOn=false; try{ voixOn=localStorage.getItem('keydou_voix')==='1'; }catch(e){}
+  var TTS=window.speechSynthesis||null;
+  function majVoix(){ var b=$('btnVoix'); b.classList.toggle('on',voixOn); b.textContent=voixOn?'🔊':'🔇'; }
+  function propre(t){ return String(t||'').replace(/\p{Extended_Pictographic}/gu,' ').replace(/https?:\/\/\S+/g,' ').replace(/[*_#`]/g,'').replace(/\s+/g,' ').trim(); }
+  function parle(t){
+    if(!TTS) return; TTS.cancel();
+    var u=new SpeechSynthesisUtterance(propre(t)); u.lang=LANG; u.rate=1;
+    var vs=TTS.getVoices(); var v=vs.filter(function(x){ return x.lang&&x.lang.toLowerCase().indexOf(LANG.slice(0,2).toLowerCase())===0; })[0]; if(v) u.voice=v;
+    TTS.speak(u);
+  }
+  if(!TTS){ $('btnVoix').hidden=true; }
+  $('btnVoix').addEventListener('click',function(){ voixOn=!voixOn; try{ localStorage.setItem('keydou_voix',voixOn?'1':'0'); }catch(e){} majVoix(); if(!voixOn&&TTS) TTS.cancel(); else if(voixOn) parle('Je te lis mes réponses.'); });
+  majVoix();
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition, rec=null, ecoute=false;
+  if(!SR){ $('mic').hidden=true; }
+  $('mic').addEventListener('click',function(){
+    if(ecoute&&rec){ rec.stop(); return; }
+    if(TTS) TTS.cancel();
+    try{
+      rec=new SR(); rec.lang=LANG; rec.interimResults=true; rec.continuous=false; rec.maxAlternatives=1;
+      var final='';
+      rec.onstart=function(){ ecoute=true; $('mic').classList.add('ecoute'); $('msg').placeholder='Je t\u2019écoute… parle maintenant'; };
+      rec.onresult=function(e){ var t=''; for(var i=0;i<e.results.length;i++){ t+=e.results[i][0].transcript; if(e.results[i].isFinal) final=t; } $('msg').value=t; };
+      rec.onerror=function(e){ ecoute=false; $('mic').classList.remove('ecoute'); $('msg').placeholder='Écris à Keydou…';
+        if(e.error==='not-allowed'||e.error==='service-not-allowed') bulle('assistant','Le micro n\u2019est pas autorisé. Autorise le micro pour ce site dans les réglages du navigateur, puis réessaie.');
+        else if(e.error!=='no-speech'&&e.error!=='aborted') bulle('assistant','Je n\u2019ai pas pu t\u2019entendre. Réessaie, ou écris ton message.'); };
+      rec.onend=function(){ ecoute=false; $('mic').classList.remove('ecoute'); $('msg').placeholder='Écris à Keydou…';
+        var t=($('msg').value||'').trim(); if(final&&t){ vientDeLaVoix=true; envoyer(); } };
+      rec.start();
+    }catch(e){ bulle('assistant','Le micro n\u2019est pas disponible sur ce navigateur. Écris ton message.'); }
+  });
 
   var MOIS=['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
   function listeRappels(){
