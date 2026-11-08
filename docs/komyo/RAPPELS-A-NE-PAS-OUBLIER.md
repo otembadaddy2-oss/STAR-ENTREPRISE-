@@ -195,3 +195,8 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 
 ## Affiches (8/11/2026, nuit)
 - A5 refaite au même format que A6–A10 (version v2). Packs C (Compter) et D (Alphabet) : affiches « bientôt » dessinées sans IA (docs/pioupiou/fabrique-affiches-bientot.py), à remplacer par les vraies affiches à la sortie des épisodes.
+
+## Canada, lot 2 (8/11/2026)
+- 35 fiches ajoutées : 13 stations-service (Petro-Canada Montréal, Ottawa, Toronto), 7 agences événementielles, 3 offices de tourisme, 10 restaurants africains, 2 pâtisseries (dont Maison Aïdo). Fiabilité B = adresse et téléphone dans la source ; C = il manque l'un des deux.
+- Seules les informations écrites dans les sources ont été gardées (rien deviné). Fiches à reconfirmer par appel.
+- Trous restants : aucune agence événementielle avec coordonnées à Ottawa ; aucune station à Québec ; tourisme de Toronto et de Québec non trouvé ; pâtisserie africaine à Toronto/Ottawa/Québec non trouvée.
