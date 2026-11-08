@@ -16,6 +16,9 @@ import { recuAbonnement, recuKeydou } from "./_recu.mts";
 import { poster } from "./_msg.mts";
 import annuaireSeed from "./keydou-annuaire.json";
 import annuaire2026 from "./keydou-annuaire-2026.json";
+import annuaireFrance from "./keydou-annuaire-france-2026.json";
+import annuaireCanada from "./keydou-annuaire-canada-2026.json";
+import annuaireAbidjan from "./keydou-annuaire-abidjan-lot1.json";
 import urgences from "./keydou-urgences.json";
 import { vapidKeys, smsSecret, checkSmsSecret, decisionToken, checkDecisionToken, pushAll, parseSms, last9 } from "./_push.mts";
 
@@ -28,6 +31,35 @@ const MAX_ATTENTE = 5;
 const MAX_SERVICES = 3; // une seule demande de 1 000 FCFA couvre jusqu'à 3 besoins cochés
 const VILLES = ["Brazzaville", "Pointe-Noire", "Dolisie", "Nkayi", "Oyo", "Ouesso"];
 const AUTRES = "Autres"; // petites villes et routes RN1 / RN2
+
+// ---------- Pays couverts ----------
+// Le pays du client est reconnu par l'indicatif de son numéro (+242 Congo, +225 Côte d'Ivoire, +33 France, +1 Canada).
+// Même valeur partout (1 000 FCFA ≈ 1,52 €) : Mobile Money au Congo ; carte bancaire ailleurs (passerelle à brancher : réglage « keydou_carte_actif »).
+interface PaysCfg { code: string; nom: string; prefixe: string; villes: string[]; autres: boolean; devise: "XOF" | "EUR" | "CAD"; montantTxt: string; centimes: number; carte: boolean }
+const PAYS_CFG: Record<string, PaysCfg> = {
+  CG: { code: "CG", nom: "République du Congo", prefixe: "242", villes: VILLES, autres: true, devise: "XOF", montantTxt: "1 000 FCFA", centimes: 0, carte: false },
+  CI: { code: "CI", nom: "Côte d'Ivoire", prefixe: "225", villes: ["Abidjan"], autres: false, devise: "XOF", montantTxt: "1 000 FCFA", centimes: 0, carte: true },
+  FR: { code: "FR", nom: "France", prefixe: "33", villes: ["Paris", "Île-de-France", "Lyon", "Marseille"], autres: false, devise: "EUR", montantTxt: "1,52 €", centimes: 152, carte: true },
+  CA: { code: "CA", nom: "Canada", prefixe: "1", villes: ["Montréal", "Ottawa", "Toronto", "Québec"], autres: false, devise: "CAD", montantTxt: "2,50 CAD", centimes: 250, carte: true },
+};
+const INDICATIFS_CANADA = new Set(["204","226","236","249","250","263","289","306","343","354","365","367","368","382","403","416","418","431","437","438","450","468","474","506","514","519","548","579","581","584","587","604","613","639","647","672","683","705","709","742","753","778","780","782","807","819","825","867","873","879","902","905","942"]);
+const TOUTES_VILLES = Object.values(PAYS_CFG).flatMap((c) => c.villes);
+function paysDeVilleSrv(v: string): string {
+  for (const c of Object.values(PAYS_CFG)) if (c.villes.includes(v)) return c.code;
+  return "CG";
+}
+// Reconnaît le pays d'après le numéro. Sans indicatif (numéro local), on garde le Congo. Indicatif inconnu : "AUTRE".
+function paysDuNumero(tel: string): string {
+  const brut = String(tel || "").trim();
+  const international = brut.startsWith("+") || brut.startsWith("00");
+  const d = brut.replace(/\D/g, "").replace(/^00/, "");
+  if (!international) return "CG";
+  if (d.startsWith("242")) return "CG";
+  if (d.startsWith("225")) return "CI";
+  if (d.startsWith("33")) return "FR";
+  if (d.startsWith("1")) return INDICATIFS_CANADA.has(d.slice(1, 4)) ? "CA" : "AUTRE";
+  return "AUTRE";
+}
 
 type LieuSeed = {
   service: string; ville: string; nom: string; adresse: string; telephone: string;
@@ -55,36 +87,44 @@ async function seedAnnuaire(sql: any) {
 
 type Lieu2026 = {
   service: string; ville: string; nom: string; adresse: string; telephone: string; whatsapp: string;
-  description: string; source_url: string; source_note: string;
+  description: string; source_url: string; source_note: string; pays?: string;
 };
 // Annuaire KEYDOU du 21/10/2026 (277 fiches du PDF fourni par Carry) : intégré une seule fois à la
 // mémoire de Keydou. Les fiches déjà présentes (même nom, ou même numéro) sont complétées, jamais doublées.
+// Les listes de la France, du Canada et d'Abidjan (8/11/2026) suivent la même règle, chacune une seule fois (clé dans starvibe_settings).
 // deno-lint-ignore no-explicit-any
-async function importAnnuaire2026(sql: any) {
-  const done = ((await sql`SELECT value FROM starvibe_settings WHERE key = 'annuaire_2026'`) as { value: string }[])[0]?.value;
+async function importListe(sql: any, cle: string, source: Lieu2026[], pays: string) {
+  const done = ((await sql`SELECT value FROM starvibe_settings WHERE key = ${cle}`) as { value: string }[])[0]?.value;
   if (done === "ok") return;
-  const liste = (annuaire2026 as Lieu2026[]).map((l) => ({ ...l, tel9: last9(l.telephone) }));
+  const liste = source.map((l) => ({ ...l, pays, whatsapp: l.whatsapp || "", description: l.description || "", source_url: l.source_url || "", source_note: l.source_note || "", tel9: last9(l.telephone) }));
   const j = JSON.stringify(liste);
   await sql`
     UPDATE starvibe_keydou_lieux l SET
       adresse = CASE WHEN x.adresse <> '' THEN x.adresse ELSE l.adresse END,
       telephone = CASE WHEN x.telephone <> '' THEN x.telephone ELSE l.telephone END,
       whatsapp = CASE WHEN x.whatsapp <> '' THEN x.whatsapp ELSE l.whatsapp END,
-      description = x.description, source_note = x.source_note, actif = true, updated_at = now()
-    FROM jsonb_to_recordset(${j}::jsonb) AS x(service text, ville text, nom text, adresse text, telephone text, whatsapp text, description text, source_url text, source_note text, tel9 text)
+      description = x.description, source_note = x.source_note, actif = true, pays = x.pays, updated_at = now()
+    FROM jsonb_to_recordset(${j}::jsonb) AS x(service text, ville text, nom text, adresse text, telephone text, whatsapp text, description text, source_url text, source_note text, pays text, tel9 text)
     WHERE l.service = x.service AND l.ville = x.ville AND lower(l.nom) = lower(x.nom)
   `;
   await sql`
-    INSERT INTO starvibe_keydou_lieux (service, ville, nom, adresse, telephone, whatsapp, description, source_url, source_note, verifie)
-    SELECT x.service, x.ville, x.nom, x.adresse, x.telephone, x.whatsapp, x.description, x.source_url, x.source_note, false
-    FROM jsonb_to_recordset(${j}::jsonb) AS x(service text, ville text, nom text, adresse text, telephone text, whatsapp text, description text, source_url text, source_note text, tel9 text)
+    INSERT INTO starvibe_keydou_lieux (service, ville, nom, adresse, telephone, whatsapp, description, source_url, source_note, verifie, pays)
+    SELECT x.service, x.ville, x.nom, x.adresse, x.telephone, x.whatsapp, x.description, x.source_url, x.source_note, false, x.pays
+    FROM jsonb_to_recordset(${j}::jsonb) AS x(service text, ville text, nom text, adresse text, telephone text, whatsapp text, description text, source_url text, source_note text, pays text, tel9 text)
     WHERE NOT EXISTS (
       SELECT 1 FROM starvibe_keydou_lieux l WHERE l.service = x.service AND (
         (l.ville = x.ville AND lower(l.nom) = lower(x.nom))
         OR (x.tel9 <> '' AND RIGHT(regexp_replace(l.telephone, '[^0-9]', '', 'g'), 9) = x.tel9))
     )
   `;
-  await sql`INSERT INTO starvibe_settings (key, value) VALUES ('annuaire_2026', 'ok') ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`;
+  await sql`INSERT INTO starvibe_settings (key, value) VALUES (${cle}, 'ok') ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`;
+}
+// deno-lint-ignore no-explicit-any
+async function importAnnuaire2026(sql: any) {
+  await importListe(sql, "annuaire_2026", annuaire2026 as Lieu2026[], "CG");
+  await importListe(sql, "annuaire_france_2026", annuaireFrance as Lieu2026[], "FR");
+  await importListe(sql, "annuaire_canada_2026", annuaireCanada as Lieu2026[], "CA");
+  await importListe(sql, "annuaire_abidjan_lot1", annuaireAbidjan as Lieu2026[], "CI");
 }
 
 // Journal : chaque contact avec Keydou est enregistré (jamais bloquant pour le client).
@@ -101,14 +141,14 @@ async function logEvent(sql: any, accountId: number, type: string, texte = "", s
 interface LieuRow {
   id: number; service: string; ville: string; nom: string; adresse: string; telephone: string;
   whatsapp: string; description: string; source_url: string; source_note: string;
-  verifie: boolean; actif: boolean; updated_at: string;
+  verifie: boolean; actif: boolean; updated_at: string; pays?: string;
 }
 function lieuApi(l: LieuRow, staff = false) {
   return {
     id: String(l.id), service: l.service, ville: l.ville, nom: l.nom, adresse: l.adresse,
     telephone: l.telephone, whatsapp: l.whatsapp, description: l.description,
     sourceNote: l.source_note, verifie: l.verifie,
-    ...(staff ? { sourceUrl: l.source_url, actif: l.actif, updatedAt: l.updated_at } : {}),
+    ...(staff ? { sourceUrl: l.source_url, actif: l.actif, updatedAt: l.updated_at, pays: l.pays || "CG" } : {}),
   };
 }
 
@@ -148,11 +188,11 @@ function labelOf(service: string): string {
   return service.split(",").map((s) => SERVICES[s] || s).join(" + ");
 }
 function villeOk(v: string): string {
-  return VILLES.includes(v) || v === AUTRES ? v : "";
+  return TOUTES_VILLES.includes(v) || v === AUTRES ? v : "";
 }
 function villeMatch(villeLieu: string, demande: string): boolean {
   if (!demande) return true;
-  if (demande === AUTRES) return !VILLES.includes(villeLieu);
+  if (demande === AUTRES) return !TOUTES_VILLES.includes(villeLieu);   // « Autres » = petites villes et routes du Congo seulement
   return villeLieu === demande;
 }
 
@@ -172,6 +212,9 @@ interface Row {
   statut: string;
   details: Record<string, string>;
   ville: string;
+  pays?: string;
+  devise?: string;
+  montant_devise?: number | null;
   numero_paiement: string;
   traite: boolean;
   paid_at: string | null;
@@ -188,6 +231,9 @@ function toApi(r: Row) {
     serviceLabel: labelOf(r.service),
     demandeVocale: r.demande_vocale,
     montantAttendu: r.montant_attendu,
+    pays: r.pays || "CG",
+    devise: r.devise || "XOF",
+    montantDevise: r.montant_devise ?? null,
     statut: r.statut,
     paiementDeclare: Boolean(r.paiement_declare_at),
     details: r.details || {},
@@ -280,8 +326,10 @@ let comptesCache: { at: number; txt: string } | null = null;
 // deno-lint-ignore no-explicit-any
 async function resumeAnnuaire(sql: any): Promise<string> {
   if (comptesCache && Date.now() - comptesCache.at < 10 * 60 * 1000) return comptesCache.txt;
-  const rows = (await sql`SELECT service, COUNT(*) AS n FROM starvibe_keydou_lieux WHERE actif = true GROUP BY service ORDER BY service`) as { service: string; n: string }[];
-  const txt = rows.map((r) => `${r.service} (${SERVICES[r.service] || r.service}) : ${r.n} fiches`).join("\n");
+  const rows = (await sql`SELECT service, pays, COUNT(*) AS n FROM starvibe_keydou_lieux WHERE actif = true GROUP BY service, pays ORDER BY service, pays`) as { service: string; pays: string; n: string }[];
+  const par: Record<string, string[]> = {};
+  for (const r of rows) (par[r.service] ||= []).push(`${r.pays || "CG"} ${r.n}`);
+  const txt = Object.entries(par).map(([svc, l]) => `${svc} (${SERVICES[svc] || svc}) : fiches par pays — ${l.join(", ")}`).join("\n");
   comptesCache = { at: Date.now(), txt };
   return txt;
 }
@@ -290,12 +338,12 @@ function promptKeydou(resume: string, en = false): string {
   return `Tu es KEYDOU, la mascotte-assistant jovial de KOMYO, l'application de STAR ENTREPRISE (groupe congolais dirigé par Carry OTEMBA, Pointe-Noire / Brazzaville, République du Congo). Tu es « agent chez STAR ENTREPRISE et assistant multiservices ». Tu parles français, avec chaleur, humour léger et intelligence, en 1 à 3 phrases courtes (jamais de listes longues).
 
 CE QUE TU FAIS
-Tu aides les gens à trouver : hôtel, restaurant, pâtisserie, café, coiffure/beauté, spa, salle de sport, location de véhicule, achat/vente de voiture, garage/dépannage, station-service, agence de voyages, salle de mariage, agence événementielle, bureau/coworking, tourisme, loisirs enfants, banque, supermarché. Villes couvertes : Brazzaville, Pointe-Noire, Dolisie, Nkayi, Oyo, Ouesso, plus quelques petites villes et routes (RN1, RN2).
+Tu aides les gens à trouver : hôtel, restaurant, pâtisserie, café, coiffure/beauté, spa, salle de sport, location de véhicule, achat/vente de voiture, garage/dépannage, station-service, agence de voyages, salle de mariage, agence événementielle, bureau/coworking, tourisme, loisirs enfants, banque, supermarché. Villes couvertes : Brazzaville, Pointe-Noire, Dolisie, Nkayi, Oyo, Ouesso, plus quelques petites villes et routes (RN1, RN2). Depuis le 8 novembre 2026, tu couvres aussi : en France Paris, l'Île-de-France, Lyon et Marseille ; en Côte d'Ivoire Abidjan ; au Canada Montréal, Ottawa, Toronto et Québec. Le pays du client est reconnu par l'indicatif de son numéro (+242 Congo, +225 Côte d'Ivoire, +33 France, +1 Canada) : oriente-le vers les villes de SON pays, avec le même soin qu'au Congo.
 Ta mémoire contient un annuaire (fiches par service) :
 ${resume}
 
 RÈGLES D'OR
-1. Ton service coûte 1 000 FCFA, UNE seule fois, pour 1 à 3 besoins. Paiement par Mobile Money (MTN ou Airtel) au +242 06 656 50 50, montant exact. Tant que ce n'est pas payé, tu NE DONNES AUCUN nom d'établissement, numéro, adresse ni tarif. Tu peux dire combien de fiches tu as. Tu invites chaleureusement à remplir nom, téléphone, ville et à cocher le besoin, puis payer.
+1. Ton service coûte 1 000 FCFA, UNE seule fois, pour 1 à 3 besoins. Paiement par Mobile Money (MTN ou Airtel) au +242 06 656 50 50, montant exact. Hors du Congo, la même valeur se règle par carte bancaire (Mastercard, Visa…) : 1,52 € en France, 2,50 CAD au Canada, 1 000 FCFA à Abidjan ; le Mobile Money congolais ne concerne que le Congo. Si le paiement par carte n'est pas encore ouvert, dis-le gentiment : la demande est notée et l'équipe prévient dès l'ouverture. Tant que ce n'est pas payé, tu NE DONNES AUCUN nom d'établissement, numéro, adresse ni tarif. Tu peux dire combien de fiches tu as. Tu invites chaleureusement à remplir nom, téléphone, ville et à cocher le besoin, puis payer.
 2. Tu n'inventes JAMAIS de numéro, d'adresse, de prix ni d'horaire. Si tu ne sais pas, tu le dis simplement.
 3. Les prix des hôtels, restaurants, etc. sont fixés par les établissements, pas par toi. Les numéros viennent d'annuaires publics et doivent être confirmés par appel.
 4. Urgence (danger, accident, police, pompiers, violence, ambulance) : tu rassures et tu mets sos=true. Numéros gratuits que tu PEUX donner : 117 police, 118 pompiers, 1444 violences et harcèlement, 10 10 assistance routière RN1 (gratuit 24 h/24). Pas de conseil médical ni juridique : tu orientes.
@@ -311,7 +359,7 @@ RÈGLES D'OR
 FORMAT DE SORTIE : réponds UNIQUEMENT avec un objet JSON valide, sans texte autour :
 {"reponse":"ta réponse parlée","services":[],"ville":"","sos":false}${en ? `
 
-LANGUE : le client utilise la version ANGLAISE de l'application. Rédige "reponse" en anglais simple, chaleureux et court (même si le client écrit en français, réponds-lui dans sa langue). Les identifiants de services et les noms de villes du JSON restent exactement ceux de la liste ci-dessus. Pour l'instant Keydou couvre uniquement le Congo-Brazzaville : si on te parle d'une autre ville ou d'un autre pays (Abidjan, Accra…), explique gentiment que d'autres villes sont en préparation, sans inventer d'adresse ni de numéro. Les numéros d'urgence que tu peux donner restent ceux du Congo.` : ""}`;
+LANGUE : le client utilise la version ANGLAISE de l'application. Rédige "reponse" en anglais simple, chaleureux et court (même si le client écrit en français, réponds-lui dans sa langue). Les identifiants de services et les noms de villes du JSON restent exactement ceux de la liste ci-dessus. Keydou couvre le Congo-Brazzaville, Abidjan, Paris, l'Île-de-France, Lyon, Marseille, Montréal, Ottawa, Toronto et Québec : pour toute autre ville ou pays (Accra…), explique gentiment que d'autres villes sont en préparation, sans inventer d'adresse ni de numéro. Urgences : 112 en France, 911 au Canada ; pour les autres pays, ne donne pas de numéro d'urgence de mémoire.` : ""}`;
 }
 
 // deno-lint-ignore no-explicit-any
@@ -345,7 +393,7 @@ async function chatKeydou(sql: any, req: Request, body: Record<string, unknown>)
   }
   if (propres.length && propres[propres.length - 1].role === "user") propres.pop();
   const etat = body.etat && typeof body.etat === "object" ? (body.etat as Record<string, unknown>) : {};
-  const contexte = `[Contexte de l'écran — besoins déjà cochés : ${parseServices(etat.services).join(", ") || "aucun"} ; ville choisie : ${villeOk(clean(etat.ville, 40)) || "aucune"} ; paiement : pas encore fait]`;
+  const contexte = `[Contexte de l'écran — besoins déjà cochés : ${parseServices(etat.services).join(", ") || "aucun"} ; ville choisie : ${villeOk(clean(etat.ville, 40)) || "aucune"} ; pays du numéro : ${PAYS_CFG[clean(etat.pays, 3)]?.nom || "non précisé"} ; paiement : pas encore fait]`;
   propres.push({ role: "user", content: `${contexte}\n${message}` });
 
   try {
@@ -388,6 +436,19 @@ async function creerDemande(sql: any, accountId: number, body: Record<string, un
   const nom = clean(body.nom, 80);
   const contact = clean(body.contact, 30);
   if (nom.length < 3 || contact.replace(/\D/g, "").length < 8) return { body: { error: "Indiquez votre nom et prénom et votre numéro de téléphone" }, status: 400 };
+  // Pays du client : reconnu par l'indicatif du numéro. Ailleurs qu'au Congo, le paiement se fait par carte bancaire.
+  const pays = paysDuNumero(contact);
+  if (pays === "AUTRE") return { body: { error: "Keydou n'est pas encore ouvert dans votre pays. Pour le Congo, la Côte d'Ivoire, la France et le Canada, écrivez votre numéro avec l'indicatif (+242, +225, +33, +1).", code: "pays_inconnu" }, status: 403 };
+  const cfg = PAYS_CFG[pays];
+  if (!cfg.villes.includes(ville) && !(cfg.autres && ville === AUTRES)) return { body: { error: `Cette ville n'est pas dans votre pays (${cfg.nom}). Choisissez une ville de la liste.`, code: "ville_pays" }, status: 400 };
+  let carteActive = false;
+  if (cfg.carte) {
+    carteActive = ((await sql`SELECT value FROM starvibe_settings WHERE key = 'keydou_carte_actif'`) as { value: string }[])[0]?.value === "on";
+    if (!carteActive) {
+      await logEvent(sql, accountId, "pays_bientot", `${nom} · ${contact} · ${pays}`, services.join(","), ville);
+      return { body: { error: `Keydou arrive très bientôt en ${cfg.nom} : le paiement par carte bancaire est en préparation. Votre demande est notée, l'équipe vous prévient dès l'ouverture.`, code: "carte_bientot", pays }, status: 403 };
+    }
+  }
   const pending = (await sql`
     SELECT COUNT(*) AS n FROM starvibe_keydou_requests WHERE account_id = ${accountId} AND statut = 'en_attente_paiement'
   `) as { n: string }[];
@@ -397,12 +458,17 @@ async function creerDemande(sql: any, accountId: number, body: Record<string, un
   if (invite) await sql`UPDATE starvibe_accounts SET guest_nom = ${nom}, guest_tel = ${contact}, ville = ${ville} WHERE id = ${accountId} AND guest = true`;
   const details = JSON.stringify({ nom, contact, ville });
   const rows = (await sql`
-    INSERT INTO starvibe_keydou_requests (account_id, service, ville, demande_vocale, montant_attendu, details)
-    VALUES (${accountId}, ${services.join(",")}, ${ville}, ${clean(body.demandeVocale, 300)}, ${MONTANT}, ${details}::jsonb)
+    INSERT INTO starvibe_keydou_requests (account_id, service, ville, demande_vocale, montant_attendu, details, pays, devise, montant_devise)
+    VALUES (${accountId}, ${services.join(",")}, ${ville}, ${clean(body.demandeVocale, 300)}, ${MONTANT}, ${details}::jsonb, ${pays}, ${cfg.devise}, ${cfg.centimes || null})
     RETURNING *
   `) as Row[];
   await logEvent(sql, accountId, "demande", `${nom} · ${contact}`, services.join(","), ville, rows[0].id);
-  return { body: { demande: toApi(rows[0]) }, status: 201 };
+  let lien = "";
+  if (cfg.carte && carteActive) {
+    const modele = ((await sql`SELECT value FROM starvibe_settings WHERE key = 'keydou_carte_lien'`) as { value: string }[])[0]?.value || "";
+    lien = modele ? modele.replace("{ref}", encodeURIComponent(`KDU-${rows[0].id}`)).replace("{pays}", pays) : "";
+  }
+  return { body: { demande: toApi(rows[0]), paiement: cfg.carte ? { mode: "carte", montantTxt: cfg.montantTxt, lien } : { mode: "mobile_money", montantTxt: cfg.montantTxt } }, status: 201 };
 }
 
 const KIND_LABEL: Record<string, string> = { keydou: "Keydou", abo: "Abonnement KOMYO", pub: "Annonce" };
@@ -516,7 +582,7 @@ export default async (req: Request, _context: Context) => {
         SELECT k.id, k.numero_paiement, COALESCE(NULLIF(a.guest_tel, ''), a.telephone) AS telephone,
                (k.paiement_declare_at IS NOT NULL AND k.paiement_declare_at > now() - interval '20 minutes') AS recent
         FROM starvibe_keydou_requests k JOIN starvibe_accounts a ON a.id = k.account_id
-        WHERE k.statut = 'en_attente_paiement' AND k.montant_attendu = ${p.montant} AND k.created_at > now() - interval '48 hours'
+        WHERE k.statut = 'en_attente_paiement' AND k.pays = 'CG' AND k.montant_attendu = ${p.montant} AND k.created_at > now() - interval '48 hours'
       `) as { id: number; numero_paiement: string; telephone: string; recent: boolean }[];
       const ab = (await sql`
         SELECT s.id, a.telephone FROM starvibe_subscriptions s JOIN starvibe_accounts a ON a.id = s.account_id
@@ -572,7 +638,10 @@ export default async (req: Request, _context: Context) => {
     const subs = (await sql`SELECT COUNT(*) AS n FROM starvibe_push_subs`) as { n: string }[];
     const log = (await sql`SELECT id, expediteur, message, montant, numero, resultat, created_at FROM starvibe_sms_log ORDER BY id DESC LIMIT 20`) as unknown[];
     const repli = ((await sql`SELECT value FROM starvibe_settings WHERE key = 'sms_montant_seul'`) as { value: string }[])[0]?.value !== "off";
-    return json({ secret: smsSecret(), auto, repli, telephonesNotifies: Number(subs[0]?.n || 0), journal: log });
+    const carteActif = ((await sql`SELECT value FROM starvibe_settings WHERE key = 'keydou_carte_actif'`) as { value: string }[])[0]?.value === "on";
+    const carteLien = ((await sql`SELECT value FROM starvibe_settings WHERE key = 'keydou_carte_lien'`) as { value: string }[])[0]?.value || "";
+    const attente = ((await sql`SELECT COUNT(*) AS n FROM starvibe_keydou_events WHERE type = 'pays_bientot'`) as { n: string }[])[0]?.n || "0";
+    return json({ secret: smsSecret(), auto, repli, telephonesNotifies: Number(subs[0]?.n || 0), journal: log, carte: { actif: carteActif, lien: carteLien, interesses: Number(attente) } });
   }
 
   // --- Staff : journal des contacts, en direct ---
@@ -633,8 +702,8 @@ export default async (req: Request, _context: Context) => {
     const staff = await requireAuth(req);
     if (!staff || staff.org !== STAFF_ORG) return json({ error: "Non autorisé" }, 403);
     const rows = (await sql`SELECT * FROM starvibe_keydou_lieux ORDER BY service, ville, nom`) as LieuRow[];
-    const autres = [...new Set(rows.map((l) => l.ville))].filter((v) => !VILLES.includes(v)).sort();
-    return json({ lieux: rows.map((l) => lieuApi(l, true)), services: SERVICES, villes: [...VILLES, ...autres] });
+    const autres = [...new Set(rows.map((l) => l.ville))].filter((v) => !TOUTES_VILLES.includes(v)).sort();
+    return json({ lieux: rows.map((l) => lieuApi(l, true)), services: SERVICES, villes: [...TOUTES_VILLES, ...autres], pays: PAYS_CFG });
   }
 
   // --- Staff : paiements à confirmer + demandes payées à traiter ---
@@ -702,11 +771,20 @@ export default async (req: Request, _context: Context) => {
     }
 
     // --- Staff : activer les notifications sur ce téléphone, test, mode automatique ---
-    if (action === "push_subscribe" || action === "push_test" || action === "sms_auto" || action === "sms_repli") {
+    if (action === "push_subscribe" || action === "push_test" || action === "sms_auto" || action === "sms_repli" || action === "carte_reglage") {
       const staff = await requireAuth(req);
       if (!staff || staff.org !== STAFF_ORG) return json({ error: "Non autorisé" }, 403);
       if (action === "sms_auto") {
         await sql`INSERT INTO starvibe_settings (key, value) VALUES ('sms_auto', ${body.on ? "on" : "off"}) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`;
+        return json({ ok: true });
+      }
+      // Paiement par carte bancaire (France, Canada, Abidjan) : désactivé tant que la passerelle n'est pas branchée.
+      // « lien » = adresse de paiement de la passerelle, avec {ref} à la place de la référence de la demande (ex. https://pay.exemple.com/keydou?ref={ref}).
+      if (action === "carte_reglage") {
+        const lien = clean(body.lien, 300);
+        if (lien && !/^https:\/\//.test(lien)) return json({ error: "Le lien de paiement doit commencer par https://" }, 400);
+        await sql`INSERT INTO starvibe_settings (key, value) VALUES ('keydou_carte_actif', ${body.actif ? "on" : "off"}) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`;
+        await sql`INSERT INTO starvibe_settings (key, value) VALUES ('keydou_carte_lien', ${lien}) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`;
         return json({ ok: true });
       }
       if (action === "sms_repli") {
@@ -750,15 +828,15 @@ export default async (req: Request, _context: Context) => {
         const id = Number(body.id) || 0;
         if (id) {
           await sql`
-            UPDATE starvibe_keydou_lieux SET service=${l.service}, ville=${l.ville}, nom=${l.nom}, adresse=${l.adresse},
+            UPDATE starvibe_keydou_lieux SET pays=${paysDeVilleSrv(l.ville)}, service=${l.service}, ville=${l.ville}, nom=${l.nom}, adresse=${l.adresse},
               telephone=${l.telephone}, whatsapp=${l.whatsapp}, description=${l.description}, source_url=${l.sourceUrl},
               source_note=${l.sourceNote}, verifie=${l.verifie}, actif=${l.actif}, updated_at=now()
             WHERE id=${id}
           `;
         } else {
           await sql`
-            INSERT INTO starvibe_keydou_lieux (service, ville, nom, adresse, telephone, whatsapp, description, source_url, source_note, verifie, actif)
-            VALUES (${l.service}, ${l.ville}, ${l.nom}, ${l.adresse}, ${l.telephone}, ${l.whatsapp}, ${l.description}, ${l.sourceUrl}, ${l.sourceNote}, ${l.verifie}, ${l.actif})
+            INSERT INTO starvibe_keydou_lieux (service, ville, nom, adresse, telephone, whatsapp, description, source_url, source_note, verifie, actif, pays)
+            VALUES (${l.service}, ${l.ville}, ${l.nom}, ${l.adresse}, ${l.telephone}, ${l.whatsapp}, ${l.description}, ${l.sourceUrl}, ${l.sourceNote}, ${l.verifie}, ${l.actif}, ${paysDeVilleSrv(l.ville)})
           `;
         }
         return json({ ok: true });
@@ -780,8 +858,8 @@ export default async (req: Request, _context: Context) => {
           misAJour++;
         } else {
           await sql`
-            INSERT INTO starvibe_keydou_lieux (service, ville, nom, adresse, telephone, whatsapp, description, source_url, source_note, verifie, actif)
-            VALUES (${l.service}, ${l.ville}, ${l.nom}, ${l.adresse}, ${l.telephone}, ${l.whatsapp}, ${l.description}, ${l.sourceUrl}, ${l.sourceNote}, ${l.verifie}, ${l.actif})
+            INSERT INTO starvibe_keydou_lieux (service, ville, nom, adresse, telephone, whatsapp, description, source_url, source_note, verifie, actif, pays)
+            VALUES (${l.service}, ${l.ville}, ${l.nom}, ${l.adresse}, ${l.telephone}, ${l.whatsapp}, ${l.description}, ${l.sourceUrl}, ${l.sourceNote}, ${l.verifie}, ${l.actif}, ${paysDeVilleSrv(l.ville)})
           `;
           ajoutes++;
         }

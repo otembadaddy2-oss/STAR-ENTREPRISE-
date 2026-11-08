@@ -13,7 +13,7 @@ export function db() {
 // Version du schéma = empreinte du texte de ensureSchema() ci-dessous (vérifiée par tools/test-schema.mts).
 // Quand tu modifies une instruction du schéma : lance « node --experimental-strip-types tools/test-schema.mts --ecrire »
 // pour mettre à jour cette ligne. Sans cela, la base ne serait pas mise à jour (le test échoue pour te le rappeler).
-const SCHEMA_VERSION = "dc7568256519c025";
+const SCHEMA_VERSION = "e1de09f7ab9cc529";
 
 // Idempotent schema setup — safe to call on every cold start.
 // Rapide : les ~80 instructions ne sont rejouées que si SCHEMA_VERSION a changé depuis la dernière fois
@@ -397,6 +397,11 @@ export async function ensureSchema() {
       updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
     )
   `;
+  // Keydou multi-pays : pays de chaque fiche (CG Congo, CI Côte d'Ivoire, FR France, CA Canada) et de chaque demande (devise et montant en centimes pour la carte bancaire).
+  await sql`ALTER TABLE starvibe_keydou_lieux ADD COLUMN IF NOT EXISTS pays TEXT NOT NULL DEFAULT 'CG'`;
+  await sql`ALTER TABLE starvibe_keydou_requests ADD COLUMN IF NOT EXISTS pays TEXT NOT NULL DEFAULT 'CG'`;
+  await sql`ALTER TABLE starvibe_keydou_requests ADD COLUMN IF NOT EXISTS devise TEXT NOT NULL DEFAULT 'XOF'`;
+  await sql`ALTER TABLE starvibe_keydou_requests ADD COLUMN IF NOT EXISTS montant_devise INTEGER`;
   // Journal de tous les contacts avec Keydou (affiché en direct côté staff, exportable en Excel).
   await sql`
     CREATE TABLE IF NOT EXISTS starvibe_keydou_events (
