@@ -63,6 +63,29 @@
 
   <div class="pane" id="ferme" hidden><div class="card"><h2>Bientôt disponible</h2><p class="note" id="fermeTxt">Keydou Compagnon est en période de test : l'accès se fait sur invitation de l'équipe STAR ENTREPRISE.</p><p class="note"><b>Jamais gratuit :</b> à l'ouverture, l'abonnement s'active seulement après validation de ton dépôt de 5 000 FCFA par mois (Essentiel) ou 19 $ par mois (Complet).</p></div></div>
 
+  <div class="pane" id="offres" hidden>
+    <div class="card"><h2 id="offresTitre">Choisis ton offre</h2><p class="note" id="offresTxt">Ton accès s'ouvre dès que ton dépôt est reconnu. Jamais gratuit.</p></div>
+    <div class="card"><h2>Essentiel · 5 000 FCFA <small style="font:600 12px 'Inter',Arial,sans-serif;color:var(--dim)">par mois</small></h2>
+      <ul><li>65 messages par jour</li><li>10 rappels actifs</li><li>Culture générale + 5 recherches Internet par jour</li></ul>
+      <button class="btn" data-plan="compagnon" style="margin-top:10px">Choisir Essentiel</button></div>
+    <div class="card" style="border-color:var(--gold)"><h2>Complet · 19 $ <small style="font:600 12px 'Inter',Arial,sans-serif;color:var(--dim)">par mois (≈ 11 100 FCFA)</small></h2>
+      <ul><li>200 messages par jour</li><li>Rappels illimités</li><li>Recherche Internet approfondie, sources citées</li></ul>
+      <button class="btn gold" data-plan="compagnon_complet" style="margin-top:10px">Choisir Complet</button></div>
+    <div class="err" id="offresErr"></div>
+    <p class="note">Abonnement de 30 jours, à reconduire quand tu veux. Ton accès est ouvert automatiquement dès que le paiement est reconnu.</p>
+  </div>
+
+  <div class="pane" id="pay" hidden>
+    <div class="card"><h2 id="payTitre">Paiement</h2>
+      <div class="rem" style="margin-top:8px"><div class="t"><span>Montant exact</span><br><b id="payMontant"></b></div></div>
+      <div class="rem"><div class="t"><span>Dépôt Mobile Money au</span><br><b id="payNum"></b></div></div>
+      <div class="rem"><div class="t"><span>Référence</span><br><b id="payRef"></b></div></div>
+      <p class="note">Fais ton dépôt du montant exact, puis attends quelques instants : <b>ton accès s'ouvre tout seul</b> dès que le dépôt est reconnu. Tape ton code secret Mobile Money sur ton téléphone, jamais ici. France, Canada : l'équipe t'envoie le lien de paiement par carte avec ta référence.</p>
+      <div class="note" id="payEtat" style="font-weight:600">⏳ En attente du dépôt…</div>
+      <button class="btn line" id="payAnnule" style="margin-top:10px">Annuler cette demande</button>
+    </div>
+  </div>
+
   <div class="pane" id="consent" hidden>
     <div class="card"><h2>Tes données, ton choix</h2>
       <p class="note"><b>Keydou retient</b></p><ul><li>tes rendez-vous et tes anniversaires</li><li>tes habitudes (marche, lecture, sport…)</li><li>ce que tu lui demandes de retenir</li><li>tes conversations, pour mieux te répondre</li></ul>
@@ -74,6 +97,7 @@
   </div>
 
   <div id="app" hidden style="flex:1;min-height:0;display:flex;flex-direction:column">
+    <div class="limite" id="finBandeau" hidden style="margin-top:10px"><span id="finTxt"></span> <button class="btn gold" id="finBtn" style="margin-top:8px">Reconduire mon abonnement</button></div>
     <div class="tabs"><button data-t="chat" class="on">Discuter</button><button data-t="rappels">Rappels</button><button data-t="donnees">Mes données</button></div>
 
     <section id="t-chat" style="flex:1;min-height:0;display:flex;flex-direction:column">
@@ -97,7 +121,7 @@
     </section>
 
     <section id="t-donnees" class="pane" hidden>
-      <div class="card"><h2>Mon abonnement</h2><p class="note" id="aboTxt"></p></div>
+      <div class="card"><h2>Mon abonnement</h2><p class="note" id="aboTxt"></p><button class="btn line" id="reconduire" style="margin-top:10px">Reconduire mon abonnement</button></div>
       <div class="card"><h2>Télécharger mes données</h2><p class="note">Tes rappels, ce que Keydou retient et tes conversations, dans un fichier.</p><button class="btn line" id="btnExport" style="margin-top:10px">Télécharger</button></div>
       <div class="card"><h2>Tout effacer</h2><p class="note">Supprime définitivement tes rappels, tes conversations et ce que Keydou retient. Ton abonnement en cours n'est pas remboursé ; Keydou continue de fonctionner, sans mémoire.</p><button class="btn red" id="btnEfface" style="margin-top:10px">Tout effacer définitivement</button><div class="err" id="effErr"></div></div>
     </section>
@@ -115,7 +139,7 @@
     return fetch(API+(qs||''),{method:method,headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:body?JSON.stringify(Object.assign({tz:TZ},body)):undefined})
       .then(function(r){ return r.json().catch(function(){return {};}).then(function(d){ return {ok:r.ok,status:r.status,data:d}; }); });
   }
-  function show(id){ ['out','ferme','consent','app'].forEach(function(x){ $(x).hidden=(x!==id); }); if(id==='app') $('app').style.display='flex'; }
+  function show(id){ ['out','ferme','offres','pay','consent','app'].forEach(function(x){ $(x).hidden=(x!==id); }); if(id==='app') $('app').style.display='flex'; }
   if(!token){ show('out'); return; }
 
   function quota(q){
@@ -134,11 +158,18 @@
   function charge(){
     call('GET','').then(function(r){
       if(r.status===401){ try{ localStorage.removeItem('starvibe_token'); }catch(e){} show('out'); return; }
-      if(r.status===403){ $('fermeTxt').textContent=r.data.error||$('fermeTxt').textContent; show('ferme'); return; }
+      if(r.status===403){
+        if(r.data.code==='abonnement_termine'||(r.data.code==='acces_refuse'&&r.data.ouvert)){
+          $('offresTitre').textContent = r.data.code==='abonnement_termine' ? 'Ton abonnement est terminé' : 'Choisis ton offre';
+          $('offresTxt').textContent = r.data.error; show('offres'); return;
+        }
+        $('fermeTxt').textContent=r.data.error||$('fermeTxt').textContent; show('ferme'); return;
+      }
       if(!r.ok){ return; }
       etat=r.data;
       if(!etat.consentement){ show('consent'); return; }
       show('app'); quota(etat.quota);
+      $('finBandeau').hidden=!etat.finBientot; if(etat.finBientot) $('finTxt').textContent=etat.texteFin;
       $('aboTxt').textContent='Offre '+etat.acces.label+(etat.acces.source==='test'?' (invitation de test)':'')+(etat.acces.fin?' · valable jusqu’au '+new Date(etat.acces.fin).toLocaleDateString('fr-FR'):'')+'.';
       if(etat.notifications>0){ $('notifTxt').textContent='Notifications activées sur '+etat.notifications+' appareil(s).'; $('notifBtn').textContent='Réactiver sur ce téléphone'; }
       call('GET','?historique=1').then(function(h){
@@ -148,6 +179,41 @@
       });
     });
   }
+  // ---- Abonnement : choisir une offre, déposer, accès automatique dès que le dépôt est reconnu ----
+  var SUB='/api/starvibe-subscription', pollT=null, subId=null;
+  function callSub(method,qs,body){
+    return fetch(SUB+(qs||''),{method:method,headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:body?JSON.stringify(body):undefined})
+      .then(function(r){ return r.json().catch(function(){return {};}).then(function(d){ return {ok:r.ok,status:r.status,data:d}; }); });
+  }
+  function fcfa(n){ return Number(n).toLocaleString('fr-FR')+' FCFA'; }
+  function ouvrirOffres(titre,txt){ $('offresTitre').textContent=titre; $('offresTxt').textContent=txt; $('offresErr').textContent=''; show('offres'); }
+  $('finBtn').addEventListener('click',function(){ ouvrirOffres('Reconduire mon abonnement','Choisis ton offre : la nouvelle période s\u2019ajoute à la fin de ton abonnement actuel, sans perdre un jour.'); });
+  $('reconduire').addEventListener('click',function(){ ouvrirOffres('Reconduire mon abonnement','Choisis ton offre : la nouvelle période s\u2019ajoute à la fin de ton abonnement actuel, sans perdre un jour.'); });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-plan]'),function(b){ b.addEventListener('click',function(){
+    $('offresErr').textContent=''; b.disabled=true;
+    callSub('POST','',{action:'choisir_plan',plan:b.dataset.plan,mois:1}).then(function(r){
+      b.disabled=false;
+      if(!r.ok){ $('offresErr').textContent=r.data.error||'Impossible de créer la demande.'; return; }
+      var a=r.data.abonnement; subId=a.id;
+      $('payTitre').textContent='Paiement · '+(b.dataset.plan==='compagnon_complet'?'Complet':'Essentiel');
+      $('payMontant').textContent=fcfa(a.montantAttendu)+(b.dataset.plan==='compagnon_complet'?' (≈ 19 $)':'');
+      $('payNum').textContent=a.numeroReception; $('payRef').textContent=a.referencePaiement;
+      $('payEtat').textContent='⏳ En attente du dépôt…'; show('pay'); suivre(Date.now());
+    });
+  }); });
+  function suivre(debut){
+    clearTimeout(pollT);
+    callSub('GET','?suivi='+encodeURIComponent(subId)).then(function(r){
+      var st=r.ok&&r.data.abonnement?r.data.abonnement.statut:'';
+      if(st==='actif'){ $('payEtat').textContent='✅ Dépôt reconnu ! Ton accès s\u2019ouvre…'; setTimeout(charge,900); return; }
+      if(st==='paiement_invalide'){ $('payEtat').textContent='Le montant reçu ne correspond pas. Écris-nous : contact@starentreprise.com'; return; }
+      if(st==='annule'){ return; }
+      if(Date.now()-debut>30*60000){ $('payEtat').textContent='Toujours en attente. Quand ton dépôt est fait, rouvre cette page : ton accès s\u2019ouvrira tout seul.'; return; }
+      pollT=setTimeout(function(){ suivre(debut); },4000);
+    });
+  }
+  $('payAnnule').addEventListener('click',function(){ clearTimeout(pollT); callSub('POST','',{action:'annuler_demande',id:Number(subId)}).then(function(){ charge(); }); });
+
   $('okConsent').addEventListener('change',function(){ $('btnConsent').disabled=!this.checked; });
   $('btnConsent').addEventListener('click',function(){ call('POST','',{action:'consentir'}).then(function(r){ if(r.ok) charge(); else $('errConsent').textContent=r.data.error||'Erreur'; }); });
 

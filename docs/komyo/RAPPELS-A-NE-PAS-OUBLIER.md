@@ -212,3 +212,10 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - Accès pendant les essais : l'équipe invite un testeur par son numéro (Backend › Keydou Compagnon). Le Pack Famille ne donne PAS accès.
 - Non vérifié : l'appel réel à l'IA avec recherche web (pas de clé dans la session de développement) ; à tester avec les premiers testeurs. Si la recherche web est refusée, Keydou répond sans Internet.
 - À faire avant l'ouverture : mesurer le coût réel par message (le Backend l'affiche), fixer les limites définitives, ajouter Guinée-Conakry (indicatif +224, SMS de dépôt) et Abidjan au paiement, décider du nom, puis cocher « Ouvert à l'abonnement ».
+
+## Keydou Compagnon : accès automatique, rappel la veille, réabonnement (8/11/2026, soir)
+- Décision de Carry : aucune validation manuelle par client. Dès que le dépôt est reconnu (SMS MacroDroid ou validation du dépôt), l'accès s'ouvre tout seul et le client l'utilise quand il veut en cliquant dessus.
+- Parcours dans la page compagnon.html : choisir Essentiel (5 000 FCFA) ou Complet (19 $ ≈ 11 100 FCFA) → déposer le montant exact avec la référence → la page vérifie toutes les 4 secondes et ouvre l'accès dès que le dépôt est reconnu.
+- UN JOUR AVANT la fin : notification + message dans la messagerie KOMYO (une seule fois) : « Ton abonnement Keydou Compagnon se termine le [date et heure de Brazzaville]. Pour continuer à profiter de Keydou, réabonne-toi ou reconduis ton abonnement mensuel : Essentiel 5 000 FCFA ou Complet 19 $ par mois. » Bandeau aussi dans l'application pendant les dernières 24 h. Pas de message si le client a déjà reconduit.
+- Abonnement terminé : l'application affiche le même texte avec les deux offres ; un ancien abonné peut TOUJOURS reconduire, même si l'offre est fermée aux nouveaux. La nouvelle période s'ajoute à la fin de l'ancienne (aucun jour perdu).
+- L'interrupteur « Ouvert à l'abonnement » du Backend reste la seule étape de lancement : décoché = nouveaux clients refusés (essais) ; coché = tout le monde peut s'abonner sans autre validation.
