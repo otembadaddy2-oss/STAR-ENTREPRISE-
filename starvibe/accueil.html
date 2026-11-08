@@ -190,6 +190,7 @@
     <a class="mi" href="pioupiou.html"><span class="ic">🐥</span><span><b>PIOUPIOU</b><span class="d">Dessins animés pour les enfants de 3 à 6 ans</span></span></a>
     <a class="mi" href="myo.html"><span class="ic">🤝</span><span><b>Myo · mes amis</b><span class="d">Inviter des amis et les retrouver</span></span></a>
     <a class="mi" href="parrainage.html"><span class="ic">🏅</span><span><b>Parrainage · médailles</b><span class="d">Invite tes amis, gagne une médaille chaque mois</span></span></a>
+    <a class="mi" id="miCompagnon" href="compagnon.html" hidden><span class="ic">🐻</span><span><b>Keydou Compagnon</b><span class="d">Ton assistant personnel : rappels, questions, voix</span></span></a>
 
     <div class="menu-titre">Acheter et se faire connaître</div>
     <a class="mi" href="boutique.html"><span class="ic">🏪</span><span><b>Ouvrir ou gérer ma boutique</b><span class="d">Vendre mes produits et services sur KOMYO</span></span></a>
@@ -567,6 +568,10 @@
 <script src="assets/keydou-vignette-v1.js" defer></script>
 <script src="assets/komyo-installer-v6.js" defer></script>
 <script>
+// Entrée « Keydou Compagnon » du menu : visible seulement pour un testeur, un abonné (même terminé) ou quand l'offre est ouverte.
+(function(){ var t=''; try{ t=localStorage.getItem('starvibe_token')||''; }catch(e){} if(!t) return;
+  fetch('/api/starvibe-compagnon?acces=1',{headers:{Authorization:'Bearer '+t}}).then(function(r){ return r.ok?r.json():null; }).then(function(d){ if(d&&d.visible){ var m=document.getElementById('miCompagnon'); if(m) m.hidden=false; } }).catch(function(){});
+})();
 (function(){ var t=''; try{ t=localStorage.getItem('starvibe_token')||''; }catch(e){} if(!t) return;
   fetch('/api/starvibe-messages',{headers:{'Authorization':'Bearer '+t}}).then(function(r){return r.ok?r.json():null;}).then(function(d){
     var el=document.querySelector('[data-msg-count]'); if(el&&d&&d.nonLus>0){ el.textContent=d.nonLus>99?'99+':d.nonLus; el.hidden=false; } }).catch(function(){}); })();

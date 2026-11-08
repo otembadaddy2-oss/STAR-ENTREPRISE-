@@ -230,3 +230,11 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - Fait : starvibe/assets/keydou-vivant-v1.js réutilise les vraies séquences vidéo du site (fond vert détouré en direct, images fixes de secours). Il salue à l'ouverture, regarde quand on lui parle (micro), réfléchit pendant l'attente, parle quand il lit sa réponse (ou un court instant pour une réponse écrite), fait la fête quand un rappel est créé, et a de petits gestes spontanés. Bulle d'état à côté de lui (« Je t'écoute… », « Je réfléchis… », « C'est noté ! »).
 - Voix : si la personne lui PARLE (micro), il répond TOUJOURS à voix haute ; sinon seulement si le bouton 🔊 est activé.
 - Pas encore : conversation « mains libres » (le micro se rouvre tout seul après sa réponse) et la voix officielle de Keydou (coût en crédits) ; à décider.
+
+## Keydou Compagnon : application installable à part (option 2 de Carry, 8/11/2026)
+- Une icône Keydou (badge officiel) sur l'écran d'accueil, qui s'ouvre directement sur Keydou Compagnon (manifeste à part, portée /starvibe/compagnon.html).
+- Règle de Carry : le bouton « Installer Keydou » peut être visible, mais SANS dépôt validé le système refuse. Mise en œuvre : la page n'a plus de manifeste ; au clic, le serveur vérifie l'abonnement (ou le test) et seulement alors donne un manifeste (jeton court de 24 h dérivé du secret du serveur). Sans manifeste, le navigateur ne propose aucune installation. Message : « Ton dépôt n'est pas encore validé : Keydou ne peut pas s'installer. »
+- Limite honnête : on ne peut pas empêcher quelqu'un d'ajouter une page à son écran à la main depuis le menu du navigateur (simple raccourci, pas d'application) ; mais l'ouverture reste protégée par l'abonnement. iPhone : ajout à la main via Partager.
+- Suivi dans le Backend (onglet Keydou Compagnon) : colonne « Appli Keydou installée » (date) ; l'appareil KOMYO reste dans la colonne précédente.
+- Menu KOMYO ☰ : entrée « Keydou Compagnon » visible seulement pour un testeur, un abonné (même terminé) ou quand l'offre est ouverte.
+- Android, iPhone, Google Play : Play Store et App Store seulement après l'ouverture et les premiers abonnés.

@@ -12,9 +12,9 @@
 import type { Context, Config } from "@netlify/functions";
 import { ensureSchema, db, json } from "./_db.mts";
 import { requireAuth } from "./_auth.mts";
-import { vapidKeys, last9 } from "./_push.mts";
+import { vapidKeys, last9, decisionToken, checkDecisionToken } from "./_push.mts";
 import {
-  LIMITES, CONSENTEMENT_VERSION, REPETITIONS, MODELE, OFFRES_TXT, accesDe, aDejaAbonne, texteFinAbonnement, etatQuota, fuseauValide, heureLocale, localVersUtc, parleDeMedicaments, consigne, type Niveau,
+  LIMITES, CONSENTEMENT_VERSION, REPETITIONS, MODELE, OFFRES_TXT, manifesteKeydou, accesDe, aDejaAbonne, texteFinAbonnement, etatQuota, fuseauValide, heureLocale, localVersUtc, parleDeMedicaments, consigne, type Niveau,
 } from "./_compagnon.mts";
 
 const ORG_MEMBRE = "star_vibe";
@@ -89,9 +89,19 @@ async function appelerIA(messages: { role: string; content: unknown }[], recherc
 export default async (req: Request, _context: Context) => {
   await ensureSchema();
   const { sql } = db();
+  const url = new URL(req.url);
+
+  // Manifeste de l'application Keydou : servi seulement si le jeton court est valide ET si la personne a un accès valide.
+  // Sans manifeste, le navigateur ne propose pas d'installer l'application : l'installation est donc bloquée avant le paiement.
+  if (req.method === "GET" && url.searchParams.get("manifest") === "1") {
+    const acc = Number(url.searchParams.get("acc")), exp = Number(url.searchParams.get("exp")), t = url.searchParams.get("t") || "";
+    if (!acc || !checkDecisionToken("install", acc, exp, t)) return json({ error: "Lien d'installation expiré" }, 403);
+    if (!(await accesDe(sql, acc))) return json({ error: "Abonnement requis : l'installation s'ouvre dès que ton dépôt est validé." }, 403);
+    return new Response(JSON.stringify(manifesteKeydou()), { headers: { "content-type": "application/manifest+json", "cache-control": "no-store" } });
+  }
+
   const session = await requireAuth(req);
   if (!session) return json({ error: "Non authentifié" }, 401);
-  const url = new URL(req.url);
   const staff = session.org === ORG_STAFF;
 
   // ================= ÉQUIPE =================
@@ -103,7 +113,7 @@ export default async (req: Request, _context: Context) => {
           SELECT account_id FROM starvibe_compagnon_profil
           UNION SELECT account_id FROM starvibe_subscriptions WHERE plan IN ('compagnon', 'compagnon_complet')
         )
-        SELECT c.account_id, a.telephone, p.nom, pr.test, pr.niveau_test, pr.consentement_at, pr.derniere_ouverture,
+        SELECT c.account_id, a.telephone, p.nom, pr.test, pr.niveau_test, pr.consentement_at, pr.derniere_ouverture, pr.app_installee_at,
           (SELECT plan FROM starvibe_subscriptions s WHERE s.account_id = c.account_id AND s.plan IN ('compagnon', 'compagnon_complet') AND s.statut = 'actif' AND s.expires_at > now() ORDER BY s.expires_at DESC LIMIT 1) AS plan_actif,
           (SELECT expires_at FROM starvibe_subscriptions s WHERE s.account_id = c.account_id AND s.plan IN ('compagnon', 'compagnon_complet') AND s.statut = 'actif' AND s.expires_at > now() ORDER BY s.expires_at DESC LIMIT 1) AS fin,
           (SELECT statut FROM starvibe_subscriptions s WHERE s.account_id = c.account_id AND s.plan IN ('compagnon', 'compagnon_complet') ORDER BY s.id DESC LIMIT 1) AS dernier_statut,
@@ -126,7 +136,7 @@ export default async (req: Request, _context: Context) => {
         usage30j: { messages: Number(cout[0].msgs), recherches: Number(cout[0].rech), jetonsEntree: ti, jetonsSortie: to, coutEstimeUsd: Math.round(((ti * TARIF_ENTREE_USD + to * TARIF_SORTIE_USD) / 1e6) * 100) / 100 },
         lignes: lignes.map((l) => ({
           accountId: l.account_id, telephone: l.telephone, nom: l.nom || "", test: !!l.test, niveauTest: l.niveau_test || "", planActif: l.plan_actif || "", fin: l.fin || null,
-          dernierStatut: l.dernier_statut || "", appareil: l.appareil || "", installeLe: l.installe_le || null, consentement: !!l.consentement_at, derniereOuverture: l.derniere_ouverture || null,
+          dernierStatut: l.dernier_statut || "", appareil: l.appareil || "", appInstalleeLe: l.app_installee_at || null, installeLe: l.installe_le || null, consentement: !!l.consentement_at, derniereOuverture: l.derniere_ouverture || null,
           messages24h: Number(l.msgs24), rappels: Number(l.rappels), notifications: Number(l.notifs),
         })),
       });
@@ -164,6 +174,12 @@ export default async (req: Request, _context: Context) => {
   const profil = ((await sql`SELECT consentement_at FROM starvibe_compagnon_profil WHERE account_id = ${accountId}`) as { consentement_at: string | null }[])[0];
   const consentement = !!profil?.consentement_at;
   const ouvert = ((await sql`SELECT value FROM starvibe_settings WHERE key = 'compagnon_ouvert'`) as { value: string }[])[0]?.value === "on";
+
+  // Menu KOMYO : l'entrée « Keydou Compagnon » est visible pour un testeur, un abonné (même terminé) ou quand l'offre est ouverte. Aucun effet de bord.
+  if (req.method === "GET" && url.searchParams.get("acces") === "1") {
+    const visible = !!acces || ouvert || (await aDejaAbonne(sql, accountId)).deja;
+    return json({ visible });
+  }
 
   // L'effacement et l'export sont toujours possibles (droit de la personne), même sans abonnement actif.
   if (req.method === "GET" && url.searchParams.get("export") === "1") {
@@ -204,8 +220,13 @@ export default async (req: Request, _context: Context) => {
   }
   const lim = LIMITES[acces.niveau];
 
+  if (req.method === "GET" && url.searchParams.get("installtoken") === "1") {
+    const d = decisionToken("install", accountId);
+    return json({ acc: accountId, exp: d.exp, t: d.t });
+  }
   if (req.method === "GET") {
     await sql`INSERT INTO starvibe_compagnon_profil (account_id, derniere_ouverture) VALUES (${accountId}, now()) ON CONFLICT (account_id) DO UPDATE SET derniere_ouverture = now()`;
+    if (url.searchParams.get("app") === "1") await sql`UPDATE starvibe_compagnon_profil SET app_installee_at = COALESCE(app_installee_at, now()) WHERE account_id = ${accountId}`;
     if (url.searchParams.get("historique") === "1") {
       const h = (await sql`SELECT role, texte, created_at FROM starvibe_compagnon_messages WHERE account_id = ${accountId} ORDER BY id DESC LIMIT 40`) as { role: string; texte: string; created_at: string }[];
       return json({ messages: h.reverse().map((x) => ({ role: x.role, texte: x.texte, at: x.created_at })) });
@@ -229,6 +250,10 @@ export default async (req: Request, _context: Context) => {
       INSERT INTO starvibe_compagnon_profil (account_id, consentement_at, consentement_version) VALUES (${accountId}, now(), ${CONSENTEMENT_VERSION})
       ON CONFLICT (account_id) DO UPDATE SET consentement_at = now(), consentement_version = ${CONSENTEMENT_VERSION}
     `;
+    return json({ ok: true });
+  }
+  if (action === "app_installee") {
+    await sql`INSERT INTO starvibe_compagnon_profil (account_id, app_installee_at) VALUES (${accountId}, now()) ON CONFLICT (account_id) DO UPDATE SET app_installee_at = COALESCE(starvibe_compagnon_profil.app_installee_at, now())`;
     return json({ ok: true });
   }
   if (!consentement) return json({ error: "Avant de commencer, accepte que Keydou garde ces informations pour t'aider.", code: "consentement_requis" }, 403);

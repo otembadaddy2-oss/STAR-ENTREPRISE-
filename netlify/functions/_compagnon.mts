@@ -164,3 +164,29 @@ export async function aDejaAbonne(sql: any, accountId: number): Promise<{ deja: 
   const r = (await sql`SELECT MAX(expires_at) AS fin, COUNT(*) AS n FROM starvibe_subscriptions WHERE account_id = ${accountId} AND plan IN ('compagnon', 'compagnon_complet') AND statut = 'actif' AND montant_attendu > 0`) as { fin: string | null; n: string }[];
   return { deja: Number(r[0]?.n || 0) > 0, fin: r[0]?.fin || null };
 }
+
+// ---------- Application Keydou installable (icône à part) ----------
+// Le manifeste n'est servi qu'à une personne dont l'abonnement est valide (ou testeur invité) : sans lui, le navigateur
+// ne propose aucune installation. Jeton court dérivé du secret du serveur, jamais le jeton de connexion.
+export function manifesteKeydou() {
+  const I = "/starvibe/assets/img/icons/";
+  return {
+    id: "/starvibe/compagnon.html",
+    name: "Keydou Compagnon",
+    short_name: "Keydou",
+    description: "Ton assistant personnel : rappels, culture générale, recherche Internet.",
+    start_url: "/starvibe/compagnon.html?app=1",
+    scope: "/starvibe/compagnon.html",
+    display: "standalone",
+    orientation: "portrait-primary",
+    background_color: "#FFFBF3",
+    theme_color: "#FF6B4A",
+    lang: "fr",
+    icons: [
+      { src: I + "keydou-192-v1.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: I + "keydou-512-v1.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: I + "keydou-192-maskable-v1.png", sizes: "192x192", type: "image/png", purpose: "maskable" },
+      { src: I + "keydou-512-maskable-v1.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+    ],
+  };
+}

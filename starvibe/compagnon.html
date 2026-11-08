@@ -7,7 +7,9 @@
 <meta name="theme-color" content="#FFFBF3">
 <meta name="robots" content="noindex">
 <link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">
-<link rel="manifest" href="manifest-komyo.json">
+<link rel="apple-touch-icon" href="assets/img/icons/keydou-apple-180-v1.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Keydou">
 <link rel="preload" href="/starvibe/assets/fonts/inter-latin-v1.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/starvibe/assets/fonts/komyo-fonts-v1.css">
 <style>
@@ -68,6 +70,8 @@
   .etat{position:relative;flex:1;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:9px 12px;font-size:13px;line-height:1.4;color:var(--ink);}
   .etat:before{content:"";position:absolute;left:-7px;top:50%;width:12px;height:12px;background:#fff;border-left:1.5px solid var(--line);border-bottom:1.5px solid var(--line);transform:translateY(-50%) rotate(45deg);}
   @media (prefers-reduced-motion: reduce){.kd img.kd-img{animation:none!important;}}
+  .inst{background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:14px;margin-bottom:12px;}
+  .inst h2{font-size:16px;margin-bottom:6px;} .inst .ok{color:var(--ok);font-weight:700;font-size:13px;margin-top:8px;}
   .planrow{display:flex;align-items:center;gap:8px;padding:10px 14px 0;flex:none;}
   .chip{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:6px 12px;font:700 12.5px 'Sora',Arial,sans-serif;border:1.5px solid var(--ink);background:#fff;color:var(--ink);}
   .chip.pro{background:linear-gradient(120deg,var(--coral),var(--gold));border-color:transparent;color:#fff;}
@@ -99,6 +103,12 @@
     <div class="card" style="border-color:var(--gold)"><h2>Complet · 19 $<span class="actuel" id="actPro" hidden>Ton offre</span> <small style="font:600 12px 'Inter',Arial,sans-serif;color:var(--dim)">par mois (≈ 11 100 FCFA)</small></h2>
       <ul><li>200 messages par jour</li><li>Rappels illimités</li><li>Recherche Internet approfondie, sources citées</li></ul>
       <button class="btn gold" data-plan="compagnon_complet" style="margin-top:10px">Choisir Complet</button></div>
+    <div class="inst" data-inst>
+      <h2>📲 Installer Keydou sur mon téléphone</h2>
+      <p class="note">Une icône Keydou sur ton écran d'accueil, qui s'ouvre directement sur ton assistant. L'installation s'ouvre <b>seulement après la validation de ton dépôt</b>.</p>
+      <button class="btn gold" data-instbtn style="margin-top:10px">Installer Keydou</button>
+      <div class="note" data-instmsg style="margin-top:8px;font-weight:600"></div>
+    </div>
     <button class="btn line" id="offresRetour" hidden>Retour à Keydou</button>
     <div class="err" id="offresErr"></div>
     <p class="note">Abonnement de 30 jours, à reconduire quand tu veux. Ton accès est ouvert automatiquement dès que le paiement est reconnu.</p>
@@ -112,6 +122,12 @@
       <p class="note">Fais ton dépôt du montant exact, puis attends quelques instants : <b>ton accès s'ouvre tout seul</b> dès que le dépôt est reconnu. Tape ton code secret Mobile Money sur ton téléphone, jamais ici. France, Canada : l'équipe t'envoie le lien de paiement par carte avec ta référence.</p>
       <div class="note" id="payEtat" style="font-weight:600">⏳ En attente du dépôt…</div>
       <button class="btn line" id="payAnnule" style="margin-top:10px">Annuler cette demande</button>
+    </div>
+    <div class="inst" data-inst>
+      <h2>📲 Installer Keydou sur mon téléphone</h2>
+      <p class="note">Une icône Keydou sur ton écran d'accueil, qui s'ouvre directement sur ton assistant. L'installation s'ouvre <b>seulement après la validation de ton dépôt</b>.</p>
+      <button class="btn gold" data-instbtn style="margin-top:10px">Installer Keydou</button>
+      <div class="note" data-instmsg style="margin-top:8px;font-weight:600"></div>
     </div>
   </div>
 
@@ -157,6 +173,12 @@
     </section>
 
     <section id="t-donnees" class="pane" hidden>
+      <div class="inst" data-inst>
+      <h2>📲 Installer Keydou sur mon téléphone</h2>
+      <p class="note">Une icône Keydou sur ton écran d'accueil, qui s'ouvre directement sur ton assistant. L'installation s'ouvre <b>seulement après la validation de ton dépôt</b>.</p>
+      <button class="btn gold" data-instbtn style="margin-top:10px">Installer Keydou</button>
+      <div class="note" data-instmsg style="margin-top:8px;font-weight:600"></div>
+    </div>
       <div class="card"><h2>Mon abonnement</h2><p class="note" id="aboTxt"></p><button class="btn line" id="reconduire" style="margin-top:10px">Reconduire mon abonnement</button></div>
       <div class="card"><h2>Télécharger mes données</h2><p class="note">Tes rappels, ce que Keydou retient et tes conversations, dans un fichier.</p><button class="btn line" id="btnExport" style="margin-top:10px">Télécharger</button></div>
       <div class="card"><h2>Tout effacer</h2><p class="note">Supprime définitivement tes rappels, tes conversations et ce que Keydou retient. Ton abonnement en cours n'est pas remboursé ; Keydou continue de fonctionner, sans mémoire.</p><button class="btn red" id="btnEfface" style="margin-top:10px">Tout effacer définitivement</button><div class="err" id="effErr"></div></div>
@@ -193,7 +215,7 @@
     $('chat').appendChild(d); var f=$('fil'); f.scrollTop=f.scrollHeight;
   }
   function charge(){
-    call('GET','').then(function(r){
+    call('GET',standalone?'?app=1':'').then(function(r){
       if(r.status===401){ try{ localStorage.removeItem('starvibe_token'); }catch(e){} show('out'); return; }
       if(r.status===403){
         if(r.data.code==='abonnement_termine'||(r.data.code==='acces_refuse'&&r.data.ouvert)){
@@ -265,6 +287,35 @@
     });
   }
   $('payAnnule').addEventListener('click',function(){ clearTimeout(pollT); callSub('POST','',{action:'annuler_demande',id:Number(subId)}).then(function(){ charge(); }); });
+
+  // ---- Installation de l'application Keydou : bloquée tant que le dépôt n'est pas validé ----
+  var invite=null, manifeste=false, standalone=false;
+  try{ standalone=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||window.navigator.standalone===true; }catch(e){}
+  window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); invite=e; });
+  window.addEventListener('appinstalled',function(){ invite=null; call('POST','',{action:'app_installee'}); majInstall('✅ Keydou est installé sur ton téléphone.',true); });
+  function majInstall(txt,ok){ Array.prototype.forEach.call(document.querySelectorAll('[data-instmsg]'),function(m){ m.textContent=txt; m.style.color=ok?'var(--ok)':'var(--ink)'; }); }
+  function guideManuel(){
+    var ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
+    majInstall(ios?'Sur iPhone : touche « Partager » dans Safari, puis « Sur l\u2019écran d\u2019accueil ».':'Sur Android : touche le menu ⋮ de ton navigateur, puis « Installer l\u2019application » (ou « Ajouter à l\u2019écran d\u2019accueil »).',false);
+  }
+  function installer(){
+    majInstall('Vérification de ton abonnement…',false);
+    call('GET','?installtoken=1').then(function(r){
+      if(r.status===401){ majInstall('Connecte-toi à KOMYO pour installer Keydou.',false); return; }
+      if(!r.ok){ majInstall('🔒 Ton dépôt n\u2019est pas encore validé : Keydou ne peut pas s\u2019installer. L\u2019installation s\u2019ouvre dès que ton paiement est reconnu.',false); return; }
+      if(!manifeste){
+        var l=document.createElement('link'); l.rel='manifest'; l.href=API+'?manifest=1&acc='+r.data.acc+'&exp='+r.data.exp+'&t='+encodeURIComponent(r.data.t); document.head.appendChild(l); manifeste=true;
+      }
+      var essais=0;
+      (function attendre(){
+        if(invite){ var e=invite; invite=null; e.prompt(); e.userChoice.then(function(c){ if(c.outcome==='accepted') majInstall('Installation en cours…',true); else majInstall('Installation annulée. Tu peux réessayer quand tu veux.',false); }); return; }
+        if(++essais<12){ setTimeout(attendre,300); return; }
+        guideManuel();
+      })();
+    });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('[data-instbtn]'),function(b){ b.addEventListener('click',installer); });
+  if(standalone){ Array.prototype.forEach.call(document.querySelectorAll('[data-inst]'),function(x){ x.hidden=true; }); var rt=document.querySelector('.top a'); if(rt) rt.hidden=true; }
 
   $('okConsent').addEventListener('change',function(){ $('btnConsent').disabled=!this.checked; });
   $('btnConsent').addEventListener('click',function(){ call('POST','',{action:'consentir'}).then(function(r){ if(r.ok) charge(); else $('errConsent').textContent=r.data.error||'Erreur'; }); });
