@@ -220,8 +220,17 @@
     var h = '<h3>D\'autres packs arrivent</h3>';
     d.familles.forEach(function(f){
       if (f.lettre === 'A') return;
+      if (f.lettre === 'B'){
+        var dispo = [['B1','Congo-Brazzaville'],['B7','Guinée-Conakry'],['B8','Côte d\'Ivoire']];
+        h += '<div class="cat" style="margin-bottom:12px"><h2>B · ' + esc2(f.nom) + '</h2>' +
+          '<p class="cat-sub"><b>' + dispo.length + ' hymnes déjà disponibles</b>, avec PIOUPIOU. ' + (f.episodes.length - dispo.length) + ' autres arrivent.</p><div class="cat-grid">' +
+          dispo.map(function(e){ return '<div class="cat-item"><img class="poster" loading="lazy" src="assets/pioupiou/affiche_' + e[0] + '-v1.webp" alt="Affiche ' + e[0] + '"><div class="lbl2"><b>' + e[0] + '</b>Hymne national : ' + esc2(e[1]) + '</div></div>'; }).join('') +
+          '<div class="cat-item bientot"><div class="poster"><b style="font:800 30px \'Sora\',sans-serif">' + (f.episodes.length - dispo.length) + '</b><small>autres hymnes</small><small>bientôt</small></div><div class="lbl2"><b>B2 à B15</b>Les prochains pays</div></div>' +
+          '</div><div class="cat-prix"><div class="p">Inclus <span>sans supplément</span></div><div class="n">Les ' + dispo.length + ' hymnes sont compris dans l\'abonnement Famille (1 500 FCFA pour 30 jours, voir ci-dessus). Le prix des hymnes à venir sera annoncé à leur sortie.</div></div></div>';
+        return;
+      }
       h += '<details class="cat-pack"><summary><span><b>' + esc2(f.lettre) + ' · ' + esc2(f.nom) + '</b></span><small>' + f.episodes.length + ' vidéos · bientôt</small></summary><ol>' +
-        f.episodes.map(function(e){ return '<li>' + esc2(e.titre) + '</li>'; }).join('') + '</ol><p>Prix et date de sortie annoncés bientôt sur ce site.</p></details>';
+        f.episodes.map(function(e){ return '<li>' + esc2(e.titre) + '</li>'; }).join('') + '</ol><p>Prix et date de sortie annoncés bientôt sur ce site. En attendant, le Pack « Les bonnes habitudes » reste à 1 500 FCFA pour 30 jours.</p></details>';
     });
     [].forEach.call(document.querySelectorAll('[data-autres]'), function(el){ el.innerHTML = h; });
   }).catch(function(){});
