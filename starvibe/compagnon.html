@@ -53,6 +53,21 @@
   .chk{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.45;margin:12px 0;} .chk input{margin-top:3px;width:18px;height:18px;flex:none;}
   ul{margin:6px 0 0;padding-left:18px;font-size:13.5px;line-height:1.55;}
   .err{color:var(--bad);font-size:13px;margin-top:8px;}
+  .scene{display:flex;align-items:center;gap:6px;padding:2px 14px 0;flex:none;}
+  .kd{position:relative;flex:none;width:120px;min-height:100px;}
+  .kd img.kd-img{transform-origin:50% 100%;}
+  .kd-idle{animation:kdBreathe 4.2s ease-in-out infinite;} .kd-think{animation:kdThink 3s ease-in-out infinite;} .kd-talk{animation:kdTalk .35s ease-in-out infinite;}
+  .kd-wave{animation:kdWave 1.8s ease-in-out 1;} .kd-look{animation:kdLook 2.6s ease-in-out 1;} .kd-hop,.kd-celebrate{animation:kdHop .85s ease-out 2;} .kd-spin{animation:kdSpin 1.4s ease-in-out 1;}
+  @keyframes kdBreathe{0%,100%{transform:scale(1,1) rotate(0);}50%{transform:scale(1.014,.986) rotate(.8deg);}}
+  @keyframes kdThink{0%,100%{transform:rotate(-1deg);}50%{transform:rotate(-7deg) translateX(-4px);}}
+  @keyframes kdTalk{0%,100%{transform:scale(1,1);}50%{transform:scale(1.04,.97);}}
+  @keyframes kdWave{0%,100%{transform:rotate(0);}15%{transform:rotate(-7deg) translateY(-4px);}35%{transform:rotate(6deg);}55%{transform:rotate(-6deg) translateY(-4px);}75%{transform:rotate(4deg);}}
+  @keyframes kdLook{0%,100%{transform:rotate(0) translateX(0);}25%,75%{transform:rotate(5deg) translateX(8px);}}
+  @keyframes kdHop{0%{transform:translateY(0) scale(1.05,.93);}40%{transform:translateY(-26px) scale(.96,1.07);}80%{transform:translateY(0) scale(1.06,.92);}100%{transform:translateY(0) scale(1,1);}}
+  @keyframes kdSpin{0%{transform:rotateY(0) translateY(0);}50%{transform:rotateY(180deg) translateY(-10px);}100%{transform:rotateY(360deg) translateY(0);}}
+  .etat{position:relative;flex:1;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:9px 12px;font-size:13px;line-height:1.4;color:var(--ink);}
+  .etat:before{content:"";position:absolute;left:-7px;top:50%;width:12px;height:12px;background:#fff;border-left:1.5px solid var(--line);border-bottom:1.5px solid var(--line);transform:translateY(-50%) rotate(45deg);}
+  @media (prefers-reduced-motion: reduce){.kd img.kd-img{animation:none!important;}}
   .planrow{display:flex;align-items:center;gap:8px;padding:10px 14px 0;flex:none;}
   .chip{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:6px 12px;font:700 12.5px 'Sora',Arial,sans-serif;border:1.5px solid var(--ink);background:#fff;color:var(--ink);}
   .chip.pro{background:linear-gradient(120deg,var(--coral),var(--gold));border-color:transparent;color:#fff;}
@@ -121,6 +136,7 @@
     <div class="tabs"><button data-t="chat" class="on">Discuter</button><button data-t="rappels">Rappels</button><button data-t="donnees">Mes données</button></div>
 
     <section id="t-chat" style="flex:1;min-height:0;display:flex;flex-direction:column">
+      <div class="scene"><div class="kd" id="kd"><img class="kd-img" src="assets/img/keydou.webp" alt="Keydou"></div><div class="etat" id="etat" aria-live="polite">Écris-moi ou parle-moi.</div></div>
       <div class="pane" id="fil"><div class="chat" id="chat"></div></div>
       <div class="limite" id="limite" hidden></div>
       <div class="quota" id="quota"></div>
@@ -190,6 +206,7 @@
       etat=r.data;
       if(!etat.consentement){ show('consent'); return; }
       show('app'); quota(etat.quota);
+      initKd();
       $('finBandeau').hidden=!etat.finBientot; if(etat.finBientot) $('finTxt').textContent=etat.texteFin;
       var pro=etat.acces.niveau==='complet'; var ch=$('chipNiveau');
       ch.className='chip'+(pro?' pro':''); ch.innerHTML='🐻 '+(pro?'Complet · Pro':'Essentiel')+' <small>'+(pro?'200':'65')+' messages/jour'+(etat.acces.source==='test'?' · test':'')+'</small>';
@@ -259,16 +276,30 @@
   }); });
 
   var occupe=false, vientDeLaVoix=false;
+  // ---- Keydou vit : mêmes séquences et mêmes gestes que sur sa page ----
+  var kd=null, enParole=false, tParle=0;
+  function etatTxt(t){ $('etat').textContent=t; }
+  function initKd(){ if(kd||!window.KeydouVivant) return; try{ kd=KeydouVivant.creer($('kd'),{taille:120}); kd.vie(true); kd.jouer('wave'); }catch(e){ kd=null; } }
+  function kdBase(e){ if(kd) kd.base(e); }
+  function kdGeste(g){ if(kd) kd.jouer(g); }
+  function parlerUnPeu(txt){ if(!kd) return; kd.base('talk'); clearTimeout(tParle); tParle=setTimeout(function(){ if(!enParole){ kd.base('idle'); etatTxt('À toi !'); } },Math.min(5000,700+String(txt||'').length*30)); }
   function envoyer(){
     var t=$('msg').value.trim(); if(!t||occupe) return;
     occupe=true; $('envoi').disabled=true; bulle('user',t); $('msg').value='';
+    kdBase('think'); etatTxt('Je réfléchis…');
     var att=document.createElement('div'); att.className='m ky'; att.textContent='Keydou réfléchit…'; $('chat').appendChild(att); $('fil').scrollTop=$('fil').scrollHeight;
     call('POST','',{action:'chat',message:t}).then(function(r){
       att.remove(); occupe=false;
-      if(r.ok){ bulle('assistant',r.data.reponse,{sources:r.data.sources,ajoutes:r.data.rappelsAjoutes}); quota(r.data.quota); if(voixOn||vientDeLaVoix) parle(r.data.reponse); vientDeLaVoix=false; }
-      else if(r.status===429){ bulle('assistant',r.data.error); quota(r.data.quota); }
-      else{ bulle('assistant',r.data.error||'Keydou est indisponible un instant.'); $('envoi').disabled=false; }
-    }).catch(function(){ att.remove(); occupe=false; $('envoi').disabled=false; bulle('assistant','Connexion impossible. Réessaie.'); });
+      if(r.ok){
+        bulle('assistant',r.data.reponse,{sources:r.data.sources,ajoutes:r.data.rappelsAjoutes}); quota(r.data.quota);
+        var voix=voixOn||vientDeLaVoix; vientDeLaVoix=false;
+        if(r.data.rappelsAjoutes&&r.data.rappelsAjoutes.length){ kdBase('idle'); kdGeste('celebrate'); etatTxt('C\u2019est noté ! 🎉'); if(voix) setTimeout(function(){ parle(r.data.reponse); },900); }
+        else if(voix) parle(r.data.reponse);
+        else { etatTxt('Je te réponds…'); parlerUnPeu(r.data.reponse); }
+      }
+      else if(r.status===429){ kdBase('idle'); etatTxt('Reviens un peu plus tard.'); bulle('assistant',r.data.error); quota(r.data.quota); }
+      else{ kdBase('idle'); etatTxt('Réessaie dans un instant.'); bulle('assistant',r.data.error||'Keydou est indisponible un instant.'); $('envoi').disabled=false; }
+    }).catch(function(){ att.remove(); occupe=false; $('envoi').disabled=false; kdBase('idle'); bulle('assistant','Connexion impossible. Réessaie.'); });
   }
   $('envoi').addEventListener('click',envoyer);
   $('msg').addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); envoyer(); } });
@@ -283,6 +314,8 @@
     if(!TTS) return; TTS.cancel();
     var u=new SpeechSynthesisUtterance(propre(t)); u.lang=LANG; u.rate=1;
     var vs=TTS.getVoices(); var v=vs.filter(function(x){ return x.lang&&x.lang.toLowerCase().indexOf(LANG.slice(0,2).toLowerCase())===0; })[0]; if(v) u.voice=v;
+    u.onstart=function(){ enParole=true; clearTimeout(tParle); kdBase('talk'); etatTxt('Je te lis ma réponse…'); };
+    u.onend=u.onerror=function(){ enParole=false; kdBase('idle'); etatTxt('À toi !'); };
     TTS.speak(u);
   }
   if(!TTS){ $('btnVoix').hidden=true; }
@@ -296,7 +329,7 @@
     try{
       rec=new SR(); rec.lang=LANG; rec.interimResults=true; rec.continuous=false; rec.maxAlternatives=1;
       var final='';
-      rec.onstart=function(){ ecoute=true; $('mic').classList.add('ecoute'); $('msg').placeholder='Je t\u2019écoute… parle maintenant'; };
+      rec.onstart=function(){ ecoute=true; $('mic').classList.add('ecoute'); $('msg').placeholder='Je t\u2019écoute… parle maintenant'; kdBase('idle'); kdGeste('look'); etatTxt('Je t\u2019écoute…'); };
       rec.onresult=function(e){ var t=''; for(var i=0;i<e.results.length;i++){ t+=e.results[i][0].transcript; if(e.results[i].isFinal) final=t; } $('msg').value=t; };
       rec.onerror=function(e){ ecoute=false; $('mic').classList.remove('ecoute'); $('msg').placeholder='Écris à Keydou…';
         if(e.error==='not-allowed'||e.error==='service-not-allowed') bulle('assistant','Le micro n\u2019est pas autorisé. Autorise le micro pour ce site dans les réglages du navigateur, puis réessaie.');
@@ -357,6 +390,7 @@
   charge();
 })();
 </script>
+<script src="assets/keydou-vivant-v1.js"></script>
 <script src="assets/komyo-installer-v6.js" defer></script>
 </body>
 </html>
