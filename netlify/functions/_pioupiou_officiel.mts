@@ -27,7 +27,7 @@ export const EPISODES_OFFICIELS: EpisodeOfficiel[] = [
   { cle: "officiel-a2.mp4", fichier: "a2.mp4", titre: "A2 · Les dents du matin", affiche: "/starvibe/assets/pioupiou/affiche_A2-v1.webp" },
   { cle: "officiel-a3.mp4", fichier: "a3.mp4", titre: "A3 · Les mains propres avant de manger", affiche: "/starvibe/assets/pioupiou/affiche_A3-v1.webp" },
   { cle: "officiel-a4.mp4", fichier: "a4.mp4", titre: "A4 · Les mains propres après le repas", affiche: "/starvibe/assets/pioupiou/affiche_A4-v1.webp" },
-  { cle: "officiel-a5-v2.mp4", fichier: "a5v2.mp4", titre: "A5 · Merci !", affiche: "/starvibe/assets/pioupiou/affiche_A5-v1.webp" },
+  { cle: "officiel-a5-v2.mp4", fichier: "a5v2.mp4", titre: "A5 · Merci !", affiche: "/starvibe/assets/pioupiou/affiche_A5-v2.webp" },
   { cle: "officiel-a6.mp4", fichier: "a6.mp4", titre: "A6 · S'il te plaît", affiche: "/starvibe/assets/pioupiou/affiche_A6-v2.webp" },
   { cle: "officiel-a7.mp4", fichier: "a7.mp4", titre: "A7 · Au revoir", affiche: "/starvibe/assets/pioupiou/affiche_A7-v2.webp" },
   { cle: "officiel-a8.mp4", fichier: "a8.mp4", titre: "A8 · Les dents du soir", affiche: "/starvibe/assets/pioupiou/affiche_A8-v2.webp" },
