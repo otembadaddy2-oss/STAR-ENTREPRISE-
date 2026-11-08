@@ -151,11 +151,11 @@ export async function recuAbonnement(sql: Sql, subId: number): Promise<void> {
     const duree = mois === 1 ? "1 mois" : `${mois} mois`;
     const unite = Math.round(Number(s.montant_attendu) / mois);
     const calcul = `${duree} × ${unite.toLocaleString("fr-FR")} FCFA = ${Number(s.montant_recu ?? s.montant_attendu).toLocaleString("fr-FR")} FCFA`;
-    const nomPlan = plan === "famille" ? "Pack « Les bonnes habitudes » PIOUPIOU" : plan === "business" ? "Abonnement Business KOMYO" : `Abonnement ${plan}`;
+    const nomPlan = plan === "famille" ? "Pack « Les bonnes habitudes » PIOUPIOU" : plan === "business" ? "Abonnement Business KOMYO" : plan === "compagnon" ? "Keydou Compagnon · Essentiel" : plan === "compagnon_complet" ? "Keydou Compagnon · Complet" : `Abonnement ${plan}`;
     const titre = mois === 1 ? `${nomPlan} — 1 mois` : `${nomPlan} — abonnement de ${mois} mois`;
     const detail = (plan === "famille"
       ? "10 dessins animés éducatifs pour les 3 à 6 ans (A1 à A10, ajoutés au fur et à mesure), profils enfants illimités"
-      : plan === "business" ? "mise en avant de vos vidéos et statistiques (vues, durée regardée, j'aime)" : "services KOMYO")
+      : plan === "business" ? "mise en avant de vos vidéos et statistiques (vues, durée regardée, j'aime)" : plan.startsWith("compagnon") ? "votre assistant personnel Keydou : rappels, culture générale et recherche Internet" : "services KOMYO")
       + `. Calcul : ${calcul}. Valable ${30 * mois} jours, sans renouvellement automatique`;
     const info: RecuInfo = {
       titre, montant: Number(s.montant_recu ?? s.montant_attendu), payeLe: new Date(String(s.started_at || s.updated_at)),

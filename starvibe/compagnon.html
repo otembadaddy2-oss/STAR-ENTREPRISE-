@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KOMYO — Keydou Compagnon</title>
+<meta name="theme-color" content="#FFFBF3">
+<meta name="robots" content="noindex">
+<link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">
+<link rel="manifest" href="manifest-komyo.json">
+<link rel="preload" href="/starvibe/assets/fonts/inter-latin-v1.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/starvibe/assets/fonts/komyo-fonts-v1.css">
+<style>
+  :root{--ink:#241536;--gold:#E8A93D;--coral:#FF6B4A;--cream:#FFFBF3;--dim:#6b5f80;--line:#eee2cc;--ok:#1f8f4a;--bad:#c0392b;}
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Inter',Arial,sans-serif;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;}
+  h1,h2,h3{font-family:'Sora',Arial,sans-serif;margin:0;}
+  [hidden]{display:none!important;}
+  .top{background:linear-gradient(135deg,#FF6B4A,#E8A93D);color:#fff;padding:calc(12px + env(safe-area-inset-top)) 16px 14px;border-radius:0 0 22px 22px;display:flex;align-items:center;gap:10px;flex:none;}
+  .top img{width:46px;height:auto;filter:drop-shadow(0 3px 5px rgba(0,0,0,.25));}
+  .top h1{font-size:18px;line-height:1.15;} .top p{margin:2px 0 0;font-size:12px;opacity:.95;}
+  .top a{color:#fff;text-decoration:none;font:700 12px 'Sora',Arial,sans-serif;margin-left:auto;}
+  .tabs{display:flex;gap:6px;padding:10px 14px 0;flex:none;}
+  .tabs button{flex:1;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:9px 4px;font:700 12.5px 'Sora',Arial,sans-serif;color:var(--ink);}
+  .tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+  main{flex:1;min-height:0;display:flex;flex-direction:column;}
+  .pane{flex:1;min-height:0;overflow:auto;padding:12px 14px 16px;}
+  .card{background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:14px;margin-bottom:12px;box-shadow:0 10px 24px -18px rgba(36,21,54,.25);}
+  .card h2{font-size:16px;margin-bottom:6px;}
+  .note{font-size:12.5px;color:var(--dim);line-height:1.5;margin:6px 0 0;}
+  .btn{display:block;width:100%;border:0;border-radius:12px;padding:12px;font:700 14px 'Sora',Arial,sans-serif;color:#fff;background:var(--ink);cursor:pointer;text-align:center;text-decoration:none;}
+  .btn.gold{background:linear-gradient(120deg,var(--coral),var(--gold));} .btn.line{background:#fff;color:var(--ink);border:1.5px solid var(--ink);} .btn.red{background:var(--bad);}
+  .btn:disabled{opacity:.5;}
+  .chat{display:flex;flex-direction:column;gap:8px;}
+  .m{max-width:88%;padding:9px 12px;border-radius:16px;font-size:14px;line-height:1.45;white-space:pre-wrap;word-wrap:break-word;}
+  .me{align-self:flex-end;background:var(--ink);color:#fff;border-bottom-right-radius:4px;}
+  .ky{align-self:flex-start;background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px;}
+  .src{font-size:11.5px;color:var(--dim);margin-top:6px;white-space:normal;} .src a{color:var(--coral);}
+  .add{font-size:12px;color:var(--ok);margin-top:6px;font-weight:600;white-space:normal;}
+  .compose{flex:none;display:flex;gap:8px;padding:8px 14px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--cream);}
+  .compose textarea{flex:1;border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;font:15px 'Inter',Arial,sans-serif;resize:none;max-height:110px;background:#fff;}
+  .compose button{flex:none;width:76px;border:0;border-radius:14px;background:linear-gradient(120deg,var(--coral),var(--gold));color:#fff;font:700 14px 'Sora',Arial,sans-serif;}
+  .quota{font-size:11.5px;color:var(--dim);text-align:center;padding:4px 14px 0;flex:none;}
+  .limite{background:#fff6e0;border:1px solid #edd8a0;border-radius:12px;padding:10px 12px;font-size:13px;color:#6b4d00;margin:8px 14px 0;}
+  .rem{display:flex;gap:10px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:14px;padding:9px 11px;margin-bottom:8px;}
+  .rem .d{flex:none;width:46px;text-align:center;background:var(--cream);border-radius:10px;padding:4px 0;font:800 15px 'Sora',Arial,sans-serif;line-height:1.1;} .rem .d small{display:block;font:700 9px 'Inter',Arial,sans-serif;color:var(--coral);text-transform:uppercase;}
+  .rem .t{flex:1;min-width:0;font-size:13.5px;line-height:1.35;} .rem .t span{color:var(--dim);font-size:12px;}
+  .rem button{border:0;background:none;font-size:18px;padding:4px 6px;}
+  .tog{flex:none;width:36px;height:21px;border-radius:99px;background:#cfc6dc;position:relative;border:0;padding:0;} .tog.on{background:var(--ok);} .tog:after{content:"";position:absolute;left:3px;top:3px;width:15px;height:15px;border-radius:50%;background:#fff;transition:left .15s;} .tog.on:after{left:18px;}
+  label{display:block;font:700 12px 'Sora',Arial,sans-serif;margin:10px 0 4px;}
+  input[type=text],input[type=datetime-local],select{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;font:15px 'Inter',Arial,sans-serif;background:#fff;}
+  .chk{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.45;margin:12px 0;} .chk input{margin-top:3px;width:18px;height:18px;flex:none;}
+  ul{margin:6px 0 0;padding-left:18px;font-size:13.5px;line-height:1.55;}
+  .err{color:var(--bad);font-size:13px;margin-top:8px;}
+</style>
+</head>
+<body>
+<div class="top"><img src="assets/img/keydou.webp" alt="Keydou"><div><h1>Keydou Compagnon</h1><p>Ton assistant personnel, chaque jour</p></div><a href="accueil.html">Retour</a></div>
+
+<main>
+  <div class="pane" id="out" hidden><div class="card"><h2>Connecte-toi à KOMYO</h2><p class="note">Keydou Compagnon est réservé aux membres KOMYO.</p><a class="btn gold" style="margin-top:10px" href="inscription.html">Se connecter / Créer un compte</a></div></div>
+
+  <div class="pane" id="ferme" hidden><div class="card"><h2>Bientôt disponible</h2><p class="note" id="fermeTxt">Keydou Compagnon est en période de test : l'accès se fait sur invitation de l'équipe STAR ENTREPRISE.</p><p class="note"><b>Jamais gratuit :</b> à l'ouverture, l'abonnement s'active seulement après validation de ton dépôt de 5 000 FCFA par mois (Essentiel) ou 19 $ par mois (Complet).</p></div></div>
+
+  <div class="pane" id="consent" hidden>
+    <div class="card"><h2>Tes données, ton choix</h2>
+      <p class="note"><b>Keydou retient</b></p><ul><li>tes rendez-vous et tes anniversaires</li><li>tes habitudes (marche, lecture, sport…)</li><li>ce que tu lui demandes de retenir</li><li>tes conversations, pour mieux te répondre</li></ul>
+      <p class="note"><b>Keydou ne retient jamais</b></p><ul><li>tes médicaments : parles-en à ton médecin ou à ton pharmacien</li><li>tes codes secrets, ton numéro de carte</li></ul>
+      <p class="note">Rien n'est vendu ni partagé. Tu peux tout télécharger et tout effacer, à tout moment, depuis l'onglet « Mes données ».</p>
+      <label class="chk"><input type="checkbox" id="okConsent"> <span>J'accepte que Keydou garde ces informations pour m'aider.</span></label>
+      <button class="btn gold" id="btnConsent" disabled>Commencer</button><div class="err" id="errConsent"></div>
+    </div>
+  </div>
+
+  <div id="app" hidden style="flex:1;min-height:0;display:flex;flex-direction:column">
+    <div class="tabs"><button data-t="chat" class="on">Discuter</button><button data-t="rappels">Rappels</button><button data-t="donnees">Mes données</button></div>
+
+    <section id="t-chat" style="flex:1;min-height:0;display:flex;flex-direction:column">
+      <div class="pane" id="fil"><div class="chat" id="chat"></div></div>
+      <div class="limite" id="limite" hidden></div>
+      <div class="quota" id="quota"></div>
+      <div class="compose"><textarea id="msg" rows="1" maxlength="1500" placeholder="Écris à Keydou…"></textarea><button id="envoi">Envoyer</button></div>
+    </section>
+
+    <section id="t-rappels" class="pane" hidden>
+      <div class="card"><h2>Nouveau rappel</h2>
+        <label for="rTitre">De quoi te rappeler ?</label><input type="text" id="rTitre" maxlength="120" placeholder="Rendez-vous à la banque">
+        <label for="rQuand">Quand ?</label><input type="datetime-local" id="rQuand">
+        <label for="rRep">Répéter</label><select id="rRep"><option value="">Une seule fois</option><option value="jour">Chaque jour</option><option value="semaine">Chaque semaine</option><option value="mois">Chaque mois</option><option value="an">Chaque année</option></select>
+        <label for="rAvant">Me prévenir à l'avance</label><select id="rAvant"><option value="0">Non</option><option value="60">1 heure avant</option><option value="1440">La veille</option><option value="2880">2 jours avant</option></select>
+        <button class="btn gold" id="rAjout" style="margin-top:12px">Ajouter</button><div class="err" id="rErr"></div>
+        <p class="note">Je ne m'occupe pas des médicaments : parle-en à ton médecin ou à ton pharmacien.</p>
+      </div>
+      <div class="card"><h2>Notifications</h2><p class="note" id="notifTxt">Pour être prévenu au bon moment, active les notifications sur ce téléphone. (Sur iPhone : ajoute d'abord KOMYO à l'écran d'accueil.)</p><button class="btn line" id="notifBtn" style="margin-top:10px">Activer les notifications</button></div>
+      <div id="listeRappels"></div>
+    </section>
+
+    <section id="t-donnees" class="pane" hidden>
+      <div class="card"><h2>Mon abonnement</h2><p class="note" id="aboTxt"></p></div>
+      <div class="card"><h2>Télécharger mes données</h2><p class="note">Tes rappels, ce que Keydou retient et tes conversations, dans un fichier.</p><button class="btn line" id="btnExport" style="margin-top:10px">Télécharger</button></div>
+      <div class="card"><h2>Tout effacer</h2><p class="note">Supprime définitivement tes rappels, tes conversations et ce que Keydou retient. Ton abonnement en cours n'est pas remboursé ; Keydou continue de fonctionner, sans mémoire.</p><button class="btn red" id="btnEfface" style="margin-top:10px">Tout effacer définitivement</button><div class="err" id="effErr"></div></div>
+    </section>
+  </div>
+</main>
+
+<script>
+(function(){
+  var API='/api/starvibe-compagnon', token='', etat=null;
+  try{ token=localStorage.getItem('starvibe_token')||''; }catch(e){}
+  var $=function(i){ return document.getElementById(i); };
+  var TZ='Africa/Brazzaville'; try{ TZ=Intl.DateTimeFormat().resolvedOptions().timeZone||TZ; }catch(e){}
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function call(method,qs,body){
+    return fetch(API+(qs||''),{method:method,headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:body?JSON.stringify(Object.assign({tz:TZ},body)):undefined})
+      .then(function(r){ return r.json().catch(function(){return {};}).then(function(d){ return {ok:r.ok,status:r.status,data:d}; }); });
+  }
+  function show(id){ ['out','ferme','consent','app'].forEach(function(x){ $(x).hidden=(x!==id); }); if(id==='app') $('app').style.display='flex'; }
+  if(!token){ show('out'); return; }
+
+  function quota(q){
+    if(!q) return;
+    $('quota').textContent=q.messagesUtilises+' / '+q.messagesMax+' messages sur 24 h · recherches Internet : '+q.recherchesUtilisees+' / '+q.recherchesMax;
+    var l=$('limite');
+    if(q.revenirDansMs>0){ l.hidden=false; l.textContent='Tu as atteint ta limite de '+q.messagesMax+' messages. Reviens dans '+q.revenirDans+'.'; $('envoi').disabled=true; }
+    else{ l.hidden=true; $('envoi').disabled=false; }
+  }
+  function bulle(role,txt,extra){
+    var d=document.createElement('div'); d.className='m '+(role==='user'?'me':'ky'); d.textContent=txt;
+    if(extra&&extra.sources&&extra.sources.length){ var s=document.createElement('div'); s.className='src'; s.innerHTML='Sources : '+extra.sources.map(function(x){ return '<a href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer">'+esc(x.titre)+'</a>'; }).join(' · '); d.appendChild(s); }
+    if(extra&&extra.ajoutes&&extra.ajoutes.length){ var a=document.createElement('div'); a.className='add'; a.textContent='✓ Rappel ajouté : '+extra.ajoutes.map(function(x){ return x.titre; }).join(', '); d.appendChild(a); }
+    $('chat').appendChild(d); var f=$('fil'); f.scrollTop=f.scrollHeight;
+  }
+  function charge(){
+    call('GET','').then(function(r){
+      if(r.status===401){ try{ localStorage.removeItem('starvibe_token'); }catch(e){} show('out'); return; }
+      if(r.status===403){ $('fermeTxt').textContent=r.data.error||$('fermeTxt').textContent; show('ferme'); return; }
+      if(!r.ok){ return; }
+      etat=r.data;
+      if(!etat.consentement){ show('consent'); return; }
+      show('app'); quota(etat.quota);
+      $('aboTxt').textContent='Offre '+etat.acces.label+(etat.acces.source==='test'?' (invitation de test)':'')+(etat.acces.fin?' · valable jusqu’au '+new Date(etat.acces.fin).toLocaleDateString('fr-FR'):'')+'.';
+      if(etat.notifications>0){ $('notifTxt').textContent='Notifications activées sur '+etat.notifications+' appareil(s).'; $('notifBtn').textContent='Réactiver sur ce téléphone'; }
+      call('GET','?historique=1').then(function(h){
+        $('chat').innerHTML='';
+        if(h.ok&&h.data.messages.length){ h.data.messages.forEach(function(m){ bulle(m.role,m.texte); }); }
+        else bulle('assistant','Salut ! Je suis Keydou. Je retiens tes rendez-vous, tes anniversaires et tes habitudes, et je te préviens au bon moment. Je peux aussi répondre à tes questions. Que veux-tu que je retienne ?');
+      });
+    });
+  }
+  $('okConsent').addEventListener('change',function(){ $('btnConsent').disabled=!this.checked; });
+  $('btnConsent').addEventListener('click',function(){ call('POST','',{action:'consentir'}).then(function(r){ if(r.ok) charge(); else $('errConsent').textContent=r.data.error||'Erreur'; }); });
+
+  document.querySelectorAll('.tabs button').forEach(function(b){ b.addEventListener('click',function(){
+    document.querySelectorAll('.tabs button').forEach(function(x){ x.classList.toggle('on',x===b); });
+    ['chat','rappels','donnees'].forEach(function(t){ var s=$('t-'+t); s.hidden=(t!==b.dataset.t); if(t==='chat') s.style.display=(t===b.dataset.t?'flex':'none'); });
+    if(b.dataset.t==='rappels') listeRappels();
+  }); });
+
+  var occupe=false;
+  function envoyer(){
+    var t=$('msg').value.trim(); if(!t||occupe) return;
+    occupe=true; $('envoi').disabled=true; bulle('user',t); $('msg').value='';
+    var att=document.createElement('div'); att.className='m ky'; att.textContent='Keydou réfléchit…'; $('chat').appendChild(att); $('fil').scrollTop=$('fil').scrollHeight;
+    call('POST','',{action:'chat',message:t}).then(function(r){
+      att.remove(); occupe=false;
+      if(r.ok){ bulle('assistant',r.data.reponse,{sources:r.data.sources,ajoutes:r.data.rappelsAjoutes}); quota(r.data.quota); }
+      else if(r.status===429){ bulle('assistant',r.data.error); quota(r.data.quota); }
+      else{ bulle('assistant',r.data.error||'Keydou est indisponible un instant.'); $('envoi').disabled=false; }
+    }).catch(function(){ att.remove(); occupe=false; $('envoi').disabled=false; bulle('assistant','Connexion impossible. Réessaie.'); });
+  }
+  $('envoi').addEventListener('click',envoyer);
+  $('msg').addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); envoyer(); } });
+
+  var MOIS=['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+  function listeRappels(){
+    call('GET','?rappels=1').then(function(r){
+      if(!r.ok) return;
+      var L=$('listeRappels'); if(!r.data.rappels.length){ L.innerHTML='<p class="note" style="text-align:center">Aucun rappel pour l’instant.</p>'; return; }
+      L.innerHTML=r.data.rappels.map(function(x){
+        var d=new Date(x.quand); var rep=x.repetition?' · chaque '+({jour:'jour',semaine:'semaine',mois:'mois',an:'année'})[x.repetition]:'';
+        return '<div class="rem"><div class="d"><small>'+MOIS[d.getMonth()]+'</small>'+d.getDate()+'</div><div class="t"><b>'+esc(x.titre)+'</b><br><span>'+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})+rep+(x.actif?'':' · terminé')+'</span></div>'+
+          '<button class="tog'+(x.actif?' on':'')+'" data-b="'+x.id+'" data-a="'+(x.actif?0:1)+'" aria-label="Activer ou désactiver"></button><button data-s="'+x.id+'" aria-label="Supprimer">🗑</button></div>';
+      }).join('');
+      L.querySelectorAll('[data-b]').forEach(function(b){ b.addEventListener('click',function(){ call('POST','',{action:'rappel_bascule',id:Number(b.dataset.b),actif:b.dataset.a==='1'}).then(listeRappels); }); });
+      L.querySelectorAll('[data-s]').forEach(function(b){ b.addEventListener('click',function(){ if(confirm('Supprimer ce rappel ?')) call('POST','',{action:'rappel_supprimer',id:Number(b.dataset.s)}).then(listeRappels); }); });
+    });
+  }
+  $('rAjout').addEventListener('click',function(){
+    $('rErr').textContent='';
+    call('POST','',{action:'rappel_creer',titre:$('rTitre').value,quand:$('rQuand').value,repetition:$('rRep').value,avantMinutes:Number($('rAvant').value)}).then(function(r){
+      if(r.ok){ $('rTitre').value=''; $('rQuand').value=''; listeRappels(); } else $('rErr').textContent=r.data.error||'Erreur';
+    });
+  });
+
+  function b64(s){ var p='='.repeat((4-s.length%4)%4); var b=(s+p).replace(/-/g,'+').replace(/_/g,'/'); var r=atob(b),o=new Uint8Array(r.length); for(var i=0;i<r.length;i++)o[i]=r.charCodeAt(i); return o; }
+  $('notifBtn').addEventListener('click',function(){
+    var t=$('notifTxt');
+    if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window)){ t.textContent='Ce navigateur ne gère pas les notifications. Sur iPhone : ajoute d’abord KOMYO à l’écran d’accueil.'; return; }
+    t.textContent='Activation en cours…';
+    navigator.serviceWorker.register('/starvibe/sw-komyo.js').then(function(){ return navigator.serviceWorker.ready; }).then(function(reg){
+      return Notification.requestPermission().then(function(p){
+        if(p!=='granted') throw new Error('Autorisation refusée : active les notifications pour ce site dans les réglages du téléphone.');
+        return call('GET','?pushkey=1').then(function(k){ return reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64(k.data.publicKey)}); });
+      });
+    }).then(function(sub){ return call('POST','',{action:'push_subscribe',subscription:sub.toJSON(),label:navigator.userAgent.slice(0,50)}); })
+      .then(function(r){ if(!r.ok) throw new Error(r.data.error||'Enregistrement impossible.'); t.textContent='✅ Notifications activées sur ce téléphone.'; })
+      .catch(function(e){ t.textContent=e.message||'Activation impossible.'; });
+  });
+
+  $('btnExport').addEventListener('click',function(){
+    fetch(API+'?export=1',{headers:{Authorization:'Bearer '+token}}).then(function(r){ return r.blob(); }).then(function(b){
+      var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='mes-donnees-keydou.json'; document.body.appendChild(a); a.click(); a.remove();
+    });
+  });
+  $('btnEfface').addEventListener('click',function(){
+    if(!confirm('Tout effacer définitivement : rappels, conversations et ce que Keydou retient ?')) return;
+    call('POST','',{action:'effacer'}).then(function(r){
+      if(r.ok){ alert('C’est fait : '+r.data.effaces.rappels+' rappel(s), '+r.data.effaces.messages+' message(s) et '+r.data.effaces.notes+' note(s) effacés.'); charge(); } else $('effErr').textContent=r.data.error||'Erreur';
+    });
+  });
+  charge();
+})();
+</script>
+<script src="assets/komyo-installer-v6.js" defer></script>
+</body>
+</html>

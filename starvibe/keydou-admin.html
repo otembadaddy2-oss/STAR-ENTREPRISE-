@@ -128,6 +128,7 @@
     <button class="tab" id="tabContacts">Contacts en direct</button>
     <button class="tab" id="tabAnnuaire">Annuaire de Keydou</button>
     <button class="tab" id="tabParr">Parrainage</button>
+    <button class="tab" id="tabComp">Keydou Compagnon</button>
     <button class="tab" id="tabPhone">Mon téléphone (validation)</button>
   </div>
 
@@ -213,6 +214,21 @@
     </div>
     <div class="muted" id="parrMsg" style="margin-bottom:8px"></div>
     <div class="tablewrap"><table style="min-width:560px"><thead><tr><th>Rang</th><th>Parrain</th><th>Téléphone</th><th>Amis connectés</th><th>Médaille</th><th>Message</th></tr></thead><tbody id="parrBody"></tbody></table></div>
+  </div>
+
+  <!-- KEYDOU COMPAGNON : testeurs, abonnés, dépôt, installation, usage -->
+  <div id="paneComp" hidden>
+    <div class="formcard" style="margin-bottom:12px">
+      <b>Keydou Compagnon (assistant personnel)</b>
+      <p class="muted" style="margin:6px 0 8px;line-height:1.55">Jamais gratuit : une personne n'accède à Keydou Compagnon que si son dépôt est validé (Essentiel 5 000 FCFA, Complet 19 $ ≈ 11 100 FCFA) ou si tu l'as invitée comme testeur. Les médicaments sont refusés. Limites : <span id="compLim">—</span>.</p>
+      <div class="bar"><label style="font-size:13px;display:flex;align-items:center;gap:8px"><input type="checkbox" id="compOuvert"> Ouvert à l'abonnement (laisser décoché pendant les essais)</label></div>
+      <div class="bar" style="margin-top:6px"><input id="compTel" type="text" placeholder="Téléphone du testeur (+242…)" style="flex:1;min-width:200px;padding:9px;border-radius:10px">
+        <select id="compNiv" style="padding:9px;border-radius:10px"><option value="essentiel">Essentiel (65/jour)</option><option value="complet">Complet (200/jour)</option></select>
+        <button class="btn ok" id="compInviter" type="button">Inviter comme testeur</button></div>
+      <div class="muted" id="compMsg" style="margin-top:6px"></div>
+    </div>
+    <div class="stats" id="compStats"></div>
+    <div class="tablewrap"><table style="min-width:1000px"><thead><tr><th>Téléphone</th><th>Nom</th><th>Accès</th><th>Dépôt</th><th>Fin</th><th>Appareil</th><th>Installé le</th><th>Dernière ouverture</th><th>Messages 24 h</th><th>Rappels</th><th>Notifs</th><th>Consentement</th></tr></thead><tbody id="compBody"></tbody></table></div>
   </div>
 
   <!-- CONTACTS -->
@@ -435,9 +451,10 @@
   }
 
   function tab(name){
-    ['Dash','Clients','Subs','Pins','Contacts','Annuaire','Parr','Phone'].forEach(function(n){ $('tab' + n).classList.toggle('on', n === name); $('pane' + n).hidden = (n !== name); });
+    ['Dash','Clients','Subs','Pins','Contacts','Annuaire','Parr','Comp','Phone'].forEach(function(n){ $('tab' + n).classList.toggle('on', n === name); $('pane' + n).hidden = (n !== name); });
     if (name === 'Phone') loadPhone();
     if (name === 'Parr') loadParr();
+    if (name === 'Comp') loadComp();
     if (name === 'Dash') { loadDash(); } else { clearInterval(dashTimer); dashTimer = null; }
   }
 
@@ -465,6 +482,38 @@
       });
     }).catch(function(){ $('parrMsg').textContent = 'Impossible de charger le classement.'; });
   }
+  // ---- Keydou Compagnon : testeurs, abonnés, usage ----
+  function loadComp(){
+    $('compMsg').textContent = 'Chargement…';
+    authFetch('/api/starvibe-compagnon?admin=1').then(function(r){ return r.json().then(function(d){ return { ok:r.ok, d:d }; }); }).then(function(x){
+      if (!x.ok){ $('compMsg').textContent = x.d.error || 'Erreur'; return; }
+      var d = x.d; $('compMsg').textContent = '';
+      $('compOuvert').checked = d.ouvert;
+      $('compLim').textContent = 'Essentiel ' + d.limites.essentiel.messages + ' messages par jour, Complet ' + d.limites.complet.messages + ' (fenêtre de 24 h, « reviens dans … » quand la limite est atteinte)';
+      var u = d.usage30j;
+      $('compStats').innerHTML = '<div class="stat"><b>' + d.lignes.length + '</b><span>Testeurs et abonnés</span></div><div class="stat"><b>' + u.messages + '</b><span>Messages (30 j)</span></div><div class="stat"><b>' + u.recherches + '</b><span>Recherches Internet (30 j)</span></div><div class="stat"><b>≈ ' + u.coutEstimeUsd + ' $</b><span>Coût IA estimé (30 j, modèle ' + esc(d.modele) + ')</span></div>';
+      var ST = { en_attente_paiement:'<span class="pill warn">Dépôt en attente</span>', actif:'<span class="pill pay">Validé</span>', paiement_invalide:'<span class="pill">Montant refusé</span>' };
+      var fd = function(t){ return t ? new Date(t).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) : '—'; };
+      $('compBody').innerHTML = d.lignes.map(function(l){
+        var acces = l.planActif ? (l.planActif === 'compagnon_complet' ? 'Complet' : 'Essentiel') + ' (abonné)' : (l.test ? 'Test · ' + (l.niveauTest === 'complet' ? 'Complet' : 'Essentiel') + ' <button class="btn" type="button" data-stop="' + esc(l.telephone) + '">Retirer</button>' : '<span class="muted">aucun</span>');
+        return '<tr><td>' + esc(l.telephone) + '</td><td>' + esc(l.nom || '—') + '</td><td>' + acces + '</td><td>' + (ST[l.dernierStatut] || '—') + '</td><td>' + (l.fin ? new Date(l.fin).toLocaleDateString('fr-FR') : '—') + '</td><td>' + esc(l.appareil || 'pas encore installé') + '</td><td>' + fd(l.installeLe) + '</td><td>' + fd(l.derniereOuverture) + '</td><td>' + l.messages24h + '</td><td>' + l.rappels + '</td><td>' + (l.notifications ? '✓' : '—') + '</td><td>' + (l.consentement ? '✓' : '—') + '</td></tr>';
+      }).join('') || '<tr><td colspan="12" class="muted">Aucun testeur ni abonné pour l\u2019instant.</td></tr>';
+      Array.prototype.forEach.call($('compBody').querySelectorAll('button[data-stop]'), function(b){
+        b.addEventListener('click', function(){ if (!confirm('Retirer l\u2019accès de test à ce numéro ?')) return; postComp({ action:'testeur', telephone:b.getAttribute('data-stop'), actif:false }); });
+      });
+    }).catch(function(){ $('compMsg').textContent = 'Impossible de charger.'; });
+  }
+  function postComp(body){
+    return authFetch('/api/starvibe-compagnon', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) }).then(function(r){ return r.json().then(function(d){ return { ok:r.ok, d:d }; }); }).then(function(x){
+      $('compMsg').textContent = x.ok ? 'Enregistré.' : (x.d.error || 'Erreur'); loadComp(); return x;
+    });
+  }
+  $('compInviter').addEventListener('click', function(){ postComp({ action:'testeur', telephone:$('compTel').value.trim(), niveau:$('compNiv').value, actif:true }); });
+  $('compOuvert').addEventListener('change', function(){
+    var on = this.checked;
+    if (on && !confirm('Ouvrir Keydou Compagnon à l\u2019abonnement pour tout le monde ? Fais-le seulement après les essais.')){ this.checked = false; return; }
+    postComp({ action:'ouvrir', on:on });
+  });
   $('parrOk').addEventListener('click', loadParr);
   $('tabDash').addEventListener('click', function(){ goTab('Dash'); });
   $('tabClients').addEventListener('click', function(){ goTab('Clients'); });
@@ -473,6 +522,7 @@
   $('tabContacts').addEventListener('click', function(){ goTab('Contacts'); });
   $('tabAnnuaire').addEventListener('click', function(){ goTab('Annuaire'); });
   $('tabParr').addEventListener('click', function(){ goTab('Parr'); });
+  $('tabComp').addEventListener('click', function(){ goTab('Comp'); });
   $('tabPhone').addEventListener('click', function(){ goTab('Phone'); });
 
 
