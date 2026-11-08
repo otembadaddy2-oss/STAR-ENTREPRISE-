@@ -13,7 +13,7 @@ export function db() {
 // Version du schéma = empreinte du texte de ensureSchema() ci-dessous (vérifiée par tools/test-schema.mts).
 // Quand tu modifies une instruction du schéma : lance « node --experimental-strip-types tools/test-schema.mts --ecrire »
 // pour mettre à jour cette ligne. Sans cela, la base ne serait pas mise à jour (le test échoue pour te le rappeler).
-const SCHEMA_VERSION = "5b207cd0a3d991e5";
+const SCHEMA_VERSION = "e05053182d8bea08";
 
 // Idempotent schema setup — safe to call on every cold start.
 // Rapide : les ~80 instructions ne sont rejouées que si SCHEMA_VERSION a changé depuis la dernière fois
@@ -825,6 +825,7 @@ export async function ensureSchema() {
   `;
 
   // Keydou Compagnon (assistant personnel, version testeurs) : rappels, conversation, ce que Keydou retient, consentement, notifications du téléphone.
+  await sql`ALTER TABLE starvibe_subscriptions ADD COLUMN IF NOT EXISTS rappel_veille_at TIMESTAMPTZ`;
   await sql`CREATE TABLE IF NOT EXISTS starvibe_compagnon_profil (account_id INTEGER PRIMARY KEY, consentement_at TIMESTAMPTZ, consentement_version TEXT NOT NULL DEFAULT '', test BOOLEAN NOT NULL DEFAULT false, niveau_test TEXT NOT NULL DEFAULT 'essentiel', derniere_ouverture TIMESTAMPTZ, created_at TIMESTAMPTZ NOT NULL DEFAULT now())`;
   await sql`CREATE TABLE IF NOT EXISTS starvibe_compagnon_rappels (id SERIAL PRIMARY KEY, account_id INTEGER NOT NULL, titre TEXT NOT NULL, quand TIMESTAMPTZ NOT NULL, repetition TEXT NOT NULL DEFAULT '', avant_minutes INTEGER NOT NULL DEFAULT 0, avant_envoye BOOLEAN NOT NULL DEFAULT false, actif BOOLEAN NOT NULL DEFAULT true, envoye_at TIMESTAMPTZ, created_at TIMESTAMPTZ NOT NULL DEFAULT now())`;
   await sql`CREATE INDEX IF NOT EXISTS starvibe_compagnon_rappels_actif_idx ON starvibe_compagnon_rappels (actif, quand)`;

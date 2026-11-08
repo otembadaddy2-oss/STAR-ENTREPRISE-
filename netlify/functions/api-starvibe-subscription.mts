@@ -288,7 +288,9 @@ export default async (req: Request, _context: Context) => {
       if (!PLANS_TOUS[plan]) return json({ error: "Plan inconnu" }, 400);
       if (PLANS_COMPAGNON[plan]) {
         const ouvert = ((await sql`SELECT value FROM starvibe_settings WHERE key = 'compagnon_ouvert'`) as { value: string }[])[0]?.value === "on";
-        if (!ouvert) return json({ error: "Keydou Compagnon n'est pas encore ouvert à l'abonnement : il est en période de test.", code: "compagnon_ferme" }, 403);
+        // Un abonné (ou ancien abonné) peut toujours reconduire, même quand l'offre est fermée aux nouveaux clients.
+        const ancien = ((await sql`SELECT 1 FROM starvibe_subscriptions WHERE account_id = ${accountId} AND plan IN ('compagnon', 'compagnon_complet') AND statut = 'actif' AND montant_attendu > 0 LIMIT 1`) as unknown[]).length > 0;
+        if (!ouvert && !ancien) return json({ error: "Keydou Compagnon n'est pas encore ouvert à l'abonnement : il est en période de test.", code: "compagnon_ferme" }, 403);
       }
 
       // Durée payée d'un coup : 1, 2, 3… mois (30 jours chacun). Le montant est celui d'un mois multiplié par le nombre de mois.

@@ -14,7 +14,7 @@ import { ensureSchema, db, json } from "./_db.mts";
 import { requireAuth } from "./_auth.mts";
 import { vapidKeys, last9 } from "./_push.mts";
 import {
-  LIMITES, CONSENTEMENT_VERSION, REPETITIONS, MODELE, accesDe, etatQuota, fuseauValide, heureLocale, localVersUtc, parleDeMedicaments, consigne, type Niveau,
+  LIMITES, CONSENTEMENT_VERSION, REPETITIONS, MODELE, OFFRES_TXT, accesDe, aDejaAbonne, texteFinAbonnement, etatQuota, fuseauValide, heureLocale, localVersUtc, parleDeMedicaments, consigne, type Niveau,
 } from "./_compagnon.mts";
 
 const ORG_MEMBRE = "star_vibe";
@@ -189,8 +189,16 @@ export default async (req: Request, _context: Context) => {
 
   // Tout le reste exige un accès valide (abonnement validé ou invitation de test).
   if (!acces) {
+    // Abonnement terminé : on invite à reconduire (toujours possible, même si l'offre est fermée aux nouveaux clients).
+    const ancien = await aDejaAbonne(sql, accountId);
+    if (ancien.deja) {
+      return json({
+        error: `Ton abonnement Keydou Compagnon est terminé. Pour continuer à profiter de Keydou, réabonne-toi ou reconduis ton abonnement mensuel : ${OFFRES_TXT}.`,
+        code: "abonnement_termine", ouvert: true, fin: ancien.fin,
+      }, 403);
+    }
     return json({
-      error: ouvert ? "Keydou Compagnon : abonnement requis." : "Keydou Compagnon est en période de test : l'accès se fait sur invitation de l'équipe STAR ENTREPRISE.",
+      error: ouvert ? "Keydou Compagnon : abonnement requis. Choisis ton offre, ton accès s'ouvre dès que ton dépôt est reconnu." : "Keydou Compagnon est en période de test : l'accès se fait sur invitation de l'équipe STAR ENTREPRISE.",
       code: "acces_refuse", ouvert,
     }, 403);
   }
@@ -208,7 +216,9 @@ export default async (req: Request, _context: Context) => {
     }
     const q = await etatQuota(sql, accountId, acces.niveau);
     const notifs = (await sql`SELECT COUNT(*) AS n FROM starvibe_compagnon_push WHERE account_id = ${accountId}`) as { n: string }[];
-    return json({ acces: { niveau: acces.niveau, label: lim.label, source: acces.source, fin: acces.fin }, consentement, consentementVersion: CONSENTEMENT_VERSION, quota: q, notifications: Number(notifs[0]?.n || 0) });
+    const finMs = acces.fin ? new Date(acces.fin).getTime() - Date.now() : null;
+    const finBientot = acces.source === "abonnement" && finMs !== null && finMs > 0 && finMs <= 24 * 3600 * 1000;
+    return json({ acces: { niveau: acces.niveau, label: lim.label, source: acces.source, fin: acces.fin }, finBientot, texteFin: finBientot && acces.fin ? texteFinAbonnement(new Date(acces.fin)) : "", consentement, consentementVersion: CONSENTEMENT_VERSION, quota: q, notifications: Number(notifs[0]?.n || 0) });
   }
 
   if (req.method !== "POST") return json({ error: "Méthode non permise" }, 405);

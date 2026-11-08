@@ -151,3 +151,16 @@ FORMAT DE SORTIE : un seul objet JSON, sans texte autour :
 - "supprimer_rappels" : numéros de rappels à supprimer si la personne le demande.
 - Laisse les listes vides quand il n'y a rien à ajouter. Ne mets rien dans "rappels" si la personne n'a pas demandé de rappel.`;
 }
+
+// ---------- Fin d'abonnement ----------
+export const OFFRES_TXT = "Essentiel 5 000 FCFA ou Complet 19 $ par mois";
+export function texteFinAbonnement(fin: Date): string {
+  const quand = new Intl.DateTimeFormat("fr-FR", { timeZone: "Africa/Brazzaville", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(fin);
+  return `Ton abonnement Keydou Compagnon se termine le ${quand} (heure de Brazzaville). Pour continuer à profiter de Keydou, réabonne-toi ou reconduis ton abonnement mensuel : ${OFFRES_TXT}.`;
+}
+// La personne a-t-elle déjà eu (ou a-t-elle) un abonnement Compagnon payé ? Elle peut alors toujours le reconduire.
+// deno-lint-ignore no-explicit-any
+export async function aDejaAbonne(sql: any, accountId: number): Promise<{ deja: boolean; fin: string | null }> {
+  const r = (await sql`SELECT MAX(expires_at) AS fin, COUNT(*) AS n FROM starvibe_subscriptions WHERE account_id = ${accountId} AND plan IN ('compagnon', 'compagnon_complet') AND statut = 'actif' AND montant_attendu > 0`) as { fin: string | null; n: string }[];
+  return { deja: Number(r[0]?.n || 0) > 0, fin: r[0]?.fin || null };
+}
