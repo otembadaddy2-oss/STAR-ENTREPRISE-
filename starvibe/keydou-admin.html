@@ -228,7 +228,7 @@
       <div class="muted" id="compMsg" style="margin-top:6px"></div>
     </div>
     <div class="stats" id="compStats"></div>
-    <div class="tablewrap"><table style="min-width:1000px"><thead><tr><th>Téléphone</th><th>Nom</th><th>Accès</th><th>Dépôt</th><th>Fin</th><th>Appareil</th><th>Installé le</th><th>Dernière ouverture</th><th>Messages 24 h</th><th>Rappels</th><th>Notifs</th><th>Consentement</th></tr></thead><tbody id="compBody"></tbody></table></div>
+    <div class="tablewrap"><table style="min-width:1000px"><thead><tr><th>Téléphone</th><th>Nom</th><th>Accès</th><th>Dépôt</th><th>Fin</th><th>Appareil (KOMYO)</th><th>Appli Keydou installée</th><th>Dernière ouverture</th><th>Messages 24 h</th><th>Rappels</th><th>Notifs</th><th>Consentement</th></tr></thead><tbody id="compBody"></tbody></table></div>
   </div>
 
   <!-- CONTACTS -->
@@ -496,7 +496,7 @@
       var fd = function(t){ return t ? new Date(t).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) : '—'; };
       $('compBody').innerHTML = d.lignes.map(function(l){
         var acces = l.planActif ? (l.planActif === 'compagnon_complet' ? 'Complet' : 'Essentiel') + ' (abonné)' : (l.test ? 'Test · ' + (l.niveauTest === 'complet' ? 'Complet' : 'Essentiel') + ' <button class="btn" type="button" data-stop="' + esc(l.telephone) + '">Retirer</button>' : '<span class="muted">aucun</span>');
-        return '<tr><td>' + esc(l.telephone) + '</td><td>' + esc(l.nom || '—') + '</td><td>' + acces + '</td><td>' + (ST[l.dernierStatut] || '—') + '</td><td>' + (l.fin ? new Date(l.fin).toLocaleDateString('fr-FR') : '—') + '</td><td>' + esc(l.appareil || 'pas encore installé') + '</td><td>' + fd(l.installeLe) + '</td><td>' + fd(l.derniereOuverture) + '</td><td>' + l.messages24h + '</td><td>' + l.rappels + '</td><td>' + (l.notifications ? '✓' : '—') + '</td><td>' + (l.consentement ? '✓' : '—') + '</td></tr>';
+        return '<tr><td>' + esc(l.telephone) + '</td><td>' + esc(l.nom || '—') + '</td><td>' + acces + '</td><td>' + (ST[l.dernierStatut] || '—') + '</td><td>' + (l.fin ? new Date(l.fin).toLocaleDateString('fr-FR') : '—') + '</td><td>' + esc(l.appareil || 'pas encore installé') + '</td><td>' + (l.appInstalleeLe ? '✓ ' + fd(l.appInstalleeLe) : '<span class="muted">pas installée</span>') + '</td><td>' + fd(l.derniereOuverture) + '</td><td>' + l.messages24h + '</td><td>' + l.rappels + '</td><td>' + (l.notifications ? '✓' : '—') + '</td><td>' + (l.consentement ? '✓' : '—') + '</td></tr>';
       }).join('') || '<tr><td colspan="12" class="muted">Aucun testeur ni abonné pour l\u2019instant.</td></tr>';
       Array.prototype.forEach.call($('compBody').querySelectorAll('button[data-stop]'), function(b){
         b.addEventListener('click', function(){ if (!confirm('Retirer l\u2019accès de test à ce numéro ?')) return; postComp({ action:'testeur', telephone:b.getAttribute('data-stop'), actif:false }); });
