@@ -159,7 +159,8 @@
     var item = document.createElement('div');
     item.className = 'item';
     item.innerHTML =
-      '<div class="top"><div class="plan">' + esc(d.plan) + '</div><div class="amount">' + d.montantAttendu.toLocaleString('fr-FR') + ' FCFA</div></div>' +
+      '<div class="top"><div class="plan">' + esc(d.plan) + '</div><div class="amount">' + (d.pays && d.pays !== 'CG' && d.montantDevise ? (d.montantDevise / 100).toLocaleString('fr-FR', {minimumFractionDigits:2}) + (d.devise === 'EUR' ? ' €' : ' CAD') : d.montantAttendu.toLocaleString('fr-FR') + ' FCFA') + '</div></div>' +
+      (!aTraiter && d.pays && d.pays !== 'CG' ? '<div class="meta" style="color:#f3c96b"><b>' + ({CI:'Côte d\'Ivoire', FR:'France', CA:'Canada'})[d.pays] + ' — paiement par carte.</b> Envoie le lien de paiement à ' + esc((det && det.contact) || d.telephone) + ' (WhatsApp), puis confirme quand c\'est reçu (montant : ' + d.montantAttendu.toLocaleString('fr-FR') + ' FCFA équivalent).</div>' : '') +
       '<div class="meta"><b>' + esc(d.auteur) + '</b> — ' + esc(d.telephone) + ' — réf. ' + esc(d.referencePaiement) + '</div>' +
       (d.payeurTelephone ? '<div class="meta">🎁 Payé par un autre membre : <b>' + esc(d.payeurTelephone) + '</b>' + (d.beneficiaireNom ? ' — pour l\'enfant : ' + esc(d.beneficiaireNom) : '') + '</div>' : '') +
       '<div class="confirm-row">' +

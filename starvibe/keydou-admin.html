@@ -246,7 +246,7 @@
       <div class="bar"><label style="font-size:13px;display:flex;align-items:center;gap:8px"><input type="checkbox" id="repliOn" checked> Valider aussi si le client paie depuis un autre numéro (une seule demande de ce montant en attente, « J'ai payé » touché il y a moins de 20 min)</label></div>
       <div class="formcard" style="margin:12px 0">
         <b>Paiement par carte bancaire (France, Canada, Abidjan)</b>
-        <p class="muted" style="margin:6px 0 8px;line-height:1.55">Keydou reconnaît le pays par l'indicatif du numéro. Hors Congo, le client règle <b>1,52 € (France), 2,50 CAD (Canada) ou 1 000 FCFA (Abidjan)</b> par carte. Tant que la passerelle de paiement n'est pas branchée, laisse la case décochée : le client voit « Keydou arrive très bientôt », sa demande est notée (compteur ci-dessous) et l'équipe le prévient. Quand tu as ta passerelle, colle ici l'adresse de paiement avec <code>{ref}</code> à la place de la référence, puis coche la case. Tu confirmes ensuite chaque paiement comme les autres (onglet Paiements).</p>
+        <p class="muted" style="margin:6px 0 8px;line-height:1.55">Keydou reconnaît le pays par l'indicatif du numéro. Hors Congo, le client règle <b>1,52 € (France), 2,50 CAD (Canada) ou 1 000 FCFA (Abidjan)</b> par carte. Même sans passerelle, le client peut commander : sa demande arrive dans <b>Paiements</b> avec une notification « envoyer le lien de paiement ». Tu lui envoies un lien de paiement par WhatsApp (celui que tu as : virement, lien de paiement de ta banque…), puis tu touches « Confirmer ». Quand une passerelle automatique est branchée, colle son lien ci-dessous (avec <code>{ref}</code>) et coche la case.</p>
         <div class="bar"><label style="font-size:13px;display:flex;align-items:center;gap:8px"><input type="checkbox" id="carteOn"> Paiement par carte ouvert</label></div>
         <div class="bar"><input id="carteLien" type="text" placeholder="https://… ?ref={ref}" style="flex:1;min-width:220px;padding:9px;border-radius:10px"> <button class="btn" id="carteSave" type="button">Enregistrer</button></div>
         <div class="muted" id="carteInfo"></div>
@@ -827,7 +827,7 @@
       if (!d) return;
       $('hookUrl').value = location.origin + '/api/starvibe-keydou?sms=1&s=' + d.secret;
       $('autoOn').checked = d.auto; $('repliOn').checked = d.repli !== false;
-      if (d.carte){ $('carteOn').checked = d.carte.actif; $('carteLien').value = d.carte.lien || ''; $('carteInfo').textContent = d.carte.interesses ? (d.carte.interesses + ' personne(s) ont demandé Keydou hors du Congo (compteur à surveiller).') : 'Aucune demande hors du Congo pour l\'instant.'; }
+      if (d.carte){ $('carteOn').checked = d.carte.actif; $('carteLien').value = d.carte.lien || ''; $('carteInfo').textContent = d.carte.interesses ? (d.carte.interesses + ' demande(s) hors du Congo au total (France, Canada, Abidjan).') : 'Aucune demande hors du Congo pour l\'instant.'; }
       $('smsRows').innerHTML = (d.journal || []).map(function(l){ var p = dateParts(l.created_at); return '<tr><td>' + p.date + ' ' + p.heure + '</td><td>' + (l.montant || '—') + '</td><td>' + esc(l.numero || '—') + '</td><td>' + esc(RES[l.resultat] || l.resultat) + '</td><td class="muted">' + esc(String(l.message).slice(0, 90)) + '</td></tr>'; }).join('') || '<tr><td colspan="5" class="muted" style="padding:16px;text-align:center">Aucun SMS reçu pour le moment.</td></tr>';
       if (d.telephonesNotifies) pmsg('✅ ' + d.telephonesNotifies + ' téléphone(s) reçoivent déjà les notifications.');
     });
