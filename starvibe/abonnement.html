@@ -207,7 +207,7 @@
       '<p class="cat-sub">10 dessins animés pour les 3 à 6 ans : dire bonjour, se brosser les dents, se laver les mains, dire merci… ' +
       (dispo === EPISODES_A.length ? '<b>Les ' + dispo + ' sont disponibles dès aujourd\'hui</b>, à regarder autant de fois que tu veux pendant ta période.' : '<b>' + dispo + ' disponibles aujourd\'hui, ' + (EPISODES_A.length - dispo) + ' à venir</b> : ils s\'ajoutent à ton pack dès qu\'ils sont prêts, sans payer de plus pendant ta période.') + '</p><div class="cat-grid">';
     EPISODES_A.forEach(function(e){
-      if (e[2]) h += '<div class="cat-item"><img class="poster" loading="lazy" src="assets/pioupiou/affiche_' + e[0] + (['A6','A7','A8','A9','A10'].indexOf(e[0]) >= 0 ? '-v2' : '-v1') + '.webp" alt="Affiche ' + e[0] + '"><div class="lbl2"><b>' + e[0] + '</b>' + e[1] + '</div></div>';
+      if (e[2]) h += '<div class="cat-item"><img class="poster" loading="lazy" src="assets/pioupiou/affiche_' + e[0] + (['A5','A6','A7','A8','A9','A10'].indexOf(e[0]) >= 0 ? '-v2' : '-v1') + '.webp" alt="Affiche ' + e[0] + '"><div class="lbl2"><b>' + e[0] + '</b>' + e[1] + '</div></div>';
       else h += '<div class="cat-item bientot"><div class="poster">À venir<small>Bientôt disponible</small></div><div class="lbl2"><b>' + e[0] + '</b>' + e[1] + '</div></div>';
     });
     return h + '</div><div class="cat-prix"><div class="p">1 500 FCFA <span>/ 30 jours</span></div><div class="n">Valable 30 jours, <b>sans renouvellement automatique</b> : tu renouvelles quand tu veux. Tu peux aussi payer 2 mois (3 000 FCFA) ou 3 mois (4 500 FCFA) d\'un coup.</div></div><div class="cat-autres" data-autres></div></div>';
@@ -218,6 +218,7 @@
   fetch('assets/pioupiou-episodes-v1.json').then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
     if (!d || !d.familles) return;
     var h = '<h3>D\'autres packs arrivent</h3>';
+    var cd = [];
     d.familles.forEach(function(f){
       if (f.lettre === 'A') return;
       if (f.lettre === 'B'){
@@ -229,9 +230,9 @@
           '</div><div class="cat-prix"><div class="p">Inclus <span>sans supplément</span></div><div class="n">Les ' + dispo.length + ' hymnes sont compris dans l\'abonnement Famille (1 500 FCFA pour 30 jours, voir ci-dessus). Le prix des hymnes à venir sera annoncé à leur sortie.</div></div></div>';
         return;
       }
-      h += '<details class="cat-pack"><summary><span><b>' + esc2(f.lettre) + ' · ' + esc2(f.nom) + '</b></span><small>' + f.episodes.length + ' vidéos · bientôt</small></summary><ol>' +
-        f.episodes.map(function(e){ return '<li>' + esc2(e.titre) + '</li>'; }).join('') + '</ol><p>Prix et date de sortie annoncés bientôt sur ce site. En attendant, le Pack « Les bonnes habitudes » reste à 1 500 FCFA pour 30 jours.</p></details>';
+      cd.push('<div class="cat-item"><img class="poster" loading="lazy" src="assets/pioupiou/affiche_' + f.lettre + '-bientot-v1.webp" style="object-position:top" alt="Affiche du pack ' + f.lettre + ' (bientôt)"><div class="lbl2"><b>' + esc2(f.lettre) + ' · bientôt</b>' + esc2(f.nom) + '<br><span style="color:var(--text-dim)">' + f.episodes.length + ' vidéos</span></div></div>');
     });
+    if (cd.length) h += '<div class="cat-grid">' + cd.join('') + '</div><p class="cat-sub" style="margin-top:10px">Prix et date de sortie annoncés bientôt sur ce site. En attendant, le Pack « Les bonnes habitudes » reste à 1 500 FCFA pour 30 jours.</p>';
     [].forEach.call(document.querySelectorAll('[data-autres]'), function(el){ el.innerHTML = h; });
   }).catch(function(){});
 
