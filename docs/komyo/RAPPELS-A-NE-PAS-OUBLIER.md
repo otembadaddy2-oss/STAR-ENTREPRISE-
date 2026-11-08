@@ -173,3 +173,11 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - PAIEMENT PAR CARTE : PAS ENCORE POSSIBLE — aucune passerelle n'est choisie (voir KOMYO-Choisir-sa-passerelle-de-paiement.md ; Stripe/PayPal non disponibles au Congo). Réglage staff (Keydou-admin › Téléphone) : case « Paiement par carte ouvert » + adresse de paiement avec {ref}. Tant que fermé : le client hors Congo voit « Keydou arrive très bientôt », la demande est notée (événement `pays_bientot`, compteur dans l'écran staff). Quand la passerelle existe : coller le lien, cocher, confirmer les paiements à la main (ou brancher le webhook).
 - Keydou (prompt), guide de Sarah, agent Sarah, Sarah 3.0 : mis à jour (couverture multi-pays + avertissement carte non ouverte).
 - Hymnes B1/B7/B8 refaits en version COMPLÈTE (audio entier des enregistrements de Carry, paroles synchronisées par blocs, PIOUPIOU présent : introduction et conclusion parlées avec la voix Chloé, présent dans toutes les illustrations). Lip-sync Wan sur les ~15 premières secondes ; ensuite illustrations animées (zoom) car un lip-sync complet coûterait ~440 crédits Higgsfield. Crédits Higgsfield restants ≈ 28.
+
+## Keydou hors Congo SANS passerelle de carte (8/11/2026, suite)
+- Plus de message « Keydou arrive très bientôt » : un client France / Canada / Abidjan peut commander tout de suite.
+- Sa demande arrive dans **Paiements** avec la notification « envoyer le lien de paiement » (pays, montant 1,52 € / 2,50 CAD / 1 000 FCFA, numéro WhatsApp, référence KDU-n).
+- L'équipe lui envoie un lien de paiement par WhatsApp (virement, lien bancaire…), puis touche « Confirmer » (montant 1 000 FCFA équivalent) : Keydou répond alors au client.
+- Dès qu'une passerelle automatique existe : Keydou-admin › Téléphone › coller le lien (avec {ref}) et cocher « Paiement par carte ouvert ».
+- Lot 2 de fiches (France : Dalloyau Paris/Marseille, Une Part de Gâteau, N'zadette M'foua, 2 salles IdF ; Abidjan : 6 pâtisseries, Bushman Café, Chez Marcene). Beaucoup sans téléphone (fiabilité C) : à compléter par appel.
+- Toujours manquant : restaurants congolais avec numéro vérifié à Paris/Lyon/Marseille, salles de mariage africaines vérifiées, pâtisseries africaines. Les annuaires publics ne donnent pas les numéros : il faut appeler ou demander à la communauté.

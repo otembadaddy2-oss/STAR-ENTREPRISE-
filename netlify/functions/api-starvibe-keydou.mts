@@ -16,6 +16,7 @@ import { recuAbonnement, recuKeydou } from "./_recu.mts";
 import { poster } from "./_msg.mts";
 import annuaireSeed from "./keydou-annuaire.json";
 import annuaire2026 from "./keydou-annuaire-2026.json";
+import annuaireLot2 from "./keydou-annuaire-lot2-2026.json";
 import annuaireFrance from "./keydou-annuaire-france-2026.json";
 import annuaireCanada from "./keydou-annuaire-canada-2026.json";
 import annuaireAbidjan from "./keydou-annuaire-abidjan-lot1.json";
@@ -125,6 +126,10 @@ async function importAnnuaire2026(sql: any) {
   await importListe(sql, "annuaire_france_2026", annuaireFrance as Lieu2026[], "FR");
   await importListe(sql, "annuaire_canada_2026", annuaireCanada as Lieu2026[], "CA");
   await importListe(sql, "annuaire_abidjan_lot1", annuaireAbidjan as Lieu2026[], "CI");
+  // Lot 2 (8/11/2026) : pâtisseries, mariage et restaurants qui manquaient (France et Abidjan)
+  const lot2 = annuaireLot2 as (Lieu2026 & { pays: string })[];
+  await importListe(sql, "annuaire_lot2_fr", lot2.filter((l) => l.pays === "FR"), "FR");
+  await importListe(sql, "annuaire_lot2_ci", lot2.filter((l) => l.pays === "CI"), "CI");
 }
 
 // Journal : chaque contact avec Keydou est enregistré (jamais bloquant pour le client).
@@ -343,7 +348,7 @@ Ta mémoire contient un annuaire (fiches par service) :
 ${resume}
 
 RÈGLES D'OR
-1. Ton service coûte 1 000 FCFA, UNE seule fois, pour 1 à 3 besoins. Paiement par Mobile Money (MTN ou Airtel) au +242 06 656 50 50, montant exact. Hors du Congo, la même valeur se règle par carte bancaire (Mastercard, Visa…) : 1,52 € en France, 2,50 CAD au Canada, 1 000 FCFA à Abidjan ; le Mobile Money congolais ne concerne que le Congo. Si le paiement par carte n'est pas encore ouvert, dis-le gentiment : la demande est notée et l'équipe prévient dès l'ouverture. Tant que ce n'est pas payé, tu NE DONNES AUCUN nom d'établissement, numéro, adresse ni tarif. Tu peux dire combien de fiches tu as. Tu invites chaleureusement à remplir nom, téléphone, ville et à cocher le besoin, puis payer.
+1. Ton service coûte 1 000 FCFA, UNE seule fois, pour 1 à 3 besoins. Paiement par Mobile Money (MTN ou Airtel) au +242 06 656 50 50, montant exact. Hors du Congo, la même valeur se règle par carte bancaire (Mastercard, Visa…) : 1,52 € en France, 2,50 CAD au Canada, 1 000 FCFA à Abidjan ; le Mobile Money congolais ne concerne que le Congo. Hors du Congo, la demande est acceptée tout de suite : après validation du formulaire, l'équipe STAR ENTREPRISE envoie au client le lien de paiement sécurisé par carte (WhatsApp ou e-mail) avec la référence KDU ; dès le paiement reconnu, tu réponds. Ne demande JAMAIS le numéro de carte ni le code reçu par SMS. Tant que ce n'est pas payé, tu NE DONNES AUCUN nom d'établissement, numéro, adresse ni tarif. Tu peux dire combien de fiches tu as. Tu invites chaleureusement à remplir nom, téléphone, ville et à cocher le besoin, puis payer.
 2. Tu n'inventes JAMAIS de numéro, d'adresse, de prix ni d'horaire. Si tu ne sais pas, tu le dis simplement.
 3. Les prix des hôtels, restaurants, etc. sont fixés par les établissements, pas par toi. Les numéros viennent d'annuaires publics et doivent être confirmés par appel.
 4. Urgence (danger, accident, police, pompiers, violence, ambulance) : tu rassures et tu mets sos=true. Numéros gratuits que tu PEUX donner : 117 police, 118 pompiers, 1444 violences et harcèlement, 10 10 assistance routière RN1 (gratuit 24 h/24). Pas de conseil médical ni juridique : tu orientes.
@@ -441,14 +446,10 @@ async function creerDemande(sql: any, accountId: number, body: Record<string, un
   if (pays === "AUTRE") return { body: { error: "Keydou n'est pas encore ouvert dans votre pays. Pour le Congo, la Côte d'Ivoire, la France et le Canada, écrivez votre numéro avec l'indicatif (+242, +225, +33, +1).", code: "pays_inconnu" }, status: 403 };
   const cfg = PAYS_CFG[pays];
   if (!cfg.villes.includes(ville) && !(cfg.autres && ville === AUTRES)) return { body: { error: `Cette ville n'est pas dans votre pays (${cfg.nom}). Choisissez une ville de la liste.`, code: "ville_pays" }, status: 400 };
+  // Hors Congo : la demande est TOUJOURS acceptée. Passerelle de carte branchée (réglage staff) = lien de paiement automatique ;
+  // sinon l'équipe envoie elle-même le lien de paiement (WhatsApp / e-mail) et confirme à la main.
   let carteActive = false;
-  if (cfg.carte) {
-    carteActive = ((await sql`SELECT value FROM starvibe_settings WHERE key = 'keydou_carte_actif'`) as { value: string }[])[0]?.value === "on";
-    if (!carteActive) {
-      await logEvent(sql, accountId, "pays_bientot", `${nom} · ${contact} · ${pays}`, services.join(","), ville);
-      return { body: { error: `Keydou arrive très bientôt en ${cfg.nom} : le paiement par carte bancaire est en préparation. Votre demande est notée, l'équipe vous prévient dès l'ouverture.`, code: "carte_bientot", pays }, status: 403 };
-    }
-  }
+  if (cfg.carte) carteActive = ((await sql`SELECT value FROM starvibe_settings WHERE key = 'keydou_carte_actif'`) as { value: string }[])[0]?.value === "on";
   const pending = (await sql`
     SELECT COUNT(*) AS n FROM starvibe_keydou_requests WHERE account_id = ${accountId} AND statut = 'en_attente_paiement'
   `) as { n: string }[];
@@ -463,6 +464,9 @@ async function creerDemande(sql: any, accountId: number, body: Record<string, un
     RETURNING *
   `) as Row[];
   await logEvent(sql, accountId, "demande", `${nom} · ${contact}`, services.join(","), ville, rows[0].id);
+  if (cfg.carte && !carteActive) {
+    try { await pushAll(sql, { title: `📩 Demande ${cfg.nom} : envoyer le lien de paiement`, body: `${nom} · ${contact} · ${cfg.montantTxt} · réf. KDU-${rows[0].id}. Envoie-lui le lien de paiement par WhatsApp, puis confirme dans Paiements.`, tag: `keydou-${rows[0].id}`, url: "/starvibe/paiements.html" }); } catch { /* ne bloque jamais le client */ }
+  }
   let lien = "";
   if (cfg.carte && carteActive) {
     const modele = ((await sql`SELECT value FROM starvibe_settings WHERE key = 'keydou_carte_lien'`) as { value: string }[])[0]?.value || "";
@@ -640,7 +644,7 @@ export default async (req: Request, _context: Context) => {
     const repli = ((await sql`SELECT value FROM starvibe_settings WHERE key = 'sms_montant_seul'`) as { value: string }[])[0]?.value !== "off";
     const carteActif = ((await sql`SELECT value FROM starvibe_settings WHERE key = 'keydou_carte_actif'`) as { value: string }[])[0]?.value === "on";
     const carteLien = ((await sql`SELECT value FROM starvibe_settings WHERE key = 'keydou_carte_lien'`) as { value: string }[])[0]?.value || "";
-    const attente = ((await sql`SELECT COUNT(*) AS n FROM starvibe_keydou_events WHERE type = 'pays_bientot'`) as { n: string }[])[0]?.n || "0";
+    const attente = ((await sql`SELECT COUNT(*) AS n FROM starvibe_keydou_requests WHERE pays <> 'CG'`) as { n: string }[])[0]?.n || "0";
     return json({ secret: smsSecret(), auto, repli, telephonesNotifies: Number(subs[0]?.n || 0), journal: log, carte: { actif: carteActif, lien: carteLien, interesses: Number(attente) } });
   }
 
