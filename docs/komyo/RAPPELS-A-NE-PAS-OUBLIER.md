@@ -224,3 +224,9 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - Retour de Carry après son premier test (réponse sur le président du Gabon avec sources : la recherche Internet marche, 1 recherche sur 5 comptée).
 - Ajouts : micro 🎤 (on parle, le message part tout seul et la réponse est lue à voix haute) ; bouton 🔊 pour que Keydou lise toutes ses réponses ; petit 🔊 sur chaque réponse ; pastille du niveau en haut (« Essentiel 65 messages/jour » ou « Complet · Pro 200 messages/jour ») ; bouton « + » pour changer d'offre (Complet 19 $) avec « Ton offre » repéré et retour à Keydou. Un Essentiel en cours n'est pas perdu : il reprend après le Complet.
 - Voix = reconnaissance et synthèse du téléphone (gratuites, qualité variable selon l'appareil ; pas la voix officielle de Keydou). Une vraie voix Keydou (ElevenLabs) coûterait des crédits à chaque réponse : à décider selon le coût réel.
+
+## Keydou vivant dans Keydou Compagnon (8/11/2026, nuit)
+- Demande de Carry : que Keydou bouge comme sur le site, avec les mêmes gestes ; et qu'il réponde à voix haute quand on lui parle.
+- Fait : starvibe/assets/keydou-vivant-v1.js réutilise les vraies séquences vidéo du site (fond vert détouré en direct, images fixes de secours). Il salue à l'ouverture, regarde quand on lui parle (micro), réfléchit pendant l'attente, parle quand il lit sa réponse (ou un court instant pour une réponse écrite), fait la fête quand un rappel est créé, et a de petits gestes spontanés. Bulle d'état à côté de lui (« Je t'écoute… », « Je réfléchis… », « C'est noté ! »).
+- Voix : si la personne lui PARLE (micro), il répond TOUJOURS à voix haute ; sinon seulement si le bouton 🔊 est activé.
+- Pas encore : conversation « mains libres » (le micro se rouvre tout seul après sa réponse) et la voix officielle de Keydou (coût en crédits) ; à décider.
