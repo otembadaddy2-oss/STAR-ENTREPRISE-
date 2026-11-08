@@ -33,6 +33,10 @@ export const EPISODES_OFFICIELS: EpisodeOfficiel[] = [
   { cle: "officiel-a8.mp4", fichier: "a8.mp4", titre: "A8 · Les dents du soir", affiche: "/starvibe/assets/pioupiou/affiche_A8-v1.webp" },
   { cle: "officiel-a9.mp4", fichier: "a9.mp4", titre: "A9 · Bonne nuit papa, bonne nuit maman", affiche: "/starvibe/assets/pioupiou/affiche_A9-v1.webp" },
   { cle: "officiel-a10.mp4", fichier: "a10.mp4", titre: "A10 · Bravo, quelle belle journée !", affiche: "/starvibe/assets/pioupiou/affiche_A10-v1.webp" },
+  // Hymnes nationaux complets (validés par Carry le 8/11/2026), avec PIOUPIOU en ouverture et en clôture.
+  { cle: "officiel-b1.mp4", fichier: "b1.mp4", titre: "B1 · Hymne national du Congo-Brazzaville", affiche: "/starvibe/assets/pioupiou/affiche_B1-v1.webp" },
+  { cle: "officiel-b7.mp4", fichier: "b7.mp4", titre: "B7 · Hymne national de la Guinée-Conakry", affiche: "/starvibe/assets/pioupiou/affiche_B7-v1.webp" },
+  { cle: "officiel-b8.mp4", fichier: "b8.mp4", titre: "B8 · Hymne national de la Côte d'Ivoire", affiche: "/starvibe/assets/pioupiou/affiche_B8-v1.webp" },
 ];
 
 // Anciennes versions remplacées : leur fichier est supprimé du stockage au prochain passage.
