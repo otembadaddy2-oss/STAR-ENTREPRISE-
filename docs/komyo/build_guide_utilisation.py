@@ -142,7 +142,7 @@ def cover(c, d):
         c.drawCentredString(W / 2, 88 * mm - i * 6.3 * mm, l)
     c.setFillColor(GOLD); c.setFont('Sora-Bold', 11); c.drawCentredString(W / 2, 40 * mm, 'komyo.starentreprise.com')
     c.setFillColor(colors.HexColor('#b9ad98')); c.setFont('Inter', 9)
-    c.drawCentredString(W / 2, 32 * mm, 'Gratuit · téléphone, tablette et ordinateur · en français · édition de novembre 2026')
+    c.drawCentredString(W / 2, 32 * mm, 'Gratuit · téléphone, tablette et ordinateur · en français · édition de novembre 2026 · mise à jour du 9 novembre')
     c.drawCentredString(W / 2, 25.5 * mm, 'Conçu et créé par STAR ENTREPRISE')
     c.restoreState()
 
@@ -200,15 +200,16 @@ S_ += [Paragraph('Ce que tu peux faire', H2)] + bl([
     "<b>Filmer et publier</b> tes propres vidéos, directement depuis ton téléphone.",
     "<b>Aimer, commenter et partager</b> les vidéos des autres.",
     "<b>Inviter tes amis</b> avec Myo, et <b>gagner des médailles</b> grâce au parrainage.",
-    "<b>Parler à Keydou</b>, l'assistant qui te trouve un hôtel, un restaurant, un dépannage…",
-    "<b>Offrir à tes enfants</b> les 10 dessins animés de PIOUPIOU, dans un espace protégé.",
+    "<b>Parler à Keydou</b>, l'assistant qui te trouve un hôtel, un restaurant, un dépannage, un kit solaire… au Congo, à Abidjan, en France et au Canada.",
+    "<b>Avoir ton assistant personnel</b> avec <b>Keydou Compagnon</b> : il retient tes rendez-vous et tes anniversaires, te rappelle au bon moment et répond à tes questions, à la voix comme à l'écrit.",
+    "<b>Offrir à tes enfants</b> les 10 dessins animés de PIOUPIOU et les premiers hymnes nationaux, dans un espace protégé.",
     "<b>Faire connaître</b> ta musique, ta boutique ou ton événement avec une annonce."])
 S_ += [Paragraph('Qui peut utiliser KOMYO ?', H2)]
 S_ += tbl([['Âge', 'Espace', 'Ce qui est ouvert'],
            ['3 à 6 ans', 'PIOUPIOU', "Dessins animés éducatifs, <b>100 % séparés</b> du reste de KOMYO, avec un parent qui supervise."],
            ['13 à 17 ans', 'KOMYO Jeunes', "Accès limité et protégé : chaque vidéo est vérifiée avant d'être montrée."],
-           ['18 ans et plus', 'KOMYO complet', "Fil, Talents, Business, Musique, Découverte, Myo, Parrainage, Keydou et annonces."]], [30, 38, CW / mm - 68])
-S_ += box("Regarder, publier et partager, c'est <b>gratuit</b>. Tu ne paies que si tu veux aller plus loin : annonce, abonnement Business ou Famille, ou une demande à Keydou.", 'ok')
+           ['18 ans et plus', 'KOMYO complet', "Fil, Talents, Business, Musique, Découverte, Myo, Parrainage, Keydou, Keydou Compagnon et annonces."]], [30, 38, CW / mm - 68])
+S_ += box("Regarder, publier et partager, c'est <b>gratuit</b>. Tu ne paies que si tu veux aller plus loin : annonce, abonnement Business ou Famille, Keydou Compagnon, ou une demande à Keydou.", 'ok')
 S_ += box("KOMYO a besoin d'une <b>connexion internet</b> (données mobiles ou Wi-Fi) : il ne fonctionne pas hors connexion.", 'warn')
 
 # 2
@@ -244,7 +245,8 @@ S_ += box("Ne donne <b>jamais</b> ton code PIN à personne : ni à un ami, ni à
 S_ += [PageBreak(), Chapitre(4, 'Ton espace personnel', "« Mon espace » est la page d'accueil de ton compte. Tout part de là, et le <b>menu (les trois petits traits, en haut)</b> te montre tout ce que tu peux faire."), Spacer(1, 4)]
 S_ += tbl([['Ce que tu vois', 'À quoi ça sert'],
            ['Mes profils', "Ton profil personnel, et le profil « Mon enfant (3–6 ans) » si tu en as créé un."],
-           ['Keydou', "Parler à l'assistant multiservices (hôtel, restaurant, dépannage…)."],
+           ['Keydou', "Parler à l'assistant multiservices (hôtel, restaurant, dépannage, kit solaire…)."],
+           ['Keydou Compagnon', "Ton assistant personnel : rappels, questions, voix. Une grande carte sur la page d'accueil te permet de l'installer ou de l'ouvrir (voir chapitre 11)."],
            ['Faire connaître ma musique ou mon activité', "Créer une annonce visible par tous les abonnés."],
            ['Myo · mes amis', "Inviter des personnes, accepter des invitations, voir tes amis."],
            ['Parrainage · médailles', "Ton lien d'invitation, tes amis connectés ce mois-ci, le classement et les médailles."],
@@ -290,7 +292,7 @@ S_ += [Paragraph("Pour les parents", H2)] + bl(["Le profil enfant (3–6 ans) es
 S_ += box("KOMYO Jeunes est visible seulement par les 13–17 ans. Les adultes ne le voient pas.", 'ok')
 
 # 7 PIOUPIOU
-S_ += [PageBreak(), Chapitre(7, 'PIOUPIOU, les dessins animés des 3–6 ans', "PIOUPIOU est le poussin qui apprend les <b>bonnes habitudes</b> du quotidien : dire bonjour, se laver les mains, se brosser les dents, dire merci. Les <b>10 épisodes</b> du premier pack sont disponibles."), Spacer(1, 4)]
+S_ += [PageBreak(), Chapitre(7, 'PIOUPIOU, les dessins animés des 3–6 ans', "PIOUPIOU est le poussin qui apprend les <b>bonnes habitudes</b> du quotidien : dire bonjour, se laver les mains, se brosser les dents, dire merci. Les <b>10 épisodes</b> du premier pack sont disponibles, ainsi que les premiers <b>hymnes nationaux</b>."), Spacer(1, 4)]
 cells = []
 tit = ['Bonjour papa, bonjour maman', 'Les dents du matin', 'Les mains propres avant de manger', 'Les mains propres après le repas', 'Merci !', "S'il te plaît", 'Au revoir', 'Les dents du soir', 'Bonne nuit papa, bonne nuit maman', 'Bravo, quelle belle journée !']
 tw = (CW - 4 * 4 * mm) / 5
@@ -304,6 +306,14 @@ for r in range(2):
 g = Table(rows, colWidths=[tw + 4 * mm] * 5)
 g.setStyle(TableStyle([('VALIGN', (0, 0), (-1, -1), 'TOP'), ('LEFTPADDING', (0, 0), (-1, -1), 0), ('RIGHTPADDING', (0, 0), (-1, -1), 4 * mm), ('BOTTOMPADDING', (0, 0), (-1, -1), 6)]))
 S_ += [g, Spacer(1, 4)]
+hy_titre = Paragraph('Les hymnes nationaux (pack B)', H2)
+hy = [('b1', 'B1 · Hymne national du Congo-Brazzaville'), ('b7', 'B7 · Hymne national de la Guinée-Conakry'), ('b8', "B8 · Hymne national de la Côte d'Ivoire")]
+hw = 26 * mm
+hrow = [[Image(os.path.join(A, f + '.jpg'), width=hw, height=hw * 16 / 9), Paragraph(t, ParagraphStyle('hc', parent=CELL, fontSize=8, leading=10.5))] for f, t in hy]
+ht = Table([[c[0] for c in hrow] + [Paragraph("<b>Trois hymnes sont déjà en ligne, et 12 autres arrivent bientôt.</b> Ils sont <b>inclus sans supplément</b> dans l'abonnement Famille (1 500 FCFA pour 30 jours).", CELL)],
+            [c[1] for c in hrow] + ['']], colWidths=[hw + 4 * mm] * 3 + [CW - 3 * (hw + 4 * mm)])
+ht.setStyle(TableStyle([('VALIGN', (0, 0), (-1, -1), 'TOP'), ('LEFTPADDING', (0, 0), (-1, -1), 0), ('RIGHTPADDING', (0, 0), (-1, -1), 3 * mm), ('SPAN', (3, 0), (3, 1))]))
+S_ += [KeepTogether([hy_titre, ht]), Spacer(1, 4)]
 S_ += [Paragraph('Comment ça marche', H2)] + bl([
     "Le parent crée le <b>profil « Mon enfant (3–6 ans) »</b> dans son compte (chapitre 3), puis ouvre <b>PIOUPIOU</b> dans le menu (les trois petits traits).",
     "Les dessins animés se regardent avec l'abonnement <b>Famille</b> : <b>1 500 FCFA pour 30 jours</b>, sans renouvellement automatique, profils enfants illimités.",
@@ -341,11 +351,11 @@ S_ += bl(["Pour être classé, il faut <b>au moins 50 amis connectés dans le mo
 S_ += box("Le parrainage est réservé aux personnes de 13 ans et plus. Ne crée jamais de faux comptes : seuls les amis réellement connectés comptent.", 'warn')
 
 # 10 Keydou
-S_ += [PageBreak(), Chapitre(10, 'Keydou, ton assistant multiservices', "Keydou connaît les bonnes adresses du Congo : <b>hôtel, restaurant, salle de sport, spa, voiture, dépannage…</b> Tu n'as pas besoin de compte pour lui parler : juste ton nom, ton téléphone et ta ville."), Spacer(1, 4)]
+S_ += [PageBreak(), Chapitre(10, 'Keydou, ton assistant multiservices', "Keydou connaît les bonnes adresses : <b>hôtel, restaurant, salle de sport, spa, voiture, dépannage, tourisme, kit solaire…</b> Il couvre le <b>Congo-Brazzaville</b> (Brazzaville, Pointe-Noire, Dolisie, Nkayi, Oyo, Ouesso), <b>Abidjan</b>, la <b>France</b> (Paris, Île-de-France, Lyon, Marseille) et le <b>Canada</b> (Montréal, Ottawa, Toronto, Québec). Tu n'as pas besoin de compte pour lui parler : juste ton nom, ton téléphone et ta ville."), Spacer(1, 4)]
 S_ += [Step(1, "Ouvre Keydou", "Depuis Mon espace, ou sur la page d'accueil « Parler à Keydou »."),
        Step(2, "Parle-lui ou écris-lui", "<b>Monte le volume de ton téléphone</b>, appuie sur le micro et parle : Keydou t'écoute, puis te répond à voix haute. Exemple : « je cherche un hôtel à Pointe-Noire ». Tu peux aussi écrire."),
        Step(3, "Remplis ton inscription Keydou", "Nom et prénom, numéro de téléphone, ville. Coche ton besoin (jusqu'à 3)."),
-       Step(4, "Paie 1 000 FCFA", "Une seule fois pour tes besoins cochés. Voir le chapitre 12 pour payer."),
+       Step(4, "Paie la demande", "Une seule fois pour tes besoins cochés : 1 000 FCFA au Congo et à Abidjan, 1,52 € en France, 2,50 CAD au Canada. Voir le chapitre 13 pour payer."),
        Step(5, "Reçois ta réponse", "Une fois le paiement confirmé, Keydou te donne les adresses et les numéros.")]
 S_ += [Paragraph('Ce que Keydou peut te trouver', H2)]
 S_ += tbl([['Besoin', 'Exemples'],
@@ -353,12 +363,41 @@ S_ += tbl([['Besoin', 'Exemples'],
            ['Se déplacer', "Location de véhicule, garages et dépannage, stations-service, agences de voyages."],
            ['Se faire plaisir', "Salons de coiffure et de beauté, spas, salles de sport, parcs et loisirs pour enfants, tourisme."],
            ['Organiser', "Salles de mariage et de réception, agences événementielles, bureaux et coworking."],
-           ['Au quotidien', "Banques, supermarchés, achat et vente de voitures."]], [48, CW / mm - 48])
+           ['Au quotidien', "Banques, supermarchés, achat et vente de voitures."],
+           ['Énergie solaire', "Le kit solaire complet de STAR Énergie (voir l'encadré ci-dessous)."]], [48, CW / mm - 48])
+S_ += box("Hors du Congo, la demande est acceptée tout de suite. L'équipe STAR ENTREPRISE t'envoie ensuite un <b>lien de paiement sécurisé par carte bancaire</b> (WhatsApp ou e-mail), puis Keydou répond. Ne donne jamais ton numéro de carte dans une discussion.", 'warn')
 S_ += box("Keydou ne donne la réponse qu'<b>après réception de ton paiement</b>. Ses frais d'assistance sont distincts du prix de l'hôtel, du restaurant ou de toute autre prestation.", 'warn')
 S_ += box("Les numéros viennent d'annuaires publics : <b>confirme-les par un appel</b> avant de te déplacer. En cas d'urgence : police 117, pompiers 118, violences et harcèlement 1444.", 'tip')
 
-# 11 Annonces
-S_ += [PageBreak(), Chapitre(11, 'Faire connaître ton activité', "Une <b>annonce</b> défile en bas de l'écran de tous les abonnés connectés, quelques secondes à chaque passage. Idéal pour une musique, un événement ou une boutique."), Spacer(1, 4)]
+S_ += [Paragraph("L'offre STAR Énergie : le kit solaire complet", H2)]
+sol_txt = [Paragraph("<b>STAR Énergie</b> est la filiale énergie solaire de STAR ENTREPRISE. Son kit complet, avec batteries, alimente une grande maison.", B)] + bl([
+    "<b>Ce qu'il alimente :</b> 2 chambres + salon + 3 salles de bains, 2 split, suppresseur, ampoules, grande télévision, 2 congélateurs.",
+    "<b>Le matériel :</b> panneaux solaires, régulateur MPPT MYAMI, onduleur-chargeur EUROMET série SHARK, batteries gel Sunpal, coffret de protection.",
+    "<b>Autonomie annoncée :</b> très grande, jusqu'à 18 h, donc jusqu'à demain matin ; puis le soleil reprend le relais de la charge.",
+    "<b>Prix : 2 860 000 FCFA</b>, prix fixe de départ qui peut varier selon ton besoin.",
+    "<b>Où :</b> à <b>Pointe-Noire</b> pour l'instant, bientôt à Brazzaville.",
+    "<b>Plus d'infos :</b> demande à Keydou, il répond et prend ta demande."])
+sol = Table([[sol_txt, Image(os.path.join(A, 'star-energie.jpg'), width=56 * mm, height=56 * mm * 2025 / 1620)]], colWidths=[CW - 60 * mm, 58 * mm])
+sol.setStyle(TableStyle([('VALIGN', (0, 0), (-1, -1), 'TOP'), ('LEFTPADDING', (0, 0), (-1, -1), 0), ('RIGHTPADDING', (0, 0), (0, 0), 5 * mm)]))
+S_ += [sol]
+
+# 11 Keydou Compagnon
+S_ += [PageBreak(), Chapitre(11, 'Keydou Compagnon, ton assistant personnel', "Keydou Compagnon est un assistant qui est <b>toujours avec toi</b>. Il retient ce que tu lui demandes (rendez-vous, anniversaires, habitudes), te rappelle au bon moment, répond à tes questions et peut chercher sur Internet. Tu lui parles à la voix ou par écrit."), Spacer(1, 4)]
+S_ += [Step(1, "Ouvre la carte « Keydou Compagnon »", "Sur la page d'accueil, sous la carte Keydou : touche « Installer Keydou Compagnon »."),
+       Step(2, "Choisis ton offre", "<b>Essentiel</b> ou <b>Complet</b> (voir le tableau). Tu peux changer de niveau plus tard avec le bouton « + »."),
+       Step(3, "Fais ton dépôt", "Au Congo : Mobile Money, comme pour les autres offres (chapitre 13). Hors du Congo : lien de paiement par carte envoyé par l'équipe."),
+       Step(4, "Installe ton assistant", "Dès que ton dépôt est reconnu, le bouton <b>Installer</b> devient actif : Keydou Compagnon s'installe avec sa propre icône."),
+       Step(5, "Parle-lui", "Touche le <b>micro</b> pour lui parler ; il peut te répondre à voix haute. Tu peux aussi écrire. Demande-lui un rappel : il t'envoie une notification à l'heure choisie.")]
+S_ += tbl([['', 'Essentiel', 'Complet'],
+           ['Prix par mois', '5 000 FCFA', '19 $ (environ 11 100 FCFA)'],
+           ['Messages par jour', '65', '200'],
+           ['Recherches sur Internet', '5 par jour', '30 par jour'],
+           ['Rappels actifs', '10', '500']], [48, 56, CW / mm - 104])
+S_ += box("<b>Jamais gratuit :</b> on n'accède à Keydou Compagnon que si son dépôt est validé (ou sur invitation de test) ; sans dépôt reconnu, l'installation est refusée. <b>Les médicaments sont refusés :</b> il ne retient aucun horaire de médicament, parle à un professionnel de santé.", 'warn')
+S_ += box("<b>Tes données t'appartiennent :</b> accord à la première ouverture ; tu peux les <b>télécharger</b> ou les <b>effacer</b> (onglet « Mes données »). <b>Limite du jour :</b> si tes messages sont utilisés, Keydou te dit dans combien de temps revenir (24 heures glissantes). La veille de la fin de ton abonnement, tu es prévenu : reconduis-le pour continuer.", 'ok')
+
+# 12 Annonces
+S_ += [PageBreak(), Chapitre(12, 'Faire connaître ton activité', "Une <b>annonce</b> défile en bas de l'écran de tous les abonnés connectés, quelques secondes à chaque passage. Idéal pour une musique, un événement ou une boutique."), Spacer(1, 4)]
 S_ += [Step(1, "Ouvre la page d'annonce", "Mon espace > « Faire connaître ma musique ou mon activité »."),
        Step(2, "Écris ton message", "100 caractères au maximum. Exemple : « DJ Kaled — nouvel album disponible dans l'espace Musique »."),
        Step(3, "Choisis le type", "Musique · Événement · Boutique / activité · Autre."),
@@ -371,13 +410,14 @@ S_ += [Step(1, "Crée ton compte KOMYO", "C'est gratuit."), Step(2, "Active l'ab
        Step(3, "Ouvre « Ouvrir ma boutique »", "Nom, ville, numéro Mobile Money, ce que tu vends. Tes clients te paient directement ; reçus et messages arrivent dans leur messagerie KOMYO.")]
 
 # 12 Tarifs
-S_ += [PageBreak(), Chapitre(12, 'Tarifs et paiement', "Regarder, publier et partager, c'est gratuit. Voici ce qui est payant."), Spacer(1, 4)]
+S_ += [PageBreak(), Chapitre(13, 'Tarifs et paiement', "Regarder, publier et partager, c'est gratuit. Voici ce qui est payant."), Spacer(1, 4)]
 gauche = tbl([['Offre', 'Prix', 'Ce que tu obtiens'],
               ['Découverte', '0 FCFA', "Compte, fil, publier, aimer, commenter, partager, Myo, Parrainage, KOMYO Jeunes."],
               ['Annonce', "2 000 FCFA (1 sem.)<br/>4 000 FCFA (2 sem.)<br/>10 000 FCFA (1 mois)", "Ton message visible par tous les abonnés."],
               ['Business', '5 000 FCFA / mois', "Mise en avant de tes vidéos, statistiques, boutique."],
-              ['Famille', '1 500 FCFA / 30 jours', "Les 10 dessins animés PIOUPIOU, profils enfants illimités."],
-              ['Keydou', '1 000 FCFA / demande', "Jusqu'à 3 besoins cochés, réponse après paiement."]], [21, 30, CW / mm - 62 - 51])
+              ['Famille', '1 500 FCFA / 30 jours', "Les 10 dessins animés PIOUPIOU et les hymnes nationaux, profils enfants illimités."],
+              ['Keydou', "1 000 FCFA / demande", "Jusqu'à 3 besoins cochés. Ailleurs : 1,52 € (France), 2,50 CAD (Canada)."],
+              ['Keydou Compagnon', "5 000 FCFA ou 19 $ / mois", "Assistant personnel : Essentiel ou Complet (chapitre 11). Jamais gratuit."]], [21, 30, CW / mm - 62 - 51])
 S_ += a_cote(gauche, Phone(os.path.join(A, 'tarifs.png'), w=44 * mm, legende='La page des tarifs'))
 S_ += [Paragraph('Comment payer (Mobile Money)', H2)]
 S_ += [Step(1, "Prépare le montant exact", "Le montant doit être <b>exactement</b> celui de l'offre choisie. Un autre montant est refusé."),
@@ -386,26 +426,28 @@ S_ += [Step(1, "Prépare le montant exact", "Le montant doit être <b>exactement
 S_ += box("<b>Ne donne jamais ton code secret Mobile Money</b> (PIN) ni un code reçu par SMS : ni à nous, ni à quelqu'un d'autre. Nous ne te les demanderons jamais.", 'warn')
 
 # 13 Statistiques
-S_ += [PageBreak(), Chapitre(13, 'Tes statistiques', "Pour savoir si tes vidéos plaisent, ouvre <b>Mes statistiques</b> depuis Mon espace."), Spacer(1, 4)]
+S_ += [PageBreak(), Chapitre(14, 'Tes statistiques', "Pour savoir si tes vidéos plaisent, ouvre <b>Mes statistiques</b> depuis Mon espace."), Spacer(1, 4)]
 S_ += bl(["<b>Vues</b> : combien de personnes ont regardé chaque vidéo.", "<b>Durée réellement regardée</b> : les gens regardent-ils jusqu'au bout ?", "<b>J'aime et commentaires</b> : l'engagement, vidéo par vidéo."])
 S_ += box("Pour avoir plus de vues : publie <b>régulièrement</b>, rends les 3 premières secondes très accrocheuses, choisis le bon espace, invite tes amis à te suivre et partage tes vidéos sur WhatsApp.", 'tip')
 
 # 14 Sécurité
-S_ += [Chapitre(14, 'Sécurité et bonnes règles', "KOMYO veut rester un endroit agréable pour tout le monde."), Spacer(1, 4)]
+S_ += [Chapitre(15, 'Sécurité et bonnes règles', "KOMYO veut rester un endroit agréable pour tout le monde."), Spacer(1, 4)]
 S_ += [Paragraph('Protège ton compte', H2)] + bl(["Ton code PIN est secret. Il est enregistré <b>chiffré</b>, jamais en clair.", "Après plusieurs essais ratés, le compte est <b>verrouillé temporairement</b>.",
                                                   "Sur un téléphone partagé, déconnecte-toi après usage.", "Méfie-toi des faux messages qui disent « KOMYO a besoin de ton PIN » : c'est une arnaque."])
 S_ += [Paragraph('Respecte les autres', H2)] + bl(["Pas d'insultes, de haine, de harcèlement, ni de contenu pour adultes.", "Pas d'arnaques ni de fausses promesses.", "Ne filme pas quelqu'un sans son accord, surtout un enfant.",
                                                    "Les vidéos qui ne respectent pas les règles peuvent être retirées par la modération."])
-S_ += box("Certaines nouveautés — ÉCLAT (le direct), le Salon (appel vidéo en groupe), le vœu d'anniversaire de Keydou — arrivent bientôt : elles apparaîtront automatiquement dans l'application, sans rien installer.", 'ok')
+S_ += box("Keydou Compagnon, les hymnes nationaux et Keydou dans plusieurs pays sont <b>déjà disponibles</b>. D'autres nouveautés — ÉCLAT (le direct), le Salon (appel vidéo en groupe), le vœu d'anniversaire de Keydou — arrivent bientôt : elles apparaîtront automatiquement dans l'application, sans rien installer.", 'ok')
 
 # 15 Problèmes
-S_ += [PageBreak(), Chapitre(15, 'Problèmes fréquents', "Avant de nous écrire, essaie ceci."), Spacer(1, 4)]
+S_ += [PageBreak(), Chapitre(16, 'Problèmes fréquents', "Avant de nous écrire, essaie ceci."), Spacer(1, 4)]
 S_ += tbl([['Problème', 'Solution'],
            ["Je n'arrive pas à installer l'application", "Utilise Chrome (Android) ou Safari (iPhone). Depuis WhatsApp ou Facebook : « Ouvrir dans le navigateur ». Sinon garde la page en favori : ça marche aussi."],
            ["J'ai oublié mon code PIN", "Page de connexion > « Code PIN oublié » > attends le code par WhatsApp > choisis un nouveau PIN."],
            ["Mon compte est bloqué", "Trop d'essais ratés : attends un peu, puis réessaie. Sinon, utilise « Code PIN oublié »."],
            ["Les vidéos sont lentes", "Vérifie ta connexion (Wi-Fi ou données), ferme les autres applications, puis rouvre KOMYO."],
            ["La caméra ne s'ouvre pas", "Autorise la caméra et le micro quand le téléphone le demande (réglages du navigateur)."],
+           ["Keydou Compagnon refuse de s'installer", "C'est normal tant que ton <b>dépôt n'est pas reconnu</b> : l'installation n'est possible qu'après paiement validé. Attends la confirmation, ou écris-nous avec ta référence."],
+           ["Keydou Compagnon me dit « reviens dans … »", "Tu as utilisé tous tes messages du jour (65 en Essentiel, 200 en Complet). Reviens après le délai indiqué : la fenêtre est de 24 heures glissantes."],
            ["Keydou ne m'entend pas", "Monte le volume, autorise le micro, appuie sur le micro avant de parler. Tu peux aussi écrire ta demande."],
            ["J'ai payé mais rien ne s'est activé", "Le paiement doit être <b>exact</b> et confirmé par l'équipe, en général dans la journée. Écris-nous avec ton numéro et l'heure du paiement."],
            ["Mon ami n'apparaît pas dans mon parrainage", "Il doit s'être inscrit avec ton lien et s'être connecté sur 2 jours différents. Les amis déjà inscrits avant l'ouverture du parrainage ne comptent pas."],
@@ -414,7 +456,7 @@ S_ += [Paragraph("Nous contacter", H2), Paragraph("E-mail : <b>contact@starentre
 S_ += box("Garde ce guide dans ton téléphone ou imprime-le. Partage-le avec ta famille et tes amis : plus il y a de monde sur KOMYO, plus tes vidéos sont vues.", 'tip')
 S_ += [Spacer(1, 10), Paragraph('<font color="#6b5f80">KOMYO — Apprendre · Créer · Partager. Conçu et créé par STAR ENTREPRISE.</font>', ParagraphStyle('end', parent=B, alignment=1))]
 
-doc = Doc(OUT, pagesize=A4, title="KOMYO — Guide d'utilisation", author='STAR ENTREPRISE', subject="Guide d'utilisation de l'application KOMYO, édition de novembre 2026")
+doc = Doc(OUT, pagesize=A4, title="KOMYO — Guide d'utilisation", author='STAR ENTREPRISE', subject="Guide d'utilisation de l'application KOMYO, édition de novembre 2026, mise à jour du 9 novembre")
 fr = Frame(22 * mm, 20 * mm, W - 44 * mm, H - 40 * mm, id='f', leftPadding=0, rightPadding=0, topPadding=0, bottomPadding=0)
 doc.addPageTemplates([PageTemplate(id='cover', frames=[Frame(0, 0, 1, 1)], onPage=cover), PageTemplate(id='inner', frames=[fr], onPage=inner)])
 story = [NextPageTemplate('inner')] + S_
