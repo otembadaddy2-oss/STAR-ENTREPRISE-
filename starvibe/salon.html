@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KOMYO — Le Salon</title>
+<meta name="theme-color" content="#0e0b1c">
+<meta name="robots" content="noindex">
+<link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">
+<link rel="preload" href="/starvibe/assets/fonts/inter-latin-v1.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/starvibe/assets/fonts/komyo-fonts-v1.css">
+<style>
+  :root{--ink:#241536;--gold:#E8A93D;--gold2:#ffd27a;--coral:#FF6B4A;--cream:#FFFBF3;--dim:#b9aec9;--night:#0e0b1c;--night2:#191330;--night3:#241a4a;--red:#e5384b;--ok:#2e9b5a;}
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{margin:0;background:var(--night);color:#fff4df;font-family:'Inter',Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:'Sora',Arial,sans-serif;margin:0;}
+  [hidden]{display:none!important;}
+  .page{min-height:100%;display:flex;flex-direction:column;padding:calc(14px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));max-width:520px;margin:0 auto;gap:12px;}
+  .barre{display:flex;align-items:center;gap:10px;}
+  .barre a{color:var(--gold2);text-decoration:none;font:700 13px 'Sora',Arial,sans-serif;}
+  .barre h1{font-size:19px;flex:1;}
+  .carte{background:linear-gradient(150deg,#2b1c55,#150f2b);border:1.5px solid rgba(232,169,61,.45);border-radius:20px;padding:16px;}
+  .carte h2{font-size:17px;margin-bottom:6px;}
+  .petit{font-size:12.5px;color:var(--dim);line-height:1.5;}
+  .champ{display:flex;flex-direction:column;gap:6px;margin:10px 0;font-size:13px;color:var(--dim);}
+  .champ input{background:rgba(255,255,255,.07);border:1.5px solid rgba(232,169,61,.4);border-radius:14px;padding:12px 14px;color:#fff4df;font:600 15px 'Inter',Arial,sans-serif;width:100%;}
+  .deux{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0 4px;}
+  .type{appearance:none;border:2px solid transparent;border-radius:16px;padding:14px 8px;color:#fff;font:800 15px 'Sora',Arial,sans-serif;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .type small{font:500 11.5px 'Inter',Arial,sans-serif;opacity:.92;}
+  .type.fam{background:linear-gradient(150deg,#ff7a5c,#d4366b);} .type.ami{background:linear-gradient(150deg,#f3b64a,#c87c14);color:#2a1305;}
+  .type[aria-pressed=true]{border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.25);}
+  .btn{display:block;width:100%;appearance:none;border:0;border-radius:999px;padding:14px;font:800 15px 'Sora',Arial,sans-serif;color:#2a1305;background:linear-gradient(135deg,var(--coral),var(--gold));cursor:pointer;text-align:center;text-decoration:none;margin-top:10px;}
+  .btn.ligne{background:transparent;color:#fff4df;border:1.5px solid rgba(255,255,255,.35);}
+  .btn.vert{background:#25d366;color:#06361a;}
+  .btn:disabled{opacity:.5;}
+  .lien{word-break:break-all;background:rgba(255,255,255,.07);border:1.5px dashed rgba(232,169,61,.6);border-radius:12px;padding:10px 12px;font-size:13px;margin:10px 0;}
+  .erreur{background:rgba(229,56,75,.16);border:1px solid rgba(229,56,75,.6);border-radius:12px;padding:10px 12px;font-size:13px;margin-top:10px;}
+  .info{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+  .info span{background:rgba(255,255,255,.08);border-radius:999px;padding:4px 10px;font-size:12px;}
+  /* appel */
+  #appel{position:fixed;inset:0;background:#07050f;display:flex;flex-direction:column;z-index:20;}
+  .haut{display:flex;justify-content:space-between;align-items:center;padding:calc(12px + env(safe-area-inset-top)) 14px 6px;}
+  .haut b{font:800 15px 'Sora',Arial,sans-serif;display:block;}
+  .haut .compte{font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums;}
+  .pill{font:700 11px 'Sora',Arial,sans-serif;background:rgba(46,155,90,.25);border:1px solid rgba(46,155,90,.7);color:#8df0b0;padding:5px 10px;border-radius:999px;white-space:nowrap;}
+  .grille{flex:1;min-height:0;overflow:auto;display:grid;gap:8px;padding:6px 10px;grid-template-columns:1fr;align-content:center;}
+  .grille.n2,.grille.n3,.grille.n4{grid-template-columns:1fr 1fr;} .grille.n5,.grille.n6,.grille.n7,.grille.n8,.grille.n9,.grille.n10{grid-template-columns:1fr 1fr 1fr;}
+  .tuile{position:relative;border-radius:18px;overflow:hidden;background:linear-gradient(160deg,#2b1c55,#12091f);aspect-ratio:3/4;display:grid;place-items:center;border:2px solid transparent;transition:border-color .25s,box-shadow .25s;}
+  .grille.n1 .tuile{aspect-ratio:3/4;max-height:100%;}
+  .tuile video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .tuile.moi video{transform:scaleX(-1);}
+  .tuile .rond{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font:800 24px 'Sora',Arial,sans-serif;color:#2a1305;background:linear-gradient(135deg,var(--coral),var(--gold));}
+  .grille.n5 .rond,.grille.n6 .rond,.grille.n7 .rond,.grille.n8 .rond,.grille.n9 .rond,.grille.n10 .rond{width:44px;height:44px;font-size:17px;}
+  .tuile .nom{position:absolute;left:6px;bottom:6px;max-width:80%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:rgba(0,0,0,.6);border-radius:999px;padding:3px 9px;font:700 11px 'Sora',Arial,sans-serif;}
+  .tuile .etat{position:absolute;right:6px;top:6px;font-size:12px;background:rgba(0,0,0,.55);border-radius:50%;width:24px;height:24px;display:grid;place-items:center;}
+  .tuile.parle{border-color:var(--gold2);box-shadow:0 0 0 3px rgba(255,210,122,.25),0 0 22px 2px rgba(232,169,61,.5);}
+  .tuile .menu{position:absolute;right:6px;bottom:6px;appearance:none;border:0;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:16px;cursor:pointer;}
+  .actions{position:absolute;right:6px;bottom:38px;background:#1b1233;border:1px solid rgba(232,169,61,.5);border-radius:12px;padding:6px;z-index:5;display:flex;flex-direction:column;gap:4px;min-width:150px;}
+  .actions button{appearance:none;border:0;background:transparent;color:#fff4df;text-align:left;padding:8px 10px;border-radius:8px;font:600 13px 'Inter',Arial,sans-serif;cursor:pointer;} .actions button:hover{background:rgba(255,255,255,.1);}
+  .eco{display:flex;justify-content:center;padding:4px 0;}
+  .ctrl{display:flex;justify-content:center;gap:14px;padding:10px 10px calc(16px + env(safe-area-inset-bottom));align-items:center;}
+  .cbtn{appearance:none;border:0;width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;font-size:22px;cursor:pointer;display:grid;place-items:center;position:relative;}
+  .cbtn.coupe{background:#fff;color:#07050f;} .cbtn.coupe::after{content:"";position:absolute;width:30px;height:3px;background:var(--red);transform:rotate(-45deg);border-radius:3px;}
+  .cbtn.fin{background:var(--red);width:68px;border-radius:28px;}
+  .cbtn small{position:absolute;bottom:-17px;font:600 10.5px 'Inter',Arial,sans-serif;color:var(--dim);white-space:nowrap;}
+  .lien-fin{background:none;border:0;color:var(--dim);font:600 12px 'Inter',Arial,sans-serif;text-decoration:underline;cursor:pointer;padding:6px;}
+  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:110px;background:rgba(20,16,40,.95);border:1px solid rgba(232,169,61,.6);border-radius:14px;padding:10px 14px;font-size:13px;z-index:30;max-width:90%;text-align:center;}
+</style>
+</head>
+<body>
+<div class="page" id="page">
+  <div class="barre"><a href="accueil.html" aria-label="Retour à Mon espace">← Mon espace</a><h1>Le Salon</h1></div>
+
+  <section id="chargement" class="carte"><p class="petit" style="margin:0">Un instant…</p></section>
+
+  <section id="invite" class="carte" hidden>
+    <h2 id="invTitre">Tu es invité(e) à un salon</h2>
+    <p class="petit">Un proche t'attend pour un appel vidéo sur KOMYO. Crée ton compte gratuit en quelques secondes avec ton numéro de téléphone, puis tu entres directement dans le salon.</p>
+    <a class="btn" id="invCreer" href="inscription.html">Créer mon compte gratuit</a>
+    <a class="btn ligne" id="invConnexion" href="inscription.html?mode=login">J'ai déjà un compte</a>
+  </section>
+
+  <section id="creer" class="carte" hidden>
+    <h2>Ouvrir un Salon</h2>
+    <p class="petit">Un appel vidéo à plusieurs, rien que pour vous. Tu envoies le lien à tes proches, un par un.</p>
+    <div class="champ"><label for="nom">Nom du salon</label><input id="nom" maxlength="40" value="Dimanche en famille" autocomplete="off"></div>
+    <div class="deux">
+      <button type="button" class="type fam" id="tFam" aria-pressed="true">Famille<small>Parents et enfants</small></button>
+      <button type="button" class="type ami" id="tAmi" aria-pressed="false">Amis<small>Entre amis</small></button>
+    </div>
+    <div class="info" id="limites"></div>
+    <div class="erreur" id="errCreer" hidden></div>
+    <button class="btn" id="btnCreer" type="button">Ouvrir le salon</button>
+  </section>
+
+  <section id="ferme" class="carte" hidden>
+    <h2>Le Salon arrive bientôt</h2>
+    <p class="petit" id="fermeTxt">Le Salon est en test fermé : il s'ouvrira bientôt à tous les membres.</p>
+  </section>
+
+  <section id="lobby" class="carte" hidden>
+    <h2 id="lobbyNom">Ton salon est ouvert</h2>
+    <p class="petit">Envoie ce lien à tes proches. Chacun crée son compte gratuit s'il n'en a pas, puis entre dans le salon.</p>
+    <div class="lien" id="lobbyLien">…</div>
+    <button class="btn vert" id="btnWa" type="button">Envoyer par WhatsApp</button>
+    <button class="btn ligne" id="btnCopie" type="button">Copier le lien</button>
+    <button class="btn" id="btnEntrerHote" type="button">Entrer dans le salon</button>
+    <p class="petit" style="margin-top:10px">Envoie le lien à quelques proches, un par un, avec un petit mot. N'envoie pas le même message à beaucoup de monde d'un coup : WhatsApp pourrait limiter ton compte.</p>
+  </section>
+
+  <section id="rejoindre" class="carte" hidden>
+    <h2 id="rejNom">Salon</h2>
+    <p class="petit" id="rejInfo"></p>
+    <div class="info" id="rejLimites"></div>
+    <div class="erreur" id="errRej" hidden></div>
+    <button class="btn" id="btnRejoindre" type="button">Entrer dans le salon</button>
+  </section>
+
+  <section id="fin" class="carte" hidden>
+    <h2 id="finTitre">Salon terminé</h2>
+    <p class="petit" id="finTxt"></p>
+    <a class="btn" href="salon.html">Ouvrir un nouveau salon</a>
+    <a class="btn ligne" href="accueil.html">Retour à Mon espace</a>
+  </section>
+</div>
+
+<div id="appel" hidden>
+  <div class="haut"><div><b id="aNom">Salon</b><span class="compte"><span id="aChrono">--:--</span> · <span id="aNb">1</span> personne(s)</span></div><span class="pill">● En direct</span></div>
+  <div class="grille n1" id="grille" aria-live="polite"></div>
+  <div class="eco"><span class="pill" id="eco">Économie de données : caméra éteinte</span></div>
+  <div class="ctrl">
+    <button class="cbtn" id="bMic" type="button" aria-label="Couper le micro" aria-pressed="false">🎙<small id="lMic">Micro</small></button>
+    <button class="cbtn coupe" id="bCam" type="button" aria-label="Allumer la caméra" aria-pressed="false">📷<small id="lCam">Caméra</small></button>
+    <button class="cbtn fin" id="bFin" type="button" aria-label="Quitter le salon">✕</button>
+  </div>
+  <div class="eco"><button class="lien-fin" id="bTous" type="button" hidden>Terminer le salon pour tous</button></div>
+</div>
+
+<script src="assets/livekit-client-2.23.0.umd.js" defer></script>
+<script defer>
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  var token=''; try{ token=localStorage.getItem('starvibe_token')||''; }catch(e){}
+  var qs=new URLSearchParams(location.search); var code=(qs.get('s')||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);
+  var ref=(qs.get('ref')||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,12);
+  try{ if(ref) localStorage.setItem('komyo_ref',ref); }catch(e){}
+  var type='famille', estHote=false, finAt=0, room=null, timer=null, quitte=false;
+
+  function montrer(id){ ['chargement','invite','creer','ferme','lobby','rejoindre','fin'].forEach(function(s){ $(s).hidden=(s!==id); }); $('page').hidden=false; $('appel').hidden=true; }
+  function api(path,opts){
+    opts=opts||{}; opts.headers=Object.assign({'Authorization':'Bearer '+token},opts.headers||{});
+    if(opts.body&&typeof opts.body!=='string'){ opts.body=JSON.stringify(opts.body); opts.headers['Content-Type']='application/json'; }
+    return fetch('/api/starvibe-salon'+path,opts).then(function(r){ return r.json().catch(function(){return {};}).then(function(d){ return {ok:r.ok,status:r.status,d:d}; }); });
+  }
+  function toast(t){ var e=document.createElement('div'); e.className='toast'; e.textContent=t; document.body.appendChild(e); setTimeout(function(){ e.remove(); },3500); }
+  function limitesTxt(l){ return ['Jusqu’à '+l.personnes+' personnes', l.minutes+' minutes par salon'].concat(l.salonsParSemaine?[l.salonsParSemaine+' salons par semaine']:[]); }
+  function puces(el,arr){ el.innerHTML=''; arr.forEach(function(t){ var s=document.createElement('span'); s.textContent=t; el.appendChild(s); }); }
+
+  /* ---------- démarrage ---------- */
+  function init(){
+    if(!token){
+      if(code){ try{ localStorage.setItem('komyo_salon_apres',code); }catch(e){} var suite=ref?('?ref='+ref):''; $('invCreer').href='inscription.html'+suite; }
+      return montrer(code?'invite':'invite');
+    }
+    api('?acces=1').then(function(r){
+      if(r.status===401){ try{localStorage.removeItem('starvibe_token');}catch(e){} token=''; return init(); }
+      if(code){ return api('?salon='+code).then(function(s){ if(!s.ok){ $('finTitre').textContent='Salon introuvable'; $('finTxt').textContent=s.d.error||'Ce lien ne marche pas.'; return montrer('fin'); } afficherRejoindre(s.d); }); }
+      var d=r.d||{};
+      if(!d.visible){ $('fermeTxt').textContent=d.raison||'Le Salon est en test fermé : il s’ouvrira bientôt à tous les membres.'; return montrer('ferme'); }
+      puces($('limites'),limitesTxt(d.limites)); if(!d.peutCreer&&d.raison){ $('errCreer').textContent=d.raison; $('errCreer').hidden=false; $('btnCreer').disabled=true; }
+      montrer('creer');
+    }).catch(function(){ $('fermeTxt').textContent='Connexion impossible. Vérifie ton réseau et réessaie.'; montrer('ferme'); });
+    try{ localStorage.removeItem('komyo_salon_apres'); }catch(e){}
+  }
+
+  /* ---------- créer ---------- */
+  function choisir(t){ type=t; $('tFam').setAttribute('aria-pressed',t==='famille'); $('tAmi').setAttribute('aria-pressed',t==='amis'); $('nom').value=(t==='amis'?'Salon entre amis':'Dimanche en famille'); }
+  $('tFam').onclick=function(){ choisir('famille'); }; $('tAmi').onclick=function(){ choisir('amis'); };
+  $('btnCreer').onclick=function(){
+    var b=$('btnCreer'); b.disabled=true; $('errCreer').hidden=true;
+    api('',{method:'POST',body:{action:'creer',nom:$('nom').value,type:type}}).then(function(r){
+      if(!r.ok){ $('errCreer').textContent=r.d.error||'Impossible d’ouvrir le salon.'; $('errCreer').hidden=false; b.disabled=false; return; }
+      code=r.d.code; estHote=true; finAt=new Date(r.d.finAt).getTime();
+      $('lobbyNom').textContent=r.d.nom+' est ouvert'; $('lobbyLien').textContent=r.d.lien; $('lobby').dataset.lien=r.d.lien; $('lobby').dataset.nom=r.d.nom;
+      montrer('lobby');
+    }).catch(function(){ $('errCreer').textContent='Connexion impossible. Réessaie.'; $('errCreer').hidden=false; b.disabled=false; });
+  };
+  $('btnWa').onclick=function(){ var l=$('lobby').dataset.lien; var m='Rejoins-moi pour un appel vidéo sur KOMYO : '+l; window.open('https://wa.me/?text='+encodeURIComponent(m),'_blank'); };
+  $('btnCopie').onclick=function(){ var l=$('lobby').dataset.lien; (navigator.clipboard?navigator.clipboard.writeText(l):Promise.reject()).then(function(){ toast('Lien copié'); }).catch(function(){ toast('Copie le lien à la main.'); }); };
+  $('btnEntrerHote').onclick=function(){ entrer(); };
+
+  /* ---------- rejoindre ---------- */
+  function afficherRejoindre(s){
+    estHote=!!s.estHote; finAt=new Date(s.finAt).getTime();
+    if(s.clos){ $('finTitre').textContent='Salon terminé'; $('finTxt').textContent='Ce salon est fini. Demande à '+s.hote+' d’en ouvrir un nouveau.'; return montrer('fin'); }
+    $('rejNom').textContent=s.nom; $('rejInfo').textContent=(s.type==='amis'?'Salon entre amis':'Salon en famille')+' ouvert par '+s.hote+'. Ton micro sera allumé, ta caméra éteinte : tu l’allumes quand tu veux.';
+    puces($('rejLimites'),['Jusqu’à '+s.max+' personnes','Fin vers '+new Date(finAt).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})]); montrer('rejoindre');
+  }
+  $('btnRejoindre').onclick=function(){ entrer(); };
+
+  /* ---------- entrer dans l'appel ---------- */
+  function entrer(){
+    var LK=window.LivekitClient; if(!LK){ return toast('Le chargement du salon est en cours, réessaie dans un instant.'); }
+    api('',{method:'POST',body:{action:'entrer',code:code}}).then(function(r){
+      if(!r.ok){ if($('rejoindre').hidden===false){ $('errRej').textContent=r.d.error||'Impossible d’entrer.'; $('errRej').hidden=false; } else toast(r.d.error||'Impossible d’entrer.'); return; }
+      var d=r.d; estHote=!!d.hote; finAt=new Date(d.finAt).getTime(); $('aNom').textContent=d.nomSalon||'Salon'; $('bTous').hidden=!estHote;
+      room=new LK.Room({adaptiveStream:true,dynacast:true,videoCaptureDefaults:{resolution:LK.VideoPresets.h360.resolution},publishDefaults:{simulcast:true}});
+      var E=LK.RoomEvent;
+      room.on(E.ParticipantConnected,dessiner).on(E.ParticipantDisconnected,dessiner).on(E.TrackMuted,dessiner).on(E.TrackUnmuted,dessiner)
+          .on(E.TrackPublished,dessiner).on(E.TrackUnpublished,dessiner).on(E.LocalTrackPublished,dessiner).on(E.LocalTrackUnpublished,dessiner)
+          .on(E.ActiveSpeakersChanged,parlent)
+          .on(E.TrackSubscribed,function(t,pub,p){ if(t.kind==='audio'){ var a=t.attach(); a.setAttribute('data-id',p.identity); document.body.appendChild(a); } dessiner(); })
+          .on(E.TrackUnsubscribed,function(t){ t.detach().forEach(function(el){ el.remove(); }); dessiner(); })
+          .on(E.Disconnected,function(raison){ sortie(raison); });
+      $('appel').hidden=false; $('page').hidden=true; dessiner();
+      return room.connect(d.url,d.jeton).then(function(){
+        return room.localParticipant.setMicrophoneEnabled(true).catch(function(){ toast('Autorise le micro pour parler. Tu peux écouter sans.'); });
+      }).then(function(){ majBoutons(); dessiner(); demarrerChrono(); }).catch(function(){ toast('Connexion au salon impossible. Réessaie.'); fermerAppel(); montrer(estHote?'lobby':'rejoindre'); });
+    }).catch(function(){ toast('Connexion impossible. Réessaie.'); });
+  }
+  function participants(){ var l=[]; if(room){ l.push(room.localParticipant); room.remoteParticipants.forEach(function(p){ l.push(p); }); } return l; }
+  function dessiner(){
+    var g=$('grille'); var ps=participants(); var n=Math.max(1,Math.min(10,ps.length)); g.className='grille n'+n; g.innerHTML=''; $('aNb').textContent=ps.length;
+    ps.forEach(function(p){
+      var moi=(p===room.localParticipant); var t=document.createElement('div'); t.className='tuile'+(moi?' moi':''); t.setAttribute('data-id',p.identity);
+      var pubV=p.getTrackPublication?p.getTrackPublication(window.LivekitClient.Track.Source.Camera):null;
+      var vid=pubV&&pubV.track&&!pubV.isMuted?pubV.track:null;
+      if(vid){ var v=vid.attach(); v.setAttribute('playsinline',''); v.muted=true; t.appendChild(v); }
+      else { var r=document.createElement('div'); r.className='rond'; r.textContent=(p.name||'?').trim().charAt(0).toUpperCase(); t.appendChild(r); }
+      var nm=document.createElement('div'); nm.className='nom'; nm.textContent=(moi?'Moi':(p.name||'Invité')); t.appendChild(nm);
+      var st=document.createElement('div'); st.className='etat'; st.textContent=p.isMicrophoneEnabled?'🎙':'🔇'; t.appendChild(st);
+      if(estHote&&!moi){ var mb=document.createElement('button'); mb.className='menu'; mb.type='button'; mb.textContent='⋯'; mb.setAttribute('aria-label','Actions pour '+(p.name||'cette personne'));
+        mb.onclick=function(ev){ ev.stopPropagation(); menuHote(t,p); }; t.appendChild(mb); }
+      g.appendChild(t);
+    });
+  }
+  function parlent(speakers){ var ids={}; (speakers||[]).forEach(function(s){ ids[s.identity]=1; }); document.querySelectorAll('.tuile').forEach(function(t){ t.classList.toggle('parle',!!ids[t.getAttribute('data-id')]); }); }
+  function menuHote(tuile,p){
+    var ancien=tuile.querySelector('.actions'); if(ancien){ ancien.remove(); return; }
+    var m=document.createElement('div'); m.className='actions';
+    [['Couper son micro','couper'],['Retirer du salon','retirer']].forEach(function(a){ var b=document.createElement('button'); b.type='button'; b.textContent=a[0];
+      b.onclick=function(){ m.remove(); if(a[1]==='retirer'&&!confirm('Retirer '+(p.name||'cette personne')+' du salon ?')) return;
+        api('',{method:'POST',body:{action:a[1],code:code,identite:p.identity}}).then(function(r){ toast(r.ok?(a[1]==='retirer'?'Personne retirée':'Micro coupé'):(r.d.error||'Action impossible')); }); }; m.appendChild(b); });
+    tuile.appendChild(m);
+  }
+  /* ---------- micro, caméra, quitter ---------- */
+  function majBoutons(){
+    if(!room) return; var mic=room.localParticipant.isMicrophoneEnabled, cam=room.localParticipant.isCameraEnabled;
+    var bm=$('bMic'), bc=$('bCam'); bm.classList.toggle('coupe',!mic); bm.setAttribute('aria-pressed',!mic); bm.setAttribute('aria-label',mic?'Couper le micro':'Remettre le micro'); $('lMic').textContent=mic?'Micro':'Micro coupé';
+    bc.classList.toggle('coupe',!cam); bc.setAttribute('aria-pressed',!!cam); bc.setAttribute('aria-label',cam?'Couper la caméra':'Allumer la caméra'); $('lCam').textContent=cam?'Caméra':'Caméra éteinte';
+    $('eco').textContent=cam?'Vidéo légère · économie de données':'Économie de données : caméra éteinte';
+  }
+  $('bMic').onclick=function(){ if(!room) return; room.localParticipant.setMicrophoneEnabled(!room.localParticipant.isMicrophoneEnabled).then(function(){ majBoutons(); dessiner(); }).catch(function(){ toast('Autorise le micro dans ton navigateur.'); }); };
+  $('bCam').onclick=function(){ if(!room) return; room.localParticipant.setCameraEnabled(!room.localParticipant.isCameraEnabled).then(function(){ majBoutons(); dessiner(); }).catch(function(){ toast('Autorise la caméra dans ton navigateur.'); }); };
+  $('bFin').onclick=function(){ quitte=true; if(room) room.disconnect(); else sortie(); };
+  $('bTous').onclick=function(){ if(!confirm('Terminer le salon pour tout le monde ?')) return; api('',{method:'POST',body:{action:'fermer',code:code}}).then(function(){ quitte=true; if(room) room.disconnect(); }); };
+  function demarrerChrono(){
+    clearInterval(timer); function tic(){ var s=Math.max(0,Math.round((finAt-Date.now())/1000)); $('aChrono').textContent=('0'+Math.floor(s/60)).slice(-2)+':'+('0'+(s%60)).slice(-2)+' restant'; if(s===0){ quitte=true; clearInterval(timer); if(room) room.disconnect(); } }
+    tic(); timer=setInterval(tic,1000);
+  }
+  function fermerAppel(){ clearInterval(timer); document.querySelectorAll('audio[data-id]').forEach(function(a){ a.remove(); }); $('appel').hidden=true; $('page').hidden=false; room=null; }
+  function sortie(raison){
+    var kick=!quitte&&raison!==undefined&&raison!==null; fermerAppel();
+    $('finTitre').textContent=kick?'Tu as quitté le salon':'Salon terminé';
+    $('finTxt').textContent=kick?'La connexion s’est arrêtée, ou l’organisateur t’a retiré du salon. Tu peux revenir avec le même lien si le salon est encore ouvert.':'Merci d’avoir utilisé le Salon KOMYO.';
+    montrer('fin'); quitte=false;
+  }
+  window.addEventListener('beforeunload',function(){ if(room){ try{ room.disconnect(); }catch(e){} } });
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+})();
+</script>
+</body>
+</html>
