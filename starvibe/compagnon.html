@@ -15,7 +15,8 @@
 <style>
   :root{--ink:#241536;--gold:#E8A93D;--coral:#FF6B4A;--cream:#FFFBF3;--dim:#6b5f80;--line:#eee2cc;--ok:#1f8f4a;--bad:#c0392b;}
   *{box-sizing:border-box;}
-  html,body{height:100%;}
+  html,body{height:100%;max-width:100%;overflow-x:hidden;}
+  img{max-width:100%;}
   body{margin:0;background:var(--cream);color:var(--ink);font-family:'Inter',Arial,sans-serif;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;}
   h1,h2,h3{font-family:'Sora',Arial,sans-serif;margin:0;}
   [hidden]{display:none!important;}
@@ -57,7 +58,7 @@
   .err{color:var(--bad);font-size:13px;margin-top:8px;}
   .scene{display:flex;align-items:center;gap:6px;padding:2px 14px 0;flex:none;}
   .kd{position:relative;flex:none;width:120px;min-height:100px;}
-  .kd img.kd-img{transform-origin:50% 100%;}
+  .kd img.kd-img{width:74px;height:auto;display:block;margin:0 auto;transform-origin:50% 100%;}
   .kd-idle{animation:kdBreathe 4.2s ease-in-out infinite;} .kd-think{animation:kdThink 3s ease-in-out infinite;} .kd-talk{animation:kdTalk .35s ease-in-out infinite;}
   .kd-wave{animation:kdWave 1.8s ease-in-out 1;} .kd-look{animation:kdLook 2.6s ease-in-out 1;} .kd-hop,.kd-celebrate{animation:kdHop .85s ease-out 2;} .kd-spin{animation:kdSpin 1.4s ease-in-out 1;}
   @keyframes kdBreathe{0%,100%{transform:scale(1,1) rotate(0);}50%{transform:scale(1.014,.986) rotate(.8deg);}}
@@ -330,7 +331,9 @@
   // ---- Keydou vit : mêmes séquences et mêmes gestes que sur sa page ----
   var kd=null, enParole=false, tParle=0;
   function etatTxt(t){ $('etat').textContent=t; }
-  function initKd(){ if(kd||!window.KeydouVivant) return; try{ kd=KeydouVivant.creer($('kd'),{taille:120}); kd.vie(true); kd.jouer('wave'); }catch(e){ kd=null; } }
+  var kdRetente=false;
+  function initKd(){ if(kd) return;
+    if(!window.KeydouVivant){ if(!kdRetente){ kdRetente=true; var sc=document.createElement('script'); sc.src='assets/keydou-vivant-v1.js?r=1'; sc.onload=initKd; document.head.appendChild(sc); } return; } try{ kd=KeydouVivant.creer($('kd'),{taille:120}); kd.vie(true); kd.jouer('wave'); }catch(e){ kd=null; } }
   function kdBase(e){ if(kd) kd.base(e); }
   function kdGeste(g){ if(kd) kd.jouer(g); }
   function parlerUnPeu(txt){ if(!kd) return; kd.base('talk'); clearTimeout(tParle); tParle=setTimeout(function(){ if(!enParole){ kd.base('idle'); etatTxt('À toi !'); } },Math.min(5000,700+String(txt||'').length*30)); }
