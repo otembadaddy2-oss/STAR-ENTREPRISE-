@@ -1,9 +1,9 @@
 // Le Salon KOMYO — appel vidéo en groupe, famille ou amis (LiveKit).
 // Membre (jeton KOMYO) :
-//   GET  ?acces=1            → { visible, peutCreer, niveau, limites, pret }     (la carte de l'accueil s'affiche si visible)
+//   GET  ?acces=1            → { visible, peutCreer, niveau, limites, testeur, salonEnCours }  (la carte de l'accueil s'affiche si visible)
 //   GET  ?salon=CODE         → infos du salon (nom, type, hôte, fin, places)
 //   POST { action:"creer", nom, type:"famille"|"amis" }  → { code, lien }
-//   POST { action:"entrer", code }                       → { url, jeton, identite, nom, hote, finAt, max }
+//   POST { action:"entrer", code }                       → { url, jeton, identite, nom, hote, finAt, max, lien }
 //   POST { action:"couper"|"retirer", code, identite }   (hôte seulement)
 //   POST { action:"fermer", code }                       (hôte seulement)
 // Équipe (jeton staff) :
@@ -15,7 +15,7 @@ import { requireAuth } from "./_auth.mts";
 import { last9 } from "./_push.mts";
 import { hasActiveFamille } from "./_premium.mts";
 import { codeDe } from "./_parrainage.mts";
-import { LIMITES, TARIF_MINUTE_USD, niveauDe, verdictCreation, nouveauCode, codeValide, minutesEstimees, configLk, creerPiece, jetonEntree, retirer, couperMicro, fermerPiece } from "./_salon.mts";
+import { LIMITES, TARIF_MINUTE_USD, niveauEffectif, verdictPour, nouveauCode, codeValide, minutesEstimees, configLk, creerPiece, assurerPiece, jetonEntree, retirer, couperMicro, fermerPiece } from "./_salon.mts";
 
 const ORG_MEMBRE = "star_vibe";
 const ORG_STAFF = "star_entreprise";
@@ -80,9 +80,9 @@ export default async (req: Request, _context: Context) => {
   const accountId = Number(session.sub);
   if (!accountId) return json({ error: "Compte invalide" }, 401);
   const famille = await hasActiveFamille(sql, accountId);
-  const niveau = niveauDe(famille);
   const ouvert = await reglageOuvert(sql);
   const testeur = ((await sql`SELECT 1 FROM starvibe_salon_acces WHERE account_id = ${accountId}`) as unknown[]).length > 0;
+  const niveau = niveauEffectif(famille, testeur);
   const peutCreerAcces = ouvert || testeur;
 
   async function quotas() {
@@ -92,8 +92,12 @@ export default async (req: Request, _context: Context) => {
   }
 
   if (req.method === "GET" && url.searchParams.get("acces") === "1") {
-    const q = await quotas(); const v = verdictCreation(niveau, q.semaine, q.minutesMois);
-    return json({ visible: peutCreerAcces, peutCreer: peutCreerAcces && v.ok, raison: peutCreerAcces ? v.raison : "Le Salon est en test fermé : il s'ouvrira bientôt à tous les membres.", niveau, limites: LIMITES[niveau], famille });
+    const q = await quotas(); const v = verdictPour(niveau, testeur && !famille, q.semaine, q.minutesMois);
+    // Le salon encore ouvert de cette personne : elle peut y revenir ou récupérer son lien, même si elle a quitté la page.
+    const enCours = (await sql`SELECT code, nom, fin_at FROM starvibe_salons WHERE hote_id = ${accountId} AND ferme_at IS NULL AND fin_at > now() ORDER BY id DESC LIMIT 1`) as { code: string; nom: string; fin_at: string }[];
+    let lienEnCours = ""; if (enCours[0]) { let r = ""; try { r = await codeDe(sql, accountId); } catch { /* sans gravité */ } lienEnCours = `${SITE}/starvibe/salon.html?s=${enCours[0].code}${r ? "&ref=" + encodeURIComponent(r) : ""}`; }
+    return json({ visible: peutCreerAcces, peutCreer: peutCreerAcces && v.ok, raison: peutCreerAcces ? v.raison : "Le Salon est en test fermé : il s'ouvrira bientôt à tous les membres.", niveau, limites: LIMITES[niveau], famille, testeur,
+      salonEnCours: enCours[0] ? { code: enCours[0].code, nom: enCours[0].nom, finAt: new Date(String(enCours[0].fin_at)).toISOString(), lien: lienEnCours } : null });
   }
 
   if (req.method === "GET" && url.searchParams.get("salon")) {
@@ -111,7 +115,7 @@ export default async (req: Request, _context: Context) => {
 
   if (b.action === "creer") {
     if (!peutCreerAcces) return json({ error: "Le Salon est en test fermé : il s'ouvrira bientôt à tous les membres." }, 403);
-    const q = await quotas(); const v = verdictCreation(niveau, q.semaine, q.minutesMois);
+    const q = await quotas(); const v = verdictPour(niveau, testeur && !famille, q.semaine, q.minutesMois);
     if (!v.ok) return json({ error: v.raison }, 429);
     if (!configLk().pret) return json({ error: "Le Salon n'est pas encore branché. Réessaie un peu plus tard." }, 503);
     const nom = String(b.nom || "").replace(/\s+/g, " ").trim().slice(0, 40) || (b.type === "amis" ? "Salon entre amis" : "Salon en famille");
@@ -143,9 +147,12 @@ export default async (req: Request, _context: Context) => {
     if (!configLk().pret) return json({ error: "Le Salon n'est pas encore branché. Réessaie un peu plus tard." }, 503);
     const nom = await nomDe(sql, accountId);
     const identite = `m${accountId}`;
+    await assurerPiece(code, Number(s.max_personnes), fin);
     const jeton = await jetonEntree(code, identite, nom, Math.ceil((fin.getTime() - Date.now()) / 1000));
+    let ref = ""; try { ref = await codeDe(sql, accountId); } catch { /* sans gravité */ }
+    const lien = `${SITE}/starvibe/salon.html?s=${code}${ref ? "&ref=" + encodeURIComponent(ref) : ""}`;
     await sql`INSERT INTO starvibe_salon_entrees (salon_id, account_id, minutes) VALUES (${Number(s.id)}, ${accountId}, ${minutesEstimees(fin)})`;
-    return json({ ok: true, url: configLk().url, jeton, identite, nom, hote: estHote, finAt: fin.toISOString(), max: Number(s.max_personnes), nomSalon: s.nom });
+    return json({ ok: true, url: configLk().url, jeton, identite, nom, hote: estHote, finAt: fin.toISOString(), max: Number(s.max_personnes), nomSalon: s.nom, lien });
   }
 
   if (b.action === "couper" || b.action === "retirer" || b.action === "fermer") {

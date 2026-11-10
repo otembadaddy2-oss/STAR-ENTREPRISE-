@@ -12,6 +12,11 @@ export const LIMITES: Record<Niveau, { label: string; personnes: number; minutes
 export const TARIF_MINUTE_USD = 0.0005;   // LiveKit Cloud (offre Ship), par minute et par personne : à confirmer sur la page officielle
 
 export function niveauDe(famille: boolean): Niveau { return famille ? "famille" : "gratuit"; }
+// Pendant le test fermé, les testeurs invités par l'équipe ont les capacités Famille (10 personnes, 60 minutes) et aucun plafond de salons.
+export function niveauEffectif(famille: boolean, testeur: boolean): Niveau { return famille || testeur ? "famille" : "gratuit"; }
+export function verdictPour(niveau: Niveau, testeur: boolean, salonsSemaine: number, minutesParticipantsMois: number): { ok: boolean; raison: string } {
+  return testeur ? { ok: true, raison: "" } : verdictCreation(niveau, salonsSemaine, minutesParticipantsMois);
+}
 
 // Peut-on créer un nouveau salon ? Retourne un message clair pour la personne, sans jargon.
 export function verdictCreation(niveau: Niveau, salonsSemaine: number, minutesParticipantsMois: number): { ok: boolean; raison: string } {
@@ -71,6 +76,11 @@ export async function lkAdmin(methode: string, corps: Record<string, unknown>, s
 }
 export async function creerPiece(code: string, max: number, dureeMin: number) {
   return await lkAdmin("CreateRoom", { name: code, max_participants: max, empty_timeout: 300, departure_timeout: 20, metadata: JSON.stringify({ fin: Date.now() + dureeMin * 60000 }) });
+}
+// Si la pièce a disparu (vide plus de 5 minutes), LiveKit la recrée à l'entrée SANS nos limites : on la remet d'abord avec le bon plafond.
+export async function assurerPiece(code: string, max: number, finAt: Date) {
+  const restant = Math.max(1, Math.ceil((finAt.getTime() - Date.now()) / 60000));
+  try { await creerPiece(code, max, restant); } catch { /* la pièce existe déjà ou le service est lent : l'entrée reste possible */ }
 }
 export async function retirer(code: string, identite: string) { return await lkAdmin("RemoveParticipant", { room: code, identity: identite }, code); }
 export async function fermerPiece(code: string) { return await lkAdmin("DeleteRoom", { room: code }, code); }

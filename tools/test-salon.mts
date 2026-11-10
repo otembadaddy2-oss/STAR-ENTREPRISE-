@@ -1,6 +1,6 @@
 // Tests du Salon : limites, codes, jetons LiveKit (signature vérifiée), calcul des minutes. Sans réseau, sans base.
 import { jwtVerify } from "jose";
-import { LIMITES, verdictCreation, nouveauCode, codeValide, minutesEstimees, httpDe, jetonEntree, configLk, niveauDe, TARIF_MINUTE_USD } from "../netlify/functions/_salon.mts";
+import { LIMITES, verdictCreation, nouveauCode, codeValide, minutesEstimees, httpDe, jetonEntree, configLk, niveauDe, niveauEffectif, verdictPour, assurerPiece, TARIF_MINUTE_USD } from "../netlify/functions/_salon.mts";
 let ko = 0;
 const ok = (c: boolean, m: string) => { console.log((c ? "OK  " : "ÉCHEC ") + m); if (!c) ko++; };
 
@@ -11,6 +11,23 @@ ok(verdictCreation("gratuit", 0, 0).ok && verdictCreation("gratuit", 1, 0).ok, "
 const v = verdictCreation("gratuit", 2, 0); ok(!v.ok && /Famille/.test(v.raison), "gratuit : le 3e salon de la semaine est refusé avec un message clair");
 ok(verdictCreation("famille", 50, 1499).ok, "Famille : pas de limite par semaine, quota du mois pas atteint");
 ok(!verdictCreation("famille", 0, 1500).ok, "Famille : quota de 1 500 minutes-participant atteint");
+// Testeurs invités : capacités Famille et aucun plafond de salons pendant le test fermé
+ok(niveauEffectif(false, true) === "famille" && niveauEffectif(false, false) === "gratuit" && niveauEffectif(true, false) === "famille", "testeur invité : niveau Famille ; membre gratuit : Gratuit");
+ok(verdictPour("famille", true, 99, 9999).ok, "testeur : aucun plafond de salons ni de minutes");
+ok(!verdictPour("gratuit", false, 2, 0).ok && verdictPour("gratuit", false, 1, 0).ok, "membre ordinaire : les limites Gratuit restent en place");
+ok(!verdictPour("famille", false, 0, 1500).ok, "abonné Famille (non testeur) : le quota du mois reste en place");
+// La pièce est recréée avec le bon plafond de personnes si elle a disparu (appel simulé, sans réseau)
+{
+  const vraiFetch = globalThis.fetch; let appel: { url: string; corps: Record<string, unknown> } | null = null;
+  process.env.LIVEKIT_URL = "wss://test.livekit.cloud"; process.env.LIVEKIT_API_KEY = "APItest"; process.env.LIVEKIT_API_SECRET = "secret-de-test-assez-long-pour-hs256-0123456789";
+  globalThis.fetch = (async (u: string, o: { body: string }) => { appel = { url: String(u), corps: JSON.parse(o.body) }; return new Response("{}", { status: 200 }); }) as typeof fetch;
+  await assurerPiece("ABCD2345", 10, new Date(Date.now() + 30 * 60000));
+  ok(!!appel && appel.url.endsWith("/twirp/livekit.RoomService/CreateRoom") && appel.corps.max_participants === 10 && appel.corps.name === "ABCD2345", "entrée : la pièce est remise avec max_participants = 10");
+  globalThis.fetch = (async () => { throw new Error("réseau"); }) as typeof fetch;
+  let leve = false; try { await assurerPiece("ABCD2345", 10, new Date(Date.now() + 30 * 60000)); } catch { leve = true; }
+  ok(!leve, "entrée : une panne du service vidéo ne bloque pas l'entrée (le jeton suffit)");
+  globalThis.fetch = vraiFetch;
+}
 const codes = new Set<string>(); for (let i = 0; i < 500; i++) codes.add(nouveauCode());
 ok([...codes].every(codeValide) && codes.size > 495, "500 codes : valides, sans 0/O/1/I, tous différents");
 ok(!codeValide("ABCDEFG0") && !codeValide("abcdefgh") && !codeValide("ABC"), "codes invalides refusés");
