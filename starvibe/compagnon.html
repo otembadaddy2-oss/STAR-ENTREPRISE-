@@ -99,7 +99,7 @@
   <div class="pane" id="offres" hidden>
     <div class="card"><h2 id="offresTitre">Choisis ton offre</h2><p class="note" id="offresTxt">Ton accès s'ouvre dès que ton dépôt est reconnu. Jamais gratuit.</p></div>
     <div class="card"><h2>Essentiel · 5 000 FCFA<span class="actuel" id="actEss" hidden>Ton offre</span> <small style="font:600 12px 'Inter',Arial,sans-serif;color:var(--dim)">par mois</small></h2>
-      <ul><li>65 messages par jour</li><li>10 rappels actifs</li><li>Culture générale + 5 recherches vérifiées par jour</li></ul>
+      <ul><li>65 messages par jour</li><li>10 rappels actifs</li><li>Culture générale + recherches vérifiées avec sources</li></ul>
       <button class="btn" data-plan="compagnon" style="margin-top:10px">Choisir Essentiel</button></div>
     <div class="card" style="border-color:var(--gold)"><h2>Complet · 19 $<span class="actuel" id="actPro" hidden>Ton offre</span> <small style="font:600 12px 'Inter',Arial,sans-serif;color:var(--dim)">par mois (≈ 11 100 FCFA)</small></h2>
       <ul><li>200 messages par jour</li><li>Rappels illimités</li><li>Recherches approfondies, sources citées</li></ul>
@@ -203,7 +203,7 @@
 
   function quota(q){
     if(!q) return;
-    $('quota').textContent=q.messagesUtilises+' / '+q.messagesMax+' messages sur 24 h · recherches : '+q.recherchesUtilisees+' / '+q.recherchesMax;
+    $('quota').textContent=q.messagesUtilises+' / '+q.messagesMax+' messages sur 24 h';
     var l=$('limite');
     if(q.revenirDansMs>0){ l.hidden=false; l.textContent='Tu as atteint ta limite de '+q.messagesMax+' messages. Reviens dans '+q.revenirDans+'.'; $('envoi').disabled=true; }
     else{ l.hidden=true; $('envoi').disabled=false; }

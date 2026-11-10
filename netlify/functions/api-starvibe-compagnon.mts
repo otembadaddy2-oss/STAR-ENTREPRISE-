@@ -306,7 +306,7 @@ export default async (req: Request, _context: Context) => {
     `[Contexte] Date et heure locales de la personne : ${heureLocale(new Date(), tz)} (fuseau ${tz}).`,
     `Rappels actifs : ${rapp.length ? rapp.map((r) => `#${r.id} « ${r.titre} » le ${heureLocale(new Date(r.quand), tz)}${r.repetition ? ` (chaque ${r.repetition === "jour" ? "jour" : r.repetition === "semaine" ? "semaine" : r.repetition === "mois" ? "mois" : "année"})` : ""}`).join(" ; ") : "aucun"}.`,
     `Ce que tu retiens de la personne : ${notes.length ? notes.reverse().map((n) => n.texte).join(" ; ") : "rien pour l'instant"}.`,
-    `Recherche Internet : ${restantes > 0 ? `disponible (${restantes} recherche(s) restante(s) aujourd'hui)` : "épuisée pour aujourd'hui : réponds avec tes connaissances et dis-le si tu n'es pas sûr"}.`,
+    `Vérification par recherche : ${restantes > 0 ? "disponible" : "épuisée pour aujourd'hui : réponds au mieux avec tes connaissances, dis franchement si tu n'es pas sûr, et mets \"seuil\":true si la question demandait une vérification"}.`,
     `[Message de la personne] ${message}`,
   ].join("\n");
   const messagesIA: { role: string; content: unknown }[] = [];
@@ -330,12 +330,13 @@ export default async (req: Request, _context: Context) => {
     return json({ reponse: "Je ne peux pas t'aider sur ce point. Je suis là pour tes rappels, tes questions du quotidien et ta culture générale.", sources: [], rappelsAjoutes: [], quota: await etatQuota(sql, accountId, acces.niveau) });
   }
 
+  let seuilAtteint = false;
   let reponse = "", rappelsIA: Record<string, unknown>[] = [], notesIA: unknown[] = [], suppr: unknown[] = [];
   const a = ia.texte.indexOf("{"), z = ia.texte.lastIndexOf("}");
   if (a >= 0 && z > a) {
     try {
-      const o = JSON.parse(ia.texte.slice(a, z + 1)) as { reponse?: string; rappels?: unknown; notes?: unknown; supprimer_rappels?: unknown };
-      reponse = clean(o.reponse, 1800);
+      const o = JSON.parse(ia.texte.slice(a, z + 1)) as { reponse?: string; seuil?: boolean; rappels?: unknown; notes?: unknown; supprimer_rappels?: unknown };
+      reponse = clean(o.reponse, 1800); seuilAtteint = o.seuil === true;
       rappelsIA = Array.isArray(o.rappels) ? (o.rappels as Record<string, unknown>[]).slice(0, 5) : [];
       notesIA = Array.isArray(o.notes) ? o.notes.slice(0, 5) : [];
       suppr = Array.isArray(o.supprimer_rappels) ? o.supprimer_rappels.slice(0, 10) : [];
@@ -360,6 +361,9 @@ export default async (req: Request, _context: Context) => {
     if (!dej.length && Number(nb[0]?.n || 0) < 80) await sql`INSERT INTO starvibe_compagnon_notes (account_id, texte) VALUES (${accountId}, ${t})`;
   }
   for (const id of suppr) { const i = Number(id); if (i) await sql`DELETE FROM starvibe_compagnon_rappels WHERE id = ${i} AND account_id = ${accountId}`; }
+  if (seuilAtteint && restantes <= 0) reponse += acces.niveau === "essentiel"
+    ? "\n\nTu as atteint ton seuil de recherches vérifiées pour aujourd'hui. Passe en mode Pro (offre Complet, 19 $ par mois) avec le bouton « + » pour continuer à vérifier tes informations, ou reviens demain."
+    : "\n\nTu as atteint ton seuil de recherches vérifiées pour aujourd'hui. Elles reviennent demain.";
   if (refusMedoc) reponse += "\n\n(Je n'ai pas enregistré ce rappel : je ne m'occupe pas des médicaments. Parle-en à ton médecin ou à ton pharmacien.)";
   if (refusLimite) reponse += `\n\n(Je n'ai pas pu ajouter ce rappel : tu as déjà ${lim.rappels} rappels actifs.)`;
 

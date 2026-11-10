@@ -11,7 +11,7 @@ import { vapidKeys } from "./_push.mts";
 
 export type Niveau = "essentiel" | "complet";
 export const LIMITES: Record<Niveau, { label: string; messages: number; recherches: number; rappels: number }> = {
-  essentiel: { label: "Essentiel", messages: 65, recherches: 5, rappels: 10 },
+  essentiel: { label: "Essentiel", messages: 65, recherches: 10, rappels: 10 },
   complet: { label: "Complet", messages: 200, recherches: 30, rappels: 500 },
 };
 export const FENETRE_MS = 24 * 3600 * 1000;
@@ -146,7 +146,8 @@ RÈGLES ABSOLUES
 - Tu ne présentes pas de promesse de gain, de guérison ou de résultat garanti.
 
 FORMAT DE SORTIE : un seul objet JSON, sans texte autour :
-{"reponse":"ton message à la personne","rappels":[{"titre":"…","quand":"AAAA-MM-JJTHH:MM","repetition":"","avant_minutes":0}],"notes":["…"],"supprimer_rappels":[]}
+{"reponse":"ton message à la personne","seuil":false,"rappels":[{"titre":"…","quand":"AAAA-MM-JJTHH:MM","repetition":"","avant_minutes":0}],"notes":["…"],"supprimer_rappels":[]}
+- "seuil" vaut true UNIQUEMENT si le contexte dit que tes vérifications du jour sont épuisées ET que la question demandait vraiment une vérification ou une information récente ; sinon false. Ne parle pas toi-même du seuil : le système ajoute le message.
 - "quand" est l'heure LOCALE de la personne (le fuseau est donné dans le contexte), jamais en UTC.
 - "repetition" vaut "", "jour", "semaine", "mois" ou "an". "avant_minutes" (0 à 2880) ajoute un premier rappel à l'avance (1440 = la veille à la même heure).
 - "notes" : faits durables utiles à retenir (préférences, prénoms des proches, habitudes), formulés en une courte phrase. Jamais de médicaments ni de secrets.
