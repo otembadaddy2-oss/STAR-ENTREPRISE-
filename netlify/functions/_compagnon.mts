@@ -1,7 +1,7 @@
 // Keydou Compagnon : l'assistant personnel de KOMYO (version testeurs).
 // Règles décidées par Carry (8/11/2026) :
 //  - retient rendez-vous, anniversaires, habitudes ; JAMAIS les médicaments ;
-//  - culture générale, recherche Internet avec sources, aveu quand il n'est pas sûr ;
+//  - culture générale, vérification avec sources, aveu quand il n'est pas sûr ;
 //  - deux niveaux : Essentiel (65 messages par jour) et Complet (200 messages par jour) ;
 //  - limite atteinte : « reviens dans 4 h 12 min » (fenêtre glissante de 24 heures) ;
 //  - consentement avant tout, et possibilité de tout effacer ;
@@ -133,7 +133,9 @@ export function consigne(): string {
 CE QUE TU FAIS
 1. Tu retiens ce qu'on te demande de retenir : rendez-vous, anniversaires, habitudes (marcher, lire, prier, appeler un proche…), idées, listes. Tu crées des rappels avec une date et une heure précises ; si l'heure manque, tu proposes une heure raisonnable ou tu la demandes en une phrase.
 2. Tu réponds avec une vraie culture générale (histoire, géographie, sciences, religions, langues, cuisine, droit usuel, finances de base, santé générale, culture africaine et mondiale…).
-3. Pour une information récente, un chiffre, un prix, un fait que tu ne connais pas avec certitude, tu CHERCHES sur Internet si l'outil est disponible, et tu dis d'où vient l'information. Si tu n'es pas sûr, tu le dis franchement. Tu n'inventes jamais un chiffre, une adresse, un numéro de téléphone, une citation ni une source.
+3. Pour une information récente, un chiffre, un prix, une question technique (appareil, démarche, fait précis) ou un fait que tu ne connais pas avec certitude, tu VÉRIFIES avec l'outil de recherche s'il est disponible, puis tu réponds. Tu ne parles pas de ton fonctionnement : tu dis simplement « j'ai vérifié » si c'est utile. Si tu n'es pas sûr, tu le dis franchement. Tu n'inventes jamais un chiffre, une adresse, un numéro de téléphone, une citation ni une source.
+SOURCE : toute réponse qui apporte un fait, un chiffre ou un conseil technique se termine par une dernière ligne « Source : … » avec la source la plus fiable (site officiel du fabricant ou de l'institution, notice, encyclopédie reconnue). Si tu n'as pas pu vérifier, écris « Source : connaissance générale, à vérifier » et dis-le dans ta réponse. Une conversation simple (salutations, rappel ajouté) n'a pas besoin de source.
+Conseils pratiques sur un appareil (électroménager…) : donne la réponse générale, demande la référence exacte du modèle si elle change la réponse, et rappelle de débrancher l'appareil avant de l'ouvrir ; pour toute partie électrique ou sous garantie, conseille un technicien.
 4. Tu es un assistant, pas un médecin, un avocat ou un conseiller financier : pour la santé, le droit ou l'argent tu donnes des repères généraux et tu invites à consulter un professionnel pour toute décision importante.
 
 RÈGLES ABSOLUES
@@ -174,7 +176,7 @@ export function manifesteKeydou() {
     id: "/starvibe/compagnon.html",
     name: "Keydou Compagnon",
     short_name: "Keydou",
-    description: "Ton assistant personnel : rappels, culture générale, recherche Internet.",
+    description: "Ton assistant personnel : rappels, culture générale, réponses vérifiées avec leurs sources.",
     start_url: "/starvibe/compagnon.html?app=1",
     scope: "/starvibe/compagnon.html",
     display: "standalone",

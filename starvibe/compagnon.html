@@ -99,10 +99,10 @@
   <div class="pane" id="offres" hidden>
     <div class="card"><h2 id="offresTitre">Choisis ton offre</h2><p class="note" id="offresTxt">Ton accès s'ouvre dès que ton dépôt est reconnu. Jamais gratuit.</p></div>
     <div class="card"><h2>Essentiel · 5 000 FCFA<span class="actuel" id="actEss" hidden>Ton offre</span> <small style="font:600 12px 'Inter',Arial,sans-serif;color:var(--dim)">par mois</small></h2>
-      <ul><li>65 messages par jour</li><li>10 rappels actifs</li><li>Culture générale + 5 recherches Internet par jour</li></ul>
+      <ul><li>65 messages par jour</li><li>10 rappels actifs</li><li>Culture générale + 5 recherches vérifiées par jour</li></ul>
       <button class="btn" data-plan="compagnon" style="margin-top:10px">Choisir Essentiel</button></div>
     <div class="card" style="border-color:var(--gold)"><h2>Complet · 19 $<span class="actuel" id="actPro" hidden>Ton offre</span> <small style="font:600 12px 'Inter',Arial,sans-serif;color:var(--dim)">par mois (≈ 11 100 FCFA)</small></h2>
-      <ul><li>200 messages par jour</li><li>Rappels illimités</li><li>Recherche Internet approfondie, sources citées</li></ul>
+      <ul><li>200 messages par jour</li><li>Rappels illimités</li><li>Recherches approfondies, sources citées</li></ul>
       <button class="btn gold" data-plan="compagnon_complet" style="margin-top:10px">Choisir Complet</button></div>
     <div class="inst" data-inst>
       <h2>📲 Installer Keydou sur mon téléphone</h2>
@@ -203,7 +203,7 @@
 
   function quota(q){
     if(!q) return;
-    $('quota').textContent=q.messagesUtilises+' / '+q.messagesMax+' messages sur 24 h · recherches Internet : '+q.recherchesUtilisees+' / '+q.recherchesMax;
+    $('quota').textContent=q.messagesUtilises+' / '+q.messagesMax+' messages sur 24 h · recherches : '+q.recherchesUtilisees+' / '+q.recherchesMax;
     var l=$('limite');
     if(q.revenirDansMs>0){ l.hidden=false; l.textContent='Tu as atteint ta limite de '+q.messagesMax+' messages. Reviens dans '+q.revenirDans+'.'; $('envoi').disabled=true; }
     else{ l.hidden=true; $('envoi').disabled=false; }
@@ -260,7 +260,7 @@
     var a=etat&&etat.acces;
     ouvrirOffres('Changer d\u2019offre', a&&a.niveau==='complet'
       ? 'Tu es en Complet (Pro). Tu peux le reconduire, ou passer à Essentiel à la fin de ta période.'
-      : 'Passe à Complet (Pro) pour 19 $ par mois : 200 messages par jour, rappels illimités, recherche Internet approfondie. Ton Essentiel en cours n\u2019est pas perdu : il reprend après ton Complet.');
+      : 'Passe à Complet (Pro) pour 19 $ par mois : 200 messages par jour, rappels illimités, recherches approfondies. Ton Essentiel en cours n\u2019est pas perdu : il reprend après ton Complet.');
   });
   $('finBtn').addEventListener('click',function(){ ouvrirOffres('Reconduire mon abonnement','Choisis ton offre : la nouvelle période s\u2019ajoute à la fin de ton abonnement actuel, sans perdre un jour.'); });
   $('reconduire').addEventListener('click',function(){ ouvrirOffres('Reconduire mon abonnement','Choisis ton offre : la nouvelle période s\u2019ajoute à la fin de ton abonnement actuel, sans perdre un jour.'); });
