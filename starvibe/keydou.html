@@ -457,7 +457,7 @@
     sit:{ f:'sitdown', next:'sitloop' }, stand:{ f:'stand' }, look:{ f:'look' }, wave:{ f:'wave' }, hop:{ f:'jump' }, spin:{ f:'spin' }, celebrate:{ f:'celebrate' }
   };
   function lancer(f, loop, fin){
-    curClip = f; vid.loop = !!loop; vid.onended = fin || null;
+    curClip = f; vid.loop = !!loop; vid.onended = fin || null; vid.playbackRate = 1;
     vid.src = VBASE + f + '.mp4';
     var p = vid.play(); if (p && p.catch) p.catch(function(){});
   }
@@ -542,6 +542,7 @@
     }catch(e){ analyser = null; }
   }
   function animateTalk(){
+    bouche();
     if (!analyser){ kdBody.style.setProperty('--talk', (1 + 0.025 * Math.abs(Math.sin(Date.now()/110))).toFixed(3)); kdBody.style.setProperty('--talk-y', (1 - 0.02 * Math.abs(Math.sin(Date.now()/110))).toFixed(3)); }
     else{
       analyser.getByteFrequencyData(data);
@@ -553,6 +554,22 @@
     raf = requestAnimationFrame(animateTalk);
   }
   var audioOK = true;
+  // Bouche synchronisée avec la voix : la séquence « il parle » ne bouge que pendant que la voix est là
+  // (elle se fige pendant les silences entre deux phrases) et va un peu plus vite quand la voix est plus forte.
+  // Le rythme vient de enveloppes-v1.json, calculé à partir des enregistrements eux-mêmes.
+  var ENV = null, curName = '', silN = 0;
+  try{ fetch('assets/audio/keydou/enveloppes-v1.json?v=voix5').then(function(r){ return r.json(); }).then(function(d){ ENV = d; }).catch(function(){}); }catch(e){}
+  function bouche(){
+    if (!ENV || !curName || !ENV.e[curName] || curClip !== 'talk' || !useVideo) return;
+    var c = ENV.e[curName].charAt(Math.floor(aud.currentTime / ENV.pas)) || '0';
+    if (c === '0'){ silN++; if (silN >= 2 && !vid.paused) vid.pause(); }
+    else{
+      silN = 0;
+      if (vid.paused){ var p = vid.play(); if (p && p.catch) p.catch(function(){}); }
+      vid.playbackRate = c === '3' ? 1.3 : (c === '2' ? 1.05 : 0.85);
+    }
+  }
+  function boucheRepos(){ curName = ''; silN = 0; vid.playbackRate = 1; if (vid.paused && useVideo){ var p = vid.play(); if (p && p.catch) p.catch(function(){}); } }
   // Enregistrements de la voix de Keydou déjà en ligne. Les autres phrases s'affichent en texte
   // jusqu'à ce qu'elles soient enregistrées (ajouter leur nom ici quand le fichier existe).
   var HAVE = {}; ['hello','pay','waiting','paid','paidnone','bye','sos','ready','nopay','askville','noanswer','noheard','sm-greet','sm-thanks','sm-who','sm-price','sm-bye','sm-help'].forEach(function(n){ HAVE[n] = true; });
@@ -562,8 +579,9 @@
       if (!audioOK){ resolve(); return; }
       if (curEnd) curEnd(); // une nouvelle phrase coupe la précédente
       aud.src = 'assets/audio/keydou/' + name + '.mp3?v=voix5';
+      curName = name; silN = 0;
       var done = false;
-      function end(){ if (done) return; done = true; if (curEnd === end) curEnd = null; cancelAnimationFrame(raf); resolve(); }
+      function end(){ if (done) return; done = true; if (curEnd === end) curEnd = null; cancelAnimationFrame(raf); boucheRepos(); resolve(); }
       curEnd = end;
       aud.onended = end;
       aud.onerror = function(){ audioOK = false; end(); };

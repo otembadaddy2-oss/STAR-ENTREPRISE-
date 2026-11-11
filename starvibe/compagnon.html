@@ -333,7 +333,7 @@
   function etatTxt(t){ $('etat').textContent=t; }
   var kdRetente=false;
   function initKd(){ if(kd) return;
-    if(!window.KeydouVivant){ if(!kdRetente){ kdRetente=true; var sc=document.createElement('script'); sc.src='assets/keydou-vivant-v1.js?r=1'; sc.onload=initKd; document.head.appendChild(sc); } return; } try{ kd=KeydouVivant.creer($('kd'),{taille:120}); kd.vie(true); kd.jouer('wave'); }catch(e){ kd=null; } }
+    if(!window.KeydouVivant){ if(!kdRetente){ kdRetente=true; var sc=document.createElement('script'); sc.src='assets/keydou-vivant-v1.js?r=2'; sc.onload=initKd; document.head.appendChild(sc); } return; } try{ kd=KeydouVivant.creer($('kd'),{taille:120}); kd.vie(true); kd.jouer('wave'); }catch(e){ kd=null; } }
   function kdBase(e){ if(kd) kd.base(e); }
   function kdGeste(g){ if(kd) kd.jouer(g); }
   function parlerUnPeu(txt){ if(!kd) return; kd.base('talk'); clearTimeout(tParle); tParle=setTimeout(function(){ if(!enParole){ kd.base('idle'); etatTxt('À toi !'); } },Math.min(5000,700+String(txt||'').length*30)); }
@@ -368,8 +368,12 @@
     if(!TTS) return; TTS.cancel();
     var u=new SpeechSynthesisUtterance(propre(t)); u.lang=LANG; u.rate=1;
     var vs=TTS.getVoices(); var v=vs.filter(function(x){ return x.lang&&x.lang.toLowerCase().indexOf(LANG.slice(0,2).toLowerCase())===0; })[0]; if(v) u.voice=v;
+    var tB=0;
     u.onstart=function(){ enParole=true; clearTimeout(tParle); kdBase('talk'); etatTxt('Je te lis ma réponse…'); };
-    u.onend=u.onerror=function(){ enParole=false; kdBase('idle'); etatTxt('À toi !'); };
+    // Bouche synchronisée : quand le téléphone signale chaque mot lu, la bouche de Keydou bouge le temps du mot puis se fige.
+    // (Si le téléphone n'envoie pas ces signaux, Keydou parle en continu comme avant.)
+    u.onboundary=function(e){ if(!kd||!kd.parole) return; kd.parole(true,1.1); clearTimeout(tB); var n=(e&&e.charLength)||5; tB=setTimeout(function(){ if(enParole&&kd) kd.parole(false); },Math.max(200,Math.min(650,n*85))); };
+    u.onend=u.onerror=function(){ clearTimeout(tB); enParole=false; if(kd&&kd.parole) kd.parole(true,1); kdBase('idle'); etatTxt('À toi !'); };
     TTS.speak(u);
   }
   if(!TTS){ $('btnVoix').hidden=true; }
@@ -444,7 +448,7 @@
   charge();
 })();
 </script>
-<script src="assets/keydou-vivant-v1.js"></script>
+<script src="assets/keydou-vivant-v1.js?r=2"></script>
 <script src="assets/komyo-installer-v6.js" defer></script>
 </body>
 </html>
