@@ -135,7 +135,9 @@ def cover(c, d):
     c.setFillColor(colors.Color(0.04, 0.03, 0.06, alpha=0.82)); c.circle(W / 2, H * 0.60, 108 * mm, stroke=0, fill=1)
     lw = 100 * mm; lh = lw * 721 / 900
     c.drawImage(LOGO, (W - lw) / 2, H * 0.60 - lh / 2 + 4 * mm, lw, lh, mask='auto')
-    c.setFillColor(GOLD); c.rect(W / 2 - 18 * mm, 118 * mm, 36 * mm, 1.3, stroke=0, fill=1)
+    c.setFillColor(colors.white); c.setFont('Sora-Bold', 15); c.drawCentredString(W / 2, 127 * mm, 'Le réseau social de toute la famille')
+    c.setFillColor(colors.HexColor('#e7ddc9')); c.setFont('Inter', 10.5); c.drawCentredString(W / 2, 121.5 * mm, 'Enfants · jeunes · parents · adultes : chacun son espace')
+    c.setFillColor(GOLD); c.rect(W / 2 - 18 * mm, 114 * mm, 36 * mm, 1.3, stroke=0, fill=1)
     c.setFillColor(colors.white); c.setFont('Sora-Bold', 30); c.drawCentredString(W / 2, 100 * mm, "Guide d'utilisation")
     c.setFont('Inter', 12); c.setFillColor(colors.HexColor('#e7ddc9'))
     for i, l in enumerate(["De l'installation à ta première vidéo, aux médailles du parrainage :", "tout ce qu'il faut savoir, pas à pas, même si c'est ta première application."]):
