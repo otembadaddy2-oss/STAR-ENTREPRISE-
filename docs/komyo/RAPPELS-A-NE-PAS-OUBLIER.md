@@ -250,3 +250,9 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - **Déployé en ligne** (deploy 6af07b9f) : tout le lot KOMYO en attente, dont Keydou Compagnon (installation protégée : refusée sans dépôt validé, suivi dans le Backend), Keydou vivant, voix, niveau et « + », rappel la veille, prompt Keydou avec STAR Énergie.
 - **Reste à faire par Carry avant d'envoyer le lien** : cocher « Ouvert à l'abonnement » (Backend, onglet Compagnon). Tant que ce n'est pas coché, seuls les testeurs invités et les abonnés déjà payants y accèdent.
 - **Pub Bissa POP** : animation Blender faite (sachet découpé en 9 tranches qui se recolle, comme la boîte Labbaik des vidéos de Carry) ; fichiers de travail hors dépôt. Fin : « Créé par STAR ENTREPRISE — Un seul groupe, Toutes les solutions pour votre vie » avec le logo officiel. Zéro crédit Higgsfield.
+
+## 11 novembre 2026 — VOIX DE KEYDOU VALIDÉE PAR CARRY (à garder partout, y compris Keydou Compagnon)
+- **Carry a validé la voix de la vidéo de présentation v4/v5 : « c'est la vraie voix de Keydou ».** Keydou Compagnon doit garder exactement la même voix.
+- **Réglage à réutiliser pour toute nouvelle phrase** : ElevenLabs, voix « Chloé – Bright and elegant » (`I6eWD84OrEngt4S4Antm`), modèle `eleven_v4`, balises au début du texte `[warm, friendly, smiling]`, 1 génération. Coût : environ 1 crédit par caractère (≈ 0,02 centime).
+- La voix de bienvenue du site (`starvibe/assets/audio/keydou/hello.mp3`, quand on touche Keydou) est la référence de Carry. Les anciens fichiers `sm-*` et `done.mp3` ont un timbre un peu différent : à regénérer avec ce réglage si on veut une voix 100 % identique.
+- Vidéo de présentation (50 s vertical, fond blanc avec écrans KOMYO en couleurs, villes Brazzaville, Pointe-Noire, Abidjan, Guinée Conakry, France, Canada) : fichiers de travail hors dépôt. « Guinée Conakry » : pas encore de fiches dans l'annuaire de Keydou, à ajouter ou à retirer de la phrase.
