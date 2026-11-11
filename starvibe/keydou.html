@@ -555,7 +555,7 @@
   var audioOK = true;
   // Enregistrements de la voix de Keydou déjà en ligne. Les autres phrases s'affichent en texte
   // jusqu'à ce qu'elles soient enregistrées (ajouter leur nom ici quand le fichier existe).
-  var HAVE = {}; ['hello','pay','waiting','paid','paidnone','bye','sos'].forEach(function(n){ HAVE[n] = true; });
+  var HAVE = {}; ['hello','pay','waiting','paid','paidnone','bye','sos','ready','nopay','askville','noanswer','noheard','sm-greet','sm-thanks','sm-who','sm-price','sm-bye','sm-help'].forEach(function(n){ HAVE[n] = true; });
   var curEnd = null, seqId = 0;
   function speakOne(name){
     return new Promise(function(resolve){
