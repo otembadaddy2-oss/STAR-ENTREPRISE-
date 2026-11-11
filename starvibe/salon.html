@@ -66,7 +66,7 @@
   .cbtn small{position:absolute;bottom:-17px;font:600 10.5px 'Inter',Arial,sans-serif;color:var(--dim);white-space:nowrap;}
   .lien-fin{background:none;border:0;color:var(--dim);font:600 12px 'Inter',Arial,sans-serif;text-decoration:underline;cursor:pointer;padding:6px;}
   .point{display:inline-block;width:8px;height:8px;border-radius:50%;background:#46d27d;margin-right:6px;vertical-align:1px;} .point.orange{background:#f3b64a;animation:clig 1s infinite;} @keyframes clig{50%{opacity:.3;}}
-  .haut .gauche{display:flex;align-items:center;gap:10px;min-width:0;} .haut .gauche>div{min-width:0;} .haut b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:46vw;}
+  .haut .gauche{display:flex;align-items:center;gap:10px;min-width:0;} .haut .gauche>div{min-width:0;} .haut b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:42vw;}
   .rond-btn{appearance:none;border:0;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;font-size:20px;line-height:1;cursor:pointer;flex:none;display:grid;place-items:center;}
   .inviter{appearance:none;border:1.5px solid rgba(232,169,61,.7);background:rgba(232,169,61,.14);color:var(--gold2);border-radius:999px;padding:8px 14px;font:800 12.5px 'Sora',Arial,sans-serif;cursor:pointer;white-space:nowrap;}
   .banniere{margin:0 12px 4px;border-radius:12px;padding:9px 12px;font-size:13px;background:rgba(243,182,74,.16);border:1px solid rgba(243,182,74,.6);display:flex;align-items:center;justify-content:space-between;gap:10px;}
@@ -149,7 +149,7 @@
 
 <div id="appel" hidden>
   <div class="haut">
-    <div class="gauche"><button class="rond-btn" id="bRetour" type="button" aria-label="Retour : quitter le salon">←</button><div><b id="aNom">Salon</b><span class="compte"><span class="point" id="aPoint"></span><span id="aStatut">En direct</span> · <span id="aChrono">--:--</span> restant · <span id="aNb">1</span> pers.</span></div></div>
+    <div class="gauche"><button class="rond-btn" id="bRetour" type="button" aria-label="Retour : quitter le salon">←</button><div><b id="aNom">Salon</b><span class="compte"><span class="point" id="aPoint"></span><span id="aStatut">En direct</span> · <span id="aChrono">--:--</span> · <span id="aNb">1</span> pers.</span></div></div>
     <button class="inviter" id="bInv" type="button">+ Inviter</button>
   </div>
   <div class="banniere" id="banniere" role="status" hidden><span id="banTxt"></span><button id="banBtn" type="button" hidden>Activer le son</button></div>
@@ -185,7 +185,7 @@
     return fetch('/api/starvibe-salon'+path,opts).then(function(r){ return r.json().catch(function(){return {};}).then(function(d){ return {ok:r.ok,status:r.status,d:d}; }); });
   }
   function toast(t){ var e=document.createElement('div'); e.className='toast'; e.setAttribute('role','status'); e.textContent=t; document.body.appendChild(e); setTimeout(function(){ e.remove(); },3800); }
-  function limitesTxt(l){ return ['Jusqu’à '+l.personnes+' personnes', l.minutes+' minutes par salon'].concat(l.salonsParSemaine?[l.salonsParSemaine+' salons par semaine']:[]); }
+  function limitesTxt(l){ return (l.personnes?['Jusqu’à '+l.personnes+' personnes']:[]).concat([l.minutes+' minutes par salon']).concat(l.salonsParSemaine?[l.salonsParSemaine+' salons par semaine']:[]); }
   function puces(el,arr){ el.innerHTML=''; arr.forEach(function(t){ var s=document.createElement('span'); s.textContent=t; el.appendChild(s); }); }
   function heure(ms){ return new Date(ms).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}); }
   function copier(t){
@@ -249,7 +249,7 @@
     estHote=!!s.estHote; finAt=new Date(s.finAt).getTime();
     if(s.clos){ $('finTitre').textContent='Salon terminé'; $('finTxt').textContent='Ce salon est fini. Demande à '+s.hote+' d’en ouvrir un nouveau.'; $('btnRevenirFin').hidden=true; return montrer('fin'); }
     $('rejNom').textContent=s.nom; $('rejInfo').textContent=(s.type==='amis'?'Salon entre amis':'Salon en famille')+' ouvert par '+s.hote+'. Ton micro sera allumé, ta caméra éteinte : tu l’allumes quand tu veux.';
-    puces($('rejLimites'),['Jusqu’à '+s.max+' personnes','Fin vers '+heure(finAt)]); montrer('rejoindre');
+    puces($('rejLimites'),['Fin vers '+heure(finAt)]); montrer('rejoindre');
   }
   $('btnRejoindre').onclick=function(){ entrer(); };
   $('btnRevenirFin').onclick=function(){ entrer(); };
@@ -261,7 +261,9 @@
     function libere(){ if(bouton&&bouton.tagName==='BUTTON') bouton.disabled=false; }
     api('',{method:'POST',body:{action:'entrer',code:code}}).then(function(r){
       libere();
-      if(!r.ok){ var msg=r.d.error||'Impossible d’entrer.'; if(!$('rejoindre').hidden){ $('errRej').textContent=msg; $('errRej').hidden=false; } else toast(msg); return; }
+      if(!r.ok){ var msg=r.d.error||'Impossible d’entrer.';
+        if(r.d.code==='famille_requis'){ return feuille('Ce salon est complet pour le moment',msg,[{t:'Compris'}]); }
+        if(!$('rejoindre').hidden){ $('errRej').textContent=msg; $('errRej').hidden=false; } else toast(msg); return; }
       var d=r.d; estHote=!!d.hote; finAt=new Date(d.finAt).getTime(); $('aNom').textContent=d.nomSalon||'Salon'; $('bTous').hidden=!estHote;
       ecranAvant=(['creer','lobby','rejoindre','fin'].filter(function(x){ return !$(x).hidden; })[0])||'rejoindre';
       sess={url:d.url,jeton:d.jeton,lien:d.lien||'',nomSalon:d.nomSalon||'Salon'}; quitte=false; causeSortie=''; avertiFin=false; tentative=0; reconnecte=false;
@@ -281,6 +283,7 @@
      .on(E.TrackUnsubscribed,function(t){ t.detach().forEach(function(el){ el.remove(); }); dessiner(); })
      .on(E.Reconnecting,function(){ statut('Reconnexion…',true); }).on(E.Reconnected,function(){ statut('En direct',false); dessiner(); })
      .on(E.AudioPlaybackStatusChanged,verifierSon)
+     .on(E.DataReceived,messageRecu)
      .on(E.Disconnected,function(raison){ if(room!==r) return; finConnexion(raison); });
     return r;
   }
@@ -333,6 +336,16 @@
     if(sess&&!quitte&&!reconnecte&&room&&room.state==='disconnected'){ finConnexion(null); }
   });
   window.addEventListener('online',function(){ if(sess&&!quitte&&!reconnecte&&room&&room.state==='disconnected') finConnexion(null); });
+
+  /* ---------- message privé du serveur (place refusée à un invité) ---------- */
+  var dernierAvis=0;
+  function messageRecu(payload){
+    try{
+      var m=JSON.parse(new TextDecoder().decode(payload));
+      if(m&&m.type==='famille_requis'&&estHote&&Date.now()-dernierAvis>120000){ dernierAvis=Date.now();
+        feuille('Un invité veut entrer',m.message||'Pour réunir 5 personnes ou plus, passe à l’abonnement Famille.',[{t:'Voir l’abonnement Famille',f:function(){ window.open('abonnement.html','_blank'); }},{t:'Plus tard',cls:'ligne'}]); }
+    }catch(e){}
+  }
 
   /* ---------- participants ---------- */
   function participants(){ var l=[]; if(room){ l.push(room.localParticipant); room.remoteParticipants.forEach(function(p){ l.push(p); }); } return l; }

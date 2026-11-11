@@ -203,7 +203,7 @@ S_ += [Paragraph('Ce que tu peux faire', H2)] + bl([
     "<b>Aimer, commenter et partager</b> les vidéos des autres.",
     "<b>Inviter tes amis</b> avec Myo, et <b>gagner des médailles</b> grâce au parrainage.",
     "<b>Parler à Keydou</b>, l'assistant qui te trouve un hôtel, un restaurant, un dépannage, un kit solaire… au Congo, à Abidjan, en France et au Canada.",
-    "<b>Appeler ta famille et tes amis en vidéo</b> avec <b>le Salon</b> : un appel de groupe, jusqu'à 10 personnes, sans installer autre chose (ouverture progressive).",
+    "<b>Appeler ta famille et tes amis en vidéo</b> avec <b>le Salon</b> : un appel de groupe, sans installer autre chose (ouverture progressive).",
     "<b>Avoir ton assistant personnel</b> avec <b>Keydou Compagnon</b> : il retient tes rendez-vous et tes anniversaires, te rappelle au bon moment et répond à tes questions, à la voix comme à l'écrit.",
     "<b>Offrir à tes enfants</b> les 10 dessins animés de PIOUPIOU et les premiers hymnes nationaux, dans un espace protégé.",
     "<b>Faire connaître</b> ta musique, ta boutique ou ton événement avec une annonce."])
@@ -413,13 +413,14 @@ pendant = bl(["<b>Micro et caméra :</b> coupe-les et remets-les quand tu veux. 
               "<b>Flèche de retour (ou retour du téléphone) :</b> une fenêtre te propose de quitter ou de rester. Tu peux <b>quitter sans fermer</b> le salon et y <b>revenir</b> avec le bouton « Revenir dans le salon ».",
               "<b>Celui qui a ouvert le salon</b> peut couper le micro d'une personne, la retirer (menu « … » sur sa tuile) ou <b>terminer le salon pour tous</b>.",
               "Si ta connexion se coupe, le Salon <b>se reconnecte tout seul</b>. Une alerte te prévient quand il reste <b>2 minutes</b>."])
-S_ += [KeepTogether([Paragraph('Pendant l\'appel', H2)] + a_cote(pendant, Phone(os.path.join(A, 'salon_appel.png'), w=46 * mm, legende='Jusqu\'à 10 personnes dans le même écran')))]
-S_ += [Paragraph('Combien de personnes, combien de temps ?', H2)]
+S_ += [KeepTogether([Paragraph('Pendant l\'appel', H2)] + a_cote(pendant, Phone(os.path.join(A, 'salon_appel.png'), w=46 * mm, legende='Toute la famille dans le même écran')))]
+S_ += [Paragraph('Combien de temps, et pour qui ?', H2)]
 S_ += tbl([['', 'Gratuit', 'Abonnement Famille'],
-           ['Personnes dans un salon', '4', '10'],
+           ['Ouvrir et rejoindre un salon', 'Oui', 'Oui'],
            ['Durée d\'un salon', '20 minutes', '60 minutes'],
            ['Salons que tu peux ouvrir', "2 par semaine", "Autant que tu veux, dans la limite de 1 500 minutes de présence par mois (somme des minutes de chaque participant)"],
-           ['Prix', 'Gratuit', '1 500 FCFA pour 30 jours (chapitre 14)']], [46, 40, CW / mm - 86])
+           ['Réunir beaucoup de monde', "Avec l'abonnement Famille : un message t'explique au moment voulu", "Oui, jusqu'à la limite du salon"],
+           ['Prix', 'Gratuit', '1 500 FCFA pour 30 jours (chapitre 14)']], [46, 52, CW / mm - 98])
 S_ += box("<b>Pour entrer dans un salon, un simple compte KOMYO gratuit suffit.</b> Seul celui qui <b>ouvre</b> le salon est limité par son offre. Ne partage le lien qu'avec des personnes que tu connais : <b>jamais en public</b>.", 'ok')
 S_ += box("Le Salon utilise des données mobiles pendant l'appel. Garde la caméra éteinte si ta connexion est faible : tu peux toujours parler et écouter.", 'tip')
 
@@ -442,9 +443,9 @@ gauche = tbl([['Offre', 'Prix', 'Ce que tu obtiens'],
               ['Découverte', '0 FCFA', "Compte, fil, publier, aimer, commenter, partager, Myo, Parrainage, KOMYO Jeunes."],
               ['Annonce', "2 000 FCFA (1 sem.)<br/>4 000 FCFA (2 sem.)<br/>10 000 FCFA (1 mois)", "Ton message visible par tous les abonnés."],
               ['Business', '5 000 FCFA / mois', "Mise en avant de tes vidéos, statistiques, boutique."],
-              ['Famille', '1 500 FCFA / 30 jours', "10 dessins animés PIOUPIOU, hymnes nationaux, profils enfants illimités, Salon de 10 personnes."],
+              ['Famille', '1 500 FCFA / 30 jours', "10 dessins animés PIOUPIOU, hymnes nationaux, profils enfants illimités, grands salons."],
               ['Keydou', "1 000 FCFA / demande", "Jusqu'à 3 besoins cochés. Ailleurs : 1,52 € (France), 2,50 CAD (Canada)."],
-              ['Le Salon', "Gratuit ou Famille", "4 personnes, 20 min (gratuit) ; 10 personnes, 60 min (Famille). Chapitre 12."],
+              ['Le Salon', "Gratuit ou Famille", "Appels en groupe ; grands salons avec Famille. Chapitre 12."],
               ['Keydou Compagnon', "5 000 FCFA ou 19 $ / mois", "Assistant personnel : Essentiel ou Complet (chapitre 11). Jamais gratuit."]], [32, 52, CW / mm - 84])
 S_ += gauche
 S_ += [Paragraph('Comment payer (Mobile Money)', H2)]

@@ -4,12 +4,22 @@
 import { SignJWT } from "jose";
 
 export type Niveau = "gratuit" | "famille";
-// Limites de la version test (décision de Carry : jusqu'à 10 personnes en Famille).
+// Limites (décision de Carry) : Famille jusqu'à 10 personnes ; sans abonnement, le seuil de 4 personnes n'est pas annoncé (message au 5e participant).
 export const LIMITES: Record<Niveau, { label: string; personnes: number; minutes: number; salonsParSemaine: number | null; minutesParticipantsParMois: number | null }> = {
   gratuit: { label: "Gratuit", personnes: 4, minutes: 20, salonsParSemaine: 2, minutesParticipantsParMois: null },
   famille: { label: "Famille", personnes: 10, minutes: 60, salonsParSemaine: null, minutesParticipantsParMois: 1500 },
 };
 export const TARIF_MINUTE_USD = 0.0005;   // LiveKit Cloud (offre Ship), par minute et par personne : à confirmer sur la page officielle
+
+// Règle des places : tout le monde peut ouvrir un salon et inviter ; à partir du 5e participant, la personne qui a ouvert le salon doit avoir l'abonnement Famille.
+// La salle LiveKit est toujours créée avec le plafond Famille (10) ; c'est l'API qui fait respecter le seuil gratuit avant de remettre un jeton.
+export const SEUIL_SANS_ABONNEMENT = 4;
+export const PLAFOND_SALLE = 10;
+export function placeRefusee(hoteSansAbonnement: boolean, presents: number, dejaDansLaSalle: boolean): boolean {
+  return hoteSansAbonnement && !dejaDansLaSalle && presents >= SEUIL_SANS_ABONNEMENT;
+}
+export const MSG_PLACES_INVITE = "Ce salon a atteint son nombre de places gratuites. Pour réunir 5 personnes ou plus, la personne qui l'a ouvert doit passer à l'abonnement Famille (1 500 FCFA pour 30 jours). Elle vient d'être prévenue.";
+export const MSG_PLACES_HOTE = "Quelqu'un veut rejoindre ton salon, mais vous êtes déjà 4. Pour réunir 5 personnes ou plus, passe à l'abonnement Famille (1 500 FCFA pour 30 jours).";
 
 export function niveauDe(famille: boolean): Niveau { return famille ? "famille" : "gratuit"; }
 // Pendant le test fermé, les testeurs invités par l'équipe ont les capacités Famille (10 personnes, 60 minutes) et aucun plafond de salons.
@@ -81,6 +91,20 @@ export async function creerPiece(code: string, max: number, dureeMin: number) {
 export async function assurerPiece(code: string, max: number, finAt: Date) {
   const restant = Math.max(1, Math.ceil((finAt.getTime() - Date.now()) / 60000));
   try { await creerPiece(code, max, restant); } catch { /* la pièce existe déjà ou le service est lent : l'entrée reste possible */ }
+}
+// Qui est dans la salle en ce moment (identités). Une erreur du service vidéo donne une liste vide : l'entrée reste possible.
+export async function presentsDans(code: string): Promise<string[]> {
+  try {
+    const l = (await lkAdmin("ListParticipants", { room: code }, code)) as { participants?: { identity: string }[] };
+    return (l.participants || []).map((p) => p.identity);
+  } catch { return []; }
+}
+// Message privé à un participant de la salle (par exemple l'hôte). Sans gravité si ça échoue.
+export async function prevenir(code: string, identite: string, message: Record<string, unknown>): Promise<void> {
+  try {
+    const data = btoa(unescape(encodeURIComponent(JSON.stringify(message))));
+    await lkAdmin("SendData", { room: code, data, kind: "RELIABLE", destination_identities: [identite], topic: "salon" }, code);
+  } catch { /* le message d'erreur donné à l'invité suffit */ }
 }
 export async function retirer(code: string, identite: string) { return await lkAdmin("RemoveParticipant", { room: code, identity: identite }, code); }
 export async function fermerPiece(code: string) { return await lkAdmin("DeleteRoom", { room: code }, code); }

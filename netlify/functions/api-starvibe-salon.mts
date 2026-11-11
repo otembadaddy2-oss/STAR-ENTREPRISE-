@@ -3,7 +3,7 @@
 //   GET  ?acces=1            → { visible, peutCreer, niveau, limites, testeur, salonEnCours }  (la carte de l'accueil s'affiche si visible)
 //   GET  ?salon=CODE         → infos du salon (nom, type, hôte, fin, places)
 //   POST { action:"creer", nom, type:"famille"|"amis" }  → { code, lien }
-//   POST { action:"entrer", code }                       → { url, jeton, identite, nom, hote, finAt, max, lien }
+//   POST { action:"entrer", code }                       → { url, jeton, identite, nom, hote, finAt, max, lien }  (402 famille_requis : 5e participant sans abonnement Famille de l'hôte)
 //   POST { action:"couper"|"retirer", code, identite }   (hôte seulement)
 //   POST { action:"fermer", code }                       (hôte seulement)
 // Équipe (jeton staff) :
@@ -15,7 +15,7 @@ import { requireAuth } from "./_auth.mts";
 import { last9 } from "./_push.mts";
 import { hasActiveFamille } from "./_premium.mts";
 import { codeDe } from "./_parrainage.mts";
-import { LIMITES, TARIF_MINUTE_USD, niveauEffectif, verdictPour, nouveauCode, codeValide, minutesEstimees, configLk, creerPiece, assurerPiece, jetonEntree, retirer, couperMicro, fermerPiece } from "./_salon.mts";
+import { LIMITES, TARIF_MINUTE_USD, niveauEffectif, verdictPour, nouveauCode, codeValide, minutesEstimees, configLk, creerPiece, assurerPiece, jetonEntree, retirer, couperMicro, fermerPiece, placeRefusee, presentsDans, prevenir, PLAFOND_SALLE, MSG_PLACES_INVITE, MSG_PLACES_HOTE } from "./_salon.mts";
 
 const ORG_MEMBRE = "star_vibe";
 const ORG_STAFF = "star_entreprise";
@@ -96,7 +96,7 @@ export default async (req: Request, _context: Context) => {
     // Le salon encore ouvert de cette personne : elle peut y revenir ou récupérer son lien, même si elle a quitté la page.
     const enCours = (await sql`SELECT code, nom, fin_at FROM starvibe_salons WHERE hote_id = ${accountId} AND ferme_at IS NULL AND fin_at > now() ORDER BY id DESC LIMIT 1`) as { code: string; nom: string; fin_at: string }[];
     let lienEnCours = ""; if (enCours[0]) { let r = ""; try { r = await codeDe(sql, accountId); } catch { /* sans gravité */ } lienEnCours = `${SITE}/starvibe/salon.html?s=${enCours[0].code}${r ? "&ref=" + encodeURIComponent(r) : ""}`; }
-    return json({ visible: peutCreerAcces, peutCreer: peutCreerAcces && v.ok, raison: peutCreerAcces ? v.raison : "Le Salon est en test fermé : il s'ouvrira bientôt à tous les membres.", niveau, limites: LIMITES[niveau], famille, testeur,
+    return json({ visible: peutCreerAcces, peutCreer: peutCreerAcces && v.ok, raison: peutCreerAcces ? v.raison : "Le Salon est en test fermé : il s'ouvrira bientôt à tous les membres.", niveau, limites: niveau === "famille" ? LIMITES.famille : { ...LIMITES.gratuit, personnes: null }, famille, testeur,
       salonEnCours: enCours[0] ? { code: enCours[0].code, nom: enCours[0].nom, finAt: new Date(String(enCours[0].fin_at)).toISOString(), lien: lienEnCours } : null });
   }
 
@@ -127,7 +127,7 @@ export default async (req: Request, _context: Context) => {
       if (ex.length === 0) code = c;
     }
     if (!code) return json({ error: "Réessaie dans un instant." }, 503);
-    try { await creerPiece(code, l.personnes, l.minutes); } catch (e) { return json({ error: "Le service vidéo ne répond pas pour le moment. Réessaie dans un instant." }, 502); }
+    try { await creerPiece(code, PLAFOND_SALLE, l.minutes); } catch (e) { return json({ error: "Le service vidéo ne répond pas pour le moment. Réessaie dans un instant." }, 502); }
     await sql`INSERT INTO starvibe_salons (code, hote_id, nom, type, max_personnes, duree_min, famille, fin_at) VALUES (${code}, ${accountId}, ${nom}, ${type}, ${l.personnes}, ${l.minutes}, ${famille}, ${fin.toISOString()})`;
     // Le lien d'invitation porte le code de parrainage de l'hôte : chaque nouveau membre arrivé par le Salon compte pour ses médailles.
     let ref = ""; try { ref = await codeDe(sql, accountId); } catch { /* sans gravité */ }
@@ -147,7 +147,15 @@ export default async (req: Request, _context: Context) => {
     if (!configLk().pret) return json({ error: "Le Salon n'est pas encore branché. Réessaie un peu plus tard." }, 503);
     const nom = await nomDe(sql, accountId);
     const identite = `m${accountId}`;
-    await assurerPiece(code, Number(s.max_personnes), fin);
+    await assurerPiece(code, PLAFOND_SALLE, fin);
+    // Places : sans abonnement Famille (ni invitation de test) de la personne qui a ouvert le salon, le 5e participant est refusé.
+    const hoteAbonne = estHote ? famille : await hasActiveFamille(sql, Number(s.hote_id));
+    const hoteTesteur = estHote ? testeur : ((await sql`SELECT 1 FROM starvibe_salon_acces WHERE account_id = ${Number(s.hote_id)}`) as unknown[]).length > 0;
+    const presents = await presentsDans(code);
+    if (placeRefusee(!hoteAbonne && !hoteTesteur, presents.length, presents.includes(`m${accountId}`))) {
+      await prevenir(code, `m${Number(s.hote_id)}`, { type: "famille_requis", message: MSG_PLACES_HOTE });
+      return json({ error: MSG_PLACES_INVITE, code: "famille_requis" }, 402);
+    }
     const jeton = await jetonEntree(code, identite, nom, Math.ceil((fin.getTime() - Date.now()) / 1000));
     let ref = ""; try { ref = await codeDe(sql, accountId); } catch { /* sans gravité */ }
     const lien = `${SITE}/starvibe/salon.html?s=${code}${ref ? "&ref=" + encodeURIComponent(ref) : ""}`;
