@@ -561,7 +561,7 @@
     return new Promise(function(resolve){
       if (!audioOK){ resolve(); return; }
       if (curEnd) curEnd(); // une nouvelle phrase coupe la précédente
-      aud.src = 'assets/audio/keydou/' + name + '.mp3';
+      aud.src = 'assets/audio/keydou/' + name + '.mp3?v=voix5';
       var done = false;
       function end(){ if (done) return; done = true; if (curEnd === end) curEnd = null; cancelAnimationFrame(raf); resolve(); }
       curEnd = end;
@@ -1087,7 +1087,7 @@
       setState('wave');
       speak('hello', TXT.hello).then(function(){ setState('idle'); setTimeout(lifeTick, 3000); });
     }
-    aud.src = 'assets/audio/keydou/hello.mp3';
+    aud.src = 'assets/audio/keydou/hello.mp3?v=voix5';
     var p = aud.play();
     if (p && p.then){ p.then(function(){ aud.pause(); aud.currentTime = 0; hello(); }).catch(function(){ ['pointerdown','touchend','click','keydown'].forEach(function(n){ document.addEventListener(n, hello, true); }); }); }
     else ['pointerdown','touchend','click','keydown'].forEach(function(n){ document.addEventListener(n, hello, true); });
