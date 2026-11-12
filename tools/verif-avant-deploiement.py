@@ -55,7 +55,7 @@ def main():
                         d = os.path.dirname(u.split('?')[0])
                         path = os.path.normpath(os.path.join(d, path)).replace('\\', '/')
                 if path in rw or path.endswith('/') and path != '/' and False: continue
-                if path == '/' or path in ('/starvibe/', '/starvibe'): continue
+                if path == '/' or path.endswith('/') or path in ('/starvibe/', '/starvibe'): continue  # dossiers / préfixes de chemins construits en JS
                 verifies += 1
                 if not exists(path) and path not in rw:
                     erreurs += 1; print(f'ERREUR  {rel} servie sous {u} : « {r} » -> {path} introuvable')
