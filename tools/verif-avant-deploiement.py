@@ -44,6 +44,7 @@ def main():
         for u in urls:
             for r in set(refs(html)):
                 if re.match(r'(mailto:|tel:|sms:|javascript:|data:|#|blob:|\{|\$)', r) or 'wa.me' in r: continue
+                if r.endswith('/') and not r.startswith(('http://', 'https://')): continue  # préfixe de dossier construit en JS
                 pr = urlparse(r)
                 if pr.scheme in ('http', 'https'):
                     if pr.netloc not in HOSTS: continue
