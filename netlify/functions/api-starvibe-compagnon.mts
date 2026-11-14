@@ -153,8 +153,9 @@ export default async (req: Request, _context: Context) => {
       const ouvert = ((await sql`SELECT value FROM starvibe_settings WHERE key = 'compagnon_ouvert'`) as { value: string }[])[0]?.value === "on";
       const ti = Number(cout[0].ti), to = Number(cout[0].tou);
       const nbImg = Number(((await sql`SELECT COUNT(*) AS n FROM starvibe_compagnon_images WHERE statut = 'ok' AND created_at > now() - interval '30 days'`) as { n: string }[])[0]?.n || 0);
+      let journal: unknown[] = []; try { journal = JSON.parse(((await sql`SELECT value FROM starvibe_settings WHERE key = 'compagnon_ouvert_journal'`) as { value: string }[])[0]?.value || "[]"); } catch { journal = []; }
       return json({
-        ouvert, limites: LIMITES, modele: MODELE(),
+        ouvert, journal, limites: LIMITES, modele: MODELE(),
         usage30j: { messages: Number(cout[0].msgs), recherches: Number(cout[0].rech), jetonsEntree: ti, jetonsSortie: to, coutEstimeUsd: Math.round(((ti * TARIF_ENTREE_USD + to * TARIF_SORTIE_USD) / 1e6) * 100) / 100, images: nbImg, imagesActives: imagesDisponibles() },
         lignes: lignes.map((l) => ({
           accountId: l.account_id, telephone: l.telephone, nom: l.nom || "", test: !!l.test, niveauTest: l.niveau_test || "", planActif: l.plan_actif || "", fin: l.fin || null,
@@ -167,6 +168,11 @@ export default async (req: Request, _context: Context) => {
     try { b = await req.json(); } catch { return json({ error: "Requête invalide" }, 400); }
     if (b.action === "ouvrir") {
       await sql`INSERT INTO starvibe_settings (key, value) VALUES ('compagnon_ouvert', ${b.on ? "on" : "off"}) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`;
+      // Journal des changements (20 derniers) : qui a ouvert ou fermé, et quand.
+      const ancien = ((await sql`SELECT value FROM starvibe_settings WHERE key = 'compagnon_ouvert_journal'`) as { value: string }[])[0]?.value;
+      let liste: unknown[] = []; try { liste = JSON.parse(ancien || "[]"); } catch { liste = []; }
+      liste.unshift({ on: !!b.on, at: new Date().toISOString(), par: String(session.displayName || session.username || "staff").slice(0, 60) });
+      await sql`INSERT INTO starvibe_settings (key, value) VALUES ('compagnon_ouvert_journal', ${JSON.stringify(liste.slice(0, 20))}) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`;
       return json({ ok: true });
     }
     if (b.action === "testeur") {

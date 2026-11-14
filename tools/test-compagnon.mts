@@ -1,4 +1,4 @@
-import { modeDe, verifierDemandeImage, validerPiece, supplement, idImageDansTexte, marqueImage, formatImage, mimeDepuisOctets, EFFORT, MAX_JETONS, LIMITE_REPONSE, MODE_PROFOND, gardePrescription, MSG_PAS_DE_DOSE, IMAGES_PAR_MOIS, PIECES_PAR_JOUR, texteAVoix, VOIX_PAR_JOUR, VOIX_SIGNES_MAX } from "../netlify/functions/_compagnon2.mts";
+import { modeDe, verifierDemandeImage, validerPiece, supplement, idImageDansTexte, marqueImage, formatImage, mimeDepuisOctets, EFFORT, MAX_JETONS, LIMITE_REPONSE, MODE_PROFOND, gardePrescription, MSG_PAS_DE_DOSE, IMAGES_PAR_MOIS, PIECES_PAR_JOUR, texteAVoix, VOIX_PAR_JOUR, VOIX_SIGNES_MAX, texteCompagnonPourKeydou } from "../netlify/functions/_compagnon2.mts";
 import { delaiRetour, formatDuree, localVersUtc, suivante, parleDeMedicaments, fuseauValide, FENETRE_MS } from "../netlify/functions/_compagnon.mts";
 let ko = 0; const ok = (n: string, c: boolean) => { if (!c) ko++; console.log((c ? "OK  " : "ECHEC ") + n); };
 const H = 3600000, now = Date.UTC(2026, 10, 8, 12, 0, 0);
@@ -102,3 +102,9 @@ ok("alerte posée une seule fois", (gardePrescription(gardePrescription("2 compr
   ok("réponse sans lettre → comptée fausse", illisible.note === "0.00");
 }
 console.log(ko ? "ECHECS : " + ko : "TOUS LES TESTS OK"); process.exit(ko ? 1 : 0);
+{
+  const o = texteCompagnonPourKeydou(true), f = texteCompagnonPourKeydou(false);
+  ok("Keydou : Compagnon ouvert → offres, capacités, jamais de prescription", /OUVERT/.test(o) && /5 000 FCFA/.test(o) && /19 \$/.test(o) && /ne prescrit JAMAIS/.test(o) && /25 images par mois/.test(o) && /3 images/.test(o));
+  ok("Keydou : Compagnon fermé → pas d'ouverture annoncée, pas de date", /PAS encore ouvert/.test(f) && !/OUVERT \(/.test(f) && /Ne promets ni date/.test(f));
+}
+

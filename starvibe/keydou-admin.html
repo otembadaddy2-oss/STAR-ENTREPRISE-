@@ -223,6 +223,7 @@
       <b>Keydou Compagnon (assistant personnel)</b>
       <p class="muted" style="margin:6px 0 8px;line-height:1.55">Jamais gratuit : une personne n'accède à Keydou Compagnon que si son dépôt est validé (Essentiel 5 000 FCFA, Complet 19 $ ≈ 11 100 FCFA) ou si tu l'as invitée comme testeur. Les médicaments sont refusés. Limites : <span id="compLim">—</span>.</p>
       <div class="bar"><label style="font-size:13px;display:flex;align-items:center;gap:8px"><input type="checkbox" id="compOuvert"> Ouvert à l'abonnement (laisser décoché pendant les essais)</label></div>
+      <div class="muted" id="compJournal" style="margin-top:4px;font-size:12px"></div>
       <div class="bar" style="margin-top:6px"><input id="compTel" type="text" placeholder="Téléphone du testeur (+242…)" style="flex:1;min-width:200px;padding:9px;border-radius:10px">
         <select id="compNiv" style="padding:9px;border-radius:10px"><option value="essentiel">Essentiel (65/jour)</option><option value="complet">Complet (200/jour)</option></select>
         <button class="btn ok" id="compInviter" type="button">Inviter comme testeur</button></div>
@@ -506,6 +507,8 @@
       if (!x.ok){ $('compMsg').textContent = x.d.error || 'Erreur'; return; }
       var d = x.d; $('compMsg').textContent = '';
       $('compOuvert').checked = d.ouvert;
+      var j0 = (d.journal || [])[0];
+      $('compJournal').textContent = j0 ? ('État actuel : ' + (d.ouvert ? 'OUVERT' : 'FERMÉ') + ' · dernier changement : ' + (j0.on ? 'ouvert' : 'fermé') + ' par ' + j0.par + ' le ' + new Date(j0.at).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' })) : ('État actuel : ' + (d.ouvert ? 'OUVERT' : 'FERMÉ'));
       $('compLim').textContent = 'Essentiel ' + d.limites.essentiel.messages + ' messages par jour, Complet ' + d.limites.complet.messages + ' (fenêtre de 24 h, « reviens dans … » quand la limite est atteinte)';
       var u = d.usage30j;
       $('compStats').innerHTML = '<div class="stat"><b>' + d.lignes.length + '</b><span>Testeurs et abonnés</span></div><div class="stat"><b>' + u.messages + '</b><span>Messages (30 j)</span></div><div class="stat"><b>' + u.recherches + '</b><span>Recherches Internet (30 j)</span></div><div class="stat"><b>≈ ' + u.coutEstimeUsd + ' $</b><span>Coût IA estimé (30 j, modèle ' + esc(d.modele) + ')</span></div>';
@@ -529,6 +532,7 @@
   $('compOuvert').addEventListener('change', function(){
     var on = this.checked;
     if (on && !confirm('Ouvrir Keydou Compagnon à l\u2019abonnement pour tout le monde ? Fais-le seulement après les essais.')){ this.checked = false; return; }
+    if (!on && !confirm('Fermer Keydou Compagnon ? Personne ne pourra plus s\u2019abonner (les abonnés actuels gardent leur accès).')){ this.checked = true; return; }
     postComp({ action:'ouvrir', on:on });
   });
   $('parrOk').addEventListener('click', loadParr);

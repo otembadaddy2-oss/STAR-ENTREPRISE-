@@ -185,6 +185,19 @@ try {
   const bonne = await fond(new Request(`https://t.test/x?id=${ins[0].id}&sig=${signerImage(ins[0].id)}`, { method: "POST" }));
   ok(bonne.status === 200, "…et accepte la bonne");
 
+  // --- Interrupteur « Ouvert à l'abonnement » : réservé à l'équipe, avec journal ---
+  const equipe = { token: await issueToken({ sub: "1", username: "carry", displayName: "Carry OTEMBA", org: "star_entreprise", role: "admin" }) };
+  let ad = await appel(equipe, "GET", "?admin=1"); let adj = await j(ad);
+  ok(ad.status === 200 && typeof adj.ouvert === "boolean" && Array.isArray(adj.journal), "équipe : l'état ouvert/fermé et le journal sont lisibles");
+  const avantEtat = adj.ouvert;
+  ok((await appel(C, "POST", "", { action: "ouvrir", on: true })).status === 403 && (await appel(C, "GET", "?admin=1")).status === 403, "un membre (même Complet) ne peut ni lire ni changer l'interrupteur");
+  await appel(equipe, "POST", "", { action: "ouvrir", on: true }); adj = await j(await appel(equipe, "GET", "?admin=1"));
+  ok(adj.ouvert === true && adj.journal[0].on === true && adj.journal[0].par === "Carry OTEMBA", "ouvrir : état « ouvert », journal « Carry OTEMBA »");
+  await appel(equipe, "POST", "", { action: "ouvrir", on: false }); adj = await j(await appel(equipe, "GET", "?admin=1"));
+  ok(adj.ouvert === false && adj.journal[0].on === false && adj.journal.length >= 2, "fermer : état « fermé », le journal garde l'historique");
+  await appel(equipe, "POST", "", { action: "ouvrir", on: !!avantEtat });
+  await sql`DELETE FROM starvibe_settings WHERE key = 'compagnon_ouvert_journal'`;
+
   // --- Ménage ---
   await sql`DELETE FROM starvibe_compagnon_voix WHERE account_id IN (${E.id}, ${C.id}, ${D.id})`;
   await sql`DELETE FROM starvibe_compagnon_images WHERE account_id IN (${E.id}, ${C.id}, ${D.id})`;
