@@ -2,14 +2,14 @@
 // avec de FAUX services d'IA et d'images (aucun réseau, aucun coût).
 // Lancer : service postgresql start ; NETLIFY_DB_URL=postgres://postgres:kt@localhost:5432/kt npx tsx tools/test-compagnon-api.mts
 process.env.JWT_SECRET = "secret-de-test-assez-long-0123456789-abcdef";
-process.env.ANTHROPIC_API_KEY = "faux"; process.env.IMAGE_API_KEY = "faux-image"; process.env.VAPID_PUBLIC_KEY ||= "x";
+process.env.ANTHROPIC_API_KEY = "faux"; process.env.IMAGE_API_KEY = "faux-image-0123456789abcdef"; process.env.VAPID_PUBLIC_KEY ||= "x";
 if (!process.env.NETLIFY_DB_URL) process.env.NETLIFY_DB_URL = "postgres://postgres:kt@localhost:5432/kt";
 const { ensureSchema, db } = await import("../netlify/functions/_db.mts");
 const { issueToken } = await import("../netlify/functions/_auth.mts");
 const api = (await import("../netlify/functions/api-starvibe-compagnon.mts")).default;
 const fond = (await import("../netlify/functions/compagnon-image-background.mts")).default;
 const { signerImage } = await import("../netlify/functions/_compagnon2.mts");
-process.env.VOIX_API_KEY = "faux-voix"; process.env.COMPAGNON_VOIX_COMPLET = "2";
+process.env.VOIX_API_KEY = "faux-voix-0123456789abcdef"; process.env.COMPAGNON_VOIX_COMPLET = "2";
 const mp3 = Buffer.concat([Buffer.from([0xff, 0xfb, 0x90, 0x00]), Buffer.alloc(3000, 9)]); const appelsVoix: Record<string, any>[] = []; let voixStatut = 200;
 let ko = 0; const ok = (c: boolean, m: string) => { console.log((c ? "OK  " : "ÉCHEC ") + m); if (!c) ko++; };
 
@@ -147,7 +147,7 @@ try {
   ok(Number(d.messageId) > 0, "la réponse donne l'identifiant du message (pour la voix)");
   const v1 = await appel(C, "GET", `?voix=${d.messageId}`); const bufV = Buffer.from(await v1.arrayBuffer());
   ok(v1.status === 200 && v1.headers.get("content-type") === "audio/mpeg" && bufV.length === mp3.length, "la voix est servie en MP3");
-  ok(appelsVoix.length === 1 && appelsVoix[0].cle === "faux-voix" && /Chloé|I6eWD84OrEngt4S4Antm/.test(appelsVoix[0].url) && appelsVoix[0].corps.model_id === "eleven_v4" && /^\[warm, friendly, smiling\] Bonjour/.test(appelsVoix[0].corps.text), "bonne voix (Chloé), bon modèle (eleven_v4), ton chaleureux");
+  ok(appelsVoix.length === 1 && appelsVoix[0].cle === "faux-voix-0123456789abcdef" && /Chloé|I6eWD84OrEngt4S4Antm/.test(appelsVoix[0].url) && appelsVoix[0].corps.model_id === "eleven_v4" && /^\[warm, friendly, smiling\] Bonjour/.test(appelsVoix[0].corps.text), "bonne voix (Chloé), bon modèle (eleven_v4), ton chaleureux");
   await appel(C, "GET", `?voix=${d.messageId}`);
   ok(appelsVoix.length === 1, "relecture du même message : servie depuis la mémoire, sans nouveau coût");
   ok((await j(await appel(C, "GET", ""))).capacites.voix.restantes === 1, "il reste 1 lecture sur 2");
@@ -184,6 +184,13 @@ try {
   ok(sansSig.status === 403, "la tâche de fond refuse une signature invalide");
   const bonne = await fond(new Request(`https://t.test/x?id=${ins[0].id}&sig=${signerImage(ins[0].id)}`, { method: "POST" }));
   ok(bonne.status === 200, "…et accepte la bonne");
+
+  // --- Clé collée par erreur (du texte au lieu d'une clé) : ni images ni voix annoncées ---
+  const kImg = process.env.IMAGE_API_KEY, kVox = process.env.VOIX_API_KEY;
+  process.env.IMAGE_API_KEY = "Envoie-moi la capture de la liste"; process.env.VOIX_API_KEY = "texte avec des espaces";
+  d = await j(await appel(C, "GET", ""));
+  ok(d.capacites.images === false && d.capacites.voix.actif === false, "texte collé par erreur : images et voix restent « bientôt », rien n'est annoncé");
+  process.env.IMAGE_API_KEY = kImg; process.env.VOIX_API_KEY = kVox;
 
   // --- Interrupteur « Ouvert à l'abonnement » : réservé à l'équipe, avec journal ---
   const equipe = { token: await issueToken({ sub: "1", username: "carry", displayName: "Carry OTEMBA", org: "star_entreprise", role: "admin" }) };

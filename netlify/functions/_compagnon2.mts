@@ -73,7 +73,9 @@ const entier = (v: string | undefined, d: number) => { const n = Number(v); retu
 // Images créées sur 30 jours glissants, photos ou documents lus sur 24 heures.
 export const IMAGES_PAR_MOIS = (n: Niveau): number => entier(process.env[n === "complet" ? "COMPAGNON_IMAGES_COMPLET" : "COMPAGNON_IMAGES_ESSENTIEL"], n === "complet" ? 25 : 3);
 export const PIECES_PAR_JOUR = (n: Niveau): number => entier(process.env[n === "complet" ? "COMPAGNON_PIECES_COMPLET" : "COMPAGNON_PIECES_ESSENTIEL"], n === "complet" ? 30 : 5);
-export const imagesDisponibles = (): boolean => !!process.env.IMAGE_API_KEY;
+// Une vraie clé est un seul mot sans espace (lettres, chiffres, - _ .) d'au moins 16 signes : un texte collé par erreur n'ouvre pas la fonction.
+export const cleValide = (v: string | undefined): boolean => /^[A-Za-z0-9._\-]{16,}$/.test(String(v || "").trim());
+export const imagesDisponibles = (): boolean => cleValide(process.env.IMAGE_API_KEY);
 
 // ---------- Consigne complémentaire (mode + images + pièces jointes) ----------
 export function supplement(mode: Mode, o: { imagesRestantes: number; imagesPossibles: boolean; niveau: Niveau; piece: boolean }): string {
@@ -129,7 +131,7 @@ export function mimeDepuisOctets(b: Buffer): string {
   return "";
 }
 export async function genererImage(prompt: string, format: FormatImage): Promise<ResultatImage> {
-  const key = process.env.IMAGE_API_KEY;
+  const key = String(process.env.IMAGE_API_KEY || "").trim();
   if (!key) return { ok: false, refus: false, erreur: "service d'images non configuré" };
   const base = (process.env.IMAGE_API_BASE || "https://api.openai.com").replace(/\/+$/, "");
   const model = process.env.IMAGE_MODEL || "gpt-image-1";
@@ -195,7 +197,7 @@ export function gardePrescription(texte: string, mode: Mode): string {
 // ---------- Voix de Keydou sur les réponses (même voix que la vidéo de présentation et le site) ----------
 // Service : ElevenLabs (VOIX_API_KEY, secrète). Voix « Chloé » validée par Carry (VOIX_ID), modèle eleven_v4 (VOIX_MODELE).
 // Chaque lecture coûte de l'argent (environ 1 crédit par signe) : quota par jour et longueur limitée, voir tools/COMPAGNON-v2-notes.
-export const voixDisponible = (): boolean => !!process.env.VOIX_API_KEY;
+export const voixDisponible = (): boolean => cleValide(process.env.VOIX_API_KEY);
 export const VOIX_PAR_JOUR = (n: Niveau): number => entier(process.env[n === "complet" ? "COMPAGNON_VOIX_COMPLET" : "COMPAGNON_VOIX_ESSENTIEL"], n === "complet" ? 6 : 0);
 export const VOIX_SIGNES_MAX = 450;
 // Texte à lire : sans mise en forme, sans lien, sans ligne « Source », sans repère d'image, coupé à la fin d'une phrase.
@@ -207,7 +209,7 @@ export function texteAVoix(brut: string): string {
 }
 export type ResultatVoix = { ok: true; b64: string } | { ok: false; erreur: string };
 export async function genererVoix(texte: string): Promise<ResultatVoix> {
-  const key = process.env.VOIX_API_KEY;
+  const key = String(process.env.VOIX_API_KEY || "").trim();
   if (!key) return { ok: false, erreur: "voix non configurée" };
   const voix = process.env.VOIX_ID || "I6eWD84OrEngt4S4Antm";
   let r: Response;
