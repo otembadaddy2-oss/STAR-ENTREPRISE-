@@ -1,0 +1,205 @@
+{
+ "titre": "Biologie moléculaire — 20 questions d'exemple (bases classiques, à remplacer par de vrais sujets d'examen)",
+ "questions": [
+  {
+   "q": "Quelle enzyme synthétise un ARN à partir d'une matrice d'ADN ?",
+   "choix": {
+    "A": "ADN polymérase",
+    "B": "ARN polymérase",
+    "C": "Hélicase",
+    "D": "Ligase"
+   },
+   "reponse": "B"
+  },
+  {
+   "q": "Quel est le codon d'initiation de la traduction chez les eucaryotes ?",
+   "choix": {
+    "A": "UAA",
+    "B": "UGA",
+    "C": "AUG",
+    "D": "GGG"
+   },
+   "reponse": "C"
+  },
+  {
+   "q": "Dans l'ADN, quelle base s'apparie avec l'adénine ?",
+   "choix": {
+    "A": "Cytosine",
+    "B": "Guanine",
+    "C": "Uracile",
+    "D": "Thymine"
+   },
+   "reponse": "D"
+  },
+  {
+   "q": "Quelle étape de la PCR correspond à la fixation des amorces sur l'ADN simple brin ?",
+   "choix": {
+    "A": "Dénaturation",
+    "B": "Hybridation (annealing)",
+    "C": "Élongation",
+    "D": "Ligature"
+   },
+   "reponse": "B"
+  },
+  {
+   "q": "Pourquoi utilise-t-on la Taq polymérase en PCR ?",
+   "choix": {
+    "A": "Elle est thermostable",
+    "B": "Elle fabrique de l'ARN",
+    "C": "Elle coupe l'ADN",
+    "D": "Elle relie les fragments d'Okazaki"
+   },
+   "reponse": "A"
+  },
+  {
+   "q": "Quelle est la séquence reconnue par l'enzyme de restriction EcoRI ?",
+   "choix": {
+    "A": "GGATCC",
+    "B": "AAGCTT",
+    "C": "GAATTC",
+    "D": "CCCGGG"
+   },
+   "reponse": "C"
+  },
+  {
+   "q": "Dans quel sens l'ADN polymérase ajoute-t-elle des nucléotides ?",
+   "choix": {
+    "A": "3' vers 5'",
+    "B": "5' vers 3'",
+    "C": "Dans les deux sens",
+    "D": "Au hasard"
+   },
+   "reponse": "B"
+  },
+  {
+   "q": "Les fragments d'Okazaki sont synthétisés sur :",
+   "choix": {
+    "A": "Le brin continu (précoce)",
+    "B": "Le brin discontinu (tardif)",
+    "C": "L'ARN messager",
+    "D": "Les ribosomes"
+   },
+   "reponse": "B"
+  },
+  {
+   "q": "Quelle enzyme synthétise de l'ADN complémentaire (ADNc) à partir d'un ARN ?",
+   "choix": {
+    "A": "Transcriptase inverse",
+    "B": "ARN polymérase II",
+    "C": "Topoisomérase",
+    "D": "Primase"
+   },
+   "reponse": "A"
+  },
+  {
+   "q": "L'épissage de l'ARN pré-messager élimine :",
+   "choix": {
+    "A": "Les exons",
+    "B": "Les introns",
+    "C": "La coiffe 5'",
+    "D": "Les codons stop"
+   },
+   "reponse": "B"
+  },
+  {
+   "q": "Quelle technique permet de détecter spécifiquement des protéines après électrophorèse ?",
+   "choix": {
+    "A": "Southern blot",
+    "B": "Northern blot",
+    "C": "Western blot",
+    "D": "PCR"
+   },
+   "reponse": "C"
+  },
+  {
+   "q": "Dans le système CRISPR-Cas9, qu'est-ce qui guide la nucléase vers sa cible ?",
+   "choix": {
+    "A": "Un ARN guide",
+    "B": "Un ribosome",
+    "C": "Une protéine histone",
+    "D": "Un plasmide"
+   },
+   "reponse": "A"
+  },
+  {
+   "q": "Quels sont les codons stop ?",
+   "choix": {
+    "A": "AUG, UUU, UGU",
+    "B": "UAA, UAG, UGA",
+    "C": "GGG, CCC, AAA",
+    "D": "AUA, AUC, AUU"
+   },
+   "reponse": "B"
+  },
+  {
+   "q": "Combien de liaisons hydrogène relient la guanine et la cytosine ?",
+   "choix": {
+    "A": "1",
+    "B": "2",
+    "C": "3",
+    "D": "4"
+   },
+   "reponse": "C"
+  },
+  {
+   "q": "Quelle enzyme forme les liaisons phosphodiester entre deux fragments d'ADN ?",
+   "choix": {
+    "A": "Ligase",
+    "B": "Hélicase",
+    "C": "Primase",
+    "D": "Exonucléase"
+   },
+   "reponse": "A"
+  },
+  {
+   "q": "En PCR quantitative (qPCR), une valeur de Ct plus faible signifie :",
+   "choix": {
+    "A": "Moins de matrice de départ",
+    "B": "Plus de matrice de départ",
+    "C": "Une PCR qui a échoué",
+    "D": "Aucun lien avec la quantité"
+   },
+   "reponse": "B"
+  },
+  {
+   "q": "Lors d'une électrophorèse d'ADN sur gel, l'ADN migre vers :",
+   "choix": {
+    "A": "La cathode (pôle négatif)",
+    "B": "L'anode (pôle positif)",
+    "C": "Il ne migre pas",
+    "D": "Le centre du gel"
+   },
+   "reponse": "B"
+  },
+  {
+   "q": "Quelle enzyme sépare les deux brins de la double hélice à la fourche de réplication ?",
+   "choix": {
+    "A": "Ligase",
+    "B": "Hélicase",
+    "C": "Taq polymérase",
+    "D": "Transcriptase inverse"
+   },
+   "reponse": "B"
+  },
+  {
+   "q": "Quelles modifications subit un ARN messager eucaryote mature ?",
+   "choix": {
+    "A": "Coiffe en 5' et queue poly-A en 3'",
+    "B": "Coiffe en 3' et queue poly-A en 5'",
+    "C": "Aucune modification",
+    "D": "Ajout d'introns"
+   },
+   "reponse": "A"
+  },
+  {
+   "q": "La boîte TATA, reconnue par la protéine TBP, se situe typiquement :",
+   "choix": {
+    "A": "En amont du site d'initiation de la transcription (dans le promoteur)",
+    "B": "Dans le codon stop",
+    "C": "À l'extrémité 3' de l'ARNm",
+    "D": "Uniquement dans les introns"
+   },
+   "reponse": "A"
+  }
+ ]
+}

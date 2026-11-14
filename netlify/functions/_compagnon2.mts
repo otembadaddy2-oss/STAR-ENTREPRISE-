@@ -10,7 +10,7 @@ import type { Niveau } from "./_compagnon.mts";
 const norm = (t: string) => String(t || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
 // ---------- Modes par domaine ----------
-export type Mode = "general" | "sante" | "droit" | "cuisine" | "mecanique" | "business" | "education";
+export type Mode = "general" | "sante" | "droit" | "cuisine" | "mecanique" | "business" | "education" | "examens";
 export const MODES: Record<Mode, { label: string; emoji: string }> = {
   general: { label: "Général", emoji: "🐻" },
   sante: { label: "Santé", emoji: "🩺" },
@@ -19,8 +19,10 @@ export const MODES: Record<Mode, { label: string; emoji: string }> = {
   mecanique: { label: "Mécanique", emoji: "🔧" },
   business: { label: "Business", emoji: "💼" },
   education: { label: "Études", emoji: "📚" },
+  examens: { label: "Tests", emoji: "🎓" },
 };
 const DETECTION: [Mode, RegExp][] = [
+  ["examens", /\b(passe(r)? un test|fais[- ]moi passer|teste[- ]moi|quiz|qcm|examen blanc|note sur 10|sur 10\b|concours|biologie moleculaire|biochimie|genetique|microbiologie|immunologie|physiologie|anatomie|pharmacologie)/],
   ["sante", /\b(mal (a|au|aux|de|d)\b|maux|ventre|gorge|sante|malad|symptom|douleur|fievre|palu|paludisme|toux|diarrhe|vomi|tension|diabet|enceinte|grossesse|vaccin|medecin|hopital|clinique|infection|allerg|blessure|cancer|vih|sida|nutrition|sommeil|depression|migraine|urgence medicale|cicatri|saign)/],
   ["droit", /\b(loi|lois|droit|droits|avocat|tribunal|contrat|bail|loyer|heritage|succession|divorce|notaire|plainte|licenci|code du travail|impot|fiscal|douane|visa|titre de sejour|nationalite|acte de naissance|permis de|greffe|huissier)/],
   ["mecanique", /\b(voiture|moto|moteur|panne|garage|pneu|batterie|frein|vidange|climatis|frigo|refrigerateur|machine a laver|groupe electrogene|panneau solaire|onduleur|plomberie|electricite|disjoncteur|ampoule|courant)/],
@@ -38,21 +40,34 @@ export function modeDe(message: string, choisi?: unknown): Mode {
 
 const CONSIGNES_MODE: Record<Mode, string> = {
   general: "",
-  sante: `MODE SANTÉ (très prudent). Tu aides à COMPRENDRE : maladies courantes (paludisme, typhoïde, diabète, hypertension…), symptômes et quand s'inquiéter, examens, prévention, hygiène, nutrition, sommeil, grossesse et vaccins en repères généraux, premiers gestes.
-- Tu NE poses JAMAIS de diagnostic (« tu as sûrement… »), tu ne donnes AUCUNE dose, tu ne recommandes pas de médicament précis, tu ne dis jamais d'arrêter ou de changer un traitement.
-- Tu VÉRIFIES avec l'outil de recherche quand il est disponible et tu cites une source de référence (OMS, ministère de la Santé, Institut Pasteur, hôpital universitaire…). Si la vérification n'est pas disponible, tu le dis et tu restes très général.
+  sante: `MODE MÉDECINE ET SANTÉ (expert et très prudent). Tu as une grande connaissance de la médecine, dans tous ses domaines : anatomie, physiologie, biologie (dont moléculaire), biochimie, génétique, microbiologie, immunologie, pharmacologie (mécanismes, classes, effets indésirables, interactions : jamais de dose à prendre), pathologies de toutes les spécialités (cardiologie, endocrinologie, gynécologie-obstétrique, pédiatrie, infectiologie et maladies tropicales, neurologie, psychiatrie, dermatologie, ophtalmologie, ORL, odontologie, rhumatologie, oncologie, urologie, néphrologie, gastro-entérologie, pneumologie, chirurgie…), examens et analyses, prévention, nutrition, santé publique.
+- Tu EXPLIQUES en profondeur et avec exactitude : mécanismes, causes, signes, examens utiles, évolution, prévention, questions à poser au médecin. Tu écris un texte cohérent, structuré et complet (titres courts si utile, étapes numérotées), sans contradiction, avec les termes médicaux suivis d'une explication simple.
+- Tu NE PRESCRIS JAMAIS : pas de diagnostic (« tu as sûrement… »), pas de dose, pas de médicament à prendre, pas d'arrêt ni de changement de traitement, pas de schéma de traitement personnel. Tu donnes des informations générales et tu RENVOIES toujours vers le bon professionnel.
+- ORIENTATION : quand c'est utile, tu nommes la spécialité exacte (ex. « cardiologue », « endocrinologue », « gynécologue », « centre de santé de quartier », « urgences »), tu expliques pourquoi, ce qu'il faut apporter (carnet, résultats, ordonnances), et tu proposes des adresses VÉRIFIABLES : tu utilises l'outil de recherche pour trouver l'établissement ou l'annuaire officiel (ministère de la Santé, ordre des médecins, site de l'hôpital ou de la clinique), tu donnes le nom, la ville et le lien de la source. Tu n'inventes JAMAIS une adresse, un numéro, un nom de médecin ni un horaire de mémoire. Si tu ne peux pas le vérifier, tu le dis et tu indiques où vérifier (appeler l'accueil de l'hôpital, centre de santé le plus proche, ordre des médecins du pays).
+- Tu VÉRIFIES avec l'outil de recherche quand il est disponible et tu cites une source de référence (OMS, ministère de la Santé, Institut Pasteur, société savante, hôpital universitaire, revue reconnue). Si la vérification n'est pas disponible, tu le dis et tu restes plus général.
 - Signes graves (difficulté à respirer, douleur à la poitrine, perte de connaissance, convulsions, forte fièvre chez un bébé ou une femme enceinte, saignement important, idées de suicide…) : tu dis clairement d'aller TOUT DE SUITE aux urgences ou d'appeler les secours, sans inventer de numéro.
-- Tu proposes des questions utiles à poser au médecin. Tu termines par une courte phrase du type « Ce n'est pas un avis médical : parles-en à un médecin. ».`,
+- LONGUEUR : en ce mode, tes réponses peuvent être longues et complètes (jusqu'à environ 30 lignes) : la règle des réponses courtes ne s'applique pas ici. Tu termines par une courte phrase du type « Ce n'est pas un avis médical : parles-en à un médecin. ».`,
   droit: `MODE DROIT USUEL. Tu donnes des repères généraux (travail, location, famille, papiers, contrats, démarches) pour le pays de la personne (Congo-Brazzaville par défaut, sinon son pays). Tu VÉRIFIES les textes et démarches officielles avec l'outil de recherche, tu cites la source, et tu précises que les lois changent. Tu orientes vers un avocat, un notaire, un greffe ou l'administration pour toute décision importante. Tu n'aides jamais à falsifier un document, à tromper quelqu'un ou à contourner la loi.`,
   cuisine: `MODE CUISINE. Recettes simples et précises (quantités, temps, étapes), cuisine africaine et du monde, substitutions d'ingrédients, conservation. Sécurité alimentaire d'abord (cuisson, réfrigération, hygiène) et attention aux allergies. Tu adaptes aux ingrédients que la personne a sous la main.`,
   mecanique: `MODE MÉCANIQUE ET ÉLECTRICITÉ. Voiture, moto, électroménager, installation solaire, plomberie, électricité. La SÉCURITÉ passe d'abord : débrancher, couper le courant, jamais de manipulation de haute tension, de gaz ou de batterie ouverte sans professionnel. Tu demandes la marque et le modèle quand la réponse change, tu proposes un diagnostic simple par étapes et tu dis quand il faut un technicien. Tu ne conseilles jamais de contourner une protection de sécurité.`,
   business: `MODE BUSINESS. Idées, prix de vente, marge, calculs simples, tenue des comptes, vente par WhatsApp, marketing, discipline d'épargne. Tu fais les calculs étape par étape et tu les vérifies. Tu ne promets jamais de gains, tu mets en garde contre les arnaques (promesses de gain rapide, pyramides, faux paiements Mobile Money) et tu invites à tester petit avant d'investir beaucoup.`,
+  examens: `MODE TESTS ET EXAMENS (rigueur maximale). Tu réponds à des questions d'examen, de concours ou de test (biologie moléculaire, biochimie, génétique, microbiologie, immunologie, physiologie, pharmacologie, mathématiques, etc.) avec une précision de très haut niveau.
+- Pour une question ou un QCM : tu raisonnes étape par étape, tu élimines les mauvaises propositions, tu vérifies ta réponse une seconde fois (calculs, unités, sens 5'→3', complémentarité, valeurs de référence), puis tu donnes la réponse finale clairement, avec une explication courte et exacte. Si tu hésites entre deux réponses, tu le dis et tu expliques pourquoi tu retiens l'une.
+- Pour « fais-moi passer un test » : tu poses UNE question à la fois (ou un petit lot si on te le demande), tu attends la réponse, tu corriges avec l'explication, et à la fin tu donnes une note sur 10 avec deux décimales (nombre de bonnes réponses / total x 10), tes points forts et ce qu'il faut revoir. Tu ne gonfles jamais la note.
+- Tu peux aussi créer des tests d'entraînement (QCM avec corrigé) sur le sujet demandé, de difficulté croissante.
+- Si la personne envoie la photo ou le PDF d'un sujet, tu le lis en entier avant de répondre.
+- Tu es honnête : si une question est ambiguë ou si les données manquent, tu le dis au lieu de deviner. Tu ne promets jamais une note parfaite.
+- LONGUEUR : réponses complètes et structurées autorisées (jusqu'à environ 30 lignes).`,
   education: `MODE ÉTUDES. Tu expliques étape par étape, avec des exemples simples adaptés au niveau de la personne, tu proposes de petits exercices corrigés, et tu aides à comprendre un devoir sans le faire à la place de l'élève. Tu vérifies les calculs et les dates.`,
 };
 
 // ---------- Réflexion et limites selon l'offre ----------
-export const EFFORT = (n: Niveau): string => process.env[n === "complet" ? "COMPAGNON_EFFORT_COMPLET" : "COMPAGNON_EFFORT_ESSENTIEL"] || (n === "complet" ? "medium" : "low");
-export const MAX_JETONS = (n: Niveau): number => (n === "complet" ? 2200 : 1400);
+// Médecine et tests d'examen : réflexion la plus poussée (Complet) et réponses plus longues, car la qualité passe avant le coût.
+export const MODE_PROFOND = (m: Mode): boolean => m === "sante" || m === "examens";
+export const EFFORT = (n: Niveau, m: Mode = "general"): string =>
+  process.env[n === "complet" ? "COMPAGNON_EFFORT_COMPLET" : "COMPAGNON_EFFORT_ESSENTIEL"] || (MODE_PROFOND(m) ? (n === "complet" ? "high" : "medium") : (n === "complet" ? "medium" : "low"));
+export const MAX_JETONS = (n: Niveau, m: Mode = "general"): number => (MODE_PROFOND(m) ? (n === "complet" ? 4500 : 2600) : n === "complet" ? 2200 : 1400);
+export const LIMITE_REPONSE = (m: Mode = "general"): number => (MODE_PROFOND(m) ? 6000 : 1800);
 export const MODELE_NIVEAU = (n: Niveau): string => (n === "complet" && process.env.COMPAGNON_MODEL_COMPLET) || process.env.COMPAGNON_MODEL || "claude-sonnet-5-5";
 const entier = (v: string | undefined, d: number) => { const n = Number(v); return v !== undefined && v !== "" && Number.isFinite(n) && n >= 0 ? Math.floor(n) : d; };
 // Images créées sur 30 jours glissants, photos ou documents lus sur 24 heures.
@@ -167,3 +182,12 @@ export const MARQUE_PIECE = "📎 ";
 // Repère de l'image dans le texte d'un message gardé : « [[img:12]] ».
 export const marqueImage = (id: number) => `[[img:${id}]]`;
 export function idImageDansTexte(t: string): number { const m = /\[\[img:(\d+)\]\]/.exec(String(t || "")); return m ? Number(m[1]) : 0; }
+
+// ---------- Filet de sécurité : jamais de prescription ----------
+// Si la réponse contient une consigne de dose (« 500 mg matin et soir », « 2 comprimés par jour »…), on ajoute un rappel net.
+const DOSE = /\b\d+([.,]\d+)?\s?(mg|g|ml|µg|mcg|ui|comprim[ée]s?|g[ée]lules?|gouttes?|sachets?|cuill[èe]res?)\b[^.\n]{0,60}(par jour|\/\s?j|toutes les|fois par|matin|midi|soir|avant les repas|apr[èe]s les repas|pendant \d+ jours)/i;
+export const MSG_PAS_DE_DOSE = "⚠️ Les doses citées ici sont des informations générales, pas une prescription : je ne prescris jamais. Seul un médecin ou un pharmacien peut te dire quoi prendre et en quelle quantité.";
+export function gardePrescription(texte: string, mode: Mode): string {
+  if (mode === "examens" || mode === "education") return texte;
+  return DOSE.test(texte) && !texte.includes(MSG_PAS_DE_DOSE) ? `${texte}\n\n${MSG_PAS_DE_DOSE}` : texte;
+}

@@ -41,7 +41,7 @@ try {
 
   // --- État : capacités ---
   let d = await j(await appel(C, "GET", ""));
-  ok(d.capacites?.images === true && d.capacites.imagesMax === 10 && d.capacites.imagesRestantes === 10 && d.capacites.modes.length === 7, "état Complet : 10 images, 7 domaines");
+  ok(d.capacites?.images === true && d.capacites.imagesMax === 10 && d.capacites.imagesRestantes === 10 && d.capacites.modes.length === 8, "état Complet : 10 images, 8 domaines (dont Tests)");
   d = await j(await appel(E, "GET", ""));
   ok(d.capacites?.imagesMax === 0 && d.capacites.piecesMax === 5, "état Essentiel : 0 image, 5 pièces par jour");
 
@@ -50,8 +50,18 @@ try {
   d = await j(await appel(C, "POST", "", { action: "chat", message: "J'ai de la fièvre depuis deux jours, est-ce le palu ?" }));
   let req = vus[vus.length - 1].corps as any;
   ok(d.mode === "sante", "la question de santé passe en mode Santé");
-  ok(req.output_config.effort === "medium" && req.max_tokens === 2200, "Complet : réflexion « medium », 2 200 jetons");
-  ok(req.system.length === 2 && /MODE SANTÉ/.test(req.system[1].text) && /diagnostic/.test(req.system[1].text), "la consigne Santé est envoyée à l'IA");
+  ok(req.output_config.effort === "high" && req.max_tokens === 4500, "Complet + Santé : réflexion « high », 4 500 jetons");
+  ok(req.system.length === 2 && /MODE MÉDECINE ET SANTÉ/.test(req.system[1].text) && /diagnostic/.test(req.system[1].text), "la consigne Santé est envoyée à l'IA");
+  reponseIA = JSON.stringify({ reponse: "Pour le paracétamol, prends 500 mg matin et soir.", image: null });
+  d = await j(await appel(C, "POST", "", { action: "chat", message: "Que prendre contre la fièvre ?" }));
+  ok(/Je ne prescris jamais|je ne prescris jamais/.test(d.reponse), "filet de sécurité : une dose citée déclenche le rappel « je ne prescris jamais »");
+  reponseIA = JSON.stringify({ reponse: "x".repeat(4000), image: null });
+  d = await j(await appel(C, "POST", "", { action: "chat", message: "Explique-moi la physiopathologie du diabète" }));
+  ok(d.reponse.length >= 3900, "Santé : une longue réponse n'est pas coupée à 1 800 signes");
+  reponseIA = JSON.stringify({ reponse: "Réponse B", image: null });
+  d = await j(await appel(C, "POST", "", { action: "chat", message: "Fais-moi passer un test de biologie moléculaire" }));
+  req = vus[vus.length - 1].corps as any;
+  ok(d.mode === "examens" && req.output_config.effort === "high" && /note sur 10 avec deux décimales/.test(req.system[1].text), "Tests : mode Tests, réflexion maximale, notation sur 10");
   d = await j(await appel(E, "POST", "", { action: "chat", message: "Bonjour Keydou", mode: "droit" }));
   req = vus[vus.length - 1].corps as any;
   ok(d.mode === "droit" && req.output_config.effort === "low" && req.max_tokens === 1400, "Essentiel : domaine choisi respecté, réflexion « low »");

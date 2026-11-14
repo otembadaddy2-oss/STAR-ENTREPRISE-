@@ -18,7 +18,7 @@ import {
 } from "./_compagnon.mts";
 import {
   MODES, modeDe, supplement, EFFORT, MAX_JETONS, MODELE_NIVEAU, IMAGES_PAR_MOIS, PIECES_PAR_JOUR, imagesDisponibles, verifierDemandeImage, formatImage,
-  signerImage, validerPiece, MARQUE_PIECE, marqueImage, idImageDansTexte, type Mode,
+  signerImage, validerPiece, LIMITE_REPONSE, gardePrescription, MARQUE_PIECE, marqueImage, idImageDansTexte, type Mode,
 } from "./_compagnon2.mts";
 
 const ORG_MEMBRE = "star_vibe";
@@ -67,7 +67,7 @@ async function capacites(sql: any, accountId: number, niveau: Niveau) {
 interface SourceWeb { titre: string; url: string }
 interface ReponseIA { texte: string; sources: SourceWeb[]; recherches: number; tokensIn: number; tokensOut: number; refus: boolean }
 
-async function appelerIA(messages: { role: string; content: unknown }[], rechercheMax: number, o: { niveau: Niveau; supplement: string }): Promise<ReponseIA | null> {
+async function appelerIA(messages: { role: string; content: unknown }[], rechercheMax: number, o: { niveau: Niveau; mode: Mode; supplement: string }): Promise<ReponseIA | null> {
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) return null;
   const base = (process.env.ANTHROPIC_BASE_URL || "https://api.anthropic.com").replace(/\/+$/, "");
@@ -77,7 +77,7 @@ async function appelerIA(messages: { role: string; content: unknown }[], recherc
   let outil = avecOutil;
   for (let tour = 0; tour < 3; tour++) {
     const corps: Record<string, unknown> = {
-      model: MODELE_NIVEAU(o.niveau), max_tokens: MAX_JETONS(o.niveau), output_config: { effort: EFFORT(o.niveau) },
+      model: MODELE_NIVEAU(o.niveau), max_tokens: MAX_JETONS(o.niveau, o.mode), output_config: { effort: EFFORT(o.niveau, o.mode) },
       system: [{ type: "text", text: consigne(), cache_control: { type: "ephemeral" } }, ...(o.supplement ? [{ type: "text", text: o.supplement }] : [])],
       messages: msgs,
     };
@@ -375,7 +375,7 @@ export default async (req: Request, _context: Context) => {
   messagesIA.push({ role: "user", content: blocPJ ? [blocPJ, { type: "text", text: contexte }] : contexte });
 
   let ia: ReponseIA | null = null;
-  try { ia = await appelerIA(messagesIA, restantes, { niveau: acces.niveau, supplement: supp }); } catch { ia = null; }
+  try { ia = await appelerIA(messagesIA, restantes, { niveau: acces.niveau, mode, supplement: supp }); } catch { ia = null; }
   if (!ia) {
     await sql`DELETE FROM starvibe_compagnon_messages WHERE id = ${ins[0].id}`; // un message qui n'a pas reçu de réponse ne compte pas
     return json({ error: "Keydou est indisponible un instant. Réessaie dans une minute : ce message n'est pas compté." }, 503);
@@ -392,14 +392,14 @@ export default async (req: Request, _context: Context) => {
   if (a >= 0 && z > a) {
     try {
       const o = JSON.parse(ia.texte.slice(a, z + 1)) as { reponse?: string; seuil?: boolean; rappels?: unknown; notes?: unknown; supprimer_rappels?: unknown; image?: { prompt?: string; format?: string } | null };
-      reponse = clean(o.reponse, 1800); seuilAtteint = o.seuil === true;
+      reponse = clean(o.reponse, LIMITE_REPONSE(mode)); seuilAtteint = o.seuil === true;
       rappelsIA = Array.isArray(o.rappels) ? (o.rappels as Record<string, unknown>[]).slice(0, 5) : [];
       notesIA = Array.isArray(o.notes) ? o.notes.slice(0, 5) : [];
       suppr = Array.isArray(o.supprimer_rappels) ? o.supprimer_rappels.slice(0, 10) : [];
       imageDemandee = o.image && typeof o.image === "object" && typeof o.image.prompt === "string" ? o.image : null;
     } catch { /* texte libre ci-dessous */ }
   }
-  if (!reponse) reponse = clean(ia.texte.replace(/[{}]/g, ""), 1200) || "Je n'ai pas bien compris, peux-tu reformuler ?";
+  if (!reponse) reponse = clean(ia.texte.replace(/[{}]/g, ""), Math.min(LIMITE_REPONSE(mode), 3000)) || "Je n'ai pas bien compris, peux-tu reformuler ?";
 
   const ajoutes: { id: number; titre: string; quand: string }[] = [];
   let refusMedoc = false, refusLimite = false;
@@ -444,6 +444,7 @@ export default async (req: Request, _context: Context) => {
     }
     if (refusImage) reponse = refusImage;
   }
+  reponse = gardePrescription(reponse, mode);
   const reponseGardee = imageInfo ? `${reponse}\n${marqueImage(imageInfo.id)}` : reponse;
 
   await sql`INSERT INTO starvibe_compagnon_messages (account_id, role, texte, recherches, tokens_in, tokens_out) VALUES (${accountId}, 'assistant', ${reponseGardee}, ${ia.recherches}, ${ia.tokensIn}, ${ia.tokensOut})`;

@@ -1,4 +1,4 @@
-import { modeDe, verifierDemandeImage, validerPiece, supplement, idImageDansTexte, marqueImage, formatImage, mimeDepuisOctets, EFFORT, IMAGES_PAR_MOIS, PIECES_PAR_JOUR } from "../netlify/functions/_compagnon2.mts";
+import { modeDe, verifierDemandeImage, validerPiece, supplement, idImageDansTexte, marqueImage, formatImage, mimeDepuisOctets, EFFORT, MAX_JETONS, LIMITE_REPONSE, MODE_PROFOND, gardePrescription, MSG_PAS_DE_DOSE, IMAGES_PAR_MOIS, PIECES_PAR_JOUR } from "../netlify/functions/_compagnon2.mts";
 import { delaiRetour, formatDuree, localVersUtc, suivante, parleDeMedicaments, fuseauValide, FENETRE_MS } from "../netlify/functions/_compagnon.mts";
 let ko = 0; const ok = (n: string, c: boolean) => { if (!c) ko++; console.log((c ? "OK  " : "ECHEC ") + n); };
 const H = 3600000, now = Date.UTC(2026, 10, 8, 12, 0, 0);
@@ -56,8 +56,41 @@ ok("effort : Essentiel low, Complet medium", EFFORT("essentiel") === "low" && EF
 ok("images : 0 en Essentiel, 10 en Complet par défaut", IMAGES_PAR_MOIS("essentiel") === 0 && IMAGES_PAR_MOIS("complet") === 10);
 ok("pièces : 5 et 30 par jour", PIECES_PAR_JOUR("essentiel") === 5 && PIECES_PAR_JOUR("complet") === 30);
 const sS = supplement("sante", { imagesRestantes: 3, imagesPossibles: true, niveau: "complet", piece: false });
-ok("consigne santé : pas de diagnostic ni de dose", /MODE SANTÉ/.test(sS) && /diagnostic/.test(sS) && /dose/.test(sS));
+ok("consigne santé : pas de diagnostic ni de dose", /MODE MÉDECINE ET SANTÉ/.test(sS) && /diagnostic/.test(sS) && /dose/.test(sS));
 ok("consigne : images autorisées si il en reste", /il en reste 3/.test(sS) && /"image":/.test(sS));
 ok("consigne : images fermées sinon", /pas encore ouverte/.test(supplement("general", { imagesRestantes: 0, imagesPossibles: false, niveau: "essentiel", piece: false })));
 ok("consigne : pièce jointe", /PIÈCE JOINTE/.test(supplement("general", { imagesRestantes: 0, imagesPossibles: true, niveau: "essentiel", piece: true })));
+
+// ---------- Médecine experte, tests d'examen, filet « jamais de prescription » ----------
+ok("mode Tests : biologie moléculaire", modeDe("Explique-moi la PCR en biologie moléculaire") === "examens");
+ok("mode Tests : fais-moi passer un test", modeDe("Fais-moi passer un test de génétique") === "examens");
+ok("mode Tests : QCM", modeDe("Voici un QCM de biochimie") === "examens");
+ok("mode Santé : pas pris pour un test", modeDe("J'ai de la fièvre et mal à la gorge") === "sante");
+ok("réflexion maximale en Santé et en Tests (Complet)", EFFORT("complet", "sante") === "high" && EFFORT("complet", "examens") === "high" && EFFORT("essentiel", "sante") === "medium");
+ok("réflexion normale ailleurs", EFFORT("complet", "cuisine") === "medium" && EFFORT("essentiel", "droit") === "low" && EFFORT("complet") === "medium");
+ok("réponses plus longues en Santé/Tests", MAX_JETONS("complet", "sante") === 4500 && MAX_JETONS("complet", "general") === 2200 && LIMITE_REPONSE("examens") === 6000 && LIMITE_REPONSE("cuisine") === 1800 && MODE_PROFOND("sante") && !MODE_PROFOND("droit"));
+const cs = supplement("sante", { imagesRestantes: 0, imagesPossibles: false, niveau: "complet", piece: false });
+ok("Santé : ne prescrit jamais", /NE PRESCRIS JAMAIS/.test(cs) && /pas de dose/.test(cs));
+ok("Santé : oriente vers un spécialiste avec adresse vérifiable", /ORIENTATION/.test(cs) && /VÉRIFIABLES/.test(cs) && /N'invente|n'inventes JAMAIS une adresse/i.test(cs));
+ok("Santé : couvre la biologie moléculaire et les spécialités", /biologie \(dont moléculaire\)/.test(cs) && /cardiologie/.test(cs) && /oncologie/.test(cs));
+const ce = supplement("examens", { imagesRestantes: 0, imagesPossibles: false, niveau: "complet", piece: false });
+ok("Tests : note sur 10 à deux décimales, honnêteté", /note sur 10 avec deux décimales/.test(ce) && /ne gonfles jamais/.test(ce) && /ne promets jamais une note parfaite/.test(ce));
+for (const t of ["Prends 500 mg de paracétamol matin et soir", "2 comprimés par jour pendant 5 jours", "1 g toutes les 6 heures", "10 gouttes avant les repas"]) ok("dose repérée : " + t, gardePrescription(t, "sante").includes(MSG_PAS_DE_DOSE));
+for (const t of ["Le paludisme est causé par un parasite du genre Plasmodium.", "Le glucose normal est de 0,7 à 1,1 g/L à jeun.", "Va voir un cardiologue cette semaine."]) ok("pas d'alerte inutile : " + t.slice(0, 40), gardePrescription(t, "sante") === t);
+ok("pas d'alerte en mode Tests", gardePrescription("La dose de 500 mg par jour est un exemple de pharmacologie", "examens") === "La dose de 500 mg par jour est un exemple de pharmacologie");
+ok("alerte posée une seule fois", (gardePrescription(gardePrescription("2 comprimés par jour", "sante"), "sante").match(/⚠️/g) || []).length === 1);
+
+// ---------- Outil d'évaluation : la notation est juste ----------
+{
+  const { noter, evaluer } = await import("./evaluer-compagnon.mts");
+  const jeu = JSON.parse((await import("node:fs")).readFileSync(new URL("./tests-compagnon/biologie-moleculaire-exemple.json", import.meta.url), "utf8")) as { questions: { q: string; choix: Record<string, string>; reponse: string }[] };
+  ok("jeu d'exemple : 20 questions avec 4 choix et un corrigé valide", jeu.questions.length === 20 && jeu.questions.every((q) => Object.keys(q.choix).length === 4 && q.reponse in q.choix));
+  ok("note : 20/20 = 10.00, 19/20 = 9.50, 0 = 0.00", noter(20, 20) === "10.00" && noter(19, 20) === "9.50" && noter(0, 20) === "0.00" && noter(1999, 2000) === "9.99");
+  const parfait = await evaluer(jeu.questions, "complet", async (q) => "Je raisonne…\nREPONSE: " + q.reponse);
+  ok("évaluation d'un candidat parfait → 10.00", parfait.note === "10.00" && parfait.fautes.length === 0);
+  let n = 0; const moyen = await evaluer(jeu.questions, "complet", async (q) => "REPONSE: " + (n++ === 3 ? "D" : q.reponse));
+  ok("évaluation avec 1 faute → 9.50 et la faute est listée", moyen.note === "9.50" && moyen.fautes.length === 1);
+  const illisible = await evaluer(jeu.questions.slice(0, 2), "complet", async () => "je ne sais pas");
+  ok("réponse sans lettre → comptée fausse", illisible.note === "0.00");
+}
 console.log(ko ? "ECHECS : " + ko : "TOUS LES TESTS OK"); process.exit(ko ? 1 : 0);
