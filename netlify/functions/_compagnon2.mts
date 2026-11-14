@@ -71,7 +71,7 @@ export const LIMITE_REPONSE = (m: Mode = "general"): number => (MODE_PROFOND(m) 
 export const MODELE_NIVEAU = (n: Niveau): string => (n === "complet" && process.env.COMPAGNON_MODEL_COMPLET) || process.env.COMPAGNON_MODEL || "claude-sonnet-5-5";
 const entier = (v: string | undefined, d: number) => { const n = Number(v); return v !== undefined && v !== "" && Number.isFinite(n) && n >= 0 ? Math.floor(n) : d; };
 // Images créées sur 30 jours glissants, photos ou documents lus sur 24 heures.
-export const IMAGES_PAR_MOIS = (n: Niveau): number => entier(process.env[n === "complet" ? "COMPAGNON_IMAGES_COMPLET" : "COMPAGNON_IMAGES_ESSENTIEL"], n === "complet" ? 10 : 0);
+export const IMAGES_PAR_MOIS = (n: Niveau): number => entier(process.env[n === "complet" ? "COMPAGNON_IMAGES_COMPLET" : "COMPAGNON_IMAGES_ESSENTIEL"], n === "complet" ? 25 : 3);
 export const PIECES_PAR_JOUR = (n: Niveau): number => entier(process.env[n === "complet" ? "COMPAGNON_PIECES_COMPLET" : "COMPAGNON_PIECES_ESSENTIEL"], n === "complet" ? 30 : 5);
 export const imagesDisponibles = (): boolean => !!process.env.IMAGE_API_KEY;
 
@@ -84,7 +84,7 @@ export function supplement(mode: Mode, o: { imagesRestantes: number; imagesPossi
     : o.imagesPossibles
       ? `La personne a utilisé toutes ses images du mois ou son offre n'en comprend pas : si elle en demande une, explique-le avec gentillesse (l'offre Complet comprend des images) et n'ajoute pas "image".`
       : `La création d'images n'est pas encore ouverte : si on t'en demande une, dis gentiment que ça arrive bientôt et n'ajoute pas "image".`}
-Jamais d'image de personne réelle ou reconnaissable (dirigeants, célébrités, proches), jamais d'enfants ni de bébés, rien de sexuel, violent, haineux, de drogue ou d'arme, et jamais de faux document (pièce d'identité, billet, reçu, diplôme, cachet, capture de paiement). Dans ces cas tu refuses poliment, sans "image".`);
+Jamais d'image de personne réelle ou reconnaissable (dirigeants, célébrités, proches) : si on te demande la photo d'une vraie personne ou une photo libre de droits, tu ne la fabriques pas ; tu cherches avec l'outil de recherche une source vérifiée (Wikimedia Commons, Unsplash, Pexels…), tu donnes le lien et la licence indiquée, tu précises de vérifier les conditions d'usage (mention de l'auteur, usage commercial) et tu ne prétends jamais qu'une photo est libre de droits sans l'avoir vérifié sur la page de la source. Jamais d'enfants ni de bébés, rien de sexuel, violent, haineux, de drogue ou d'arme, et jamais de faux document (pièce d'identité, billet, reçu, diplôme, cachet, capture de paiement). Dans ces cas tu refuses poliment, sans "image".`);
   if (o.piece) parts.push(`PIÈCE JOINTE. La personne t'envoie une photo ou un document : tu le décris, l'expliques, le résumes ou le traduis selon sa demande. Tu n'identifies JAMAIS une personne d'après son visage. Tu ne poses pas de diagnostic sur une photo, une radio, une analyse ou une ordonnance : tu expliques le vocabulaire et tu l'invites à voir un médecin. Si le document montre un code, un mot de passe, un numéro de carte ou une pièce d'identité, tu dis de ne pas partager ces informations, tu ne les répètes pas et tu ne les retiens pas. Si c'est illisible, dis-le.`);
   return parts.join("\n\n");
 }
@@ -96,7 +96,7 @@ const REFUS_IMAGES: { re: RegExp; message: string }[] = [
   { re: /\b(sang|sanglant|gore|cadavre|meurtre|massacre|decapit|torture|suicide|arme|armes|pistolet|fusil|kalachnikov|bombe|explosif|terroriste|terrorisme)/, message: "Je ne crée pas d'images violentes ou avec des armes." },
   { re: /\b(drogue|cocaine|heroine|cannabis|nazi|swastika|raciste|haine)/, message: "Je ne crée pas d'images sur la drogue ou la haine." },
   { re: /(faux billet|fausse monnaie|faux document|faux papier|fausse carte|faux diplome|faux passeport|fausse piece|faux cachet|fausse signature|faux recu|fausse facture|contrefacon|carte d.identite|passeport|permis de conduire|billet de banque|capture de paiement|recu mobile money|recu de paiement|cachet officiel)/, message: "Je ne crée pas de faux documents ni de papiers officiels, de billets, de reçus ou de captures de paiement : c'est interdit et dangereux." },
-  { re: /\b(president|ministre|premier ministre|chef de l.etat|depute|senateur|pape|celebrite|vedette|ressemblant a|ressemble a|visage de|portrait de|photo de|a la maniere de la voix)\b/, message: "Je ne crée pas d'images de personnes réelles ou reconnaissables (dirigeants, célébrités, proches). Je peux imaginer un personnage de dessin inventé ou un décor." },
+  { re: /\b(president|ministre|premier ministre|chef de l.etat|depute|senateur|pape|celebrite|vedette|ressemblant a|ressemble a|visage de|portrait de|photo de|a la maniere de la voix)\b/, message: "Je ne crée pas d'images de personnes réelles ou reconnaissables (dirigeants, célébrités, proches). Je peux imaginer un personnage inventé ou un décor. Pour une photo libre de droits, demande-moi une source vérifiée avec sa licence (Wikimedia Commons, Unsplash, Pexels) : je te donne le lien." },
 ];
 export function verifierDemandeImage(texte: string): { ok: true } | { ok: false; message: string } {
   const t = norm(texte);
@@ -190,4 +190,35 @@ export const MSG_PAS_DE_DOSE = "⚠️ Les doses citées ici sont des informatio
 export function gardePrescription(texte: string, mode: Mode): string {
   if (mode === "examens" || mode === "education") return texte;
   return DOSE.test(texte) && !texte.includes(MSG_PAS_DE_DOSE) ? `${texte}\n\n${MSG_PAS_DE_DOSE}` : texte;
+}
+
+// ---------- Voix de Keydou sur les réponses (même voix que la vidéo de présentation et le site) ----------
+// Service : ElevenLabs (VOIX_API_KEY, secrète). Voix « Chloé » validée par Carry (VOIX_ID), modèle eleven_v4 (VOIX_MODELE).
+// Chaque lecture coûte de l'argent (environ 1 crédit par signe) : quota par jour et longueur limitée, voir tools/COMPAGNON-v2-notes.
+export const voixDisponible = (): boolean => !!process.env.VOIX_API_KEY;
+export const VOIX_PAR_JOUR = (n: Niveau): number => entier(process.env[n === "complet" ? "COMPAGNON_VOIX_COMPLET" : "COMPAGNON_VOIX_ESSENTIEL"], n === "complet" ? 6 : 0);
+export const VOIX_SIGNES_MAX = 450;
+// Texte à lire : sans mise en forme, sans lien, sans ligne « Source », sans repère d'image, coupé à la fin d'une phrase.
+export function texteAVoix(brut: string): string {
+  let t = String(brut || "").replace(/\[\[img:\d+\]\]/g, " ").replace(/^\s*Sources?\s*:.*$/gim, " ").replace(/https?:\/\/\S+/g, " ").replace(/\p{Extended_Pictographic}/gu, " ").replace(/[*_#`>|]/g, " ").replace(/\s+/g, " ").trim();
+  if (t.length <= VOIX_SIGNES_MAX) return t;
+  const coupe = t.slice(0, VOIX_SIGNES_MAX); const fin = Math.max(coupe.lastIndexOf(". "), coupe.lastIndexOf("! "), coupe.lastIndexOf("? "), coupe.lastIndexOf(" : "));
+  return (fin > 120 ? coupe.slice(0, fin + 1) : coupe.replace(/\s+\S*$/, "")).trim();
+}
+export type ResultatVoix = { ok: true; b64: string } | { ok: false; erreur: string };
+export async function genererVoix(texte: string): Promise<ResultatVoix> {
+  const key = process.env.VOIX_API_KEY;
+  if (!key) return { ok: false, erreur: "voix non configurée" };
+  const voix = process.env.VOIX_ID || "I6eWD84OrEngt4S4Antm";
+  let r: Response;
+  try {
+    r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voix)}?output_format=mp3_44100_64`, {
+      method: "POST", headers: { "content-type": "application/json", "xi-api-key": key },
+      body: JSON.stringify({ text: `[warm, friendly, smiling] ${texte}`, model_id: process.env.VOIX_MODELE || "eleven_v4" }), signal: AbortSignal.timeout(25000),
+    });
+  } catch { return { ok: false, erreur: "le service de voix ne répond pas" }; }
+  if (!r.ok) return { ok: false, erreur: `erreur ${r.status}` };
+  const buf = Buffer.from(await r.arrayBuffer());
+  if (buf.length < 800) return { ok: false, erreur: "audio vide" };
+  return { ok: true, b64: buf.toString("base64") };
 }

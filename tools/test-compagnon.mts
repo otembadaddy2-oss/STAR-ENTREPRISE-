@@ -1,4 +1,4 @@
-import { modeDe, verifierDemandeImage, validerPiece, supplement, idImageDansTexte, marqueImage, formatImage, mimeDepuisOctets, EFFORT, MAX_JETONS, LIMITE_REPONSE, MODE_PROFOND, gardePrescription, MSG_PAS_DE_DOSE, IMAGES_PAR_MOIS, PIECES_PAR_JOUR } from "../netlify/functions/_compagnon2.mts";
+import { modeDe, verifierDemandeImage, validerPiece, supplement, idImageDansTexte, marqueImage, formatImage, mimeDepuisOctets, EFFORT, MAX_JETONS, LIMITE_REPONSE, MODE_PROFOND, gardePrescription, MSG_PAS_DE_DOSE, IMAGES_PAR_MOIS, PIECES_PAR_JOUR, texteAVoix, VOIX_PAR_JOUR, VOIX_SIGNES_MAX } from "../netlify/functions/_compagnon2.mts";
 import { delaiRetour, formatDuree, localVersUtc, suivante, parleDeMedicaments, fuseauValide, FENETRE_MS } from "../netlify/functions/_compagnon.mts";
 let ko = 0; const ok = (n: string, c: boolean) => { if (!c) ko++; console.log((c ? "OK  " : "ECHEC ") + n); };
 const H = 3600000, now = Date.UTC(2026, 10, 8, 12, 0, 0);
@@ -53,7 +53,15 @@ ok("pièce trop lourde refusée", !validerPiece({ data: "A".repeat(4_500_000) })
 ok("pièce non base64 refusée", !validerPiece({ data: "<script>alert(1)</script>" }).ok);
 ok("mime depuis octets", mimeDepuisOctets(Buffer.from([0xff, 0xd8, 0xff, 0x00])) === "image/jpeg" && mimeDepuisOctets(Buffer.from("hello world!!")) === "");
 ok("effort : Essentiel low, Complet medium", EFFORT("essentiel") === "low" && EFFORT("complet") === "medium");
-ok("images : 0 en Essentiel, 10 en Complet par défaut", IMAGES_PAR_MOIS("essentiel") === 0 && IMAGES_PAR_MOIS("complet") === 10);
+ok("images : 3 en Essentiel, 25 en Complet par défaut", IMAGES_PAR_MOIS("essentiel") === 3 && IMAGES_PAR_MOIS("complet") === 25);
+ok("voix de Keydou : 0 en Essentiel, 6 par jour en Complet par défaut", VOIX_PAR_JOUR("essentiel") === 0 && VOIX_PAR_JOUR("complet") === 6);
+{
+  const t = texteAVoix("**Bonjour** 😀 ! Voici le lien https://exemple.com/x pour toi.\nSource : https://a.b [[img:12]]");
+  ok("texte lu : sans mise en forme, sans lien, sans « Source », sans emoji", t === "Bonjour ! Voici le lien pour toi." && !/https?:|\*|\[\[|Source/.test(t));
+  const long = "Une phrase assez longue pour le test de coupe. ".repeat(40), c = texteAVoix(long);
+  ok("texte lu : coupé à " + VOIX_SIGNES_MAX + " signes maximum, à la fin d'une phrase", c.length <= VOIX_SIGNES_MAX && /\.$/.test(c));
+}
+ok("personnes réelles : refus + piste « source vérifiée »", /source vérifiée/.test(String(verifierDemandeImage("Le portrait du président de la République")?.message || "")));
 ok("pièces : 5 et 30 par jour", PIECES_PAR_JOUR("essentiel") === 5 && PIECES_PAR_JOUR("complet") === 30);
 const sS = supplement("sante", { imagesRestantes: 3, imagesPossibles: true, niveau: "complet", piece: false });
 ok("consigne santé : pas de diagnostic ni de dose", /MODE MÉDECINE ET SANTÉ/.test(sS) && /diagnostic/.test(sS) && /dose/.test(sS));

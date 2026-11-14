@@ -110,10 +110,10 @@
   <div class="pane" id="offres" hidden>
     <div class="card"><h2 id="offresTitre">Choisis ton offre</h2><p class="note" id="offresTxt">Ton accès s'ouvre dès que ton dépôt est reconnu. Jamais gratuit.</p></div>
     <div class="card"><h2>Essentiel · 5 000 FCFA<span class="actuel" id="actEss" hidden>Ton offre</span> <small style="font:600 12px 'Inter',Arial,sans-serif;color:var(--dim)">par mois</small></h2>
-      <ul><li>65 messages par jour</li><li>10 rappels actifs</li><li>Culture générale + recherches vérifiées avec sources</li><li>Modes Santé, Droit, Cuisine, Mécanique, Business, Études</li><li>5 photos ou documents lus par jour</li></ul>
+      <ul><li>65 messages par jour</li><li>10 rappels actifs</li><li>Culture générale + recherches vérifiées avec sources</li><li>Modes Santé, Droit, Cuisine, Mécanique, Business, Études</li><li>5 photos ou documents lus par jour</li><li data-img hidden>3 images créées par mois, à ta demande</li></ul>
       <button class="btn" data-plan="compagnon" style="margin-top:10px">Choisir Essentiel</button></div>
     <div class="card" style="border-color:var(--gold)"><h2>Complet · 19 $<span class="actuel" id="actPro" hidden>Ton offre</span> <small style="font:600 12px 'Inter',Arial,sans-serif;color:var(--dim)">par mois (≈ 11 100 FCFA)</small></h2>
-      <ul><li>200 messages par jour</li><li>Rappels illimités</li><li>Recherches approfondies, sources citées</li><li>Médecine approfondie : explications détaillées, orientation vers le bon spécialiste, jamais de prescription</li><li>Tests et examens : questions corrigées, notes sur 10</li><li>Réflexion plus poussée sur les questions difficiles</li><li>30 photos ou documents lus par jour</li><li data-img hidden>10 images créées par mois, à ta demande</li></ul>
+      <ul><li>200 messages par jour</li><li>Rappels illimités</li><li>Recherches approfondies, sources citées</li><li>Médecine approfondie : explications détaillées, orientation vers le bon spécialiste, jamais de prescription</li><li>Tests et examens : questions corrigées, notes sur 10</li><li>Réflexion plus poussée sur les questions difficiles</li><li>30 photos ou documents lus par jour</li><li data-img hidden>25 images créées par mois, à ta demande</li><li data-voix hidden>Keydou te lit ses réponses avec sa vraie voix (quelques lectures par jour)</li></ul>
       <button class="btn gold" data-plan="compagnon_complet" style="margin-top:10px">Choisir Complet</button></div>
     <div class="inst" data-inst>
       <h2>📲 Installer Keydou sur mon téléphone</h2>
@@ -216,7 +216,7 @@
 
   var cap=null, mode='auto', piece=null;
   function capTxt(){ return (cap&&cap.images&&cap.imagesMax>0)?' · '+cap.imagesRestantes+' image'+(cap.imagesRestantes>1?'s':'')+' à créer ce mois-ci':''; }
-  function majCap(c){ if(!c) return; cap=c; Array.prototype.forEach.call(document.querySelectorAll('[data-img]'),function(x){ x.hidden=!c.images; }); }
+  function majCap(c){ if(!c) return; cap=c; Array.prototype.forEach.call(document.querySelectorAll('[data-img]'),function(x){ x.hidden=!c.images; }); Array.prototype.forEach.call(document.querySelectorAll('[data-voix]'),function(x){ x.hidden=!(c.voix&&c.voix.actif); }); if(typeof majVoix==='function') majVoix(); }
   function construireModes(){
     var box=$('modes'); if(!box||box.childNodes.length) return;
     var liste=[{id:'auto',label:'Auto',emoji:'✨'}].concat((cap&&cap.modes)||[]);
@@ -236,7 +236,7 @@
     var d=document.createElement('div'); d.className='m '+(role==='user'?'me':'ky'); d.textContent=txt;
     if(extra&&extra.sources&&extra.sources.length){ var s=document.createElement('div'); s.className='src'; s.innerHTML='Sources : '+extra.sources.map(function(x){ return '<a href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer">'+esc(x.titre)+'</a>'; }).join(' · '); d.appendChild(s); }
     if(extra&&extra.ajoutes&&extra.ajoutes.length){ var a=document.createElement('div'); a.className='add'; a.textContent='✓ Rappel ajouté : '+extra.ajoutes.map(function(x){ return x.titre; }).join(', '); d.appendChild(a); }
-    if(role!=='user'&&window.speechSynthesis){ var lb=document.createElement('button'); lb.className='lire'; lb.type='button'; lb.textContent='🔊'; lb.setAttribute('aria-label','Lire à voix haute'); lb.addEventListener('click',function(){ parle(txt); }); d.appendChild(lb); }
+    if(role!=='user'&&(window.speechSynthesis||(cap&&cap.voix&&cap.voix.actif))){ var lb=document.createElement('button'); lb.className='lire'; lb.type='button'; lb.textContent='🔊'; lb.setAttribute('aria-label','Lire à voix haute'); var mid=extra&&extra.id?extra.id:0; lb.addEventListener('click',function(){ lire(txt,mid); }); d.appendChild(lb); }
     if(idImg) ajouteImage(d,idImg);
     $('chat').appendChild(d); var f=$('fil'); f.scrollTop=f.scrollHeight;
   }
@@ -289,7 +289,7 @@
       if(etat.notifications>0){ $('notifTxt').textContent='Notifications activées sur '+etat.notifications+' appareil(s).'; $('notifBtn').textContent='Réactiver sur ce téléphone'; }
       call('GET','?historique=1').then(function(h){
         $('chat').innerHTML='';
-        if(h.ok&&h.data.messages.length){ h.data.messages.forEach(function(m){ bulle(m.role,m.texte); }); }
+        if(h.ok&&h.data.messages.length){ h.data.messages.forEach(function(m){ bulle(m.role,m.texte,{id:m.id}); }); }
         else bulle('assistant','Salut ! Je suis Keydou. Je retiens tes rendez-vous, tes anniversaires et tes habitudes, et je te préviens au bon moment. Je peux aussi répondre à tes questions. Que veux-tu que je retienne ?');
       });
     });
@@ -312,7 +312,7 @@
     var a=etat&&etat.acces;
     ouvrirOffres('Changer d\u2019offre', a&&a.niveau==='complet'
       ? 'Tu es en Complet (Pro). Tu peux le reconduire, ou passer à Essentiel à la fin de ta période.'
-      : 'Passe à Complet (Pro) pour 19 $ par mois : 200 messages par jour, rappels illimités, recherches approfondies, réflexion plus poussée, 30 photos ou documents lus par jour. Ton Essentiel en cours n\u2019est pas perdu : il reprend après ton Complet.');
+      : 'Passe à Complet (Pro) pour 19 $ par mois : 200 messages par jour, rappels illimités, recherches approfondies, réflexion plus poussée, 30 photos ou documents lus par jour, 25 images créées par mois. Ton Essentiel en cours n\u2019est pas perdu : il reprend après ton Complet.');
   });
   $('finBtn').addEventListener('click',function(){ ouvrirOffres('Reconduire mon abonnement','Choisis ton offre : la nouvelle période s\u2019ajoute à la fin de ton abonnement actuel, sans perdre un jour.'); });
   $('reconduire').addEventListener('click',function(){ ouvrirOffres('Reconduire mon abonnement','Choisis ton offre : la nouvelle période s\u2019ajoute à la fin de ton abonnement actuel, sans perdre un jour.'); });
@@ -398,10 +398,10 @@
     call('POST','',{action:'chat',message:t,mode:mode,piece:pj?{data:pj.data}:undefined}).then(function(r){
       att.remove(); occupe=false;
       if(r.ok){
-        majCap(r.data.capacites); bulle('assistant',r.data.reponse,{sources:r.data.sources,ajoutes:r.data.rappelsAjoutes,imageId:r.data.image?r.data.image.id:0}); quota(r.data.quota);
+        majCap(r.data.capacites); bulle('assistant',r.data.reponse,{sources:r.data.sources,ajoutes:r.data.rappelsAjoutes,imageId:r.data.image?r.data.image.id:0,id:r.data.messageId}); quota(r.data.quota);
         var voix=voixOn||vientDeLaVoix; vientDeLaVoix=false;
-        if(r.data.rappelsAjoutes&&r.data.rappelsAjoutes.length){ kdBase('idle'); kdGeste('celebrate'); etatTxt('C\u2019est noté ! 🎉'); if(voix) setTimeout(function(){ parle(r.data.reponse); },900); }
-        else if(voix) parle(r.data.reponse);
+        if(r.data.rappelsAjoutes&&r.data.rappelsAjoutes.length){ kdBase('idle'); kdGeste('celebrate'); etatTxt('C\u2019est noté ! 🎉'); if(voix) setTimeout(function(){ lire(r.data.reponse,r.data.messageId); },900); }
+        else if(voix) lire(r.data.reponse,r.data.messageId);
         else { etatTxt('Je te réponds…'); parlerUnPeu(r.data.reponse); }
       }
       else if(r.status===429){ kdBase('idle'); etatTxt('Reviens un peu plus tard.'); bulle('assistant',r.data.error); quota(r.data.quota); if(r.data.code==='pieces_limite') $('envoi').disabled=false; }
@@ -437,7 +437,7 @@
   var LANG='fr-FR'; try{ if(navigator.language&&navigator.language.slice(0,2)!=='fr') LANG=navigator.language; }catch(e){}
   var voixOn=false; try{ voixOn=localStorage.getItem('keydou_voix')==='1'; }catch(e){}
   var TTS=window.speechSynthesis||null;
-  function majVoix(){ var b=$('btnVoix'); b.classList.toggle('on',voixOn); b.textContent=voixOn?'🔊':'🔇'; }
+  function majVoix(){ var b=$('btnVoix'); if(!b) return; b.hidden=!(TTS||(cap&&cap.voix&&cap.voix.actif)); b.classList.toggle('on',voixOn); b.textContent=voixOn?'🔊':'🔇'; }
   function propre(t){ return String(t||'').replace(/\p{Extended_Pictographic}/gu,' ').replace(/https?:\/\/\S+/g,' ').replace(/[*_#`]/g,'').replace(/\s+/g,' ').trim(); }
   function parle(t){
     if(!TTS) return; TTS.cancel();
@@ -451,8 +451,27 @@
     u.onend=u.onerror=function(){ clearTimeout(tB); enParole=false; if(kd&&kd.parole) kd.parole(true,1); kdBase('idle'); etatTxt('À toi !'); };
     TTS.speak(u);
   }
+  // Vraie voix de Keydou (service de voix côté serveur, même voix que la vidéo et le site). Sinon : voix du téléphone.
+  var audioKd=null, urlKd=null;
+  function stopKd(){ if(audioKd){ try{ audioKd.pause(); }catch(e){} audioKd=null; } if(urlKd){ try{ URL.revokeObjectURL(urlKd); }catch(e){} urlKd=null; } }
+  function voixKdPossible(){ return !!(cap&&cap.voix&&cap.voix.actif&&cap.voix.restantes>0); }
+  function lire(txt,id){
+    if(TTS) TTS.cancel(); stopKd();
+    if(!id||!voixKdPossible()){ if(id&&cap&&cap.voix&&cap.voix.actif&&cap.voix.restantes<=0) etatTxt('Plus de lectures avec ma voix aujourd\u2019hui : j\u2019utilise celle de ton téléphone.'); parle(txt); return; }
+    etatTxt('Je prépare ma voix…'); kdBase('think');
+    fetch(API+'?voix='+encodeURIComponent(id),{headers:{Authorization:'Bearer '+token}}).then(function(r){
+      if(!r.ok){ return r.json().catch(function(){return {};}).then(function(d){ if(r.status===429&&cap&&cap.voix) cap.voix.restantes=0; throw new Error(d&&d.error||'voix'); }); }
+      return r.blob();
+    }).then(function(bl){
+      if(cap&&cap.voix&&cap.voix.restantes>0) cap.voix.restantes=Math.max(0,cap.voix.restantes-1);
+      urlKd=URL.createObjectURL(bl); var a=new Audio(urlKd); audioKd=a;
+      a.onplay=function(){ enParole=true; clearTimeout(tParle); kdBase('talk'); etatTxt('Je te lis ma réponse…'); };
+      a.onended=a.onerror=function(){ enParole=false; stopKd(); kdBase('idle'); etatTxt('À toi !'); };
+      var pr=a.play(); if(pr&&pr.catch) pr.catch(function(){ enParole=false; stopKd(); parle(txt); });
+    }).catch(function(){ parle(txt); });
+  }
   if(!TTS){ $('btnVoix').hidden=true; }
-  $('btnVoix').addEventListener('click',function(){ voixOn=!voixOn; try{ localStorage.setItem('keydou_voix',voixOn?'1':'0'); }catch(e){} majVoix(); if(!voixOn&&TTS) TTS.cancel(); else if(voixOn) parle('Je te lis mes réponses.'); });
+  $('btnVoix').addEventListener('click',function(){ voixOn=!voixOn; try{ localStorage.setItem('keydou_voix',voixOn?'1':'0'); }catch(e){} majVoix(); if(!voixOn){ if(TTS) TTS.cancel(); stopKd(); } else if(!voixKdPossible()) parle('Je te lis mes réponses.'); });
   majVoix();
   var SR=window.SpeechRecognition||window.webkitSpeechRecognition, rec=null, ecoute=false;
   if(!SR){ $('mic').hidden=true; }

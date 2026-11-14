@@ -18,7 +18,7 @@ import {
 } from "./_compagnon.mts";
 import {
   MODES, modeDe, supplement, EFFORT, MAX_JETONS, MODELE_NIVEAU, IMAGES_PAR_MOIS, PIECES_PAR_JOUR, imagesDisponibles, verifierDemandeImage, formatImage,
-  signerImage, validerPiece, LIMITE_REPONSE, gardePrescription, MARQUE_PIECE, marqueImage, idImageDansTexte, type Mode,
+  signerImage, validerPiece, LIMITE_REPONSE, gardePrescription, voixDisponible, VOIX_PAR_JOUR, texteAVoix, genererVoix, MARQUE_PIECE, marqueImage, idImageDansTexte, type Mode,
 } from "./_compagnon2.mts";
 
 const ORG_MEMBRE = "star_vibe";
@@ -61,7 +61,9 @@ async function imagesUtilisees(sql: any, accountId: number): Promise<{ n: number
 async function capacites(sql: any, accountId: number, niveau: Niveau) {
   const u = await imagesUtilisees(sql, accountId);
   const max = IMAGES_PAR_MOIS(niveau);
-  return { images: imagesDisponibles(), imagesMax: max, imagesRestantes: Math.max(0, max - u.n), piecesMax: PIECES_PAR_JOUR(niveau), modes: Object.keys(MODES).map((k) => ({ id: k, label: MODES[k as Mode].label, emoji: MODES[k as Mode].emoji })) };
+  const maxV = VOIX_PAR_JOUR(niveau);
+  const nV = Number(((await sql`SELECT COUNT(*) AS n FROM starvibe_compagnon_voix WHERE account_id = ${accountId} AND created_at > now() - interval '24 hours'`) as { n: string }[])[0]?.n || 0);
+  return { voix: { actif: voixDisponible() && maxV > 0, max: maxV, restantes: Math.max(0, maxV - nV) }, images: imagesDisponibles(), imagesMax: max, imagesRestantes: Math.max(0, max - u.n), piecesMax: PIECES_PAR_JOUR(niveau), modes: Object.keys(MODES).map((k) => ({ id: k, label: MODES[k as Mode].label, emoji: MODES[k as Mode].emoji })) };
 }
 
 interface SourceWeb { titre: string; url: string }
@@ -221,6 +223,7 @@ export default async (req: Request, _context: Context) => {
     const n = (await sql`DELETE FROM starvibe_compagnon_notes WHERE account_id = ${accountId} RETURNING id`) as unknown[];
     await sql`DELETE FROM starvibe_compagnon_push WHERE account_id = ${accountId}`;
     await sql`DELETE FROM starvibe_compagnon_images WHERE account_id = ${accountId}`;
+    await sql`DELETE FROM starvibe_compagnon_voix WHERE account_id = ${accountId}`;
     await sql`UPDATE starvibe_compagnon_profil SET consentement_at = NULL, consentement_version = '' WHERE account_id = ${accountId}`;
     return json({ ok: true, effaces: { rappels: a.length, messages: m.length, notes: n.length } });
   }
@@ -232,12 +235,12 @@ export default async (req: Request, _context: Context) => {
     if (ancien.deja) {
       return json({
         error: `Ton abonnement Keydou Compagnon est terminé. Pour continuer à profiter de Keydou, réabonne-toi ou reconduis ton abonnement mensuel : ${OFFRES_TXT}.`,
-        code: "abonnement_termine", ouvert: true, fin: ancien.fin, capacites: { images: imagesDisponibles() },
+        code: "abonnement_termine", ouvert: true, fin: ancien.fin, capacites: { images: imagesDisponibles(), voix: { actif: voixDisponible() } },
       }, 403);
     }
     return json({
       error: ouvert ? "Keydou Compagnon : abonnement requis. Choisis ton offre, ton accès s'ouvre dès que ton dépôt est reconnu." : "Keydou Compagnon est en période de test : l'accès se fait sur invitation de l'équipe STAR ENTREPRISE.",
-      code: "acces_refuse", ouvert, capacites: { images: imagesDisponibles() },
+      code: "acces_refuse", ouvert, capacites: { images: imagesDisponibles(), voix: { actif: voixDisponible() } },
     }, 403);
   }
   const lim = LIMITES[acces.niveau];
@@ -245,6 +248,25 @@ export default async (req: Request, _context: Context) => {
   if (req.method === "GET" && url.searchParams.get("installtoken") === "1") {
     const d = decisionToken("install", accountId);
     return json({ acc: accountId, exp: d.exp, t: d.t });
+  }
+  if (req.method === "GET" && url.searchParams.get("voix")) {
+    const mid = Number(url.searchParams.get("voix"));
+    const deja = (await sql`SELECT data_b64 FROM starvibe_compagnon_voix WHERE account_id = ${accountId} AND message_id = ${mid}`) as { data_b64: string }[];
+    const audio = (b64: string) => new Response(Buffer.from(b64, "base64"), { headers: { "content-type": "audio/mpeg", "cache-control": "private, max-age=86400" } });
+    if (deja[0]) return audio(deja[0].data_b64);
+    const maxV = VOIX_PAR_JOUR(acces.niveau);
+    if (!voixDisponible() || maxV <= 0) return json({ error: "La voix de Keydou n'est pas disponible pour ton offre.", code: "voix_indisponible" }, 404);
+    const m = (await sql`SELECT texte FROM starvibe_compagnon_messages WHERE id = ${mid} AND account_id = ${accountId} AND role = 'assistant'`) as { texte: string }[];
+    if (!m[0]) return json({ error: "Message introuvable." }, 404);
+    const nV = Number(((await sql`SELECT COUNT(*) AS n FROM starvibe_compagnon_voix WHERE account_id = ${accountId} AND created_at > now() - interval '24 hours'`) as { n: string }[])[0]?.n || 0);
+    if (nV >= maxV) return json({ error: `Tu as utilisé tes ${maxV} lectures avec la voix de Keydou aujourd'hui. Elles reviennent demain ; en attendant, ton téléphone peut lire la réponse.`, code: "voix_quota" }, 429);
+    const t = texteAVoix(m[0].texte);
+    if (t.length < 3) return json({ error: "Rien à lire dans ce message.", code: "voix_vide" }, 400);
+    const g = await genererVoix(t);
+    if (!g.ok) return json({ error: "La voix de Keydou est indisponible un instant : ton téléphone peut lire la réponse.", code: "voix_erreur" }, 503);
+    await sql`INSERT INTO starvibe_compagnon_voix (account_id, message_id, signes, data_b64) VALUES (${accountId}, ${mid}, ${t.length}, ${g.b64}) ON CONFLICT (account_id, message_id) DO NOTHING`;
+    await sql`DELETE FROM starvibe_compagnon_voix WHERE account_id = ${accountId} AND id NOT IN (SELECT id FROM starvibe_compagnon_voix WHERE account_id = ${accountId} ORDER BY id DESC LIMIT 20)`;
+    return audio(g.b64);
   }
   if (req.method === "GET" && url.searchParams.get("image")) {
     const id = Number(url.searchParams.get("image"));
@@ -262,8 +284,8 @@ export default async (req: Request, _context: Context) => {
     await sql`INSERT INTO starvibe_compagnon_profil (account_id, derniere_ouverture) VALUES (${accountId}, now()) ON CONFLICT (account_id) DO UPDATE SET derniere_ouverture = now()`;
     if (url.searchParams.get("app") === "1") await sql`UPDATE starvibe_compagnon_profil SET app_installee_at = COALESCE(app_installee_at, now()) WHERE account_id = ${accountId}`;
     if (url.searchParams.get("historique") === "1") {
-      const h = (await sql`SELECT role, texte, created_at FROM starvibe_compagnon_messages WHERE account_id = ${accountId} ORDER BY id DESC LIMIT 40`) as { role: string; texte: string; created_at: string }[];
-      return json({ messages: h.reverse().map((x) => ({ role: x.role, texte: x.texte, at: x.created_at })) });
+      const h = (await sql`SELECT id, role, texte, created_at FROM starvibe_compagnon_messages WHERE account_id = ${accountId} ORDER BY id DESC LIMIT 40`) as { id: number; role: string; texte: string; created_at: string }[];
+      return json({ messages: h.reverse().map((x) => ({ id: x.id, role: x.role, texte: x.texte, at: x.created_at })) });
     }
     if (url.searchParams.get("rappels") === "1") {
       const r = (await sql`SELECT id, titre, quand, repetition, avant_minutes, actif, envoye_at FROM starvibe_compagnon_rappels WHERE account_id = ${accountId} ORDER BY actif DESC, quand ASC LIMIT 300`) as RappelRow[];
@@ -447,8 +469,8 @@ export default async (req: Request, _context: Context) => {
   reponse = gardePrescription(reponse, mode);
   const reponseGardee = imageInfo ? `${reponse}\n${marqueImage(imageInfo.id)}` : reponse;
 
-  await sql`INSERT INTO starvibe_compagnon_messages (account_id, role, texte, recherches, tokens_in, tokens_out) VALUES (${accountId}, 'assistant', ${reponseGardee}, ${ia.recherches}, ${ia.tokensIn}, ${ia.tokensOut})`;
-  return json({ reponse, sources: ia.sources.slice(0, 3), rappelsAjoutes: ajoutes, mode, image: imageInfo, capacites: await capacites(sql, accountId, acces.niveau), quota: await etatQuota(sql, accountId, acces.niveau) });
+  const insA = (await sql`INSERT INTO starvibe_compagnon_messages (account_id, role, texte, recherches, tokens_in, tokens_out) VALUES (${accountId}, 'assistant', ${reponseGardee}, ${ia.recherches}, ${ia.tokensIn}, ${ia.tokensOut}) RETURNING id`) as { id: number }[];
+  return json({ messageId: insA[0]?.id || 0, reponse, sources: ia.sources.slice(0, 3), rappelsAjoutes: ajoutes, mode, image: imageInfo, capacites: await capacites(sql, accountId, acces.niveau), quota: await etatQuota(sql, accountId, acces.niveau) });
 };
 
 export const config: Config = { path: "/api/starvibe-compagnon" };
