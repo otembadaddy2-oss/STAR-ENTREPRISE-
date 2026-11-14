@@ -422,7 +422,10 @@
       }),
     }).then(function(r){ return r.json(); })
       .then(function(d){
-        if (d.statut === 'valide') {
+        if (d.statut === 'en_verification') {
+          statusEl.className = 'pay-status';
+          statusEl.textContent = d.message;
+        } else if (d.statut === 'valide') {
           statusEl.className = 'pay-status valide';
           statusEl.textContent = 'Paiement confirmé — ton annonce est en ligne !';
         } else {

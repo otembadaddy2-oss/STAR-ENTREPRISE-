@@ -3,7 +3,13 @@
 import type { Context, Config } from "@netlify/functions";
 import bcrypt from "bcryptjs";
 import { ensureSchema, db, json } from "./_db.mts";
+import { timingSafeEqual } from "node:crypto";
 import { issueToken } from "./_auth.mts";
+import { ipHash, verrou, echec, effacer, msgBloque } from "./_guard.mts";
+
+// Hash factice : on compare toujours un mot de passe, même quand l'identifiant n'existe pas (même durée de réponse).
+const HASH_FACTICE = "$2a$12$C6UzMDM.H6dfI/f/IKcEeO5hWbrz0Bm8XK3x3p5uJ7kqX9z2yQe6e";
+function egal(a: string, b: string): boolean { const x = Buffer.from(a), y = Buffer.from(b); return x.length === y.length && timingSafeEqual(x, y); }
 
 function clean(value: unknown, maxLen: number): string {
   return String(value ?? "").trim().slice(0, maxLen);
@@ -32,6 +38,11 @@ export default async (req: Request, _context: Context) => {
       return json({ error: "Identifiant ou mot de passe manquant" }, 400);
     }
 
+    // Anti-pirates : 5 essais ratés par identifiant et par connexion (verrou 15 min), 20 par connexion en 1 h (verrou 1 h).
+    const ip = ipHash(req), kIp = `auth:ip:${ip}`, kUser = `auth:user:${ip}:${username}`;
+    const bloc = Math.max(await verrou(sql, kIp), await verrou(sql, kUser));
+    if (bloc > 0) return json({ error: msgBloque(bloc) }, 429);
+
     const rows = await sql`
       SELECT id, username, password_hash, display_name, org, role
       FROM accounts WHERE username = ${username} LIMIT 1
@@ -40,13 +51,13 @@ export default async (req: Request, _context: Context) => {
       | { id: number; username: string; password_hash: string; display_name: string; org: string; role: string }
       | undefined;
 
-    if (!account) {
+    const ok = await bcrypt.compare(password, account ? account.password_hash : HASH_FACTICE);
+    if (!account || !ok) {
+      await echec(sql, kIp, 20, 60, 60);
+      await echec(sql, kUser, 5, 15, 15);
       return json({ error: "Identifiants incorrects" }, 401);
     }
-    const ok = await bcrypt.compare(password, account.password_hash);
-    if (!ok) {
-      return json({ error: "Identifiants incorrects" }, 401);
-    }
+    await effacer(sql, kUser);
 
     const token = await issueToken({
       sub: String(account.id),
@@ -73,7 +84,11 @@ export default async (req: Request, _context: Context) => {
     // connu uniquement de l'administrateur (variable d'environnement SETUP_TOKEN).
     const setupToken = clean(body.setupToken, 200);
     const expected = process.env.SETUP_TOKEN || "";
-    if (!expected || setupToken !== expected) {
+    const kSetup = `auth:setup:${ipHash(req)}`;
+    const blocS = await verrou(sql, kSetup);
+    if (blocS > 0) return json({ error: msgBloque(blocS) }, 429);
+    if (!expected || !egal(setupToken, expected)) {
+      await echec(sql, kSetup, 5, 60, 120);
       return json({ error: "Jeton de configuration invalide" }, 403);
     }
 

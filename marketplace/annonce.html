@@ -455,7 +455,10 @@
       }),
     }).then(function(r){ return r.json(); })
       .then(function(d){
-        if (d.statut === 'paye') {
+        if (d.statut === 'en_verification') {
+          statusEl.className = 'pay-status';
+          statusEl.textContent = d.message;
+        } else if (d.statut === 'paye') {
           statusEl.className = 'pay-status valide';
           statusEl.textContent = 'Paiement confirmé — le vendeur va te contacter !';
           confirmForm.querySelector('button').style.display = 'none';
