@@ -85,6 +85,17 @@
   .compose .mic.ecoute{background:var(--bad);border-color:var(--bad);color:#fff;animation:pls 1s infinite;}
   @keyframes pls{50%{box-shadow:0 0 0 8px rgba(192,57,43,.18);}}
   .lire{border:0;background:none;font-size:14px;padding:2px 0 0 6px;opacity:.6;cursor:pointer;}
+  .modes{display:flex;gap:6px;overflow-x:auto;padding:8px 14px 2px;flex:none;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+  .modes::-webkit-scrollbar{display:none;}
+  .modes button{flex:none;border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:6px 11px;font:700 12px 'Inter',Arial,sans-serif;color:var(--ink);white-space:nowrap;}
+  .modes button.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .compose .clip{flex:none;width:46px;height:46px;border-radius:50%;border:1.5px solid var(--line);background:#fff;font-size:20px;padding:0;align-self:flex-end;}
+  .pj{display:flex;align-items:center;gap:8px;padding:6px 14px 0;font-size:12.5px;color:var(--ink);flex:none;}
+  .pj b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;} .pj button{border:0;background:var(--line);border-radius:99px;width:26px;height:26px;font-size:13px;}
+  .imgb{margin-top:8px;white-space:normal;} .imgb img{display:block;max-width:100%;border-radius:14px;border:1px solid var(--line);}
+  .imgb .att{font-size:13px;color:var(--dim);} .imgb .acts{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+  .imgb .acts a,.imgb .acts button{border:1.5px solid var(--ink);background:#fff;color:var(--ink);border-radius:99px;padding:7px 12px;font:700 12.5px 'Inter',Arial,sans-serif;text-decoration:none;}
+  .imgb .ia{font-size:11px;color:var(--dim);margin-top:6px;}
   .actuel{display:inline-block;background:#dcf3e8;color:#1f6b4f;font:700 11px 'Inter',Arial,sans-serif;border-radius:99px;padding:3px 9px;margin-left:6px;vertical-align:middle;}
 </style>
 </head>
@@ -99,10 +110,10 @@
   <div class="pane" id="offres" hidden>
     <div class="card"><h2 id="offresTitre">Choisis ton offre</h2><p class="note" id="offresTxt">Ton accès s'ouvre dès que ton dépôt est reconnu. Jamais gratuit.</p></div>
     <div class="card"><h2>Essentiel · 5 000 FCFA<span class="actuel" id="actEss" hidden>Ton offre</span> <small style="font:600 12px 'Inter',Arial,sans-serif;color:var(--dim)">par mois</small></h2>
-      <ul><li>65 messages par jour</li><li>10 rappels actifs</li><li>Culture générale + recherches vérifiées avec sources</li></ul>
+      <ul><li>65 messages par jour</li><li>10 rappels actifs</li><li>Culture générale + recherches vérifiées avec sources</li><li>Modes Santé, Droit, Cuisine, Mécanique, Business, Études</li><li>5 photos ou documents lus par jour</li></ul>
       <button class="btn" data-plan="compagnon" style="margin-top:10px">Choisir Essentiel</button></div>
     <div class="card" style="border-color:var(--gold)"><h2>Complet · 19 $<span class="actuel" id="actPro" hidden>Ton offre</span> <small style="font:600 12px 'Inter',Arial,sans-serif;color:var(--dim)">par mois (≈ 11 100 FCFA)</small></h2>
-      <ul><li>200 messages par jour</li><li>Rappels illimités</li><li>Recherches approfondies, sources citées</li></ul>
+      <ul><li>200 messages par jour</li><li>Rappels illimités</li><li>Recherches approfondies, sources citées</li><li>Réflexion plus poussée sur les questions difficiles</li><li>30 photos ou documents lus par jour</li><li data-img hidden>10 images créées par mois, à ta demande</li></ul>
       <button class="btn gold" data-plan="compagnon_complet" style="margin-top:10px">Choisir Complet</button></div>
     <div class="inst" data-inst>
       <h2>📲 Installer Keydou sur mon téléphone</h2>
@@ -134,7 +145,7 @@
 
   <div class="pane" id="consent" hidden>
     <div class="card"><h2>Tes données, ton choix</h2>
-      <p class="note"><b>Keydou retient</b></p><ul><li>tes rendez-vous et tes anniversaires</li><li>tes habitudes (marche, lecture, sport…)</li><li>ce que tu lui demandes de retenir</li><li>tes conversations, pour mieux te répondre</li></ul>
+      <p class="note"><b>Keydou retient</b></p><ul><li>tes rendez-vous et tes anniversaires</li><li>tes habitudes (marche, lecture, sport…)</li><li>ce que tu lui demandes de retenir</li><li>tes conversations, pour mieux te répondre</li><li>les images qu’il crée pour toi</li></ul><p class="note">Les photos et documents que tu lui envoies sont lus puis oubliés : ils ne sont pas gardés.</p>
       <p class="note"><b>Keydou ne retient jamais</b></p><ul><li>tes médicaments : parles-en à ton médecin ou à ton pharmacien</li><li>tes codes secrets, ton numéro de carte</li></ul>
       <p class="note">Rien n'est vendu ni partagé. Tu peux tout télécharger et tout effacer, à tout moment, depuis l'onglet « Mes données ».</p>
       <label class="chk"><input type="checkbox" id="okConsent"> <span>J'accepte que Keydou garde ces informations pour m'aider.</span></label>
@@ -156,8 +167,10 @@
       <div class="scene"><div class="kd" id="kd"><img class="kd-img" src="assets/img/keydou.webp" alt="Keydou"></div><div class="etat" id="etat" aria-live="polite">Écris-moi ou parle-moi.</div></div>
       <div class="pane" id="fil"><div class="chat" id="chat"></div></div>
       <div class="limite" id="limite" hidden></div>
+      <div class="modes" id="modes" role="group" aria-label="Domaine de la question"></div>
       <div class="quota" id="quota"></div>
-      <div class="compose"><button class="mic" id="mic" type="button" aria-label="Parler à Keydou" title="Parler à Keydou">🎤</button><textarea id="msg" rows="1" maxlength="1500" placeholder="Écris à Keydou…"></textarea><button id="envoi">Envoyer</button></div>
+      <div class="pj" id="pj" hidden><span>📎</span><b id="pjNom"></b><button type="button" id="pjOte" aria-label="Retirer le fichier">✕</button></div>
+      <div class="compose"><button class="clip" id="clip" type="button" aria-label="Envoyer une photo ou un document" title="Photo ou document">📎</button><input type="file" id="fichier" accept="image/*,application/pdf" hidden><button class="mic" id="mic" type="button" aria-label="Parler à Keydou" title="Parler à Keydou">🎤</button><textarea id="msg" rows="1" maxlength="1500" placeholder="Écris à Keydou…"></textarea><button id="envoi">Envoyer</button></div>
     </section>
 
     <section id="t-rappels" class="pane" hidden>
@@ -201,19 +214,58 @@
   function show(id){ ['out','ferme','offres','pay','consent','app'].forEach(function(x){ $(x).hidden=(x!==id); }); if(id==='app') $('app').style.display='flex'; }
   if(!token){ show('out'); return; }
 
+  var cap=null, mode='auto', piece=null;
+  function capTxt(){ return (cap&&cap.images&&cap.imagesMax>0)?' · '+cap.imagesRestantes+' image'+(cap.imagesRestantes>1?'s':'')+' à créer ce mois-ci':''; }
+  function majCap(c){ if(!c) return; cap=c; Array.prototype.forEach.call(document.querySelectorAll('[data-img]'),function(x){ x.hidden=!c.images; }); }
+  function construireModes(){
+    var box=$('modes'); if(!box||box.childNodes.length) return;
+    var liste=[{id:'auto',label:'Auto',emoji:'✨'}].concat((cap&&cap.modes)||[]);
+    liste.forEach(function(m){ var b=document.createElement('button'); b.type='button'; b.dataset.m=m.id; b.textContent=m.emoji+' '+m.label; if(m.id===mode) b.className='on';
+      b.addEventListener('click',function(){ mode=m.id; Array.prototype.forEach.call(box.children,function(x){ x.className=(x.dataset.m===mode?'on':''); }); }); box.appendChild(b); });
+  }
   function quota(q){
     if(!q) return;
-    $('quota').textContent=q.messagesUtilises+' / '+q.messagesMax+' messages sur 24 h';
+    $('quota').textContent=q.messagesUtilises+' / '+q.messagesMax+' messages sur 24 h'+capTxt();
     var l=$('limite');
     if(q.revenirDansMs>0){ l.hidden=false; l.textContent='Tu as atteint ta limite de '+q.messagesMax+' messages. Reviens dans '+q.revenirDans+'.'; $('envoi').disabled=true; }
     else{ l.hidden=true; $('envoi').disabled=false; }
   }
   function bulle(role,txt,extra){
+    var idImg=extra&&extra.imageId?extra.imageId:0, mm=/\[\[img:(\d+)\]\]/.exec(String(txt||''));
+    if(mm){ idImg=Number(mm[1]); txt=String(txt).replace(/\s*\[\[img:\d+\]\]/,''); }
     var d=document.createElement('div'); d.className='m '+(role==='user'?'me':'ky'); d.textContent=txt;
     if(extra&&extra.sources&&extra.sources.length){ var s=document.createElement('div'); s.className='src'; s.innerHTML='Sources : '+extra.sources.map(function(x){ return '<a href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer">'+esc(x.titre)+'</a>'; }).join(' · '); d.appendChild(s); }
     if(extra&&extra.ajoutes&&extra.ajoutes.length){ var a=document.createElement('div'); a.className='add'; a.textContent='✓ Rappel ajouté : '+extra.ajoutes.map(function(x){ return x.titre; }).join(', '); d.appendChild(a); }
     if(role!=='user'&&window.speechSynthesis){ var lb=document.createElement('button'); lb.className='lire'; lb.type='button'; lb.textContent='🔊'; lb.setAttribute('aria-label','Lire à voix haute'); lb.addEventListener('click',function(){ parle(txt); }); d.appendChild(lb); }
+    if(idImg) ajouteImage(d,idImg);
     $('chat').appendChild(d); var f=$('fil'); f.scrollTop=f.scrollHeight;
+  }
+  // ---- Images créées par Keydou : attente, affichage, enregistrement ----
+  function ajouteImage(d,id){
+    var box=document.createElement('div'); box.className='imgb'; var att=document.createElement('div'); att.className='att'; att.textContent='🎨 Je crée ton image… quelques secondes.'; box.appendChild(att); d.appendChild(box);
+    var debut=Date.now();
+    (function suivre(){
+      call('GET','?image='+id+'&statut=1').then(function(r){
+        if(r.status===404){ att.textContent='Cette image a été effacée.'; return; }
+        var st=r.ok?r.data.statut:'';
+        if(st==='ok'){ montre(); return; }
+        if(st==='erreur'||st==='refuse'){ att.textContent=(r.data.message||'L\u2019image n\u2019a pas pu être créée.'); var ref=document.createElement('div'); ref.className='acts'; var b=document.createElement('button'); b.type='button'; b.textContent='Réessayer'; b.addEventListener('click',function(){ $('msg').value='Essaie encore de créer cette image, avec une autre idée.'; envoyer(); }); ref.appendChild(b); box.appendChild(ref); return; }
+        if(Date.now()-debut>300000){ att.textContent='Cela prend trop de temps. Réessaie dans un instant.'; return; }
+        setTimeout(suivre,3000);
+      }).catch(function(){ setTimeout(suivre,5000); });
+    })();
+    function montre(){
+      fetch(API+'?image='+id,{headers:{Authorization:'Bearer '+token}}).then(function(r){ if(!r.ok) throw 0; return r.blob(); }).then(function(bl){
+        var url=URL.createObjectURL(bl); box.innerHTML='';
+        var im=document.createElement('img'); im.src=url; im.alt='Image créée par Keydou'; box.appendChild(im);
+        var ac=document.createElement('div'); ac.className='acts';
+        var a=document.createElement('a'); a.href=url; a.download='keydou-image-'+id+(bl.type.indexOf('png')>=0?'.png':'.jpg'); a.textContent='⬇ Enregistrer'; ac.appendChild(a);
+        var b=document.createElement('button'); b.type='button'; b.textContent='🔁 Refaire autrement'; b.addEventListener('click',function(){ $('msg').value='Refais cette image autrement, avec une autre idée.'; envoyer(); }); ac.appendChild(b);
+        box.appendChild(ac);
+        var ia=document.createElement('div'); ia.className='ia'; ia.textContent='Image créée par intelligence artificielle'; box.appendChild(ia);
+        var f=$('fil'); f.scrollTop=f.scrollHeight;
+      }).catch(function(){ att.textContent='L\u2019image n\u2019a pas pu être affichée. Réessaie.'; });
+    }
   }
   function charge(){
     call('GET',standalone?'?app=1':'').then(function(r){
@@ -221,14 +273,14 @@
       if(r.status===403){
         if(r.data.code==='abonnement_termine'||(r.data.code==='acces_refuse'&&r.data.ouvert)){
           $('offresTitre').textContent = r.data.code==='abonnement_termine' ? 'Ton abonnement est terminé' : 'Choisis ton offre';
-          $('offresTxt').textContent = r.data.error; show('offres'); return;
+          $('offresTxt').textContent = r.data.error; majCap(r.data.capacites); show('offres'); return;
         }
         $('fermeTxt').textContent=r.data.error||$('fermeTxt').textContent; show('ferme'); return;
       }
       if(!r.ok){ return; }
       etat=r.data;
       if(!etat.consentement){ show('consent'); return; }
-      show('app'); quota(etat.quota);
+      show('app'); majCap(etat.capacites); construireModes(); quota(etat.quota);
       initKd();
       $('finBandeau').hidden=!etat.finBientot; if(etat.finBientot) $('finTxt').textContent=etat.texteFin;
       var pro=etat.acces.niveau==='complet'; var ch=$('chipNiveau');
@@ -260,7 +312,7 @@
     var a=etat&&etat.acces;
     ouvrirOffres('Changer d\u2019offre', a&&a.niveau==='complet'
       ? 'Tu es en Complet (Pro). Tu peux le reconduire, ou passer à Essentiel à la fin de ta période.'
-      : 'Passe à Complet (Pro) pour 19 $ par mois : 200 messages par jour, rappels illimités, recherches approfondies. Ton Essentiel en cours n\u2019est pas perdu : il reprend après ton Complet.');
+      : 'Passe à Complet (Pro) pour 19 $ par mois : 200 messages par jour, rappels illimités, recherches approfondies, réflexion plus poussée, 30 photos ou documents lus par jour. Ton Essentiel en cours n\u2019est pas perdu : il reprend après ton Complet.');
   });
   $('finBtn').addEventListener('click',function(){ ouvrirOffres('Reconduire mon abonnement','Choisis ton offre : la nouvelle période s\u2019ajoute à la fin de ton abonnement actuel, sans perdre un jour.'); });
   $('reconduire').addEventListener('click',function(){ ouvrirOffres('Reconduire mon abonnement','Choisis ton offre : la nouvelle période s\u2019ajoute à la fin de ton abonnement actuel, sans perdre un jour.'); });
@@ -338,23 +390,46 @@
   function kdGeste(g){ if(kd) kd.jouer(g); }
   function parlerUnPeu(txt){ if(!kd) return; kd.base('talk'); clearTimeout(tParle); tParle=setTimeout(function(){ if(!enParole){ kd.base('idle'); etatTxt('À toi !'); } },Math.min(5000,700+String(txt||'').length*30)); }
   function envoyer(){
-    var t=$('msg').value.trim(); if(!t||occupe) return;
-    occupe=true; $('envoi').disabled=true; bulle('user',t); $('msg').value='';
+    var t=$('msg').value.trim(); if((!t&&!piece)||occupe) return;
+    var pj=piece; piece=null; $('pj').hidden=true; $('fichier').value='';
+    occupe=true; $('envoi').disabled=true; bulle('user',(pj?'📎 '+pj.nom+(t?' · ':''):'')+t); $('msg').value='';
     kdBase('think'); etatTxt('Je réfléchis…');
     var att=document.createElement('div'); att.className='m ky'; att.textContent='Keydou réfléchit…'; $('chat').appendChild(att); $('fil').scrollTop=$('fil').scrollHeight;
-    call('POST','',{action:'chat',message:t}).then(function(r){
+    call('POST','',{action:'chat',message:t,mode:mode,piece:pj?{data:pj.data}:undefined}).then(function(r){
       att.remove(); occupe=false;
       if(r.ok){
-        bulle('assistant',r.data.reponse,{sources:r.data.sources,ajoutes:r.data.rappelsAjoutes}); quota(r.data.quota);
+        majCap(r.data.capacites); bulle('assistant',r.data.reponse,{sources:r.data.sources,ajoutes:r.data.rappelsAjoutes,imageId:r.data.image?r.data.image.id:0}); quota(r.data.quota);
         var voix=voixOn||vientDeLaVoix; vientDeLaVoix=false;
         if(r.data.rappelsAjoutes&&r.data.rappelsAjoutes.length){ kdBase('idle'); kdGeste('celebrate'); etatTxt('C\u2019est noté ! 🎉'); if(voix) setTimeout(function(){ parle(r.data.reponse); },900); }
         else if(voix) parle(r.data.reponse);
         else { etatTxt('Je te réponds…'); parlerUnPeu(r.data.reponse); }
       }
-      else if(r.status===429){ kdBase('idle'); etatTxt('Reviens un peu plus tard.'); bulle('assistant',r.data.error); quota(r.data.quota); }
+      else if(r.status===429){ kdBase('idle'); etatTxt('Reviens un peu plus tard.'); bulle('assistant',r.data.error); quota(r.data.quota); if(r.data.code==='pieces_limite') $('envoi').disabled=false; }
       else{ kdBase('idle'); etatTxt('Réessaie dans un instant.'); bulle('assistant',r.data.error||'Keydou est indisponible un instant.'); $('envoi').disabled=false; }
     }).catch(function(){ att.remove(); occupe=false; $('envoi').disabled=false; kdBase('idle'); bulle('assistant','Connexion impossible. Réessaie.'); });
   }
+  // ---- Photo ou document envoyé à Keydou (la photo est réduite avant l'envoi) ----
+  function lireFichier(f){
+    if(!f) return;
+    function pret(data,nom){ piece={data:data,nom:nom}; $('pjNom').textContent=nom; $('pj').hidden=false; }
+    if(f.type==='application/pdf'){
+      if(f.size>3200000){ bulle('assistant','Ce PDF est trop lourd (3 Mo au maximum). Envoie moins de pages ou une version plus légère.'); $('fichier').value=''; return; }
+      var r=new FileReader(); r.onload=function(){ pret(String(r.result).split(',')[1]||'',f.name||'document.pdf'); }; r.readAsDataURL(f); return;
+    }
+    if(!/^image\//.test(f.type)){ bulle('assistant','Je lis les photos et les PDF. Ce type de fichier n\u2019est pas pris en charge.'); $('fichier').value=''; return; }
+    var rd=new FileReader(); rd.onload=function(){
+      var im=new Image(); im.onload=function(){
+        var m=1280, w=im.naturalWidth, h=im.naturalHeight, k=Math.min(1,m/Math.max(w,h)); var c=document.createElement('canvas'); c.width=Math.round(w*k); c.height=Math.round(h*k);
+        var g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,c.width,c.height); g.drawImage(im,0,0,c.width,c.height);
+        pret(c.toDataURL('image/jpeg',0.82).split(',')[1],f.name||'photo.jpg');
+      };
+      im.onerror=function(){ bulle('assistant','Je n\u2019arrive pas à lire cette photo. Essaie-en une autre.'); $('fichier').value=''; };
+      im.src=String(rd.result);
+    }; rd.readAsDataURL(f);
+  }
+  $('clip').addEventListener('click',function(){ $('fichier').click(); });
+  $('fichier').addEventListener('change',function(){ lireFichier(this.files&&this.files[0]); });
+  $('pjOte').addEventListener('click',function(){ piece=null; $('pj').hidden=true; $('fichier').value=''; });
   $('envoi').addEventListener('click',envoyer);
   $('msg').addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); envoyer(); } });
 

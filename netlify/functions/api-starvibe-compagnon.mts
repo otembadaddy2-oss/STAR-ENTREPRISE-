@@ -16,6 +16,10 @@ import { vapidKeys, last9, decisionToken, checkDecisionToken } from "./_push.mts
 import {
   LIMITES, CONSENTEMENT_VERSION, REPETITIONS, MODELE, OFFRES_TXT, manifesteKeydou, accesDe, aDejaAbonne, texteFinAbonnement, etatQuota, fuseauValide, heureLocale, localVersUtc, parleDeMedicaments, consigne, type Niveau,
 } from "./_compagnon.mts";
+import {
+  MODES, modeDe, supplement, EFFORT, MAX_JETONS, MODELE_NIVEAU, IMAGES_PAR_MOIS, PIECES_PAR_JOUR, imagesDisponibles, verifierDemandeImage, formatImage,
+  signerImage, validerPiece, MARQUE_PIECE, marqueImage, idImageDansTexte, type Mode,
+} from "./_compagnon2.mts";
 
 const ORG_MEMBRE = "star_vibe";
 const ORG_STAFF = "star_entreprise";
@@ -45,10 +49,25 @@ async function creerRappel(sql: any, accountId: number, niveau: Niveau, o: { tit
   return { ok: true, id: r[0].id };
 }
 
+// Images créées pendant les 30 derniers jours (celles qui ont échoué ne comptent pas).
+// deno-lint-ignore no-explicit-any
+async function imagesUtilisees(sql: any, accountId: number): Promise<{ n: number; joursAvantNouvelle: number }> {
+  const r = (await sql`SELECT COUNT(*) AS n, MIN(created_at) AS premiere FROM starvibe_compagnon_images WHERE account_id = ${accountId} AND statut IN ('attente', 'ok') AND created_at > now() - interval '30 days'`) as { n: string; premiere: string | null }[];
+  const n = Number(r[0]?.n || 0);
+  const jours = r[0]?.premiere ? Math.max(1, Math.ceil((new Date(r[0].premiere).getTime() + 30 * 86400000 - Date.now()) / 86400000)) : 0;
+  return { n, joursAvantNouvelle: jours };
+}
+// deno-lint-ignore no-explicit-any
+async function capacites(sql: any, accountId: number, niveau: Niveau) {
+  const u = await imagesUtilisees(sql, accountId);
+  const max = IMAGES_PAR_MOIS(niveau);
+  return { images: imagesDisponibles(), imagesMax: max, imagesRestantes: Math.max(0, max - u.n), piecesMax: PIECES_PAR_JOUR(niveau), modes: Object.keys(MODES).map((k) => ({ id: k, label: MODES[k as Mode].label, emoji: MODES[k as Mode].emoji })) };
+}
+
 interface SourceWeb { titre: string; url: string }
 interface ReponseIA { texte: string; sources: SourceWeb[]; recherches: number; tokensIn: number; tokensOut: number; refus: boolean }
 
-async function appelerIA(messages: { role: string; content: unknown }[], rechercheMax: number): Promise<ReponseIA | null> {
+async function appelerIA(messages: { role: string; content: unknown }[], rechercheMax: number, o: { niveau: Niveau; supplement: string }): Promise<ReponseIA | null> {
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) return null;
   const base = (process.env.ANTHROPIC_BASE_URL || "https://api.anthropic.com").replace(/\/+$/, "");
@@ -58,8 +77,8 @@ async function appelerIA(messages: { role: string; content: unknown }[], recherc
   let outil = avecOutil;
   for (let tour = 0; tour < 3; tour++) {
     const corps: Record<string, unknown> = {
-      model: MODELE(), max_tokens: 1400, output_config: { effort: "low" },
-      system: [{ type: "text", text: consigne(), cache_control: { type: "ephemeral" } }],
+      model: MODELE_NIVEAU(o.niveau), max_tokens: MAX_JETONS(o.niveau), output_config: { effort: EFFORT(o.niveau) },
+      system: [{ type: "text", text: consigne(), cache_control: { type: "ephemeral" } }, ...(o.supplement ? [{ type: "text", text: o.supplement }] : [])],
       messages: msgs,
     };
     if (outil) corps.tools = [{ type: "web_search_20260209", name: "web_search", max_uses: Math.min(3, rechercheMax) }];
@@ -131,9 +150,10 @@ export default async (req: Request, _context: Context) => {
       const cout = (await sql`SELECT COALESCE(SUM(tokens_in), 0) AS ti, COALESCE(SUM(tokens_out), 0) AS tou, COUNT(*) FILTER (WHERE role = 'user') AS msgs, COALESCE(SUM(recherches), 0) AS rech FROM starvibe_compagnon_messages WHERE created_at > now() - interval '30 days'`) as Record<string, string>[];
       const ouvert = ((await sql`SELECT value FROM starvibe_settings WHERE key = 'compagnon_ouvert'`) as { value: string }[])[0]?.value === "on";
       const ti = Number(cout[0].ti), to = Number(cout[0].tou);
+      const nbImg = Number(((await sql`SELECT COUNT(*) AS n FROM starvibe_compagnon_images WHERE statut = 'ok' AND created_at > now() - interval '30 days'`) as { n: string }[])[0]?.n || 0);
       return json({
         ouvert, limites: LIMITES, modele: MODELE(),
-        usage30j: { messages: Number(cout[0].msgs), recherches: Number(cout[0].rech), jetonsEntree: ti, jetonsSortie: to, coutEstimeUsd: Math.round(((ti * TARIF_ENTREE_USD + to * TARIF_SORTIE_USD) / 1e6) * 100) / 100 },
+        usage30j: { messages: Number(cout[0].msgs), recherches: Number(cout[0].rech), jetonsEntree: ti, jetonsSortie: to, coutEstimeUsd: Math.round(((ti * TARIF_ENTREE_USD + to * TARIF_SORTIE_USD) / 1e6) * 100) / 100, images: nbImg, imagesActives: imagesDisponibles() },
         lignes: lignes.map((l) => ({
           accountId: l.account_id, telephone: l.telephone, nom: l.nom || "", test: !!l.test, niveauTest: l.niveau_test || "", planActif: l.plan_actif || "", fin: l.fin || null,
           dernierStatut: l.dernier_statut || "", appareil: l.appareil || "", appInstalleeLe: l.app_installee_at || null, installeLe: l.installe_le || null, consentement: !!l.consentement_at, derniereOuverture: l.derniere_ouverture || null,
@@ -183,12 +203,13 @@ export default async (req: Request, _context: Context) => {
 
   // L'effacement et l'export sont toujours possibles (droit de la personne), même sans abonnement actif.
   if (req.method === "GET" && url.searchParams.get("export") === "1") {
-    const [rappels, notes, messages] = await Promise.all([
+    const [rappels, notes, messages, images] = await Promise.all([
       sql`SELECT titre, quand, repetition, avant_minutes, actif, created_at FROM starvibe_compagnon_rappels WHERE account_id = ${accountId} ORDER BY quand`,
       sql`SELECT texte, created_at FROM starvibe_compagnon_notes WHERE account_id = ${accountId} ORDER BY id`,
       sql`SELECT role, texte, created_at FROM starvibe_compagnon_messages WHERE account_id = ${accountId} ORDER BY id`,
+      sql`SELECT id, prompt, format, statut, created_at FROM starvibe_compagnon_images WHERE account_id = ${accountId} ORDER BY id`,
     ]);
-    return new Response(JSON.stringify({ exporteLe: new Date().toISOString(), consentement: profil?.consentement_at || null, rappels, notes, messages }, null, 1), {
+    return new Response(JSON.stringify({ exporteLe: new Date().toISOString(), consentement: profil?.consentement_at || null, rappels, notes, messages, images }, null, 1), {
       headers: { "content-type": "application/json", "content-disposition": "attachment; filename=\"mes-donnees-keydou.json\"" },
     });
   }
@@ -199,6 +220,7 @@ export default async (req: Request, _context: Context) => {
     const m = (await sql`DELETE FROM starvibe_compagnon_messages WHERE account_id = ${accountId} RETURNING id`) as unknown[];
     const n = (await sql`DELETE FROM starvibe_compagnon_notes WHERE account_id = ${accountId} RETURNING id`) as unknown[];
     await sql`DELETE FROM starvibe_compagnon_push WHERE account_id = ${accountId}`;
+    await sql`DELETE FROM starvibe_compagnon_images WHERE account_id = ${accountId}`;
     await sql`UPDATE starvibe_compagnon_profil SET consentement_at = NULL, consentement_version = '' WHERE account_id = ${accountId}`;
     return json({ ok: true, effaces: { rappels: a.length, messages: m.length, notes: n.length } });
   }
@@ -210,12 +232,12 @@ export default async (req: Request, _context: Context) => {
     if (ancien.deja) {
       return json({
         error: `Ton abonnement Keydou Compagnon est terminé. Pour continuer à profiter de Keydou, réabonne-toi ou reconduis ton abonnement mensuel : ${OFFRES_TXT}.`,
-        code: "abonnement_termine", ouvert: true, fin: ancien.fin,
+        code: "abonnement_termine", ouvert: true, fin: ancien.fin, capacites: { images: imagesDisponibles() },
       }, 403);
     }
     return json({
       error: ouvert ? "Keydou Compagnon : abonnement requis. Choisis ton offre, ton accès s'ouvre dès que ton dépôt est reconnu." : "Keydou Compagnon est en période de test : l'accès se fait sur invitation de l'équipe STAR ENTREPRISE.",
-      code: "acces_refuse", ouvert,
+      code: "acces_refuse", ouvert, capacites: { images: imagesDisponibles() },
     }, 403);
   }
   const lim = LIMITES[acces.niveau];
@@ -223,6 +245,18 @@ export default async (req: Request, _context: Context) => {
   if (req.method === "GET" && url.searchParams.get("installtoken") === "1") {
     const d = decisionToken("install", accountId);
     return json({ acc: accountId, exp: d.exp, t: d.t });
+  }
+  if (req.method === "GET" && url.searchParams.get("image")) {
+    const id = Number(url.searchParams.get("image"));
+    const r = (await sql`SELECT statut, mime, data_b64, erreur, created_at FROM starvibe_compagnon_images WHERE id = ${id} AND account_id = ${accountId}`) as { statut: string; mime: string; data_b64: string; erreur: string; created_at: string }[];
+    if (!r[0]) return json({ error: "Image introuvable (elle a peut-être été effacée)." }, 404);
+    let st = r[0].statut;
+    if (st === "attente" && Date.now() - new Date(r[0].created_at).getTime() > 5 * 60000) { st = "erreur"; await sql`UPDATE starvibe_compagnon_images SET statut = 'erreur', erreur = 'délai dépassé' WHERE id = ${id} AND statut = 'attente'`; }
+    if (url.searchParams.get("statut") === "1") {
+      return json({ statut: st, message: st === "refuse" ? "Le contrôle de sécurité a refusé cette image. Essaie une autre idée." : st === "erreur" ? "L'image n'a pas pu être créée. Elle n'est pas comptée : réessaie." : "" });
+    }
+    if (st !== "ok") return json({ error: "Image pas encore prête." }, 409);
+    return new Response(Buffer.from(r[0].data_b64, "base64"), { headers: { "content-type": r[0].mime || "image/jpeg", "cache-control": "private, max-age=86400", "content-disposition": `inline; filename="keydou-image-${id}.${(r[0].mime || "").includes("png") ? "png" : "jpg"}"` } });
   }
   if (req.method === "GET") {
     await sql`INSERT INTO starvibe_compagnon_profil (account_id, derniere_ouverture) VALUES (${accountId}, now()) ON CONFLICT (account_id) DO UPDATE SET derniere_ouverture = now()`;
@@ -239,7 +273,7 @@ export default async (req: Request, _context: Context) => {
     const notifs = (await sql`SELECT COUNT(*) AS n FROM starvibe_compagnon_push WHERE account_id = ${accountId}`) as { n: string }[];
     const finMs = acces.fin ? new Date(acces.fin).getTime() - Date.now() : null;
     const finBientot = acces.source === "abonnement" && finMs !== null && finMs > 0 && finMs <= 24 * 3600 * 1000;
-    return json({ acces: { niveau: acces.niveau, label: lim.label, source: acces.source, fin: acces.fin }, finBientot, texteFin: finBientot && acces.fin ? texteFinAbonnement(new Date(acces.fin)) : "", consentement, consentementVersion: CONSENTEMENT_VERSION, quota: q, notifications: Number(notifs[0]?.n || 0) });
+    return json({ acces: { niveau: acces.niveau, label: lim.label, source: acces.source, fin: acces.fin }, finBientot, texteFin: finBientot && acces.fin ? texteFinAbonnement(new Date(acces.fin)) : "", consentement, consentementVersion: CONSENTEMENT_VERSION, quota: q, notifications: Number(notifs[0]?.n || 0), capacites: await capacites(sql, accountId, acces.niveau) });
   }
 
   if (req.method !== "POST") return json({ error: "Méthode non permise" }, 405);
@@ -290,23 +324,41 @@ export default async (req: Request, _context: Context) => {
   if (action !== "chat") return json({ error: "Action inconnue" }, 400);
 
   // ---------- Discussion ----------
-  const message = clean(body.message, 1500);
+  let message = clean(body.message, 1500);
+  let pj: { kind: "image" | "pdf"; mime: string; data: string } | null = null;
+  if (body.piece) {
+    const v = validerPiece(body.piece);
+    if (!v.ok) return json({ error: v.erreur }, 400);
+    pj = v.piece;
+    if (!message) message = "Regarde ce fichier et explique-moi ce que tu vois.";
+  }
   if (!message) return json({ error: "Message vide" }, 400);
   const q0 = await etatQuota(sql, accountId, acces.niveau);
   if (q0.revenirDansMs > 0) {
     return json({ limite: true, revenirDans: q0.revenirDans, error: `Tu as atteint ta limite de ${lim.messages} messages. Reviens dans ${q0.revenirDans}.`, quota: q0 }, 429);
   }
+  if (pj) {
+    const maxP = PIECES_PAR_JOUR(acces.niveau);
+    const nbP = Number(((await sql`SELECT COUNT(*) AS n FROM starvibe_compagnon_messages WHERE account_id = ${accountId} AND role = 'user' AND texte LIKE ${MARQUE_PIECE + "%"} AND created_at > now() - interval '24 hours'`) as { n: string }[])[0]?.n || 0);
+    if (nbP >= maxP) return json({ error: `Tu as déjà envoyé ${maxP} photos ou documents aujourd'hui. Reviens demain${acces.niveau === "essentiel" ? " ou passe à Complet (30 par jour) avec le bouton « + »" : ""}.`, code: "pieces_limite" }, 429);
+  }
   const hist = (await sql`SELECT role, texte FROM starvibe_compagnon_messages WHERE account_id = ${accountId} ORDER BY id DESC LIMIT 12`) as { role: string; texte: string }[];
   const rapp = (await sql`SELECT id, titre, quand, repetition FROM starvibe_compagnon_rappels WHERE account_id = ${accountId} AND actif = true ORDER BY quand ASC LIMIT 25`) as { id: number; titre: string; quand: string; repetition: string }[];
   const notes = (await sql`SELECT texte FROM starvibe_compagnon_notes WHERE account_id = ${accountId} ORDER BY id DESC LIMIT 40`) as { texte: string }[];
-  const ins = (await sql`INSERT INTO starvibe_compagnon_messages (account_id, role, texte) VALUES (${accountId}, 'user', ${message}) RETURNING id`) as { id: number }[];
+  const ins = (await sql`INSERT INTO starvibe_compagnon_messages (account_id, role, texte) VALUES (${accountId}, 'user', ${(pj ? MARQUE_PIECE : "") + message}) RETURNING id`) as { id: number }[];
 
   const restantes = Math.max(0, lim.recherches - q0.recherchesUtilisees);
+  const mode: Mode = modeDe(message, body.mode);
+  const imgUtil = await imagesUtilisees(sql, accountId);
+  const imgMax = IMAGES_PAR_MOIS(acces.niveau);
+  const imgRestantes = Math.max(0, imgMax - imgUtil.n);
+  const supp = supplement(mode, { imagesRestantes: imgRestantes, imagesPossibles: imagesDisponibles(), niveau: acces.niveau, piece: !!pj });
   const contexte = [
     `[Contexte] Date et heure locales de la personne : ${heureLocale(new Date(), tz)} (fuseau ${tz}).`,
     `Rappels actifs : ${rapp.length ? rapp.map((r) => `#${r.id} « ${r.titre} » le ${heureLocale(new Date(r.quand), tz)}${r.repetition ? ` (chaque ${r.repetition === "jour" ? "jour" : r.repetition === "semaine" ? "semaine" : r.repetition === "mois" ? "mois" : "année"})` : ""}`).join(" ; ") : "aucun"}.`,
     `Ce que tu retiens de la personne : ${notes.length ? notes.reverse().map((n) => n.texte).join(" ; ") : "rien pour l'instant"}.`,
     `Vérification par recherche : ${restantes > 0 ? "disponible" : "épuisée pour aujourd'hui : réponds au mieux avec tes connaissances, dis franchement si tu n'es pas sûr, et mets \"seuil\":true si la question demandait une vérification"}.`,
+    `Domaine de la question : ${MODES[mode].label}.`,
     `[Message de la personne] ${message}`,
   ].join("\n");
   const messagesIA: { role: string; content: unknown }[] = [];
@@ -314,13 +366,16 @@ export default async (req: Request, _context: Context) => {
     const r = h.role === "assistant" ? "assistant" : "user";
     if (messagesIA.length === 0 && r === "assistant") continue;
     if (messagesIA.length && messagesIA[messagesIA.length - 1].role === r) continue;
-    messagesIA.push({ role: r, content: h.texte.slice(0, 800) });
+    messagesIA.push({ role: r, content: h.texte.replace(/\[\[img:\d+\]\]/g, "").slice(0, 800) });
   }
   if (messagesIA.length && messagesIA[messagesIA.length - 1].role === "user") messagesIA.pop();
-  messagesIA.push({ role: "user", content: contexte });
+  const blocPJ = pj ? (pj.kind === "pdf"
+    ? { type: "document", source: { type: "base64", media_type: "application/pdf", data: pj.data } }
+    : { type: "image", source: { type: "base64", media_type: pj.mime, data: pj.data } }) : null;
+  messagesIA.push({ role: "user", content: blocPJ ? [blocPJ, { type: "text", text: contexte }] : contexte });
 
   let ia: ReponseIA | null = null;
-  try { ia = await appelerIA(messagesIA, restantes); } catch { ia = null; }
+  try { ia = await appelerIA(messagesIA, restantes, { niveau: acces.niveau, supplement: supp }); } catch { ia = null; }
   if (!ia) {
     await sql`DELETE FROM starvibe_compagnon_messages WHERE id = ${ins[0].id}`; // un message qui n'a pas reçu de réponse ne compte pas
     return json({ error: "Keydou est indisponible un instant. Réessaie dans une minute : ce message n'est pas compté." }, 503);
@@ -332,14 +387,16 @@ export default async (req: Request, _context: Context) => {
 
   let seuilAtteint = false;
   let reponse = "", rappelsIA: Record<string, unknown>[] = [], notesIA: unknown[] = [], suppr: unknown[] = [];
+  let imageDemandee: { prompt?: string; format?: string } | null = null;
   const a = ia.texte.indexOf("{"), z = ia.texte.lastIndexOf("}");
   if (a >= 0 && z > a) {
     try {
-      const o = JSON.parse(ia.texte.slice(a, z + 1)) as { reponse?: string; seuil?: boolean; rappels?: unknown; notes?: unknown; supprimer_rappels?: unknown };
+      const o = JSON.parse(ia.texte.slice(a, z + 1)) as { reponse?: string; seuil?: boolean; rappels?: unknown; notes?: unknown; supprimer_rappels?: unknown; image?: { prompt?: string; format?: string } | null };
       reponse = clean(o.reponse, 1800); seuilAtteint = o.seuil === true;
       rappelsIA = Array.isArray(o.rappels) ? (o.rappels as Record<string, unknown>[]).slice(0, 5) : [];
       notesIA = Array.isArray(o.notes) ? o.notes.slice(0, 5) : [];
       suppr = Array.isArray(o.supprimer_rappels) ? o.supprimer_rappels.slice(0, 10) : [];
+      imageDemandee = o.image && typeof o.image === "object" && typeof o.image.prompt === "string" ? o.image : null;
     } catch { /* texte libre ci-dessous */ }
   }
   if (!reponse) reponse = clean(ia.texte.replace(/[{}]/g, ""), 1200) || "Je n'ai pas bien compris, peux-tu reformuler ?";
@@ -367,8 +424,30 @@ export default async (req: Request, _context: Context) => {
   if (refusMedoc) reponse += "\n\n(Je n'ai pas enregistré ce rappel : je ne m'occupe pas des médicaments. Parle-en à ton médecin ou à ton pharmacien.)";
   if (refusLimite) reponse += `\n\n(Je n'ai pas pu ajouter ce rappel : tu as déjà ${lim.rappels} rappels actifs.)`;
 
-  await sql`INSERT INTO starvibe_compagnon_messages (account_id, role, texte, recherches, tokens_in, tokens_out) VALUES (${accountId}, 'assistant', ${reponse}, ${ia.recherches}, ${ia.tokensIn}, ${ia.tokensOut})`;
-  return json({ reponse, sources: ia.sources.slice(0, 3), rappelsAjoutes: ajoutes, quota: await etatQuota(sql, accountId, acces.niveau) });
+  // ---------- Image demandée ----------
+  let imageInfo: { id: number; statut: string } | null = null;
+  if (imageDemandee) {
+    const promptImg = clean(imageDemandee.prompt, 900);
+    let refusImage = "";
+    if (!imagesDisponibles()) refusImage = "La création d'images n'est pas encore ouverte : elle arrive bientôt.";
+    else if (imgMax <= 0) refusImage = "La création d'images est comprise dans l'offre Complet (19 $ par mois). Touche « + » pour changer d'offre.";
+    else if (imgRestantes <= 0) refusImage = `Tu as utilisé tes ${imgMax} images de ce mois. Tu pourras en créer une nouvelle dans ${imgUtil.joursAvantNouvelle} jour${imgUtil.joursAvantNouvelle > 1 ? "s" : ""}.`;
+    else {
+      const v = verifierDemandeImage(`${message} ${promptImg}`);
+      if (!v.ok) refusImage = v.message;
+      else {
+        const ins2 = (await sql`INSERT INTO starvibe_compagnon_images (account_id, prompt, format) VALUES (${accountId}, ${promptImg}, ${formatImage(imageDemandee.format)}) RETURNING id`) as { id: number }[];
+        imageInfo = { id: ins2[0].id, statut: "attente" };
+        await sql`DELETE FROM starvibe_compagnon_images WHERE account_id = ${accountId} AND id NOT IN (SELECT id FROM starvibe_compagnon_images WHERE account_id = ${accountId} ORDER BY id DESC LIMIT 30)`;
+        try { await fetch(new URL(`/.netlify/functions/compagnon-image-background?id=${imageInfo.id}&sig=${signerImage(imageInfo.id)}`, req.url), { method: "POST", signal: AbortSignal.timeout(4000) }); } catch { /* la tâche est lancée ; sinon le délai de 5 minutes la marque en échec */ }
+      }
+    }
+    if (refusImage) reponse = refusImage;
+  }
+  const reponseGardee = imageInfo ? `${reponse}\n${marqueImage(imageInfo.id)}` : reponse;
+
+  await sql`INSERT INTO starvibe_compagnon_messages (account_id, role, texte, recherches, tokens_in, tokens_out) VALUES (${accountId}, 'assistant', ${reponseGardee}, ${ia.recherches}, ${ia.tokensIn}, ${ia.tokensOut})`;
+  return json({ reponse, sources: ia.sources.slice(0, 3), rappelsAjoutes: ajoutes, mode, image: imageInfo, capacites: await capacites(sql, accountId, acces.niveau), quota: await etatQuota(sql, accountId, acces.niveau) });
 };
 
 export const config: Config = { path: "/api/starvibe-compagnon" };
