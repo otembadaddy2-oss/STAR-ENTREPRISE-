@@ -22,6 +22,9 @@ try {
   ok(bloque.status === 429, "6e essai depuis la même connexion : bloqué, même avec le BON mot de passe");
   ok((await login(nom, "BonMotDePasse123", "10.0.0.3")).status === 200, "le pirate bloqué ne verrouille pas le vrai propriétaire (autre connexion)");
   ok((await login("inconnu" + nom, "x", "10.0.0.9")).status === 401, "identifiant inconnu : même message d'erreur");
+  // attaque depuis des adresses qui changent à chaque essai : la limite par identifiant s'applique quand même
+  let d12 = 0; for (let i = 0; i < 12; i++) d12 = (await login(nom + "x", "mauvais", "10.9." + i + ".1")).status;
+  ok(d12 === 401 && (await login(nom + "x", "mauvais", "10.9.99.1")).status === 429, "adresses qui changent : après 12 essais ratés sur un identifiant, blocage quand même");
   // jeton de configuration
   const boot = (tok: string, ip: string) => auth(new Request("https://t.test/api/auth", { method: "POST", headers: { "x-nf-client-connection-ip": ip, "content-type": "application/json" }, body: JSON.stringify({ action: "bootstrap", setupToken: tok, username: "zz" + nom, password: "unmotdepasselong1" }) }), ctx);
   let s = 0; for (let i = 0; i < 5; i++) s = (await boot("faux" + i, "10.0.1.1")).status;

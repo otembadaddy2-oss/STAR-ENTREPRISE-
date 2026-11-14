@@ -40,7 +40,9 @@ export default async (req: Request, _context: Context) => {
 
     // Anti-pirates : 5 essais ratés par identifiant et par connexion (verrou 15 min), 20 par connexion en 1 h (verrou 1 h).
     const ip = ipHash(req), kIp = `auth:ip:${ip}`, kUser = `auth:user:${ip}:${username}`;
-    const bloc = Math.max(await verrou(sql, kIp), await verrou(sql, kUser));
+    // + limite par identifiant, quelle que soit l'adresse (attaque depuis des adresses qui changent) : 12 essais ratés en 30 min → blocage 15 min.
+    const kGlob = `auth:acct:${username}`;
+    const bloc = Math.max(await verrou(sql, kIp), await verrou(sql, kUser), await verrou(sql, kGlob));
     if (bloc > 0) return json({ error: msgBloque(bloc) }, 429);
 
     const rows = await sql`
@@ -55,6 +57,7 @@ export default async (req: Request, _context: Context) => {
     if (!account || !ok) {
       await echec(sql, kIp, 20, 60, 60);
       await echec(sql, kUser, 5, 15, 15);
+      await echec(sql, kGlob, 12, 30, 15);
       return json({ error: "Identifiants incorrects" }, 401);
     }
     await effacer(sql, kUser);
@@ -85,10 +88,11 @@ export default async (req: Request, _context: Context) => {
     const setupToken = clean(body.setupToken, 200);
     const expected = process.env.SETUP_TOKEN || "";
     const kSetup = `auth:setup:${ipHash(req)}`;
-    const blocS = await verrou(sql, kSetup);
+    const blocS = Math.max(await verrou(sql, kSetup), await verrou(sql, "auth:setup:global"));
     if (blocS > 0) return json({ error: msgBloque(blocS) }, 429);
     if (!expected || !egal(setupToken, expected)) {
       await echec(sql, kSetup, 5, 60, 120);
+      await echec(sql, "auth:setup:global", 10, 60, 120); // quelles que soient les adresses
       return json({ error: "Jeton de configuration invalide" }, 403);
     }
 
