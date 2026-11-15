@@ -236,14 +236,25 @@
   <div class="pane" id="offres" hidden>
     <div class="card"><h2 id="offresTitre">Choisis ton offre</h2><p class="note" id="offresTxt">Ton accès s'ouvre dès que ton dépôt est reconnu : tous les avantages de ton offre sont alors à toi.</p></div>
     <div class="card"><h2>Essentiel · 5 000 FCFA<span class="actuel" id="actEss" hidden>Ton offre</span> <small style="font:600 12px 'Inter',Arial,sans-serif;color:var(--dim)">par mois</small></h2>
-      <ul><li>65 messages par jour</li><li>10 rappels actifs</li><li>Culture générale + recherches vérifiées avec sources</li><li>Modes Santé, Droit, Cuisine, Mécanique, Business, Études</li><li>5 photos ou documents lus par jour</li><li data-img hidden>3 images créées par mois, à ta demande</li></ul>
+      <ul><li>65 messages par jour</li><li>10 rappels actifs</li><li>Culture générale + recherches vérifiées avec sources</li><li>Modes Santé, Droit, Cuisine, Mécanique, Business, Études</li><li>5 photos ou documents lus par jour</li><li data-img hidden>10 images créées par mois, à ta demande</li></ul>
       <button class="btn" data-plan="compagnon" style="margin-top:10px">Choisir Essentiel</button></div>
     <div class="card" style="border-color:var(--gold)"><h2>Complet · 19 $<span class="actuel" id="actPro" hidden>Ton offre</span> <small style="font:600 12px 'Inter',Arial,sans-serif;color:var(--dim)">par mois (≈ 11 100 FCFA)</small></h2>
-      <ul><li>200 messages par jour</li><li>Rappels illimités</li><li>Recherches approfondies, sources citées</li><li>Médecine approfondie : explications détaillées, orientation vers le bon spécialiste, jamais de prescription</li><li>Tests et examens : questions corrigées, notes sur 10</li><li>Réflexion plus poussée sur les questions difficiles</li><li>30 photos ou documents lus par jour</li><li data-img hidden>25 images créées par mois, à ta demande</li><li data-voix hidden>Keydou te lit ses réponses avec sa vraie voix (quelques lectures par jour)</li></ul>
+      <ul><li>200 messages par jour</li><li>500 rappels actifs</li><li>Recherches approfondies, sources citées</li><li>Médecine approfondie : explications détaillées, orientation vers le bon spécialiste, jamais de prescription</li><li>Tests et examens : questions corrigées, notes sur 10</li><li>Réflexion plus poussée sur les questions difficiles</li><li>30 photos ou documents lus par jour</li><li data-img hidden>35 images créées par mois, à ta demande</li><li data-voix hidden>Keydou te lit ses réponses avec sa vraie voix (quelques lectures par jour)</li></ul>
       <button class="btn gold" data-plan="compagnon_complet" style="margin-top:10px">Choisir Complet</button></div>
+    <div class="card" style="border-color:#c58a2a"><h2>Premium · 35 $<span class="actuel" id="actPrem" hidden>Ton offre</span> <small style="font:600 12px 'Inter',Arial,sans-serif;color:var(--dim)">par mois · ≈ 20 400 FCFA</small></h2>
+      <ul><li>Tout Complet, en plus grand : <b>350 messages par jour</b></li><li>1 000 rappels actifs</li><li>60 recherches vérifiées par jour</li><li>50 photos ou documents lus par jour</li><li><b>70 images</b> créées par mois</li><li>La voix de Keydou : 15 lectures par jour</li><li>Mémoire plus longue : Keydou retient plus de choses et se souvient de plus de messages</li><li>Réponses plus longues et plus détaillées</li><li>10 % de remise sur les packs d'images</li></ul>
+      <button class="btn gold" data-plan="compagnon_premium" style="margin-top:10px">Choisir Premium</button></div>
+    <div class="card" style="border-color:#e8a93d;background:linear-gradient(180deg,rgba(232,169,61,.10),transparent)"><h2>Prestige · 49 $<span class="actuel" id="actPrest" hidden>Ton offre</span> <small style="font:600 12px 'Inter',Arial,sans-serif;color:var(--dim)">par mois · ≈ 28 600 FCFA</small></h2>
+      <ul><li>Le niveau le plus complet : <b>500 messages par jour</b></li><li>2 000 rappels actifs</li><li>100 recherches vérifiées par jour</li><li>80 photos ou documents lus par jour</li><li><b>120 images</b> créées par mois</li><li>La voix de Keydou : 30 lectures par jour</li><li>La mémoire la plus longue</li><li>Réflexion approfondie même pour les questions courantes</li><li>Les réponses les plus détaillées</li><li>20 % de remise sur les packs d'images</li></ul>
+      <button class="btn gold" data-plan="compagnon_prestige" style="margin-top:10px">Choisir Prestige</button></div>
+    <div class="card" id="cardImages" hidden><h2>🖼️ Acheter des images</h2>
+      <p class="note">Ton quota du mois est fini ? Un pack te permet de continuer tout de suite, avec le même paiement par dépôt Mobile Money. Les images achetées <b>ne se périment pas</b> et viennent en plus de ton quota.</p>
+      <p class="note" id="creditsSolde" hidden></p>
+      <button class="btn" data-plan="credit_images_10" id="pack10" style="margin-top:10px">Pack 10 images · 1 200 FCFA</button>
+      <button class="btn gold" data-plan="credit_images_30" id="pack30" style="margin-top:10px">Pack 30 images · 3 000 FCFA</button></div>
     <div class="inst" data-inst>
       <h2>📲 Installer Keydou sur mon téléphone</h2>
-      <p class="note">Une icône Keydou sur ton écran d'accueil, qui s'ouvre directement sur ton assistant. L'installation s'ouvre <b>seulement après la validation de ton dépôt</b>.</p>
+      <p class="note">Une icône Keydou sur ton écran d'accueil, qui s'ouvre directement sur ton assistant. C'est gratuit : tu as 5 messages d'essai, puis tu choisis ton offre quand tu veux.</p>
       <button class="btn gold" data-instbtn style="margin-top:10px">Installer Keydou</button>
       <div class="note" data-instmsg style="margin-top:8px;font-weight:600"></div>
     </div>
@@ -263,7 +274,7 @@
     </div>
     <div class="inst" data-inst>
       <h2>📲 Installer Keydou sur mon téléphone</h2>
-      <p class="note">Une icône Keydou sur ton écran d'accueil, qui s'ouvre directement sur ton assistant. L'installation s'ouvre <b>seulement après la validation de ton dépôt</b>.</p>
+      <p class="note">Une icône Keydou sur ton écran d'accueil, qui s'ouvre directement sur ton assistant. C'est gratuit : tu as 5 messages d'essai, puis tu choisis ton offre quand tu veux.</p>
       <button class="btn gold" data-instbtn style="margin-top:10px">Installer Keydou</button>
       <div class="note" data-instmsg style="margin-top:8px;font-weight:600"></div>
     </div>
@@ -313,7 +324,7 @@
     <section id="t-donnees" class="pane" hidden>
       <div class="inst" data-inst>
       <h2>📲 Installer Keydou sur mon téléphone</h2>
-      <p class="note">Une icône Keydou sur ton écran d'accueil, qui s'ouvre directement sur ton assistant. L'installation s'ouvre <b>seulement après la validation de ton dépôt</b>.</p>
+      <p class="note">Une icône Keydou sur ton écran d'accueil, qui s'ouvre directement sur ton assistant. C'est gratuit : tu as 5 messages d'essai, puis tu choisis ton offre quand tu veux.</p>
       <button class="btn gold" data-instbtn style="margin-top:10px">Installer Keydou</button>
       <div class="note" data-instmsg style="margin-top:8px;font-weight:600"></div>
     </div>
@@ -379,12 +390,18 @@
   $('btnMore').addEventListener('click',function(){ ouvrir('sheetMore'); });
   $('pill').addEventListener('click',function(){ ouvrir('sheetMore'); });
   $('clip').addEventListener('click',function(){ ouvrir('sheetPlus'); });
-  function majPill(){ var m='Auto'; if(mode!=='auto'&&cap&&cap.modes){ cap.modes.forEach(function(x){ if(x.id===mode) m=x.label; }); } var nv=etat&&etat.acces&&etat.acces.niveau; var niv=nv==='complet'?'Pro 200':(nv==='essai'?'Essai gratuit':'Essentiel 65'); $('pillTxt').textContent=m+' · '+niv; }
+  function majPill(){ var m='Auto'; if(mode!=='auto'&&cap&&cap.modes){ cap.modes.forEach(function(x){ if(x.id===mode) m=x.label; }); } var nv=etat&&etat.acces&&etat.acces.niveau, mx=(etat&&etat.quota&&etat.quota.messagesMax)||''; var niv=nv==='essai'?'Essai gratuit':(nv==='complet'?'Pro':(nv==='premium'?'Premium':(nv==='prestige'?'Prestige':'Essentiel')))+' '+mx; if(nv==='complet') niv='Pro '+mx; $('pillTxt').textContent=m+' · '+niv; }
   if(!token){ show('out'); return; }
 
   var cap=null, mode='auto', piece=null, qDernier=null;
-  function capTxt(){ return (cap&&cap.images&&cap.imagesMax>0)?' · '+cap.imagesRestantes+' image'+(cap.imagesRestantes>1?'s':'')+' à créer ce mois-ci':''; }
-  function majCap(c){ if(!c) return; cap=c; Array.prototype.forEach.call(document.querySelectorAll('[data-img]'),function(x){ x.hidden=!c.images; }); Array.prototype.forEach.call(document.querySelectorAll('[data-voix]'),function(x){ x.hidden=!(c.voix&&c.voix.actif); }); if(typeof majVoix==='function') majVoix(); }
+  function capTxt(){ var t=(cap&&cap.images&&cap.imagesMax>0)?' · '+cap.imagesRestantes+' image'+(cap.imagesRestantes>1?'s':'')+' à créer ce mois-ci':''; if(cap&&cap.credits>0) t+=' · +'+cap.credits+' en crédit'; return t; }
+  function majCap(c){ if(!c) return; cap=c; Array.prototype.forEach.call(document.querySelectorAll('[data-img]'),function(x){ x.hidden=!c.images; }); Array.prototype.forEach.call(document.querySelectorAll('[data-voix]'),function(x){ x.hidden=!(c.voix&&c.voix.actif); }); if(typeof majVoix==='function') majVoix(); majPacks(); }
+  function fcfaTxt(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
+  function majPacks(){ var c=$('cardImages'); if(!c||!cap) return; c.hidden=!cap.achatImages;
+    (cap.packs||[]).forEach(function(p){ var b=$(p.id==='credit_images_10'?'pack10':'pack30'); if(b) b.textContent='Pack '+p.images+' images · '+fcfaTxt(p.montant)+' FCFA'; });
+    var so=$('creditsSolde'); if(so){ so.hidden=!(cap.credits>0); so.textContent='Ton solde : '+cap.credits+' image'+(cap.credits>1?'s':'')+' achetée'+(cap.credits>1?'s':'')+'.'; } }
+  function ouvrirAchatImages(){ ouvrirOffres('Acheter des images','Choisis ton pack : le paiement se fait par dépôt Mobile Money, comme ton abonnement. Tes images sont ajoutées dès que le dépôt est reconnu.'); majPacks(); setTimeout(function(){ var c=$('cardImages'); if(c&&c.scrollIntoView) c.scrollIntoView({block:'start'}); },80); }
+  function boutonImages(){ var b=document.createElement('button'); b.type='button'; b.className='btn gold'; b.style.cssText='margin:6px 14px 10px;display:block;width:calc(100% - 28px)'; b.textContent='Acheter des images'; b.addEventListener('click',ouvrirAchatImages); $('chat').appendChild(b); $('fil').scrollTop=$('fil').scrollHeight; }
   function construireModes(){
     var box=$('modes'); if(!box||box.childNodes.length) return;
     var liste=[{id:'auto',label:'Auto',emoji:'✨'}].concat((cap&&cap.modes)||[]);
@@ -453,8 +470,8 @@
       show('app'); majCap(etat.capacites); construireModes(); quota(etat.quota);
       initKd();
       $('finBandeau').hidden=!etat.finBientot; if(etat.finBientot) $('finTxt').textContent=etat.texteFin;
-      var pro=etat.acces.niveau==='complet'; var ch=$('chipNiveau');
-      majPill(); majParams(); ch.className='chip'+(pro?' pro':''); var ess=etat.acces.niveau==='essai'; ch.innerHTML='🐻 '+(pro?'Complet · Pro':(ess?'Essai gratuit':'Essentiel'))+' <small>'+(ess?'5 messages d\u2019essai':(pro?'200':'65')+' messages/jour')+(etat.acces.source==='test'?' · test':'')+'</small>';
+      var nvx=etat.acces.niveau, pro=(nvx==='complet'||nvx==='premium'||nvx==='prestige'); var ch=$('chipNiveau');
+      majPill(); majParams(); ch.className='chip'+(pro?' pro':''); var ess=etat.acces.niveau==='essai'; ch.innerHTML='🐻 '+(nvx==='complet'?'Complet · Pro':(nvx==='premium'?'Premium':(nvx==='prestige'?'Prestige':(ess?'Essai gratuit':'Essentiel'))))+' <small>'+(ess?'5 messages d\u2019essai':((etat.quota&&etat.quota.messagesMax)||'')+' messages/jour')+(etat.acces.source==='test'?' · test':'')+'</small>';
       $('aboTxt').textContent='Offre '+etat.acces.label+(etat.acces.source==='test'?' (invitation de test)':'')+(etat.acces.fin?' · valable jusqu’au '+new Date(etat.acces.fin).toLocaleDateString('fr-FR'):'')+'.';
       if(etat.notifications>0){ $('notifTxt').textContent='Notifications activées sur '+etat.notifications+' appareil(s).'; $('notifBtn').textContent='Réactiver sur ce téléphone'; }
       call('GET','?historique=1').then(function(h){
@@ -474,15 +491,22 @@
   function ouvrirOffres(titre,txt){
     $('offresTitre').textContent=titre; $('offresTxt').textContent=txt; $('offresErr').textContent='';
     var a=etat&&etat.acces; $('offresRetour').hidden=!a;
-    $('actEss').hidden=!(a&&a.niveau==='essentiel'); $('actPro').hidden=!(a&&a.niveau==='complet');
+    $('actEss').hidden=!(a&&a.niveau==='essentiel'); $('actPro').hidden=!(a&&a.niveau==='complet'); $('actPrem').hidden=!(a&&a.niveau==='premium'); $('actPrest').hidden=!(a&&a.niveau==='prestige');
     show('offres');
   }
   $('offresRetour').addEventListener('click',function(){ show('app'); });
   $('btnPlus').addEventListener('click',function(){
     fermer(); var a=etat&&etat.acces;
-    ouvrirOffres('Changer d\u2019offre', a&&a.niveau==='complet'
-      ? 'Tu es en Complet (Pro). Tu peux le reconduire, ou passer à Essentiel à la fin de ta période.'
-      : (a&&a.niveau==='essai'?'Ton essai gratuit te donne 5 messages. Pour profiter de toutes les options, choisis Essentiel (5 000 FCFA par mois) ou Complet (Pro, 19 $ par mois : 200 messages par jour, rappels illimités, recherches approfondies, 30 photos ou documents lus par jour, 25 images, la voix de Keydou).':'Passe à Complet (Pro) pour 19 $ par mois : 200 messages par jour, rappels illimités, recherches approfondies, réflexion plus poussée, 30 photos ou documents lus par jour, 25 images créées par mois. Ton Essentiel en cours n\u2019est pas perdu : il reprend après ton Complet.'));
+    var nv0=a&&a.niveau;
+    ouvrirOffres('Changer d\u2019offre', nv0==='prestige'
+      ? 'Tu as Prestige, le niveau le plus complet. Tu peux le reconduire à tout moment : la nouvelle période s\u2019ajoute à la fin de la tienne.'
+      : (nv0==='premium'
+        ? 'Tu es en Premium. Tu peux le reconduire, ou passer à Prestige (49 $ par mois) pour 500 messages par jour, 120 images par mois et la mémoire la plus longue.'
+        : (nv0==='complet'
+          ? 'Tu es en Complet (Pro). Tu peux le reconduire, ou monter à Premium (35 $) ou Prestige (49 $) pour plus de messages, plus d\u2019images et une mémoire plus longue.'
+          : (nv0==='essai'
+            ? 'Ton essai gratuit te donne 5 messages et 2 images. Choisis Essentiel (5 000 FCFA par mois), Complet (19 $), Premium (35 $) ou Prestige (49 $) : plus tu montes, plus tu as de messages, d\u2019images, de recherches et de mémoire.'
+            : 'Monte d\u2019un niveau quand tu veux : Complet (19 $), Premium (35 $) ou Prestige (49 $). Ton offre en cours n\u2019est pas perdue : elle reprend après le nouveau niveau.'))));
   });
   $('finBtn').addEventListener('click',function(){ ouvrirOffres('Reconduire mon abonnement','Choisis ton offre : la nouvelle période s\u2019ajoute à la fin de ton abonnement actuel, sans perdre un jour.'); });
   $('reconduire').addEventListener('click',function(){ ouvrirOffres('Reconduire mon abonnement','Choisis ton offre : la nouvelle période s\u2019ajoute à la fin de ton abonnement actuel, sans perdre un jour.'); });
@@ -492,17 +516,19 @@
       b.disabled=false;
       if(!r.ok){ $('offresErr').textContent=r.data.error||'Impossible de créer la demande.'; return; }
       var a=r.data.abonnement; subId=a.id;
-      $('payTitre').textContent='Paiement · '+(b.dataset.plan==='compagnon_complet'?'Complet':'Essentiel');
-      $('payMontant').textContent=fcfa(a.montantAttendu)+(b.dataset.plan==='compagnon_complet'?' (≈ 19 $)':'');
+      var pk=b.dataset.plan.indexOf('credit_images_')===0; $('payTitre').textContent=pk?('Paiement · Pack '+b.dataset.plan.replace('credit_images_','')+' images'):'Paiement · '+({compagnon_complet:'Complet',compagnon_premium:'Premium',compagnon_prestige:'Prestige'})[b.dataset.plan]||'Paiement · Essentiel';
+      $('payMontant').textContent=fcfa(a.montantAttendu)+(({compagnon_complet:' (≈ 19 $)',compagnon_premium:' (≈ 35 $)',compagnon_prestige:' (≈ 49 $)'})[b.dataset.plan]||'');
+      subPack=pk;
       $('payNum').textContent=a.numeroReception; $('payRef').textContent=a.referencePaiement;
       $('payEtat').textContent='⏳ En attente du dépôt…'; show('pay'); suivre(Date.now());
     });
   }); });
+  var subPack=false;
   function suivre(debut){
     clearTimeout(pollT);
     callSub('GET','?suivi='+encodeURIComponent(subId)).then(function(r){
       var st=r.ok&&r.data.abonnement?r.data.abonnement.statut:'';
-      if(st==='actif'){ $('payEtat').textContent='✅ Dépôt reconnu ! Ton accès s\u2019ouvre…'; setTimeout(charge,900); return; }
+      if(st==='actif'){ $('payEtat').textContent=subPack?'✅ Dépôt reconnu ! Tes images sont ajoutées…':'✅ Dépôt reconnu ! Ton accès s\u2019ouvre…'; setTimeout(charge,900); return; }
       if(st==='paiement_invalide'){ $('payEtat').textContent='Le montant reçu ne correspond pas. Écris-nous : contact@starentreprise.com'; return; }
       if(st==='annule'){ return; }
       if(Date.now()-debut>30*60000){ $('payEtat').textContent='Toujours en attente. Quand ton dépôt est fait, rouvre cette page : ton accès s\u2019ouvrira tout seul.'; return; }
@@ -511,7 +537,7 @@
   }
   $('payAnnule').addEventListener('click',function(){ clearTimeout(pollT); callSub('POST','',{action:'annuler_demande',id:Number(subId)}).then(function(){ charge(); }); });
 
-  // ---- Installation de l'application Keydou : bloquée tant que le dépôt n'est pas validé ----
+  // ---- Installation de l'application Keydou (icône sur l'écran d'accueil) ----
   var invite=null, manifeste=false, standalone=false;
   try{ standalone=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||window.navigator.standalone===true; }catch(e){}
   window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); invite=e; });
@@ -525,7 +551,7 @@
     majInstall('Vérification de ton abonnement…',false);
     call('GET','?installtoken=1').then(function(r){
       if(r.status===401){ majInstall('Connecte-toi à KOMYO pour installer Keydou.',false); return; }
-      if(!r.ok){ majInstall('🔒 Ton dépôt n\u2019est pas encore validé : Keydou ne peut pas s\u2019installer. L\u2019installation s\u2019ouvre dès que ton paiement est reconnu.',false); return; }
+      if(!r.ok){ majInstall('Keydou ne peut pas s\u2019installer pour le moment. Réessaie dans quelques instants.',false); return; }
       if(!manifeste){
         var l=document.createElement('link'); l.rel='manifest'; l.href=API+'?manifest=1&acc='+r.data.acc+'&exp='+r.data.exp+'&t='+encodeURIComponent(r.data.t); document.head.appendChild(l); manifeste=true;
       }
@@ -574,7 +600,7 @@
     call('POST','',{action:'chat',message:t,mode:mode,piece:pj?{data:pj.data}:undefined}).then(function(r){
       att.remove(); occupe=false;
       if(r.ok){
-        majCap(r.data.capacites); bulle('assistant',r.data.reponse,{sources:r.data.sources,ajoutes:r.data.rappelsAjoutes,imageId:r.data.image?r.data.image.id:0,id:r.data.messageId}); quota(r.data.quota);
+        majCap(r.data.capacites); bulle('assistant',r.data.reponse,{sources:r.data.sources,ajoutes:r.data.rappelsAjoutes,imageId:r.data.image?r.data.image.id:0,id:r.data.messageId}); quota(r.data.quota); if(r.data.offreImages) boutonImages();
         var voix=voixOn||vientDeLaVoix; vientDeLaVoix=false;
         if(r.data.rappelsAjoutes&&r.data.rappelsAjoutes.length){ kdBase('idle'); kdGeste('celebrate'); etatTxt('C\u2019est noté ! 🎉'); if(voix) setTimeout(function(){ lire(r.data.reponse,r.data.messageId); },900); }
         else if(voix) lire(r.data.reponse,r.data.messageId);
@@ -722,16 +748,16 @@
   charge();
 
   // ---- Paramètres : compte, offre, utilisation, capacités, connecteurs (tout vient du serveur, rien d'inventé) ----
-  function niveauTxt(){ var a=etat&&etat.acces; if(!a) return 'Essentiel'; return a.niveau==='complet'?'Pro':(a.niveau==='essai'?'Essai':'Essentiel'); }
+  function niveauTxt(){ var a=etat&&etat.acces; if(!a) return 'Essentiel'; return ({complet:'Pro',premium:'Premium',prestige:'Prestige',essai:'Essai',essentiel:'Essentiel'})[a.niveau]||'Essentiel'; }
   function majParams(){
     var c=(etat&&etat.compte)||{}, a=(etat&&etat.acces)||{};
     var ini=c.initiales||'KY', nom=c.nom||'Mon compte';
     ['avInit','pAv'].forEach(function(i){ $(i).textContent=ini; }); $('avNom').textContent=nom; $('pNom').textContent=nom; $('pTel').textContent=c.telephone||'';
     $('pBadge').textContent=niveauTxt()+(a.source==='test'?' · test':'');
-    var complet=a.niveau==='complet';
+    var complet=(a.niveau==='complet'||a.niveau==='premium'||a.niveau==='prestige');
     $('pUp').innerHTML=complet
-      ? '<h2>Tu as l\u2019offre Complet (Pro)</h2><p class="note">200 messages par jour, rappels illimités, 25 images par mois et la voix de Keydou. Merci de ta confiance !</p>'
-      : (a.niveau==='essai'?'<h2>Essai gratuit</h2><p class="note">Tu as 5 messages d\u2019essai'+(qDernier?' ('+Math.max(0,qDernier.messagesMax-qDernier.messagesUtilises)+' restant'+(qDernier.messagesMax-qDernier.messagesUtilises>1?'s':'')+')':'')+'. Passe à <b>Essentiel</b> (5 000 FCFA par mois) ou à <b>Complet · Pro</b> (19 $ par mois) pour les rappels, les photos et documents, les recherches vérifiées, les images et la voix de Keydou.</p><button class="btn gold" id="pUpBtn" type="button" style="margin-top:10px">Voir les offres</button>':'<h2>Envie d\u2019aller plus loin ?</h2><p class="note">Passe à <b>Complet</b> (19 $ par mois) : 200 messages par jour, rappels illimités, médecine approfondie, tests notés sur 10, 25 images par mois et la voix de Keydou.</p><button class="btn gold" id="pUpBtn" type="button" style="margin-top:10px">Mettre à niveau</button>');
+      ? '<h2>Tu as l\u2019offre '+niveauTxt()+'</h2><p class="note">'+((qDernier&&qDernier.messagesMax)||'')+' messages par jour, rappels, recherches vérifiées, '+(a.niveau==='prestige'?'120':(a.niveau==='premium'?'70':'35'))+' images par mois et la voix de Keydou.'+(a.niveau==='prestige'?' Merci de ta confiance !':' Tu peux monter d\u2019un niveau quand tu veux.')+'</p>'+(a.niveau==='prestige'?'':'<button class="btn gold" id="pUpBtn" type="button" style="margin-top:10px">Voir les offres</button>')
+      : (a.niveau==='essai'?'<h2>Essai gratuit</h2><p class="note">Tu as 5 messages et 2 images d\u2019essai'+(qDernier?' ('+Math.max(0,qDernier.messagesMax-qDernier.messagesUtilises)+' restant'+(qDernier.messagesMax-qDernier.messagesUtilises>1?'s':'')+')':'')+'. Passe à <b>Essentiel</b> (5 000 FCFA), <b>Complet</b> (19 $), <b>Premium</b> (35 $) ou <b>Prestige</b> (49 $) par mois pour les rappels, les photos et documents, les recherches vérifiées, plus d\u2019images (10 ou 35 par mois) et la voix de Keydou.</p><button class="btn gold" id="pUpBtn" type="button" style="margin-top:10px">Voir les offres</button>':'<h2>Envie d\u2019aller plus loin ?</h2><p class="note">Passe à <b>Complet</b> (19 $), <b>Premium</b> (35 $) ou <b>Prestige</b> (49 $) par mois : plus de messages, de rappels, de recherches, d\u2019images (35, 70 ou 120 par mois), une mémoire plus longue et la voix de Keydou.</p><button class="btn gold" id="pUpBtn" type="button" style="margin-top:10px">Mettre à niveau</button>');
     var ub=$('pUpBtn'); if(ub) ub.addEventListener('click',function(){ $('btnPlus').click(); });
     $('pSubProfil').textContent=nom+(c.telephone?' · '+c.telephone:'');
     $('pSubFact').textContent='Offre '+(a.label||'')+(a.fin?' · jusqu\u2019au '+new Date(a.fin).toLocaleDateString('fr-FR'):'');
@@ -772,13 +798,16 @@
   function detail(d){
     var c=(etat&&etat.compte)||{}, a=(etat&&etat.acces)||{}, t='', h='';
     if(d==='profil'){ t='Profil'; h=dl('Nom',c.nom||'—')+dl('Téléphone',c.telephone||'—')+dl('Offre',(a.label||'')+(a.source==='test'?' (invitation de test)':''))+'<p class="dnote">Ton nom et ton numéro sont ceux de ton compte KOMYO. Rien n\u2019est vendu ni partagé.</p>'; }
-    else if(d==='facturation'){ t='Facturation'; var prix=a.niveau==='complet'?'19 $ par mois (≈ 11 100 FCFA)':'5 000 FCFA par mois'; if(a.niveau==='essai') prix='5 000 FCFA ou 19 $ par mois'; h=dl('Offre',(a.label||'')+(a.source==='test'?' (invitation de test)':''))+dl('Prix',a.source==='test'?'Gratuit pendant ton test ('+prix+' ensuite)':(a.niveau==='essai'?'Gratuit pour l\u2019essai (5 messages), puis '+prix:prix))+dl('Valable jusqu\u2019au',a.fin?new Date(a.fin).toLocaleDateString('fr-FR'):'—')+'<p class="dnote">L\u2019abonnement s\u2019active dès que ton dépôt Mobile Money est reconnu : tous les avantages de ton offre sont alors ouverts.</p><button class="dbtn" id="dPlus" type="button">Changer ou reconduire mon offre</button>'; }
-    else if(d==='utilisation'){ t='Utilisation'; var q=qDernier||{messagesUtilises:0,messagesMax:0}; h=a.niveau==='essai'?barre('Messages d\u2019essai',q.messagesUtilises,q.messagesMax,'Puis abonnement : Essentiel 5 000 FCFA ou Complet 19 $'):barre('Messages sur 24 h',q.messagesUtilises,q.messagesMax,'Fenêtre glissante de 24 heures'); if(cap&&cap.images&&cap.imagesMax>0) h+=barre('Images ce mois-ci',cap.imagesMax-cap.imagesRestantes,cap.imagesMax,''); if(cap&&cap.voix&&cap.voix.actif) h+=barre('Voix de Keydou aujourd\u2019hui',cap.voix.max-cap.voix.restantes,cap.voix.max,'Ensuite : voix de ton téléphone'); if(cap) h+=dl('Photos et PDF',cap.piecesMax+' par jour'); }
+    else if(d==='facturation'){ t='Facturation'; var prix=({complet:'19 $ par mois (≈ 11 100 FCFA)',premium:'35 $ par mois (≈ 20 400 FCFA)',prestige:'49 $ par mois (≈ 28 600 FCFA)'})[a.niveau]||'5 000 FCFA par mois'; if(a.niveau==='essai') prix='5 000 FCFA, 19 $, 35 $ ou 49 $ par mois'; h=dl('Offre',(a.label||'')+(a.source==='test'?' (invitation de test)':''))+dl('Prix',a.source==='test'?'Gratuit pendant ton test ('+prix+' ensuite)':(a.niveau==='essai'?'Gratuit pour l\u2019essai (5 messages), puis '+prix:prix))+dl('Valable jusqu\u2019au',a.fin?new Date(a.fin).toLocaleDateString('fr-FR'):'—')+'<p class="dnote">L\u2019abonnement s\u2019active dès que ton dépôt Mobile Money est reconnu : tous les avantages de ton offre sont alors ouverts.</p><button class="dbtn" id="dPlus" type="button">Changer ou reconduire mon offre</button>'; }
+    else if(d==='utilisation'){ t='Utilisation'; var q=qDernier||{messagesUtilises:0,messagesMax:0}; h=a.niveau==='essai'?barre('Messages d\u2019essai',q.messagesUtilises,q.messagesMax,'Puis abonnement : Essentiel 5 000 FCFA ou Complet 19 $'):barre('Messages sur 24 h',q.messagesUtilises,q.messagesMax,'Fenêtre glissante de 24 heures'); if(cap&&cap.images&&cap.imagesMax>0) h+=barre('Images ce mois-ci',cap.imagesMax-cap.imagesRestantes,cap.imagesMax,'');
+      if(cap&&cap.credits>0) h+=dl('Images achetées (crédit)',cap.credits+' restante'+(cap.credits>1?'s':''),'Actif');
+      if(cap&&cap.achatImages) h+='<button class="dbtn" id="dImages" type="button">Acheter des images</button>'; if(cap&&cap.voix&&cap.voix.actif) h+=barre('Voix de Keydou aujourd\u2019hui',cap.voix.max-cap.voix.restantes,cap.voix.max,'Ensuite : voix de ton téléphone'); if(cap) h+=dl('Photos et PDF',cap.piecesMax+' par jour'); }
     else if(d==='capacites'){ t='Capacités'; ((cap&&cap.liste)||[]).forEach(function(x){ h+=dl(x.nom,x.detail,x.actif?'Actif':((etat&&etat.acces&&etat.acces.niveau==='essai')?'Abonnement':'Bientôt')); }); }
     else if(d==='connecteurs'){ t='Connecteurs'; h=htmlConnecteurs(); }
     $('dTitre').textContent=t; $('dCorps').innerHTML=h; ouvrir('sheetDetail');
     var p=$('dPlus'); if(p) p.addEventListener('click',function(){ fermer(); $('btnPlus').click(); });
     if(d==='connecteurs') brancherConnecteurs();
+    var di=$('dImages'); if(di) di.addEventListener('click',function(){ fermer(); ouvrirAchatImages(); });
   }
 
   // ---- Autorisations : sur téléphone le système demande tout seul ; sur ordinateur il faut les activer ici ----

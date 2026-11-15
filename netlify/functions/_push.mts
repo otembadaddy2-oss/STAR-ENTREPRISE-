@@ -83,7 +83,11 @@ export function parseSms(message: string): SmsParsed {
   const unit = "\\s*(?:FCFA|XAF|CFA|F\\b)";
   let montant: number | null = null, ambigu = false;
   const near = new RegExp("(?:re[cç]u|received|d[ée]p[oô]t|cr[ée]dit[ée]?)\\D{0,30}?" + amountRe + unit, "i").exec(t);
-  if (near) montant = toInt(near[1]);
+  // Airtel Money écrit souvent la devise AVANT le montant : « You have received XAF 5,000 from … » / « Vous avez reçu XAF 5000 de … ».
+  const nearAvant = new RegExp("(?:re[cç]u|received|d[ée]p[oô]t|cr[ée]dit[ée]?)\\D{0,30}?(?:XAF|FCFA|CFA)\\s*" + amountRe, "i").exec(t);
+  if (near && nearAvant) montant = toInt(near.index <= nearAvant.index ? near[1] : nearAvant[1]);
+  else if (near) montant = toInt(near[1]);
+  else if (nearAvant) montant = toInt(nearAvant[1]);
   else {
     const all = [...t.matchAll(new RegExp(amountRe + unit, "gi"))].map((m) => toInt(m[1]));
     const uniq = [...new Set(all)];

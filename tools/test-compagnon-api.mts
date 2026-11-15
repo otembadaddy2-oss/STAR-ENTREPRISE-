@@ -47,11 +47,11 @@ try {
 
   // --- État : capacités ---
   let d = await j(await appel(C, "GET", ""));
-  ok(d.capacites?.images === true && d.capacites.imagesMax === 25 && d.capacites.imagesRestantes === 25 && d.capacites.modes.length === 8, "état Complet : 25 images, 8 domaines (dont Tests)");
+  ok(d.capacites?.images === true && d.capacites.imagesMax === 35 && d.capacites.imagesRestantes === 35 && d.capacites.modes.length === 8, "état Complet : 25 images, 8 domaines (dont Tests)");
   ok(d.capacites.voix?.actif === true && d.capacites.voix.max === 2 && d.capacites.voix.restantes === 2, "état Complet : voix de Keydou active (2 lectures par jour pendant ce test)");
   ok(typeof d.compte?.initiales === "string" && d.compte.initiales.length >= 1 && Array.isArray(d.capacites.connecteurs) && d.capacites.connecteurs.find((x: any) => x.id === "images")?.statut === "actif" && d.capacites.connecteurs.find((x: any) => x.id === "voix")?.statut === "actif" && d.capacites.connecteurs.find((x: any) => x.id === "gmail")?.statut === "bientot" && d.capacites.liste.length === 7, "état : compte (initiales), connecteurs (images et voix actifs, Gmail bientôt) et capacités");
   d = await j(await appel(E, "GET", ""));
-  ok(d.capacites?.imagesMax === 3 && d.capacites.piecesMax === 5 && d.capacites.voix?.actif === false, "état Essentiel : 3 images, 5 pièces par jour, pas de voix de Keydou");
+  ok(d.capacites?.imagesMax === 10 && d.capacites.piecesMax === 5 && d.capacites.voix?.actif === false, "état Essentiel : 3 images, 5 pièces par jour, pas de voix de Keydou");
 
   // --- Modes, réflexion, consigne ---
   reponseIA = JSON.stringify({ reponse: "Le paludisme est une maladie… Ce n'est pas un avis médical.", seuil: false, rappels: [], notes: [], supprimer_rappels: [], image: null });
@@ -77,7 +77,7 @@ try {
   // --- Création d'image : succès (Complet) ---
   reponseIA = JSON.stringify({ reponse: "Je te prépare ça !", seuil: false, rappels: [], notes: [], supprimer_rappels: [], image: { prompt: "Un coucher de soleil sur le fleuve Congo, couleurs chaudes", format: "paysage" } });
   d = await j(await appel(C, "POST", "", { action: "chat", message: "Crée-moi une image d'un coucher de soleil sur le fleuve" }));
-  ok(!!d.image?.id && d.image.statut === "attente" && d.capacites.imagesRestantes === 24, "image demandée : acceptée, il en reste 24");
+  ok(!!d.image?.id && d.image.statut === "attente" && d.capacites.imagesRestantes === 34, "image demandée : acceptée, il en reste 34");
   await attendre(400);
   const st = await j(await appel(C, "GET", `?image=${d.image.id}&statut=1`));
   ok(st.statut === "ok", "la tâche de fond a fabriqué l'image");
@@ -101,13 +101,13 @@ try {
   const hist = await j(await appel(C, "GET", "?historique=1"));
   ok(hist.messages.some((m: any) => /\[\[img:\d+\]\]/.test(m.texte)), "l'historique garde le repère de l'image");
 
-  // --- Création d'image : Essentiel (3 images par mois) ---
-  for (let i = 1; i <= 3; i++) {
+  // --- Création d'image : Essentiel (10 images par mois) ---
+  for (let i = 1; i <= 10; i++) {
     d = await j(await appel(E, "POST", "", { action: "chat", message: "Crée-moi une affiche d'anniversaire avec des ballons n°" + i }));
-    ok(!!d.image?.id && d.capacites.imagesRestantes === 3 - i, "Essentiel : image " + i + " acceptée, il en reste " + (3 - i));
+    ok(!!d.image?.id && d.capacites.imagesRestantes === 10 - i, "Essentiel : image " + i + " acceptée, il en reste " + (10 - i));
   }
   d = await j(await appel(E, "POST", "", { action: "chat", message: "Crée-moi encore une affiche d'anniversaire" }));
-  ok(!d.image && /3 images/.test(d.reponse), "Essentiel : la 4e image du mois est refusée avec un message clair");
+  ok(!d.image && /10 images/.test(d.reponse), "Essentiel : la 11e image du mois est refusée avec un message clair");
   await attendre(400);
 
   // --- Sécurité : enfants, faux documents, personnes réelles ---
@@ -117,7 +117,7 @@ try {
     d = await j(await appel(C, "POST", "", { action: "chat", message: msg }));
     ok(!d.image && appelsImage.length === avant, "refusée sans appeler le service d'images : " + prompt);
   }
-  ok((await j(await appel(C, "GET", ""))).capacites.imagesRestantes === 23, "les refus ne consomment pas de quota (une image de plus a été créée par le test du modèle suivant)");
+  ok((await j(await appel(C, "GET", ""))).capacites.imagesRestantes === 33, "les refus ne consomment pas de quota (une image de plus a été créée par le test du modèle suivant)");
 
   // --- Refus du service d'images (modération) : pas compté ---
   imageStatut = 400;
@@ -131,14 +131,14 @@ try {
     ok(/erreur 400|refusé/.test(String(rr.detail)) && !/sk-/.test(String(rr.detail)), "testeur : la raison technique est visible, sans clé");
   }
   imageStatut = 200;
-  ok((await j(await appel(C, "GET", ""))).capacites.imagesRestantes === 23, "une image refusée ne compte pas dans le quota");
+  ok((await j(await appel(C, "GET", ""))).capacites.imagesRestantes === 33, "une image refusée ne compte pas dans le quota");
 
   // --- Quota mensuel épuisé ---
   const D = await compte("quota", "complet");
-  for (let i = 0; i < 25; i++) await sql`INSERT INTO starvibe_compagnon_images (account_id, prompt, statut) VALUES (${D.id}, 'x', 'ok')`;
+  for (let i = 0; i < 35; i++) await sql`INSERT INTO starvibe_compagnon_images (account_id, prompt, statut) VALUES (${D.id}, 'x', 'ok')`;
   reponseIA = JSON.stringify({ reponse: "Je te prépare ça !", image: { prompt: "Un jardin fleuri au printemps", format: "carre" } });
   d = await j(await appel(D, "POST", "", { action: "chat", message: "Un jardin fleuri" }));
-  ok(!d.image && /25 images/.test(d.reponse), "quota épuisé : message clair avec le délai");
+  ok(!d.image && /35 images/.test(d.reponse), "quota épuisé : message clair avec le délai");
 
   // --- Pièces jointes ---
   reponseIA = JSON.stringify({ reponse: "Je vois une facture de 25 000 FCFA.", seuil: false, rappels: [], notes: [], supprimer_rappels: [], image: null });
@@ -238,10 +238,17 @@ try {
     const X = { id: a[0].id, token: await issueToken({ sub: String(a[0].id), username: "essai", displayName: "essai", org: "star_vibe", role: "member" }) };
     let e = await j(await appel(X, "GET", "?acces=1")); ok(e.visible === true && e.ouvert === true, "essai : Keydou Compagnon est visible et ouvert à tout membre, sans case à cocher");
     let r0 = await appel(X, "GET", ""); e = await j(r0); ok(r0.status === 200 && e.acces?.niveau === "essai" && e.acces.label === "Essai gratuit" && e.acces.source === "essai", "essai : un membre sans abonnement entre en « Essai gratuit »");
-    ok(e.quota.messagesMax === 5 && e.quota.messagesUtilises === 0 && e.capacites.imagesMax === 0 && e.capacites.piecesMax === 0 && e.capacites.voix.actif === false && e.capacites.liste.filter((x: any) => x.actif).map((x: any) => x.id).join() === "discussion", "essai : 5 messages, ni images, ni pièces, ni voix, ni rappels (seule la discussion reste)");
+    ok(e.quota.messagesMax === 5 && e.quota.messagesUtilises === 0 && e.capacites.imagesMax === 2 && e.capacites.piecesMax === 0 && e.capacites.voix.actif === false && e.capacites.liste.filter((x: any) => x.actif).map((x: any) => x.id).join() === "discussion,images", "essai : 5 messages et 2 images ; ni pièces, ni voix, ni rappels");
     await appel(X, "POST", "", { action: "consentir" });
     reponseIA = JSON.stringify({ reponse: "Bonjour !", seuil: false, rappels: [], notes: [], supprimer_rappels: [], image: null });
-    for (let i = 1; i <= 5; i++) { const r = await appel(X, "POST", "", { action: "chat", message: "Question " + i }); if (r.status !== 200) { ok(false, "essai : message " + i + " accepté (statut " + r.status + ")"); } }
+    // 2 images d'essai (chacune compte comme un message), la 3e est refusée avec l'invitation
+    reponseIA = JSON.stringify({ reponse: "Voilà !", seuil: false, rappels: [], notes: [], supprimer_rappels: [], image: { prompt: "Un lion souriant en peinture à l'huile", format: "carre" } });
+    let di1 = await j(await appel(X, "POST", "", { action: "chat", message: "Crée-moi un lion souriant n°1" })); let di2 = await j(await appel(X, "POST", "", { action: "chat", message: "Crée-moi un lion souriant n°2" }));
+    ok(!!di1.image?.id && !!di2.image?.id && di2.capacites.imagesRestantes === 0, "essai : 2 images d'essai acceptées");
+    const di3 = await j(await appel(X, "POST", "", { action: "chat", message: "Crée-moi un lion souriant n°3" }));
+    ok(!di3.image && /2 images d'essai/.test(di3.reponse) && /10 images par mois/.test(di3.reponse) && /35 images par mois/.test(di3.reponse), "essai : la 3e image est refusée avec l'invitation (Essentiel 10, Complet 35)");
+    reponseIA = JSON.stringify({ reponse: "Bonjour !", seuil: false, rappels: [], notes: [], supprimer_rappels: [], image: null });
+    for (let i = 1; i <= 2; i++) { const r = await appel(X, "POST", "", { action: "chat", message: "Question " + i }); if (r.status !== 200) { ok(false, "essai : message " + (i + 3) + " accepté (statut " + r.status + ")"); } }
     const r6 = await appel(X, "POST", "", { action: "chat", message: "Question 6" }); const d6 = await j(r6);
     ok(r6.status === 402 && d6.code === "essai_termine" && d6.essaiTermine === true && /5 messages d'essai/.test(d6.error) && /5 000 FCFA/.test(d6.error) && /19 \$/.test(d6.error), "essai : après 5 messages, invitation claire à l'offre 5 000 FCFA ou 19 $ (Pro)");
     ok(vus.filter((v: any) => /ESSAI GRATUIT/.test(String(v.corps.system?.[1]?.text || ""))).length >= 1, "essai : l'IA est prévenue que la personne est en essai (réponses courtes, options réservées aux abonnés)");
@@ -280,6 +287,88 @@ try {
     await noterSante(sql, "voix", false, "erreur 401");
     ok(st(lister((await (await import("../netlify/functions/_compagnon2.mts")).lireSante(sql))), "voix") === "erreur" && st(lister({ voix: { ok: false, at: Date.now() - SANTE_FRAIS_MS - 1000, raison: "x" } }), "voix") === "actif", "une panne est signalée une heure, puis le connecteur est réessayé");
     await sql`DELETE FROM starvibe_settings WHERE key = 'compagnon_sante'`;
+  }
+
+  // --- CRÉDITS D'IMAGES : achat d'un pack par dépôt, solde, reconnaissance du dépôt, reçu ---
+  {
+    const abo = (await import("../netlify/functions/api-starvibe-subscription.mts")).default;
+    const kd = (await import("../netlify/functions/api-starvibe-keydou.mts")).default;
+    const { smsSecret } = await import("../netlify/functions/_push.mts");
+    const staffTok = await issueToken({ sub: "1", username: "carry", displayName: "Carry", org: "star_entreprise", role: "admin" });
+    const sub = (tok: string, methode: string, qs: string, corps?: unknown) => abo(new Request("https://t.test/api/starvibe-subscription" + qs, { method: methode, headers: { authorization: "Bearer " + tok, "content-type": "application/json" }, body: corps ? JSON.stringify(corps) : undefined }), {} as any);
+    // un compte Essentiel (abonné) au numéro connu, dont le quota du mois est épuisé
+    const tel = "24206" + String(Math.floor(Math.random() * 9e6) + 1e6);
+    const a = (await sql`INSERT INTO starvibe_accounts (telephone, pin_hash) VALUES (${tel}, 'x') RETURNING id`) as { id: number }[];
+    const P = { id: a[0].id, token: await issueToken({ sub: String(a[0].id), username: "pack", displayName: "pack", org: "star_vibe", role: "member" }) };
+    await sql`INSERT INTO starvibe_compagnon_profil (account_id, consentement_at, consentement_version, test, niveau_test) VALUES (${P.id}, now(), 'v1', true, 'essentiel')`;
+    for (let i = 0; i < 10; i++) await sql`INSERT INTO starvibe_compagnon_images (account_id, prompt, statut) VALUES (${P.id}, 'x', 'ok')`;
+    reponseIA = JSON.stringify({ reponse: "Voilà !", image: { prompt: "Un jardin fleuri", format: "carre" } });
+    let dd = await j(await appel(P, "POST", "", { action: "chat", message: "Crée-moi un jardin fleuri" }));
+    ok(!dd.image && dd.offreImages === true && /achète un pack/.test(dd.reponse) && /10 images .*1 200 FCFA/.test(dd.reponse) && /30 images .*3 000 FCFA/.test(dd.reponse), "quota du mois fini : Keydou propose d'acheter un pack (10 images 1 200 FCFA, 30 images 3 000 FCFA)");
+    dd = await j(await appel(P, "GET", "")); ok(dd.capacites.credits === 0 && dd.capacites.achatImages === true && dd.capacites.packs.length === 2, "état : solde 0, achat possible, deux packs proposés");
+    // demande de pack
+    let r = await sub(P.token, "POST", "", { action: "choisir_plan", plan: "credit_images_10", mois: 6 }); let d1 = await j(r);
+    ok(r.status === 201 && d1.abonnement.montantAttendu === 1200 && d1.abonnement.statut === "en_attente_paiement" && /^KOMYO-\d+$/.test(d1.abonnement.referencePaiement) && d1.abonnement.mois === 1, "pack : demande créée à 1 200 FCFA (un seul pack, jamais « × mois »), référence de dépôt KOMYO-n");
+    const id10 = Number(d1.abonnement.id);
+    r = await sub(P.token, "POST", "", { action: "choisir_plan", plan: "credit_images_10" }); ok((await j(r)).abonnement.id === d1.abonnement.id, "pack : un deuxième toucher reprend la même demande");
+    dd = await j(await appel(P, "POST", "", { action: "chat", message: "Crée-moi un jardin fleuri encore" })); ok(!dd.image, "pack non payé : aucune image de plus");
+    // mauvais montant refusé, bon montant accepté (staff)
+    r = await sub(staffTok, "POST", "", { action: "confirmer_paiement", subscriptionId: id10, montantRecu: 1000 }); ok((await j(r)).statut === "paiement_invalide", "dépôt d'un mauvais montant : refusé, aucune image ajoutée");
+    dd = await j(await appel(P, "GET", "")); ok(dd.capacites.credits === 0, "après un mauvais montant : solde toujours 0");
+    r = await sub(P.token, "POST", "", { action: "choisir_plan", plan: "credit_images_10" }); const d2 = await j(r); const id10b = Number(d2.abonnement.id);
+    // reconnaissance automatique du dépôt par SMS (même système que les abonnements)
+    const sms = await kd(new Request("https://t.test/api/starvibe-keydou?sms=1&s=" + smsSecret(), { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ message: `Vous avez recu 1200 XAF de PAYEUR (${tel}) sur votre compte mobile money 2026-11-15 22:37:34. Solde: 5525 XAF. FRAIS: FCFA 0. ID: 1234567890.`, from: "MobileMoney" }) }), {} as any);
+    const ds = await j(sms); ok(ds.resultat === "valide_auto", "dépôt de 1 200 FCFA reçu par SMS : reconnu et validé tout seul");
+    dd = await j(await appel(P, "GET", "")); ok(dd.capacites.credits === 10 && dd.capacites.imagesRestantes === 0, "pack payé : +10 images de crédit (le quota du mois reste à 0)");
+    // l'image utilise le crédit
+    dd = await j(await appel(P, "POST", "", { action: "chat", message: "Crée-moi un jardin fleuri n°2" }));
+    ok(!!dd.image?.id && dd.capacites.credits === 9 && dd.capacites.imagesRestantes === 0, "image créée avec un crédit : il en reste 9");
+    const ligne = (await sql`SELECT credit FROM starvibe_compagnon_images WHERE id = ${dd.image.id}`) as { credit: boolean }[]; ok(ligne[0].credit === true, "l'image est marquée « payée par crédit »");
+    await attendre(300);
+    // une image qui échoue n'est pas décomptée
+    await sql`UPDATE starvibe_compagnon_images SET statut = 'erreur' WHERE id = ${dd.image.id}`;
+    dd = await j(await appel(P, "GET", "")); ok(dd.capacites.credits === 10, "image en échec : le crédit est rendu");
+    // le solde ne dépend pas du quota du mois (qui se renouvelle) : 30 jours plus tard les 10 images du mois reviennent, le crédit reste
+    await sql`UPDATE starvibe_compagnon_images SET created_at = now() - interval '40 days' WHERE account_id = ${P.id} AND credit = false`;
+    dd = await j(await appel(P, "GET", "")); ok(dd.capacites.imagesRestantes === 10 && dd.capacites.credits === 10, "le mois suivant : quota renouvelé et crédit intact");
+    // un pack n'est jamais pris pour un abonnement
+    r = await sub(P.token, "GET", ""); const cur = await j(r); ok(!/credit_images/.test(String(cur.abonnement?.plan)), "écran « mon abonnement » : le pack n'apparaît pas comme un abonnement");
+    r = await sub(P.token, "GET", "?rappel=1"); ok((await j(r)).rappel === null, "pas de rappel d'échéance pour un pack");
+    // pack de 30
+    r = await sub(P.token, "POST", "", { action: "choisir_plan", plan: "credit_images_30" }); const d30 = await j(r); ok(d30.abonnement.montantAttendu === 3000, "pack 30 : 3 000 FCFA");
+    r = await sub(staffTok, "POST", "", { action: "confirmer_paiement", subscriptionId: Number(d30.abonnement.id), montantRecu: 3000 }); ok((await j(r)).statut === "actif", "pack 30 : confirmé par l'équipe");
+    dd = await j(await appel(P, "GET", "")); ok(dd.capacites.credits === 40, "10 + 30 : solde de 40 images");
+    // reçu émis
+    const rec = (await sql`SELECT titre FROM starvibe_recus WHERE ref_id = ${id10b} AND kind = 'abo' LIMIT 1`) as { titre: string }[]; ok(!!rec[0] && /pack de 10 images/.test(rec[0].titre), "un reçu « pack de 10 images » est émis");
+    // l'essai gratuit ne peut pas acheter ; un inconnu non plus
+    const tel2 = "24205" + String(Math.floor(Math.random() * 9e6) + 1e6);
+    const b2 = (await sql`INSERT INTO starvibe_accounts (telephone, pin_hash) VALUES (${tel2}, 'x') RETURNING id`) as { id: number }[];
+    const T = { token: await issueToken({ sub: String(b2[0].id), username: "essai2", displayName: "essai2", org: "star_vibe", role: "member" }) };
+    r = await sub(T.token, "POST", "", { action: "choisir_plan", plan: "credit_images_10" }); const dt = await j(r);
+    ok(r.status === 403 && dt.code === "abonnement_requis" && /abonne-toi d'abord/.test(dt.error), "essai gratuit : doit d'abord s'abonner avant d'acheter des images");
+    const dEss = await j(await appel(T, "GET", "")); ok(dEss.capacites.achatImages === false, "essai gratuit : pas de bouton d'achat d'images");
+    // ---- Offres Complet 19 $ / Premium 35 $ / Prestige 49 $ : avantages qui montent, paiement par dépôt, remises sur les packs
+    const { AVANTAGES, LIMITES } = await import("../netlify/functions/_compagnon.mts");
+    const ordre = ["essentiel", "complet", "premium", "prestige"] as const;
+    for (const cle of ["messages", "recherches", "rappels", "images", "pieces", "voix", "notes", "historique", "jetonsGeneral", "jetonsProfond", "longueurReponse"] as const) {
+      let croit = true; for (let i = 1; i < ordre.length; i++) if ((AVANTAGES[ordre[i]] as any)[cle] < (AVANTAGES[ordre[i - 1]] as any)[cle]) croit = false;
+      ok(croit, "avantage « " + cle + " » : jamais moins à un niveau plus cher");
+    }
+    ok(AVANTAGES.premium.images === 70 && AVANTAGES.prestige.images === 120 && LIMITES.prestige.messages === 500, "chiffres Premium 70 images / Prestige 120 images / 500 messages");
+    for (const [plan, niv, montant] of [["compagnon_premium", "premium", 20400], ["compagnon_prestige", "prestige", 28600]] as const) {
+      const tl = "24206" + String(Math.floor(Math.random() * 9e6) + 1e6);
+      const bx = (await sql`INSERT INTO starvibe_accounts (telephone, pin_hash) VALUES (${tl}, 'x') RETURNING id`) as { id: number }[];
+      const U = { id: bx[0].id, token: await issueToken({ sub: String(bx[0].id), username: "n" + niv, displayName: "n" + niv, org: "star_vibe", role: "member" }) };
+      r = await sub(U.token, "POST", "", { action: "choisir_plan", plan }); const dp = await j(r);
+      ok(r.status === 201 && dp.abonnement.montantAttendu === montant, niv + " : demande de dépôt de " + montant + " FCFA");
+      r = await sub(staffTok, "POST", "", { action: "confirmer_paiement", subscriptionId: Number(dp.abonnement.id), montantRecu: montant - 100 }); ok((await j(r)).statut === "paiement_invalide", niv + " : mauvais montant refusé");
+      r = await sub(U.token, "POST", "", { action: "choisir_plan", plan }); const dp2 = await j(r);
+      r = await sub(staffTok, "POST", "", { action: "confirmer_paiement", subscriptionId: Number(dp2.abonnement.id), montantRecu: montant }); ok((await j(r)).statut === "actif", niv + " : dépôt reconnu, abonnement actif");
+      const eu = await j(await appel(U, "GET", "")); ok(eu.acces.niveau === niv && eu.quota.messagesMax === AVANTAGES[niv].messages, niv + " : le client profite aussitôt de ses " + AVANTAGES[niv].messages + " messages");
+      ok(eu.capacites.imagesMax === AVANTAGES[niv].images, niv + " : " + AVANTAGES[niv].images + " images par mois");
+      r = await sub(U.token, "POST", "", { action: "choisir_plan", plan: "credit_images_10" }); const dk = await j(r);
+      ok(dk.abonnement.montantAttendu === (niv === "premium" ? 1080 : 960), niv + " : pack 10 images avec remise (" + (niv === "premium" ? "−10 %" : "−20 %") + ")");
+    }
   }
 } catch (e) { console.log("ÉCHEC : exception", e); ko++; }
 console.log(ko ? "ECHECS : " + ko : "TOUS LES TESTS OK"); process.exit(ko ? 1 : 0);

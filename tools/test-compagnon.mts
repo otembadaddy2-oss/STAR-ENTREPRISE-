@@ -53,7 +53,7 @@ ok("pièce trop lourde refusée", !validerPiece({ data: "A".repeat(4_500_000) })
 ok("pièce non base64 refusée", !validerPiece({ data: "<script>alert(1)</script>" }).ok);
 ok("mime depuis octets", mimeDepuisOctets(Buffer.from([0xff, 0xd8, 0xff, 0x00])) === "image/jpeg" && mimeDepuisOctets(Buffer.from("hello world!!")) === "");
 ok("effort : Essentiel low, Complet medium", EFFORT("essentiel") === "low" && EFFORT("complet") === "medium");
-ok("images : 3 en Essentiel, 25 en Complet par défaut", IMAGES_PAR_MOIS("essentiel") === 3 && IMAGES_PAR_MOIS("complet") === 25);
+ok("images : 2 en essai, 10 en Essentiel, 35 en Complet par défaut", IMAGES_PAR_MOIS("essai") === 2 && IMAGES_PAR_MOIS("essentiel") === 10 && IMAGES_PAR_MOIS("complet") === 35);
 ok("voix de Keydou : 0 en Essentiel, 6 par jour en Complet par défaut", VOIX_PAR_JOUR("essentiel") === 0 && VOIX_PAR_JOUR("complet") === 6);
 {
   const t = texteAVoix("**Bonjour** 😀 ! Voici le lien https://exemple.com/x pour toi.\nSource : https://a.b [[img:12]]");
@@ -104,7 +104,7 @@ ok("alerte posée une seule fois", (gardePrescription(gardePrescription("2 compr
 console.log(ko ? "ECHECS : " + ko : "TOUS LES TESTS OK"); process.exit(ko ? 1 : 0);
 {
   const o = texteCompagnonPourKeydou(true), f = texteCompagnonPourKeydou(false);
-  ok("Keydou : Compagnon ouvert → offres, capacités, jamais de prescription", /OUVERT/.test(o) && /5 000 FCFA/.test(o) && /19 \$/.test(o) && /ne prescrit JAMAIS/.test(o) && /25 images par mois/.test(o) && /3 images/.test(o));
+  ok("Keydou : Compagnon ouvert → offres, capacités, jamais de prescription", /OUVERT/.test(o) && /5 000 FCFA/.test(o) && /19 \$/.test(o) && /ne prescrit JAMAIS/.test(o) && /35 images par mois/.test(o) && /10 images/.test(o));
   ok("Keydou : Compagnon fermé → pas d'ouverture annoncée, pas de date", /PAS encore ouvert/.test(f) && !/OUVERT \(/.test(f) && /Ne promets ni date/.test(f));
 }
 ok("clé valide : une vraie clé passe, un texte collé par erreur est refusé", cleValide("sk-proj-AbCdEf0123456789_xyz") && cleValide("sk_0123456789abcdef0123") && !cleValide("Envoie-moi ensuite la capture de la liste avec VOIX_API_KEY dedans") && !cleValide("") && !cleValide(undefined) && !cleValide("court"));
