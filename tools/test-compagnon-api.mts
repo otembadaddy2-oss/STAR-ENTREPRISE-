@@ -48,6 +48,7 @@ try {
   let d = await j(await appel(C, "GET", ""));
   ok(d.capacites?.images === true && d.capacites.imagesMax === 25 && d.capacites.imagesRestantes === 25 && d.capacites.modes.length === 8, "état Complet : 25 images, 8 domaines (dont Tests)");
   ok(d.capacites.voix?.actif === true && d.capacites.voix.max === 2 && d.capacites.voix.restantes === 2, "état Complet : voix de Keydou active (2 lectures par jour pendant ce test)");
+  ok(typeof d.compte?.initiales === "string" && d.compte.initiales.length >= 1 && Array.isArray(d.capacites.connecteurs) && d.capacites.connecteurs.find((x: any) => x.id === "images")?.statut === "actif" && d.capacites.connecteurs.find((x: any) => x.id === "voix")?.statut === "actif" && d.capacites.connecteurs.find((x: any) => x.id === "gmail")?.statut === "bientot" && d.capacites.liste.length === 6, "état : compte (initiales), connecteurs (images et voix actifs, Gmail bientôt) et capacités");
   d = await j(await appel(E, "GET", ""));
   ok(d.capacites?.imagesMax === 3 && d.capacites.piecesMax === 5 && d.capacites.voix?.actif === false, "état Essentiel : 3 images, 5 pièces par jour, pas de voix de Keydou");
 

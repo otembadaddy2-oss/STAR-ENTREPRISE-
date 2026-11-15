@@ -18,7 +18,7 @@ import {
 } from "./_compagnon.mts";
 import {
   MODES, modeDe, supplement, EFFORT, MAX_JETONS, MODELE_NIVEAU, IMAGES_PAR_MOIS, PIECES_PAR_JOUR, imagesDisponibles, verifierDemandeImage, formatImage,
-  signerImage, validerPiece, LIMITE_REPONSE, gardePrescription, voixDisponible, VOIX_PAR_JOUR, texteAVoix, genererVoix, MARQUE_PIECE, marqueImage, idImageDansTexte, type Mode,
+  signerImage, validerPiece, LIMITE_REPONSE, gardePrescription, voixDisponible, VOIX_PAR_JOUR, texteAVoix, genererVoix, connecteurs, listeCapacites, MARQUE_PIECE, marqueImage, idImageDansTexte, type Mode,
 } from "./_compagnon2.mts";
 
 const ORG_MEMBRE = "star_vibe";
@@ -63,7 +63,7 @@ async function capacites(sql: any, accountId: number, niveau: Niveau) {
   const max = IMAGES_PAR_MOIS(niveau);
   const maxV = VOIX_PAR_JOUR(niveau);
   const nV = Number(((await sql`SELECT COUNT(*) AS n FROM starvibe_compagnon_voix WHERE account_id = ${accountId} AND created_at > now() - interval '24 hours'`) as { n: string }[])[0]?.n || 0);
-  return { voix: { actif: voixDisponible() && maxV > 0, max: maxV, restantes: Math.max(0, maxV - nV) }, images: imagesDisponibles(), imagesMax: max, imagesRestantes: Math.max(0, max - u.n), piecesMax: PIECES_PAR_JOUR(niveau), modes: Object.keys(MODES).map((k) => ({ id: k, label: MODES[k as Mode].label, emoji: MODES[k as Mode].emoji })) };
+  return { voix: { actif: voixDisponible() && maxV > 0, max: maxV, restantes: Math.max(0, maxV - nV) }, images: imagesDisponibles(), imagesMax: max, imagesRestantes: Math.max(0, max - u.n), piecesMax: PIECES_PAR_JOUR(niveau), connecteurs: connecteurs(), liste: listeCapacites(niveau), modes: Object.keys(MODES).map((k) => ({ id: k, label: MODES[k as Mode].label, emoji: MODES[k as Mode].emoji })) };
 }
 
 interface SourceWeb { titre: string; url: string }
@@ -302,7 +302,11 @@ export default async (req: Request, _context: Context) => {
     const notifs = (await sql`SELECT COUNT(*) AS n FROM starvibe_compagnon_push WHERE account_id = ${accountId}`) as { n: string }[];
     const finMs = acces.fin ? new Date(acces.fin).getTime() - Date.now() : null;
     const finBientot = acces.source === "abonnement" && finMs !== null && finMs > 0 && finMs <= 24 * 3600 * 1000;
-    return json({ acces: { niveau: acces.niveau, label: lim.label, source: acces.source, fin: acces.fin }, finBientot, texteFin: finBientot && acces.fin ? texteFinAbonnement(new Date(acces.fin)) : "", consentement, consentementVersion: CONSENTEMENT_VERSION, quota: q, notifications: Number(notifs[0]?.n || 0), capacites: await capacites(sql, accountId, acces.niveau) });
+    const ligneCompte = (await sql`SELECT a.telephone AS tel, (SELECT nom FROM starvibe_profiles WHERE account_id = a.id ORDER BY (type_profil = 'personnel') DESC, id LIMIT 1) AS nom FROM starvibe_accounts a WHERE a.id = ${accountId}`) as { tel: string; nom: string | null }[];
+    const nomCompte = String(ligneCompte[0]?.nom || "").trim(), chiffres = String(ligneCompte[0]?.tel || "").replace(/\D/g, "");
+    const initiales = (nomCompte.split(/\s+/).filter(Boolean).slice(0, 2).map((m) => m[0]).join("") || "KY").toUpperCase();
+    const telMasque = chiffres.length >= 6 ? `+${chiffres.slice(0, chiffres.length - 6)} ${chiffres.slice(-6, -4)}•• ••${chiffres.slice(-2)}`.trim() : "";
+    return json({ compte: { nom: nomCompte, initiales, telephone: telMasque }, acces: { niveau: acces.niveau, label: lim.label, source: acces.source, fin: acces.fin }, finBientot, texteFin: finBientot && acces.fin ? texteFinAbonnement(new Date(acces.fin)) : "", consentement, consentementVersion: CONSENTEMENT_VERSION, quota: q, notifications: Number(notifs[0]?.n || 0), capacites: await capacites(sql, accountId, acces.niveau) });
   }
 
   if (req.method !== "POST") return json({ error: "Méthode non permise" }, 405);

@@ -1,4 +1,4 @@
-import { modeDe, verifierDemandeImage, validerPiece, supplement, idImageDansTexte, marqueImage, formatImage, mimeDepuisOctets, EFFORT, MAX_JETONS, LIMITE_REPONSE, MODE_PROFOND, gardePrescription, MSG_PAS_DE_DOSE, IMAGES_PAR_MOIS, PIECES_PAR_JOUR, texteAVoix, VOIX_PAR_JOUR, VOIX_SIGNES_MAX, texteCompagnonPourKeydou, cleValide, nettoyerErreur, ordonnerModelesImage } from "../netlify/functions/_compagnon2.mts";
+import { modeDe, verifierDemandeImage, validerPiece, supplement, idImageDansTexte, marqueImage, formatImage, mimeDepuisOctets, EFFORT, MAX_JETONS, LIMITE_REPONSE, MODE_PROFOND, gardePrescription, MSG_PAS_DE_DOSE, IMAGES_PAR_MOIS, PIECES_PAR_JOUR, texteAVoix, VOIX_PAR_JOUR, VOIX_SIGNES_MAX, texteCompagnonPourKeydou, cleValide, nettoyerErreur, ordonnerModelesImage, connecteurs, listeCapacites } from "../netlify/functions/_compagnon2.mts";
 import { delaiRetour, formatDuree, localVersUtc, suivante, parleDeMedicaments, fuseauValide, FENETRE_MS } from "../netlify/functions/_compagnon.mts";
 let ko = 0; const ok = (n: string, c: boolean) => { if (!c) ko++; console.log((c ? "OK  " : "ECHEC ") + n); };
 const H = 3600000, now = Date.UTC(2026, 10, 8, 12, 0, 0);
@@ -112,5 +112,11 @@ ok("raison technique : clé masquée, 220 signes au plus", !/sk-proj-abcdef/.tes
 {
   const o = ordonnerModelesImage(["gpt-4o", "gpt-image-1", "gpt-image-1-mini", "gpt-image-2", "gpt-image-1.5", "gpt-image-2-2026-01-15", "dall-e-3", "whisper-1"]);
   ok("modèles d'images : le plus récent d'abord, sans les autres modèles", o[0] === "gpt-image-2" && o.indexOf("gpt-image-1.5") < o.indexOf("gpt-image-1") && !o.includes("gpt-4o") && !o.includes("whisper-1") && o.includes("dall-e-3"));
+}
+{
+  const c = connecteurs(), ext = ["chatgpt", "grok", "llama", "kling", "canva", "adobe", "gmail", "agenda", "drive", "github", "whatsapp"];
+  ok("connecteurs externes : tous « bientôt » (aucun n'est faussement annoncé comme connecté)", ext.every((id) => c.find((x) => x.id === id)?.statut === "bientot"));
+  ok("connecteurs réels : Claude, recherche et rappels actifs", ["claude", "recherche", "rappels"].every((id) => c.find((x) => x.id === id)?.statut === "actif"));
+  ok("capacités : 6 rubriques, Essentiel = 5 fichiers par jour", listeCapacites("essentiel").length === 6 && /5 fichiers/.test(listeCapacites("essentiel").find((x) => x.id === "pieces")?.detail || ""));
 }
 

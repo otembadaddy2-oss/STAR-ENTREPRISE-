@@ -268,3 +268,40 @@ const TEXTE_COMPAGNON_OUVERT = "Keydou Compagnon est OUVERT (depuis le 14 novemb
 const TEXTE_COMPAGNON_FERME = "Keydou Compagnon n'est PAS encore ouvert au public : il est réservé aux testeurs invités par l'équipe. Ne promets ni date d'ouverture ni installation. Prix prévus : Essentiel 5 000 FCFA ou Complet 19 $ par mois, jamais gratuit. Si on demande ce qu'il sait faire : c'est un assistant personnel qui retient les rendez-vous, anniversaires et habitudes, prévient au bon moment et répond dans plusieurs domaines ; en médecine il ne prescrit jamais. N'annonce rien de plus. Dis que les membres seront prévenus dès l'ouverture.";
 export const texteCompagnonPourKeydou = (ouvert: boolean): string => (ouvert ? TEXTE_COMPAGNON_OUVERT : TEXTE_COMPAGNON_FERME);
 
+// ---------- Connecteurs et capacités (affichés dans Paramètres) : l'état vient des clés réellement posées, jamais inventé ----------
+export type Connecteur = { id: string; nom: string; groupe: string; statut: "actif" | "bientot"; detail: string };
+export function connecteurs(): Connecteur[] {
+  const bientot = (id: string, nom: string, groupe: string, detail: string): Connecteur => ({ id, nom, groupe, statut: "bientot", detail });
+  const bientotPerso = "Il demandera ton autorisation personnelle ; pas encore ouvert";
+  return [
+    { id: "claude", nom: "Claude (Anthropic)", groupe: "Intelligence", statut: "actif", detail: "Le cerveau de Keydou : réponses, réflexion, lecture des photos et des PDF" },
+    { id: "recherche", nom: "Recherche web vérifiée", groupe: "Intelligence", statut: "actif", detail: "Informations à jour, avec leurs sources" },
+    bientot("chatgpt", "ChatGPT (OpenAI)", "Intelligence", "Second avis d'un autre modèle ; pas encore ouvert"),
+    bientot("grok", "Grok (xAI)", "Intelligence", "Pas encore ouvert"),
+    bientot("llama", "Llama (Meta)", "Intelligence", "Pas encore ouvert"),
+    { id: "images", nom: "Images (OpenAI)", groupe: "Création", statut: imagesDisponibles() ? "actif" : "bientot", detail: imagesDisponibles() ? "Keydou crée des images à ta demande" : "En cours d'activation" },
+    { id: "voix", nom: "Voix de Keydou (ElevenLabs)", groupe: "Création", statut: voixDisponible() ? "actif" : "bientot", detail: voixDisponible() ? "Keydou lit ses réponses avec sa vraie voix" : "En cours d'activation" },
+    bientot("kling", "Kling AI (vidéo)", "Création", "Créer de courtes vidéos ; pas encore ouvert"),
+    bientot("canva", "Canva", "Création", bientotPerso),
+    bientot("adobe", "Adobe", "Création", bientotPerso),
+    { id: "rappels", nom: "Rappels et notifications", groupe: "Productivité", statut: "actif", detail: "Keydou te prévient au bon moment sur ton téléphone" },
+    bientot("gmail", "Gmail", "Productivité", bientotPerso),
+    bientot("agenda", "Google Agenda", "Productivité", bientotPerso),
+    bientot("drive", "Google Drive", "Productivité", bientotPerso),
+    bientot("github", "GitHub", "Développement", bientotPerso),
+    bientot("whatsapp", "WhatsApp Business", "Communication", bientotPerso),
+  ];
+}
+export type CapaciteInfo = { id: string; nom: string; actif: boolean; detail: string };
+export function listeCapacites(n: Niveau): CapaciteInfo[] {
+  const images = imagesDisponibles() && IMAGES_PAR_MOIS(n) > 0, voix = voixDisponible() && VOIX_PAR_JOUR(n) > 0;
+  return [
+    { id: "domaines", nom: "Domaines d'expertise", actif: true, detail: "Santé (sans prescription), droit, cuisine, mécanique, business, études, tests notés sur 10" },
+    { id: "sources", nom: "Réponses vérifiées avec sources", actif: true, detail: "Recherche sur Internet, sources citées" },
+    { id: "pieces", nom: "Lecture de photos et de PDF", actif: true, detail: `${PIECES_PAR_JOUR(n)} fichiers par jour` },
+    { id: "images", nom: "Création d'images", actif: images, detail: images ? `${IMAGES_PAR_MOIS(n)} images par mois` : (imagesDisponibles() ? "Réservée à l'offre Complet" : "En cours d'activation") },
+    { id: "voix", nom: "Voix de Keydou", actif: voix, detail: voix ? `${VOIX_PAR_JOUR(n)} lectures par jour` : "Voix de ton téléphone en attendant" },
+    { id: "rappels", nom: "Rappels et mémoire", actif: true, detail: "Rendez-vous, anniversaires, habitudes ; jamais de médicaments ni de codes secrets" },
+  ];
+}
+
