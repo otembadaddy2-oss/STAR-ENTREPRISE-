@@ -15,11 +15,13 @@ let ko = 0; const ok = (c: boolean, m: string) => { console.log((c ? "OK  " : "�
 
 await ensureSchema(); const { sql } = db();
 const jpg = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(3000, 7)]);
-let reponseIA = "{}"; const vus: { corps: Record<string, unknown> }[] = []; const appelsImage: Record<string, unknown>[] = []; let imageStatut = 200;
+const modelesAbsents = new Set<string>(); let reponseIA = "{}"; const vus: { corps: Record<string, unknown> }[] = []; const appelsImage: Record<string, unknown>[] = []; let imageStatut = 200;
 const vraiFetch = globalThis.fetch;
 globalThis.fetch = (async (u: string | URL, o?: { body?: string }) => {
   const url = String(u);
   if (url.includes("/v1/messages")) { const corps = JSON.parse(String(o?.body)); vus.push({ corps }); return new Response(JSON.stringify({ content: [{ type: "text", text: reponseIA }], stop_reason: "end_turn", usage: { input_tokens: 100, output_tokens: 50 } }), { status: 200 }); }
+  if (url.endsWith("/v1/models")) return new Response(JSON.stringify({ data: ["gpt-4o", "gpt-image-1", "gpt-image-2", "gpt-image-1.5", "whisper-1"].map((id) => ({ id })) }), { status: 200 });
+  if (url.includes("/v1/images/generations") && modelesAbsents.has(String(JSON.parse(String(o?.body)).model))) { appelsImage.push(JSON.parse(String(o?.body))); return new Response(JSON.stringify({ error: { code: "invalid_value", message: "The model `x` does not exist." } }), { status: 400 }); }
   if (url.includes("/v1/images/generations")) { appelsImage.push(JSON.parse(String(o?.body))); if (imageStatut !== 200) return new Response(JSON.stringify({ error: { code: "moderation_blocked", message: "safety" } }), { status: imageStatut }); return new Response(JSON.stringify({ data: [{ b64_json: jpg.toString("base64") }] }), { status: 200 }); }
   if (url.includes("api.elevenlabs.io/v1/text-to-speech/")) { appelsVoix.push({ url, cle: (o as any)?.headers?.["xi-api-key"], corps: JSON.parse(String(o?.body)) }); if (voixStatut !== 200) return new Response("{}", { status: voixStatut }); return new Response(mp3, { status: 200 }); }
   if (url.includes("compagnon-image-background")) { // le « lancement de la tâche de fond » : on l'exécute tout de suite, comme Netlify le ferait
@@ -78,6 +80,17 @@ try {
   const st = await j(await appel(C, "GET", `?image=${d.image.id}&statut=1`));
   ok(st.statut === "ok", "la tâche de fond a fabriqué l'image");
   ok(appelsImage[0].size === "1536x1024" && /No text/.test(String(appelsImage[0].prompt)) && appelsImage[0].output_format === "jpeg", "le service d'images reçoit le bon format, « sans texte », en JPEG");
+  ok(appelsImage[0].model === "gpt-image-2", "le modèle le plus récent proposé par le service est choisi (gpt-image-2)");
+  { // le modèle choisi n'existe pas chez ce compte : Keydou essaie le suivant tout seul
+    modelesAbsents.add("gpt-image-2"); const avant = appelsImage.length;
+    reponseIA = JSON.stringify({ reponse: "Je te prépare ça !", image: { prompt: "Un marché coloré à Pointe-Noire, lumière du matin", format: "carre" } });
+    const dd = await j(await appel(C, "POST", "", { action: "chat", message: "Un marché coloré à Pointe-Noire" }));
+    await attendre(500);
+    const s3 = await j(await appel(C, "GET", `?image=${dd.image.id}&statut=1`));
+    ok(s3.statut === "ok" && appelsImage.slice(avant).map((x: any) => x.model).join(",") === "gpt-image-2,gpt-image-1.5", "modèle absent : Keydou passe au suivant (gpt-image-1.5) et l'image est créée");
+    modelesAbsents.delete("gpt-image-2");
+    reponseIA = JSON.stringify({ reponse: "Je te prépare ça !", image: { prompt: "Un coucher de soleil sur le fleuve Congo, couleurs chaudes", format: "paysage" } });
+  }
   const octets = await appel(C, "GET", `?image=${d.image.id}`);
   const buf = Buffer.from(await octets.arrayBuffer());
   ok(octets.status === 200 && octets.headers.get("content-type") === "image/jpeg" && buf.length === jpg.length, "l'image est servie à son propriétaire");
@@ -102,7 +115,7 @@ try {
     d = await j(await appel(C, "POST", "", { action: "chat", message: msg }));
     ok(!d.image && appelsImage.length === avant, "refusée sans appeler le service d'images : " + prompt);
   }
-  ok((await j(await appel(C, "GET", ""))).capacites.imagesRestantes === 24, "les refus ne consomment pas de quota");
+  ok((await j(await appel(C, "GET", ""))).capacites.imagesRestantes === 23, "les refus ne consomment pas de quota (une image de plus a été créée par le test du modèle suivant)");
 
   // --- Refus du service d'images (modération) : pas compté ---
   imageStatut = 400;
@@ -116,7 +129,7 @@ try {
     ok(/erreur 400|refusé/.test(String(rr.detail)) && !/sk-/.test(String(rr.detail)), "testeur : la raison technique est visible, sans clé");
   }
   imageStatut = 200;
-  ok((await j(await appel(C, "GET", ""))).capacites.imagesRestantes === 24, "une image refusée ne compte pas dans le quota");
+  ok((await j(await appel(C, "GET", ""))).capacites.imagesRestantes === 23, "une image refusée ne compte pas dans le quota");
 
   // --- Quota mensuel épuisé ---
   const D = await compte("quota", "complet");

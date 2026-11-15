@@ -131,39 +131,75 @@ export function mimeDepuisOctets(b: Buffer): string {
   return "";
 }
 // Raison technique d'un échec : gardée pour l'équipe et les testeurs ; jamais de clé (« sk-… » masqué), 220 signes au plus.
-export const nettoyerErreur = (t: string): string => String(t || "").replace(/sk-[A-Za-z0-9_\-]{6,}/g, "sk-…").replace(/\s+/g, " ").trim().slice(0, 220);
+export const nettoyerErreur = (t: string, max = 220): string => String(t || "").replace(/sk-[A-Za-z0-9_\-]{6,}/g, "sk-…").replace(/\s+/g, " ").trim().slice(0, max);
+// Modèles d'images : on demande au service ce qu'il propose pour cette clé (les noms changent avec le temps), le plus récent d'abord.
+export function ordonnerModelesImage(ids: string[]): string[] {
+  const note = (id: string): number => {
+    const m = /^gpt-image-(\d+(?:\.\d+)?)/.exec(id);
+    if (m) return 1000 + Number(m[1]) * 10 - (/mini/.test(id) ? 5 : 0) - (/-\d{4}-\d{2}-\d{2}$/.test(id) ? 1 : 0);
+    if (/^dall-e-3$/.test(id)) return 10;
+    return 0;
+  };
+  return [...new Set(ids)].filter((id) => note(id) > 0).sort((x, y) => note(y) - note(x));
+}
+let cacheModeles: { at: number; liste: string[] } | null = null;
+async function modelesImage(base: string, key: string): Promise<string[]> {
+  if (cacheModeles && Date.now() - cacheModeles.at < 10 * 60000) return cacheModeles.liste;
+  try {
+    const r = await fetch(`${base}/v1/models`, { headers: { authorization: `Bearer ${key}` }, signal: AbortSignal.timeout(15000) });
+    if (r.ok) {
+      const d = (await r.json()) as { data?: { id?: string }[] };
+      const liste = ordonnerModelesImage((d.data || []).map((x) => String(x.id || "")));
+      if (liste.length) { cacheModeles = { at: Date.now(), liste }; return liste; }
+    }
+  } catch { /* on retombe sur la liste de secours */ }
+  return ["gpt-image-2", "gpt-image-1.5", "gpt-image-1"];
+}
 export async function genererImage(prompt: string, format: FormatImage): Promise<ResultatImage> {
   const key = String(process.env.IMAGE_API_KEY || "").trim();
   if (!key) return { ok: false, refus: false, erreur: "service d'images non configuré" };
   const base = (process.env.IMAGE_API_BASE || "https://api.openai.com").replace(/\/+$/, "");
-  const model = process.env.IMAGE_MODEL || "gpt-image-1";
-  const size = format === "paysage" ? "1536x1024" : format === "portrait" ? "1024x1536" : "1024x1024";
-  const corps: Record<string, unknown> = { model, prompt: `${prompt.slice(0, 900)}. No text, no letters, no words, no logo, no watermark. Wholesome, family-friendly, no real person.`, size, n: 1 };
-  if (/dall-e/i.test(model)) corps.response_format = "b64_json";
-  else { corps.output_format = "jpeg"; corps.output_compression = 82; }
-  let r: Response;
-  try {
-    r = await fetch(`${base}/v1/images/generations`, { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${key}` }, body: JSON.stringify(corps), signal: AbortSignal.timeout(170000) });
-  } catch (e) { return { ok: false, refus: false, erreur: `le service d'images ne répond pas (${nettoyerErreur(String((e as Error)?.name || "") + " " + String((e as Error)?.message || ""))})` }; }
-  const txt = await r.text();
-  let d: { data?: { b64_json?: string; url?: string }[]; error?: { code?: string; message?: string; type?: string } } = {};
-  try { d = JSON.parse(txt); } catch { /* réponse non JSON */ }
-  if (!r.ok) {
-    const code = `${d.error?.code || ""} ${d.error?.type || ""} ${d.error?.message || ""}`.toLowerCase();
-    const refus = /moderation|content_policy|safety|policy|blocked/.test(code);
-    return { ok: false, refus, erreur: refus ? "refusé par le contrôle de sécurité du service" : `erreur ${r.status} ${nettoyerErreur(`${d.error?.code || ""} ${d.error?.message || txt}`)}` };
+  const candidats = process.env.IMAGE_MODEL ? [process.env.IMAGE_MODEL] : (await modelesImage(base, key)).slice(0, 3);
+  const essais: string[] = [];
+  for (const model of candidats) {
+    const dalle = /dall-e/i.test(model);
+    const size = dalle ? (format === "paysage" ? "1792x1024" : format === "portrait" ? "1024x1792" : "1024x1024") : (format === "paysage" ? "1536x1024" : format === "portrait" ? "1024x1536" : "1024x1024");
+    for (const avecFormat of [true, false]) {
+      const corps: Record<string, unknown> = { model, prompt: `${prompt.slice(0, 900)}. No text, no letters, no words, no logo, no watermark. Wholesome, family-friendly, no real person.`, size, n: 1 };
+      if (dalle) corps.response_format = "b64_json";
+      else if (avecFormat) { corps.output_format = "jpeg"; corps.output_compression = 82; }
+      let r: Response;
+      try {
+        r = await fetch(`${base}/v1/images/generations`, { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${key}` }, body: JSON.stringify(corps), signal: AbortSignal.timeout(170000) });
+      } catch (e) { return { ok: false, refus: false, erreur: `le service d'images ne répond pas (${nettoyerErreur(String((e as Error)?.name || "") + " " + String((e as Error)?.message || ""))})` }; }
+      const txt = await r.text();
+      let d: { data?: { b64_json?: string; url?: string }[]; error?: { code?: string; message?: string; type?: string } } = {};
+      try { d = JSON.parse(txt); } catch { /* réponse non JSON */ }
+      if (!r.ok) {
+        const msg = `${d.error?.code || ""} ${d.error?.type || ""} ${d.error?.message || ""}`;
+        const refus = /moderation|content_policy|safety|policy|blocked/i.test(msg);
+        if (refus) return { ok: false, refus: true, erreur: "refusé par le contrôle de sécurité du service" };
+        const modeleAbsent = r.status === 400 || r.status === 403 || r.status === 404 ? /does not exist|not have access|model_not_found|must be verified|not supported|unsupported model/i.test(msg) : false;
+        const paramInconnu = !dalle && avecFormat && r.status === 400 && /output_format|output_compression|unknown parameter|unrecognized/i.test(msg);
+        essais.push(`${model}: ${r.status} ${nettoyerErreur(d.error?.code ? `${d.error.code} ${d.error.message || ""}` : (d.error?.message || txt))}`);
+        if (paramInconnu) continue;          // même modèle, sans le réglage du format de sortie
+        if (modeleAbsent) break;              // modèle suivant
+        return { ok: false, refus: false, erreur: nettoyerErreur(`erreur ${essais[essais.length - 1]}`) };
+      }
+      const it = d.data?.[0];
+      let buf: Buffer | null = null;
+      if (it?.b64_json) buf = Buffer.from(it.b64_json, "base64");
+      else if (it?.url) {
+        try { const x = await fetch(it.url, { signal: AbortSignal.timeout(60000) }); if (x.ok) buf = Buffer.from(await x.arrayBuffer()); } catch { /* ci-dessous */ }
+      }
+      if (!buf || buf.length < 1000) return { ok: false, refus: false, erreur: "image vide" };
+      const mime = mimeDepuisOctets(buf);
+      if (!mime) return { ok: false, refus: false, erreur: "format d'image inconnu" };
+      if (buf.length > 4_500_000) return { ok: false, refus: false, erreur: "image trop lourde" };
+      return { ok: true, mime, b64: buf.toString("base64") };
+    }
   }
-  const it = d.data?.[0];
-  let buf: Buffer | null = null;
-  if (it?.b64_json) buf = Buffer.from(it.b64_json, "base64");
-  else if (it?.url) {
-    try { const x = await fetch(it.url, { signal: AbortSignal.timeout(60000) }); if (x.ok) buf = Buffer.from(await x.arrayBuffer()); } catch { /* ci-dessous */ }
-  }
-  if (!buf || buf.length < 1000) return { ok: false, refus: false, erreur: "image vide" };
-  const mime = mimeDepuisOctets(buf);
-  if (!mime) return { ok: false, refus: false, erreur: "format d'image inconnu" };
-  if (buf.length > 4_500_000) return { ok: false, refus: false, erreur: "image trop lourde" };
-  return { ok: true, mime, b64: buf.toString("base64") };
+  return { ok: false, refus: false, erreur: nettoyerErreur(`aucun modèle d'image utilisable : ${essais.join(" | ")}`, 420) };
 }
 
 // ---------- Pièces jointes (photo ou PDF envoyés par la personne) ----------
