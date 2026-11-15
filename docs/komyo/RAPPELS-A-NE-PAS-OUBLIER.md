@@ -293,3 +293,5 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - Pas encore fait : prévenir les abonnés quand quelqu'un démarre ; modération avancée ; historique des commentaires pour ceux qui arrivent en retard ; rediffusion.
 - À vérifier au 1er essai réel : permission caméra/micro sur le téléphone, qualité sur réseau mobile.
 - NE PAS DÉPLOYER avant le « publie » de Carry.
+
+- ÉCLAT (suite, 15/11) : les abonnés de l'animateur sont prévenus sur leur téléphone au démarrage (jusqu'à 200, bloqués exclus ; test fermé : seulement ceux qui ont accès) ; bouton « Me prévenir… » sur la page ÉCLAT. Les nouveaux spectateurs reçoivent les 25 derniers commentaires (relayés par l'animateur). Rediffusion : PAS faite (demande un enregistrement côté serveur vidéo + un stockage : clés et coût à décider avec Carry).

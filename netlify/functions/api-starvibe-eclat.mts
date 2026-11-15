@@ -5,6 +5,7 @@
 //   POST { action:"rejoindre"|"quitter" }                                       liste d'attente
 //   POST { action:"demarrer", titre }       → { code, url, jeton, identite, nom, titre, finAt }   (animateur)
 //   POST { action:"regarder", code }        → { url, jeton, identite, nom, hote, animateur, titre, finAt, hoteIdentite, hoteNom }
+//   POST { action:"notifier", subscription } → ce téléphone est prévenu quand les personnes suivies passent en direct
 //   POST { action:"battement", code }       (animateur : signe de vie toutes les 30 s)  → { ok, fini }
 //   POST { action:"terminer"|"retirer", code, identite? }   (animateur seulement)
 // Équipe (jeton staff) :  GET ?admin=1 → { ouvert, pret, directs }   ·   POST { action:"ouvrir", on }
@@ -13,7 +14,8 @@ import type { Context, Config } from "@netlify/functions";
 import { ensureSchema, db, json } from "./_db.mts";
 import { requireAuth } from "./_auth.mts";
 import { configLk, creerPiece, fermerPiece, retirer, nouveauCode, codeValide } from "./_salon.mts";
-import { PLAFOND_SPECTATEURS, DUREE_MAX_MIN, DIRECTS_PAR_JOUR, BATTEMENT_MAX_S, titreNettoye, identiteDe, identiteValide, jetonDirect } from "./_eclat.mts";
+import { PLAFOND_SPECTATEURS, DUREE_MAX_MIN, DIRECTS_PAR_JOUR, BATTEMENT_MAX_S, titreNettoye, identiteDe, identiteValide, jetonDirect, prevenirAbonnes } from "./_eclat.mts";
+import { pushCompte } from "./_compagnon.mts";
 
 const ORG = "star_vibe";
 const ORG_STAFF = "star_entreprise";
@@ -79,6 +81,13 @@ export default async (req: Request, _context: Context) => {
 
     if (b.action === "rejoindre") { await sql`INSERT INTO starvibe_eclat_attente (account_id) VALUES (${accountId}) ON CONFLICT (account_id) DO NOTHING`; }
     else if (b.action === "quitter") { await sql`DELETE FROM starvibe_eclat_attente WHERE account_id = ${accountId}`; }
+    else if (b.action === "notifier") {
+      const sub = (b.subscription || {}) as { endpoint?: string; keys?: { p256dh?: string; auth?: string } };
+      if (!sub.endpoint || !sub.keys?.p256dh || !sub.keys?.auth) return json({ error: "Abonnement invalide" }, 400);
+      await sql`INSERT INTO starvibe_compagnon_push (account_id, endpoint, p256dh, auth, label) VALUES (${accountId}, ${sub.endpoint}, ${sub.keys.p256dh}, ${sub.keys.auth}, ${String(b.label || "").slice(0, 60)})
+        ON CONFLICT (endpoint) DO UPDATE SET account_id = ${accountId}, p256dh = ${sub.keys.p256dh}, auth = ${sub.keys.auth}`;
+      return json({ ok: true });
+    }
     else if (b.action === "demarrer") {
       if (!acces) return json({ error: MSG_FERME }, 403);
       if (!configLk().pret) return json({ error: "ÉCLAT n'est pas encore branché. Réessaie un peu plus tard." }, 503);
@@ -96,7 +105,9 @@ export default async (req: Request, _context: Context) => {
       await sql`INSERT INTO starvibe_eclat_directs (code, hote_id, titre, fin_at) VALUES (${code}, ${accountId}, ${titre}, ${fin.toISOString()})`;
       const i = await identiteVisible(sql, accountId);
       const jeton = await jetonDirect(code, identiteDe(accountId), i.nom, true, i.photo, Math.ceil((fin.getTime() - Date.now()) / 1000));
-      return json({ ok: true, code, url: configLk().url, jeton, identite: identiteDe(accountId), nom: i.nom, photo: i.photo, titre, finAt: fin.toISOString(), maxSpectateurs: PLAFOND_SPECTATEURS }, 201);
+      // Les abonnés sont prévenus sur leur téléphone (sans jamais retarder ni bloquer le direct).
+      const prevenus = await prevenirAbonnes(sql, accountId, ouvert, { title: `🔴 ${i.nom} est en direct`, body: titre, tag: "eclat-" + code, url: `/starvibe/eclat.html?v=${code}` }, pushCompte);
+      return json({ ok: true, prevenus, code, url: configLk().url, jeton, identite: identiteDe(accountId), nom: i.nom, photo: i.photo, titre, finAt: fin.toISOString(), maxSpectateurs: PLAFOND_SPECTATEURS }, 201);
     } else if (["regarder", "battement", "terminer", "retirer"].includes(String(b.action))) {
       const code = String(b.code || "").toUpperCase();
       if (!codeValide(code)) return json({ error: "Lien de direct invalide" }, 400);

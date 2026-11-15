@@ -121,6 +121,7 @@
 <div class="box" id="liveBox" hidden>
   <button class="cta rouge" id="btnDirect" type="button">🔴 Passer en direct</button>
   <div class="msg" id="liveMsg" aria-live="polite"></div>
+  <button class="cta" id="btnNotif" type="button" style="margin-top:10px;background:rgba(255,255,255,.12);box-shadow:none;border:1px solid rgba(255,255,255,.22)">🔔 Me prévenir quand mes abonnements passent en direct</button>
   <div class="card" id="encours" hidden style="margin-top:14px"><h2>En direct maintenant</h2><div class="live-list" id="listeLives"></div></div>
   <div class="card" id="aucun" hidden style="margin-top:14px;text-align:center;color:#ddd6ee;font-size:14px">Aucun direct pour le moment. Lance le tien : ta communauté te rejoint en temps réel.</div>
 </div>
@@ -248,6 +249,22 @@
     }).catch(function(){ toast('Connexion impossible. Réessaie.'); });
   }
 
+  // ---------- Être prévenu(e) sur le téléphone quand une personne suivie démarre un direct ----------
+  function b64(x){ var p = '='.repeat((4 - x.length % 4) % 4); var b = (x + p).replace(/-/g, '+').replace(/_/g, '/'); var r = atob(b), o = new Uint8Array(r.length); for (var i = 0; i < r.length; i++) o[i] = r.charCodeAt(i); return o; }
+  $('btnNotif').addEventListener('click', function(){
+    var m = $('liveMsg'), bt = $('btnNotif');
+    if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)){ m.textContent = 'Ce navigateur ne gère pas les notifications. Sur iPhone : ajoute d’abord KOMYO à l’écran d’accueil.'; return; }
+    bt.disabled = true; m.textContent = 'Activation en cours…';
+    navigator.serviceWorker.register('/starvibe/sw-komyo.js').then(function(){ return navigator.serviceWorker.ready; }).then(function(reg){
+      return Notification.requestPermission().then(function(p){
+        if (p !== 'granted') throw new Error('Autorisation refusée : active les notifications pour ce site dans les réglages du téléphone.');
+        return fetch('/api/starvibe-compagnon?pushkey=1', { headers: { Authorization: 'Bearer ' + token } }).then(function(r){ return r.json(); }).then(function(k){ return reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64(k.publicKey) }); });
+      });
+    }).then(function(sub){ return api({ action: 'notifier', subscription: sub.toJSON(), label: navigator.userAgent.slice(0, 50) }); })
+      .then(function(r){ if (!r.ok) throw new Error(r.d.error || 'Enregistrement impossible.'); m.textContent = '✅ Tu seras prévenu(e) sur ce téléphone.'; bt.hidden = true; })
+      .catch(function(e){ bt.disabled = false; m.textContent = e.message || 'Activation impossible.'; });
+  });
+
   // ---------- Le direct ----------
   var room = null, sess = null, estAnimateur = false, hoteId = '', codeDirect = '', pulse = null, fini = false, graceHote = null, finTimer = null, dernierEnvoi = 0, vidTrackSrc = '';
   var LK = function(){ return window.LivekitClient; };
@@ -256,7 +273,7 @@
     sess = s; estAnimateur = !!animateur; hoteId = hote; codeDirect = code || s.code; fini = false;
     nom = s.nom || '';
     $('scene').hidden = false; $('page').style.display = 'none'; $('scene').classList.remove('cache');
-    $('fil').innerHTML = ''; $('flot').innerHTML = ''; $('vid').srcObject = null; $('attente').hidden = false;
+    $('fil').innerHTML = ''; $('flot').innerHTML = ''; histo = []; histoRecu = false; $('vid').srcObject = null; $('attente').hidden = false;
     $('attente').textContent = estAnimateur ? 'Démarrage de ta caméra…' : 'Connexion au direct…';
     $('titreLive').textContent = titre || ''; $('nVus').textContent = '0';
     ['bMic','bCam','bFlip','bPart','bFin'].forEach(function(i){ $(i).hidden = !estAnimateur; });
@@ -281,7 +298,7 @@
     var r = new L.Room({ adaptiveStream: true, dynacast: true }); room = r;
     r.on(E.TrackSubscribed, function(t, pub, p){ attacher(t, p); })
      .on(E.TrackUnsubscribed, function(t){ t.detach().forEach(function(el){ if (el !== $('vid')) el.remove(); }); })
-     .on(E.ParticipantConnected, function(p){ compte(); if (p.identity === hoteId){ clearTimeout(graceHote); banniere(''); } })
+     .on(E.ParticipantConnected, function(p){ compte(); if (p.identity === hoteId){ clearTimeout(graceHote); banniere(''); } else if (estAnimateur){ setTimeout(function(){ envoyerHistorique(p.identity); }, 1500); } })
      .on(E.ParticipantDisconnected, function(p){ compte(); if (p.identity === hoteId && !estAnimateur){ banniere('La connexion de la personne en direct est perdue…'); clearTimeout(graceHote); graceHote = setTimeout(function(){ finDirect('Le direct est terminé.'); }, 30000); } })
      .on(E.DataReceived, recu)
      .on(E.Reconnecting, function(){ banniere('Reconnexion…'); }).on(E.Reconnected, function(){ banniere(''); })
@@ -340,7 +357,28 @@
 
   // Discussion
   function bas(){ var f = $('fil'); f.scrollTop = f.scrollHeight; }
+  var enc = new TextEncoder(), dec = new TextDecoder();
+  var histo = [], histoRecu = false;
+  function retenir(auteur, photo, texte){
+    histo.push({ n: auteur || 'Membre', p: photo || '', t: texte }); if (histo.length > 25) histo.shift();
+    while (histo.length > 1 && JSON.stringify(histo).length > 9000) histo.shift();
+  }
+  function envoyerHistorique(identite){
+    if (!room || !histo.length) return;
+    try { room.localParticipant.publishData(enc.encode(JSON.stringify({ h: histo })), { reliable: true, topic: 'histo', destinationIdentities: [identite] }); } catch (e) {}
+  }
+  function afficherHistorique(liste){
+    if (histoRecu) return; histoRecu = true; var f = $('fil'), frag = document.createDocumentFragment();
+    liste.slice(-25).forEach(function(x){
+      if (!x || typeof x.t !== 'string') return;
+      var c = document.createElement('div'); c.className = 'c'; var tx = document.createElement('div'); tx.className = 'tx';
+      var b = document.createElement('b'); b.textContent = String(x.n || 'Membre').slice(0, 60); var sp = document.createElement('span'); sp.textContent = x.t.slice(0, 200);
+      tx.appendChild(b); tx.appendChild(sp); c.appendChild(rond(String(x.n || ''), typeof x.p === 'string' ? x.p : '')); c.appendChild(tx); frag.appendChild(c);
+    });
+    f.insertBefore(frag, f.firstChild); bas();
+  }
   function ajouterCommentaire(auteur, photo, texte, ident){
+    if (estAnimateur) retenir(auteur, photo, texte);
     var f = $('fil'), proche = f.scrollHeight - f.scrollTop - f.clientHeight < 80;
     var c = document.createElement('div'); c.className = 'c';
     var tx = document.createElement('div'); tx.className = 'tx';
@@ -352,12 +390,12 @@
     f.appendChild(c); while (f.children.length > 80) f.removeChild(f.firstChild); if (proche) bas();
   }
   function metaDe(p){ try { return JSON.parse((p && p.metadata) || '{}'); } catch (e) { return {}; } }
-  var enc = new TextEncoder(), dec = new TextDecoder();
   function envoyer(sujet, objet){ if (!room) return; try { room.localParticipant.publishData(enc.encode(JSON.stringify(objet)), { reliable: sujet === 'chat', topic: sujet }); } catch (e) {} }
   function recu(payload, p, kind, topic){
     var o; try { o = JSON.parse(dec.decode(payload)); } catch (e) { return; }
     if (!p) return;
-    if (topic === 'chat' && typeof o.t === 'string') ajouterCommentaire(p.name, metaDe(p).p, o.t.slice(0, 200), p.identity);
+    if (topic === 'histo' && p.identity === hoteId && Array.isArray(o.h)) afficherHistorique(o.h);
+    else if (topic === 'chat' && typeof o.t === 'string') ajouterCommentaire(p.name, metaDe(p).p, o.t.slice(0, 200), p.identity);
     else if (topic === 'react' && typeof o.e === 'string' && REAC.indexOf(o.e) >= 0) flotter(o.e, p.name, metaDe(p).p);
   }
   var REAC = ['👍','❤️','🥰','😄','😮','😢','🔥'];

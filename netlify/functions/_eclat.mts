@@ -16,3 +16,20 @@ export async function jetonDirect(salle: string, identite: string, nom: string, 
   const video = { room: salle, roomJoin: true, canPublish: animateur, canSubscribe: true, canPublishData: true };
   return await signer({ name: nom, metadata: JSON.stringify({ p: photo || "", a: animateur ? 1 : 0 }), video }, identite, Math.max(60, Math.min(dureeSec, 3 * 3600)));
 }
+
+// Prévenir les abonnés de l'animateur (ceux qui le suivent). Pendant le test fermé : seulement ceux qui ont accès à ÉCLAT.
+// Au plus 200 personnes par direct ; ne bloque jamais le démarrage (échecs ignorés, durée bornée).
+export const MAX_PREVENUS = 200;
+export interface Avis { title: string; body: string; tag: string; url: string }
+// deno-lint-ignore no-explicit-any
+export async function prevenirAbonnes(sql: any, hoteId: number, ouvert: boolean, avis: Avis, envoyer: (sql: any, accountId: number, p: Avis) => Promise<number>, delaiMs = 4000): Promise<number> {
+  try {
+    const abo = (await sql`SELECT f.follower FROM starvibe_follows f WHERE f.followed = ${hoteId}
+      AND NOT EXISTS (SELECT 1 FROM starvibe_blocks b WHERE (b.blocker = f.follower AND b.blocked = ${hoteId}) OR (b.blocker = ${hoteId} AND b.blocked = f.follower))
+      AND (${ouvert} OR EXISTS (SELECT 1 FROM starvibe_salon_acces a WHERE a.account_id = f.follower)) LIMIT ${MAX_PREVENUS}`) as { follower: number }[];
+    let n = 0;
+    const travail = Promise.allSettled(abo.map(async (a) => { try { if ((await envoyer(sql, Number(a.follower), avis)) > 0) n++; } catch { /* sans gravité */ } }));
+    await Promise.race([travail, new Promise((r) => setTimeout(r, delaiMs))]);
+    return n;
+  } catch { return 0; }
+}

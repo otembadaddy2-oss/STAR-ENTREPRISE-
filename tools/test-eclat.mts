@@ -7,7 +7,7 @@ const { jwtVerify } = await import("jose");
 const { ensureSchema, db } = await import("../netlify/functions/_db.mts");
 const { issueToken } = await import("../netlify/functions/_auth.mts");
 const api = (await import("../netlify/functions/api-starvibe-eclat.mts")).default;
-const { PLAFOND_SPECTATEURS, DUREE_MAX_MIN, titreNettoye, identiteValide } = await import("../netlify/functions/_eclat.mts");
+const { PLAFOND_SPECTATEURS, DUREE_MAX_MIN, titreNettoye, identiteValide, prevenirAbonnes, MAX_PREVENUS } = await import("../netlify/functions/_eclat.mts");
 let ko = 0; const ok = (c: boolean, m: string) => { console.log((c ? "OK  " : "ÉCHEC ") + m); if (!c) ko++; };
 await ensureSchema(); const { sql } = db();
 const lk: { methode: string; corps: Record<string, any> }[] = []; let lkPanne = false;
@@ -92,6 +92,29 @@ r = await lire(await appel(anim, "POST", "", { action: "demarrer", titre: "p" })
 const fantome = (await sql`SELECT 1 FROM starvibe_eclat_directs WHERE hote_id = ${anim.id}`) as unknown[]; ok(fantome.length === 0, "panne : rien n'est enregistré");
 lkPanne = false;
 
+
+// Prévenir les abonnés (téléphone) : seulement ceux qui suivent l'animateur ; test fermé : seulement ceux qui ont accès
+{
+  const suit = await membre("Suiveur testeur"), suit2 = await membre("Suiveur ordinaire"), pasAbonne = await membre("Pas abonné"), bloque = await membre("Bloqué");
+  await sql`INSERT INTO starvibe_salon_acces (account_id) VALUES (${suit.id}) ON CONFLICT DO NOTHING`;
+  await sql`INSERT INTO starvibe_follows (follower, followed) VALUES (${suit.id}, ${anim.id}), (${suit2.id}, ${anim.id}), (${bloque.id}, ${anim.id}) ON CONFLICT DO NOTHING`;
+  await sql`INSERT INTO starvibe_blocks (blocker, blocked) VALUES (${anim.id}, ${bloque.id}) ON CONFLICT DO NOTHING`;
+  const avis = { title: "🔴 Wilfried est en direct", body: "Culte", tag: "eclat-X", url: "/starvibe/eclat.html?v=X" };
+  const recus: number[] = []; const envoi = async (_s: unknown, id: number) => { recus.push(id); return 1; };
+  let n = await prevenirAbonnes(sql, anim.id, false, avis, envoi);
+  ok(n === 1 && recus.length === 1 && recus[0] === suit.id, "test fermé : seul l'abonné qui a accès est prévenu (pas les autres, pas le bloqué)");
+  recus.length = 0; n = await prevenirAbonnes(sql, anim.id, true, avis, envoi);
+  ok(n === 2 && recus.includes(suit.id) && recus.includes(suit2.id) && !recus.includes(pasAbonne.id) && !recus.includes(bloque.id), "ouvert à tous : tous les abonnés sont prévenus, jamais une personne bloquée ni un non-abonné");
+  n = await prevenirAbonnes(sql, anim.id, true, avis, async () => { throw new Error("panne"); }); ok(n === 0, "panne d'envoi : aucune erreur, le direct démarre quand même");
+  const t0 = Date.now(); n = await prevenirAbonnes(sql, anim.id, true, avis, () => new Promise<number>((r) => setTimeout(() => r(1), 10000)), 300); ok(Date.now() - t0 < 2000, "envoi trop lent : le direct n'attend pas (durée bornée)");
+  ok(MAX_PREVENUS === 200, "plafond : 200 personnes prévenues par direct");
+  // abonnement du téléphone
+  let r2 = await lire(await appel(suit, "POST", "", { action: "notifier", subscription: { endpoint: "https://push.test/abc", keys: { p256dh: "p", auth: "a" } } }));
+  const lig = (await sql`SELECT account_id FROM starvibe_compagnon_push WHERE endpoint = 'https://push.test/abc'`) as { account_id: number }[];
+  ok(r2.s === 200 && lig[0]?.account_id === suit.id, "notifier : le téléphone est enregistré pour être prévenu");
+  r2 = await lire(await appel(suit, "POST", "", { action: "notifier", subscription: { endpoint: "x" } })); ok(r2.s === 400, "notifier : abonnement invalide refusé");
+  await sql`DELETE FROM starvibe_compagnon_push WHERE endpoint = 'https://push.test/abc'`;
+}
 // Liste d'attente conservée + équipe
 r = await lire(await appel(fan, "POST", "", { action: "rejoindre" })); ok(r.d.inscrit === true, "liste d'attente : toujours disponible");
 r = await lire(await appel(staff, "POST", "", { action: "ouvrir", on: false })); ok(r.s === 200, "équipe : peut refermer ÉCLAT");
