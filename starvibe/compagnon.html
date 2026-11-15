@@ -213,7 +213,8 @@
   .dl{display:flex;align-items:flex-start;gap:12px;padding:12px 6px;border-bottom:1px solid #2c2c2c;} .dl:last-child{border-bottom:0;}
   .dl .k{flex:1;min-width:0;} .dl .k b{display:block;font:600 15px 'Inter',Arial,sans-serif;color:#fff;} .dl .k span{display:block;font-size:13px;color:#a9a9a9;margin-top:2px;line-height:1.45;}
   .pill2{flex:none;border-radius:99px;padding:4px 10px;font:700 11.5px 'Inter',Arial,sans-serif;}
-  .pill2.on{background:#1d3b2c;color:#8fe3ac;} .pill2.off{background:#2e2e2e;color:#a9a9a9;}
+  .pill2.on{background:#1d3b2c;color:#8fe3ac;} .pill2.off{background:#2e2e2e;color:#a9a9a9;} .pill2.err{background:#45201f;color:#ff9a93;}
+  .dl.cx{cursor:pointer;} .dl .msgerr{color:#ff9a93;font-size:12.5px;line-height:1.4;margin-top:4px;display:block;}
   .grp{font:700 11px 'Sora',Arial,sans-serif;color:#9a9a9a;letter-spacing:.06em;text-transform:uppercase;margin:16px 6px 2px;}
   .bar2{height:8px;border-radius:99px;background:#2f2f2f;overflow:hidden;margin-top:8px;} .bar2 i{display:block;height:100%;background:linear-gradient(90deg,var(--coral),var(--gold));border-radius:99px;}
   .dnote{font-size:12.5px;color:#a9a9a9;line-height:1.55;margin:14px 6px 4px;}
@@ -230,10 +231,10 @@
 <main>
   <div class="pane" id="out" hidden><div class="card"><h2>Connecte-toi à KOMYO</h2><p class="note">Keydou Compagnon est réservé aux membres KOMYO.</p><a class="btn gold" style="margin-top:10px" href="inscription.html">Se connecter / Créer un compte</a></div></div>
 
-  <div class="pane" id="ferme" hidden><div class="card"><h2>Bientôt disponible</h2><p class="note" id="fermeTxt">Keydou Compagnon est en période de test : l'accès se fait sur invitation de l'équipe STAR ENTREPRISE.</p><p class="note"><b>Jamais gratuit :</b> à l'ouverture, l'abonnement s'active seulement après validation de ton dépôt de 5 000 FCFA par mois (Essentiel) ou 19 $ par mois (Complet).</p></div></div>
+  <div class="pane" id="ferme" hidden><div class="card"><h2>Bientôt disponible</h2><p class="note" id="fermeTxt">Keydou Compagnon est momentanément fermé. Reviens dans un instant : l'abonnement s'active dès que ton dépôt de 5 000 FCFA par mois (Essentiel) ou 19 $ par mois (Complet) est reconnu.</p></div></div>
 
   <div class="pane" id="offres" hidden>
-    <div class="card"><h2 id="offresTitre">Choisis ton offre</h2><p class="note" id="offresTxt">Ton accès s'ouvre dès que ton dépôt est reconnu. Jamais gratuit.</p></div>
+    <div class="card"><h2 id="offresTitre">Choisis ton offre</h2><p class="note" id="offresTxt">Ton accès s'ouvre dès que ton dépôt est reconnu : tous les avantages de ton offre sont alors à toi.</p></div>
     <div class="card"><h2>Essentiel · 5 000 FCFA<span class="actuel" id="actEss" hidden>Ton offre</span> <small style="font:600 12px 'Inter',Arial,sans-serif;color:var(--dim)">par mois</small></h2>
       <ul><li>65 messages par jour</li><li>10 rappels actifs</li><li>Culture générale + recherches vérifiées avec sources</li><li>Modes Santé, Droit, Cuisine, Mécanique, Business, Études</li><li>5 photos ou documents lus par jour</li><li data-img hidden>3 images créées par mois, à ta demande</li></ul>
       <button class="btn" data-plan="compagnon" style="margin-top:10px">Choisir Essentiel</button></div>
@@ -378,7 +379,7 @@
   $('btnMore').addEventListener('click',function(){ ouvrir('sheetMore'); });
   $('pill').addEventListener('click',function(){ ouvrir('sheetMore'); });
   $('clip').addEventListener('click',function(){ ouvrir('sheetPlus'); });
-  function majPill(){ var m='Auto'; if(mode!=='auto'&&cap&&cap.modes){ cap.modes.forEach(function(x){ if(x.id===mode) m=x.label; }); } var niv=(etat&&etat.acces&&etat.acces.niveau==='complet')?'Pro 200':'Essentiel 65'; $('pillTxt').textContent=m+' · '+niv; }
+  function majPill(){ var m='Auto'; if(mode!=='auto'&&cap&&cap.modes){ cap.modes.forEach(function(x){ if(x.id===mode) m=x.label; }); } var nv=etat&&etat.acces&&etat.acces.niveau; var niv=nv==='complet'?'Pro 200':(nv==='essai'?'Essai gratuit':'Essentiel 65'); $('pillTxt').textContent=m+' · '+niv; }
   if(!token){ show('out'); return; }
 
   var cap=null, mode='auto', piece=null, qDernier=null;
@@ -392,11 +393,13 @@
   }
   function quota(q){
     if(!q) return;
-    qDernier=q; if($('pSubUsage')) majParams(); $('quota').textContent=q.messagesUtilises+' / '+q.messagesMax+' messages sur 24 h'+capTxt();
+    qDernier=q; if($('pSubUsage')) majParams(); var ess=etat&&etat.acces&&etat.acces.niveau==='essai'; $('quota').textContent=q.messagesUtilises+' / '+q.messagesMax+(ess?' messages d\u2019essai':' messages sur 24 h')+capTxt();
     var l=$('limite');
-    if(q.revenirDansMs>0){ l.hidden=false; l.textContent='Tu as atteint ta limite de '+q.messagesMax+' messages. Reviens dans '+q.revenirDans+'.'; $('envoi').disabled=true; }
+    if(etat&&etat.acces&&etat.acces.niveau==='essai'&&q.messagesUtilises>=q.messagesMax){ l.hidden=false; l.textContent='Ton essai gratuit est terminé : passe à l\u2019offre pour continuer avec Keydou.'; $('envoi').disabled=false; }
+    else if(q.revenirDansMs>0){ l.hidden=false; l.textContent='Tu as atteint ta limite de '+q.messagesMax+' messages. Reviens dans '+q.revenirDans+'.'; $('envoi').disabled=true; }
     else{ l.hidden=true; $('envoi').disabled=false; }
   }
+  function boutonOffres(){ var b=document.createElement('button'); b.type='button'; b.className='btn gold'; b.style.cssText='margin:6px 14px 10px;display:block;width:calc(100% - 28px)'; b.textContent='Voir les offres'; b.addEventListener('click',function(){ $('btnPlus').click(); }); $('chat').appendChild(b); $('fil').scrollTop=$('fil').scrollHeight; }
   function bulle(role,txt,extra){
     var idImg=extra&&extra.imageId?extra.imageId:0, mm=/\[\[img:(\d+)\]\]/.exec(String(txt||''));
     if(mm){ idImg=Number(mm[1]); txt=String(txt).replace(/\s*\[\[img:\d+\]\]/,''); }
@@ -451,7 +454,7 @@
       initKd();
       $('finBandeau').hidden=!etat.finBientot; if(etat.finBientot) $('finTxt').textContent=etat.texteFin;
       var pro=etat.acces.niveau==='complet'; var ch=$('chipNiveau');
-      majPill(); majParams(); ch.className='chip'+(pro?' pro':''); ch.innerHTML='🐻 '+(pro?'Complet · Pro':'Essentiel')+' <small>'+(pro?'200':'65')+' messages/jour'+(etat.acces.source==='test'?' · test':'')+'</small>';
+      majPill(); majParams(); ch.className='chip'+(pro?' pro':''); var ess=etat.acces.niveau==='essai'; ch.innerHTML='🐻 '+(pro?'Complet · Pro':(ess?'Essai gratuit':'Essentiel'))+' <small>'+(ess?'5 messages d\u2019essai':(pro?'200':'65')+' messages/jour')+(etat.acces.source==='test'?' · test':'')+'</small>';
       $('aboTxt').textContent='Offre '+etat.acces.label+(etat.acces.source==='test'?' (invitation de test)':'')+(etat.acces.fin?' · valable jusqu’au '+new Date(etat.acces.fin).toLocaleDateString('fr-FR'):'')+'.';
       if(etat.notifications>0){ $('notifTxt').textContent='Notifications activées sur '+etat.notifications+' appareil(s).'; $('notifBtn').textContent='Réactiver sur ce téléphone'; }
       call('GET','?historique=1').then(function(h){
@@ -479,7 +482,7 @@
     fermer(); var a=etat&&etat.acces;
     ouvrirOffres('Changer d\u2019offre', a&&a.niveau==='complet'
       ? 'Tu es en Complet (Pro). Tu peux le reconduire, ou passer à Essentiel à la fin de ta période.'
-      : 'Passe à Complet (Pro) pour 19 $ par mois : 200 messages par jour, rappels illimités, recherches approfondies, réflexion plus poussée, 30 photos ou documents lus par jour, 25 images créées par mois. Ton Essentiel en cours n\u2019est pas perdu : il reprend après ton Complet.');
+      : (a&&a.niveau==='essai'?'Ton essai gratuit te donne 5 messages. Pour profiter de toutes les options, choisis Essentiel (5 000 FCFA par mois) ou Complet (Pro, 19 $ par mois : 200 messages par jour, rappels illimités, recherches approfondies, 30 photos ou documents lus par jour, 25 images, la voix de Keydou).':'Passe à Complet (Pro) pour 19 $ par mois : 200 messages par jour, rappels illimités, recherches approfondies, réflexion plus poussée, 30 photos ou documents lus par jour, 25 images créées par mois. Ton Essentiel en cours n\u2019est pas perdu : il reprend après ton Complet.'));
   });
   $('finBtn').addEventListener('click',function(){ ouvrirOffres('Reconduire mon abonnement','Choisis ton offre : la nouvelle période s\u2019ajoute à la fin de ton abonnement actuel, sans perdre un jour.'); });
   $('reconduire').addEventListener('click',function(){ ouvrirOffres('Reconduire mon abonnement','Choisis ton offre : la nouvelle période s\u2019ajoute à la fin de ton abonnement actuel, sans perdre un jour.'); });
@@ -577,6 +580,7 @@
         else if(voix) lire(r.data.reponse,r.data.messageId);
         else { etatTxt('Je te réponds…'); parlerUnPeu(r.data.reponse); }
       }
+      else if(r.status===402){ kdBase('idle'); etatTxt('Passe à l\u2019offre pour continuer.'); bulle('assistant',r.data.error); if(r.data.quota) quota(r.data.quota); boutonOffres(); $('envoi').disabled=false; }
       else if(r.status===429){ kdBase('idle'); etatTxt('Reviens un peu plus tard.'); bulle('assistant',r.data.error); quota(r.data.quota); if(r.data.code==='pieces_limite') $('envoi').disabled=false; }
       else{ kdBase('idle'); etatTxt('Réessaie dans un instant.'); bulle('assistant',r.data.error||'Keydou est indisponible un instant.'); $('envoi').disabled=false; }
     }).catch(function(){ att.remove(); occupe=false; $('envoi').disabled=false; kdBase('idle'); bulle('assistant','Connexion impossible. Réessaie.'); });
@@ -718,7 +722,7 @@
   charge();
 
   // ---- Paramètres : compte, offre, utilisation, capacités, connecteurs (tout vient du serveur, rien d'inventé) ----
-  function niveauTxt(){ var a=etat&&etat.acces; if(!a) return 'Essentiel'; return a.niveau==='complet'?'Pro':'Essentiel'; }
+  function niveauTxt(){ var a=etat&&etat.acces; if(!a) return 'Essentiel'; return a.niveau==='complet'?'Pro':(a.niveau==='essai'?'Essai':'Essentiel'); }
   function majParams(){
     var c=(etat&&etat.compte)||{}, a=(etat&&etat.acces)||{};
     var ini=c.initiales||'KY', nom=c.nom||'Mon compte';
@@ -727,26 +731,54 @@
     var complet=a.niveau==='complet';
     $('pUp').innerHTML=complet
       ? '<h2>Tu as l\u2019offre Complet (Pro)</h2><p class="note">200 messages par jour, rappels illimités, 25 images par mois et la voix de Keydou. Merci de ta confiance !</p>'
-      : '<h2>Envie d\u2019aller plus loin ?</h2><p class="note">Passe à <b>Complet</b> (19 $ par mois) : 200 messages par jour, rappels illimités, médecine approfondie, tests notés sur 10, 25 images par mois et la voix de Keydou.</p><button class="btn gold" id="pUpBtn" type="button" style="margin-top:10px">Mettre à niveau</button>';
+      : (a.niveau==='essai'?'<h2>Essai gratuit</h2><p class="note">Tu as 5 messages d\u2019essai'+(qDernier?' ('+Math.max(0,qDernier.messagesMax-qDernier.messagesUtilises)+' restant'+(qDernier.messagesMax-qDernier.messagesUtilises>1?'s':'')+')':'')+'. Passe à <b>Essentiel</b> (5 000 FCFA par mois) ou à <b>Complet · Pro</b> (19 $ par mois) pour les rappels, les photos et documents, les recherches vérifiées, les images et la voix de Keydou.</p><button class="btn gold" id="pUpBtn" type="button" style="margin-top:10px">Voir les offres</button>':'<h2>Envie d\u2019aller plus loin ?</h2><p class="note">Passe à <b>Complet</b> (19 $ par mois) : 200 messages par jour, rappels illimités, médecine approfondie, tests notés sur 10, 25 images par mois et la voix de Keydou.</p><button class="btn gold" id="pUpBtn" type="button" style="margin-top:10px">Mettre à niveau</button>');
     var ub=$('pUpBtn'); if(ub) ub.addEventListener('click',function(){ $('btnPlus').click(); });
     $('pSubProfil').textContent=nom+(c.telephone?' · '+c.telephone:'');
     $('pSubFact').textContent='Offre '+(a.label||'')+(a.fin?' · jusqu\u2019au '+new Date(a.fin).toLocaleDateString('fr-FR'):'');
-    $('pSubUsage').textContent=qDernier?qDernier.messagesUtilises+' / '+qDernier.messagesMax+' messages sur 24 h':'';
+    $('pSubUsage').textContent=qDernier?qDernier.messagesUtilises+' / '+qDernier.messagesMax+(a.niveau==='essai'?' messages d\u2019essai':' messages sur 24 h'):'';
     var l=(cap&&cap.liste)||[], n=0; l.forEach(function(x){ if(x.actif) n++; }); $('pSubCap').textContent=l.length?(n+' activée'+(n>1?'s':'')+' sur '+l.length):'';
-    var k=(cap&&cap.connecteurs)||[], on=0; k.forEach(function(x){ if(x.statut==='actif') on++; }); $('pSubConn').textContent=k.length?(on+' connecté'+(on>1?'s':'')+' · '+(k.length-on)+' bientôt'):'';
+    var k=(cap&&cap.connecteurs)||[], on=0, er=0; k.forEach(function(x){ if(x.statut==='actif') on++; else if(x.statut==='erreur') er++; }); $('pSubConn').textContent=k.length?(on+' connecté'+(on>1?'s':'')+(er?' · '+er+' en panne':'')+' · '+(k.length-on-er)+' pas connecté'+((k.length-on-er)>1?'s':'')):'';
   }
   function dl(titre,sous,pill){ return '<div class="dl"><div class="k"><b>'+esc(titre)+'</b>'+(sous?'<span>'+esc(sous)+'</span>':'')+'</div>'+(pill?'<span class="pill2 '+(pill==='Actif'||pill==='Connecté'?'on':'off')+'">'+esc(pill)+'</span>':'')+'</div>'; }
   function barre(titre,u,m,note){ var p=m>0?Math.min(100,Math.round(u*100/m)):0; return '<div class="dl"><div class="k"><b>'+esc(titre)+' <span style="display:inline;color:#a9a9a9;font-weight:500">'+u+' / '+m+'</span></b><div class="bar2"><i style="width:'+p+'%"></i></div>'+(note?'<span>'+esc(note)+'</span>':'')+'</div></div>'; }
+  // Connecteurs : « Connecté » (vert), « Pas connecté » (gris, pas encore ouvert), « Impossible de se connecter » (rouge, vrai échec détecté).
+  function htmlConnecteurs(){
+    var g='', k=(cap&&cap.connecteurs)||[], h='';
+    k.forEach(function(x){
+      if(x.groupe!==g){ g=x.groupe; h+='<div class="grp">'+esc(g)+'</div>'; }
+      var cls=x.statut==='actif'?'on':(x.statut==='erreur'?'err':'off'), lab=x.statut==='actif'?'Connecté':(x.statut==='erreur'?'Impossible de se connecter':'Pas connecté');
+      h+='<div class="dl'+(x.statut==='bientot'?' cx':'')+'" data-cx="'+esc(x.id)+'"><div class="k"><b>'+esc(x.nom)+'</b><span>'+esc(x.detail)+'</span>'+(x.raison?'<span class="msgerr">'+esc(x.raison)+'</span>':'')+'<span class="msgerr" data-msg="'+esc(x.id)+'" hidden></span></div><span class="pill2 '+cls+'">'+lab+'</span></div>';
+    });
+    h+='<button class="dbtn" id="cxVerif" type="button">Vérifier maintenant</button><p class="dnote" id="cxNote">Keydou vérifie ses connecteurs tout seul : un connecteur qui ne fonctionne pas est mis de côté automatiquement et n\u2019est jamais utilisé tant qu\u2019il est en panne. Les autres services (Gmail, Canva, Adobe, GitHub, autres IA…) s\u2019ouvriront un par un.</p>';
+    return h;
+  }
+  function brancherConnecteurs(){
+    var box=$('dCorps');
+    Array.prototype.forEach.call(box.querySelectorAll('.dl.cx'),function(el){
+      el.addEventListener('click',function(){
+        var id=el.getAttribute('data-cx'), m=box.querySelector('[data-msg="'+id+'"]'), nom=el.querySelector('b').textContent;
+        m.textContent='Impossible de se connecter à '+nom+' : ce service n\u2019est pas encore ouvert sur Keydou. Rien n\u2019a été modifié.'; m.hidden=false;
+      });
+    });
+    var v=$('cxVerif'); if(v) v.addEventListener('click',function(){
+      v.disabled=true; v.textContent='Vérification…';
+      call('GET','?sante=1').then(function(r){
+        v.disabled=false; v.textContent='Vérifier maintenant';
+        if(r.ok&&r.data.connecteurs){ cap.connecteurs=r.data.connecteurs; $('dCorps').innerHTML=htmlConnecteurs(); brancherConnecteurs(); majParams(); }
+        else $('cxNote').textContent='Vérification impossible pour le moment. Réessaie dans un instant.';
+      }).catch(function(){ v.disabled=false; v.textContent='Vérifier maintenant'; $('cxNote').textContent='Vérification impossible pour le moment. Réessaie dans un instant.'; });
+    });
+  }
   function detail(d){
     var c=(etat&&etat.compte)||{}, a=(etat&&etat.acces)||{}, t='', h='';
     if(d==='profil'){ t='Profil'; h=dl('Nom',c.nom||'—')+dl('Téléphone',c.telephone||'—')+dl('Offre',(a.label||'')+(a.source==='test'?' (invitation de test)':''))+'<p class="dnote">Ton nom et ton numéro sont ceux de ton compte KOMYO. Rien n\u2019est vendu ni partagé.</p>'; }
-    else if(d==='facturation'){ t='Facturation'; var prix=a.niveau==='complet'?'19 $ par mois (≈ 11 100 FCFA)':'5 000 FCFA par mois'; h=dl('Offre',(a.label||'')+(a.source==='test'?' (invitation de test)':''))+dl('Prix',a.source==='test'?'Gratuit pendant ton test ('+prix+' ensuite)':prix)+dl('Valable jusqu\u2019au',a.fin?new Date(a.fin).toLocaleDateString('fr-FR'):'—')+'<p class="dnote">Jamais gratuit à l\u2019ouverture : l\u2019abonnement s\u2019active dès que ton dépôt Mobile Money est reconnu.</p><button class="dbtn" id="dPlus" type="button">Changer ou reconduire mon offre</button>'; }
-    else if(d==='utilisation'){ t='Utilisation'; var q=qDernier||{messagesUtilises:0,messagesMax:0}; h=barre('Messages sur 24 h',q.messagesUtilises,q.messagesMax,'Fenêtre glissante de 24 heures'); if(cap&&cap.images&&cap.imagesMax>0) h+=barre('Images ce mois-ci',cap.imagesMax-cap.imagesRestantes,cap.imagesMax,''); if(cap&&cap.voix&&cap.voix.actif) h+=barre('Voix de Keydou aujourd\u2019hui',cap.voix.max-cap.voix.restantes,cap.voix.max,'Ensuite : voix de ton téléphone'); if(cap) h+=dl('Photos et PDF',cap.piecesMax+' par jour'); }
-    else if(d==='capacites'){ t='Capacités'; ((cap&&cap.liste)||[]).forEach(function(x){ h+=dl(x.nom,x.detail,x.actif?'Actif':'Bientôt'); }); }
-    else if(d==='connecteurs'){ t='Connecteurs'; var g='', k=(cap&&cap.connecteurs)||[]; k.forEach(function(x){ if(x.groupe!==g){ g=x.groupe; h+='<div class="grp">'+esc(g)+'</div>'; } h+=dl(x.nom,x.detail,x.statut==='actif'?'Connecté':'Bientôt'); }); h+='<p class="dnote">Les connecteurs « Bientôt » (Gmail, Agenda, Canva, Adobe, GitHub, autres modèles d\u2019IA…) demandent ton autorisation personnelle et l\u2019accord de chaque service : STAR ENTREPRISE les ouvre un par un. Aucun n\u2019est actif aujourd\u2019hui.</p>'; }
-    else if(d==='autorisations'){ t='Autorisations'; autorisations(); return; }
+    else if(d==='facturation'){ t='Facturation'; var prix=a.niveau==='complet'?'19 $ par mois (≈ 11 100 FCFA)':'5 000 FCFA par mois'; if(a.niveau==='essai') prix='5 000 FCFA ou 19 $ par mois'; h=dl('Offre',(a.label||'')+(a.source==='test'?' (invitation de test)':''))+dl('Prix',a.source==='test'?'Gratuit pendant ton test ('+prix+' ensuite)':(a.niveau==='essai'?'Gratuit pour l\u2019essai (5 messages), puis '+prix:prix))+dl('Valable jusqu\u2019au',a.fin?new Date(a.fin).toLocaleDateString('fr-FR'):'—')+'<p class="dnote">L\u2019abonnement s\u2019active dès que ton dépôt Mobile Money est reconnu : tous les avantages de ton offre sont alors ouverts.</p><button class="dbtn" id="dPlus" type="button">Changer ou reconduire mon offre</button>'; }
+    else if(d==='utilisation'){ t='Utilisation'; var q=qDernier||{messagesUtilises:0,messagesMax:0}; h=a.niveau==='essai'?barre('Messages d\u2019essai',q.messagesUtilises,q.messagesMax,'Puis abonnement : Essentiel 5 000 FCFA ou Complet 19 $'):barre('Messages sur 24 h',q.messagesUtilises,q.messagesMax,'Fenêtre glissante de 24 heures'); if(cap&&cap.images&&cap.imagesMax>0) h+=barre('Images ce mois-ci',cap.imagesMax-cap.imagesRestantes,cap.imagesMax,''); if(cap&&cap.voix&&cap.voix.actif) h+=barre('Voix de Keydou aujourd\u2019hui',cap.voix.max-cap.voix.restantes,cap.voix.max,'Ensuite : voix de ton téléphone'); if(cap) h+=dl('Photos et PDF',cap.piecesMax+' par jour'); }
+    else if(d==='capacites'){ t='Capacités'; ((cap&&cap.liste)||[]).forEach(function(x){ h+=dl(x.nom,x.detail,x.actif?'Actif':((etat&&etat.acces&&etat.acces.niveau==='essai')?'Abonnement':'Bientôt')); }); }
+    else if(d==='connecteurs'){ t='Connecteurs'; h=htmlConnecteurs(); }
     $('dTitre').textContent=t; $('dCorps').innerHTML=h; ouvrir('sheetDetail');
     var p=$('dPlus'); if(p) p.addEventListener('click',function(){ fermer(); $('btnPlus').click(); });
+    if(d==='connecteurs') brancherConnecteurs();
   }
 
   // ---- Autorisations : sur téléphone le système demande tout seul ; sur ordinateur il faut les activer ici ----
@@ -786,5 +818,21 @@
 </script>
 <script src="assets/keydou-vivant-v1.js?r=2"></script>
 <script src="assets/komyo-installer-v6.js" defer></script>
+<!-- Ouverture KOMYO : le monde en mouvement et la même voix que l'ouverture de l'application, puis Keydou est là (une fois par ouverture, un toucher passe l'animation) -->
+<audio id="introVoice" preload="auto" src="assets/audio/komyo-intro-voix-monde-v2.mp3"></audio>
+<script src="assets/komyo-intro-v5.js"></script>
+<script>
+(function(){
+  var audio = document.getElementById('introVoice'); if (!audio) return;
+  if (window.KOMYO_LANG === 'en'){ audio.removeAttribute('src'); return; }
+  try { if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return; if (sessionStorage.getItem('komyo_intro_played')) return; } catch (e) {}
+  function marque(){ try { sessionStorage.setItem('komyo_intro_played', '1'); } catch (e) {} }
+  audio.play().then(marque).catch(function(){
+    var evts = ['pointerdown', 'touchend', 'click', 'keydown'];
+    function lancer(){ evts.forEach(function(n){ document.removeEventListener(n, lancer, true); }); audio.play().then(marque).catch(function(){}); }
+    evts.forEach(function(n){ document.addEventListener(n, lancer, true); });
+  });
+})();
+</script>
 </body>
 </html>

@@ -8,18 +8,18 @@
 // Équipe (jeton staff) :
 //   GET ?admin=1            → suivi : testeurs et abonnés, dépôt, appareil, dernière ouverture, usage, coût estimé de l'IA.
 //   POST { action: "testeur" | "ouvrir" }
-// Jamais gratuit : sans abonnement validé (ou invitation de test donnée par l'équipe), tout est refusé.
+// Essai gratuit de 5 messages pour tout membre ; au-delà, abonnement validé (ou invitation de test donnée par l'équipe) obligatoire.
 import type { Context, Config } from "@netlify/functions";
 import { ensureSchema, db, json } from "./_db.mts";
 import { requireAuth } from "./_auth.mts";
 import { vapidKeys, last9, decisionToken, checkDecisionToken } from "./_push.mts";
 import {
+  ESSAI_MESSAGES, MSG_ESSAI_FINI, MSG_OPTION_ABONNE, compagnonOuvert,
   LIMITES, CONSENTEMENT_VERSION, REPETITIONS, MODELE, OFFRES_TXT, manifesteKeydou, accesDe, aDejaAbonne, texteFinAbonnement, etatQuota, fuseauValide, heureLocale, localVersUtc, parleDeMedicaments, consigne, type Niveau,
 } from "./_compagnon.mts";
 import {
   MODES, modeDe, supplement, EFFORT, MAX_JETONS, MODELE_NIVEAU, IMAGES_PAR_MOIS, PIECES_PAR_JOUR, imagesDisponibles, verifierDemandeImage, formatImage,
-  signerImage, validerPiece, LIMITE_REPONSE, gardePrescription, voixDisponible, VOIX_PAR_JOUR, texteAVoix, genererVoix, connecteurs, listeCapacites, MARQUE_PIECE, marqueImage, idImageDansTexte, type Mode,
-} from "./_compagnon2.mts";
+  signerImage, validerPiece, LIMITE_REPONSE, gardePrescription, voixDisponible, VOIX_PAR_JOUR, texteAVoix, genererVoix, connecteurs, listeCapacites, MARQUE_PIECE, marqueImage, idImageDansTexte, type Mode, lireSante, noterSante, verifierConnecteurs, ECHEC_DE_CONNEXION, enPanne } from "./_compagnon2.mts";
 
 const ORG_MEMBRE = "star_vibe";
 const ORG_STAFF = "star_entreprise";
@@ -62,8 +62,9 @@ async function capacites(sql: any, accountId: number, niveau: Niveau) {
   const u = await imagesUtilisees(sql, accountId);
   const max = IMAGES_PAR_MOIS(niveau);
   const maxV = VOIX_PAR_JOUR(niveau);
+  const sante = await lireSante(sql);
   const nV = Number(((await sql`SELECT COUNT(*) AS n FROM starvibe_compagnon_voix WHERE account_id = ${accountId} AND created_at > now() - interval '24 hours'`) as { n: string }[])[0]?.n || 0);
-  return { voix: { actif: voixDisponible() && maxV > 0, max: maxV, restantes: Math.max(0, maxV - nV) }, images: imagesDisponibles(), imagesMax: max, imagesRestantes: Math.max(0, max - u.n), piecesMax: PIECES_PAR_JOUR(niveau), connecteurs: connecteurs(), liste: listeCapacites(niveau), modes: Object.keys(MODES).map((k) => ({ id: k, label: MODES[k as Mode].label, emoji: MODES[k as Mode].emoji })) };
+  return { voix: { actif: voixDisponible() && !enPanne(sante, "voix") && maxV > 0, max: maxV, restantes: Math.max(0, maxV - nV) }, images: imagesDisponibles() && !enPanne(sante, "images"), imagesMax: max, imagesRestantes: Math.max(0, max - u.n), piecesMax: PIECES_PAR_JOUR(niveau), connecteurs: connecteurs(sante), liste: listeCapacites(niveau), modes: Object.keys(MODES).map((k) => ({ id: k, label: MODES[k as Mode].label, emoji: MODES[k as Mode].emoji })) };
 }
 
 interface SourceWeb { titre: string; url: string }
@@ -150,7 +151,7 @@ export default async (req: Request, _context: Context) => {
         ORDER BY pr.derniere_ouverture DESC NULLS LAST, c.account_id DESC LIMIT 300
       `) as Record<string, unknown>[];
       const cout = (await sql`SELECT COALESCE(SUM(tokens_in), 0) AS ti, COALESCE(SUM(tokens_out), 0) AS tou, COUNT(*) FILTER (WHERE role = 'user') AS msgs, COALESCE(SUM(recherches), 0) AS rech FROM starvibe_compagnon_messages WHERE created_at > now() - interval '30 days'`) as Record<string, string>[];
-      const ouvert = ((await sql`SELECT value FROM starvibe_settings WHERE key = 'compagnon_ouvert'`) as { value: string }[])[0]?.value === "on";
+      const ouvert = (await compagnonOuvert(sql));
       const ti = Number(cout[0].ti), to = Number(cout[0].tou);
       const nbImg = Number(((await sql`SELECT COUNT(*) AS n FROM starvibe_compagnon_images WHERE statut = 'ok' AND created_at > now() - interval '30 days'`) as { n: string }[])[0]?.n || 0);
       let journal: unknown[] = []; try { journal = JSON.parse(((await sql`SELECT value FROM starvibe_settings WHERE key = 'compagnon_ouvert_journal'`) as { value: string }[])[0]?.value || "[]"); } catch { journal = []; }
@@ -167,7 +168,8 @@ export default async (req: Request, _context: Context) => {
     let b: Record<string, unknown> = {};
     try { b = await req.json(); } catch { return json({ error: "Requête invalide" }, 400); }
     if (b.action === "ouvrir") {
-      await sql`INSERT INTO starvibe_settings (key, value) VALUES ('compagnon_ouvert', ${b.on ? "on" : "off"}) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`;
+      // Ouvert en permanence : décocher = fermeture d'urgence (arrêt des nouveaux abonnements et des essais).
+      await sql`INSERT INTO starvibe_settings (key, value) VALUES ('compagnon_ferme_urgence', ${b.on ? "off" : "on"}) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`;
       // Journal des changements (20 derniers) : qui a ouvert ou fermé, et quand.
       const ancien = ((await sql`SELECT value FROM starvibe_settings WHERE key = 'compagnon_ouvert_journal'`) as { value: string }[])[0]?.value;
       let liste: unknown[] = []; try { liste = JSON.parse(ancien || "[]"); } catch { liste = []; }
@@ -201,12 +203,12 @@ export default async (req: Request, _context: Context) => {
   const acces = await accesDe(sql, accountId);
   const profil = ((await sql`SELECT consentement_at FROM starvibe_compagnon_profil WHERE account_id = ${accountId}`) as { consentement_at: string | null }[])[0];
   const consentement = !!profil?.consentement_at;
-  const ouvert = ((await sql`SELECT value FROM starvibe_settings WHERE key = 'compagnon_ouvert'`) as { value: string }[])[0]?.value === "on";
+  const ouvert = (await compagnonOuvert(sql));
 
   // Menu KOMYO : l'entrée « Keydou Compagnon » est visible pour un testeur, un abonné (même terminé) ou quand l'offre est ouverte. Aucun effet de bord.
   if (req.method === "GET" && url.searchParams.get("acces") === "1") {
     const visible = !!acces || ouvert || (await aDejaAbonne(sql, accountId)).deja;
-    return json({ visible, acces: !!acces, ouvert });
+    return json({ visible, acces: !!acces && acces.niveau !== "essai", essai: acces?.niveau === "essai", ouvert });
   }
 
   // L'effacement et l'export sont toujours possibles (droit de la personne), même sans abonnement actif.
@@ -251,6 +253,12 @@ export default async (req: Request, _context: Context) => {
   }
   const lim = LIMITES[acces.niveau];
 
+  if (req.method === "GET" && url.searchParams.get("sante") === "1") {
+    // « Vérifier maintenant » : les connecteurs sont réellement interrogés (au plus une fois par minute), l'état à jour est renvoyé.
+    const avant = await lireSante(sql); const dernier = Math.max(0, ...Object.values(avant).map((x) => x.at));
+    const sante = Date.now() - dernier < 60000 ? avant : await verifierConnecteurs(sql);
+    return json({ connecteurs: connecteurs(sante), verifieA: new Date().toISOString() });
+  }
   if (req.method === "GET" && url.searchParams.get("installtoken") === "1") {
     const d = decisionToken("install", accountId);
     return json({ acc: accountId, exp: d.exp, t: d.t });
@@ -269,6 +277,7 @@ export default async (req: Request, _context: Context) => {
     const t = texteAVoix(m[0].texte);
     if (t.length < 3) return json({ error: "Rien à lire dans ce message.", code: "voix_vide" }, 400);
     const g = await genererVoix(t);
+    if (g.ok) await noterSante(sql, "voix", true); else if (ECHEC_DE_CONNEXION.test(g.erreur)) await noterSante(sql, "voix", false, g.erreur);
     if (!g.ok) return json({ error: "La voix de Keydou est indisponible un instant : ton téléphone peut lire la réponse.", code: "voix_erreur" }, 503);
     await sql`INSERT INTO starvibe_compagnon_voix (account_id, message_id, signes, data_b64) VALUES (${accountId}, ${mid}, ${t.length}, ${g.b64}) ON CONFLICT (account_id, message_id) DO NOTHING`;
     await sql`DELETE FROM starvibe_compagnon_voix WHERE account_id = ${accountId} AND id NOT IN (SELECT id FROM starvibe_compagnon_voix WHERE account_id = ${accountId} ORDER BY id DESC LIMIT 20)`;
@@ -340,7 +349,7 @@ export default async (req: Request, _context: Context) => {
   if (action === "rappel_creer") {
     const r = await creerRappel(sql, accountId, acces.niveau, { titre: body.titre, quand: localVersUtc(String(body.quand || ""), tz), repetition: body.repetition, avant: body.avantMinutes });
     if (!r.ok) {
-      const msg = r.raison === "medicament" ? "Je ne m'occupe pas des médicaments : parle-en à ton médecin ou à ton pharmacien." : r.raison === "limite" ? `Tu as atteint ${lim.rappels} rappels actifs. Supprime-en un pour en ajouter.` : r.raison === "date" ? "La date et l'heure du rappel sont invalides ou déjà passées." : "Donne un titre au rappel.";
+      const msg = r.raison === "medicament" ? "Je ne m'occupe pas des médicaments : parle-en à ton médecin ou à ton pharmacien." : r.raison === "limite" ? (acces.niveau === "essai" ? MSG_OPTION_ABONNE : `Tu as atteint ${lim.rappels} rappels actifs. Supprime-en un pour en ajouter.`) : r.raison === "date" ? "La date et l'heure du rappel sont invalides ou déjà passées." : "Donne un titre au rappel.";
       return json({ error: msg, code: r.raison }, 400);
     }
     return json({ ok: true, id: r.id });
@@ -366,7 +375,12 @@ export default async (req: Request, _context: Context) => {
     if (!message) message = "Regarde ce fichier et explique-moi ce que tu vois.";
   }
   if (!message) return json({ error: "Message vide" }, 400);
+  const essai = acces.niveau === "essai";
   const q0 = await etatQuota(sql, accountId, acces.niveau);
+  if (essai && q0.messagesUtilises >= q0.messagesMax) {
+    return json({ essaiTermine: true, error: MSG_ESSAI_FINI, code: "essai_termine", quota: q0 }, 402);
+  }
+  if (essai && body.piece) return json({ error: MSG_OPTION_ABONNE, code: "option_abonne", quota: q0 }, 402);
   if (q0.revenirDansMs > 0) {
     return json({ limite: true, revenirDans: q0.revenirDans, error: `Tu as atteint ta limite de ${lim.messages} messages. Reviens dans ${q0.revenirDans}.`, quota: q0 }, 429);
   }
@@ -385,7 +399,9 @@ export default async (req: Request, _context: Context) => {
   const imgUtil = await imagesUtilisees(sql, accountId);
   const imgMax = IMAGES_PAR_MOIS(acces.niveau);
   const imgRestantes = Math.max(0, imgMax - imgUtil.n);
-  const supp = supplement(mode, { imagesRestantes: imgRestantes, imagesPossibles: imagesDisponibles(), niveau: acces.niveau, piece: !!pj });
+  const suppEssai = essai ? "\n\nESSAI GRATUIT. La personne n'a pas encore d'abonnement : réponds brièvement et utilement, sans créer de rappel ni d'image, sans recherche. Si elle demande un rappel, une image, un fichier ou une vérification approfondie, explique gentiment que ces options sont comprises dans l'abonnement (Essentiel 5 000 FCFA par mois, Complet 19 $ par mois) et n'ajoute ni \"rappels\" ni \"image\"." : "";
+  const imagesOk = imagesDisponibles() && !enPanne(await lireSante(sql), "images");
+  const supp = supplement(mode, { imagesRestantes: imgRestantes, imagesPossibles: imagesOk, niveau: acces.niveau, piece: !!pj }) + suppEssai;
   const contexte = [
     `[Contexte] Date et heure locales de la personne : ${heureLocale(new Date(), tz)} (fuseau ${tz}).`,
     `Rappels actifs : ${rapp.length ? rapp.map((r) => `#${r.id} « ${r.titre} » le ${heureLocale(new Date(r.quand), tz)}${r.repetition ? ` (chaque ${r.repetition === "jour" ? "jour" : r.repetition === "semaine" ? "semaine" : r.repetition === "mois" ? "mois" : "année"})` : ""}`).join(" ; ") : "aucun"}.`,
@@ -409,6 +425,7 @@ export default async (req: Request, _context: Context) => {
 
   let ia: ReponseIA | null = null;
   try { ia = await appelerIA(messagesIA, restantes, { niveau: acces.niveau, mode, supplement: supp }); } catch { ia = null; }
+  await noterSante(sql, "claude", !!ia, "Claude ne répond pas");
   if (!ia) {
     await sql`DELETE FROM starvibe_compagnon_messages WHERE id = ${ins[0].id}`; // un message qui n'a pas reçu de réponse ne compte pas
     return json({ error: "Keydou est indisponible un instant. Réessaie dans une minute : ce message n'est pas compté." }, 503);
@@ -451,19 +468,19 @@ export default async (req: Request, _context: Context) => {
     if (!dej.length && Number(nb[0]?.n || 0) < 80) await sql`INSERT INTO starvibe_compagnon_notes (account_id, texte) VALUES (${accountId}, ${t})`;
   }
   for (const id of suppr) { const i = Number(id); if (i) await sql`DELETE FROM starvibe_compagnon_rappels WHERE id = ${i} AND account_id = ${accountId}`; }
-  if (seuilAtteint && restantes <= 0) reponse += acces.niveau === "essentiel"
+  if (seuilAtteint && restantes <= 0 && !essai) reponse += acces.niveau === "essentiel"
     ? "\n\nTu as atteint ton seuil de recherches vérifiées pour aujourd'hui. Passe en mode Pro (offre Complet, 19 $ par mois) avec le bouton « + » pour continuer à vérifier tes informations, ou reviens demain."
     : "\n\nTu as atteint ton seuil de recherches vérifiées pour aujourd'hui. Elles reviennent demain.";
   if (refusMedoc) reponse += "\n\n(Je n'ai pas enregistré ce rappel : je ne m'occupe pas des médicaments. Parle-en à ton médecin ou à ton pharmacien.)";
-  if (refusLimite) reponse += `\n\n(Je n'ai pas pu ajouter ce rappel : tu as déjà ${lim.rappels} rappels actifs.)`;
+  if (refusLimite) reponse += essai ? `\n\n(Je n'ai pas enregistré ce rappel : les rappels sont compris dans l'abonnement Essentiel, 5 000 FCFA par mois.)` : `\n\n(Je n'ai pas pu ajouter ce rappel : tu as déjà ${lim.rappels} rappels actifs.)`;
 
   // ---------- Image demandée ----------
   let imageInfo: { id: number; statut: string } | null = null;
   if (imageDemandee) {
     const promptImg = clean(imageDemandee.prompt, 900);
     let refusImage = "";
-    if (!imagesDisponibles()) refusImage = "La création d'images n'est pas encore ouverte : elle arrive bientôt.";
-    else if (imgMax <= 0) refusImage = "La création d'images est comprise dans l'offre Complet (19 $ par mois). Touche « + » pour changer d'offre.";
+    if (!imagesOk) refusImage = imagesDisponibles() ? "La création d'images est momentanément indisponible : réessaie un peu plus tard." : "La création d'images n'est pas encore ouverte : elle arrive bientôt.";
+    else if (imgMax <= 0) refusImage = essai ? MSG_OPTION_ABONNE : "La création d'images est comprise dans l'offre Complet (19 $ par mois). Touche « + » pour changer d'offre.";
     else if (imgRestantes <= 0) refusImage = `Tu as utilisé tes ${imgMax} images de ce mois. Tu pourras en créer une nouvelle dans ${imgUtil.joursAvantNouvelle} jour${imgUtil.joursAvantNouvelle > 1 ? "s" : ""}.`;
     else {
       const v = verifierDemandeImage(`${message} ${promptImg}`);

@@ -397,7 +397,7 @@ S_ += tbl([['', 'Essentiel', 'Complet'],
            ['Messages par jour', '65', '200'],
            ['Réponses vérifiées', 'Oui, sources citées', 'En grand nombre'],
            ['Rappels actifs', '10', '500']], [48, 56, CW / mm - 104])
-S_ += box("<b>Jamais gratuit :</b> on n'accède à Keydou Compagnon que si son dépôt est validé (ou sur invitation de test) ; sans dépôt reconnu, l'installation est refusée. <b>Les médicaments sont refusés :</b> il ne retient aucun horaire de médicament, parle à un professionnel de santé.", 'warn')
+S_ += box("<b>Essai puis abonnement :</b> tout le monde peut installer Keydou Compagnon et profite de 5 messages d'essai ; ensuite Keydou invite à passer à l'offre (Essentiel 5 000 FCFA ou Complet 19 $), et seuls les abonnés ont les avantages. <b>Les médicaments sont refusés :</b> il ne retient aucun horaire de médicament, parle à un professionnel de santé.", 'warn')
 S_ += box("<b>Tes données t'appartiennent :</b> accord à la première ouverture ; tu peux les <b>télécharger</b> ou les <b>effacer</b> (onglet « Mes données »). <b>Limite du jour :</b> si tes messages sont utilisés, Keydou te dit dans combien de temps revenir (24 heures glissantes). La veille de la fin de ton abonnement, tu es prévenu : reconduis-le pour continuer.", 'ok')
 
 # 12 Le Salon
@@ -446,7 +446,7 @@ gauche = tbl([['Offre', 'Prix', 'Ce que tu obtiens'],
               ['Famille', '1 500 FCFA / 30 jours', "10 dessins animés PIOUPIOU, hymnes nationaux, profils enfants illimités, grands salons."],
               ['Keydou', "1 000 FCFA / demande", "Jusqu'à 3 besoins cochés. Ailleurs : 1,52 € (France), 2,50 CAD (Canada)."],
               ['Le Salon', "Gratuit ou Famille", "Appels en groupe ; grands salons avec Famille. Chapitre 12."],
-              ['Keydou Compagnon', "5 000 FCFA ou 19 $ / mois", "Assistant personnel : Essentiel ou Complet (chapitre 11). Jamais gratuit."]], [32, 52, CW / mm - 84])
+              ['Keydou Compagnon', "5 000 FCFA ou 19 $ / mois", "Assistant personnel : 5 messages d'essai, puis Essentiel ou Complet (chapitre 11)."]], [32, 52, CW / mm - 84])
 S_ += gauche
 S_ += [Paragraph('Comment payer (Mobile Money)', H2)]
 S_ += [Step(1, "Prépare le montant exact", "Le montant doit être <b>exactement</b> celui de l'offre choisie. Un autre montant est refusé."),

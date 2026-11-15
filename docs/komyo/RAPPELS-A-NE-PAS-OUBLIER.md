@@ -295,3 +295,10 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - NE PAS DÉPLOYER avant le « publie » de Carry.
 
 - ÉCLAT (suite, 15/11) : les abonnés de l'animateur sont prévenus sur leur téléphone au démarrage (jusqu'à 200, bloqués exclus ; test fermé : seulement ceux qui ont accès) ; bouton « Me prévenir… » sur la page ÉCLAT. Les nouveaux spectateurs reçoivent les 25 derniers commentaires (relayés par l'animateur). Rediffusion : PAS faite (demande un enregistrement côté serveur vidéo + un stockage : clés et coût à décider avec Carry).
+
+## 15/11/2026 — Retours de l'essai d'ÉCLAT + stratégie Compagnon (décisions de Carry)
+- ÉCLAT : écran large (paysage = plein cadre, portrait = grand cadre), discussion ancrée en bas (défile vers le haut), pouce KOMYO orange (rond orange, pouce blanc) qui vole, spectateurs sans doublon (un même compte sur 2 téléphones ne se déconnecte plus), animateur en 720p.
+- Compagnon : tout le monde peut installer ; sans abonnement = 5 messages d'essai EN TOUT (pas d'images, pas de photos/PDF, pas de rappels, pas de voix), puis invitation « Essentiel 5 000 FCFA / Complet (Pro) 19 $ ». Ouvert en permanence : la case de la console devient « fermeture d'urgence » (réglage compagnon_ferme_urgence). Plus rien à cocher.
+- À l'ouverture du Compagnon : animation KOMYO (le monde en mouvement) + voix d'ouverture, une fois par ouverture.
+- Connecteurs : vert « Connecté », gris « Pas connecté » (pas encore ouvert), rouge « Impossible de se connecter » (échec réel détecté : clé refusée, modèle absent, crédit épuisé) ; une panne est signalée 1 h puis réessayée ; Keydou n'utilise pas un connecteur en panne ; bouton « Vérifier maintenant ». Les connecteurs externes (Gmail, Canva, Adobe, GitHub, ChatGPT, Grok, Llama, Kling…) restent « Pas connecté » : chacun demande une application déclarée chez le fournisseur et l'autorisation de chaque client.
+- Décisions prises à la place de Carry (à lui de les changer) : essai = 5 messages ; rediffusion non faite (stockage + clés + coût).

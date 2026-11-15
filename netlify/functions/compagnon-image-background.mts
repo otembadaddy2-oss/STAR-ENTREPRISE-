@@ -1,7 +1,7 @@
 // Fabrication d'une image demandée à Keydou Compagnon (tâche de fond : la discussion répond tout de suite, l'image arrive ensuite).
 // Seule la discussion peut la déclencher, grâce à une signature (voir _compagnon2.mts). Le résultat est gardé dans la base.
 import { ensureSchema, db } from "./_db.mts";
-import { genererImage, verifierImage, verifierDemandeImage, formatImage, nettoyerErreur } from "./_compagnon2.mts";
+import { genererImage, verifierImage, verifierDemandeImage, formatImage, nettoyerErreur, noterSante, ECHEC_DE_CONNEXION } from "./_compagnon2.mts";
 
 export default async (req: Request) => {
   const url = new URL(req.url);
@@ -17,6 +17,7 @@ export default async (req: Request) => {
   let g;
   try { g = await genererImage(r[0].prompt, formatImage(r[0].format)); }
   catch (e) { g = { ok: false as const, refus: false, erreur: `exception : ${nettoyerErreur(String((e as Error)?.message || e))}` }; }
+  if (g.ok) await noterSante(sql, "images", true); else if (!g.refus && ECHEC_DE_CONNEXION.test(g.erreur)) await noterSante(sql, "images", false, g.erreur);
   if (g.ok) await sql`UPDATE starvibe_compagnon_images SET statut = 'ok', mime = ${g.mime}, data_b64 = ${g.b64}, fini_at = now() WHERE id = ${id}`;
   else await sql`UPDATE starvibe_compagnon_images SET statut = ${g.refus ? "refuse" : "erreur"}, erreur = ${g.erreur}, fini_at = now() WHERE id = ${id}`;
   return new Response("ok");

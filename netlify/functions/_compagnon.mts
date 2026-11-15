@@ -5,12 +5,17 @@
 //  - deux niveaux : Essentiel (65 messages par jour) et Complet (200 messages par jour) ;
 //  - limite atteinte : « reviens dans 4 h 12 min » (fenêtre glissante de 24 heures) ;
 //  - consentement avant tout, et possibilité de tout effacer ;
-//  - jamais gratuit : accès par abonnement validé (ou testeur invité par l'équipe pendant les essais).
+//  - essai gratuit de 5 messages (tout membre), puis accès par abonnement validé (ou testeur invité par l'équipe).
 import webpush from "web-push";
 import { vapidKeys } from "./_push.mts";
 
-export type Niveau = "essentiel" | "complet";
+// « essai » : tout membre KOMYO peut installer Keydou ; sans abonnement il a quelques messages d'essai, puis on lui propose l'offre.
+export type Niveau = "essai" | "essentiel" | "complet";
+export const ESSAI_MESSAGES = 5;   // en tout, pas par jour
+export const MSG_ESSAI_FINI = "Tu as utilisé tes 5 messages d'essai. Pour continuer avec Keydou et profiter de toutes ses options (rappels, photos et documents, recherches vérifiées, images, voix), passe à l'offre Essentiel à 5 000 FCFA par mois, ou à Complet (Pro) à 19 $ par mois. Touche « Voir les offres ».";
+export const MSG_OPTION_ABONNE = "Cette option est comprise dans l'abonnement : Essentiel 5 000 FCFA par mois, ou Complet (Pro) 19 $ par mois pour encore plus d'options.";
 export const LIMITES: Record<Niveau, { label: string; messages: number; recherches: number; rappels: number }> = {
+  essai: { label: "Essai gratuit", messages: ESSAI_MESSAGES, recherches: 0, rappels: 0 },
   essentiel: { label: "Essentiel", messages: 65, recherches: 10, rappels: 10 },
   complet: { label: "Complet", messages: 200, recherches: 30, rappels: 500 },
 };
@@ -78,7 +83,7 @@ export function suivante(quand: Date, rep: string, apres: Date): Date {
 }
 
 // ---------- Droits d'accès ----------
-export interface Acces { niveau: Niveau; source: "abonnement" | "test"; fin: string | null }
+export interface Acces { niveau: Niveau; source: "abonnement" | "test" | "essai"; fin: string | null }
 // deno-lint-ignore no-explicit-any
 export async function accesDe(sql: any, accountId: number): Promise<Acces | null> {
   const ab = (await sql`
@@ -89,6 +94,8 @@ export async function accesDe(sql: any, accountId: number): Promise<Acces | null
   if (ab[0]) return { niveau: ab[0].plan === "compagnon_complet" ? "complet" : "essentiel", source: "abonnement", fin: ab[0].expires_at };
   const t = (await sql`SELECT test, niveau_test FROM starvibe_compagnon_profil WHERE account_id = ${accountId}`) as { test: boolean; niveau_test: string }[];
   if (t[0]?.test) return { niveau: t[0].niveau_test === "complet" ? "complet" : "essentiel", source: "test", fin: null };
+  // Jamais abonné : essai gratuit (tout le monde peut télécharger Keydou). Un ancien abonné qui n'a pas reconduit n'a pas de nouvel essai.
+  if (!(await aDejaAbonne(sql, accountId)).deja) return { niveau: "essai", source: "essai", fin: null };
   return null;
 }
 
@@ -99,6 +106,10 @@ export interface Etat {
 // deno-lint-ignore no-explicit-any
 export async function etatQuota(sql: any, accountId: number, niveau: Niveau): Promise<Etat> {
   const lim = LIMITES[niveau];
+  if (niveau === "essai") {   // l'essai se compte en tout, sans délai de retour
+    const n = Number(((await sql`SELECT COUNT(*) AS n FROM starvibe_compagnon_messages WHERE account_id = ${accountId} AND role = 'user'`) as { n: string }[])[0]?.n || 0);
+    return { messagesUtilises: n, messagesMax: lim.messages, recherchesUtilisees: 0, recherchesMax: 0, rappelsActifs: 0, rappelsMax: 0, revenirDans: "", revenirDansMs: 0 };
+  }
   const msgs = (await sql`SELECT created_at, role, recherches FROM starvibe_compagnon_messages WHERE account_id = ${accountId} AND created_at > now() - interval '24 hours' ORDER BY created_at ASC`) as { created_at: string; role: string; recherches: number }[];
   const users = msgs.filter((m) => m.role === "user").map((m) => new Date(m.created_at).getTime());
   const recherches = msgs.reduce((n, m) => n + (m.recherches || 0), 0);
@@ -194,4 +205,10 @@ export function manifesteKeydou() {
       { src: I + "keydou-512-maskable-v1.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
   };
+}
+
+// Keydou Compagnon est ouvert à tous en permanence (téléchargement libre, essai puis abonnement). Seule une fermeture d'urgence décidée par l'équipe l'arrête.
+// deno-lint-ignore no-explicit-any
+export async function compagnonOuvert(sql: any): Promise<boolean> {
+  return ((await sql`SELECT value FROM starvibe_settings WHERE key = 'compagnon_ferme_urgence'`) as { value: string }[])[0]?.value !== "on";
 }
