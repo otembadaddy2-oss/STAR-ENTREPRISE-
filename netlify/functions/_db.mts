@@ -13,7 +13,7 @@ export function db() {
 // Version du schéma = empreinte du texte de ensureSchema() ci-dessous (vérifiée par tools/test-schema.mts).
 // Quand tu modifies une instruction du schéma : lance « node --experimental-strip-types tools/test-schema.mts --ecrire »
 // pour mettre à jour cette ligne. Sans cela, la base ne serait pas mise à jour (le test échoue pour te le rappeler).
-const SCHEMA_VERSION = "a800c3165ffdb850";
+const SCHEMA_VERSION = "02801096aec08471";
 
 // Idempotent schema setup — safe to call on every cold start.
 // Rapide : les ~80 instructions ne sont rejouées que si SCHEMA_VERSION a changé depuis la dernière fois
@@ -839,6 +839,8 @@ export async function ensureSchema() {
   await sql`CREATE INDEX IF NOT EXISTS starvibe_compagnon_push_compte_idx ON starvibe_compagnon_push (account_id)`;
   await sql`CREATE TABLE IF NOT EXISTS starvibe_compagnon_images (id SERIAL PRIMARY KEY, account_id INTEGER NOT NULL, prompt TEXT NOT NULL, format TEXT NOT NULL DEFAULT 'carre', statut TEXT NOT NULL DEFAULT 'attente', mime TEXT NOT NULL DEFAULT '', data_b64 TEXT NOT NULL DEFAULT '', erreur TEXT NOT NULL DEFAULT '', created_at TIMESTAMPTZ NOT NULL DEFAULT now(), fini_at TIMESTAMPTZ)`;
   await sql`CREATE INDEX IF NOT EXISTS starvibe_compagnon_images_compte_idx ON starvibe_compagnon_images (account_id, created_at)`;
+  // Image payée avec un crédit acheté (et non avec le quota du mois)
+  await sql`ALTER TABLE starvibe_compagnon_images ADD COLUMN IF NOT EXISTS credit BOOLEAN NOT NULL DEFAULT false`;
   await sql`CREATE TABLE IF NOT EXISTS starvibe_compagnon_voix (id SERIAL PRIMARY KEY, account_id INTEGER NOT NULL, message_id INTEGER NOT NULL, signes INTEGER NOT NULL DEFAULT 0, data_b64 TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT now(), UNIQUE (account_id, message_id))`;
   await sql`CREATE INDEX IF NOT EXISTS starvibe_compagnon_voix_compte_idx ON starvibe_compagnon_voix (account_id, created_at)`;
 

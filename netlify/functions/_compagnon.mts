@@ -212,3 +212,20 @@ export function manifesteKeydou() {
 export async function compagnonOuvert(sql: any): Promise<boolean> {
   return ((await sql`SELECT value FROM starvibe_settings WHERE key = 'compagnon_ferme_urgence'`) as { value: string }[])[0]?.value !== "on";
 }
+
+// ---------- Crédits d'images : packs achetés par dépôt Mobile Money (même système que les abonnements) ----------
+// Un pack ajoute des images en plus du quota du mois ; le solde ne se périme pas. Une image qui échoue n'est pas décomptée.
+// Prix décidés pour couvrir le coût du service d'images avec une marge : réglables ici.
+export const PACKS_IMAGES: Record<string, { images: number; montant: number; label: string }> = {
+  credit_images_10: { images: 10, montant: Number(process.env.PACK_IMAGES_10_FCFA) > 0 ? Math.round(Number(process.env.PACK_IMAGES_10_FCFA)) : 1200, label: "Pack 10 images" },
+  credit_images_30: { images: 30, montant: Number(process.env.PACK_IMAGES_30_FCFA) > 0 ? Math.round(Number(process.env.PACK_IMAGES_30_FCFA)) : 3000, label: "Pack 30 images" },
+};
+export const estPackImages = (plan: string): boolean => Object.prototype.hasOwnProperty.call(PACKS_IMAGES, plan);
+export const PACKS_TXT = () => Object.values(PACKS_IMAGES).map((p) => `${p.images} images ${p.montant.toLocaleString("fr-FR").replace(/\u202f|\u00a0/g, " ")} FCFA`).join(", ");
+// deno-lint-ignore no-explicit-any
+export async function creditsImages(sql: any, accountId: number): Promise<number> {
+  const achetes = (await sql`SELECT plan, COUNT(*) AS n FROM starvibe_subscriptions WHERE account_id = ${accountId} AND plan LIKE 'credit_images_%' AND statut = 'actif' AND montant_attendu > 0 GROUP BY plan`) as { plan: string; n: string }[];
+  const total = achetes.reduce((t, a) => t + (PACKS_IMAGES[a.plan]?.images || 0) * Number(a.n), 0);
+  const utilises = Number(((await sql`SELECT COUNT(*) AS n FROM starvibe_compagnon_images WHERE account_id = ${accountId} AND credit = true AND statut IN ('attente', 'ok')`) as { n: string }[])[0]?.n || 0);
+  return Math.max(0, total - utilises);
+}

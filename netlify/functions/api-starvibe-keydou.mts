@@ -569,7 +569,7 @@ export default async (req: Request, _context: Context) => {
         LEFT JOIN starvibe_profiles p ON p.account_id = a.id AND p.type_profil = 'personnel' WHERE s.id = ${id}
       `) as { id: number; plan: string; montant_attendu: number; statut: string; telephone: string; nom: string | null }[];
       if (!r[0]) return json({ error: "Introuvable" }, 404);
-      return json({ kind, id, objet: `Abonnement ${r[0].plan}`, montant: r[0].montant_attendu, statut: r[0].statut, nom: r[0].nom || "", telephone: r[0].telephone, ville: "", reference: `KOMYO-${id}` });
+      return json({ kind, id, objet: String(r[0].plan).startsWith("credit_images_") ? `Pack de ${String(r[0].plan).replace("credit_images_", "")} images (Keydou Compagnon)` : `Abonnement ${r[0].plan}`, montant: r[0].montant_attendu, statut: r[0].statut, nom: r[0].nom || "", telephone: r[0].telephone, ville: "", reference: `KOMYO-${id}` });
     }
     const r = (await sql`
       SELECT k.*, COALESCE(NULLIF(a.guest_tel, ''), a.telephone) AS telephone, COALESCE(NULLIF(a.guest_nom, ''), p.nom) AS auteur_nom FROM starvibe_keydou_requests k JOIN starvibe_accounts a ON a.id = k.account_id

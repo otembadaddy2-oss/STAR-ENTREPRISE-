@@ -14,7 +14,7 @@ import { ensureSchema, db, json } from "./_db.mts";
 import { requireAuth } from "./_auth.mts";
 import { vapidKeys, last9, decisionToken, checkDecisionToken } from "./_push.mts";
 import {
-  ESSAI_MESSAGES, MSG_ESSAI_FINI, MSG_OPTION_ABONNE, compagnonOuvert,
+  ESSAI_MESSAGES, MSG_ESSAI_FINI, MSG_OPTION_ABONNE, compagnonOuvert, PACKS_IMAGES, PACKS_TXT, creditsImages,
   LIMITES, CONSENTEMENT_VERSION, REPETITIONS, MODELE, OFFRES_TXT, manifesteKeydou, accesDe, aDejaAbonne, texteFinAbonnement, etatQuota, fuseauValide, heureLocale, localVersUtc, parleDeMedicaments, consigne, type Niveau,
 } from "./_compagnon.mts";
 import {
@@ -52,7 +52,7 @@ async function creerRappel(sql: any, accountId: number, niveau: Niveau, o: { tit
 // Images créées pendant les 30 derniers jours (celles qui ont échoué ne comptent pas).
 // deno-lint-ignore no-explicit-any
 async function imagesUtilisees(sql: any, accountId: number): Promise<{ n: number; joursAvantNouvelle: number }> {
-  const r = (await sql`SELECT COUNT(*) AS n, MIN(created_at) AS premiere FROM starvibe_compagnon_images WHERE account_id = ${accountId} AND statut IN ('attente', 'ok') AND created_at > now() - interval '30 days'`) as { n: string; premiere: string | null }[];
+  const r = (await sql`SELECT COUNT(*) AS n, MIN(created_at) AS premiere FROM starvibe_compagnon_images WHERE account_id = ${accountId} AND statut IN ('attente', 'ok') AND credit = false AND created_at > now() - interval '30 days'`) as { n: string; premiere: string | null }[];
   const n = Number(r[0]?.n || 0);
   const jours = r[0]?.premiere ? Math.max(1, Math.ceil((new Date(r[0].premiere).getTime() + 30 * 86400000 - Date.now()) / 86400000)) : 0;
   return { n, joursAvantNouvelle: jours };
@@ -64,7 +64,7 @@ async function capacites(sql: any, accountId: number, niveau: Niveau) {
   const maxV = VOIX_PAR_JOUR(niveau);
   const sante = await lireSante(sql);
   const nV = Number(((await sql`SELECT COUNT(*) AS n FROM starvibe_compagnon_voix WHERE account_id = ${accountId} AND created_at > now() - interval '24 hours'`) as { n: string }[])[0]?.n || 0);
-  return { voix: { actif: voixDisponible() && !enPanne(sante, "voix") && maxV > 0, max: maxV, restantes: Math.max(0, maxV - nV) }, images: imagesDisponibles() && !enPanne(sante, "images"), imagesMax: max, imagesRestantes: Math.max(0, max - u.n), piecesMax: PIECES_PAR_JOUR(niveau), connecteurs: connecteurs(sante), liste: listeCapacites(niveau), modes: Object.keys(MODES).map((k) => ({ id: k, label: MODES[k as Mode].label, emoji: MODES[k as Mode].emoji })) };
+  return { voix: { actif: voixDisponible() && !enPanne(sante, "voix") && maxV > 0, max: maxV, restantes: Math.max(0, maxV - nV) }, images: imagesDisponibles() && !enPanne(sante, "images"), imagesMax: max, imagesRestantes: Math.max(0, max - u.n), credits: await creditsImages(sql, accountId), packs: Object.entries(PACKS_IMAGES).map(([id, p]) => ({ id, images: p.images, montant: p.montant })), achatImages: niveau !== "essai", piecesMax: PIECES_PAR_JOUR(niveau), connecteurs: connecteurs(sante), liste: listeCapacites(niveau), modes: Object.keys(MODES).map((k) => ({ id: k, label: MODES[k as Mode].label, emoji: MODES[k as Mode].emoji })) };
 }
 
 interface SourceWeb { titre: string; url: string }
@@ -399,9 +399,10 @@ export default async (req: Request, _context: Context) => {
   const imgUtil = await imagesUtilisees(sql, accountId);
   const imgMax = IMAGES_PAR_MOIS(acces.niveau);
   const imgRestantes = Math.max(0, imgMax - imgUtil.n);
+  const creditsImg = await creditsImages(sql, accountId);   // images achetées (pack), en plus du quota du mois
   const suppEssai = essai ? "\n\nESSAI GRATUIT. La personne n'a pas encore d'abonnement : réponds brièvement et utilement, sans créer de rappel, sans recherche. Elle a droit à 2 images d'essai (tu peux en créer quand elle le demande clairement). Si elle demande un rappel, un fichier ou une vérification approfondie, explique gentiment que ces options sont comprises dans l'abonnement (Essentiel 5 000 FCFA par mois, Complet 19 $ par mois) et n'ajoute pas \"rappels\"." : "";
   const imagesOk = imagesDisponibles() && !enPanne(await lireSante(sql), "images");
-  const supp = supplement(mode, { imagesRestantes: imgRestantes, imagesPossibles: imagesOk, niveau: acces.niveau, piece: !!pj }) + suppEssai;
+  const supp = supplement(mode, { imagesRestantes: imgRestantes + creditsImg, imagesPossibles: imagesOk, niveau: acces.niveau, piece: !!pj }) + suppEssai;
   const contexte = [
     `[Contexte] Date et heure locales de la personne : ${heureLocale(new Date(), tz)} (fuseau ${tz}).`,
     `Rappels actifs : ${rapp.length ? rapp.map((r) => `#${r.id} « ${r.titre} » le ${heureLocale(new Date(r.quand), tz)}${r.repetition ? ` (chaque ${r.repetition === "jour" ? "jour" : r.repetition === "semaine" ? "semaine" : r.repetition === "mois" ? "mois" : "année"})` : ""}`).join(" ; ") : "aucun"}.`,
@@ -476,18 +477,19 @@ export default async (req: Request, _context: Context) => {
 
   // ---------- Image demandée ----------
   let imageInfo: { id: number; statut: string } | null = null;
+  let offreImages = false;
   if (imageDemandee) {
     const promptImg = clean(imageDemandee.prompt, 900);
     let refusImage = "";
     if (!imagesOk) refusImage = imagesDisponibles() ? "La création d'images est momentanément indisponible : réessaie un peu plus tard." : "La création d'images n'est pas encore ouverte : elle arrive bientôt.";
-    else if (imgMax <= 0) refusImage = "La création d'images est comprise dans l'offre Complet (19 $ par mois). Touche « + » pour changer d'offre.";
-    else if (essai && imgRestantes <= 0) refusImage = "Tu as utilisé tes 2 images d'essai. Pour en créer d'autres : Essentiel (5 000 FCFA par mois, 10 images par mois) ou Complet (19 $ par mois, 35 images par mois).";
-    else if (imgRestantes <= 0) refusImage = `Tu as utilisé tes ${imgMax} images de ce mois. Tu pourras en créer une nouvelle dans ${imgUtil.joursAvantNouvelle} jour${imgUtil.joursAvantNouvelle > 1 ? "s" : ""}.`;
+    else if (imgMax <= 0 && creditsImg <= 0) refusImage = "La création d'images est comprise dans l'offre Complet (19 $ par mois). Touche « + » pour changer d'offre.";
+    else if (essai && imgRestantes <= 0 && creditsImg <= 0) refusImage = "Tu as utilisé tes 2 images d'essai. Pour en créer d'autres : Essentiel (5 000 FCFA par mois, 10 images par mois) ou Complet (19 $ par mois, 35 images par mois).";
+    else if (imgRestantes <= 0 && creditsImg <= 0) { refusImage = `Tu as utilisé tes ${imgMax} images de ce mois (elles reviennent dans ${imgUtil.joursAvantNouvelle} jour${imgUtil.joursAvantNouvelle > 1 ? "s" : ""}). Pour continuer tout de suite, achète un pack d'images : ${PACKS_TXT()}. Touche « Acheter des images ».`; offreImages = true; }
     else {
       const v = verifierDemandeImage(`${message} ${promptImg}`);
       if (!v.ok) refusImage = v.message;
       else {
-        const ins2 = (await sql`INSERT INTO starvibe_compagnon_images (account_id, prompt, format) VALUES (${accountId}, ${promptImg}, ${formatImage(imageDemandee.format)}) RETURNING id`) as { id: number }[];
+        const ins2 = (await sql`INSERT INTO starvibe_compagnon_images (account_id, prompt, format, credit) VALUES (${accountId}, ${promptImg}, ${formatImage(imageDemandee.format)}, ${imgRestantes <= 0}) RETURNING id`) as { id: number }[];
         imageInfo = { id: ins2[0].id, statut: "attente" };
         await sql`DELETE FROM starvibe_compagnon_images WHERE account_id = ${accountId} AND id NOT IN (SELECT id FROM starvibe_compagnon_images WHERE account_id = ${accountId} ORDER BY id DESC LIMIT 30)`;
         try {
@@ -502,7 +504,7 @@ export default async (req: Request, _context: Context) => {
   const reponseGardee = imageInfo ? `${reponse}\n${marqueImage(imageInfo.id)}` : reponse;
 
   const insA = (await sql`INSERT INTO starvibe_compagnon_messages (account_id, role, texte, recherches, tokens_in, tokens_out) VALUES (${accountId}, 'assistant', ${reponseGardee}, ${ia.recherches}, ${ia.tokensIn}, ${ia.tokensOut}) RETURNING id`) as { id: number }[];
-  return json({ messageId: insA[0]?.id || 0, reponse, sources: ia.sources.slice(0, 3), rappelsAjoutes: ajoutes, mode, image: imageInfo, capacites: await capacites(sql, accountId, acces.niveau), quota: await etatQuota(sql, accountId, acces.niveau) });
+  return json({ messageId: insA[0]?.id || 0, reponse, sources: ia.sources.slice(0, 3), rappelsAjoutes: ajoutes, mode, image: imageInfo, offreImages, capacites: await capacites(sql, accountId, acces.niveau), quota: await etatQuota(sql, accountId, acces.niveau) });
 };
 
 export const config: Config = { path: "/api/starvibe-compagnon" };

@@ -304,3 +304,5 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - Décisions prises à la place de Carry (à lui de les changer) : essai = 5 messages ; rediffusion non faite (stockage + clés + coût).
 
 - Images du Compagnon (décision de Carry, 15/11) : essai 2 images en tout, Essentiel 10 par mois, Complet 35 par mois (réglables par COMPAGNON_IMAGES_ESSAI / _ESSENTIEL / _COMPLET). Règles de sécurité inchangées (pas de personne réelle, pas d'enfant, pas de contenu sexuel ou violent).
+
+- Crédits d'images (15/11) : packs payés par dépôt Mobile Money, même système que les abonnements (demande KOMYO-n, dépôt reconnu par SMS ou confirmé par l'équipe, reçu émis) : 10 images 1 200 FCFA, 30 images 3 000 FCFA (réglables : PACK_IMAGES_10_FCFA, PACK_IMAGES_30_FCFA). Réservés aux abonnés Essentiel/Complet ; le crédit s'ajoute au quota du mois, ne se périme pas, et une image en échec est rendue. Prix choisis pour couvrir le coût du service d'images avec marge : à réviser selon la facture réelle.

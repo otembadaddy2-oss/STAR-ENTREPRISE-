@@ -9,7 +9,7 @@
 // l'argent reçu sur le numéro Mobile Money indiqué au client. Cette
 // fonction est écrite pour qu'un vrai webhook (action "confirmer_paiement")
 // puisse être branché plus tard sans rien changer côté client.
-import { compagnonOuvert } from "./_compagnon.mts";
+import { compagnonOuvert, accesDe, PACKS_IMAGES, estPackImages } from "./_compagnon.mts";
 import type { Context, Config } from "@netlify/functions";
 import { ensureSchema, db, json } from "./_db.mts";
 import { recuAbonnement } from "./_recu.mts";
@@ -40,7 +40,10 @@ const PLANS_COMPAGNON: Record<string, { label: string; montant: number; descript
   compagnon: { label: "Keydou Compagnon · Essentiel", montant: 5000, description: "Assistant personnel : rappels, culture générale, recherche Internet limitée. 65 messages par jour. Valable 30 jours." },
   compagnon_complet: { label: "Keydou Compagnon · Complet", montant: 11100, description: "Assistant personnel complet : 200 messages par jour, rappels illimités, recherche Internet approfondie. Valable 30 jours." },
 };
-const PLANS_TOUS: Record<string, { label: string; montant: number; description: string }> = { ...PLANS, ...PLANS_COMPAGNON };
+// Packs de crédits d'images (Keydou Compagnon) : même paiement par dépôt, même reconnaissance du dépôt, même reçu.
+const PLANS_PACKS: Record<string, { label: string; montant: number; description: string }> = Object.fromEntries(
+  Object.entries(PACKS_IMAGES).map(([id, p]) => [id, { label: `Keydou Compagnon · ${p.label}`, montant: p.montant, description: `${p.images} images de plus à créer avec Keydou, en plus de ton quota du mois. Elles ne se périment pas.` }]));
+const PLANS_TOUS: Record<string, { label: string; montant: number; description: string }> = { ...PLANS, ...PLANS_COMPAGNON, ...PLANS_PACKS };
 
 function clean(value: unknown, maxLen: number): string {
   return String(value ?? "").trim().slice(0, maxLen);
@@ -70,6 +73,7 @@ function toApi(row: SubRow) {
   return {
     id: String(row.id),
     plan: row.plan,
+    planLabel: PLANS_TOUS[row.plan]?.label || row.plan,
     montantAttendu: row.montant_attendu,
     montantRecu: row.montant_recu,
     statut: row.statut,
@@ -232,9 +236,9 @@ export default async (req: Request, _context: Context) => {
     if (action === "rappel_vu") {
       const quoi = clean(body.type, 10);
       if (quoi === "bientot") {
-        await sql`UPDATE starvibe_subscriptions SET rappel_j3_at = now() WHERE account_id = ${accountId} AND statut = 'actif' AND montant_attendu > 0 AND rappel_j3_at IS NULL`;
+        await sql`UPDATE starvibe_subscriptions SET rappel_j3_at = now() WHERE account_id = ${accountId} AND statut = 'actif' AND montant_attendu > 0 AND rappel_j3_at IS NULL AND plan NOT LIKE 'credit_images_%'`;
       } else if (quoi === "expire") {
-        await sql`UPDATE starvibe_subscriptions SET rappel_fin_at = now() WHERE account_id = ${accountId} AND statut = 'actif' AND montant_attendu > 0 AND rappel_fin_at IS NULL`;
+        await sql`UPDATE starvibe_subscriptions SET rappel_fin_at = now() WHERE account_id = ${accountId} AND statut = 'actif' AND montant_attendu > 0 AND rappel_fin_at IS NULL AND plan NOT LIKE 'credit_images_%'`;
       } else return json({ error: "Type inconnu" }, 400);
       return json({ ok: true });
     }
@@ -294,8 +298,15 @@ export default async (req: Request, _context: Context) => {
         if (!ouvert && !ancien) return json({ error: "Keydou Compagnon n'est pas encore ouvert à l'abonnement : il est en période de test.", code: "compagnon_ferme" }, 403);
       }
 
+      if (estPackImages(plan)) {
+        // Un pack d'images s'ajoute à un abonnement Keydou Compagnon : il faut être abonné (Essentiel ou Complet), pas seulement en essai.
+        const acces = await accesDe(sql, accountId);
+        if (!acces || acces.niveau === "essai") return json({ error: "Pour acheter des images, abonne-toi d'abord à Keydou Compagnon : Essentiel (5 000 FCFA par mois) ou Complet (19 $ par mois).", code: "abonnement_requis" }, 403);
+        if (!(await compagnonOuvert(sql))) return json({ error: "Keydou Compagnon est momentanément fermé. Réessaie dans un instant.", code: "compagnon_ferme" }, 403);
+      }
+
       // Durée payée d'un coup : 1, 2, 3… mois (30 jours chacun). Le montant est celui d'un mois multiplié par le nombre de mois.
-      const mois = PLANS_TOUS[plan].montant === 0 ? 1 : Math.min(Math.max(Math.round(Number(body.mois)) || 1, 1), MOIS_MAX);
+      const mois = PLANS_TOUS[plan].montant === 0 || estPackImages(plan) ? 1 : Math.min(Math.max(Math.round(Number(body.mois)) || 1, 1), MOIS_MAX);
       const montant = PLANS_TOUS[plan].montant * mois;
       const statut = montant === 0 ? "actif" : "en_attente_paiement";
 
@@ -343,7 +354,7 @@ export default async (req: Request, _context: Context) => {
              CEIL(EXTRACT(EPOCH FROM (expires_at - now())) / 86400)::int AS jours,
              (expires_at <= now()) AS fini
       FROM starvibe_subscriptions
-      WHERE account_id = ${accountId} AND statut = 'actif' AND montant_attendu > 0 AND expires_at IS NOT NULL
+      WHERE account_id = ${accountId} AND statut = 'actif' AND montant_attendu > 0 AND expires_at IS NOT NULL AND plan NOT LIKE 'credit_images_%'
       ORDER BY expires_at DESC LIMIT 1
     `) as { id: number; plan: string; expires_at: string; rappel_j3_at: string | null; rappel_fin_at: string | null; jours: number; fini: boolean }[];
     const a = r[0];
@@ -356,7 +367,7 @@ export default async (req: Request, _context: Context) => {
   }
 
   const rows = (await sql`
-    SELECT * FROM starvibe_subscriptions WHERE account_id = ${accountId}
+    SELECT * FROM starvibe_subscriptions WHERE account_id = ${accountId} AND plan NOT LIKE 'credit_images_%'
     ORDER BY (statut = 'en_attente_paiement') DESC, (statut = 'actif' AND montant_attendu > 0 AND expires_at > now()) DESC, id DESC LIMIT 1
   `) as SubRow[];
 

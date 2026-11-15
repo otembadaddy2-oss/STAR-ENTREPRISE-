@@ -241,6 +241,11 @@
     <div class="card" style="border-color:var(--gold)"><h2>Complet · 19 $<span class="actuel" id="actPro" hidden>Ton offre</span> <small style="font:600 12px 'Inter',Arial,sans-serif;color:var(--dim)">par mois (≈ 11 100 FCFA)</small></h2>
       <ul><li>200 messages par jour</li><li>Rappels illimités</li><li>Recherches approfondies, sources citées</li><li>Médecine approfondie : explications détaillées, orientation vers le bon spécialiste, jamais de prescription</li><li>Tests et examens : questions corrigées, notes sur 10</li><li>Réflexion plus poussée sur les questions difficiles</li><li>30 photos ou documents lus par jour</li><li data-img hidden>35 images créées par mois, à ta demande</li><li data-voix hidden>Keydou te lit ses réponses avec sa vraie voix (quelques lectures par jour)</li></ul>
       <button class="btn gold" data-plan="compagnon_complet" style="margin-top:10px">Choisir Complet</button></div>
+    <div class="card" id="cardImages" hidden><h2>🖼️ Acheter des images</h2>
+      <p class="note">Ton quota du mois est fini ? Un pack te permet de continuer tout de suite, avec le même paiement par dépôt Mobile Money. Les images achetées <b>ne se périment pas</b> et viennent en plus de ton quota.</p>
+      <p class="note" id="creditsSolde" hidden></p>
+      <button class="btn" data-plan="credit_images_10" id="pack10" style="margin-top:10px">Pack 10 images · 1 200 FCFA</button>
+      <button class="btn gold" data-plan="credit_images_30" id="pack30" style="margin-top:10px">Pack 30 images · 3 000 FCFA</button></div>
     <div class="inst" data-inst>
       <h2>📲 Installer Keydou sur mon téléphone</h2>
       <p class="note">Une icône Keydou sur ton écran d'accueil, qui s'ouvre directement sur ton assistant. L'installation s'ouvre <b>seulement après la validation de ton dépôt</b>.</p>
@@ -383,8 +388,14 @@
   if(!token){ show('out'); return; }
 
   var cap=null, mode='auto', piece=null, qDernier=null;
-  function capTxt(){ return (cap&&cap.images&&cap.imagesMax>0)?' · '+cap.imagesRestantes+' image'+(cap.imagesRestantes>1?'s':'')+' à créer ce mois-ci':''; }
-  function majCap(c){ if(!c) return; cap=c; Array.prototype.forEach.call(document.querySelectorAll('[data-img]'),function(x){ x.hidden=!c.images; }); Array.prototype.forEach.call(document.querySelectorAll('[data-voix]'),function(x){ x.hidden=!(c.voix&&c.voix.actif); }); if(typeof majVoix==='function') majVoix(); }
+  function capTxt(){ var t=(cap&&cap.images&&cap.imagesMax>0)?' · '+cap.imagesRestantes+' image'+(cap.imagesRestantes>1?'s':'')+' à créer ce mois-ci':''; if(cap&&cap.credits>0) t+=' · +'+cap.credits+' en crédit'; return t; }
+  function majCap(c){ if(!c) return; cap=c; Array.prototype.forEach.call(document.querySelectorAll('[data-img]'),function(x){ x.hidden=!c.images; }); Array.prototype.forEach.call(document.querySelectorAll('[data-voix]'),function(x){ x.hidden=!(c.voix&&c.voix.actif); }); if(typeof majVoix==='function') majVoix(); majPacks(); }
+  function fcfaTxt(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
+  function majPacks(){ var c=$('cardImages'); if(!c||!cap) return; c.hidden=!cap.achatImages;
+    (cap.packs||[]).forEach(function(p){ var b=$(p.id==='credit_images_10'?'pack10':'pack30'); if(b) b.textContent='Pack '+p.images+' images · '+fcfaTxt(p.montant)+' FCFA'; });
+    var so=$('creditsSolde'); if(so){ so.hidden=!(cap.credits>0); so.textContent='Ton solde : '+cap.credits+' image'+(cap.credits>1?'s':'')+' achetée'+(cap.credits>1?'s':'')+'.'; } }
+  function ouvrirAchatImages(){ ouvrirOffres('Acheter des images','Choisis ton pack : le paiement se fait par dépôt Mobile Money, comme ton abonnement. Tes images sont ajoutées dès que le dépôt est reconnu.'); majPacks(); setTimeout(function(){ var c=$('cardImages'); if(c&&c.scrollIntoView) c.scrollIntoView({block:'start'}); },80); }
+  function boutonImages(){ var b=document.createElement('button'); b.type='button'; b.className='btn gold'; b.style.cssText='margin:6px 14px 10px;display:block;width:calc(100% - 28px)'; b.textContent='Acheter des images'; b.addEventListener('click',ouvrirAchatImages); $('chat').appendChild(b); $('fil').scrollTop=$('fil').scrollHeight; }
   function construireModes(){
     var box=$('modes'); if(!box||box.childNodes.length) return;
     var liste=[{id:'auto',label:'Auto',emoji:'✨'}].concat((cap&&cap.modes)||[]);
@@ -492,17 +503,19 @@
       b.disabled=false;
       if(!r.ok){ $('offresErr').textContent=r.data.error||'Impossible de créer la demande.'; return; }
       var a=r.data.abonnement; subId=a.id;
-      $('payTitre').textContent='Paiement · '+(b.dataset.plan==='compagnon_complet'?'Complet':'Essentiel');
+      var pk=b.dataset.plan.indexOf('credit_images_')===0; $('payTitre').textContent=pk?('Paiement · Pack '+b.dataset.plan.replace('credit_images_','')+' images'):'Paiement · '+(b.dataset.plan==='compagnon_complet'?'Complet':'Essentiel');
       $('payMontant').textContent=fcfa(a.montantAttendu)+(b.dataset.plan==='compagnon_complet'?' (≈ 19 $)':'');
+      subPack=pk;
       $('payNum').textContent=a.numeroReception; $('payRef').textContent=a.referencePaiement;
       $('payEtat').textContent='⏳ En attente du dépôt…'; show('pay'); suivre(Date.now());
     });
   }); });
+  var subPack=false;
   function suivre(debut){
     clearTimeout(pollT);
     callSub('GET','?suivi='+encodeURIComponent(subId)).then(function(r){
       var st=r.ok&&r.data.abonnement?r.data.abonnement.statut:'';
-      if(st==='actif'){ $('payEtat').textContent='✅ Dépôt reconnu ! Ton accès s\u2019ouvre…'; setTimeout(charge,900); return; }
+      if(st==='actif'){ $('payEtat').textContent=subPack?'✅ Dépôt reconnu ! Tes images sont ajoutées…':'✅ Dépôt reconnu ! Ton accès s\u2019ouvre…'; setTimeout(charge,900); return; }
       if(st==='paiement_invalide'){ $('payEtat').textContent='Le montant reçu ne correspond pas. Écris-nous : contact@starentreprise.com'; return; }
       if(st==='annule'){ return; }
       if(Date.now()-debut>30*60000){ $('payEtat').textContent='Toujours en attente. Quand ton dépôt est fait, rouvre cette page : ton accès s\u2019ouvrira tout seul.'; return; }
@@ -574,7 +587,7 @@
     call('POST','',{action:'chat',message:t,mode:mode,piece:pj?{data:pj.data}:undefined}).then(function(r){
       att.remove(); occupe=false;
       if(r.ok){
-        majCap(r.data.capacites); bulle('assistant',r.data.reponse,{sources:r.data.sources,ajoutes:r.data.rappelsAjoutes,imageId:r.data.image?r.data.image.id:0,id:r.data.messageId}); quota(r.data.quota);
+        majCap(r.data.capacites); bulle('assistant',r.data.reponse,{sources:r.data.sources,ajoutes:r.data.rappelsAjoutes,imageId:r.data.image?r.data.image.id:0,id:r.data.messageId}); quota(r.data.quota); if(r.data.offreImages) boutonImages();
         var voix=voixOn||vientDeLaVoix; vientDeLaVoix=false;
         if(r.data.rappelsAjoutes&&r.data.rappelsAjoutes.length){ kdBase('idle'); kdGeste('celebrate'); etatTxt('C\u2019est noté ! 🎉'); if(voix) setTimeout(function(){ lire(r.data.reponse,r.data.messageId); },900); }
         else if(voix) lire(r.data.reponse,r.data.messageId);
@@ -773,12 +786,15 @@
     var c=(etat&&etat.compte)||{}, a=(etat&&etat.acces)||{}, t='', h='';
     if(d==='profil'){ t='Profil'; h=dl('Nom',c.nom||'—')+dl('Téléphone',c.telephone||'—')+dl('Offre',(a.label||'')+(a.source==='test'?' (invitation de test)':''))+'<p class="dnote">Ton nom et ton numéro sont ceux de ton compte KOMYO. Rien n\u2019est vendu ni partagé.</p>'; }
     else if(d==='facturation'){ t='Facturation'; var prix=a.niveau==='complet'?'19 $ par mois (≈ 11 100 FCFA)':'5 000 FCFA par mois'; if(a.niveau==='essai') prix='5 000 FCFA ou 19 $ par mois'; h=dl('Offre',(a.label||'')+(a.source==='test'?' (invitation de test)':''))+dl('Prix',a.source==='test'?'Gratuit pendant ton test ('+prix+' ensuite)':(a.niveau==='essai'?'Gratuit pour l\u2019essai (5 messages), puis '+prix:prix))+dl('Valable jusqu\u2019au',a.fin?new Date(a.fin).toLocaleDateString('fr-FR'):'—')+'<p class="dnote">L\u2019abonnement s\u2019active dès que ton dépôt Mobile Money est reconnu : tous les avantages de ton offre sont alors ouverts.</p><button class="dbtn" id="dPlus" type="button">Changer ou reconduire mon offre</button>'; }
-    else if(d==='utilisation'){ t='Utilisation'; var q=qDernier||{messagesUtilises:0,messagesMax:0}; h=a.niveau==='essai'?barre('Messages d\u2019essai',q.messagesUtilises,q.messagesMax,'Puis abonnement : Essentiel 5 000 FCFA ou Complet 19 $'):barre('Messages sur 24 h',q.messagesUtilises,q.messagesMax,'Fenêtre glissante de 24 heures'); if(cap&&cap.images&&cap.imagesMax>0) h+=barre('Images ce mois-ci',cap.imagesMax-cap.imagesRestantes,cap.imagesMax,''); if(cap&&cap.voix&&cap.voix.actif) h+=barre('Voix de Keydou aujourd\u2019hui',cap.voix.max-cap.voix.restantes,cap.voix.max,'Ensuite : voix de ton téléphone'); if(cap) h+=dl('Photos et PDF',cap.piecesMax+' par jour'); }
+    else if(d==='utilisation'){ t='Utilisation'; var q=qDernier||{messagesUtilises:0,messagesMax:0}; h=a.niveau==='essai'?barre('Messages d\u2019essai',q.messagesUtilises,q.messagesMax,'Puis abonnement : Essentiel 5 000 FCFA ou Complet 19 $'):barre('Messages sur 24 h',q.messagesUtilises,q.messagesMax,'Fenêtre glissante de 24 heures'); if(cap&&cap.images&&cap.imagesMax>0) h+=barre('Images ce mois-ci',cap.imagesMax-cap.imagesRestantes,cap.imagesMax,'');
+      if(cap&&cap.credits>0) h+=dl('Images achetées (crédit)',cap.credits+' restante'+(cap.credits>1?'s':''),'Actif');
+      if(cap&&cap.achatImages) h+='<button class="dbtn" id="dImages" type="button">Acheter des images</button>'; if(cap&&cap.voix&&cap.voix.actif) h+=barre('Voix de Keydou aujourd\u2019hui',cap.voix.max-cap.voix.restantes,cap.voix.max,'Ensuite : voix de ton téléphone'); if(cap) h+=dl('Photos et PDF',cap.piecesMax+' par jour'); }
     else if(d==='capacites'){ t='Capacités'; ((cap&&cap.liste)||[]).forEach(function(x){ h+=dl(x.nom,x.detail,x.actif?'Actif':((etat&&etat.acces&&etat.acces.niveau==='essai')?'Abonnement':'Bientôt')); }); }
     else if(d==='connecteurs'){ t='Connecteurs'; h=htmlConnecteurs(); }
     $('dTitre').textContent=t; $('dCorps').innerHTML=h; ouvrir('sheetDetail');
     var p=$('dPlus'); if(p) p.addEventListener('click',function(){ fermer(); $('btnPlus').click(); });
     if(d==='connecteurs') brancherConnecteurs();
+    var di=$('dImages'); if(di) di.addEventListener('click',function(){ fermer(); ouvrirAchatImages(); });
   }
 
   // ---- Autorisations : sur téléphone le système demande tout seul ; sur ordinateur il faut les activer ici ----

@@ -288,5 +288,65 @@ try {
     ok(st(lister((await (await import("../netlify/functions/_compagnon2.mts")).lireSante(sql))), "voix") === "erreur" && st(lister({ voix: { ok: false, at: Date.now() - SANTE_FRAIS_MS - 1000, raison: "x" } }), "voix") === "actif", "une panne est signalée une heure, puis le connecteur est réessayé");
     await sql`DELETE FROM starvibe_settings WHERE key = 'compagnon_sante'`;
   }
+
+  // --- CRÉDITS D'IMAGES : achat d'un pack par dépôt, solde, reconnaissance du dépôt, reçu ---
+  {
+    const abo = (await import("../netlify/functions/api-starvibe-subscription.mts")).default;
+    const kd = (await import("../netlify/functions/api-starvibe-keydou.mts")).default;
+    const { smsSecret } = await import("../netlify/functions/_push.mts");
+    const staffTok = await issueToken({ sub: "1", username: "carry", displayName: "Carry", org: "star_entreprise", role: "admin" });
+    const sub = (tok: string, methode: string, qs: string, corps?: unknown) => abo(new Request("https://t.test/api/starvibe-subscription" + qs, { method: methode, headers: { authorization: "Bearer " + tok, "content-type": "application/json" }, body: corps ? JSON.stringify(corps) : undefined }), {} as any);
+    // un compte Essentiel (abonné) au numéro connu, dont le quota du mois est épuisé
+    const tel = "24206" + String(Math.floor(Math.random() * 9e6) + 1e6);
+    const a = (await sql`INSERT INTO starvibe_accounts (telephone, pin_hash) VALUES (${tel}, 'x') RETURNING id`) as { id: number }[];
+    const P = { id: a[0].id, token: await issueToken({ sub: String(a[0].id), username: "pack", displayName: "pack", org: "star_vibe", role: "member" }) };
+    await sql`INSERT INTO starvibe_compagnon_profil (account_id, consentement_at, consentement_version, test, niveau_test) VALUES (${P.id}, now(), 'v1', true, 'essentiel')`;
+    for (let i = 0; i < 10; i++) await sql`INSERT INTO starvibe_compagnon_images (account_id, prompt, statut) VALUES (${P.id}, 'x', 'ok')`;
+    reponseIA = JSON.stringify({ reponse: "Voilà !", image: { prompt: "Un jardin fleuri", format: "carre" } });
+    let dd = await j(await appel(P, "POST", "", { action: "chat", message: "Crée-moi un jardin fleuri" }));
+    ok(!dd.image && dd.offreImages === true && /achète un pack/.test(dd.reponse) && /10 images .*1 200 FCFA/.test(dd.reponse) && /30 images .*3 000 FCFA/.test(dd.reponse), "quota du mois fini : Keydou propose d'acheter un pack (10 images 1 200 FCFA, 30 images 3 000 FCFA)");
+    dd = await j(await appel(P, "GET", "")); ok(dd.capacites.credits === 0 && dd.capacites.achatImages === true && dd.capacites.packs.length === 2, "état : solde 0, achat possible, deux packs proposés");
+    // demande de pack
+    let r = await sub(P.token, "POST", "", { action: "choisir_plan", plan: "credit_images_10", mois: 6 }); let d1 = await j(r);
+    ok(r.status === 201 && d1.abonnement.montantAttendu === 1200 && d1.abonnement.statut === "en_attente_paiement" && /^KOMYO-\d+$/.test(d1.abonnement.referencePaiement) && d1.abonnement.mois === 1, "pack : demande créée à 1 200 FCFA (un seul pack, jamais « × mois »), référence de dépôt KOMYO-n");
+    const id10 = Number(d1.abonnement.id);
+    r = await sub(P.token, "POST", "", { action: "choisir_plan", plan: "credit_images_10" }); ok((await j(r)).abonnement.id === d1.abonnement.id, "pack : un deuxième toucher reprend la même demande");
+    dd = await j(await appel(P, "POST", "", { action: "chat", message: "Crée-moi un jardin fleuri encore" })); ok(!dd.image, "pack non payé : aucune image de plus");
+    // mauvais montant refusé, bon montant accepté (staff)
+    r = await sub(staffTok, "POST", "", { action: "confirmer_paiement", subscriptionId: id10, montantRecu: 1000 }); ok((await j(r)).statut === "paiement_invalide", "dépôt d'un mauvais montant : refusé, aucune image ajoutée");
+    dd = await j(await appel(P, "GET", "")); ok(dd.capacites.credits === 0, "après un mauvais montant : solde toujours 0");
+    r = await sub(P.token, "POST", "", { action: "choisir_plan", plan: "credit_images_10" }); const d2 = await j(r); const id10b = Number(d2.abonnement.id);
+    // reconnaissance automatique du dépôt par SMS (même système que les abonnements)
+    const sms = await kd(new Request("https://t.test/api/starvibe-keydou?sms=1&s=" + smsSecret(), { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ message: `Vous avez recu 1200 XAF de PAYEUR (${tel}) sur votre compte mobile money 2026-11-15 22:37:34. Solde: 5525 XAF. FRAIS: FCFA 0. ID: 1234567890.`, from: "MobileMoney" }) }), {} as any);
+    const ds = await j(sms); ok(ds.resultat === "valide_auto", "dépôt de 1 200 FCFA reçu par SMS : reconnu et validé tout seul");
+    dd = await j(await appel(P, "GET", "")); ok(dd.capacites.credits === 10 && dd.capacites.imagesRestantes === 0, "pack payé : +10 images de crédit (le quota du mois reste à 0)");
+    // l'image utilise le crédit
+    dd = await j(await appel(P, "POST", "", { action: "chat", message: "Crée-moi un jardin fleuri n°2" }));
+    ok(!!dd.image?.id && dd.capacites.credits === 9 && dd.capacites.imagesRestantes === 0, "image créée avec un crédit : il en reste 9");
+    const ligne = (await sql`SELECT credit FROM starvibe_compagnon_images WHERE id = ${dd.image.id}`) as { credit: boolean }[]; ok(ligne[0].credit === true, "l'image est marquée « payée par crédit »");
+    await attendre(300);
+    // une image qui échoue n'est pas décomptée
+    await sql`UPDATE starvibe_compagnon_images SET statut = 'erreur' WHERE id = ${dd.image.id}`;
+    dd = await j(await appel(P, "GET", "")); ok(dd.capacites.credits === 10, "image en échec : le crédit est rendu");
+    // le solde ne dépend pas du quota du mois (qui se renouvelle) : 30 jours plus tard les 10 images du mois reviennent, le crédit reste
+    await sql`UPDATE starvibe_compagnon_images SET created_at = now() - interval '40 days' WHERE account_id = ${P.id} AND credit = false`;
+    dd = await j(await appel(P, "GET", "")); ok(dd.capacites.imagesRestantes === 10 && dd.capacites.credits === 10, "le mois suivant : quota renouvelé et crédit intact");
+    // un pack n'est jamais pris pour un abonnement
+    r = await sub(P.token, "GET", ""); const cur = await j(r); ok(!/credit_images/.test(String(cur.abonnement?.plan)), "écran « mon abonnement » : le pack n'apparaît pas comme un abonnement");
+    r = await sub(P.token, "GET", "?rappel=1"); ok((await j(r)).rappel === null, "pas de rappel d'échéance pour un pack");
+    // pack de 30
+    r = await sub(P.token, "POST", "", { action: "choisir_plan", plan: "credit_images_30" }); const d30 = await j(r); ok(d30.abonnement.montantAttendu === 3000, "pack 30 : 3 000 FCFA");
+    r = await sub(staffTok, "POST", "", { action: "confirmer_paiement", subscriptionId: Number(d30.abonnement.id), montantRecu: 3000 }); ok((await j(r)).statut === "actif", "pack 30 : confirmé par l'équipe");
+    dd = await j(await appel(P, "GET", "")); ok(dd.capacites.credits === 40, "10 + 30 : solde de 40 images");
+    // reçu émis
+    const rec = (await sql`SELECT titre FROM starvibe_recus WHERE ref_id = ${id10b} AND kind = 'abo' LIMIT 1`) as { titre: string }[]; ok(!!rec[0] && /pack de 10 images/.test(rec[0].titre), "un reçu « pack de 10 images » est émis");
+    // l'essai gratuit ne peut pas acheter ; un inconnu non plus
+    const tel2 = "24205" + String(Math.floor(Math.random() * 9e6) + 1e6);
+    const b2 = (await sql`INSERT INTO starvibe_accounts (telephone, pin_hash) VALUES (${tel2}, 'x') RETURNING id`) as { id: number }[];
+    const T = { token: await issueToken({ sub: String(b2[0].id), username: "essai2", displayName: "essai2", org: "star_vibe", role: "member" }) };
+    r = await sub(T.token, "POST", "", { action: "choisir_plan", plan: "credit_images_10" }); const dt = await j(r);
+    ok(r.status === 403 && dt.code === "abonnement_requis" && /abonne-toi d'abord/.test(dt.error), "essai gratuit : doit d'abord s'abonner avant d'acheter des images");
+    const dEss = await j(await appel(T, "GET", "")); ok(dEss.capacites.achatImages === false, "essai gratuit : pas de bouton d'achat d'images");
+  }
 } catch (e) { console.log("ÉCHEC : exception", e); ko++; }
 console.log(ko ? "ECHECS : " + ko : "TOUS LES TESTS OK"); process.exit(ko ? 1 : 0);
