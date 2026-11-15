@@ -61,7 +61,7 @@ export function configLk() {
 }
 export const httpDe = (wss: string) => wss.replace(/^wss:/i, "https:").replace(/^ws:/i, "http:").replace(/\/+$/, "");
 
-async function signer(claims: Record<string, unknown>, identite: string, dureeSec: number): Promise<string> {
+export async function signer(claims: Record<string, unknown>, identite: string, dureeSec: number): Promise<string> {
   const { key, secret } = configLk();
   if (!key || !secret) throw new Error("Le Salon n'est pas encore branché (clés LiveKit manquantes).");
   return await new SignJWT(claims).setProtectedHeader({ alg: "HS256", typ: "JWT" }).setIssuer(key).setSubject(identite)

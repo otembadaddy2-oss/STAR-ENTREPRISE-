@@ -13,7 +13,7 @@ export function db() {
 // Version du schéma = empreinte du texte de ensureSchema() ci-dessous (vérifiée par tools/test-schema.mts).
 // Quand tu modifies une instruction du schéma : lance « node --experimental-strip-types tools/test-schema.mts --ecrire »
 // pour mettre à jour cette ligne. Sans cela, la base ne serait pas mise à jour (le test échoue pour te le rappeler).
-const SCHEMA_VERSION = "23eaa101f7f3f5e8";
+const SCHEMA_VERSION = "a800c3165ffdb850";
 
 // Idempotent schema setup — safe to call on every cold start.
 // Rapide : les ~80 instructions ne sont rejouées que si SCHEMA_VERSION a changé depuis la dernière fois
@@ -848,6 +848,9 @@ export async function ensureSchema() {
   await sql`CREATE TABLE IF NOT EXISTS starvibe_salon_acces (account_id INTEGER PRIMARY KEY, created_at TIMESTAMPTZ NOT NULL DEFAULT now())`;
   await sql`CREATE TABLE IF NOT EXISTS starvibe_salon_entrees (id SERIAL PRIMARY KEY, salon_id INTEGER NOT NULL, account_id INTEGER NOT NULL, minutes INTEGER NOT NULL DEFAULT 0, created_at TIMESTAMPTZ NOT NULL DEFAULT now())`;
   await sql`CREATE INDEX IF NOT EXISTS starvibe_salon_entrees_salon_idx ON starvibe_salon_entrees (salon_id)`;
+  // ÉCLAT : les directs (une salle vidéo par direct ; « vu_at » = dernier signe de vie de l'animateur)
+  await sql`CREATE TABLE IF NOT EXISTS starvibe_eclat_directs (id SERIAL PRIMARY KEY, code TEXT NOT NULL UNIQUE, hote_id INTEGER NOT NULL, titre TEXT NOT NULL DEFAULT '', debut_at TIMESTAMPTZ NOT NULL DEFAULT now(), fin_at TIMESTAMPTZ NOT NULL, ferme_at TIMESTAMPTZ, vu_at TIMESTAMPTZ NOT NULL DEFAULT now())`;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_eclat_directs_hote_idx ON starvibe_eclat_directs (hote_id, debut_at)`;
 
   await sql`CREATE TABLE IF NOT EXISTS schema_meta (cle TEXT PRIMARY KEY, valeur TEXT NOT NULL, maj TIMESTAMPTZ NOT NULL DEFAULT now())`;
   await sql`INSERT INTO schema_meta (cle, valeur) VALUES ('ddl', ${empreinte}) ON CONFLICT (cle) DO UPDATE SET valeur = EXCLUDED.valeur, maj = now()`;

@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <script src="assets/i18n-v2.js"></script>
 <title>KOMYO — ÉCLAT, le direct</title>
 <meta name="theme-color" content="#0f0a18">
@@ -43,20 +43,84 @@
   .orbs span:nth-child(1){background:#ffd34a;box-shadow:0 0 12px #ffd34a}.orbs span:nth-child(2){background:#fff;box-shadow:0 0 12px #fff;animation-delay:.2s}.orbs span:nth-child(3){background:var(--sap);box-shadow:0 0 12px var(--sap);animation-delay:.4s}
   @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
   .foot{max-width:460px;margin:8px auto 40px;padding:0 20px;font-size:12px;color:#9d92b5;text-align:center;}
-  @media (prefers-reduced-motion:reduce){*{animation:none!important}}
+
+  /* ---- Le direct : vidéo en haut, discussion dessous, réactions qui montent avec la photo ---- */
+  .live-list{display:flex;flex-direction:column;gap:10px;}
+  .lv{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:#fff;text-align:left;width:100%;cursor:pointer;font:inherit;}
+  .lv .t{flex:1;min-width:0;}.lv .t b{display:block;font:700 14.5px 'Sora',Arial,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}.lv .t span{font-size:12.5px;color:#cdbfe8;}
+  .lv .go{flex:none;border-radius:999px;background:#e5322e;color:#fff;font:800 12px 'Sora',Arial,sans-serif;padding:8px 12px;display:inline-flex;gap:6px;align-items:center;}
+  .rond{flex:none;width:44px;height:44px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;font:800 16px 'Sora',Arial,sans-serif;color:#fff;background:#6b5ce7;}
+  .rond img{width:100%;height:100%;object-fit:cover;display:block;}
+  .cta.rouge{background:linear-gradient(135deg,#e5322e,#ff6b4a);box-shadow:0 14px 28px -12px rgba(229,50,46,.8);}
+  .sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;display:flex;align-items:flex-end;justify-content:center;}
+  .sheet{width:100%;max-width:520px;background:#1b1426;border-radius:22px 22px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom));border:1px solid rgba(255,255,255,.12);}
+  .sheet h2{margin:0 0 10px;font:700 17px 'Sora',Arial,sans-serif;}
+  .sheet input{width:100%;padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,.2);background:#120c1d;color:#fff;font:600 15px 'Inter',Arial,sans-serif;margin-bottom:12px;}
+  .sheet .lien{display:block;width:100%;margin-top:10px;background:none;border:0;color:#cdbfe8;font:600 14px 'Inter',Arial,sans-serif;padding:10px;cursor:pointer;}
+  #scene{position:fixed;inset:0;z-index:40;background:#000;display:flex;flex-direction:column;height:100vh;height:100dvh;color:#fff;}
+  #stage{position:relative;flex:none;height:38%;min-height:200px;background:#000;overflow:hidden;transition:height .25s ease;}
+  #scene.cache #stage{height:100%;}
+  #vid{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;}
+  .haut{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 12px 28px;background:linear-gradient(180deg,rgba(0,0,0,.65),transparent);z-index:3;}
+  .haut button{background:none;border:0;color:#fff;font-size:26px;line-height:1;padding:4px 8px;cursor:pointer;}
+  .pill{display:inline-flex;align-items:center;gap:6px;font:800 13px 'Sora',Arial,sans-serif;letter-spacing:.04em;padding:6px 12px;border-radius:10px;background:#d6201a;}
+  .pill.gris{background:rgba(255,255,255,.18);}
+  .vus{display:inline-flex;align-items:center;gap:6px;font:700 14px 'Sora',Arial,sans-serif;padding:6px 12px;border-radius:999px;background:rgba(0,0,0,.55);}
+  .titre{flex:1;min-width:0;font:700 13px 'Sora',Arial,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right;opacity:.9;}
+  .bas-video{position:absolute;left:10px;right:10px;bottom:8px;display:flex;align-items:center;gap:8px;z-index:3;}
+  .bas-video .esp{flex:1;}
+  .rb{border:0;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;font:700 13px 'Sora',Arial,sans-serif;min-width:42px;height:42px;padding:0 12px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;}
+  .rb.off{background:#d6201a;}.rb.fin{background:#d6201a;}
+  #attente{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:30px;font:600 15px/1.5 'Inter',Arial,sans-serif;color:#e9e4f5;background:rgba(0,0,0,.55);z-index:2;}
+  #chat{flex:1;min-height:0;display:flex;flex-direction:column;background:#161219;}
+  #scene.cache #chat{display:none;}
+  #fil{flex:1;min-height:0;overflow-y:auto;padding:10px 14px;overscroll-behavior:contain;}
+  .c{display:flex;gap:10px;padding:8px 0;align-items:flex-start;}
+  .c .rond{width:34px;height:34px;font-size:13px;}
+  .c .tx{min-width:0;}.c .tx b{display:block;font:700 14px 'Sora',Arial,sans-serif;color:#fff;}.c .tx span{display:block;font:500 15px/1.35 'Inter',Arial,sans-serif;color:#e8e3f0;word-break:break-word;}
+  .c .tx i{font-style:normal;font-size:11.5px;color:#9d92b5;font-weight:600;}
+  .c.sys{justify-content:center;color:#9d92b5;font-size:12.5px;}
+  .reacts{display:flex;gap:6px;align-items:center;padding:8px 10px;overflow-x:auto;-webkit-overflow-scrolling:touch;background:#161219;scrollbar-width:none;}
+  .reacts::-webkit-scrollbar{display:none;}
+  .reacts button{flex:none;border:0;background:none;font-size:34px;line-height:1;padding:2px 3px;cursor:pointer;transition:transform .12s;}
+  .reacts button:active{transform:scale(1.35);}
+  .saisie{display:flex;gap:8px;padding:8px 10px;background:#161219;}
+  .saisie input{flex:1;min-width:0;border-radius:999px;border:0;background:#2a2430;color:#fff;padding:12px 16px;font:500 15px 'Inter',Arial,sans-serif;}
+  .saisie button{flex:none;border:0;border-radius:999px;background:#e5322e;color:#fff;font:800 14px 'Sora',Arial,sans-serif;padding:0 16px;cursor:pointer;}
+  .barre{display:flex;align-items:center;gap:14px;padding:8px 12px calc(10px + env(safe-area-inset-bottom));background:#161219;border-top:1px solid rgba(255,255,255,.06);}
+  .barre button{flex:none;width:46px;height:46px;border-radius:50%;border:0;background:#2a2430;color:#fff;font-size:22px;cursor:pointer;}
+  .barre span{font:700 15px 'Sora',Arial,sans-serif;color:#fff;}
+  #tri{position:absolute;right:0;top:50%;transform:translateY(-50%);z-index:6;width:30px;height:58px;border:0;border-radius:14px 0 0 14px;background:rgba(0,0,0,.6);color:#fff;font-size:20px;cursor:pointer;display:none;align-items:center;justify-content:center;}
+  #scene.cache #tri{display:flex;}
+  #flot{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:5;}
+  .fl{position:absolute;bottom:110px;width:46px;height:46px;animation:monte 3.4s ease-out forwards;will-change:transform,opacity;}
+  .fl .rond{width:46px;height:46px;border:2px solid #fff;box-shadow:0 4px 14px rgba(0,0,0,.5);}
+  .fl .em{position:absolute;right:-8px;bottom:-8px;font-size:26px;line-height:1;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));}
+  @keyframes monte{0%{transform:translate(0,0) scale(.4);opacity:0}10%{opacity:1;transform:translate(0,-20px) scale(1)}50%{transform:translate(var(--dx),-45vh) scale(1)}85%{opacity:1}100%{transform:translate(calc(var(--dx) * -.5),-72vh) scale(.85);opacity:0}}
+  .banniere{position:absolute;left:12px;right:12px;top:70px;z-index:4;background:rgba(0,0,0,.7);border-radius:12px;padding:10px 12px;font:600 13px 'Inter',Arial,sans-serif;text-align:center;}
+  .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#fff;color:#111;border-radius:999px;padding:10px 16px;font:700 13px 'Sora',Arial,sans-serif;z-index:80;max-width:90%;}
+  @media (prefers-reduced-motion:reduce){.fl{animation-duration:.01s}}
 </style>
 </head>
 <body>
+<div id="page">
 <div class="top"><a href="fil.html">← Le fil</a><a href="accueil.html">Mon espace</a></div>
 
 <section class="hero">
-  <span class="badge"><i class="dot"></i>BIENTÔT EN DIRECT</span>
+  <span class="badge"><i class="dot"></i><span id="badgeTxt">BIENTÔT EN DIRECT</span></span>
   <h1>ÉCLAT</h1>
-  <p class="sub">Le direct de KOMYO. Filme-toi en direct, ta communauté te voit, te répond et t'encourage en temps réel.</p>
+  <p class="sub" id="subTxt">Le direct de KOMYO. Filme-toi en direct, ta communauté te voit, te répond et t'encourage en temps réel.</p>
   <div class="orbs" aria-hidden="true"><span></span><span></span><span></span></div>
 </section>
 
-<div class="box">
+<div class="box" id="liveBox" hidden>
+  <button class="cta rouge" id="btnDirect" type="button">🔴 Passer en direct</button>
+  <div class="msg" id="liveMsg" aria-live="polite"></div>
+  <div class="card" id="encours" hidden style="margin-top:14px"><h2>En direct maintenant</h2><div class="live-list" id="listeLives"></div></div>
+  <div class="card" id="aucun" hidden style="margin-top:14px;text-align:center;color:#ddd6ee;font-size:14px">Aucun direct pour le moment. Lance le tien : ta communauté te rejoint en temps réel.</div>
+</div>
+
+<div class="box" id="attenteBox">
   <div class="card">
     <h2>Ce qui arrive avec ÉCLAT</h2>
     <ul>
@@ -68,7 +132,7 @@
   </div>
 </div>
 
-<div class="box">
+<div class="box" id="joinBox">
   <button class="cta" id="btnJoin" type="button" hidden>Je veux être prévenu(e) du lancement</button>
   <div class="msg" id="msg" aria-live="polite"></div>
   <div class="card" id="loginCard" hidden style="text-align:center">
@@ -76,13 +140,52 @@
     <a class="cta" href="inscription.html" style="display:block;text-decoration:none;">Se connecter / Créer un compte</a>
   </div>
 </div>
-<p class="foot">ÉCLAT n'est pas encore ouvert : aucune diffusion en direct n'a lieu pour le moment. Tu seras prévenu(e) ici quand ce sera prêt.</p>
+<p class="foot" id="footTxt">ÉCLAT n'est pas encore ouvert : aucune diffusion en direct n'a lieu pour le moment. Tu seras prévenu(e) ici quand ce sera prêt.</p>
+</div>
 
-<script>
+<div class="sheet-bg" id="sheetTitre" hidden><div class="sheet" role="dialog" aria-label="Nouveau direct">
+  <h2>Ton direct</h2>
+  <input id="titreDirect" type="text" maxlength="60" placeholder="Titre (ex. : Culte du dimanche)" autocomplete="off">
+  <button class="cta rouge" id="btnGo" type="button">Démarrer le direct</button>
+  <button class="lien" id="btnAnnule" type="button">Annuler</button>
+  <p class="msg err" id="titreErr"></p>
+</div></div>
+
+<div id="scene" hidden>
+  <div id="stage">
+    <video id="vid" playsinline autoplay></video>
+    <div id="attente">Connexion au direct…</div>
+    <div class="haut"><button id="bRetour" type="button" aria-label="Quitter le direct">←</button><span class="pill" id="pillLive"><i class="dot" style="width:8px;height:8px"></i><span id="pillTxt">EN DIRECT</span></span><span class="vus" id="vus">👁 <b id="nVus">0</b></span><span class="titre" id="titreLive"></span></div>
+    <div class="banniere" id="banniere" hidden></div>
+    <div class="bas-video"><button class="rb" id="bMic" type="button" hidden aria-label="Micro">🎤</button><button class="rb" id="bCam" type="button" hidden aria-label="Caméra">📷</button><button class="rb" id="bFlip" type="button" hidden aria-label="Changer de caméra">🔄</button><button class="rb" id="bPart" type="button" hidden aria-label="Partager le lien">🔗</button><span class="esp"></span><button class="rb fin" id="bFin" type="button" hidden>Terminer</button><button class="rb" id="bAgrandir" type="button" aria-label="Agrandir l'écran">⛶</button></div>
+  </div>
+  <div id="chat">
+    <div id="fil" aria-live="polite"></div>
+    <div class="saisie"><input id="saisie" type="text" maxlength="200" placeholder="Ajouter un commentaire…" autocomplete="off" enterkeyhint="send"><button id="bEnvoi" type="button">Envoyer</button></div>
+    <div class="reacts" id="reacts"><button type="button" data-e="👍" aria-label="J'aime">👍</button><button type="button" data-e="❤️" aria-label="Cœur">❤️</button><button type="button" data-e="🥰" aria-label="Adore">🥰</button><button type="button" data-e="😄" aria-label="Haha">😄</button><button type="button" data-e="😮" aria-label="Waouh">😮</button><button type="button" data-e="😢" aria-label="Triste">😢</button><button type="button" data-e="🔥" aria-label="Feu">🔥</button></div>
+    <div class="barre"><button id="bCache" type="button" aria-label="Cacher la discussion">⌄</button><span>Discussion en direct</span></div>
+  </div>
+  <button id="tri" type="button" aria-label="Afficher la discussion">◂</button>
+  <div id="flot" aria-hidden="true"></div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+
+<script src="assets/livekit-client-2.23.0.umd.js" defer></script>
+<script defer>
 (function(){
   var API = '/api/starvibe-eclat', token = '';
   try { token = localStorage.getItem('starvibe_token') || ''; } catch (e) {}
-  var btn = document.getElementById('btnJoin'), msg = document.getElementById('msg'), login = document.getElementById('loginCard');
+  var $ = function(id){ return document.getElementById(id); };
+  var btn = $('btnJoin'), msg = $('msg'), login = $('loginCard');
+  function esc(t){ var d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+  function toast(t){ var e = $('toast'); e.textContent = t; e.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function(){ e.hidden = true; }, 3200); }
+  function api(corps, qs){
+    return fetch(API + (qs || ''), { method: corps ? 'POST' : 'GET', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }, body: corps ? JSON.stringify(corps) : undefined })
+      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(d){ return { ok: r.ok, s: r.status, d: d }; }); });
+  }
+
+  // ---------- Liste d'attente (tant qu'ÉCLAT n'est pas ouvert à la personne) ----------
   function etat(d){
     btn.hidden = false; btn.disabled = false;
     if (d.inscrit){ btn.textContent = '✓ Tu seras prévenu(e) — toucher pour annuler'; btn.className = 'cta ok'; msg.className = 'msg'; msg.textContent = d.total > 1 ? d.total + ' personnes attendent ÉCLAT.' : 'Tu es la première personne sur la liste !'; }
@@ -90,13 +193,197 @@
   }
   function appel(action){
     btn.disabled = true;
-    return fetch(API, { method: action ? 'POST' : 'GET', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }, body: action ? JSON.stringify({ action: action }) : undefined })
-      .then(function(r){ if (r.status === 401){ throw new Error('401'); } return r.json(); }).then(etat)
+    return api(action ? { action: action } : null).then(function(r){ if (r.s === 401) throw new Error('401'); return r.d; }).then(etat)
       .catch(function(e){ btn.disabled = false; if (e.message === '401'){ btn.hidden = true; login.hidden = false; } else { btn.hidden = false; msg.className = 'msg err'; msg.textContent = 'Connexion impossible pour le moment. Réessaie dans un instant.'; } });
   }
-  if (!token){ login.hidden = false; return; }
-  appel(null);
   btn.addEventListener('click', function(){ appel(btn.classList.contains('ok') ? 'quitter' : 'rejoindre'); });
+
+  // ---------- Accueil d'ÉCLAT : directs en cours + « Passer en direct » ----------
+  var visible = false, nom = '';
+  function chargeAccueil(){
+    if (!token){ login.hidden = false; return Promise.resolve(); }
+    return api(null, '?directs=1').then(function(r){
+      if (r.s === 401){ login.hidden = false; return; }
+      var d = r.d || {}; visible = !!d.visible;
+      $('liveBox').hidden = !visible; $('attenteBox').hidden = visible; $('joinBox').hidden = visible;
+      if (!visible){ appel(null); if (d.raison) $('footTxt').textContent = d.raison; return; }
+      $('badgeTxt').textContent = (d.directs && d.directs.length) ? 'EN DIRECT MAINTENANT' : 'EN DIRECT';
+      $('subTxt').textContent = 'Regarde un direct, écris, réagis en temps réel, ou lance le tien.';
+      $('footTxt').textContent = 'Pendant un direct, la discussion et les réactions sont visibles de tous les spectateurs.';
+      var L = $('listeLives'); L.innerHTML = '';
+      (d.directs || []).forEach(function(x){
+        var b = document.createElement('button'); b.type = 'button'; b.className = 'lv';
+        b.innerHTML = '<span class="rond">' + rondContenu(x.hote, x.photo) + '</span><span class="t"><b>' + esc(x.titre) + '</b><span>' + esc(x.hote) + '</span></span><span class="go"><i class="dot" style="width:8px;height:8px"></i>Regarder</span>';
+        b.addEventListener('click', function(){ regarder(x.code); }); L.appendChild(b);
+      });
+      $('encours').hidden = !(d.directs && d.directs.length); $('aucun').hidden = !!(d.directs && d.directs.length);
+      var mon = d.monDirect; $('btnDirect').textContent = mon ? '🔴 Revenir dans mon direct' : '🔴 Passer en direct';
+      $('btnDirect').onclick = function(){ if (mon) regarder(mon.code); else { $('titreErr').textContent = ''; $('sheetTitre').hidden = false; setTimeout(function(){ $('titreDirect').focus(); }, 80); } };
+    }).catch(function(){ $('liveMsg').textContent = 'Connexion impossible pour le moment.'; });
+  }
+  function initiale(n){ n = (n || '?').trim(); return esc((n.charAt(0) || '?').toUpperCase()); }
+  function couleur(n){ var h = 0; for (var i = 0; i < (n || '').length; i++) h = (h * 31 + n.charCodeAt(i)) % 360; return 'hsl(' + h + ',55%,48%)'; }
+  function rondContenu(n, photo){ return photo ? '<img alt="" src="' + esc(photo) + '" onerror="this.remove()">' + '<span style="position:absolute;opacity:0">' + initiale(n) + '</span>' : initiale(n); }
+  function rond(n, photo){ var e = document.createElement('span'); e.className = 'rond'; e.style.background = couleur(n); e.style.position = 'relative';
+    if (photo){ var im = document.createElement('img'); im.alt = ''; im.src = photo; im.onerror = function(){ im.remove(); e.textContent = initiale(n); }; e.appendChild(im); } else e.textContent = initiale(n); return e; }
+
+  $('btnAnnule').addEventListener('click', function(){ $('sheetTitre').hidden = true; });
+  $('btnGo').addEventListener('click', function(){
+    var b = $('btnGo'); b.disabled = true; $('titreErr').textContent = '';
+    api({ action: 'demarrer', titre: $('titreDirect').value }).then(function(r){
+      b.disabled = false;
+      if (!r.ok){ $('titreErr').textContent = r.d.error || 'Impossible de démarrer.'; return; }
+      $('sheetTitre').hidden = true; ouvrirScene(r.d, true, r.d.identite, r.d.titre);
+    }).catch(function(){ b.disabled = false; $('titreErr').textContent = 'Connexion impossible. Réessaie.'; });
+  });
+  function regarder(code){
+    api({ action: 'regarder', code: code }).then(function(r){
+      if (!r.ok){ toast(r.d.error || 'Impossible de rejoindre ce direct.'); if (r.d.code === 'termine') chargeAccueil(); return; }
+      ouvrirScene(r.d, r.d.animateur, r.d.hoteIdentite, r.d.titre, code);
+    }).catch(function(){ toast('Connexion impossible. Réessaie.'); });
+  }
+
+  // ---------- Le direct ----------
+  var room = null, sess = null, estAnimateur = false, hoteId = '', codeDirect = '', pulse = null, fini = false, graceHote = null, finTimer = null, dernierEnvoi = 0, vidTrackSrc = '';
+  var LK = function(){ return window.LivekitClient; };
+  function ouvrirScene(s, animateur, hote, titre, code){
+    if (!LK()){ toast('Le service vidéo se charge, réessaie dans un instant.'); return; }
+    sess = s; estAnimateur = !!animateur; hoteId = hote; codeDirect = code || s.code; fini = false;
+    nom = s.nom || '';
+    $('scene').hidden = false; $('page').style.display = 'none'; $('scene').classList.remove('cache');
+    $('fil').innerHTML = ''; $('flot').innerHTML = ''; $('vid').srcObject = null; $('attente').hidden = false;
+    $('attente').textContent = estAnimateur ? 'Démarrage de ta caméra…' : 'Connexion au direct…';
+    $('titreLive').textContent = titre || ''; $('nVus').textContent = '0';
+    ['bMic','bCam','bFlip','bPart','bFin'].forEach(function(i){ $(i).hidden = !estAnimateur; });
+    $('bMic').classList.remove('off'); $('bCam').classList.remove('off');
+    $('vid').muted = estAnimateur;
+    try { history.replaceState(null, '', '?v=' + codeDirect); } catch (e) {}
+    connecter();
+  }
+  function banniere(t){ var b = $('banniere'); if (!t){ b.hidden = true; return; } b.textContent = t; b.hidden = false; }
+  function compte(){ if (room) $('nVus').textContent = String(room.remoteParticipants ? room.remoteParticipants.size : 0); }
+  function attacher(track, p){
+    if (!track) return;
+    if (track.kind === 'video' && p.identity === hoteId){ track.attach($('vid')); $('attente').hidden = true; }
+    else if (track.kind === 'audio' && !estAnimateur){ var a = track.attach(); a.setAttribute('data-id', p.identity); document.body.appendChild(a); }
+  }
+  function parcourir(){
+    if (!room || !room.remoteParticipants) return;
+    room.remoteParticipants.forEach(function(p){ var pubs = p.trackPublications || p.tracks; if (pubs && pubs.forEach) pubs.forEach(function(pub){ if (pub.track) attacher(pub.track, p); }); });
+  }
+  function connecter(){
+    var L = LK(), E = L.RoomEvent;
+    var r = new L.Room({ adaptiveStream: true, dynacast: true }); room = r;
+    r.on(E.TrackSubscribed, function(t, pub, p){ attacher(t, p); })
+     .on(E.TrackUnsubscribed, function(t){ t.detach().forEach(function(el){ if (el !== $('vid')) el.remove(); }); })
+     .on(E.ParticipantConnected, function(p){ compte(); if (p.identity === hoteId){ clearTimeout(graceHote); banniere(''); } })
+     .on(E.ParticipantDisconnected, function(p){ compte(); if (p.identity === hoteId && !estAnimateur){ banniere('La connexion de la personne en direct est perdue…'); clearTimeout(graceHote); graceHote = setTimeout(function(){ finDirect('Le direct est terminé.'); }, 30000); } })
+     .on(E.DataReceived, recu)
+     .on(E.Reconnecting, function(){ banniere('Reconnexion…'); }).on(E.Reconnected, function(){ banniere(''); })
+     .on(E.Disconnected, function(){ if (room === r && !fini) finDirect(estAnimateur ? 'Tu es déconnecté(e) du direct.' : 'Le direct est terminé.'); });
+    r.connect(sess.url, sess.jeton).then(function(){
+      compte(); parcourir();
+      try { r.startAudio(); } catch (e) {}
+      if (estAnimateur) return demarrerCamera(r);
+      $('attente').textContent = "L'animateur arrive…"; setTimeout(function(){ if (!$('attente').hidden && room === r) $('attente').textContent = "En attente de la vidéo…"; }, 6000);
+    }).catch(function(){ if (!fini) finDirect('Connexion impossible. Vérifie ton réseau et réessaie.'); });
+    if (estAnimateur){ pulse = setInterval(function(){ api({ action: 'battement', code: codeDirect }).then(function(x){ if (x.d && x.d.fini) finDirect('Le direct est terminé.'); }); }, 30000); }
+    clearTimeout(finTimer); var reste = new Date(sess.finAt).getTime() - Date.now(); finTimer = setTimeout(function(){ finDirect('Le direct est arrivé à sa durée maximale.'); }, Math.max(1000, reste));
+  }
+  function demarrerCamera(r){
+    return r.localParticipant.setCameraEnabled(true, { facingMode: 'user' }).then(function(){
+      var pub = r.localParticipant.getTrackPublication && r.localParticipant.getTrackPublication(LK().Track.Source.Camera);
+      if (pub && pub.track) pub.track.attach($('vid')); $('attente').hidden = true; return r.localParticipant.setMicrophoneEnabled(true).catch(function(){ toast("Autorise le micro pour qu'on t'entende."); });
+    }).catch(function(){ $('attente').textContent = "Autorise la caméra et le micro pour ce site, puis relance le direct."; });
+  }
+  function finDirect(texte){
+    if (fini) return; fini = true; clearInterval(pulse); clearTimeout(finTimer); clearTimeout(graceHote);
+    try { if (room) room.disconnect(); } catch (e) {} room = null;
+    document.querySelectorAll('audio[data-id]').forEach(function(a){ a.remove(); });
+    $('vid').srcObject = null; $('scene').hidden = true; $('page').style.display = '';
+    try { history.replaceState(null, '', location.pathname); } catch (e) {}
+    if (document.fullscreenElement && document.exitFullscreen){ try { document.exitFullscreen(); } catch (e) {} }
+    toast(texte || 'Le direct est terminé.'); chargeAccueil();
+  }
+  $('bRetour').addEventListener('click', function(){
+    if (estAnimateur){ if (!confirm('Terminer le direct pour tout le monde ?')) return; terminer(); } else finDirect('Tu as quitté le direct.');
+  });
+  $('bFin').addEventListener('click', function(){ if (confirm('Terminer le direct pour tout le monde ?')) terminer(); });
+  function terminer(){ var c = codeDirect; api({ action: 'terminer', code: c }).then(function(){ finDirect('Ton direct est terminé.'); }).catch(function(){ finDirect('Ton direct est terminé.'); }); }
+  window.addEventListener('pagehide', function(){ if (room){ try { room.disconnect(); } catch (e) {} } });
+
+  // Boutons de l'animateur
+  $('bMic').addEventListener('click', function(){ if (!room) return; var on = room.localParticipant.isMicrophoneEnabled; room.localParticipant.setMicrophoneEnabled(!on); $('bMic').classList.toggle('off', on); });
+  $('bCam').addEventListener('click', function(){ if (!room) return; var on = room.localParticipant.isCameraEnabled; room.localParticipant.setCameraEnabled(!on).then(function(){ if (!on){ var pub = room.localParticipant.getTrackPublication(LK().Track.Source.Camera); if (pub && pub.track) pub.track.attach($('vid')); } }); $('bCam').classList.toggle('off', on); });
+  var face = 'user';
+  $('bFlip').addEventListener('click', function(){ if (!room) return; var pub = room.localParticipant.getTrackPublication(LK().Track.Source.Camera); if (!pub || !pub.videoTrack) return; face = face === 'user' ? 'environment' : 'user'; try { pub.videoTrack.restartTrack({ facingMode: face }).catch(function(){ toast('Impossible de changer de caméra.'); }); } catch (e) { toast('Impossible de changer de caméra.'); } });
+  $('bPart').addEventListener('click', function(){
+    var lien = location.origin + location.pathname + '?v=' + codeDirect, t = 'Rejoins mon direct sur KOMYO : ' + ($('titreLive').textContent || 'ÉCLAT');
+    if (navigator.share){ navigator.share({ title: 'ÉCLAT', text: t, url: lien }).catch(function(){}); }
+    else if (navigator.clipboard){ navigator.clipboard.writeText(lien).then(function(){ toast('Lien copié.'); }); } else { prompt('Copie ce lien :', lien); }
+  });
+
+  // Agrandir / cacher la discussion (flèche en bas à gauche) / ◂ pour la faire réapparaître
+  function cacher(plein){
+    $('scene').classList.add('cache');
+    if (plein && $('scene').requestFullscreen){ try { $('scene').requestFullscreen().catch(function(){}); } catch (e) {} }
+  }
+  function montrer(){ $('scene').classList.remove('cache'); if (document.fullscreenElement && document.exitFullscreen){ try { document.exitFullscreen(); } catch (e) {} } setTimeout(bas, 60); }
+  $('bCache').addEventListener('click', function(){ cacher(false); });
+  $('bAgrandir').addEventListener('click', function(){ if ($('scene').classList.contains('cache')) montrer(); else cacher(true); });
+  $('tri').addEventListener('click', montrer);
+
+  // Discussion
+  function bas(){ var f = $('fil'); f.scrollTop = f.scrollHeight; }
+  function ajouterCommentaire(auteur, photo, texte, ident){
+    var f = $('fil'), proche = f.scrollHeight - f.scrollTop - f.clientHeight < 80;
+    var c = document.createElement('div'); c.className = 'c';
+    var tx = document.createElement('div'); tx.className = 'tx';
+    var b = document.createElement('b'); b.textContent = auteur || 'Membre'; var sp = document.createElement('span'); sp.textContent = texte;
+    tx.appendChild(b); tx.appendChild(sp); c.appendChild(rond(auteur, photo)); c.appendChild(tx);
+    if (estAnimateur && ident && ident !== (sess && sess.identite)){
+      c.addEventListener('click', function(){ if (confirm('Retirer ' + (auteur || 'cette personne') + ' du direct ?')) api({ action: 'retirer', code: codeDirect, identite: ident }).then(function(r){ toast(r.ok ? 'Personne retirée.' : (r.d.error || 'Impossible.')); }); });
+    }
+    f.appendChild(c); while (f.children.length > 80) f.removeChild(f.firstChild); if (proche) bas();
+  }
+  function metaDe(p){ try { return JSON.parse((p && p.metadata) || '{}'); } catch (e) { return {}; } }
+  var enc = new TextEncoder(), dec = new TextDecoder();
+  function envoyer(sujet, objet){ if (!room) return; try { room.localParticipant.publishData(enc.encode(JSON.stringify(objet)), { reliable: sujet === 'chat', topic: sujet }); } catch (e) {} }
+  function recu(payload, p, kind, topic){
+    var o; try { o = JSON.parse(dec.decode(payload)); } catch (e) { return; }
+    if (!p) return;
+    if (topic === 'chat' && typeof o.t === 'string') ajouterCommentaire(p.name, metaDe(p).p, o.t.slice(0, 200), p.identity);
+    else if (topic === 'react' && typeof o.e === 'string' && REAC.indexOf(o.e) >= 0) flotter(o.e, p.name, metaDe(p).p);
+  }
+  var REAC = ['👍','❤️','🥰','😄','😮','😢','🔥'];
+  function envoiCommentaire(){
+    var i = $('saisie'), t = (i.value || '').replace(/\s+/g, ' ').trim().slice(0, 200); if (!t || !room) return;
+    if (Date.now() - dernierEnvoi < 700) return; dernierEnvoi = Date.now();
+    i.value = ''; envoyer('chat', { t: t }); ajouterCommentaire(sess.nom, sess.photo || '', t, sess.identite);
+  }
+  $('bEnvoi').addEventListener('click', envoiCommentaire);
+  $('saisie').addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); envoiCommentaire(); } });
+
+  // Réactions : le rond de la personne (sa photo) monte avec l'émoticône, puis disparaît
+  var enVol = 0;
+  function flotter(emoji, auteur, photo){
+    if (enVol > 30) return; enVol++;
+    var f = document.createElement('div'); f.className = 'fl'; f.style.right = (14 + Math.random() * 70) + 'px'; f.style.setProperty('--dx', Math.round((Math.random() - .5) * 60) + 'px');
+    f.style.animationDuration = (2.8 + Math.random() * 1.2) + 's';
+    f.appendChild(rond(auteur, photo)); var em = document.createElement('span'); em.className = 'em'; em.textContent = emoji; f.appendChild(em);
+    $('flot').appendChild(f); setTimeout(function(){ f.remove(); enVol--; }, 4200);
+  }
+  var dernierReact = 0;
+  $('reacts').addEventListener('click', function(e){
+    var b = e.target.closest('button[data-e]'); if (!b || !room) return;
+    if (Date.now() - dernierReact < 250) return; dernierReact = Date.now();
+    var em = b.getAttribute('data-e'); envoyer('react', { e: em }); flotter(em, sess.nom, sess.photo || '');
+  });
+
+  // ---------- Départ ----------
+  if (!token){ login.hidden = false; return; }
+  var v = (new URLSearchParams(location.search).get('v') || '').toUpperCase();
+  chargeAccueil().then(function(){ if (v && visible) { var go = function(){ regarder(v); }; if (LK()) go(); else window.addEventListener('load', go); } });
 })();
 </script>
 </body>

@@ -285,3 +285,11 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - Connecteurs : actifs seulement quand réels (Claude, recherche, images, voix). Claude/ChatGPT/Grok/Canva/Gmail/GitHub… = « Bientôt » (chacun demande une application + autorisation).
 - Décision à prendre par Carry : version gratuite plafonnée ou pas (aujourd'hui « jamais gratuit »).
 - NE PAS DÉPLOYER avant le « oui, publie » de Carry. Penser à cocher « Ouvert à l'abonnement » dans keydou-admin.html.
+
+## 15/11/2026 — ÉCLAT, le direct (EN ATTENTE, NON PUBLIÉ)
+- Vrai direct sur LiveKit (mêmes clés que le Salon) : « Passer en direct », liste des directs, regarder, discussion, réactions (la photo de la personne monte avec l'émoticône), flèche ⌄ pour cacher la discussion, ◂ pour la rouvrir, ⛶ plein écran.
+- Test fermé : seuls les testeurs (liste du Salon) diffusent et regardent ; interrupteur « ÉCLAT ouvert à tous » dans keydou-admin.html, section Salon.
+- Limites (coût) : 100 spectateurs, 1 heure max, 3 directs par jour pour un membre ordinaire, un seul direct à la fois. L'animateur peut retirer un spectateur (toucher son commentaire).
+- Pas encore fait : prévenir les abonnés quand quelqu'un démarre ; modération avancée ; historique des commentaires pour ceux qui arrivent en retard ; rediffusion.
+- À vérifier au 1er essai réel : permission caméra/micro sur le téléphone, qualité sur réseau mobile.
+- NE PAS DÉPLOYER avant le « publie » de Carry.
