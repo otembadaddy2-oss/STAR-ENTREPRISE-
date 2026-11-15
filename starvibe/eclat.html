@@ -93,13 +93,18 @@
   #tri{position:absolute;right:0;top:50%;transform:translateY(-50%);z-index:6;width:30px;height:58px;border:0;border-radius:14px 0 0 14px;background:rgba(0,0,0,.6);color:#fff;font-size:20px;cursor:pointer;display:none;align-items:center;justify-content:center;}
   #scene.cache #tri{display:flex;}
   #flot{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:5;}
+  /* Cœurs et émoticônes en rafale : même effet que « J'aime » dans le fil */
+  .coeur-vol{position:absolute;pointer-events:none;width:26px;height:26px;margin:-13px 0 0 -13px;opacity:0;animation:coeurVol var(--d,1.7s) cubic-bezier(.25,.6,.35,1) var(--w,0s) forwards;will-change:transform,opacity;}
+  .coeur-vol svg{width:100%;height:100%;filter:drop-shadow(0 0 3px rgba(238,18,40,.95)) drop-shadow(0 0 9px rgba(238,18,40,.75));}
+  .coeur-vol.emo{display:flex;align-items:center;justify-content:center;font-size:24px;line-height:1;}
+  @keyframes coeurVol{0%{opacity:0;transform:translate(0,0) scale(.4);}12%{opacity:1;transform:translate(0,-18px) scale(1.15);}55%{opacity:.95;transform:translate(var(--x1,10px),-170px) scale(1);}100%{opacity:0;transform:translate(var(--x2,-14px),-330px) scale(.8) rotate(var(--r,12deg));}}
   .fl{position:absolute;bottom:110px;width:46px;height:46px;animation:monte 3.4s ease-out forwards;will-change:transform,opacity;}
   .fl .rond{width:46px;height:46px;border:2px solid #fff;box-shadow:0 4px 14px rgba(0,0,0,.5);}
   .fl .em{position:absolute;right:-8px;bottom:-8px;font-size:26px;line-height:1;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));}
   @keyframes monte{0%{transform:translate(0,0) scale(.4);opacity:0}10%{opacity:1;transform:translate(0,-20px) scale(1)}50%{transform:translate(var(--dx),-45vh) scale(1)}85%{opacity:1}100%{transform:translate(calc(var(--dx) * -.5),-72vh) scale(.85);opacity:0}}
   .banniere{position:absolute;left:12px;right:12px;top:70px;z-index:4;background:rgba(0,0,0,.7);border-radius:12px;padding:10px 12px;font:600 13px 'Inter',Arial,sans-serif;text-align:center;}
   .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#fff;color:#111;border-radius:999px;padding:10px 16px;font:700 13px 'Sora',Arial,sans-serif;z-index:80;max-width:90%;}
-  @media (prefers-reduced-motion:reduce){.fl{animation-duration:.01s}}
+  @media (prefers-reduced-motion:reduce){.fl,.coeur-vol{animation-duration:.01s}}
 </style>
 </head>
 <body>
@@ -365,8 +370,26 @@
   $('saisie').addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); envoiCommentaire(); } });
 
   // Réactions : le rond de la personne (sa photo) monte avec l'émoticône, puis disparaît
-  var enVol = 0;
-  function flotter(emoji, auteur, photo){
+  var enVol = 0, enRafale = 0, HEART = 'M12 21s-7.5-4.6-10-9.3C.4 8 2 4.5 5.6 4c2-.3 3.9.6 6.4 3 2.5-2.4 4.4-3.3 6.4-3C22 4.5 23.6 8 22 11.7 19.5 16.4 12 21 12 21z';
+  function rafale(emoji, x0, y0){
+    if (enRafale > 70) return;
+    var coeur = (emoji === '❤️' || emoji === '🥰'), n = coeur ? 7 : 5;
+    for (var i = 0; i < n; i++){
+      var c = document.createElement('div'); c.className = 'coeur-vol' + (coeur ? '' : ' emo'); c.setAttribute('aria-hidden', 'true');
+      c.style.left = x0 + 'px'; c.style.top = y0 + 'px';
+      c.style.setProperty('--x1', (Math.random() * 60 - 40) + 'px'); c.style.setProperty('--x2', (Math.random() * 90 - 60) + 'px');
+      c.style.setProperty('--w', (i * 0.11) + 's'); c.style.setProperty('--d', (1.5 + Math.random() * 0.7) + 's'); c.style.setProperty('--r', (Math.random() * 40 - 20) + 'deg');
+      var sc = 0.75 + Math.random() * 0.7; c.style.width = c.style.height = (26 * sc) + 'px';
+      if (coeur) c.innerHTML = '<svg viewBox="0 0 24 24"><defs><radialGradient id="hg' + (++idHg) + '" cx="35%" cy="28%" r="75%"><stop offset="0" stop-color="#ff4a3d"/><stop offset=".5" stop-color="#ee1228"/><stop offset="1" stop-color="#c70019"/></radialGradient></defs><path fill="url(#hg' + idHg + ')" d="' + HEART + '"/></svg>';
+      else { c.textContent = emoji; c.style.fontSize = (22 * sc) + 'px'; }
+      $('flot').appendChild(c); enRafale++;
+      setTimeout((function(el){ return function(){ el.remove(); enRafale--; }; })(c), 2800);
+    }
+  }
+  var idHg = 0;
+  function flotter(emoji, auteur, photo, depuis){
+    var W = $('scene').clientWidth, H = $('scene').clientHeight, r = depuis ? depuis.getBoundingClientRect() : null;
+    rafale(emoji, r ? r.left + r.width / 2 : W - 36 - Math.random() * 60, r ? r.top + r.height / 2 : H - 100);
     if (enVol > 30) return; enVol++;
     var f = document.createElement('div'); f.className = 'fl'; f.style.right = (14 + Math.random() * 70) + 'px'; f.style.setProperty('--dx', Math.round((Math.random() - .5) * 60) + 'px');
     f.style.animationDuration = (2.8 + Math.random() * 1.2) + 's';
@@ -377,7 +400,7 @@
   $('reacts').addEventListener('click', function(e){
     var b = e.target.closest('button[data-e]'); if (!b || !room) return;
     if (Date.now() - dernierReact < 250) return; dernierReact = Date.now();
-    var em = b.getAttribute('data-e'); envoyer('react', { e: em }); flotter(em, sess.nom, sess.photo || '');
+    var em = b.getAttribute('data-e'); envoyer('react', { e: em }); flotter(em, sess.nom, sess.photo || '', b);
   });
 
   // ---------- Départ ----------
