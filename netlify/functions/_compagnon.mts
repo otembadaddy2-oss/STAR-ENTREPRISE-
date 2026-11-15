@@ -10,15 +10,27 @@ import webpush from "web-push";
 import { vapidKeys } from "./_push.mts";
 
 // « essai » : tout membre KOMYO peut installer Keydou ; sans abonnement il a quelques messages d'essai, puis on lui propose l'offre.
-export type Niveau = "essai" | "essentiel" | "complet";
+export type Niveau = "essai" | "essentiel" | "complet" | "premium" | "prestige";
 export const ESSAI_MESSAGES = 5;   // en tout, pas par jour
-export const MSG_ESSAI_FINI = "Tu as utilisé tes 5 messages d'essai. Pour continuer avec Keydou et profiter de toutes ses options (rappels, photos et documents, recherches vérifiées, images, voix), passe à l'offre Essentiel à 5 000 FCFA par mois, ou à Complet (Pro) à 19 $ par mois. Touche « Voir les offres ».";
-export const MSG_OPTION_ABONNE = "Cette option est comprise dans l'abonnement : Essentiel 5 000 FCFA par mois, ou Complet (Pro) 19 $ par mois pour encore plus d'options.";
-export const LIMITES: Record<Niveau, { label: string; messages: number; recherches: number; rappels: number }> = {
-  essai: { label: "Essai gratuit", messages: ESSAI_MESSAGES, recherches: 0, rappels: 0 },
-  essentiel: { label: "Essentiel", messages: 65, recherches: 10, rappels: 10 },
-  complet: { label: "Complet", messages: 200, recherches: 30, rappels: 500 },
+// Les quatre abonnements (paiement par dépôt Mobile Money) et le niveau qu'ils ouvrent.
+export const NIVEAU_DU_PLAN: Record<string, Niveau> = { compagnon: "essentiel", compagnon_complet: "complet", compagnon_premium: "premium", compagnon_prestige: "prestige" };
+export const PLANS_COMPAGNON_IDS = Object.keys(NIVEAU_DU_PLAN);
+export const RANG: Record<Niveau, number> = { essai: 0, essentiel: 1, complet: 2, premium: 3, prestige: 4 };
+export const estPro = (n: Niveau): boolean => RANG[n] >= RANG.complet;   // Complet, Premium, Prestige : modes approfondis, voix, tests notés
+export const niveauValide = (v: unknown): Niveau => (["essentiel", "complet", "premium", "prestige"].includes(String(v)) ? (String(v) as Niveau) : "essentiel");
+// Avantages par niveau (tout ce qui est annoncé aux clients vient d'ici : rien n'est promis sans être appliqué).
+export interface Avantages { label: string; messages: number; recherches: number; rappels: number; images: number; pieces: number; voix: number; notes: number; historique: number; jetonsGeneral: number; jetonsProfond: number; effortGeneral: string; effortProfond: string; longueurReponse: number; remisePack: number }
+export const AVANTAGES: Record<Niveau, Avantages> = {
+  essai:     { label: "Essai gratuit", messages: ESSAI_MESSAGES, recherches: 0,   rappels: 0,    images: 2,   pieces: 0,  voix: 0,  notes: 80,  historique: 12, jetonsGeneral: 1400, jetonsProfond: 2600, effortGeneral: "low",    effortProfond: "medium", longueurReponse: 1800, remisePack: 0 },
+  essentiel: { label: "Essentiel",     messages: 65,  recherches: 10,  rappels: 10,   images: 10,  pieces: 5,  voix: 0,  notes: 80,  historique: 12, jetonsGeneral: 1400, jetonsProfond: 2600, effortGeneral: "low",    effortProfond: "medium", longueurReponse: 1800, remisePack: 0 },
+  complet:   { label: "Complet",       messages: 200, recherches: 30,  rappels: 500,  images: 35,  pieces: 30, voix: 6,  notes: 80,  historique: 12, jetonsGeneral: 2200, jetonsProfond: 4500, effortGeneral: "medium", effortProfond: "high",   longueurReponse: 1800, remisePack: 0 },
+  premium:   { label: "Premium",       messages: 350, recherches: 60,  rappels: 1000, images: 70,  pieces: 50, voix: 15, notes: 150, historique: 20, jetonsGeneral: 3000, jetonsProfond: 6000, effortGeneral: "medium", effortProfond: "high",   longueurReponse: 2600, remisePack: 10 },
+  prestige:  { label: "Prestige",      messages: 500, recherches: 100, rappels: 2000, images: 120, pieces: 80, voix: 30, notes: 300, historique: 30, jetonsGeneral: 4000, jetonsProfond: 8000, effortGeneral: "high",   effortProfond: "high",   longueurReponse: 3500, remisePack: 20 },
 };
+export const MSG_ESSAI_FINI = "Tu as utilisé tes 5 messages d'essai. Pour continuer avec Keydou et profiter de toutes ses options (rappels, photos et documents, recherches vérifiées, images, voix), choisis ton offre : Essentiel à 5 000 FCFA par mois, Complet (Pro) à 19 $, Premium à 35 $ ou Prestige à 49 $ par mois. Touche « Voir les offres ».";
+export const MSG_OPTION_ABONNE = "Cette option est comprise dans l'abonnement : Essentiel 5 000 FCFA par mois, ou Complet (Pro) 19 $, Premium 35 $, Prestige 49 $ par mois pour encore plus d'options.";
+export const LIMITES: Record<Niveau, { label: string; messages: number; recherches: number; rappels: number }> = Object.fromEntries(
+  (Object.keys(AVANTAGES) as Niveau[]).map((n) => [n, { label: AVANTAGES[n].label, messages: AVANTAGES[n].messages, recherches: AVANTAGES[n].recherches, rappels: AVANTAGES[n].rappels }])) as Record<Niveau, { label: string; messages: number; recherches: number; rappels: number }>;
 export const FENETRE_MS = 24 * 3600 * 1000;
 export const CONSENTEMENT_VERSION = "v1";
 export const REPETITIONS = ["", "jour", "semaine", "mois", "an"];
@@ -88,12 +100,12 @@ export interface Acces { niveau: Niveau; source: "abonnement" | "test" | "essai"
 export async function accesDe(sql: any, accountId: number): Promise<Acces | null> {
   const ab = (await sql`
     SELECT plan, expires_at FROM starvibe_subscriptions
-    WHERE account_id = ${accountId} AND plan IN ('compagnon', 'compagnon_complet') AND statut = 'actif' AND montant_attendu > 0 AND expires_at > now()
-    ORDER BY (plan = 'compagnon_complet') DESC, expires_at DESC LIMIT 1
+    WHERE account_id = ${accountId} AND plan IN ('compagnon', 'compagnon_complet', 'compagnon_premium', 'compagnon_prestige') AND statut = 'actif' AND montant_attendu > 0 AND expires_at > now()
+    ORDER BY (CASE plan WHEN 'compagnon_prestige' THEN 4 WHEN 'compagnon_premium' THEN 3 WHEN 'compagnon_complet' THEN 2 ELSE 1 END) DESC, expires_at DESC LIMIT 1
   `) as { plan: string; expires_at: string }[];
-  if (ab[0]) return { niveau: ab[0].plan === "compagnon_complet" ? "complet" : "essentiel", source: "abonnement", fin: ab[0].expires_at };
+  if (ab[0]) return { niveau: NIVEAU_DU_PLAN[ab[0].plan] || "essentiel", source: "abonnement", fin: ab[0].expires_at };
   const t = (await sql`SELECT test, niveau_test FROM starvibe_compagnon_profil WHERE account_id = ${accountId}`) as { test: boolean; niveau_test: string }[];
-  if (t[0]?.test) return { niveau: t[0].niveau_test === "complet" ? "complet" : "essentiel", source: "test", fin: null };
+  if (t[0]?.test) return { niveau: niveauValide(t[0].niveau_test), source: "test", fin: null };
   // Jamais abonné : essai gratuit (tout le monde peut télécharger Keydou). Un ancien abonné qui n'a pas reconduit n'a pas de nouvel essai.
   if (!(await aDejaAbonne(sql, accountId)).deja) return { niveau: "essai", source: "essai", fin: null };
   return null;
@@ -169,7 +181,7 @@ FORMAT DE SORTIE : un seul objet JSON, sans texte autour :
 }
 
 // ---------- Fin d'abonnement ----------
-export const OFFRES_TXT = "Essentiel 5 000 FCFA ou Complet 19 $ par mois";
+export const OFFRES_TXT = "Essentiel 5 000 FCFA, Complet 19 $, Premium 35 $ ou Prestige 49 $ par mois";
 export function texteFinAbonnement(fin: Date): string {
   const quand = new Intl.DateTimeFormat("fr-FR", { timeZone: "Africa/Brazzaville", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(fin);
   return `Ton abonnement Keydou Compagnon se termine le ${quand} (heure de Brazzaville). Pour continuer à profiter de Keydou, réabonne-toi ou reconduis ton abonnement mensuel : ${OFFRES_TXT}.`;
@@ -177,7 +189,7 @@ export function texteFinAbonnement(fin: Date): string {
 // La personne a-t-elle déjà eu (ou a-t-elle) un abonnement Compagnon payé ? Elle peut alors toujours le reconduire.
 // deno-lint-ignore no-explicit-any
 export async function aDejaAbonne(sql: any, accountId: number): Promise<{ deja: boolean; fin: string | null }> {
-  const r = (await sql`SELECT MAX(expires_at) AS fin, COUNT(*) AS n FROM starvibe_subscriptions WHERE account_id = ${accountId} AND plan IN ('compagnon', 'compagnon_complet') AND statut = 'actif' AND montant_attendu > 0`) as { fin: string | null; n: string }[];
+  const r = (await sql`SELECT MAX(expires_at) AS fin, COUNT(*) AS n FROM starvibe_subscriptions WHERE account_id = ${accountId} AND plan IN ('compagnon', 'compagnon_complet', 'compagnon_premium', 'compagnon_prestige') AND statut = 'actif' AND montant_attendu > 0`) as { fin: string | null; n: string }[];
   return { deja: Number(r[0]?.n || 0) > 0, fin: r[0]?.fin || null };
 }
 
@@ -220,8 +232,10 @@ export const PACKS_IMAGES: Record<string, { images: number; montant: number; lab
   credit_images_10: { images: 10, montant: Number(process.env.PACK_IMAGES_10_FCFA) > 0 ? Math.round(Number(process.env.PACK_IMAGES_10_FCFA)) : 1200, label: "Pack 10 images" },
   credit_images_30: { images: 30, montant: Number(process.env.PACK_IMAGES_30_FCFA) > 0 ? Math.round(Number(process.env.PACK_IMAGES_30_FCFA)) : 3000, label: "Pack 30 images" },
 };
+// Les abonnés Premium (-10 %) et Prestige (-20 %) paient leurs packs d'images moins cher ; montant arrondi à 10 FCFA.
+export const prixPack = (plan: string, niveau: Niveau): number => { const p = PACKS_IMAGES[plan]; if (!p) return 0; return Math.round((p.montant * (100 - AVANTAGES[niveau].remisePack)) / 100 / 10) * 10; };
 export const estPackImages = (plan: string): boolean => Object.prototype.hasOwnProperty.call(PACKS_IMAGES, plan);
-export const PACKS_TXT = () => Object.values(PACKS_IMAGES).map((p) => `${p.images} images ${p.montant.toLocaleString("fr-FR").replace(/\u202f|\u00a0/g, " ")} FCFA`).join(", ");
+export const PACKS_TXT = (niveau: Niveau = "essentiel") => Object.entries(PACKS_IMAGES).map(([id, p]) => `${p.images} images ${prixPack(id, niveau).toLocaleString("fr-FR").replace(/\u202f|\u00a0/g, " ")} FCFA`).join(", ");
 // deno-lint-ignore no-explicit-any
 export async function creditsImages(sql: any, accountId: number): Promise<number> {
   const achetes = (await sql`SELECT plan, COUNT(*) AS n FROM starvibe_subscriptions WHERE account_id = ${accountId} AND plan LIKE 'credit_images_%' AND statut = 'actif' AND montant_attendu > 0 GROUP BY plan`) as { plan: string; n: string }[];

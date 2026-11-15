@@ -347,6 +347,28 @@ try {
     r = await sub(T.token, "POST", "", { action: "choisir_plan", plan: "credit_images_10" }); const dt = await j(r);
     ok(r.status === 403 && dt.code === "abonnement_requis" && /abonne-toi d'abord/.test(dt.error), "essai gratuit : doit d'abord s'abonner avant d'acheter des images");
     const dEss = await j(await appel(T, "GET", "")); ok(dEss.capacites.achatImages === false, "essai gratuit : pas de bouton d'achat d'images");
+    // ---- Offres Complet 19 $ / Premium 35 $ / Prestige 49 $ : avantages qui montent, paiement par dépôt, remises sur les packs
+    const { AVANTAGES, LIMITES } = await import("../netlify/functions/_compagnon.mts");
+    const ordre = ["essentiel", "complet", "premium", "prestige"] as const;
+    for (const cle of ["messages", "recherches", "rappels", "images", "pieces", "voix", "notes", "historique", "jetonsGeneral", "jetonsProfond", "longueurReponse"] as const) {
+      let croit = true; for (let i = 1; i < ordre.length; i++) if ((AVANTAGES[ordre[i]] as any)[cle] < (AVANTAGES[ordre[i - 1]] as any)[cle]) croit = false;
+      ok(croit, "avantage « " + cle + " » : jamais moins à un niveau plus cher");
+    }
+    ok(AVANTAGES.premium.images === 70 && AVANTAGES.prestige.images === 120 && LIMITES.prestige.messages === 500, "chiffres Premium 70 images / Prestige 120 images / 500 messages");
+    for (const [plan, niv, montant] of [["compagnon_premium", "premium", 20400], ["compagnon_prestige", "prestige", 28600]] as const) {
+      const tl = "24206" + String(Math.floor(Math.random() * 9e6) + 1e6);
+      const bx = (await sql`INSERT INTO starvibe_accounts (telephone, pin_hash) VALUES (${tl}, 'x') RETURNING id`) as { id: number }[];
+      const U = { id: bx[0].id, token: await issueToken({ sub: String(bx[0].id), username: "n" + niv, displayName: "n" + niv, org: "star_vibe", role: "member" }) };
+      r = await sub(U.token, "POST", "", { action: "choisir_plan", plan }); const dp = await j(r);
+      ok(r.status === 201 && dp.abonnement.montantAttendu === montant, niv + " : demande de dépôt de " + montant + " FCFA");
+      r = await sub(staffTok, "POST", "", { action: "confirmer_paiement", subscriptionId: Number(dp.abonnement.id), montantRecu: montant - 100 }); ok((await j(r)).statut === "paiement_invalide", niv + " : mauvais montant refusé");
+      r = await sub(U.token, "POST", "", { action: "choisir_plan", plan }); const dp2 = await j(r);
+      r = await sub(staffTok, "POST", "", { action: "confirmer_paiement", subscriptionId: Number(dp2.abonnement.id), montantRecu: montant }); ok((await j(r)).statut === "actif", niv + " : dépôt reconnu, abonnement actif");
+      const eu = await j(await appel(U, "GET", "")); ok(eu.acces.niveau === niv && eu.quota.messagesMax === AVANTAGES[niv].messages, niv + " : le client profite aussitôt de ses " + AVANTAGES[niv].messages + " messages");
+      ok(eu.capacites.imagesMax === AVANTAGES[niv].images, niv + " : " + AVANTAGES[niv].images + " images par mois");
+      r = await sub(U.token, "POST", "", { action: "choisir_plan", plan: "credit_images_10" }); const dk = await j(r);
+      ok(dk.abonnement.montantAttendu === (niv === "premium" ? 1080 : 960), niv + " : pack 10 images avec remise (" + (niv === "premium" ? "−10 %" : "−20 %") + ")");
+    }
   }
 } catch (e) { console.log("ÉCHEC : exception", e); ko++; }
 console.log(ko ? "ECHECS : " + ko : "TOUS LES TESTS OK"); process.exit(ko ? 1 : 0);

@@ -53,9 +53,9 @@ export default async () => {
     SELECT s.id, s.account_id, s.plan, s.expires_at,
            (SELECT nom FROM starvibe_profiles p WHERE p.account_id = s.account_id AND p.type_profil = 'personnel' ORDER BY p.id LIMIT 1) AS nom
     FROM starvibe_subscriptions s
-    WHERE s.plan IN ('compagnon', 'compagnon_complet') AND s.statut = 'actif' AND s.montant_attendu > 0
+    WHERE s.plan IN ('compagnon', 'compagnon_complet', 'compagnon_premium', 'compagnon_prestige') AND s.statut = 'actif' AND s.montant_attendu > 0
       AND s.expires_at > now() AND s.expires_at <= now() + interval '24 hours' AND s.rappel_veille_at IS NULL
-      AND NOT EXISTS (SELECT 1 FROM starvibe_subscriptions o WHERE o.account_id = s.account_id AND o.plan IN ('compagnon', 'compagnon_complet') AND o.statut = 'actif' AND o.expires_at > s.expires_at)
+      AND NOT EXISTS (SELECT 1 FROM starvibe_subscriptions o WHERE o.account_id = s.account_id AND o.plan IN ('compagnon', 'compagnon_complet', 'compagnon_premium', 'compagnon_prestige') AND o.statut = 'actif' AND o.expires_at > s.expires_at)
     LIMIT 200
   `) as { id: number; account_id: number; plan: string; expires_at: string; nom: string | null }[];
   let prevenus = 0;

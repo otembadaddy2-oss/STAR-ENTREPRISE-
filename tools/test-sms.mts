@@ -14,10 +14,16 @@ const cas: [string, boolean][] = [
  // Forme réelle d'un SMS de dépôt MTN Congo (31/10/2026) ; nom et numéro fictifs.
  ["Vous avez recu 1500 XAF de NOM PRENOM (242061234567) sur votre compte mobile money 2026-10-31 22:37:34. Message de l'exp diteur: . Solde: 5525 XAF. FRAIS: FCFA 0. ID: 1234567890.", true],
  ["Vous avez reçu un paiement de 1500 FCFA de 066123456. Solde: 3000 FCFA", true],
+ // Airtel Money : devise avant le montant (formes plausibles ; à confirmer avec un vrai SMS Airtel du téléphone de réception)
+ ["Trans ID: MP261115.1234.A12345. You have received XAF 20,400 from 051234567. New balance XAF 25,000.", true],
+ ["Vous avez recu XAF 28600 de 051234567 (NOM PRENOM). Nouveau solde XAF 30000. ID transaction: AB123", true],
+ ["Vous avez envoye XAF 5000 a 051234567. Nouveau solde XAF 1000", false],
 ];
 let bad=0;
 for (const [t,att] of cas){ const r=m.parseSms(t); const ok=r.depot===att; if(!ok)bad++; console.log(ok?"OK ":"KO ", r.depot, r.montant, t.slice(0,60)); }
 const vrai = m.parseSms("Vous avez recu 1500 XAF de NOM PRENOM (242061234567) sur votre compte mobile money 2026-10-31 22:37:34. Solde: 5525 XAF. FRAIS: FCFA 0. ID: 1234567890.");
 if (vrai.montant !== 1500 || vrai.numero !== "061234567") { bad++; console.log("KO SMS réel : montant", vrai.montant, "numéro", vrai.numero); }
+const a1 = m.parseSms("Trans ID: MP261115.1234.A12345. You have received XAF 20,400 from 051234567. New balance XAF 25,000."); if (a1.montant !== 20400 || a1.numero !== "051234567") { bad++; console.log("KO Airtel 1 :", a1.montant, a1.numero); }
+const a2 = m.parseSms("Vous avez recu XAF 28600 de 051234567 (NOM PRENOM). Nouveau solde XAF 30000. ID transaction: AB123"); if (a2.montant !== 28600 || a2.numero !== "051234567") { bad++; console.log("KO Airtel 2 :", a2.montant, a2.numero); }
 console.log(bad ? "ÉCHECS : " + bad : "tous les tests passent");
 if (bad) process.exit(1);

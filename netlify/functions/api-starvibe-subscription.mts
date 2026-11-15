@@ -9,7 +9,7 @@
 // l'argent reçu sur le numéro Mobile Money indiqué au client. Cette
 // fonction est écrite pour qu'un vrai webhook (action "confirmer_paiement")
 // puisse être branché plus tard sans rien changer côté client.
-import { compagnonOuvert, accesDe, PACKS_IMAGES, estPackImages } from "./_compagnon.mts";
+import { compagnonOuvert, accesDe, PACKS_IMAGES, estPackImages, prixPack, AVANTAGES } from "./_compagnon.mts";
 import type { Context, Config } from "@netlify/functions";
 import { ensureSchema, db, json } from "./_db.mts";
 import { recuAbonnement } from "./_recu.mts";
@@ -38,7 +38,10 @@ const PLANS: Record<string, { label: string; montant: number; description: strin
 // Essentiel : 5 000 FCFA (65 messages par jour) ; Complet : 19 $ ≈ 11 100 FCFA (200 messages par jour), taux à réviser.
 const PLANS_COMPAGNON: Record<string, { label: string; montant: number; description: string }> = {
   compagnon: { label: "Keydou Compagnon · Essentiel", montant: 5000, description: "Assistant personnel : rappels, culture générale, recherche Internet limitée. 65 messages par jour. Valable 30 jours." },
-  compagnon_complet: { label: "Keydou Compagnon · Complet", montant: 11100, description: "Assistant personnel complet : 200 messages par jour, rappels illimités, recherche Internet approfondie. Valable 30 jours." },
+  compagnon_complet: { label: "Keydou Compagnon · Complet", montant: 11100, description: "Assistant personnel complet : 200 messages par jour, 500 rappels actifs, 35 images par mois, recherche Internet approfondie. Valable 30 jours." },
+  // Taux de conversion : 19 $ ≈ 11 100 FCFA (≈ 584 FCFA le dollar), arrondi à la centaine ; à réviser avec le cours.
+  compagnon_premium: { label: "Keydou Compagnon · Premium", montant: Number(process.env.PRIX_PREMIUM_FCFA) > 0 ? Math.round(Number(process.env.PRIX_PREMIUM_FCFA)) : 20400, description: `35 $ par mois : ${AVANTAGES.premium.messages} messages par jour, ${AVANTAGES.premium.images} images par mois, ${AVANTAGES.premium.voix} lectures avec la voix de Keydou par jour, mémoire plus longue, réponses plus détaillées, -${AVANTAGES.premium.remisePack} % sur les packs d'images. Valable 30 jours.` },
+  compagnon_prestige: { label: "Keydou Compagnon · Prestige", montant: Number(process.env.PRIX_PRESTIGE_FCFA) > 0 ? Math.round(Number(process.env.PRIX_PRESTIGE_FCFA)) : 28600, description: `49 $ par mois : ${AVANTAGES.prestige.messages} messages par jour, ${AVANTAGES.prestige.images} images par mois, ${AVANTAGES.prestige.voix} lectures avec la voix de Keydou par jour, la mémoire la plus longue, réflexion approfondie partout, -${AVANTAGES.prestige.remisePack} % sur les packs d'images. Valable 30 jours.` },
 };
 // Packs de crédits d'images (Keydou Compagnon) : même paiement par dépôt, même reconnaissance du dépôt, même reçu.
 const PLANS_PACKS: Record<string, { label: string; montant: number; description: string }> = Object.fromEntries(
@@ -83,6 +86,8 @@ function toApi(row: SubRow) {
     createdAt: row.created_at,
     referencePaiement: `KOMYO-${row.id}`,
     numeroReception: NUMERO_RECEPTION,
+    // Numéro de réception Airtel Money (facultatif : à renseigner dans Netlify avec NUMERO_RECEPTION_AIRTEL si tu en as un ; sinon un seul numéro est affiché)
+    numeroAirtel: String(process.env.NUMERO_RECEPTION_AIRTEL || "").trim(),
   };
 }
 
@@ -294,7 +299,7 @@ export default async (req: Request, _context: Context) => {
       if (PLANS_COMPAGNON[plan]) {
         const ouvert = (await compagnonOuvert(sql));
         // Un abonné (ou ancien abonné) peut toujours reconduire, même quand l'offre est fermée aux nouveaux clients.
-        const ancien = ((await sql`SELECT 1 FROM starvibe_subscriptions WHERE account_id = ${accountId} AND plan IN ('compagnon', 'compagnon_complet') AND statut = 'actif' AND montant_attendu > 0 LIMIT 1`) as unknown[]).length > 0;
+        const ancien = ((await sql`SELECT 1 FROM starvibe_subscriptions WHERE account_id = ${accountId} AND plan IN ('compagnon', 'compagnon_complet', 'compagnon_premium', 'compagnon_prestige') AND statut = 'actif' AND montant_attendu > 0 LIMIT 1`) as unknown[]).length > 0;
         if (!ouvert && !ancien) return json({ error: "Keydou Compagnon n'est pas encore ouvert à l'abonnement : il est en période de test.", code: "compagnon_ferme" }, 403);
       }
 
@@ -307,14 +312,15 @@ export default async (req: Request, _context: Context) => {
 
       // Durée payée d'un coup : 1, 2, 3… mois (30 jours chacun). Le montant est celui d'un mois multiplié par le nombre de mois.
       const mois = PLANS_TOUS[plan].montant === 0 || estPackImages(plan) ? 1 : Math.min(Math.max(Math.round(Number(body.mois)) || 1, 1), MOIS_MAX);
-      const montant = PLANS_TOUS[plan].montant * mois;
+      let montant = PLANS_TOUS[plan].montant * mois;
+      if (estPackImages(plan)) { const ac = await accesDe(sql, accountId); montant = prixPack(plan, ac ? ac.niveau : "essentiel"); }   // remise Premium -10 %, Prestige -20 %
       const statut = montant === 0 ? "actif" : "en_attente_paiement";
 
       // Une demande identique est déjà en attente (le client a touché plusieurs fois) : on la reprend, sans en créer une de plus.
       if (statut === "en_attente_paiement") {
         const deja = (await sql`
           SELECT * FROM starvibe_subscriptions
-          WHERE account_id = ${accountId} AND plan = ${plan} AND statut = 'en_attente_paiement' AND payeur_account_id IS NULL AND mois = ${mois} AND created_at > now() - interval '48 hours'
+          WHERE account_id = ${accountId} AND plan = ${plan} AND statut = 'en_attente_paiement' AND payeur_account_id IS NULL AND mois = ${mois} AND montant_attendu = ${montant} AND created_at > now() - interval '48 hours'
           ORDER BY id DESC LIMIT 1
         `) as SubRow[];
         if (deja[0]) return json({ abonnement: toApi(deja[0]) }, 200);
