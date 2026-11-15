@@ -292,6 +292,7 @@
 
   <div id="app" hidden style="flex:1;min-height:0;display:flex;flex-direction:column">
     <div class="limite" id="finBandeau" hidden style="margin-top:10px"><span id="finTxt"></span> <button class="btn gold" id="finBtn" style="margin-top:8px">Reconduire mon abonnement</button></div>
+    <div class="limite" id="inviteEq" hidden style="margin-top:10px"><span id="inviteEqTxt"></span> <button class="btn gold" id="inviteEqOui" style="margin-top:8px">Accepter</button> <button class="btn line" id="inviteEqNon" style="margin-top:8px">Refuser</button></div>
     <section id="t-chat" style="flex:1;min-height:0;display:flex;flex-direction:column">
       <div class="scene"><div class="kd" id="kd"><img class="kd-img" src="assets/img/keydou.webp" alt="Keydou"></div><div class="etat" id="etat" aria-live="polite">Écris-moi ou parle-moi.</div></div>
       <div class="pane" id="fil"><div class="chat" id="chat"></div></div>
@@ -454,6 +455,16 @@
       }).catch(function(){ att.textContent='L\u2019image n\u2019a pas pu être affichée. Réessaie.'; });
     }
   }
+  // Invitation d'une entreprise (forfait Équipe) : la personne l'accepte ou la refuse ici ; rien n'est activé sans son accord.
+  function equipeInvitation(){
+    fetch('/api/entreprise?moi=1',{headers:{Authorization:'Bearer '+token}}).then(function(r){ return r.ok?r.json():null; }).then(function(d){
+      var e=d&&d.entreprise, b=$('inviteEq'); if(!b) return;
+      if(!e||e.statut!=='invite'||!e.forfaitActif){ b.hidden=true; return; }
+      $('inviteEqTxt').textContent='L’entreprise '+e.nom+(e.gerantNom?' ('+e.gerantNom+')':'')+' vous invite dans son équipe : Keydou niveau Complet offert. Vos discussions restent privées, le gérant ne les voit jamais.'; b.hidden=false;
+      var rep=function(a){ return function(){ fetch('/api/entreprise',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({action:a})}).then(function(r){ return r.json().catch(function(){return {};}).then(function(x){ if(!r.ok){ $('inviteEqTxt').textContent=x.error||'Impossible.'; return; } b.hidden=true; if(a==='equipe_accepter') charge(); }); }); }; };
+      $('inviteEqOui').onclick=rep('equipe_accepter'); $('inviteEqNon').onclick=rep('equipe_refuser');
+    }).catch(function(){});
+  }
   function charge(){
     call('GET',standalone?'?app=1':'').then(function(r){
       if(r.status===401){ try{ localStorage.removeItem('starvibe_token'); }catch(e){} show('out'); return; }
@@ -472,8 +483,9 @@
       $('finBandeau').hidden=!etat.finBientot; if(etat.finBientot) $('finTxt').textContent=etat.texteFin;
       var nvx=etat.acces.niveau, pro=(nvx==='complet'||nvx==='premium'||nvx==='prestige'); var ch=$('chipNiveau');
       majPill(); majParams(); ch.className='chip'+(pro?' pro':''); var ess=etat.acces.niveau==='essai'; ch.innerHTML='🐻 '+(nvx==='complet'?'Complet · Pro':(nvx==='premium'?'Premium':(nvx==='prestige'?'Prestige':(ess?'Essai gratuit':'Essentiel'))))+' <small>'+(ess?'5 messages d\u2019essai':((etat.quota&&etat.quota.messagesMax)||'')+' messages/jour')+(etat.acces.source==='test'?' · test':'')+'</small>';
-      $('aboTxt').textContent='Offre '+etat.acces.label+(etat.acces.source==='test'?' (invitation de test)':'')+(etat.acces.fin?' · valable jusqu’au '+new Date(etat.acces.fin).toLocaleDateString('fr-FR'):'')+'.';
+      $('aboTxt').textContent='Offre '+etat.acces.label+(etat.acces.source==='test'?' (invitation de test)':'')+(etat.acces.source==='entreprise'?' (offerte par ton entreprise '+etat.acces.entreprise+')':'')+(etat.acces.fin?' · valable jusqu’au '+new Date(etat.acces.fin).toLocaleDateString('fr-FR'):'')+'.';
       if(etat.notifications>0){ $('notifTxt').textContent='Notifications activées sur '+etat.notifications+' appareil(s).'; $('notifBtn').textContent='Réactiver sur ce téléphone'; }
+      equipeInvitation();
       call('GET','?historique=1').then(function(h){
         $('chat').innerHTML='';
         if(h.ok&&h.data.messages.length){ h.data.messages.forEach(function(m){ bulle(m.role,m.texte,{id:m.id}); }); }
@@ -798,7 +810,7 @@
   function detail(d){
     var c=(etat&&etat.compte)||{}, a=(etat&&etat.acces)||{}, t='', h='';
     if(d==='profil'){ t='Profil'; h=dl('Nom',c.nom||'—')+dl('Téléphone',c.telephone||'—')+dl('Offre',(a.label||'')+(a.source==='test'?' (invitation de test)':''))+'<p class="dnote">Ton nom et ton numéro sont ceux de ton compte KOMYO. Rien n\u2019est vendu ni partagé.</p>'; }
-    else if(d==='facturation'){ t='Facturation'; var prix=({complet:'19 $ par mois (≈ 11 100 FCFA)',premium:'35 $ par mois (≈ 20 400 FCFA)',prestige:'49 $ par mois (≈ 28 600 FCFA)'})[a.niveau]||'5 000 FCFA par mois'; if(a.niveau==='essai') prix='5 000 FCFA, 19 $, 35 $ ou 49 $ par mois'; h=dl('Offre',(a.label||'')+(a.source==='test'?' (invitation de test)':''))+dl('Prix',a.source==='test'?'Gratuit pendant ton test ('+prix+' ensuite)':(a.niveau==='essai'?'Gratuit pour l\u2019essai (5 messages), puis '+prix:prix))+dl('Valable jusqu\u2019au',a.fin?new Date(a.fin).toLocaleDateString('fr-FR'):'—')+'<p class="dnote">L\u2019abonnement s\u2019active dès que ton dépôt Mobile Money est reconnu : tous les avantages de ton offre sont alors ouverts.</p><button class="dbtn" id="dPlus" type="button">Changer ou reconduire mon offre</button>'; }
+    else if(d==='facturation'){ t='Facturation'; var prix=({complet:'19 $ par mois (≈ 11 100 FCFA)',premium:'35 $ par mois (≈ 20 400 FCFA)',prestige:'49 $ par mois (≈ 28 600 FCFA)'})[a.niveau]||'5 000 FCFA par mois'; if(a.niveau==='essai') prix='5 000 FCFA, 19 $, 35 $ ou 49 $ par mois'; h=dl('Offre',(a.label||'')+(a.source==='test'?' (invitation de test)':'')+(a.source==='entreprise'?' (offerte par '+a.entreprise+')':''))+dl('Prix',a.source==='entreprise'?'Payé par ton entreprise':a.source==='test'?'Gratuit pendant ton test ('+prix+' ensuite)':(a.niveau==='essai'?'Gratuit pour l\u2019essai (5 messages), puis '+prix:prix))+dl('Valable jusqu\u2019au',a.fin?new Date(a.fin).toLocaleDateString('fr-FR'):'—')+'<p class="dnote">L\u2019abonnement s\u2019active dès que ton dépôt Mobile Money est reconnu : tous les avantages de ton offre sont alors ouverts.</p><button class="dbtn" id="dPlus" type="button">Changer ou reconduire mon offre</button>'; }
     else if(d==='utilisation'){ t='Utilisation'; var q=qDernier||{messagesUtilises:0,messagesMax:0}; h=a.niveau==='essai'?barre('Messages d\u2019essai',q.messagesUtilises,q.messagesMax,'Puis abonnement : Essentiel 5 000 FCFA ou Complet 19 $'):barre('Messages sur 24 h',q.messagesUtilises,q.messagesMax,'Fenêtre glissante de 24 heures'); if(cap&&cap.images&&cap.imagesMax>0) h+=barre('Images ce mois-ci',cap.imagesMax-cap.imagesRestantes,cap.imagesMax,'');
       if(cap&&cap.credits>0) h+=dl('Images achetées (crédit)',cap.credits+' restante'+(cap.credits>1?'s':''),'Actif');
       if(cap&&cap.achatImages) h+='<button class="dbtn" id="dImages" type="button">Acheter des images</button>'; if(cap&&cap.voix&&cap.voix.actif) h+=barre('Voix de Keydou aujourd\u2019hui',cap.voix.max-cap.voix.restantes,cap.voix.max,'Ensuite : voix de ton téléphone'); if(cap) h+=dl('Photos et PDF',cap.piecesMax+' par jour'); }

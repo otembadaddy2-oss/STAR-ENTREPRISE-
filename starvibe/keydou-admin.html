@@ -129,6 +129,7 @@
     <button class="tab" id="tabAnnuaire">Annuaire de Keydou</button>
     <button class="tab" id="tabParr">Parrainage</button>
     <button class="tab" id="tabComp">Keydou Compagnon</button>
+    <button class="tab" id="tabEnt">Entreprises</button>
     <button class="tab" id="tabSalon">Le Salon (vidéo)</button>
     <button class="tab" id="tabPhone">Mon téléphone (validation)</button>
   </div>
@@ -231,6 +232,18 @@
     </div>
     <div class="stats" id="compStats"></div>
     <div class="tablewrap"><table style="min-width:1000px"><thead><tr><th>Téléphone</th><th>Nom</th><th>Accès</th><th>Dépôt</th><th>Fin</th><th>Appareil (KOMYO)</th><th>Appli Keydou installée</th><th>Dernière ouverture</th><th>Messages 24 h</th><th>Rappels</th><th>Notifs</th><th>Consentement</th></tr></thead><tbody id="compBody"></tbody></table></div>
+  </div>
+
+  <!-- ENTREPRISES : Keydou pour les entreprises (équipe, assistant des clients, WhatsApp) -->
+  <div id="paneEnt" hidden>
+    <div class="formcard" style="margin-bottom:12px">
+      <b>Keydou pour les entreprises</b>
+      <p class="muted" style="margin:6px 0 8px;line-height:1.55">Tu vois ici les entreprises, leurs forfaits, leur usage et le coût estimé de l'IA : <b>jamais le contenu des conversations</b> (confidentiel, sauf si le gérant ouvre l'accès support pour 7 jours). Pour un virement ou des espèces : « Activer un forfait ». La connexion WhatsApp Business se fait ici, avec le numéro et le jeton fournis par Meta.</p>
+      <div class="bar"><label style="font-size:13px;display:flex;align-items:center;gap:8px"><input type="checkbox" id="entUrgence"> ARRÊT D'URGENCE : couper tous les assistants d'entreprise (site et WhatsApp)</label></div>
+      <div class="muted" id="entMsg" style="margin-top:6px"></div>
+    </div>
+    <div class="stats" id="entStats"></div>
+    <div class="tablewrap"><table style="min-width:980px"><thead><tr><th>Entreprise</th><th>Gérant</th><th>Équipe</th><th>Assistant</th><th>Messages 30 j</th><th>Passés à un humain</th><th>Coût IA estimé</th><th>WhatsApp</th><th></th></tr></thead><tbody id="entBody"></tbody></table></div>
   </div>
 
   <!-- LE SALON : appel vidéo en famille ou entre amis (LiveKit) -->
@@ -469,10 +482,11 @@
   }
 
   function tab(name){
-    ['Dash','Clients','Subs','Pins','Contacts','Annuaire','Parr','Comp','Salon','Phone'].forEach(function(n){ $('tab' + n).classList.toggle('on', n === name); $('pane' + n).hidden = (n !== name); });
+    ['Dash','Clients','Subs','Pins','Contacts','Annuaire','Parr','Comp','Ent','Salon','Phone'].forEach(function(n){ $('tab' + n).classList.toggle('on', n === name); $('pane' + n).hidden = (n !== name); });
     if (name === 'Phone') loadPhone();
     if (name === 'Parr') loadParr();
     if (name === 'Comp') loadComp();
+    if (name === 'Ent') loadEnt();
     if (name === 'Salon') loadSalon();
     if (name === 'Dash') { loadDash(); } else { clearInterval(dashTimer); dashTimer = null; }
   }
@@ -501,6 +515,49 @@
       });
     }).catch(function(){ $('parrMsg').textContent = 'Impossible de charger le classement.'; });
   }
+  // ---- Keydou pour les entreprises : suivi, activation par virement, WhatsApp, arrêt d'urgence ----
+  var entForfaits = [];
+  function postEnt(body){
+    return authFetch('/api/entreprise', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) }).then(function(r){ return r.json().then(function(d){ return { ok:r.ok, d:d }; }); }).then(function(x){
+      $('entMsg').textContent = x.ok ? 'Enregistré.' : (x.d.error || 'Erreur'); loadEnt(); return x;
+    });
+  }
+  function loadEnt(){
+    $('entMsg').textContent = 'Chargement…';
+    authFetch('/api/entreprise?admin=1').then(function(r){ return r.json().then(function(d){ return { ok:r.ok, d:d }; }); }).then(function(x){
+      if (!x.ok){ $('entMsg').textContent = x.d.error || 'Erreur'; return; }
+      var d = x.d; $('entMsg').textContent = ''; entForfaits = d.forfaits || []; $('entUrgence').checked = !!d.urgence;
+      var tot = d.entreprises.reduce(function(a, e){ a.m += e.messages30; a.c += e.coutEstimeUsd; return a; }, { m:0, c:0 });
+      $('entStats').innerHTML = '<div class="stat"><b>' + d.entreprises.length + '</b><span>Entreprises</span></div><div class="stat"><b>' + tot.m + '</b><span>Messages de clients (30 j)</span></div><div class="stat"><b>' + (Math.round(tot.c * 100) / 100) + ' $</b><span>Coût IA estimé (30 j)</span></div>';
+      var fd = function(t){ return t ? new Date(t).toLocaleDateString('fr-FR') : ''; };
+      var WA = { connecte:'<span class="pill pay">Connecté</span>', demande:'<span class="pill warn">Demande</span>', non_connecte:'<span class="pill">Pas connecté</span>' };
+      $('entBody').innerHTML = d.entreprises.map(function(e){
+        return '<tr><td><b>' + esc(e.nom) + '</b><br><span class="muted">' + esc(e.secteur || '') + (e.ferme ? ' · FERMÉE' : '') + '</span></td><td>' + esc(e.telGerant) + '</td><td>' + (e.equipe ? esc(e.equipe.label) + '<br><span class="muted">jusqu\u2019au ' + fd(e.equipe.fin) + ' · ' + e.membresActifs + ' actifs</span>' : '—') + '</td><td>' + (e.assistant ? esc(e.assistant.label) + '<br><span class="muted">jusqu\u2019au ' + fd(e.assistant.fin) + '</span>' : '—') + '</td><td>' + e.messages30 + '</td><td>' + e.versHumain30 + '</td><td>' + e.coutEstimeUsd + ' $</td><td>' + (WA[e.whatsapp] || '') + '</td><td><button class="btn" type="button" data-act="' + e.id + '">Activer un forfait</button> <button class="btn" type="button" data-wa="' + e.id + '">WhatsApp</button> <button class="btn" type="button" data-fer="' + e.id + '" data-etat="' + (e.ferme ? '0' : '1') + '">' + (e.ferme ? 'Rouvrir' : 'Fermer') + '</button></td></tr>';
+      }).join('') || '<tr><td colspan="9" class="muted">Aucune entreprise pour l\u2019instant.</td></tr>';
+      Array.prototype.forEach.call($('entBody').querySelectorAll('button[data-act]'), function(b){ b.addEventListener('click', function(){
+        var liste = entForfaits.map(function(f, i){ return (i + 1) + ' = ' + f.label + ' (' + f.fcfa.toLocaleString('fr-FR') + ' FCFA)'; }).join('\n');
+        var n = Number(prompt('Forfait payé par virement ou espèces. Tape le numéro :\n' + liste)); var f = entForfaits[n - 1]; if (!f) return;
+        var m = Number(prompt('Nombre de mois payés (1 à 12) :', '1')) || 1; var ref = prompt('Référence du virement ou du reçu (facultatif) :', '') || '';
+        if (!confirm('Activer ' + f.label + ' pour ' + m + ' mois (' + (f.fcfa * m).toLocaleString('fr-FR') + ' FCFA) ? Vérifie que l\u2019argent est bien reçu.')) return;
+        postEnt({ action:'admin_activer', entreprise_id:Number(b.getAttribute('data-act')), plan:f.id, mois:m, reference:ref });
+      }); });
+      Array.prototype.forEach.call($('entBody').querySelectorAll('button[data-wa]'), function(b){ b.addEventListener('click', function(){
+        var ph = prompt('Identifiant du numéro WhatsApp (phone_number_id, chiffres, donné par Meta). Laisse vide pour DÉCONNECTER :'); if (ph === null) return;
+        if (!ph.trim()) { postEnt({ action:'admin_whatsapp', entreprise_id:Number(b.getAttribute('data-wa')), actif:false }); return; }
+        var tk = prompt('Jeton d\u2019accès WhatsApp (permanent, donné par Meta). Il sera chiffré :'); if (tk === null) return;
+        postEnt({ action:'admin_whatsapp', entreprise_id:Number(b.getAttribute('data-wa')), phone_id:ph.trim(), token:tk.trim(), actif:true });
+      }); });
+      Array.prototype.forEach.call($('entBody').querySelectorAll('button[data-fer]'), function(b){ b.addEventListener('click', function(){
+        var f = b.getAttribute('data-etat') === '1'; if (!confirm(f ? 'Fermer cette entreprise (assistant et postes d\u2019équipe coupés) ?' : 'Rouvrir cette entreprise ?')) return;
+        postEnt({ action:'admin_fermer', entreprise_id:Number(b.getAttribute('data-fer')), ferme:f });
+      }); });
+    }).catch(function(){ $('entMsg').textContent = 'Impossible de charger.'; });
+  }
+  $('entUrgence').addEventListener('change', function(){
+    var on = this.checked;
+    if (on && !confirm('ARRÊT D\u2019URGENCE : tous les assistants d\u2019entreprise (site et WhatsApp) s\u2019arrêtent. Continuer ?')){ this.checked = false; return; }
+    postEnt({ action:'admin_urgence', on:on });
+  });
   // ---- Keydou Compagnon : testeurs, abonnés, usage ----
   function loadComp(){
     $('compMsg').textContent = 'Chargement…';
@@ -577,6 +634,7 @@
     if (on && !confirm('Ouvrir ÉCLAT (le direct) à tous les membres ? Chaque direct coûte du temps de vidéo : fais-le après le test fermé.')){ this.checked = false; return; }
     authFetch('/api/starvibe-eclat', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'ouvrir', on:on }) }).then(function(r){ $('salonMsg').textContent = r.ok ? 'ÉCLAT : ' + (on ? 'ouvert à tous.' : 'réservé aux testeurs.') : 'Erreur'; if (!r.ok) me.checked = !on; });
   });
+  $('tabEnt').addEventListener('click', function(){ goTab('Ent'); });
   $('tabSalon').addEventListener('click', function(){ goTab('Salon'); });
   $('tabPhone').addEventListener('click', function(){ goTab('Phone'); });
 

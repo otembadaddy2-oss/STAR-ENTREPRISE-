@@ -7,12 +7,15 @@ import type { Config } from "@netlify/functions";
 import { ensureSchema, db } from "./_db.mts";
 import { accesDe, pushCompte, suivante, formatDuree, texteFinAbonnement } from "./_compagnon.mts";
 import { poster } from "./_msg.mts";
+import { purgerConversations } from "./_entreprise.mts";
 
 interface Due { id: number; account_id: number; titre: string; quand: string; repetition: string; avant_minutes: number; avant_envoye: boolean }
 
 export default async () => {
   await ensureSchema();
   const { sql } = db();
+  // Conversations des clients des entreprises : effacées automatiquement après la durée choisie par chaque gérant (30, 90 ou 365 jours).
+  try { await purgerConversations(sql); } catch (e) { console.error("purge entreprises", e); }
   const dus = (await sql`
     SELECT id, account_id, titre, quand, repetition, avant_minutes, avant_envoye
     FROM starvibe_compagnon_rappels

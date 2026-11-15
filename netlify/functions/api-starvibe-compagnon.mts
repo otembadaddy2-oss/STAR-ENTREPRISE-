@@ -12,6 +12,7 @@
 import type { Context, Config } from "@netlify/functions";
 import { ensureSchema, db, json } from "./_db.mts";
 import { requireAuth } from "./_auth.mts";
+import { entrepriseParId, forfaitActif, poolEquipe, savoirPourEquipe, PLAFOND_EQUIPE } from "./_entreprise.mts";
 import { vapidKeys, last9, decisionToken, checkDecisionToken } from "./_push.mts";
 import {
   AVANTAGES, niveauValide, ESSAI_MESSAGES, MSG_ESSAI_FINI, MSG_OPTION_ABONNE, compagnonOuvert, PACKS_IMAGES, PACKS_TXT, creditsImages, prixPack,
@@ -58,10 +59,11 @@ async function imagesUtilisees(sql: any, accountId: number): Promise<{ n: number
   return { n, joursAvantNouvelle: jours };
 }
 // deno-lint-ignore no-explicit-any
-async function capacites(sql: any, accountId: number, niveau: Niveau) {
+async function capacites(sql: any, accountId: number, niveau: Niveau, source = "") {
   const u = await imagesUtilisees(sql, accountId);
-  const max = IMAGES_PAR_MOIS(niveau);
-  const maxV = VOIX_PAR_JOUR(niveau);
+  const eq = source === "entreprise";   // place d'équipe : voix et images plafonnées (postes de coût les plus élevés)
+  const max = eq ? Math.min(IMAGES_PAR_MOIS(niveau), PLAFOND_EQUIPE.images) : IMAGES_PAR_MOIS(niveau);
+  const maxV = eq ? Math.min(VOIX_PAR_JOUR(niveau), PLAFOND_EQUIPE.voix) : VOIX_PAR_JOUR(niveau);
   const sante = await lireSante(sql);
   const nV = Number(((await sql`SELECT COUNT(*) AS n FROM starvibe_compagnon_voix WHERE account_id = ${accountId} AND created_at > now() - interval '24 hours'`) as { n: string }[])[0]?.n || 0);
   return { voix: { actif: voixDisponible() && !enPanne(sante, "voix") && maxV > 0, max: maxV, restantes: Math.max(0, maxV - nV) }, images: imagesDisponibles() && !enPanne(sante, "images"), imagesMax: max, imagesRestantes: Math.max(0, max - u.n), credits: await creditsImages(sql, accountId), packs: Object.entries(PACKS_IMAGES).map(([id, p]) => ({ id, images: p.images, montant: prixPack(id, niveau), normal: p.montant })), achatImages: niveau !== "essai", piecesMax: PIECES_PAR_JOUR(niveau), connecteurs: connecteurs(sante), liste: listeCapacites(niveau), modes: Object.keys(MODES).map((k) => ({ id: k, label: MODES[k as Mode].label, emoji: MODES[k as Mode].emoji })) };
@@ -268,7 +270,7 @@ export default async (req: Request, _context: Context) => {
     const deja = (await sql`SELECT data_b64 FROM starvibe_compagnon_voix WHERE account_id = ${accountId} AND message_id = ${mid}`) as { data_b64: string }[];
     const audio = (b64: string) => new Response(Buffer.from(b64, "base64"), { headers: { "content-type": "audio/mpeg", "cache-control": "private, max-age=86400" } });
     if (deja[0]) return audio(deja[0].data_b64);
-    const maxV = VOIX_PAR_JOUR(acces.niveau);
+    const maxV = acces.source === "entreprise" ? Math.min(VOIX_PAR_JOUR(acces.niveau), PLAFOND_EQUIPE.voix) : VOIX_PAR_JOUR(acces.niveau);
     if (!voixDisponible() || maxV <= 0) return json({ error: "La voix de Keydou n'est pas disponible pour ton offre.", code: "voix_indisponible" }, 404);
     const m = (await sql`SELECT texte FROM starvibe_compagnon_messages WHERE id = ${mid} AND account_id = ${accountId} AND role = 'assistant'`) as { texte: string }[];
     if (!m[0]) return json({ error: "Message introuvable." }, 404);
@@ -315,7 +317,7 @@ export default async (req: Request, _context: Context) => {
     const nomCompte = String(ligneCompte[0]?.nom || "").trim(), chiffres = String(ligneCompte[0]?.tel || "").replace(/\D/g, "");
     const initiales = (nomCompte.split(/\s+/).filter(Boolean).slice(0, 2).map((m) => m[0]).join("") || "KY").toUpperCase();
     const telMasque = chiffres.length >= 6 ? `+${chiffres.slice(0, chiffres.length - 6)} ${chiffres.slice(-6, -4)}•• ••${chiffres.slice(-2)}`.trim() : "";
-    return json({ compte: { nom: nomCompte, initiales, telephone: telMasque }, acces: { niveau: acces.niveau, label: lim.label, source: acces.source, fin: acces.fin }, finBientot, texteFin: finBientot && acces.fin ? texteFinAbonnement(new Date(acces.fin)) : "", consentement, consentementVersion: CONSENTEMENT_VERSION, quota: q, notifications: Number(notifs[0]?.n || 0), capacites: await capacites(sql, accountId, acces.niveau) });
+    return json({ compte: { nom: nomCompte, initiales, telephone: telMasque }, acces: { niveau: acces.niveau, label: lim.label, source: acces.source, fin: acces.fin, entreprise: acces.entrepriseNom || "" }, finBientot, texteFin: finBientot && acces.fin ? texteFinAbonnement(new Date(acces.fin)) : "", consentement, consentementVersion: CONSENTEMENT_VERSION, quota: q, notifications: Number(notifs[0]?.n || 0), capacites: await capacites(sql, accountId, acces.niveau, acces.source) });
   }
 
   if (req.method !== "POST") return json({ error: "Méthode non permise" }, 405);
@@ -381,6 +383,17 @@ export default async (req: Request, _context: Context) => {
     return json({ essaiTermine: true, error: MSG_ESSAI_FINI, code: "essai_termine", quota: q0 }, 402);
   }
   if (essai && body.piece) return json({ error: MSG_OPTION_ABONNE, code: "option_abonne", quota: q0 }, 402);
+  // Poste d'équipe : les messages du mois sont mis en commun (places × 1 500) ; au-delà, le gérant doit passer à un forfait plus grand.
+  let savoirEq = "";
+  if (acces.source === "entreprise" && acces.entrepriseId) {
+    const ent = await entrepriseParId(sql, acces.entrepriseId);
+    const eq = ent ? await forfaitActif(sql, ent.gerant_id, "equipe") : null;
+    if (ent && eq) {
+      const pool = await poolEquipe(sql, ent.id, eq.forfait);
+      if (pool.epuise) return json({ limite: true, error: `Les ${pool.max.toLocaleString("fr-FR")} messages du mois de l'équipe ${ent.nom} sont utilisés. Demande à ton gérant de passer à un forfait plus grand, ou reviens quand le mois glissant se libère.`, code: "pool_equipe_epuise", quota: q0 }, 429);
+      savoirEq = await savoirPourEquipe(sql, ent);
+    }
+  }
   if (q0.revenirDansMs > 0) {
     return json({ limite: true, revenirDans: q0.revenirDans, error: `Tu as atteint ta limite de ${lim.messages} messages. Reviens dans ${q0.revenirDans}.`, quota: q0 }, 429);
   }
@@ -397,12 +410,12 @@ export default async (req: Request, _context: Context) => {
   const restantes = Math.max(0, lim.recherches - q0.recherchesUtilisees);
   const mode: Mode = modeDe(message, body.mode);
   const imgUtil = await imagesUtilisees(sql, accountId);
-  const imgMax = IMAGES_PAR_MOIS(acces.niveau);
+  const imgMax = acces.source === "entreprise" ? Math.min(IMAGES_PAR_MOIS(acces.niveau), PLAFOND_EQUIPE.images) : IMAGES_PAR_MOIS(acces.niveau);
   const imgRestantes = Math.max(0, imgMax - imgUtil.n);
   const creditsImg = await creditsImages(sql, accountId);   // images achetées (pack), en plus du quota du mois
   const suppEssai = essai ? "\n\nESSAI GRATUIT. La personne n'a pas encore d'abonnement : réponds brièvement et utilement, sans créer de rappel, sans recherche. Elle a droit à 2 images d'essai (tu peux en créer quand elle le demande clairement). Si elle demande un rappel, un fichier ou une vérification approfondie, explique gentiment que ces options sont comprises dans l'abonnement (Essentiel 5 000 FCFA par mois, Complet 19 $ par mois) et n'ajoute pas \"rappels\"." : "";
   const imagesOk = imagesDisponibles() && !enPanne(await lireSante(sql), "images");
-  const supp = supplement(mode, { imagesRestantes: imgRestantes + creditsImg, imagesPossibles: imagesOk, niveau: acces.niveau, piece: !!pj }) + suppEssai;
+  const supp = supplement(mode, { imagesRestantes: imgRestantes + creditsImg, imagesPossibles: imagesOk, niveau: acces.niveau, piece: !!pj }) + suppEssai + (savoirEq ? "\n\n" + savoirEq : "");
   const contexte = [
     `[Contexte] Date et heure locales de la personne : ${heureLocale(new Date(), tz)} (fuseau ${tz}).`,
     `Rappels actifs : ${rapp.length ? rapp.map((r) => `#${r.id} « ${r.titre} » le ${heureLocale(new Date(r.quand), tz)}${r.repetition ? ` (chaque ${r.repetition === "jour" ? "jour" : r.repetition === "semaine" ? "semaine" : r.repetition === "mois" ? "mois" : "année"})` : ""}`).join(" ; ") : "aucun"}.`,
@@ -504,7 +517,7 @@ export default async (req: Request, _context: Context) => {
   const reponseGardee = imageInfo ? `${reponse}\n${marqueImage(imageInfo.id)}` : reponse;
 
   const insA = (await sql`INSERT INTO starvibe_compagnon_messages (account_id, role, texte, recherches, tokens_in, tokens_out) VALUES (${accountId}, 'assistant', ${reponseGardee}, ${ia.recherches}, ${ia.tokensIn}, ${ia.tokensOut}) RETURNING id`) as { id: number }[];
-  return json({ messageId: insA[0]?.id || 0, reponse, sources: ia.sources.slice(0, 3), rappelsAjoutes: ajoutes, mode, image: imageInfo, offreImages, capacites: await capacites(sql, accountId, acces.niveau), quota: await etatQuota(sql, accountId, acces.niveau) });
+  return json({ messageId: insA[0]?.id || 0, reponse, sources: ia.sources.slice(0, 3), rappelsAjoutes: ajoutes, mode, image: imageInfo, offreImages, capacites: await capacites(sql, accountId, acces.niveau, acces.source), quota: await etatQuota(sql, accountId, acces.niveau) });
 };
 
 export const config: Config = { path: "/api/starvibe-compagnon" };

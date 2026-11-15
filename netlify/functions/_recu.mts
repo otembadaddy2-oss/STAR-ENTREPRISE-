@@ -152,11 +152,11 @@ export async function recuAbonnement(sql: Sql, subId: number): Promise<void> {
     const unite = Math.round(Number(s.montant_attendu) / mois);
     const calcul = `${duree} × ${unite.toLocaleString("fr-FR")} FCFA = ${Number(s.montant_recu ?? s.montant_attendu).toLocaleString("fr-FR")} FCFA`;
     const pack = plan.startsWith("credit_images_") ? Number(plan.replace("credit_images_", "")) : 0;
-    const nomPlan = plan === "famille" ? "Pack « Les bonnes habitudes » PIOUPIOU" : plan === "business" ? "Abonnement Business KOMYO" : plan === "compagnon" ? "Keydou Compagnon · Essentiel" : plan === "compagnon_complet" ? "Keydou Compagnon · Complet" : plan === "compagnon_premium" ? "Keydou Compagnon · Premium" : plan === "compagnon_prestige" ? "Keydou Compagnon · Prestige" : `Abonnement ${plan}`;
+    const nomPlan = plan.startsWith("entreprise_") ? `Keydou Entreprises · ${plan.replace("entreprise_", "").replace(/_/g, " ")}` : plan === "famille" ? "Pack « Les bonnes habitudes » PIOUPIOU" : plan === "business" ? "Abonnement Business KOMYO" : plan === "compagnon" ? "Keydou Compagnon · Essentiel" : plan === "compagnon_complet" ? "Keydou Compagnon · Complet" : plan === "compagnon_premium" ? "Keydou Compagnon · Premium" : plan === "compagnon_prestige" ? "Keydou Compagnon · Prestige" : `Abonnement ${plan}`;
     const titre = pack ? `Keydou Compagnon — pack de ${pack} images` : (mois === 1 ? `${nomPlan} — 1 mois` : `${nomPlan} — abonnement de ${mois} mois`);
     const detail = pack ? `${pack} images supplémentaires à créer avec Keydou, en plus du quota du mois. Elles ne se périment pas` : ((plan === "famille"
       ? "10 dessins animés éducatifs pour les 3 à 6 ans (A1 à A10, ajoutés au fur et à mesure), profils enfants illimités"
-      : plan === "business" ? "mise en avant de vos vidéos et statistiques (vues, durée regardée, j'aime)" : plan.startsWith("compagnon") ? "votre assistant personnel Keydou : rappels, culture générale et recherche Internet" : "services KOMYO")
+      : plan === "business" ? "mise en avant de vos vidéos et statistiques (vues, durée regardée, j'aime)" : plan.startsWith("compagnon") ? "votre assistant personnel Keydou : rappels, culture générale et recherche Internet" : plan.startsWith("entreprise_") ? "Keydou pour votre entreprise : une seule facture pour votre équipe ou pour l'assistant qui répond à vos clients" : "services KOMYO")
       + `. Calcul : ${calcul}. Valable ${30 * mois} jours, sans renouvellement automatique`);
     const info: RecuInfo = {
       titre, montant: Number(s.montant_recu ?? s.montant_attendu), payeLe: new Date(String(s.started_at || s.updated_at)),
