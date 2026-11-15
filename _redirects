@@ -8,6 +8,7 @@ http://komyo.starentreprise.com/   /starvibe/  301!
 /komyo   /starvibe/   301
 /keydou  /starvibe/keydou.html  302
 /installer  /starvibe/installer.html  302
+/bienvenue  /starvibe/bienvenue.html  200
 
 # Fichiers du dépôt qui n'ont pas à être publics (code des fonctions, outils, notes internes, annuaires de Keydou) : introuvables.
 /netlify/*        /404.html  404!
@@ -29,3 +30,20 @@ http://komyo.starentreprise.com/   /starvibe/  301!
 /docs/film/*            /404.html  404!
 /docs/pub-komyo-monde/* /404.html  404!
 /.claude/*       /404.html  404!
+
+# Sécurité (14/11/2026) : notes internes, inventaire des accès, fiches de Sarah, scripts de fabrication et stratégie : jamais publics.
+/docs/sarah/*                                       /404.html  404!
+/docs/staff-technique-b/*                           /404.html  404!
+/docs/danseuse/*                                    /404.html  404!
+/docs/pub-xsaphir/*                                 /404.html  404!
+/docs/keydou-animation/*                            /404.html  404!
+/docs/inventaire-sites-acces-star-entreprise.md     /404.html  404!
+/docs/hostinger-domaine-email.md                    /404.html  404!
+/docs/REPRISE-SESSION.md                            /404.html  404!
+/docs/voix-officielle-star-entreprise.md            /404.html  404!
+/docs/business-plan-star-entreprise.pdf             /404.html  404!
+/docs/plan-croissance-campagne-star-entreprise.pdf  /404.html  404!
+/docs/strategie-marketing-digital-star-entreprise.pdf /404.html 404!
+/docs/etude-marche-ecommerce-afrique.pdf            /404.html  404!
+/README.md                                          /404.html  404!
+/starvibe-demo/README.md                            /404.html  404!

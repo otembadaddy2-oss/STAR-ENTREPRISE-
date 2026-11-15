@@ -13,7 +13,7 @@ export function db() {
 // Version du schéma = empreinte du texte de ensureSchema() ci-dessous (vérifiée par tools/test-schema.mts).
 // Quand tu modifies une instruction du schéma : lance « node --experimental-strip-types tools/test-schema.mts --ecrire »
 // pour mettre à jour cette ligne. Sans cela, la base ne serait pas mise à jour (le test échoue pour te le rappeler).
-const SCHEMA_VERSION = "6d095ae91d9ec7a8";
+const SCHEMA_VERSION = "a800c3165ffdb850";
 
 // Idempotent schema setup — safe to call on every cold start.
 // Rapide : les ~80 instructions ne sont rejouées que si SCHEMA_VERSION a changé depuis la dernière fois
@@ -837,6 +837,20 @@ export async function ensureSchema() {
   await sql`CREATE INDEX IF NOT EXISTS starvibe_compagnon_notes_compte_idx ON starvibe_compagnon_notes (account_id)`;
   await sql`CREATE TABLE IF NOT EXISTS starvibe_compagnon_push (id SERIAL PRIMARY KEY, account_id INTEGER NOT NULL, endpoint TEXT UNIQUE NOT NULL, p256dh TEXT NOT NULL, auth TEXT NOT NULL, label TEXT NOT NULL DEFAULT '', created_at TIMESTAMPTZ NOT NULL DEFAULT now())`;
   await sql`CREATE INDEX IF NOT EXISTS starvibe_compagnon_push_compte_idx ON starvibe_compagnon_push (account_id)`;
+  await sql`CREATE TABLE IF NOT EXISTS starvibe_compagnon_images (id SERIAL PRIMARY KEY, account_id INTEGER NOT NULL, prompt TEXT NOT NULL, format TEXT NOT NULL DEFAULT 'carre', statut TEXT NOT NULL DEFAULT 'attente', mime TEXT NOT NULL DEFAULT '', data_b64 TEXT NOT NULL DEFAULT '', erreur TEXT NOT NULL DEFAULT '', created_at TIMESTAMPTZ NOT NULL DEFAULT now(), fini_at TIMESTAMPTZ)`;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_compagnon_images_compte_idx ON starvibe_compagnon_images (account_id, created_at)`;
+  await sql`CREATE TABLE IF NOT EXISTS starvibe_compagnon_voix (id SERIAL PRIMARY KEY, account_id INTEGER NOT NULL, message_id INTEGER NOT NULL, signes INTEGER NOT NULL DEFAULT 0, data_b64 TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT now(), UNIQUE (account_id, message_id))`;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_compagnon_voix_compte_idx ON starvibe_compagnon_voix (account_id, created_at)`;
+
+  // Le Salon (appel vidéo en famille ou entre amis, via LiveKit) : salons, personnes invitées en test, entrées (pour le suivi des minutes).
+  await sql`CREATE TABLE IF NOT EXISTS starvibe_salons (id SERIAL PRIMARY KEY, code TEXT NOT NULL UNIQUE, hote_id INTEGER NOT NULL, nom TEXT NOT NULL DEFAULT '', type TEXT NOT NULL DEFAULT 'famille', max_personnes INTEGER NOT NULL DEFAULT 4, duree_min INTEGER NOT NULL DEFAULT 20, famille BOOLEAN NOT NULL DEFAULT false, debut_at TIMESTAMPTZ NOT NULL DEFAULT now(), fin_at TIMESTAMPTZ NOT NULL, ferme_at TIMESTAMPTZ)`;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_salons_hote_idx ON starvibe_salons (hote_id, debut_at)`;
+  await sql`CREATE TABLE IF NOT EXISTS starvibe_salon_acces (account_id INTEGER PRIMARY KEY, created_at TIMESTAMPTZ NOT NULL DEFAULT now())`;
+  await sql`CREATE TABLE IF NOT EXISTS starvibe_salon_entrees (id SERIAL PRIMARY KEY, salon_id INTEGER NOT NULL, account_id INTEGER NOT NULL, minutes INTEGER NOT NULL DEFAULT 0, created_at TIMESTAMPTZ NOT NULL DEFAULT now())`;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_salon_entrees_salon_idx ON starvibe_salon_entrees (salon_id)`;
+  // ÉCLAT : les directs (une salle vidéo par direct ; « vu_at » = dernier signe de vie de l'animateur)
+  await sql`CREATE TABLE IF NOT EXISTS starvibe_eclat_directs (id SERIAL PRIMARY KEY, code TEXT NOT NULL UNIQUE, hote_id INTEGER NOT NULL, titre TEXT NOT NULL DEFAULT '', debut_at TIMESTAMPTZ NOT NULL DEFAULT now(), fin_at TIMESTAMPTZ NOT NULL, ferme_at TIMESTAMPTZ, vu_at TIMESTAMPTZ NOT NULL DEFAULT now())`;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_eclat_directs_hote_idx ON starvibe_eclat_directs (hote_id, debut_at)`;
 
   await sql`CREATE TABLE IF NOT EXISTS schema_meta (cle TEXT PRIMARY KEY, valeur TEXT NOT NULL, maj TIMESTAMPTZ NOT NULL DEFAULT now())`;
   await sql`INSERT INTO schema_meta (cle, valeur) VALUES ('ddl', ${empreinte}) ON CONFLICT (cle) DO UPDATE SET valeur = EXCLUDED.valeur, maj = now()`;

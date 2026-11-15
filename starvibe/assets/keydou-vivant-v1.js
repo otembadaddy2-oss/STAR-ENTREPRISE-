@@ -33,7 +33,7 @@
       img.className = 'kd-img kd-' + (geste || etat);
     }
     function lancer(nom, boucle, fin){
-      vid.loop = !!boucle; vid.onended = fin || null;
+      vid.loop = !!boucle; vid.onended = fin || null; vid.playbackRate = 1;
       vid.src = BASE + nom + '.mp4';
       var p = vid.play(); if (p && p.catch) p.catch(function(){});
     }
@@ -80,6 +80,12 @@
           }
           vieT = setTimeout(tic, 6000 + Math.random() * 5000);
         })();
+      },
+      // Bouche : pendant qu'il parle, la séquence bouge seulement quand la voix est là (actif = true) et se fige entre deux mots (false).
+      parole: function(actif, vitesse){
+        if (!utilise || etat !== 'talk' || geste) return;
+        if (actif){ vid.playbackRate = vitesse || 1; if (vid.paused) { var p = vid.play(); if (p && p.catch) p.catch(function(){}); } }
+        else if (!vid.paused) { try { vid.pause(); } catch (e) {} }
       },
       detruire: function(){ mort = true; clearTimeout(vieT); try { vid.pause(); } catch (e) {} }
     };

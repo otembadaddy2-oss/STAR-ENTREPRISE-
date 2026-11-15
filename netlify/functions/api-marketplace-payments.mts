@@ -5,12 +5,12 @@
 //
 // IMPORTANT — cette fonction est pensée pour être appelée par un webhook de
 // paiement (Mobile Money, carte, PayPal…) une fois ces intégrations câblées
-// avec les vraies clés marchand de Carry. Tant qu'aucun webhook réel n'est
-// branché, elle sert aussi de point d'entrée pour une confirmation manuelle
-// depuis un futur tableau de bord admin. Avant mise en production réelle,
-// définir MARKETPLACE_PAYMENT_WEBHOOK_SECRET et vérifier l'en-tête
-// `x-webhook-secret` sur chaque appel — pour l'instant la vérification est
-// best-effort (elle ne bloque pas si la variable n'est pas encore définie).
+// avec les vraies clés marchand de Carry. SÉCURITÉ (14/11/2026) : seule l'équipe
+// (jeton du personnel) ou le service de paiement (en-tête `x-webhook-secret` =
+// MARKETPLACE_PAYMENT_WEBHOOK_SECRET) peut CONFIRMER. Un visiteur peut seulement
+// déclarer son paiement : il passe « en vérification » et rien ne s'active.
+import { timingSafeEqual } from "node:crypto";
+import { requireGroupAuth } from "./_auth.mts";
 import type { Context, Config } from "@netlify/functions";
 import { ensureSchema, db, json } from "./_db.mts";
 
@@ -25,11 +25,13 @@ export default async (req: Request, _context: Context) => {
   const { sql } = db();
   const url = new URL(req.url);
 
-  const expectedSecret = process.env.MARKETPLACE_PAYMENT_WEBHOOK_SECRET;
-  if (expectedSecret) {
-    const given = req.headers.get("x-webhook-secret") || "";
-    if (given !== expectedSecret) return json({ error: "Non autorisé" }, 401);
-  }
+  // Confirmer un paiement = acte réservé à l'équipe (jeton du personnel) ou au service de paiement (secret du webhook).
+  // Un simple visiteur peut seulement DÉCLARER son paiement : il est enregistré « en vérification », rien ne s'active.
+  const expectedSecret = process.env.MARKETPLACE_PAYMENT_WEBHOOK_SECRET || "";
+  const given = req.headers.get("x-webhook-secret") || "";
+  const parSecret = !!expectedSecret && given.length === expectedSecret.length && timingSafeEqual(Buffer.from(given), Buffer.from(expectedSecret));
+  const confirmateur = req.method === "POST" && (parSecret || !!(await requireGroupAuth(req)));
+  if (given && !parSecret && req.method === "POST") return json({ error: "Non autorisé" }, 401);
 
   if (req.method === "GET") {
     const kind = clean(url.searchParams.get("kind") || "", 20);
@@ -69,6 +71,18 @@ export default async (req: Request, _context: Context) => {
     return json({ error: "kind (listing|order), id et montantRecu sont requis" }, 400);
   }
   if (methode && !METHODES.has(methode)) return json({ error: "Méthode de paiement invalide" }, 400);
+
+  if (!confirmateur) {
+    const msg = "Ta déclaration est bien enregistrée. L'équipe STAR ENTREPRISE vérifie ton paiement et confirme : tu seras prévenu dès que c'est validé.";
+    if (kind === "listing") {
+      await sql`UPDATE marketplace_listing_payments SET montant_recu = ${montantRecu}, methode = ${methode}, reference_transaction = ${reference}
+                WHERE id = (SELECT id FROM marketplace_listing_payments WHERE listing_id = ${id} AND statut = 'en_attente' ORDER BY created_at DESC LIMIT 1)`;
+    } else {
+      await sql`UPDATE marketplace_orders SET montant_recu = ${montantRecu}, methode_paiement = ${methode}, reference_transaction = ${reference}, updated_at = now()
+                WHERE id = ${id} AND statut = 'en_attente_paiement'`;
+    }
+    return json({ statut: "en_verification", message: msg }, 202);
+  }
 
   if (kind === "listing") {
     const payRows = await sql`

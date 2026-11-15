@@ -2,9 +2,9 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <title>KOMYO — Keydou Compagnon</title>
-<meta name="theme-color" content="#FFFBF3">
+<meta name="theme-color" content="#141414">
 <meta name="robots" content="noindex">
 <link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">
 <link rel="apple-touch-icon" href="assets/img/icons/keydou-apple-180-v1.png">
@@ -15,7 +15,8 @@
 <style>
   :root{--ink:#241536;--gold:#E8A93D;--coral:#FF6B4A;--cream:#FFFBF3;--dim:#6b5f80;--line:#eee2cc;--ok:#1f8f4a;--bad:#c0392b;}
   *{box-sizing:border-box;}
-  html,body{height:100%;}
+  html,body{height:100%;max-width:100%;overflow-x:hidden;}
+  img{max-width:100%;}
   body{margin:0;background:var(--cream);color:var(--ink);font-family:'Inter',Arial,sans-serif;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;}
   h1,h2,h3{font-family:'Sora',Arial,sans-serif;margin:0;}
   [hidden]{display:none!important;}
@@ -57,7 +58,7 @@
   .err{color:var(--bad);font-size:13px;margin-top:8px;}
   .scene{display:flex;align-items:center;gap:6px;padding:2px 14px 0;flex:none;}
   .kd{position:relative;flex:none;width:120px;min-height:100px;}
-  .kd img.kd-img{transform-origin:50% 100%;}
+  .kd img.kd-img{width:74px;height:auto;display:block;margin:0 auto;transform-origin:50% 100%;}
   .kd-idle{animation:kdBreathe 4.2s ease-in-out infinite;} .kd-think{animation:kdThink 3s ease-in-out infinite;} .kd-talk{animation:kdTalk .35s ease-in-out infinite;}
   .kd-wave{animation:kdWave 1.8s ease-in-out 1;} .kd-look{animation:kdLook 2.6s ease-in-out 1;} .kd-hop,.kd-celebrate{animation:kdHop .85s ease-out 2;} .kd-spin{animation:kdSpin 1.4s ease-in-out 1;}
   @keyframes kdBreathe{0%,100%{transform:scale(1,1) rotate(0);}50%{transform:scale(1.014,.986) rotate(.8deg);}}
@@ -84,12 +85,148 @@
   .compose .mic.ecoute{background:var(--bad);border-color:var(--bad);color:#fff;animation:pls 1s infinite;}
   @keyframes pls{50%{box-shadow:0 0 0 8px rgba(192,57,43,.18);}}
   .lire{border:0;background:none;font-size:14px;padding:2px 0 0 6px;opacity:.6;cursor:pointer;}
+  .modes{display:flex;gap:6px;overflow-x:auto;padding:8px 14px 2px;flex:none;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+  .modes::-webkit-scrollbar{display:none;}
+  .modes button{flex:none;border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:6px 11px;font:700 12px 'Inter',Arial,sans-serif;color:var(--ink);white-space:nowrap;}
+  .modes button.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .compose .clip{flex:none;width:46px;height:46px;border-radius:50%;border:1.5px solid var(--line);background:#fff;font-size:20px;padding:0;align-self:flex-end;}
+  .pj{display:flex;align-items:center;gap:8px;padding:6px 14px 0;font-size:12.5px;color:var(--ink);flex:none;}
+  .pj b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;} .pj button{border:0;background:var(--line);border-radius:99px;width:26px;height:26px;font-size:13px;}
+  .imgb{margin-top:8px;white-space:normal;} .imgb img{display:block;max-width:100%;border-radius:14px;border:1px solid var(--line);}
+  .imgb .att{font-size:13px;color:var(--dim);} .imgb .acts{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+  .imgb .acts a,.imgb .acts button{border:1.5px solid var(--ink);background:#fff;color:var(--ink);border-radius:99px;padding:7px 12px;font:700 12.5px 'Inter',Arial,sans-serif;text-decoration:none;}
+  .imgb .ia{font-size:11px;color:var(--dim);margin-top:6px;}
   .actuel{display:inline-block;background:#dcf3e8;color:#1f6b4f;font:700 11px 'Inter',Arial,sans-serif;border-radius:99px;padding:3px 9px;margin-left:6px;vertical-align:middle;}
+
+  /* ===== Interface allégée (comme une appli de discussion moderne) ===== */
+  .bar{flex:none;display:flex;align-items:center;gap:4px;padding:calc(6px + env(safe-area-inset-top)) 8px 6px;background:var(--cream);}
+  .bar .ib{width:44px;height:44px;border:0;background:none;border-radius:50%;display:grid;place-items:center;color:var(--ink);padding:0;text-decoration:none;font:700 26px 'Sora',Arial,sans-serif;cursor:pointer;}
+  .bar .ib:active{background:#f0e6d2;}
+  .bar .ttl{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:8px;font:700 16px 'Sora',Arial,sans-serif;white-space:nowrap;overflow:hidden;}
+  .bar .ttl img{width:28px;height:auto;flex:none;}
+  .scene{padding:0 14px;gap:8px;} .kd{width:84px;min-height:74px;} .kd img.kd-img{width:56px;}
+  .etat{font-size:12.5px;padding:7px 11px;border-radius:14px;}
+  #ov{position:fixed;inset:0;background:rgba(36,21,54,.42);z-index:40;}
+  .sheet{position:fixed;z-index:41;background:#fff;color:var(--ink);}
+  .sheet.bottom{left:0;right:0;bottom:0;max-height:80%;overflow:auto;border-radius:22px 22px 0 0;padding:8px 14px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -12px 40px rgba(36,21,54,.25);animation:shUp .2s ease-out;}
+  .sheet.left{top:0;bottom:0;left:0;width:min(84%,330px);background:var(--cream);padding:calc(14px + env(safe-area-inset-top)) 10px 18px;overflow:auto;box-shadow:12px 0 40px rgba(36,21,54,.25);animation:shLeft .2s ease-out;}
+  @keyframes shUp{from{transform:translateY(40px);opacity:.4;}to{transform:none;opacity:1;}}
+  @keyframes shLeft{from{transform:translateX(-40px);opacity:.4;}to{transform:none;opacity:1;}}
+  .sheet .grip{width:42px;height:4px;border-radius:9px;background:#d9cfe3;margin:2px auto 10px;}
+  .sheet .st{display:flex;align-items:center;gap:10px;font:700 16px 'Sora',Arial,sans-serif;margin:2px 4px 10px;} .sheet .st .x{margin-left:auto;border:0;background:#f3ecdf;border-radius:50%;width:32px;height:32px;font-size:15px;color:var(--ink);}
+  .sheet .sec{font:700 11px 'Sora',Arial,sans-serif;color:var(--dim);letter-spacing:.06em;text-transform:uppercase;margin:14px 6px 4px;}
+  .sheet .row{display:flex;align-items:center;gap:10px;padding:12px 8px;border-radius:12px;font-size:15px;font-weight:600;}
+  .sheet .row .sp{flex:1;}
+  .sheet .info{font-size:12.5px;color:var(--dim);margin:8px 8px 0;line-height:1.5;}
+  .dhead{display:flex;align-items:center;gap:10px;margin:0 6px 10px;} .dhead img{width:42px;height:auto;} .dhead b{font:700 16px 'Sora',Arial,sans-serif;display:block;}
+  .tabs{display:flex;flex-direction:column;gap:2px;padding:4px 0 0;}
+  .tabs button{flex:none;border:0;background:none;text-align:left;border-radius:12px;padding:13px 12px;font:600 15.5px 'Inter',Arial,sans-serif;color:var(--ink);}
+  .tabs button.on{background:#f1e7d2;color:var(--ink);border:0;}
+  .sheet .lnk{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;text-align:left;padding:13px 12px;border-radius:12px;font:600 15.5px 'Inter',Arial,sans-serif;color:var(--ink);text-decoration:none;cursor:pointer;}
+  .modes{display:flex;flex-direction:column;gap:2px;padding:0;overflow:visible;max-height:none;}
+  .modes button{border:0;background:none;border-radius:12px;padding:13px 12px;text-align:left;font:600 15px 'Inter',Arial,sans-serif;color:var(--ink);white-space:normal;display:flex;align-items:center;gap:10px;width:100%;}
+  .modes button.on{background:#f1e7d2;color:var(--ink);border:0;} .modes button.on:after{content:"✓";margin-left:auto;color:var(--ok);font-weight:800;}
+  .quota{font-size:12.5px;color:var(--dim);text-align:left;padding:2px 8px;} 
+  .plus3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:4px 0 6px;}
+  .plus3 button{border:1.5px solid var(--line);background:#fff;border-radius:16px;padding:16px 4px;font:600 13.5px 'Inter',Arial,sans-serif;color:var(--ink);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;}
+  .compose{display:block;margin:6px 12px calc(10px + env(safe-area-inset-bottom));padding:8px 10px 8px 14px;border:1.5px solid var(--line);border-radius:26px;background:#fff;box-shadow:0 8px 24px -16px rgba(36,21,54,.35);}
+  .compose textarea{display:block;width:100%;flex:none;border:0;border-radius:0;padding:8px 2px 6px;font:16px 'Inter',Arial,sans-serif;resize:none;max-height:130px;min-height:28px;background:transparent;outline:none;color:var(--ink);}
+  .compose .crow{display:flex;align-items:center;gap:6px;margin-top:2px;}
+  .compose .crow .sp{flex:1;}
+  .compose .cb{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--line);background:#fff;display:grid;place-items:center;padding:0;color:var(--ink);align-self:auto;font-size:0;cursor:pointer;flex:none;}
+  .compose .cb.ecoute{background:var(--bad);border-color:var(--bad);color:#fff;animation:pls 1s infinite;}
+  .compose .pill{width:auto;height:auto;flex:0 1 auto;min-width:0;background:#f6efe2;color:var(--ink);border:0;border-radius:99px;padding:8px 12px;font:600 12.5px 'Inter',Arial,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;}
+  .compose .send{width:44px;height:44px;flex:none;border-radius:50%;border:0;background:linear-gradient(135deg,var(--coral),var(--gold));color:#fff;display:grid;place-items:center;padding:0;cursor:pointer;}
+  .compose .send:disabled{opacity:.45;}
+
+  /* ===== Menus cachés en gris très foncé, écritures blanches ===== */
+  #ov{background:rgba(0,0,0,.6);}
+  .sheet{background:#212121;color:#f3f3f3;}
+  .sheet.left{background:#171717;box-shadow:12px 0 40px rgba(0,0,0,.5);}
+  .sheet.bottom{box-shadow:0 -12px 40px rgba(0,0,0,.5);}
+  .sheet .grip{background:#555;}
+  .sheet .st{color:#fff;} .sheet .st .x{background:#333;color:#fff;}
+  .sheet .sec{color:#9a9a9a;}
+  .sheet .info,.sheet .quota{color:#a9a9a9;}
+  .dhead b{color:#fff;}
+  .sheet .chip,.sheet .chip.pro{border:0;background:#333;color:#fff;font:600 12px 'Inter',Arial,sans-serif;padding:5px 11px;white-space:nowrap;}
+  .sheet .chip small{display:none;}
+  .tabs button,.sheet .lnk,.modes button{color:#f3f3f3;}
+  .tabs button.on,.modes button.on{background:#333;color:#fff;}
+  .tabs button:active,.sheet .lnk:active,.modes button:active{background:#2b2b2b;}
+  .modes button.on:after{color:#8fe3ac;}
+  .sheet .row{color:#f3f3f3;}
+  .sheet .iconbtn{background:#333;border-color:#444;color:#fff;}
+  .sheet .iconbtn.on{background:#8fe3ac;color:#111;border-color:#8fe3ac;}
+  .plus3 button{background:#2b2b2b;border-color:#3b3b3b;color:#fff;}
+
+  /* ===== Thème sombre sur toute la page (fond presque noir, écritures claires) ===== */
+  html,body{background:#141414;color:#ececec;}
+  .bar{background:#141414;} .bar .ib{color:#ececec;} .bar .ib:active{background:#2a2a2a;} .bar .ttl{color:#fff;}
+  .etat{background:#1f1f1f;border-color:#333;color:#e6e6e6;} .etat:before{background:#1f1f1f;border-color:#333;}
+  .me{background:#2b2b2b;color:#f2f2f2;}
+  .ky{background:transparent;border:0;border-radius:0;padding:4px 2px;max-width:100%;color:#ececec;}
+  .src{color:#a9a9a9;} .add{color:#8fe3ac;}
+  .lire{color:#ececec;opacity:.55;}
+  .limite{background:#3a3012;border-color:#5a4a1a;color:#f1d98a;}
+  .quota{color:#a9a9a9;}
+  .pj{color:#ececec;} .pj button{background:#333;color:#fff;}
+  .compose{background:#212121;border-color:#333;box-shadow:none;}
+  .compose textarea{color:#f2f2f2;} .compose textarea::placeholder{color:#8a8a8a;}
+  .compose .cb{background:#2b2b2b;border-color:#3a3a3a;color:#f2f2f2;}
+  .compose .pill{background:#2b2b2b;color:#dcdcdc;}
+  .card,.inst{background:#1f1f1f;border-color:#333;color:#ececec;box-shadow:none;}
+  .card h2,.inst h2{color:#fff;} .note{color:#a9a9a9;} .inst .ok{color:#8fe3ac;}
+  .btn{background:#2f2f2f;color:#fff;} .btn.gold{background:linear-gradient(120deg,var(--coral),var(--gold));color:#fff;}
+  .btn.line{background:transparent;color:#fff;border:1.5px solid #555;} .btn.red{background:var(--bad);color:#fff;}
+  label{color:#ddd;}
+  input[type=text],input[type=datetime-local],select{background:#1f1f1f;border-color:#3a3a3a;color:#f2f2f2;}
+  .rem{background:#1f1f1f;border-color:#333;color:#ececec;} .rem .d{background:#2a2a2a;color:#fff;} .rem .t span{color:#a9a9a9;}
+  .tog{background:#555;} .tog.on{background:var(--ok);}
+  ul{color:#dcdcdc;} .chk{color:#dcdcdc;}
+  .imgb img{border-color:#333;} .imgb .att,.imgb .ia{color:#a9a9a9;}
+  .imgb .acts a,.imgb .acts button{background:transparent;color:#fff;border-color:#777;}
+  .actuel{background:#1d3b2c;color:#8fe3ac;}
+  a{color:inherit;}
+  html{color-scheme:dark;}
+  .card h2 small{color:#a9a9a9!important;}
+
+  /* ===== Tiroir, Paramètres, Connecteurs ===== */
+  .sheet.left{display:flex;flex-direction:column;} .sheet.left[hidden]{display:none;}
+  .dtitle{font:600 30px 'Sora',Arial,sans-serif;color:#fff;margin:4px 8px 6px;letter-spacing:-.01em;}
+  .sheet.left .chip{margin:0 8px 10px;align-self:flex-start;}
+  .tabs button,.sheet .lnk{display:flex;align-items:center;gap:14px;} .tabs button svg,.sheet .lnk svg{flex:none;opacity:.9;}
+  .dsep{height:1px;background:#2c2c2c;margin:10px 6px;}
+  .dfoot{margin-top:auto;display:flex;align-items:center;gap:12px;padding:12px 6px 4px;}
+  .av{width:52px;height:52px;border-radius:50%;border:0;background:#8b7be8;color:#fff;font:700 17px 'Sora',Arial,sans-serif;display:grid;place-items:center;padding:0;cursor:pointer;flex:none;}
+  .av.big{width:48px;height:48px;font-size:16px;cursor:default;}
+  .avt{min-width:0;} .avt b{display:block;color:#fff;font:700 14.5px 'Inter',Arial,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .avt span{font-size:12px;color:#9a9a9a;}
+  .ph{font:700 22px 'Sora',Arial,sans-serif;color:#fff;margin:2px 2px 12px;}
+  .acct{display:flex;align-items:center;gap:12px;} .acct .ai{flex:1;min-width:0;} .acct .ai b{display:block;font:700 15.5px 'Inter',Arial,sans-serif;color:#fff;word-break:break-word;}
+  .badge{flex:none;background:#f3f3f3;color:#141414;border-radius:99px;padding:5px 12px;font:700 12.5px 'Inter',Arial,sans-serif;}
+  .setlist{display:flex;flex-direction:column;gap:2px;background:#1f1f1f;border:1.5px solid #333;border-radius:20px;overflow:hidden;margin-bottom:12px;}
+  .set{display:flex;align-items:center;gap:14px;width:100%;border:0;background:none;color:#ececec;text-align:left;padding:15px 16px;cursor:pointer;font:600 15.5px 'Inter',Arial,sans-serif;border-bottom:1px solid #2a2a2a;}
+  .set:last-child{border-bottom:0;} .set:active{background:#292929;}
+  .set .sl{flex:1;min-width:0;} .set .sl b{display:block;font-weight:600;} .set .sl small{display:block;color:#9a9a9a;font-size:13px;margin-top:2px;font-weight:500;}
+  .set .chev{color:#777;font-size:22px;line-height:1;}
+  .sheet.tall{max-height:90%;min-height:55%;}
+  .dl{display:flex;align-items:flex-start;gap:12px;padding:12px 6px;border-bottom:1px solid #2c2c2c;} .dl:last-child{border-bottom:0;}
+  .dl .k{flex:1;min-width:0;} .dl .k b{display:block;font:600 15px 'Inter',Arial,sans-serif;color:#fff;} .dl .k span{display:block;font-size:13px;color:#a9a9a9;margin-top:2px;line-height:1.45;}
+  .pill2{flex:none;border-radius:99px;padding:4px 10px;font:700 11.5px 'Inter',Arial,sans-serif;}
+  .pill2.on{background:#1d3b2c;color:#8fe3ac;} .pill2.off{background:#2e2e2e;color:#a9a9a9;}
+  .grp{font:700 11px 'Sora',Arial,sans-serif;color:#9a9a9a;letter-spacing:.06em;text-transform:uppercase;margin:16px 6px 2px;}
+  .bar2{height:8px;border-radius:99px;background:#2f2f2f;overflow:hidden;margin-top:8px;} .bar2 i{display:block;height:100%;background:linear-gradient(90deg,var(--coral),var(--gold));border-radius:99px;}
+  .dnote{font-size:12.5px;color:#a9a9a9;line-height:1.55;margin:14px 6px 4px;}
+  .dbtn{display:block;width:100%;margin-top:14px;border:0;border-radius:14px;padding:13px;font:700 14.5px 'Sora',Arial,sans-serif;color:#fff;background:linear-gradient(120deg,var(--coral),var(--gold));cursor:pointer;}
+
+  /* ===== Clavier : la zone d'écriture monte avec lui, la discussion reste visible au-dessus ===== */
+  html,body{height:var(--vh,100%);} body{overflow:hidden;}
+  body.kb .scene{display:none;}
+  body.kb .compose{margin-bottom:8px;}
 </style>
 </head>
 <body>
-<div class="top"><img src="assets/img/keydou.webp" alt="Keydou"><div><h1>Keydou Compagnon</h1><p>Ton assistant personnel, chaque jour</p></div><a href="accueil.html">Retour</a></div>
-
+<div class="bar"><a class="ib" id="lnkRetourBar" href="accueil.html" aria-label="Retour à KOMYO" hidden>‹</a><button class="ib" id="btnMenu" type="button" aria-label="Menu" hidden><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg></button><div class="ttl"><img src="assets/img/keydou.webp" alt=""><span>Keydou Compagnon</span></div><button class="ib" id="btnMore" type="button" aria-label="Domaine et réglages" hidden><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5" r="1.9" fill="currentColor"/><circle cx="12" cy="12" r="1.9" fill="currentColor"/><circle cx="12" cy="19" r="1.9" fill="currentColor"/></svg></button></div>
 <main>
   <div class="pane" id="out" hidden><div class="card"><h2>Connecte-toi à KOMYO</h2><p class="note">Keydou Compagnon est réservé aux membres KOMYO.</p><a class="btn gold" style="margin-top:10px" href="inscription.html">Se connecter / Créer un compte</a></div></div>
 
@@ -98,10 +235,10 @@
   <div class="pane" id="offres" hidden>
     <div class="card"><h2 id="offresTitre">Choisis ton offre</h2><p class="note" id="offresTxt">Ton accès s'ouvre dès que ton dépôt est reconnu. Jamais gratuit.</p></div>
     <div class="card"><h2>Essentiel · 5 000 FCFA<span class="actuel" id="actEss" hidden>Ton offre</span> <small style="font:600 12px 'Inter',Arial,sans-serif;color:var(--dim)">par mois</small></h2>
-      <ul><li>65 messages par jour</li><li>10 rappels actifs</li><li>Culture générale + 5 recherches Internet par jour</li></ul>
+      <ul><li>65 messages par jour</li><li>10 rappels actifs</li><li>Culture générale + recherches vérifiées avec sources</li><li>Modes Santé, Droit, Cuisine, Mécanique, Business, Études</li><li>5 photos ou documents lus par jour</li><li data-img hidden>3 images créées par mois, à ta demande</li></ul>
       <button class="btn" data-plan="compagnon" style="margin-top:10px">Choisir Essentiel</button></div>
     <div class="card" style="border-color:var(--gold)"><h2>Complet · 19 $<span class="actuel" id="actPro" hidden>Ton offre</span> <small style="font:600 12px 'Inter',Arial,sans-serif;color:var(--dim)">par mois (≈ 11 100 FCFA)</small></h2>
-      <ul><li>200 messages par jour</li><li>Rappels illimités</li><li>Recherche Internet approfondie, sources citées</li></ul>
+      <ul><li>200 messages par jour</li><li>Rappels illimités</li><li>Recherches approfondies, sources citées</li><li>Médecine approfondie : explications détaillées, orientation vers le bon spécialiste, jamais de prescription</li><li>Tests et examens : questions corrigées, notes sur 10</li><li>Réflexion plus poussée sur les questions difficiles</li><li>30 photos ou documents lus par jour</li><li data-img hidden>25 images créées par mois, à ta demande</li><li data-voix hidden>Keydou te lit ses réponses avec sa vraie voix (quelques lectures par jour)</li></ul>
       <button class="btn gold" data-plan="compagnon_complet" style="margin-top:10px">Choisir Complet</button></div>
     <div class="inst" data-inst>
       <h2>📲 Installer Keydou sur mon téléphone</h2>
@@ -133,7 +270,7 @@
 
   <div class="pane" id="consent" hidden>
     <div class="card"><h2>Tes données, ton choix</h2>
-      <p class="note"><b>Keydou retient</b></p><ul><li>tes rendez-vous et tes anniversaires</li><li>tes habitudes (marche, lecture, sport…)</li><li>ce que tu lui demandes de retenir</li><li>tes conversations, pour mieux te répondre</li></ul>
+      <p class="note"><b>Keydou retient</b></p><ul><li>tes rendez-vous et tes anniversaires</li><li>tes habitudes (marche, lecture, sport…)</li><li>ce que tu lui demandes de retenir</li><li>tes conversations, pour mieux te répondre</li><li>les images qu’il crée pour toi</li></ul><p class="note">Les photos et documents que tu lui envoies sont lus puis oubliés : ils ne sont pas gardés.</p>
       <p class="note"><b>Keydou ne retient jamais</b></p><ul><li>tes médicaments : parles-en à ton médecin ou à ton pharmacien</li><li>tes codes secrets, ton numéro de carte</li></ul>
       <p class="note">Rien n'est vendu ni partagé. Tu peux tout télécharger et tout effacer, à tout moment, depuis l'onglet « Mes données ».</p>
       <label class="chk"><input type="checkbox" id="okConsent"> <span>J'accepte que Keydou garde ces informations pour m'aider.</span></label>
@@ -143,20 +280,20 @@
 
   <div id="app" hidden style="flex:1;min-height:0;display:flex;flex-direction:column">
     <div class="limite" id="finBandeau" hidden style="margin-top:10px"><span id="finTxt"></span> <button class="btn gold" id="finBtn" style="margin-top:8px">Reconduire mon abonnement</button></div>
-    <div class="planrow">
-      <span class="chip" id="chipNiveau">Essentiel</span>
-      <span class="sp"></span>
-      <button class="iconbtn" id="btnVoix" type="button" title="Keydou lit ses réponses à voix haute" aria-label="Lecture à voix haute">🔇</button>
-      <button class="iconbtn plus" id="btnPlus" type="button" title="Changer d'offre" aria-label="Changer d'offre">+</button>
-    </div>
-    <div class="tabs"><button data-t="chat" class="on">Discuter</button><button data-t="rappels">Rappels</button><button data-t="donnees">Mes données</button></div>
-
     <section id="t-chat" style="flex:1;min-height:0;display:flex;flex-direction:column">
       <div class="scene"><div class="kd" id="kd"><img class="kd-img" src="assets/img/keydou.webp" alt="Keydou"></div><div class="etat" id="etat" aria-live="polite">Écris-moi ou parle-moi.</div></div>
       <div class="pane" id="fil"><div class="chat" id="chat"></div></div>
       <div class="limite" id="limite" hidden></div>
-      <div class="quota" id="quota"></div>
-      <div class="compose"><button class="mic" id="mic" type="button" aria-label="Parler à Keydou" title="Parler à Keydou">🎤</button><textarea id="msg" rows="1" maxlength="1500" placeholder="Écris à Keydou…"></textarea><button id="envoi">Envoyer</button></div>
+      <div class="pj" id="pj" hidden><span>📎</span><b id="pjNom"></b><button type="button" id="pjOte" aria-label="Retirer le fichier">✕</button></div>
+      <div class="compose"><textarea id="msg" rows="1" maxlength="1500" placeholder="Écris à Keydou…"></textarea><div class="crow"><button class="cb" id="clip" type="button" aria-label="Ajouter une photo ou un fichier" title="Ajouter"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><button class="pill" id="pill" type="button" aria-label="Choisir le domaine"><span id="pillTxt">Auto</span> ▾</button><span class="sp"></span><button class="cb" id="mic" type="button" aria-label="Parler à Keydou" title="Parler à Keydou"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button><button class="send" id="envoi" type="button" aria-label="Envoyer"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button></div></div>
+      <input type="file" id="fichier" accept="image/*,application/pdf" hidden><input type="file" id="fichierPhoto" accept="image/*" hidden><input type="file" id="fichierCam" accept="image/*" capture="environment" hidden>
+    </section>
+
+    <section id="t-params" class="pane" hidden>
+      <h2 class="ph">Paramètres</h2>
+      <div class="card acct"><div class="av big"><span id="pAv">KY</span></div><div class="ai"><b id="pNom">Mon compte</b><div class="note" id="pTel"></div></div><span class="badge" id="pBadge">Essentiel</span></div>
+      <div class="card" id="pUp"></div>
+      <div class="setlist"><button class="set" type="button" data-d="profil"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="sl"><b>Profil</b><small id="pSubProfil"></small></span><span class="chev">›</span></button><button class="set" type="button" data-d="facturation"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg><span class="sl"><b>Facturation</b><small id="pSubFact"></small></span><span class="chev">›</span></button><button class="set" type="button" data-d="utilisation"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 13l3-4M12 5v1"/></svg><span class="sl"><b>Utilisation</b><small id="pSubUsage"></small></span><span class="chev">›</span></button><button class="set" type="button" data-d="capacites"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg><span class="sl"><b>Capacités</b><small id="pSubCap"></small></span><span class="chev">›</span></button><button class="set" type="button" data-d="connecteurs"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg><span class="sl"><b>Connecteurs</b><small id="pSubConn"></small></span><span class="chev">›</span></button><button class="set" type="button" data-d="autorisations"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg><span class="sl"><b>Autorisations</b><small id="pSubAut">Notifications, micro, appareil photo</small></span><span class="chev">›</span></button><button class="set" type="button" data-d="notifications"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span class="sl"><b>Notifications et rappels</b></span><span class="chev">›</span></button><button class="set" type="button" data-d="donnees"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg><span class="sl"><b>Mes données</b></span><span class="chev">›</span></button></div>
     </section>
 
     <section id="t-rappels" class="pane" hidden>
@@ -186,6 +323,38 @@
   </div>
 </main>
 
+
+<div id="ov" hidden></div>
+<aside class="sheet left" id="drawer" hidden role="dialog" aria-label="Menu">
+  <div class="dtitle">Keydou</div><span class="chip" id="chipNiveau">Essentiel</span>
+  <div class="tabs"><button data-t="chat" class="on"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.3A8 8 0 1 1 21 12z"/></svg><span>Discuter</span></button><button data-t="rappels"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Rappels</span></button><button data-t="donnees"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Mes données</span></button></div>
+  <div class="dsep"></div>
+  <button class="lnk" id="btnConn" type="button"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg><span>Connecteurs</span></button>
+  <button class="lnk" id="btnPlus" type="button"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg><span>Changer d'offre</span></button>
+  <a class="lnk" id="lnkRetour" href="accueil.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg><span>Retour à KOMYO</span></a>
+  <div class="dfoot"><button class="av" id="btnParam" type="button" aria-label="Paramètres"><span id="avInit">KY</span></button><div class="avt"><b id="avNom">Mon compte</b><span>Paramètres</span></div></div>
+</aside>
+<section class="sheet bottom" id="sheetMore" hidden role="dialog" aria-label="Domaine et réglages">
+  <div class="grip"></div><div class="st">Domaine de la question<button class="x" type="button" data-fermer aria-label="Fermer">✕</button></div>
+  <div class="modes" id="modes" role="group" aria-label="Domaine de la question"></div>
+  <div class="sec">Réglages</div>
+  <div class="row"><span>Lire les réponses à voix haute</span><span class="sp"></span><button class="iconbtn" id="btnVoix" type="button" title="Keydou lit ses réponses à voix haute" aria-label="Lecture à voix haute">🔇</button></div>
+  <div class="quota" id="quota"></div>
+</section>
+<section class="sheet bottom tall" id="sheetDetail" hidden role="dialog" aria-label="Détail">
+  <div class="grip"></div><div class="st"><span id="dTitre"></span><button class="x" type="button" data-fermer aria-label="Fermer">✕</button></div>
+  <div id="dCorps"></div>
+</section>
+<section class="sheet bottom" id="sheetPlus" hidden role="dialog" aria-label="Ajouter">
+  <div class="grip"></div><div class="st">Ajouter<button class="x" type="button" data-fermer aria-label="Fermer">✕</button></div>
+  <div class="plus3">
+    <button type="button" id="optCam"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Appareil photo</button>
+    <button type="button" id="optPhoto"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M21 16l-5-5-8 9"/></svg>Photos</button>
+    <button type="button" id="optFichier"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg>Fichiers</button>
+  </div>
+  <div class="info">Keydou lit les photos et les PDF (3 Mo au maximum).</div>
+</section>
+
 <script>
 (function(){
   var API='/api/starvibe-compagnon', token='', etat=null;
@@ -197,22 +366,73 @@
     return fetch(API+(qs||''),{method:method,headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:body?JSON.stringify(Object.assign({tz:TZ},body)):undefined})
       .then(function(r){ return r.json().catch(function(){return {};}).then(function(d){ return {ok:r.ok,status:r.status,data:d}; }); });
   }
-  function show(id){ ['out','ferme','offres','pay','consent','app'].forEach(function(x){ $(x).hidden=(x!==id); }); if(id==='app') $('app').style.display='flex'; }
+  function show(id){ ['out','ferme','offres','pay','consent','app'].forEach(function(x){ $(x).hidden=(x!==id); }); if(id==='app') $('app').style.display='flex'; fermer(); $('btnMenu').hidden=$('btnMore').hidden=(id!=='app'); $('lnkRetourBar').hidden=(id==='app'); }
+  // ---- Menus cachés : tiroir (≡), feuille du domaine (⋮ et pastille), feuille « + » ----
+  var ouvert='';
+  function ouvrir(id){ fermer(); ouvert=id; $('ov').hidden=false; $(id).hidden=false; }
+  function fermer(){ if(!ouvert) return; $(ouvert).hidden=true; $('ov').hidden=true; ouvert=''; }
+  $('ov').addEventListener('click',fermer);
+  Array.prototype.forEach.call(document.querySelectorAll('[data-fermer]'),function(b){ b.addEventListener('click',fermer); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') fermer(); });
+  $('btnMenu').addEventListener('click',function(){ ouvrir('drawer'); });
+  $('btnMore').addEventListener('click',function(){ ouvrir('sheetMore'); });
+  $('pill').addEventListener('click',function(){ ouvrir('sheetMore'); });
+  $('clip').addEventListener('click',function(){ ouvrir('sheetPlus'); });
+  function majPill(){ var m='Auto'; if(mode!=='auto'&&cap&&cap.modes){ cap.modes.forEach(function(x){ if(x.id===mode) m=x.label; }); } var niv=(etat&&etat.acces&&etat.acces.niveau==='complet')?'Pro 200':'Essentiel 65'; $('pillTxt').textContent=m+' · '+niv; }
   if(!token){ show('out'); return; }
 
+  var cap=null, mode='auto', piece=null, qDernier=null;
+  function capTxt(){ return (cap&&cap.images&&cap.imagesMax>0)?' · '+cap.imagesRestantes+' image'+(cap.imagesRestantes>1?'s':'')+' à créer ce mois-ci':''; }
+  function majCap(c){ if(!c) return; cap=c; Array.prototype.forEach.call(document.querySelectorAll('[data-img]'),function(x){ x.hidden=!c.images; }); Array.prototype.forEach.call(document.querySelectorAll('[data-voix]'),function(x){ x.hidden=!(c.voix&&c.voix.actif); }); if(typeof majVoix==='function') majVoix(); }
+  function construireModes(){
+    var box=$('modes'); if(!box||box.childNodes.length) return;
+    var liste=[{id:'auto',label:'Auto',emoji:'✨'}].concat((cap&&cap.modes)||[]);
+    liste.forEach(function(m){ var b=document.createElement('button'); b.type='button'; b.dataset.m=m.id; b.textContent=m.emoji+' '+m.label; if(m.id===mode) b.className='on';
+      b.addEventListener('click',function(){ mode=m.id; Array.prototype.forEach.call(box.children,function(x){ x.className=(x.dataset.m===mode?'on':''); }); majPill(); fermer(); }); box.appendChild(b); });
+  }
   function quota(q){
     if(!q) return;
-    $('quota').textContent=q.messagesUtilises+' / '+q.messagesMax+' messages sur 24 h · recherches Internet : '+q.recherchesUtilisees+' / '+q.recherchesMax;
+    qDernier=q; if($('pSubUsage')) majParams(); $('quota').textContent=q.messagesUtilises+' / '+q.messagesMax+' messages sur 24 h'+capTxt();
     var l=$('limite');
     if(q.revenirDansMs>0){ l.hidden=false; l.textContent='Tu as atteint ta limite de '+q.messagesMax+' messages. Reviens dans '+q.revenirDans+'.'; $('envoi').disabled=true; }
     else{ l.hidden=true; $('envoi').disabled=false; }
   }
   function bulle(role,txt,extra){
+    var idImg=extra&&extra.imageId?extra.imageId:0, mm=/\[\[img:(\d+)\]\]/.exec(String(txt||''));
+    if(mm){ idImg=Number(mm[1]); txt=String(txt).replace(/\s*\[\[img:\d+\]\]/,''); }
     var d=document.createElement('div'); d.className='m '+(role==='user'?'me':'ky'); d.textContent=txt;
     if(extra&&extra.sources&&extra.sources.length){ var s=document.createElement('div'); s.className='src'; s.innerHTML='Sources : '+extra.sources.map(function(x){ return '<a href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer">'+esc(x.titre)+'</a>'; }).join(' · '); d.appendChild(s); }
     if(extra&&extra.ajoutes&&extra.ajoutes.length){ var a=document.createElement('div'); a.className='add'; a.textContent='✓ Rappel ajouté : '+extra.ajoutes.map(function(x){ return x.titre; }).join(', '); d.appendChild(a); }
-    if(role!=='user'&&window.speechSynthesis){ var lb=document.createElement('button'); lb.className='lire'; lb.type='button'; lb.textContent='🔊'; lb.setAttribute('aria-label','Lire à voix haute'); lb.addEventListener('click',function(){ parle(txt); }); d.appendChild(lb); }
+    if(role!=='user'&&(window.speechSynthesis||(cap&&cap.voix&&cap.voix.actif))){ var lb=document.createElement('button'); lb.className='lire'; lb.type='button'; lb.textContent='🔊'; lb.setAttribute('aria-label','Lire à voix haute'); var mid=extra&&extra.id?extra.id:0; lb.addEventListener('click',function(){ lire(txt,mid); }); d.appendChild(lb); }
+    if(idImg) ajouteImage(d,idImg);
     $('chat').appendChild(d); var f=$('fil'); f.scrollTop=f.scrollHeight;
+  }
+  // ---- Images créées par Keydou : attente, affichage, enregistrement ----
+  function ajouteImage(d,id){
+    var box=document.createElement('div'); box.className='imgb'; var att=document.createElement('div'); att.className='att'; att.textContent='🎨 Je crée ton image… quelques secondes.'; box.appendChild(att); d.appendChild(box);
+    var debut=Date.now();
+    (function suivre(){
+      call('GET','?image='+id+'&statut=1').then(function(r){
+        if(r.status===404){ att.textContent='Cette image a été effacée.'; return; }
+        var st=r.ok?r.data.statut:'';
+        if(st==='ok'){ montre(); return; }
+        if(st==='erreur'||st==='refuse'){ att.textContent=(r.data.message||'L\u2019image n\u2019a pas pu être créée.'); if(r.data.detail){ var dt=document.createElement('div'); dt.style.cssText='font-size:11px;opacity:.7;margin-top:6px;word-break:break-word'; dt.textContent='Raison technique (testeur) : '+r.data.detail; box.appendChild(dt); } var ref=document.createElement('div'); ref.className='acts'; var b=document.createElement('button'); b.type='button'; b.textContent='Réessayer'; b.addEventListener('click',function(){ $('msg').value='Essaie encore de créer cette image, avec une autre idée.'; envoyer(); }); ref.appendChild(b); box.appendChild(ref); return; }
+        if(Date.now()-debut>300000){ att.textContent='Cela prend trop de temps. Réessaie dans un instant.'; return; }
+        setTimeout(suivre,3000);
+      }).catch(function(){ setTimeout(suivre,5000); });
+    })();
+    function montre(){
+      fetch(API+'?image='+id,{headers:{Authorization:'Bearer '+token}}).then(function(r){ if(!r.ok) throw 0; return r.blob(); }).then(function(bl){
+        var url=URL.createObjectURL(bl); box.innerHTML='';
+        var im=document.createElement('img'); im.src=url; im.alt='Image créée par Keydou'; box.appendChild(im);
+        var ac=document.createElement('div'); ac.className='acts';
+        var a=document.createElement('a'); a.href=url; a.download='keydou-image-'+id+(bl.type.indexOf('png')>=0?'.png':'.jpg'); a.textContent='⬇ Enregistrer'; ac.appendChild(a);
+        var b=document.createElement('button'); b.type='button'; b.textContent='🔁 Refaire autrement'; b.addEventListener('click',function(){ $('msg').value='Refais cette image autrement, avec une autre idée.'; envoyer(); }); ac.appendChild(b);
+        box.appendChild(ac);
+        var ia=document.createElement('div'); ia.className='ia'; ia.textContent='Image créée par intelligence artificielle'; box.appendChild(ia);
+        var f=$('fil'); f.scrollTop=f.scrollHeight;
+      }).catch(function(){ att.textContent='L\u2019image n\u2019a pas pu être affichée. Réessaie.'; });
+    }
   }
   function charge(){
     call('GET',standalone?'?app=1':'').then(function(r){
@@ -220,23 +440,23 @@
       if(r.status===403){
         if(r.data.code==='abonnement_termine'||(r.data.code==='acces_refuse'&&r.data.ouvert)){
           $('offresTitre').textContent = r.data.code==='abonnement_termine' ? 'Ton abonnement est terminé' : 'Choisis ton offre';
-          $('offresTxt').textContent = r.data.error; show('offres'); return;
+          $('offresTxt').textContent = r.data.error; majCap(r.data.capacites); show('offres'); return;
         }
         $('fermeTxt').textContent=r.data.error||$('fermeTxt').textContent; show('ferme'); return;
       }
       if(!r.ok){ return; }
       etat=r.data;
       if(!etat.consentement){ show('consent'); return; }
-      show('app'); quota(etat.quota);
+      show('app'); majCap(etat.capacites); construireModes(); quota(etat.quota);
       initKd();
       $('finBandeau').hidden=!etat.finBientot; if(etat.finBientot) $('finTxt').textContent=etat.texteFin;
       var pro=etat.acces.niveau==='complet'; var ch=$('chipNiveau');
-      ch.className='chip'+(pro?' pro':''); ch.innerHTML='🐻 '+(pro?'Complet · Pro':'Essentiel')+' <small>'+(pro?'200':'65')+' messages/jour'+(etat.acces.source==='test'?' · test':'')+'</small>';
+      majPill(); majParams(); ch.className='chip'+(pro?' pro':''); ch.innerHTML='🐻 '+(pro?'Complet · Pro':'Essentiel')+' <small>'+(pro?'200':'65')+' messages/jour'+(etat.acces.source==='test'?' · test':'')+'</small>';
       $('aboTxt').textContent='Offre '+etat.acces.label+(etat.acces.source==='test'?' (invitation de test)':'')+(etat.acces.fin?' · valable jusqu’au '+new Date(etat.acces.fin).toLocaleDateString('fr-FR'):'')+'.';
       if(etat.notifications>0){ $('notifTxt').textContent='Notifications activées sur '+etat.notifications+' appareil(s).'; $('notifBtn').textContent='Réactiver sur ce téléphone'; }
       call('GET','?historique=1').then(function(h){
         $('chat').innerHTML='';
-        if(h.ok&&h.data.messages.length){ h.data.messages.forEach(function(m){ bulle(m.role,m.texte); }); }
+        if(h.ok&&h.data.messages.length){ h.data.messages.forEach(function(m){ bulle(m.role,m.texte,{id:m.id}); }); }
         else bulle('assistant','Salut ! Je suis Keydou. Je retiens tes rendez-vous, tes anniversaires et tes habitudes, et je te préviens au bon moment. Je peux aussi répondre à tes questions. Que veux-tu que je retienne ?');
       });
     });
@@ -256,10 +476,10 @@
   }
   $('offresRetour').addEventListener('click',function(){ show('app'); });
   $('btnPlus').addEventListener('click',function(){
-    var a=etat&&etat.acces;
+    fermer(); var a=etat&&etat.acces;
     ouvrirOffres('Changer d\u2019offre', a&&a.niveau==='complet'
       ? 'Tu es en Complet (Pro). Tu peux le reconduire, ou passer à Essentiel à la fin de ta période.'
-      : 'Passe à Complet (Pro) pour 19 $ par mois : 200 messages par jour, rappels illimités, recherche Internet approfondie. Ton Essentiel en cours n\u2019est pas perdu : il reprend après ton Complet.');
+      : 'Passe à Complet (Pro) pour 19 $ par mois : 200 messages par jour, rappels illimités, recherches approfondies, réflexion plus poussée, 30 photos ou documents lus par jour, 25 images créées par mois. Ton Essentiel en cours n\u2019est pas perdu : il reprend après ton Complet.');
   });
   $('finBtn').addEventListener('click',function(){ ouvrirOffres('Reconduire mon abonnement','Choisis ton offre : la nouvelle période s\u2019ajoute à la fin de ton abonnement actuel, sans perdre un jour.'); });
   $('reconduire').addEventListener('click',function(){ ouvrirOffres('Reconduire mon abonnement','Choisis ton offre : la nouvelle période s\u2019ajoute à la fin de ton abonnement actuel, sans perdre un jour.'); });
@@ -315,43 +535,77 @@
     });
   }
   Array.prototype.forEach.call(document.querySelectorAll('[data-instbtn]'),function(b){ b.addEventListener('click',installer); });
-  if(standalone){ Array.prototype.forEach.call(document.querySelectorAll('[data-inst]'),function(x){ x.hidden=true; }); var rt=document.querySelector('.top a'); if(rt) rt.hidden=true; }
+  if(standalone){ Array.prototype.forEach.call(document.querySelectorAll('[data-inst]'),function(x){ x.hidden=true; }); ['lnkRetourBar','lnkRetour'].forEach(function(i){ var rt=$(i); if(rt) rt.hidden=true; }); }
 
   $('okConsent').addEventListener('change',function(){ $('btnConsent').disabled=!this.checked; });
   $('btnConsent').addEventListener('click',function(){ call('POST','',{action:'consentir'}).then(function(r){ if(r.ok) charge(); else $('errConsent').textContent=r.data.error||'Erreur'; }); });
 
-  document.querySelectorAll('.tabs button').forEach(function(b){ b.addEventListener('click',function(){
-    document.querySelectorAll('.tabs button').forEach(function(x){ x.classList.toggle('on',x===b); });
-    ['chat','rappels','donnees'].forEach(function(t){ var s=$('t-'+t); s.hidden=(t!==b.dataset.t); if(t==='chat') s.style.display=(t===b.dataset.t?'flex':'none'); });
-    if(b.dataset.t==='rappels') listeRappels();
-  }); });
+  function allerA(t){
+    document.querySelectorAll('.tabs button').forEach(function(x){ x.classList.toggle('on',x.dataset.t===t); });
+    ['chat','rappels','donnees','params'].forEach(function(n){ var s=$('t-'+n); s.hidden=(n!==t); if(n==='chat') s.style.display=(n===t?'flex':'none'); });
+    if(t==='rappels') listeRappels();
+    if(t==='params') majParams();
+    fermer();
+  }
+  document.querySelectorAll('.tabs button').forEach(function(b){ b.addEventListener('click',function(){ allerA(b.dataset.t); }); });
+  $('btnParam').addEventListener('click',function(){ allerA('params'); });
+  $('btnConn').addEventListener('click',function(){ allerA('params'); detail('connecteurs'); });
+  Array.prototype.forEach.call(document.querySelectorAll('.set'),function(b){ b.addEventListener('click',function(){ var d=b.dataset.d; if(d==='notifications') allerA('rappels'); else if(d==='donnees') allerA('donnees'); else detail(d); }); });
 
   var occupe=false, vientDeLaVoix=false;
   // ---- Keydou vit : mêmes séquences et mêmes gestes que sur sa page ----
   var kd=null, enParole=false, tParle=0;
   function etatTxt(t){ $('etat').textContent=t; }
-  function initKd(){ if(kd||!window.KeydouVivant) return; try{ kd=KeydouVivant.creer($('kd'),{taille:120}); kd.vie(true); kd.jouer('wave'); }catch(e){ kd=null; } }
+  var kdRetente=false;
+  function initKd(){ if(kd) return;
+    if(!window.KeydouVivant){ if(!kdRetente){ kdRetente=true; var sc=document.createElement('script'); sc.src='assets/keydou-vivant-v1.js?r=2'; sc.onload=initKd; document.head.appendChild(sc); } return; } try{ kd=KeydouVivant.creer($('kd'),{taille:76}); kd.vie(true); kd.jouer('wave'); }catch(e){ kd=null; } }
   function kdBase(e){ if(kd) kd.base(e); }
   function kdGeste(g){ if(kd) kd.jouer(g); }
   function parlerUnPeu(txt){ if(!kd) return; kd.base('talk'); clearTimeout(tParle); tParle=setTimeout(function(){ if(!enParole){ kd.base('idle'); etatTxt('À toi !'); } },Math.min(5000,700+String(txt||'').length*30)); }
   function envoyer(){
-    var t=$('msg').value.trim(); if(!t||occupe) return;
-    occupe=true; $('envoi').disabled=true; bulle('user',t); $('msg').value='';
+    var t=$('msg').value.trim(); if((!t&&!piece)||occupe) return;
+    var pj=piece; piece=null; $('pj').hidden=true; $('fichier').value='';
+    occupe=true; $('envoi').disabled=true; bulle('user',(pj?'📎 '+pj.nom+(t?' · ':''):'')+t); $('msg').value=''; $('msg').style.height='auto';
     kdBase('think'); etatTxt('Je réfléchis…');
     var att=document.createElement('div'); att.className='m ky'; att.textContent='Keydou réfléchit…'; $('chat').appendChild(att); $('fil').scrollTop=$('fil').scrollHeight;
-    call('POST','',{action:'chat',message:t}).then(function(r){
+    call('POST','',{action:'chat',message:t,mode:mode,piece:pj?{data:pj.data}:undefined}).then(function(r){
       att.remove(); occupe=false;
       if(r.ok){
-        bulle('assistant',r.data.reponse,{sources:r.data.sources,ajoutes:r.data.rappelsAjoutes}); quota(r.data.quota);
+        majCap(r.data.capacites); bulle('assistant',r.data.reponse,{sources:r.data.sources,ajoutes:r.data.rappelsAjoutes,imageId:r.data.image?r.data.image.id:0,id:r.data.messageId}); quota(r.data.quota);
         var voix=voixOn||vientDeLaVoix; vientDeLaVoix=false;
-        if(r.data.rappelsAjoutes&&r.data.rappelsAjoutes.length){ kdBase('idle'); kdGeste('celebrate'); etatTxt('C\u2019est noté ! 🎉'); if(voix) setTimeout(function(){ parle(r.data.reponse); },900); }
-        else if(voix) parle(r.data.reponse);
+        if(r.data.rappelsAjoutes&&r.data.rappelsAjoutes.length){ kdBase('idle'); kdGeste('celebrate'); etatTxt('C\u2019est noté ! 🎉'); if(voix) setTimeout(function(){ lire(r.data.reponse,r.data.messageId); },900); }
+        else if(voix) lire(r.data.reponse,r.data.messageId);
         else { etatTxt('Je te réponds…'); parlerUnPeu(r.data.reponse); }
       }
-      else if(r.status===429){ kdBase('idle'); etatTxt('Reviens un peu plus tard.'); bulle('assistant',r.data.error); quota(r.data.quota); }
+      else if(r.status===429){ kdBase('idle'); etatTxt('Reviens un peu plus tard.'); bulle('assistant',r.data.error); quota(r.data.quota); if(r.data.code==='pieces_limite') $('envoi').disabled=false; }
       else{ kdBase('idle'); etatTxt('Réessaie dans un instant.'); bulle('assistant',r.data.error||'Keydou est indisponible un instant.'); $('envoi').disabled=false; }
     }).catch(function(){ att.remove(); occupe=false; $('envoi').disabled=false; kdBase('idle'); bulle('assistant','Connexion impossible. Réessaie.'); });
   }
+  // ---- Photo ou document envoyé à Keydou (la photo est réduite avant l'envoi) ----
+  function lireFichier(f){
+    if(!f) return;
+    function pret(data,nom){ piece={data:data,nom:nom}; $('pjNom').textContent=nom; $('pj').hidden=false; }
+    if(f.type==='application/pdf'){
+      if(f.size>3200000){ bulle('assistant','Ce PDF est trop lourd (3 Mo au maximum). Envoie moins de pages ou une version plus légère.'); $('fichier').value=''; return; }
+      var r=new FileReader(); r.onload=function(){ pret(String(r.result).split(',')[1]||'',f.name||'document.pdf'); }; r.readAsDataURL(f); return;
+    }
+    if(!/^image\//.test(f.type)){ bulle('assistant','Je lis les photos et les PDF. Ce type de fichier n\u2019est pas pris en charge.'); $('fichier').value=''; return; }
+    var rd=new FileReader(); rd.onload=function(){
+      var im=new Image(); im.onload=function(){
+        var m=1280, w=im.naturalWidth, h=im.naturalHeight, k=Math.min(1,m/Math.max(w,h)); var c=document.createElement('canvas'); c.width=Math.round(w*k); c.height=Math.round(h*k);
+        var g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,c.width,c.height); g.drawImage(im,0,0,c.width,c.height);
+        pret(c.toDataURL('image/jpeg',0.82).split(',')[1],f.name||'photo.jpg');
+      };
+      im.onerror=function(){ bulle('assistant','Je n\u2019arrive pas à lire cette photo. Essaie-en une autre.'); $('fichier').value=''; };
+      im.src=String(rd.result);
+    }; rd.readAsDataURL(f);
+  }
+  $('optCam').addEventListener('click',function(){ fermer(); $('fichierCam').click(); });
+  $('optPhoto').addEventListener('click',function(){ fermer(); $('fichierPhoto').click(); });
+  $('optFichier').addEventListener('click',function(){ fermer(); $('fichier').click(); });
+  ['fichier','fichierPhoto','fichierCam'].forEach(function(i){ $(i).addEventListener('change',function(){ var f=this.files&&this.files[0]; this.value=''; lireFichier(f); }); });
+  $('msg').addEventListener('input',function(){ this.style.height='auto'; this.style.height=Math.min(130,this.scrollHeight)+'px'; });
+  $('pjOte').addEventListener('click',function(){ piece=null; $('pj').hidden=true; $('fichier').value=''; });
   $('envoi').addEventListener('click',envoyer);
   $('msg').addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); envoyer(); } });
 
@@ -359,18 +613,41 @@
   var LANG='fr-FR'; try{ if(navigator.language&&navigator.language.slice(0,2)!=='fr') LANG=navigator.language; }catch(e){}
   var voixOn=false; try{ voixOn=localStorage.getItem('keydou_voix')==='1'; }catch(e){}
   var TTS=window.speechSynthesis||null;
-  function majVoix(){ var b=$('btnVoix'); b.classList.toggle('on',voixOn); b.textContent=voixOn?'🔊':'🔇'; }
+  function majVoix(){ var b=$('btnVoix'); if(!b) return; b.hidden=!(TTS||(cap&&cap.voix&&cap.voix.actif)); b.classList.toggle('on',voixOn); b.textContent=voixOn?'🔊':'🔇'; }
   function propre(t){ return String(t||'').replace(/\p{Extended_Pictographic}/gu,' ').replace(/https?:\/\/\S+/g,' ').replace(/[*_#`]/g,'').replace(/\s+/g,' ').trim(); }
   function parle(t){
     if(!TTS) return; TTS.cancel();
     var u=new SpeechSynthesisUtterance(propre(t)); u.lang=LANG; u.rate=1;
     var vs=TTS.getVoices(); var v=vs.filter(function(x){ return x.lang&&x.lang.toLowerCase().indexOf(LANG.slice(0,2).toLowerCase())===0; })[0]; if(v) u.voice=v;
+    var tB=0;
     u.onstart=function(){ enParole=true; clearTimeout(tParle); kdBase('talk'); etatTxt('Je te lis ma réponse…'); };
-    u.onend=u.onerror=function(){ enParole=false; kdBase('idle'); etatTxt('À toi !'); };
+    // Bouche synchronisée : quand le téléphone signale chaque mot lu, la bouche de Keydou bouge le temps du mot puis se fige.
+    // (Si le téléphone n'envoie pas ces signaux, Keydou parle en continu comme avant.)
+    u.onboundary=function(e){ if(!kd||!kd.parole) return; kd.parole(true,1.1); clearTimeout(tB); var n=(e&&e.charLength)||5; tB=setTimeout(function(){ if(enParole&&kd) kd.parole(false); },Math.max(200,Math.min(650,n*85))); };
+    u.onend=u.onerror=function(){ clearTimeout(tB); enParole=false; if(kd&&kd.parole) kd.parole(true,1); kdBase('idle'); etatTxt('À toi !'); };
     TTS.speak(u);
   }
+  // Vraie voix de Keydou (service de voix côté serveur, même voix que la vidéo et le site). Sinon : voix du téléphone.
+  var audioKd=null, urlKd=null;
+  function stopKd(){ if(audioKd){ try{ audioKd.pause(); }catch(e){} audioKd=null; } if(urlKd){ try{ URL.revokeObjectURL(urlKd); }catch(e){} urlKd=null; } }
+  function voixKdPossible(){ return !!(cap&&cap.voix&&cap.voix.actif&&cap.voix.restantes>0); }
+  function lire(txt,id){
+    if(TTS) TTS.cancel(); stopKd();
+    if(!id||!voixKdPossible()){ if(id&&cap&&cap.voix&&cap.voix.actif&&cap.voix.restantes<=0) etatTxt('Plus de lectures avec ma voix aujourd\u2019hui : j\u2019utilise celle de ton téléphone.'); parle(txt); return; }
+    etatTxt('Je prépare ma voix…'); kdBase('think');
+    fetch(API+'?voix='+encodeURIComponent(id),{headers:{Authorization:'Bearer '+token}}).then(function(r){
+      if(!r.ok){ return r.json().catch(function(){return {};}).then(function(d){ if(r.status===429&&cap&&cap.voix) cap.voix.restantes=0; throw new Error(d&&d.error||'voix'); }); }
+      return r.blob();
+    }).then(function(bl){
+      if(cap&&cap.voix&&cap.voix.restantes>0) cap.voix.restantes=Math.max(0,cap.voix.restantes-1);
+      urlKd=URL.createObjectURL(bl); var a=new Audio(urlKd); audioKd=a;
+      a.onplay=function(){ enParole=true; clearTimeout(tParle); kdBase('talk'); etatTxt('Je te lis ma réponse…'); };
+      a.onended=a.onerror=function(){ enParole=false; stopKd(); kdBase('idle'); etatTxt('À toi !'); };
+      var pr=a.play(); if(pr&&pr.catch) pr.catch(function(){ enParole=false; stopKd(); parle(txt); });
+    }).catch(function(){ parle(txt); });
+  }
   if(!TTS){ $('btnVoix').hidden=true; }
-  $('btnVoix').addEventListener('click',function(){ voixOn=!voixOn; try{ localStorage.setItem('keydou_voix',voixOn?'1':'0'); }catch(e){} majVoix(); if(!voixOn&&TTS) TTS.cancel(); else if(voixOn) parle('Je te lis mes réponses.'); });
+  $('btnVoix').addEventListener('click',function(){ voixOn=!voixOn; try{ localStorage.setItem('keydou_voix',voixOn?'1':'0'); }catch(e){} majVoix(); if(!voixOn){ if(TTS) TTS.cancel(); stopKd(); } else if(!voixKdPossible()) parle('Je te lis mes réponses.'); });
   majVoix();
   var SR=window.SpeechRecognition||window.webkitSpeechRecognition, rec=null, ecoute=false;
   if(!SR){ $('mic').hidden=true; }
@@ -395,8 +672,8 @@
   function listeRappels(){
     call('GET','?rappels=1').then(function(r){
       if(!r.ok) return;
-      var L=$('listeRappels'); if(!r.data.rappels.length){ L.innerHTML='<p class="note" style="text-align:center">Aucun rappel pour l’instant.</p>'; return; }
-      L.innerHTML=r.data.rappels.map(function(x){
+      var L=$('listeRappels'); if(!(r.data.rappels||[]).length){ L.innerHTML='<p class="note" style="text-align:center">Aucun rappel pour l’instant.</p>'; return; }
+      L.innerHTML=(r.data.rappels||[]).map(function(x){
         var d=new Date(x.quand); var rep=x.repetition?' · chaque '+({jour:'jour',semaine:'semaine',mois:'mois',an:'année'})[x.repetition]:'';
         return '<div class="rem"><div class="d"><small>'+MOIS[d.getMonth()]+'</small>'+d.getDate()+'</div><div class="t"><b>'+esc(x.titre)+'</b><br><span>'+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})+rep+(x.actif?'':' · terminé')+'</span></div>'+
           '<button class="tog'+(x.actif?' on':'')+'" data-b="'+x.id+'" data-a="'+(x.actif?0:1)+'" aria-label="Activer ou désactiver"></button><button data-s="'+x.id+'" aria-label="Supprimer">🗑</button></div>';
@@ -439,9 +716,75 @@
     });
   });
   charge();
+
+  // ---- Paramètres : compte, offre, utilisation, capacités, connecteurs (tout vient du serveur, rien d'inventé) ----
+  function niveauTxt(){ var a=etat&&etat.acces; if(!a) return 'Essentiel'; return a.niveau==='complet'?'Pro':'Essentiel'; }
+  function majParams(){
+    var c=(etat&&etat.compte)||{}, a=(etat&&etat.acces)||{};
+    var ini=c.initiales||'KY', nom=c.nom||'Mon compte';
+    ['avInit','pAv'].forEach(function(i){ $(i).textContent=ini; }); $('avNom').textContent=nom; $('pNom').textContent=nom; $('pTel').textContent=c.telephone||'';
+    $('pBadge').textContent=niveauTxt()+(a.source==='test'?' · test':'');
+    var complet=a.niveau==='complet';
+    $('pUp').innerHTML=complet
+      ? '<h2>Tu as l\u2019offre Complet (Pro)</h2><p class="note">200 messages par jour, rappels illimités, 25 images par mois et la voix de Keydou. Merci de ta confiance !</p>'
+      : '<h2>Envie d\u2019aller plus loin ?</h2><p class="note">Passe à <b>Complet</b> (19 $ par mois) : 200 messages par jour, rappels illimités, médecine approfondie, tests notés sur 10, 25 images par mois et la voix de Keydou.</p><button class="btn gold" id="pUpBtn" type="button" style="margin-top:10px">Mettre à niveau</button>';
+    var ub=$('pUpBtn'); if(ub) ub.addEventListener('click',function(){ $('btnPlus').click(); });
+    $('pSubProfil').textContent=nom+(c.telephone?' · '+c.telephone:'');
+    $('pSubFact').textContent='Offre '+(a.label||'')+(a.fin?' · jusqu\u2019au '+new Date(a.fin).toLocaleDateString('fr-FR'):'');
+    $('pSubUsage').textContent=qDernier?qDernier.messagesUtilises+' / '+qDernier.messagesMax+' messages sur 24 h':'';
+    var l=(cap&&cap.liste)||[], n=0; l.forEach(function(x){ if(x.actif) n++; }); $('pSubCap').textContent=l.length?(n+' activée'+(n>1?'s':'')+' sur '+l.length):'';
+    var k=(cap&&cap.connecteurs)||[], on=0; k.forEach(function(x){ if(x.statut==='actif') on++; }); $('pSubConn').textContent=k.length?(on+' connecté'+(on>1?'s':'')+' · '+(k.length-on)+' bientôt'):'';
+  }
+  function dl(titre,sous,pill){ return '<div class="dl"><div class="k"><b>'+esc(titre)+'</b>'+(sous?'<span>'+esc(sous)+'</span>':'')+'</div>'+(pill?'<span class="pill2 '+(pill==='Actif'||pill==='Connecté'?'on':'off')+'">'+esc(pill)+'</span>':'')+'</div>'; }
+  function barre(titre,u,m,note){ var p=m>0?Math.min(100,Math.round(u*100/m)):0; return '<div class="dl"><div class="k"><b>'+esc(titre)+' <span style="display:inline;color:#a9a9a9;font-weight:500">'+u+' / '+m+'</span></b><div class="bar2"><i style="width:'+p+'%"></i></div>'+(note?'<span>'+esc(note)+'</span>':'')+'</div></div>'; }
+  function detail(d){
+    var c=(etat&&etat.compte)||{}, a=(etat&&etat.acces)||{}, t='', h='';
+    if(d==='profil'){ t='Profil'; h=dl('Nom',c.nom||'—')+dl('Téléphone',c.telephone||'—')+dl('Offre',(a.label||'')+(a.source==='test'?' (invitation de test)':''))+'<p class="dnote">Ton nom et ton numéro sont ceux de ton compte KOMYO. Rien n\u2019est vendu ni partagé.</p>'; }
+    else if(d==='facturation'){ t='Facturation'; var prix=a.niveau==='complet'?'19 $ par mois (≈ 11 100 FCFA)':'5 000 FCFA par mois'; h=dl('Offre',(a.label||'')+(a.source==='test'?' (invitation de test)':''))+dl('Prix',a.source==='test'?'Gratuit pendant ton test ('+prix+' ensuite)':prix)+dl('Valable jusqu\u2019au',a.fin?new Date(a.fin).toLocaleDateString('fr-FR'):'—')+'<p class="dnote">Jamais gratuit à l\u2019ouverture : l\u2019abonnement s\u2019active dès que ton dépôt Mobile Money est reconnu.</p><button class="dbtn" id="dPlus" type="button">Changer ou reconduire mon offre</button>'; }
+    else if(d==='utilisation'){ t='Utilisation'; var q=qDernier||{messagesUtilises:0,messagesMax:0}; h=barre('Messages sur 24 h',q.messagesUtilises,q.messagesMax,'Fenêtre glissante de 24 heures'); if(cap&&cap.images&&cap.imagesMax>0) h+=barre('Images ce mois-ci',cap.imagesMax-cap.imagesRestantes,cap.imagesMax,''); if(cap&&cap.voix&&cap.voix.actif) h+=barre('Voix de Keydou aujourd\u2019hui',cap.voix.max-cap.voix.restantes,cap.voix.max,'Ensuite : voix de ton téléphone'); if(cap) h+=dl('Photos et PDF',cap.piecesMax+' par jour'); }
+    else if(d==='capacites'){ t='Capacités'; ((cap&&cap.liste)||[]).forEach(function(x){ h+=dl(x.nom,x.detail,x.actif?'Actif':'Bientôt'); }); }
+    else if(d==='connecteurs'){ t='Connecteurs'; var g='', k=(cap&&cap.connecteurs)||[]; k.forEach(function(x){ if(x.groupe!==g){ g=x.groupe; h+='<div class="grp">'+esc(g)+'</div>'; } h+=dl(x.nom,x.detail,x.statut==='actif'?'Connecté':'Bientôt'); }); h+='<p class="dnote">Les connecteurs « Bientôt » (Gmail, Agenda, Canva, Adobe, GitHub, autres modèles d\u2019IA…) demandent ton autorisation personnelle et l\u2019accord de chaque service : STAR ENTREPRISE les ouvre un par un. Aucun n\u2019est actif aujourd\u2019hui.</p>'; }
+    else if(d==='autorisations'){ t='Autorisations'; autorisations(); return; }
+    $('dTitre').textContent=t; $('dCorps').innerHTML=h; ouvrir('sheetDetail');
+    var p=$('dPlus'); if(p) p.addEventListener('click',function(){ fermer(); $('btnPlus').click(); });
+  }
+
+  // ---- Autorisations : sur téléphone le système demande tout seul ; sur ordinateur il faut les activer ici ----
+  function autorisations(){
+    var notif=('Notification' in window)?Notification.permission:'absent';
+    var nTxt=notif==='granted'?'Activées':(notif==='denied'?'Refusées : à rouvrir dans les réglages du navigateur':(notif==='absent'?'Non gérées par ce navigateur':'Pas encore activées'));
+    var h=dl('Notifications',nTxt,notif==='granted'?'Actif':'')+(notif==='default'?'<button class="dbtn" id="aNotif" type="button">Activer les notifications</button>':'')
+      +dl('Micro',SR?'Pour dicter tes messages à Keydou':'Non géré par ce navigateur',SR?'':'')+(SR?'<button class="dbtn" id="aMic" type="button">Autoriser le micro</button><p class="dnote" id="aMicTxt"></p>':'')
+      +dl('Appareil photo / Photos / Fichiers','Sur téléphone, le bouton « + » ouvre la caméra ou la galerie. Sur ordinateur, il ouvre l\u2019explorateur de fichiers.')
+      +'<p class="dnote">Sur téléphone, le système demande ces autorisations tout seul au premier usage. Sur ordinateur, active-les ici une fois : le navigateur affichera sa question en haut de l\u2019écran, réponds « Autoriser ».</p>';
+    $('dTitre').textContent='Autorisations'; $('dCorps').innerHTML=h; ouvrir('sheetDetail');
+    var n=$('aNotif'); if(n) n.addEventListener('click',function(){ $('notifBtn').click(); setTimeout(autorisations,2500); });
+    var m=$('aMic'); if(m) m.addEventListener('click',function(){
+      var tx=$('aMicTxt');
+      if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)){ tx.textContent='Ce navigateur ne permet pas de demander le micro ici : appuie sur le micro dans le chat.'; return; }
+      navigator.mediaDevices.getUserMedia({audio:true}).then(function(st){ st.getTracks().forEach(function(x){ x.stop(); }); tx.textContent='✅ Micro autorisé.'; })
+        .catch(function(){ tx.textContent='Micro refusé : autorise-le pour ce site dans les réglages du navigateur (icône cadenas à côté de l\u2019adresse).'; });
+    });
+  }
+
+  // ---- Clavier du téléphone : on suit la hauteur réellement visible (Android et iPhone) ----
+  (function(){
+    var vv=window.visualViewport;
+    function bas(){ var f=$('fil'); if(f) f.scrollTop=f.scrollHeight; }
+    function ajuste(){
+      if(vv){ document.documentElement.style.setProperty('--vh',Math.round(vv.height)+'px'); }
+      var ouvert=document.activeElement===$('msg');
+      document.body.classList.toggle('kb',!!ouvert);
+      window.scrollTo(0,0); setTimeout(bas,30);
+    }
+    if(vv){ vv.addEventListener('resize',ajuste); vv.addEventListener('scroll',function(){ window.scrollTo(0,0); }); }
+    window.addEventListener('resize',ajuste);
+    $('msg').addEventListener('focus',function(){ document.body.classList.add('kb'); setTimeout(ajuste,250); setTimeout(ajuste,600); });
+    $('msg').addEventListener('blur',function(){ setTimeout(function(){ document.body.classList.remove('kb'); ajuste(); },80); });
+  })();
 })();
 </script>
-<script src="assets/keydou-vivant-v1.js"></script>
+<script src="assets/keydou-vivant-v1.js?r=2"></script>
 <script src="assets/komyo-installer-v6.js" defer></script>
 </body>
 </html>

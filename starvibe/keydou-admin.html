@@ -129,6 +129,7 @@
     <button class="tab" id="tabAnnuaire">Annuaire de Keydou</button>
     <button class="tab" id="tabParr">Parrainage</button>
     <button class="tab" id="tabComp">Keydou Compagnon</button>
+    <button class="tab" id="tabSalon">Le Salon (vidéo)</button>
     <button class="tab" id="tabPhone">Mon téléphone (validation)</button>
   </div>
 
@@ -222,6 +223,7 @@
       <b>Keydou Compagnon (assistant personnel)</b>
       <p class="muted" style="margin:6px 0 8px;line-height:1.55">Jamais gratuit : une personne n'accède à Keydou Compagnon que si son dépôt est validé (Essentiel 5 000 FCFA, Complet 19 $ ≈ 11 100 FCFA) ou si tu l'as invitée comme testeur. Les médicaments sont refusés. Limites : <span id="compLim">—</span>.</p>
       <div class="bar"><label style="font-size:13px;display:flex;align-items:center;gap:8px"><input type="checkbox" id="compOuvert"> Ouvert à l'abonnement (laisser décoché pendant les essais)</label></div>
+      <div class="muted" id="compJournal" style="margin-top:4px;font-size:12px"></div>
       <div class="bar" style="margin-top:6px"><input id="compTel" type="text" placeholder="Téléphone du testeur (+242…)" style="flex:1;min-width:200px;padding:9px;border-radius:10px">
         <select id="compNiv" style="padding:9px;border-radius:10px"><option value="essentiel">Essentiel (65/jour)</option><option value="complet">Complet (200/jour)</option></select>
         <button class="btn ok" id="compInviter" type="button">Inviter comme testeur</button></div>
@@ -229,6 +231,22 @@
     </div>
     <div class="stats" id="compStats"></div>
     <div class="tablewrap"><table style="min-width:1000px"><thead><tr><th>Téléphone</th><th>Nom</th><th>Accès</th><th>Dépôt</th><th>Fin</th><th>Appareil (KOMYO)</th><th>Appli Keydou installée</th><th>Dernière ouverture</th><th>Messages 24 h</th><th>Rappels</th><th>Notifs</th><th>Consentement</th></tr></thead><tbody id="compBody"></tbody></table></div>
+  </div>
+
+  <!-- LE SALON : appel vidéo en famille ou entre amis (LiveKit) -->
+  <div id="paneSalon" hidden>
+    <div class="formcard" style="margin-bottom:12px">
+      <b>Le Salon (appel vidéo en groupe)</b>
+      <p class="muted" style="margin:6px 0 8px;line-height:1.55" id="salonLim">Règle : tout membre ouvre et rejoint un salon (gratuit : 20 minutes, 2 salons par semaine) ; à partir du 5e participant, la personne qui a ouvert le salon doit avoir l’abonnement Famille (60 minutes, plafond de 1 500 minutes de présence par mois, 10 personnes au plus). Ce seuil n’est pas annoncé aux membres : le message apparaît au 5e participant. Les testeurs invités ont les capacités Famille et aucun plafond de salons. Un membre qui reçoit le lien d’un salon peut y entrer sans être testeur : l’invitation ne sert qu’à créer des salons.</p>
+      <div class="bar"><label style="font-size:13px;display:flex;align-items:center;gap:8px"><input type="checkbox" id="salonOuvert"> Ouvert à tous les membres (laisser décoché pendant le test fermé)</label></div>
+      <div class="bar"><label style="font-size:13px;display:flex;align-items:center;gap:8px"><input type="checkbox" id="eclatOuvert"> ÉCLAT (le direct) ouvert à tous les membres — décoché : seuls les testeurs ci-dessous diffusent et regardent</label></div>
+      <div class="bar" style="margin-top:6px"><input id="salonTel" type="text" placeholder="Téléphone du testeur (+242…)" style="flex:1;min-width:200px;padding:9px;border-radius:10px">
+        <button class="btn ok" id="salonInviter" type="button">Inviter comme testeur</button></div>
+      <div class="muted" id="salonMsg" style="margin-top:6px"></div>
+    </div>
+    <div class="stats" id="salonStats"></div>
+    <div class="tablewrap"><table style="min-width:560px"><thead><tr><th>Testeurs invités</th><th>Nom</th><th></th></tr></thead><tbody id="salonTest"></tbody></table></div>
+    <div class="tablewrap" style="margin-top:12px"><table style="min-width:720px"><thead><tr><th>Code</th><th>Nom du salon</th><th>Type</th><th>Hôte</th><th>Personnes max</th><th>Entrées</th><th>Début</th></tr></thead><tbody id="salonBody"></tbody></table></div>
   </div>
 
   <!-- CONTACTS -->
@@ -451,10 +469,11 @@
   }
 
   function tab(name){
-    ['Dash','Clients','Subs','Pins','Contacts','Annuaire','Parr','Comp','Phone'].forEach(function(n){ $('tab' + n).classList.toggle('on', n === name); $('pane' + n).hidden = (n !== name); });
+    ['Dash','Clients','Subs','Pins','Contacts','Annuaire','Parr','Comp','Salon','Phone'].forEach(function(n){ $('tab' + n).classList.toggle('on', n === name); $('pane' + n).hidden = (n !== name); });
     if (name === 'Phone') loadPhone();
     if (name === 'Parr') loadParr();
     if (name === 'Comp') loadComp();
+    if (name === 'Salon') loadSalon();
     if (name === 'Dash') { loadDash(); } else { clearInterval(dashTimer); dashTimer = null; }
   }
 
@@ -489,6 +508,8 @@
       if (!x.ok){ $('compMsg').textContent = x.d.error || 'Erreur'; return; }
       var d = x.d; $('compMsg').textContent = '';
       $('compOuvert').checked = d.ouvert;
+      var j0 = (d.journal || [])[0];
+      $('compJournal').textContent = j0 ? ('État actuel : ' + (d.ouvert ? 'OUVERT' : 'FERMÉ') + ' · dernier changement : ' + (j0.on ? 'ouvert' : 'fermé') + ' par ' + j0.par + ' le ' + new Date(j0.at).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' })) : ('État actuel : ' + (d.ouvert ? 'OUVERT' : 'FERMÉ'));
       $('compLim').textContent = 'Essentiel ' + d.limites.essentiel.messages + ' messages par jour, Complet ' + d.limites.complet.messages + ' (fenêtre de 24 h, « reviens dans … » quand la limite est atteinte)';
       var u = d.usage30j;
       $('compStats').innerHTML = '<div class="stat"><b>' + d.lignes.length + '</b><span>Testeurs et abonnés</span></div><div class="stat"><b>' + u.messages + '</b><span>Messages (30 j)</span></div><div class="stat"><b>' + u.recherches + '</b><span>Recherches Internet (30 j)</span></div><div class="stat"><b>≈ ' + u.coutEstimeUsd + ' $</b><span>Coût IA estimé (30 j, modèle ' + esc(d.modele) + ')</span></div>';
@@ -512,6 +533,7 @@
   $('compOuvert').addEventListener('change', function(){
     var on = this.checked;
     if (on && !confirm('Ouvrir Keydou Compagnon à l\u2019abonnement pour tout le monde ? Fais-le seulement après les essais.')){ this.checked = false; return; }
+    if (!on && !confirm('Fermer Keydou Compagnon ? Personne ne pourra plus s\u2019abonner (les abonnés actuels gardent leur accès).')){ this.checked = true; return; }
     postComp({ action:'ouvrir', on:on });
   });
   $('parrOk').addEventListener('click', loadParr);
@@ -523,6 +545,38 @@
   $('tabAnnuaire').addEventListener('click', function(){ goTab('Annuaire'); });
   $('tabParr').addEventListener('click', function(){ goTab('Parr'); });
   $('tabComp').addEventListener('click', function(){ goTab('Comp'); });
+  // ---- Le Salon : réglage, testeurs, coûts estimés ----
+  function loadSalon(){
+    $('salonMsg').textContent = 'Chargement…';
+    authFetch('/api/starvibe-salon?admin=1').then(function(r){ return r.json().then(function(d){ return { ok:r.ok, d:d }; }); }).then(function(x){
+      if (!x.ok){ $('salonMsg').textContent = x.d.error || 'Erreur'; return; }
+      var d = x.d, u = d.usage30j; $('salonMsg').textContent = d.pret ? '' : 'Pas encore branché : ajoute LIVEKIT_URL, LIVEKIT_API_KEY et LIVEKIT_API_SECRET dans Netlify (Environment variables).';
+      $('salonOuvert').checked = d.ouvert;
+      authFetch('/api/starvibe-eclat?admin=1').then(function(r){ return r.json(); }).then(function(e){ $('eclatOuvert').checked = !!e.ouvert; }).catch(function(){});
+      $('salonLim').textContent = 'Gratuit : ' + d.limites.gratuit.personnes + ' personnes, ' + d.limites.gratuit.minutes + ' minutes, ' + d.limites.gratuit.salonsParSemaine + ' salons par semaine. Famille : ' + d.limites.famille.personnes + ' personnes, ' + d.limites.famille.minutes + ' minutes, plafond de ' + d.limites.famille.minutesParticipantsParMois + ' minutes-participant par mois.';
+      $('salonStats').innerHTML = '<div class="stat"><b>' + d.testeurs.length + '</b><span>Testeurs invités</span></div><div class="stat"><b>' + u.salons + '</b><span>Salons (30 j)</span></div><div class="stat"><b>' + u.entrees + '</b><span>Entrées (30 j)</span></div><div class="stat"><b>' + u.minutesParticipantsEstimees + '</b><span>Minutes-participant estimées</span></div><div class="stat"><b>≈ ' + u.coutEstimeUsd + ' $</b><span>Coût estimé (30 j, tarif ' + d.tarifMinuteUsd + ' $ la minute)</span></div>';
+      $('salonTest').innerHTML = d.testeurs.map(function(t){ return '<tr><td>' + esc(t.telephone) + '</td><td>' + esc(t.nom) + '</td><td><button class="btn" type="button" data-stop="' + esc(t.telephone) + '">Retirer</button></td></tr>'; }).join('') || '<tr><td colspan="3" class="muted">Aucun testeur invité.</td></tr>';
+      Array.prototype.forEach.call($('salonTest').querySelectorAll('button[data-stop]'), function(b){ b.addEventListener('click', function(){ if (!confirm('Retirer l\u2019accès de test à ce numéro ?')) return; postSalon({ action:'testeur', telephone:b.getAttribute('data-stop'), actif:false }); }); });
+      $('salonBody').innerHTML = d.salons.map(function(s){ return '<tr><td>' + esc(s.code) + '</td><td>' + esc(s.nom) + '</td><td>' + esc(s.type) + (s.famille ? ' · Famille' : '') + '</td><td>' + esc(s.hote) + '</td><td>' + s.max + '</td><td>' + s.entrees + '</td><td>' + esc(String(s.debut || '').slice(0, 16).replace('T', ' ')) + '</td></tr>'; }).join('') || '<tr><td colspan="7" class="muted">Aucun salon pour le moment.</td></tr>';
+    }).catch(function(){ $('salonMsg').textContent = 'Impossible de charger.'; });
+  }
+  function postSalon(body){
+    return authFetch('/api/starvibe-salon', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) }).then(function(r){ return r.json().then(function(d){ return { ok:r.ok, d:d }; }); }).then(function(x){
+      $('salonMsg').textContent = x.ok ? 'Enregistré.' : (x.d.error || 'Erreur'); loadSalon(); return x;
+    });
+  }
+  $('salonInviter').addEventListener('click', function(){ postSalon({ action:'testeur', telephone:$('salonTel').value.trim(), actif:true }); });
+  $('salonOuvert').addEventListener('change', function(){
+    var on = this.checked;
+    if (on && !confirm('Ouvrir le Salon à tous les membres ? Fais-le seulement après le test fermé.')){ this.checked = false; return; }
+    postSalon({ action:'ouvrir', on:on });
+  });
+  $('eclatOuvert').addEventListener('change', function(){
+    var on = this.checked, me = this;
+    if (on && !confirm('Ouvrir ÉCLAT (le direct) à tous les membres ? Chaque direct coûte du temps de vidéo : fais-le après le test fermé.')){ this.checked = false; return; }
+    authFetch('/api/starvibe-eclat', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'ouvrir', on:on }) }).then(function(r){ $('salonMsg').textContent = r.ok ? 'ÉCLAT : ' + (on ? 'ouvert à tous.' : 'réservé aux testeurs.') : 'Erreur'; if (!r.ok) me.checked = !on; });
+  });
+  $('tabSalon').addEventListener('click', function(){ goTab('Salon'); });
   $('tabPhone').addEventListener('click', function(){ goTab('Phone'); });
 
 
