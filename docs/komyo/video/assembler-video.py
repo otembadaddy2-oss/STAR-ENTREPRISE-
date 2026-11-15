@@ -1,10 +1,12 @@
 import json, bisect, math, subprocess, os
 from PIL import Image, ImageDraw, ImageFont, ImageChops
 G='/home/user/STAR-ENTREPRISE-/docs/komyo/guide-assets/'; R='/home/user/STAR-ENTREPRISE-/'
-W,H=1080,1920; FPS=25; TOTAL=126.0
+import sys
+MODE=sys.argv[1]; FPS=25; TOTAL=139.0; END_V=131.0
+W,H=(1080,1920) if MODE=='portrait' else (1920,1080)
 F=lambda n,s: ImageFont.truetype(G+n,s)
 GOLD=(232,169,61); CORAL=(255,107,74); DEEP=(11,7,16); DIM=(185,173,152)
-WX,WY,WW,WH=130,418,820,1182   # fenêtre du téléphone
+WX,WY,WW,WH=(130,418,820,1182) if MODE=='portrait' else (110,40,620,1000)   # fenêtre du téléphone
 def bg_base():
     im=Image.new('RGB',(W,H),DEEP); d=ImageDraw.Draw(im)
     for y in range(H):
@@ -18,8 +20,23 @@ def wrap(d,txt,font,maxw):
         else: lines.append(cur); cur=w
     lines.append(cur); return lines
 def ctext(d,y,t,font,fill): d.text(((W-d.textlength(t,font=font))/2,y),t,font=font,fill=fill)
-KO=Image.open(R+'starvibe/assets/img/icons/komyo-logo-officiel-v1.png').convert('RGBA'); kw=300; kh=int(KO.size[1]*kw/KO.size[0]); KO=KO.resize((kw,kh),Image.LANCZOS)
+KOR=Image.open(R+'starvibe/assets/img/icons/komyo-logo-officiel-v1.png').convert('RGBA'); kwl=380; KOL=KOR.resize((kwl,int(KOR.size[1]*kwl/KOR.size[0])),Image.LANCZOS)
+KO=KOR; kw=300; kh=int(KO.size[1]*kw/KO.size[0]); KO=KO.resize((kw,kh),Image.LANCZOS)
 def scene_bg(kick,title,body):
+    if MODE=='portrait': return scene_bg_p(kick,title,body)
+    im=bg_base(); d=ImageDraw.Draw(im)
+    im.paste(KOL,(W-kwl-40,24),KOL)
+    d.text((820,70),"Keydou Compagnon",font=F('sora-800.ttf',44),fill=(255,255,255)); d.text((820,126),"Démonstration",font=F('inter-600.ttf',30),fill=GOLD)
+    d.rounded_rectangle([WX-16,WY-16,WX+WW+16,WY+WH+16],radius=64,fill=(8,6,12),outline=(90,72,48),width=4)
+    d.text((820,330),kick,font=F('inter-700.ttf',36),fill=CORAL)
+    y=382; ft=F('sora-800.ttf',66)
+    for l in wrap(d,title,ft,1020): d.text((820,y),l,font=ft,fill=(255,255,255)); y+=82
+    d.rectangle([820,y+6,940,y+11],fill=GOLD); y+=46
+    fb=F('inter-600.ttf',46)
+    for l in wrap(d,body,fb,1030): d.text((820,y),l,font=fb,fill=(240,232,215)); y+=64
+    d.text((820,H-52),"Exemple de conversation avec un compte de démonstration · écrans réels de l'application",font=F('inter-400.ttf',24),fill=DIM)
+    return im
+def scene_bg_p(kick,title,body):
     im=bg_base(); d=ImageDraw.Draw(im)
     im.paste(KO,(W-kw-26,18),KO)
     d.text((40,70),"Keydou Compagnon",font=F('sora-800.ttf',40),fill=(255,255,255)); d.text((40,122),"Démonstration",font=F('inter-600.ttf',28),fill=GOLD)
@@ -32,6 +49,17 @@ def scene_bg(kick,title,body):
     ctext(d,H-44,"Exemple de conversation avec un compte de démonstration · écrans réels de l'application",F('inter-400.ttf',22),DIM)
     return im
 def card(lines,sub):
+    if MODE=='portrait': return card_p(lines,sub)
+    im=bg_base(); d=ImageDraw.Draw(im)
+    lg=Image.open(G+'star-logo-officiel.png').convert('RGBA'); lw=560; lh=int(lg.size[1]*lw/lg.size[0]); lg=lg.resize((lw,lh),Image.LANCZOS); im.paste(lg,(160,(H-lh)//2),lg)
+    x=820; y=300
+    for t,fs,col in lines:
+        f=F('sora-800.ttf',fs-12)
+        for l in wrap(d,t,f,1000): d.text((x,y),l,font=f,fill=col); y+=int((fs-12)*1.3)
+        y+=14
+    for l in wrap(d,sub,F('inter-600.ttf',32),1000): d.text((x,y+30),l,font=F('inter-600.ttf',32),fill=DIM); y+=44
+    return im
+def card_p(lines,sub):
     im=bg_base(); d=ImageDraw.Draw(im)
     lg=Image.open(G+'star-logo-officiel.png').convert('RGBA'); lw=620; lh=int(lg.size[1]*lw/lg.size[0]); lg=lg.resize((lw,lh),Image.LANCZOS); im.paste(lg,((W-lw)//2,380),lg)
     y=380+lh+80
@@ -48,8 +76,9 @@ SC=[ (9.0,31.0,"1 · L'OUVERTURE","Le logo s'anime, une voix accueille","Le logo
      (48.3,63.6,"3 · IL EXPLIQUE","Des réponses claires et simples","Le client parle ou écrit. Keydou répond en français : énergie, cuisine, études, droit."),
      (63.6,76.5,"4 · IL CRÉE DES RAPPELS","Il retient et prévient à l'heure dite","Un rendez-vous demandé à la voix devient un rappel, avec notification même application fermée."),
      (76.5,90.6,"5 · IL EST PRUDENT","Aucun horaire de médicament","Sécurité : pas d'ordonnance, pas de rappel de médicament. Keydou oriente vers un professionnel de santé."),
-     (90.6,110.3,"6 · OFFRES ET PAIEMENT","4 offres, paiement Mobile Money","Essentiel 5 000 FCFA · Complet 19 $ · Premium 35 $ · Prestige 49 $. Paiement MTN ou Airtel Money, accès ouvert dès le dépôt reconnu."),
-     (110.3,118.0,"7 · TRANSPARENCE","L'état réel de chaque service","Chaque service est affiché : connecté, pas connecté ou en panne. Le client télécharge ou efface ses données.") ]
+     (90.6,110.5,"6 · LES OFFRES","4 offres, en dollars et en FCFA","Essentiel 5 000 FCFA · Complet 19 $ (11 100 FCFA) · Premium 35 $ (20 400 FCFA) · Prestige 49 $ (28 600 FCFA)"),
+     (110.5,121.4,"7 · LE PAIEMENT","Par Mobile Money","MTN ou Airtel Money : l'accès s'ouvre dès le dépôt reconnu. Carte Mastercard ou Visa : vous serez informés dès qu'elle sera possible."),
+     (121.4,131.0,"8 · TRANSPARENCE","L'état réel de chaque service","Chaque service est affiché : connecté, pas connecté ou en panne. Le client télécharge ou efface ses données.") ]
 SCBG=[scene_bg(k,t,b) for (_,_,k,t,b) in SC]
 def smooth(x): return x*x*(3-2*x)
 SCSTART=[a-9.0 for (a,_,*_x) in SC]; SCEND=[b-9.0 for (_,b,*_x) in SC]
@@ -58,11 +87,12 @@ def push(r):
     for a,b in zip(SCSTART,SCEND):
         if a<=r<b: return 1.0+0.05*smooth((r-a)/(b-a))
     return 1.0
-hf=json.load(open('/tmp/video/hf.json')); hfT=[t for t,_ in hf]; hs=json.load(open('/tmp/video/hs.json')); hsT=[t for t,_ in hs]
+D='/tmp/video/'+MODE+'/'
+hf=json.load(open(D+'hf.json')); hfT=[t for t,_ in hf]; hs=json.load(open(D+'hs.json')); hsT=[t for t,_ in hs]
 cache={}
 def src(r):
-    if r>=hsT[0]: i=max(0,bisect.bisect_right(hsT,r)-1); key=('s',hs[i][1]); path='/tmp/video/hs/'+hs[i][1]
-    else: i=max(0,bisect.bisect_right(hfT,r)-1); key=('f',hf[i][1]); path='/tmp/video/hf/'+hf[i][1]
+    if r>=hsT[0]: i=max(0,bisect.bisect_right(hsT,r)-1); key=('s',hs[i][1]); path=D+'hs/'+hs[i][1]
+    else: i=max(0,bisect.bisect_right(hfT,r)-1); key=('f',hf[i][1]); path=D+'hf/'+hf[i][1]
     if key not in cache:
         if len(cache)>6: cache.clear()
         im=Image.open(path).convert('RGB')
@@ -75,19 +105,19 @@ def speaking(v): return any(a<=v<=b for a,b in KSPEAK)
 def window(r):
     z=push(r); w=WW/z; h=WH/z; cx=WW/2; cy=WH/2
     return src(r).resize((WW,WH),Image.BICUBIC,box=(cx-w/2,cy-h/2,cx+w/2,cy+h/2))
-ff=subprocess.Popen(['ffmpeg','-y','-v','error','-f','rawvideo','-pix_fmt','rgb24','-s','%dx%d'%(W,H),'-r',str(FPS),'-i','-','-i','/tmp/video/out/audio.m4a','-map','0:v','-map','1:a','-c:v','libx264','-preset','medium','-crf','20','-pix_fmt','yuv420p','-c:a','copy','-t',str(TOTAL),'-movflags','+faststart','/tmp/video/out/KOMYO-Keydou-Compagnon-demonstration-vertical.mp4'],stdin=subprocess.PIPE)
+ff=subprocess.Popen(['ffmpeg','-y','-v','error','-f','rawvideo','-pix_fmt','rgb24','-s','%dx%d'%(W,H),'-r',str(FPS),'-i','-','-i','/tmp/video/out/audio2.m4a','-map','0:v','-map','1:a','-c:v','libx264','-preset','medium','-crf','23','-pix_fmt','yuv420p','-c:a','copy','-t',str(TOTAL),'-movflags','+faststart','/tmp/video/out/KOMYO-%s.mp4'%MODE],stdin=subprocess.PIPE)
 n=int(TOTAL*FPS)
 for i in range(n):
     v=i/FPS
     if v<9.0: frame=title_img
-    elif v>=118.0: frame=end_img
+    elif v>=END_V: frame=end_img
     else:
         k=[j for j,(a,b,*_) in enumerate(SC) if a<=v<b][0]; frame=SCBG[k].copy(); r=v-9.0
         win=window(r); frame.paste(win,(WX,WY),mask)
         if speaking(v):
             d=ImageDraw.Draw(frame); t=v*9
             d.rounded_rectangle([WX-8,WY-8,WX+WW+8,WY+WH+8],radius=56,outline=GOLD,width=6)
-            bx=W/2-100; yb=WY+WH+36
+            bx=(W/2-100) if MODE=='portrait' else 820; yb=(WY+WH+36) if MODE=='portrait' else 900
             for b in range(9):
                 hh=14+int(26*abs(math.sin(t+b*0.9)))
                 d.rounded_rectangle([bx+b*24,yb-hh//2+8,bx+b*24+14,yb+hh//2+8],radius=6,fill=GOLD)
