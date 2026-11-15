@@ -249,7 +249,7 @@
         if(r.status===404){ att.textContent='Cette image a été effacée.'; return; }
         var st=r.ok?r.data.statut:'';
         if(st==='ok'){ montre(); return; }
-        if(st==='erreur'||st==='refuse'){ att.textContent=(r.data.message||'L\u2019image n\u2019a pas pu être créée.'); var ref=document.createElement('div'); ref.className='acts'; var b=document.createElement('button'); b.type='button'; b.textContent='Réessayer'; b.addEventListener('click',function(){ $('msg').value='Essaie encore de créer cette image, avec une autre idée.'; envoyer(); }); ref.appendChild(b); box.appendChild(ref); return; }
+        if(st==='erreur'||st==='refuse'){ att.textContent=(r.data.message||'L\u2019image n\u2019a pas pu être créée.'); if(r.data.detail){ var dt=document.createElement('div'); dt.style.cssText='font-size:11px;opacity:.7;margin-top:6px;word-break:break-word'; dt.textContent='Raison technique (testeur) : '+r.data.detail; box.appendChild(dt); } var ref=document.createElement('div'); ref.className='acts'; var b=document.createElement('button'); b.type='button'; b.textContent='Réessayer'; b.addEventListener('click',function(){ $('msg').value='Essaie encore de créer cette image, avec une autre idée.'; envoyer(); }); ref.appendChild(b); box.appendChild(ref); return; }
         if(Date.now()-debut>300000){ att.textContent='Cela prend trop de temps. Réessaie dans un instant.'; return; }
         setTimeout(suivre,3000);
       }).catch(function(){ setTimeout(suivre,5000); });

@@ -281,7 +281,8 @@ export default async (req: Request, _context: Context) => {
     let st = r[0].statut;
     if (st === "attente" && Date.now() - new Date(r[0].created_at).getTime() > 5 * 60000) { st = "erreur"; await sql`UPDATE starvibe_compagnon_images SET statut = 'erreur', erreur = 'délai dépassé' WHERE id = ${id} AND statut = 'attente'`; }
     if (url.searchParams.get("statut") === "1") {
-      return json({ statut: st, message: st === "refuse" ? "Le contrôle de sécurité a refusé cette image. Essaie une autre idée." : st === "erreur" ? "L'image n'a pas pu être créée. Elle n'est pas comptée : réessaie." : "" });
+      const detail = (st === "erreur" || st === "refuse") && acces?.source === "test" ? String(r[0].erreur || "") : "";
+      return json({ detail, statut: st, message: st === "refuse" ? "Le contrôle de sécurité a refusé cette image. Essaie une autre idée." : st === "erreur" ? "L'image n'a pas pu être créée. Elle n'est pas comptée : réessaie." : "" });
     }
     if (st !== "ok") return json({ error: "Image pas encore prête." }, 409);
     return new Response(Buffer.from(r[0].data_b64, "base64"), { headers: { "content-type": r[0].mime || "image/jpeg", "cache-control": "private, max-age=86400", "content-disposition": `inline; filename="keydou-image-${id}.${(r[0].mime || "").includes("png") ? "png" : "jpg"}"` } });
@@ -467,7 +468,10 @@ export default async (req: Request, _context: Context) => {
         const ins2 = (await sql`INSERT INTO starvibe_compagnon_images (account_id, prompt, format) VALUES (${accountId}, ${promptImg}, ${formatImage(imageDemandee.format)}) RETURNING id`) as { id: number }[];
         imageInfo = { id: ins2[0].id, statut: "attente" };
         await sql`DELETE FROM starvibe_compagnon_images WHERE account_id = ${accountId} AND id NOT IN (SELECT id FROM starvibe_compagnon_images WHERE account_id = ${accountId} ORDER BY id DESC LIMIT 30)`;
-        try { await fetch(new URL(`/.netlify/functions/compagnon-image-background?id=${imageInfo.id}&sig=${signerImage(imageInfo.id)}`, req.url), { method: "POST", signal: AbortSignal.timeout(4000) }); } catch { /* la tâche est lancée ; sinon le délai de 5 minutes la marque en échec */ }
+        try {
+          const lance = await fetch(new URL(`/.netlify/functions/compagnon-image-background?id=${imageInfo.id}&sig=${signerImage(imageInfo.id)}`, req.url), { method: "POST", signal: AbortSignal.timeout(4000) });
+          if (lance.status >= 400) await sql`UPDATE starvibe_compagnon_images SET statut = 'erreur', erreur = ${"lancement refusé : " + lance.status}, fini_at = now() WHERE id = ${imageInfo.id} AND statut = 'attente'`;
+        } catch { /* la tâche est lancée ; sinon le délai de 5 minutes la marque en échec */ }
       }
     }
     if (refusImage) reponse = refusImage;

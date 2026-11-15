@@ -111,6 +111,10 @@ try {
   await attendre(400);
   const st2 = await j(await appel(C, "GET", `?image=${d.image.id}&statut=1`));
   ok(st2.statut === "refuse", "refus du contrôle de sécurité du service : statut « refuse »");
+  { // la raison technique de l'échec est gardée et montrée au testeur, sans clé
+    const rr = await j(await appel(C, "GET", `?image=${d.image.id}&statut=1`));
+    ok(/erreur 400|refusé/.test(String(rr.detail)) && !/sk-/.test(String(rr.detail)), "testeur : la raison technique est visible, sans clé");
+  }
   imageStatut = 200;
   ok((await j(await appel(C, "GET", ""))).capacites.imagesRestantes === 24, "une image refusée ne compte pas dans le quota");
 

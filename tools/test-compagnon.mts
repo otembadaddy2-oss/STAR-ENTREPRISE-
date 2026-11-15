@@ -1,4 +1,4 @@
-import { modeDe, verifierDemandeImage, validerPiece, supplement, idImageDansTexte, marqueImage, formatImage, mimeDepuisOctets, EFFORT, MAX_JETONS, LIMITE_REPONSE, MODE_PROFOND, gardePrescription, MSG_PAS_DE_DOSE, IMAGES_PAR_MOIS, PIECES_PAR_JOUR, texteAVoix, VOIX_PAR_JOUR, VOIX_SIGNES_MAX, texteCompagnonPourKeydou, cleValide } from "../netlify/functions/_compagnon2.mts";
+import { modeDe, verifierDemandeImage, validerPiece, supplement, idImageDansTexte, marqueImage, formatImage, mimeDepuisOctets, EFFORT, MAX_JETONS, LIMITE_REPONSE, MODE_PROFOND, gardePrescription, MSG_PAS_DE_DOSE, IMAGES_PAR_MOIS, PIECES_PAR_JOUR, texteAVoix, VOIX_PAR_JOUR, VOIX_SIGNES_MAX, texteCompagnonPourKeydou, cleValide, nettoyerErreur } from "../netlify/functions/_compagnon2.mts";
 import { delaiRetour, formatDuree, localVersUtc, suivante, parleDeMedicaments, fuseauValide, FENETRE_MS } from "../netlify/functions/_compagnon.mts";
 let ko = 0; const ok = (n: string, c: boolean) => { if (!c) ko++; console.log((c ? "OK  " : "ECHEC ") + n); };
 const H = 3600000, now = Date.UTC(2026, 10, 8, 12, 0, 0);
@@ -108,4 +108,5 @@ console.log(ko ? "ECHECS : " + ko : "TOUS LES TESTS OK"); process.exit(ko ? 1 : 
   ok("Keydou : Compagnon fermé → pas d'ouverture annoncée, pas de date", /PAS encore ouvert/.test(f) && !/OUVERT \(/.test(f) && /Ne promets ni date/.test(f));
 }
 ok("clé valide : une vraie clé passe, un texte collé par erreur est refusé", cleValide("sk-proj-AbCdEf0123456789_xyz") && cleValide("sk_0123456789abcdef0123") && !cleValide("Envoie-moi ensuite la capture de la liste avec VOIX_API_KEY dedans") && !cleValide("") && !cleValide(undefined) && !cleValide("court"));
+ok("raison technique : clé masquée, 220 signes au plus", !/sk-proj-abcdef/.test(nettoyerErreur("Incorrect API key provided: sk-proj-abcdef123456 You can find")) && nettoyerErreur("x".repeat(500)).length === 220);
 

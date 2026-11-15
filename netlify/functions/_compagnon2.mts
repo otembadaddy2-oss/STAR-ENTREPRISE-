@@ -130,6 +130,8 @@ export function mimeDepuisOctets(b: Buffer): string {
   if (b.length > 5 && b.subarray(0, 3).toString("latin1") === "GIF") return "image/gif";
   return "";
 }
+// Raison technique d'un échec : gardée pour l'équipe et les testeurs ; jamais de clé (« sk-… » masqué), 220 signes au plus.
+export const nettoyerErreur = (t: string): string => String(t || "").replace(/sk-[A-Za-z0-9_\-]{6,}/g, "sk-…").replace(/\s+/g, " ").trim().slice(0, 220);
 export async function genererImage(prompt: string, format: FormatImage): Promise<ResultatImage> {
   const key = String(process.env.IMAGE_API_KEY || "").trim();
   if (!key) return { ok: false, refus: false, erreur: "service d'images non configuré" };
@@ -142,14 +144,14 @@ export async function genererImage(prompt: string, format: FormatImage): Promise
   let r: Response;
   try {
     r = await fetch(`${base}/v1/images/generations`, { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${key}` }, body: JSON.stringify(corps), signal: AbortSignal.timeout(170000) });
-  } catch { return { ok: false, refus: false, erreur: "le service d'images ne répond pas" }; }
+  } catch (e) { return { ok: false, refus: false, erreur: `le service d'images ne répond pas (${nettoyerErreur(String((e as Error)?.name || "") + " " + String((e as Error)?.message || ""))})` }; }
   const txt = await r.text();
   let d: { data?: { b64_json?: string; url?: string }[]; error?: { code?: string; message?: string; type?: string } } = {};
   try { d = JSON.parse(txt); } catch { /* réponse non JSON */ }
   if (!r.ok) {
     const code = `${d.error?.code || ""} ${d.error?.type || ""} ${d.error?.message || ""}`.toLowerCase();
     const refus = /moderation|content_policy|safety|policy|blocked/.test(code);
-    return { ok: false, refus, erreur: refus ? "refusé par le contrôle de sécurité du service" : `erreur ${r.status}` };
+    return { ok: false, refus, erreur: refus ? "refusé par le contrôle de sécurité du service" : `erreur ${r.status} ${nettoyerErreur(`${d.error?.code || ""} ${d.error?.message || txt}`)}` };
   }
   const it = d.data?.[0];
   let buf: Buffer | null = null;
