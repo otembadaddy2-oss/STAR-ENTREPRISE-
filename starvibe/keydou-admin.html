@@ -221,8 +221,8 @@
   <div id="paneComp" hidden>
     <div class="formcard" style="margin-bottom:12px">
       <b>Keydou Compagnon (assistant personnel)</b>
-      <p class="muted" style="margin:6px 0 8px;line-height:1.55">Jamais gratuit : une personne n'accède à Keydou Compagnon que si son dépôt est validé (Essentiel 5 000 FCFA, Complet 19 $ ≈ 11 100 FCFA) ou si tu l'as invitée comme testeur. Les médicaments sont refusés. Limites : <span id="compLim">—</span>.</p>
-      <div class="bar"><label style="font-size:13px;display:flex;align-items:center;gap:8px"><input type="checkbox" id="compOuvert"> Ouvert à l'abonnement (laisser décoché pendant les essais)</label></div>
+      <p class="muted" style="margin:6px 0 8px;line-height:1.55">Tout membre peut installer Keydou Compagnon : essai gratuit de 5 messages, puis abonnement (Essentiel 5 000 FCFA, Complet 19 $ ≈ 11 100 FCFA) ; tu peux aussi inviter un testeur. Les médicaments sont refusés. Limites : <span id="compLim">—</span>.</p>
+      <div class="bar"><label style="font-size:13px;display:flex;align-items:center;gap:8px"><input type="checkbox" id="compOuvert"> Ouvert à tous en permanence : téléchargement libre, essai de 5 messages, puis abonnement (ne décoche que pour une fermeture d'urgence)</label></div>
       <div class="muted" id="compJournal" style="margin-top:4px;font-size:12px"></div>
       <div class="bar" style="margin-top:6px"><input id="compTel" type="text" placeholder="Téléphone du testeur (+242…)" style="flex:1;min-width:200px;padding:9px;border-radius:10px">
         <select id="compNiv" style="padding:9px;border-radius:10px"><option value="essentiel">Essentiel (65/jour)</option><option value="complet">Complet (200/jour)</option></select>
@@ -532,8 +532,8 @@
   $('compInviter').addEventListener('click', function(){ postComp({ action:'testeur', telephone:$('compTel').value.trim(), niveau:$('compNiv').value, actif:true }); });
   $('compOuvert').addEventListener('change', function(){
     var on = this.checked;
-    if (on && !confirm('Ouvrir Keydou Compagnon à l\u2019abonnement pour tout le monde ? Fais-le seulement après les essais.')){ this.checked = false; return; }
-    if (!on && !confirm('Fermer Keydou Compagnon ? Personne ne pourra plus s\u2019abonner (les abonnés actuels gardent leur accès).')){ this.checked = true; return; }
+    if (on && !confirm('Rouvrir Keydou Compagnon à tout le monde (essai puis abonnement) ?')){ this.checked = false; return; }
+    if (!on && !confirm('FERMETURE D\u2019URGENCE de Keydou Compagnon ? Plus aucun nouvel abonnement ni essai (les abonnés actuels gardent leur accès).')){ this.checked = true; return; }
     postComp({ action:'ouvrir', on:on });
   });
   $('parrOk').addEventListener('click', loadParr);

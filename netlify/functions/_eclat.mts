@@ -9,7 +9,9 @@ export const BATTEMENT_MAX_S = 90;           // sans signe de vie de l'animateur
 
 export const titreNettoye = (t: unknown, defaut = "Direct ÉCLAT") => String(t || "").replace(/\s+/g, " ").trim().slice(0, 60) || defaut;
 export const identiteDe = (accountId: number) => `m${accountId}`;
-export const identiteValide = (i: string) => /^m\d{1,12}$/.test(i);
+// Animateur : m<compte>. Spectateur : v<compte>x<hasard> (une même personne peut regarder depuis deux téléphones sans en déconnecter un).
+export const identiteSpectateur = (accountId: number) => `v${accountId}x${Math.random().toString(36).slice(2, 8)}`;
+export const identiteValide = (i: string) => /^[mv]\d{1,12}(x[a-z0-9]{1,10})?$/.test(i);
 
 // Jeton d'entrée : valable seulement jusqu'à la fin prévue du direct. L'animateur publie ; le spectateur non.
 export async function jetonDirect(salle: string, identite: string, nom: string, animateur: boolean, photo: string, dureeSec: number): Promise<string> {

@@ -71,8 +71,8 @@ export const LIMITE_REPONSE = (m: Mode = "general"): number => (MODE_PROFOND(m) 
 export const MODELE_NIVEAU = (n: Niveau): string => (n === "complet" && process.env.COMPAGNON_MODEL_COMPLET) || process.env.COMPAGNON_MODEL || "claude-sonnet-5-5";
 const entier = (v: string | undefined, d: number) => { const n = Number(v); return v !== undefined && v !== "" && Number.isFinite(n) && n >= 0 ? Math.floor(n) : d; };
 // Images créées sur 30 jours glissants, photos ou documents lus sur 24 heures.
-export const IMAGES_PAR_MOIS = (n: Niveau): number => entier(process.env[n === "complet" ? "COMPAGNON_IMAGES_COMPLET" : "COMPAGNON_IMAGES_ESSENTIEL"], n === "complet" ? 25 : 3);
-export const PIECES_PAR_JOUR = (n: Niveau): number => entier(process.env[n === "complet" ? "COMPAGNON_PIECES_COMPLET" : "COMPAGNON_PIECES_ESSENTIEL"], n === "complet" ? 30 : 5);
+export const IMAGES_PAR_MOIS = (n: Niveau): number => n === "essai" ? 0 : entier(process.env[n === "complet" ? "COMPAGNON_IMAGES_COMPLET" : "COMPAGNON_IMAGES_ESSENTIEL"], n === "complet" ? 25 : 3);
+export const PIECES_PAR_JOUR = (n: Niveau): number => n === "essai" ? 0 : entier(process.env[n === "complet" ? "COMPAGNON_PIECES_COMPLET" : "COMPAGNON_PIECES_ESSENTIEL"], n === "complet" ? 30 : 5);
 // Une vraie clé est un seul mot sans espace (lettres, chiffres, - _ .) d'au moins 16 signes : un texte collé par erreur n'ouvre pas la fonction.
 export const cleValide = (v: string | undefined): boolean => /^[A-Za-z0-9._\-]{16,}$/.test(String(v || "").trim());
 export const imagesDisponibles = (): boolean => cleValide(process.env.IMAGE_API_KEY);
@@ -236,7 +236,7 @@ export function gardePrescription(texte: string, mode: Mode): string {
 // Service : ElevenLabs (VOIX_API_KEY, secrète). Voix « Chloé » validée par Carry (VOIX_ID), modèle eleven_v4 (VOIX_MODELE).
 // Chaque lecture coûte de l'argent (environ 1 crédit par signe) : quota par jour et longueur limitée, voir tools/COMPAGNON-v2-notes.
 export const voixDisponible = (): boolean => cleValide(process.env.VOIX_API_KEY);
-export const VOIX_PAR_JOUR = (n: Niveau): number => entier(process.env[n === "complet" ? "COMPAGNON_VOIX_COMPLET" : "COMPAGNON_VOIX_ESSENTIEL"], n === "complet" ? 6 : 0);
+export const VOIX_PAR_JOUR = (n: Niveau): number => n === "essai" ? 0 : entier(process.env[n === "complet" ? "COMPAGNON_VOIX_COMPLET" : "COMPAGNON_VOIX_ESSENTIEL"], n === "complet" ? 6 : 0);
 export const VOIX_SIGNES_MAX = 450;
 // Texte à lire : sans mise en forme, sans lien, sans ligne « Source », sans repère d'image, coupé à la fin d'une phrase.
 export function texteAVoix(brut: string): string {
@@ -264,27 +264,65 @@ export async function genererVoix(texte: string): Promise<ResultatVoix> {
 }
 
 // ---------- Ce que Keydou (assistant de l'application KOMYO) dit du Compagnon : suit l'interrupteur « Ouvert à l'abonnement » en direct ----------
-const TEXTE_COMPAGNON_OUVERT = "Keydou Compagnon est OUVERT (depuis le 14 novembre 2026) : tout membre KOMYO peut s'abonner et l'installer ; jamais gratuit ; paiement par dépôt, accès ouvert dès que le dépôt est reconnu. Essentiel 5 000 FCFA par mois : 65 messages par jour, 10 rappels actifs, 5 photos ou documents lus par jour, 3 images créées par mois. Complet 19 $ par mois (environ 11 100 FCFA) : 200 messages par jour, rappels illimités, 30 photos ou documents par jour, 25 images par mois, médecine approfondie, tests notés sur 10, réflexion plus poussée, lecture des réponses avec la voix de Keydou. Ce qu'il sait faire : retenir les rendez-vous, anniversaires et habitudes et prévenir au bon moment ; répondre dans plusieurs domaines (santé, droit, cuisine, mécanique, business, études, tests) ; en médecine il explique mais ne prescrit JAMAIS (aucune dose, aucun médicament à prendre) et oriente vers le bon spécialiste avec des adresses à vérifier ; en mode Tests il corrige des questions et note sur 10 sans jamais gonfler la note ni promettre une note parfaite ; il lit les photos et les PDF ; il crée des images à la demande (refus de tout enfant ou bébé, contenu sexuel ou violent, drogue, faux documents et personnes réelles ; une demande refusée ne compte pas ; pour une photo libre de droits, il donne un lien vers une source vérifiée avec sa licence). La création d'images et la voix de Keydou s'activent progressivement : si un client demande, dis que c'est en cours d'activation, sans date. Il ne retient jamais les médicaments ni les codes secrets. Il vérifie et cite ses sources mais ne remplace ni un médecin, ni un avocat, ni un autre professionnel : ne garantis jamais qu'une réponse est exacte à 100 %. Installation : carte « Keydou Compagnon » sur la page d'accueil de KOMYO.";
-const TEXTE_COMPAGNON_FERME = "Keydou Compagnon n'est PAS encore ouvert au public : il est réservé aux testeurs invités par l'équipe. Ne promets ni date d'ouverture ni installation. Prix prévus : Essentiel 5 000 FCFA ou Complet 19 $ par mois, jamais gratuit. Si on demande ce qu'il sait faire : c'est un assistant personnel qui retient les rendez-vous, anniversaires et habitudes, prévient au bon moment et répond dans plusieurs domaines ; en médecine il ne prescrit jamais. N'annonce rien de plus. Dis que les membres seront prévenus dès l'ouverture.";
+const TEXTE_COMPAGNON_OUVERT = "Keydou Compagnon est OUVERT À TOUS : tout membre KOMYO peut le télécharger et l'installer sur son téléphone (gratuit à installer). Sans abonnement, il a quelques messages d'essai (5 messages en tout) ; ensuite Keydou l'invite à s'abonner, et seuls les abonnés ont les avantages. Offres, payées en Mobile Money (accès ouvert dès que le dépôt est reconnu) : Essentiel 5 000 FCFA par mois : 65 messages par jour, 10 rappels actifs, 5 photos ou documents lus par jour, 3 images créées par mois. Complet (Pro) 19 $ par mois (environ 11 100 FCFA) : 200 messages par jour, rappels illimités, 30 photos ou documents par jour, 25 images par mois, médecine approfondie, tests notés sur 10, réflexion plus poussée, lecture des réponses avec la voix de Keydou. Ce qu'il sait faire : retenir les rendez-vous, anniversaires et habitudes et prévenir au bon moment ; répondre dans plusieurs domaines (santé, droit, cuisine, mécanique, business, études, tests) ; en médecine il explique mais ne prescrit JAMAIS (aucune dose, aucun médicament à prendre) et oriente vers le bon spécialiste avec des adresses à vérifier ; en mode Tests il corrige des questions et note sur 10 sans jamais gonfler la note ni promettre une note parfaite ; il lit les photos et les PDF ; il crée des images à la demande (refus de tout enfant ou bébé, contenu sexuel ou violent, drogue, faux documents et personnes réelles ; une demande refusée ne compte pas ; pour une photo libre de droits, il donne un lien vers une source vérifiée avec sa licence). Il ne retient jamais les médicaments ni les codes secrets. Il vérifie et cite ses sources mais ne remplace ni un médecin, ni un avocat, ni un autre professionnel : ne garantis jamais qu'une réponse est exacte à 100 %. Les connecteurs vers d'autres services (Gmail, Canva…) ne sont pas encore ouverts : ne promets aucune date. Installation : carte « Keydou Compagnon » sur la page d'accueil de KOMYO."; 
+const TEXTE_COMPAGNON_FERME = "Keydou Compagnon n'est PAS encore ouvert au public : il est réservé aux testeurs invités par l'équipe. Ne promets ni date d'ouverture ni installation. Prix : Essentiel 5 000 FCFA ou Complet 19 $ par mois. Si on demande ce qu'il sait faire : c'est un assistant personnel qui retient les rendez-vous, anniversaires et habitudes, prévient au bon moment et répond dans plusieurs domaines ; en médecine il ne prescrit jamais. N'annonce rien de plus. Dis que les membres seront prévenus dès l'ouverture.";
 export const texteCompagnonPourKeydou = (ouvert: boolean): string => (ouvert ? TEXTE_COMPAGNON_OUVERT : TEXTE_COMPAGNON_FERME);
 
 // ---------- Connecteurs et capacités (affichés dans Paramètres) : l'état vient des clés réellement posées, jamais inventé ----------
-export type Connecteur = { id: string; nom: string; groupe: string; statut: "actif" | "bientot"; detail: string };
-export function connecteurs(): Connecteur[] {
+// Un connecteur est « actif » (connecté), « bientot » (pas connecté : pas encore ouvert) ou « erreur » (impossible de se connecter : un vrai échec récent).
+export type Connecteur = { id: string; nom: string; groupe: string; statut: "actif" | "bientot" | "erreur"; detail: string; raison?: string };
+// Santé réelle des connecteurs : gardée en base (clé « compagnon_sante »), mise à jour à chaque vrai appel et par la vérification.
+export type Sante = Record<string, { ok: boolean; at: number; raison: string }>;
+export const SANTE_FRAIS_MS = 60 * 60 * 1000;   // une panne reste signalée une heure, puis le connecteur est de nouveau essayé
+// Les échecs qui prouvent que le connecteur lui-même est mauvais (clé refusée, modèle inaccessible, crédit épuisé) ; un refus de sécurité sur une image n'en est pas un.
+export const ECHEC_DE_CONNEXION = /invalid_api_key|incorrect api key|unauthorized|\b401\b|\b403\b|does not exist|model_not_found|must be verified|billing|quota|insufficient|payment|not configured|non configuré|ne répond pas/i;
+export const enPanne = (sante: Sante, id: string, maintenant = Date.now()): boolean => !!sante[id] && !sante[id].ok && maintenant - sante[id].at < SANTE_FRAIS_MS;
+// deno-lint-ignore no-explicit-any
+export async function lireSante(sql: any): Promise<Sante> {
+  try { return JSON.parse(((await sql`SELECT value FROM starvibe_settings WHERE key = 'compagnon_sante'`) as { value: string }[])[0]?.value || "{}") as Sante; } catch { return {}; }
+}
+// deno-lint-ignore no-explicit-any
+export async function noterSante(sql: any, id: string, ok: boolean, raison = ""): Promise<void> {
+  try {
+    const s = await lireSante(sql); s[id] = { ok, at: Date.now(), raison: ok ? "" : String(raison).slice(0, 160) };
+    await sql`INSERT INTO starvibe_settings (key, value) VALUES ('compagnon_sante', ${JSON.stringify(s)}) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`;
+  } catch { /* la santé n'est qu'une information : jamais bloquante */ }
+}
+// Vérification active (gratuite) : le service d'images est interrogé pour de vrai ; seule une clé refusée (401) est une panne certaine.
+// deno-lint-ignore no-explicit-any
+export async function verifierConnecteurs(sql: any): Promise<Sante> {
+  const base = (process.env.IMAGE_API_BASE || "https://api.openai.com").replace(/\/+$/, "");
+  if (imagesDisponibles()) {
+    try {
+      const r = await fetch(`${base}/v1/models`, { headers: { authorization: `Bearer ${String(process.env.IMAGE_API_KEY).trim()}` }, signal: AbortSignal.timeout(8000) });
+      if (r.status === 401) await noterSante(sql, "images", false, "clé refusée par le service d'images");
+      else if (r.ok) await noterSante(sql, "images", true);
+    } catch { /* réseau : on ne change rien */ }
+  }
+  return await lireSante(sql);
+}
+export function connecteurs(sante: Sante = {}, maintenant = Date.now()): Connecteur[] {
   const bientot = (id: string, nom: string, groupe: string, detail: string): Connecteur => ({ id, nom, groupe, statut: "bientot", detail });
+  // Un connecteur dont la clé est posée est « actif » ; si son dernier vrai appel a échoué récemment, il est « erreur » et Keydou ne s'en sert pas.
+  const vivant = (id: string, nom: string, groupe: string, dispo: boolean, detailOk: string, detailPas: string): Connecteur => {
+    if (!dispo) return { id, nom, groupe, statut: "bientot", detail: detailPas };
+    const h = sante[id];
+    if (h && !h.ok && maintenant - h.at < SANTE_FRAIS_MS) return { id, nom, groupe, statut: "erreur", detail: "Impossible de se connecter pour le moment : Keydou ne l'utilise pas", raison: h.raison };
+    return { id, nom, groupe, statut: "actif", detail: detailOk };
+  };
   const bientotPerso = "Il demandera ton autorisation personnelle ; pas encore ouvert";
   return [
-    { id: "claude", nom: "Claude (Anthropic)", groupe: "Intelligence", statut: "actif", detail: "Le cerveau de Keydou : réponses, réflexion, lecture des photos et des PDF" },
-    { id: "recherche", nom: "Recherche web vérifiée", groupe: "Intelligence", statut: "actif", detail: "Informations à jour, avec leurs sources" },
+    vivant("claude", "Claude (Anthropic)", "Intelligence", true, "Le cerveau de Keydou : réponses, réflexion, lecture des photos et des PDF", ""),
+    vivant("recherche", "Recherche web vérifiée", "Intelligence", true, "Informations à jour, avec leurs sources", ""),
     bientot("chatgpt", "ChatGPT (OpenAI)", "Intelligence", "Second avis d'un autre modèle ; pas encore ouvert"),
     bientot("grok", "Grok (xAI)", "Intelligence", "Pas encore ouvert"),
     bientot("llama", "Llama (Meta)", "Intelligence", "Pas encore ouvert"),
-    { id: "images", nom: "Images (OpenAI)", groupe: "Création", statut: imagesDisponibles() ? "actif" : "bientot", detail: imagesDisponibles() ? "Keydou crée des images à ta demande" : "En cours d'activation" },
-    { id: "voix", nom: "Voix de Keydou (ElevenLabs)", groupe: "Création", statut: voixDisponible() ? "actif" : "bientot", detail: voixDisponible() ? "Keydou lit ses réponses avec sa vraie voix" : "En cours d'activation" },
+    vivant("images", "Images (OpenAI)", "Création", imagesDisponibles(), "Keydou crée des images à ta demande", "En cours d'activation"),
+    vivant("voix", "Voix de Keydou (ElevenLabs)", "Création", voixDisponible(), "Keydou lit ses réponses avec sa vraie voix", "En cours d'activation"),
     bientot("kling", "Kling AI (vidéo)", "Création", "Créer de courtes vidéos ; pas encore ouvert"),
     bientot("canva", "Canva", "Création", bientotPerso),
     bientot("adobe", "Adobe", "Création", bientotPerso),
-    { id: "rappels", nom: "Rappels et notifications", groupe: "Productivité", statut: "actif", detail: "Keydou te prévient au bon moment sur ton téléphone" },
+    { id: "rappels", nom: "Rappels et notifications", groupe: "Productivité", statut: "actif", detail: "Keydou te prévient au bon moment sur ton téléphone" } as Connecteur,
     bientot("gmail", "Gmail", "Productivité", bientotPerso),
     bientot("agenda", "Google Agenda", "Productivité", bientotPerso),
     bientot("drive", "Google Drive", "Productivité", bientotPerso),
@@ -296,12 +334,13 @@ export type CapaciteInfo = { id: string; nom: string; actif: boolean; detail: st
 export function listeCapacites(n: Niveau): CapaciteInfo[] {
   const images = imagesDisponibles() && IMAGES_PAR_MOIS(n) > 0, voix = voixDisponible() && VOIX_PAR_JOUR(n) > 0;
   return [
-    { id: "domaines", nom: "Domaines d'expertise", actif: true, detail: "Santé (sans prescription), droit, cuisine, mécanique, business, études, tests notés sur 10" },
-    { id: "sources", nom: "Réponses vérifiées avec sources", actif: true, detail: "Recherche sur Internet, sources citées" },
-    { id: "pieces", nom: "Lecture de photos et de PDF", actif: true, detail: `${PIECES_PAR_JOUR(n)} fichiers par jour` },
-    { id: "images", nom: "Création d'images", actif: images, detail: images ? `${IMAGES_PAR_MOIS(n)} images par mois` : (imagesDisponibles() ? "Réservée à l'offre Complet" : "En cours d'activation") },
-    { id: "voix", nom: "Voix de Keydou", actif: voix, detail: voix ? `${VOIX_PAR_JOUR(n)} lectures par jour` : "Voix de ton téléphone en attendant" },
-    { id: "rappels", nom: "Rappels et mémoire", actif: true, detail: "Rendez-vous, anniversaires, habitudes ; jamais de médicaments ni de codes secrets" },
+    { id: "discussion", nom: "Discussion avec Keydou", actif: true, detail: n === "essai" ? "5 messages d'essai, puis abonnement" : "Questions du quotidien et culture générale" },
+    { id: "domaines", nom: "Domaines d'expertise", actif: n !== "essai", detail: n === "essai" ? "Avec l'abonnement" : "Santé (sans prescription), droit, cuisine, mécanique, business, études, tests notés sur 10" },
+    { id: "sources", nom: "Réponses vérifiées avec sources", actif: n !== "essai", detail: n === "essai" ? "Avec l'abonnement" : "Recherche sur Internet, sources citées" },
+    { id: "pieces", nom: "Lecture de photos et de PDF", actif: n !== "essai", detail: n === "essai" ? "Avec l'abonnement" : `${PIECES_PAR_JOUR(n)} fichiers par jour` },
+    { id: "images", nom: "Création d'images", actif: images, detail: images ? `${IMAGES_PAR_MOIS(n)} images par mois` : (n === "essai" ? "Avec l'abonnement" : imagesDisponibles() ? "Réservée à l'offre Complet" : "En cours d'activation") },
+    { id: "voix", nom: "Voix de Keydou", actif: voix, detail: voix ? `${VOIX_PAR_JOUR(n)} lectures par jour` : (n === "essai" ? "Avec l'offre Complet" : "Voix de ton téléphone en attendant") },
+    { id: "rappels", nom: "Rappels et mémoire", actif: n !== "essai", detail: n === "essai" ? "Avec l'abonnement" : "Rendez-vous, anniversaires, habitudes ; jamais de médicaments ni de codes secrets" },
   ];
 }
 

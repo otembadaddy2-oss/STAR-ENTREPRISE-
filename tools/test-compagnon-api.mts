@@ -15,11 +15,12 @@ let ko = 0; const ok = (c: boolean, m: string) => { console.log((c ? "OK  " : "�
 
 await ensureSchema(); const { sql } = db();
 const jpg = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(3000, 7)]);
-const modelesAbsents = new Set<string>(); let reponseIA = "{}"; const vus: { corps: Record<string, unknown> }[] = []; const appelsImage: Record<string, unknown>[] = []; let imageStatut = 200;
+let modelesHttp = 200; const modelesAbsents = new Set<string>(); let reponseIA = "{}"; const vus: { corps: Record<string, unknown> }[] = []; const appelsImage: Record<string, unknown>[] = []; let imageStatut = 200;
 const vraiFetch = globalThis.fetch;
 globalThis.fetch = (async (u: string | URL, o?: { body?: string }) => {
   const url = String(u);
   if (url.includes("/v1/messages")) { const corps = JSON.parse(String(o?.body)); vus.push({ corps }); return new Response(JSON.stringify({ content: [{ type: "text", text: reponseIA }], stop_reason: "end_turn", usage: { input_tokens: 100, output_tokens: 50 } }), { status: 200 }); }
+  if (url.endsWith("/v1/models") && modelesHttp === 401) return new Response("{}", { status: 401 });
   if (url.endsWith("/v1/models")) return new Response(JSON.stringify({ data: ["gpt-4o", "gpt-image-1", "gpt-image-2", "gpt-image-1.5", "whisper-1"].map((id) => ({ id })) }), { status: 200 });
   if (url.includes("/v1/images/generations") && modelesAbsents.has(String(JSON.parse(String(o?.body)).model))) { appelsImage.push(JSON.parse(String(o?.body))); return new Response(JSON.stringify({ error: { code: "invalid_value", message: "The model `x` does not exist." } }), { status: 400 }); }
   if (url.includes("/v1/images/generations")) { appelsImage.push(JSON.parse(String(o?.body))); if (imageStatut !== 200) return new Response(JSON.stringify({ error: { code: "moderation_blocked", message: "safety" } }), { status: imageStatut }); return new Response(JSON.stringify({ data: [{ b64_json: jpg.toString("base64") }] }), { status: 200 }); }
@@ -48,7 +49,7 @@ try {
   let d = await j(await appel(C, "GET", ""));
   ok(d.capacites?.images === true && d.capacites.imagesMax === 25 && d.capacites.imagesRestantes === 25 && d.capacites.modes.length === 8, "état Complet : 25 images, 8 domaines (dont Tests)");
   ok(d.capacites.voix?.actif === true && d.capacites.voix.max === 2 && d.capacites.voix.restantes === 2, "état Complet : voix de Keydou active (2 lectures par jour pendant ce test)");
-  ok(typeof d.compte?.initiales === "string" && d.compte.initiales.length >= 1 && Array.isArray(d.capacites.connecteurs) && d.capacites.connecteurs.find((x: any) => x.id === "images")?.statut === "actif" && d.capacites.connecteurs.find((x: any) => x.id === "voix")?.statut === "actif" && d.capacites.connecteurs.find((x: any) => x.id === "gmail")?.statut === "bientot" && d.capacites.liste.length === 6, "état : compte (initiales), connecteurs (images et voix actifs, Gmail bientôt) et capacités");
+  ok(typeof d.compte?.initiales === "string" && d.compte.initiales.length >= 1 && Array.isArray(d.capacites.connecteurs) && d.capacites.connecteurs.find((x: any) => x.id === "images")?.statut === "actif" && d.capacites.connecteurs.find((x: any) => x.id === "voix")?.statut === "actif" && d.capacites.connecteurs.find((x: any) => x.id === "gmail")?.statut === "bientot" && d.capacites.liste.length === 7, "état : compte (initiales), connecteurs (images et voix actifs, Gmail bientôt) et capacités");
   d = await j(await appel(E, "GET", ""));
   ok(d.capacites?.imagesMax === 3 && d.capacites.piecesMax === 5 && d.capacites.voix?.actif === false, "état Essentiel : 3 images, 5 pièces par jour, pas de voix de Keydou");
 
@@ -229,5 +230,56 @@ try {
   await sql`DELETE FROM starvibe_compagnon_messages WHERE account_id IN (${E.id}, ${C.id}, ${D.id})`;
   await sql`DELETE FROM starvibe_compagnon_profil WHERE account_id IN (${E.id}, ${C.id}, ${D.id})`;
   await sql`DELETE FROM starvibe_accounts WHERE id IN (${E.id}, ${C.id}, ${D.id})`;
+
+  // --- ESSAI GRATUIT : tout le monde installe ; 5 messages d'essai ; ensuite l'offre ---
+  {
+    const tel = "242" + String(Math.floor(Math.random() * 1e9)).padStart(9, "0");
+    const a = (await sql`INSERT INTO starvibe_accounts (telephone, pin_hash) VALUES (${tel}, 'x') RETURNING id`) as { id: number }[];
+    const X = { id: a[0].id, token: await issueToken({ sub: String(a[0].id), username: "essai", displayName: "essai", org: "star_vibe", role: "member" }) };
+    let e = await j(await appel(X, "GET", "?acces=1")); ok(e.visible === true && e.ouvert === true, "essai : Keydou Compagnon est visible et ouvert à tout membre, sans case à cocher");
+    let r0 = await appel(X, "GET", ""); e = await j(r0); ok(r0.status === 200 && e.acces?.niveau === "essai" && e.acces.label === "Essai gratuit" && e.acces.source === "essai", "essai : un membre sans abonnement entre en « Essai gratuit »");
+    ok(e.quota.messagesMax === 5 && e.quota.messagesUtilises === 0 && e.capacites.imagesMax === 0 && e.capacites.piecesMax === 0 && e.capacites.voix.actif === false && e.capacites.liste.filter((x: any) => x.actif).map((x: any) => x.id).join() === "discussion", "essai : 5 messages, ni images, ni pièces, ni voix, ni rappels (seule la discussion reste)");
+    await appel(X, "POST", "", { action: "consentir" });
+    reponseIA = JSON.stringify({ reponse: "Bonjour !", seuil: false, rappels: [], notes: [], supprimer_rappels: [], image: null });
+    for (let i = 1; i <= 5; i++) { const r = await appel(X, "POST", "", { action: "chat", message: "Question " + i }); if (r.status !== 200) { ok(false, "essai : message " + i + " accepté (statut " + r.status + ")"); } }
+    const r6 = await appel(X, "POST", "", { action: "chat", message: "Question 6" }); const d6 = await j(r6);
+    ok(r6.status === 402 && d6.code === "essai_termine" && d6.essaiTermine === true && /5 messages d'essai/.test(d6.error) && /5 000 FCFA/.test(d6.error) && /19 \$/.test(d6.error), "essai : après 5 messages, invitation claire à l'offre 5 000 FCFA ou 19 $ (Pro)");
+    ok(vus.filter((v: any) => /ESSAI GRATUIT/.test(String(v.corps.system?.[1]?.text || ""))).length >= 1, "essai : l'IA est prévenue que la personne est en essai (réponses courtes, options réservées aux abonnés)");
+    const rp = await appel(X, "POST", "", { action: "chat", message: "Regarde ça", piece: { data: "data:image/jpeg;base64," + jpg.toString("base64") } }); ok(rp.status === 402, "essai : pas de lecture de photos ni de PDF (402 avec l'invitation à s'abonner)");
+    const rr = await appel(X, "POST", "", { action: "rappel_creer", titre: "RDV", quand: new Date(Date.now() + 86400000).toISOString().slice(0, 16) }); const dr = await j(rr); ok(rr.status === 400 && /abonnement/.test(dr.error), "essai : pas de rappel (invitation à s'abonner)");
+    const rv = await appel(X, "GET", "?voix=1"); ok(rv.status === 404, "essai : pas de voix de Keydou");
+    // abonnement ensuite : l'accès normal revient tout de suite
+    await sql`INSERT INTO starvibe_subscriptions (account_id, plan, statut, montant_attendu, expires_at) VALUES (${X.id}, 'compagnon', 'actif', 5000, now() + interval '30 days')`;
+    e = await j(await appel(X, "GET", "")); ok(e.acces?.niveau === "essentiel" && e.acces.source === "abonnement", "abonnement validé : l'essai laisse place à l'offre Essentiel aussitôt");
+    const r7 = await appel(X, "POST", "", { action: "chat", message: "Question 7" }); ok(r7.status === 200, "abonné : peut de nouveau écrire (65 messages par jour)");
+    // fermeture d'urgence
+    await sql`INSERT INTO starvibe_settings (key, value) VALUES ('compagnon_ferme_urgence', 'on') ON CONFLICT (key) DO UPDATE SET value = 'on'`;
+    e = await j(await appel(E, "GET", "?acces=1")); ok(e.ouvert === false, "fermeture d'urgence : l'état passe à fermé");
+    await sql`DELETE FROM starvibe_settings WHERE key = 'compagnon_ferme_urgence'`;
+    e = await j(await appel(E, "GET", "?acces=1")); ok(e.ouvert === true, "sans fermeture d'urgence : ouvert par défaut");
+  }
+
+  // --- CONNECTEURS : santé réelle, détection automatique, aucune insistance possible ---
+  {
+    const { noterSante, connecteurs: lister, SANTE_FRAIS_MS } = await import("../netlify/functions/_compagnon2.mts");
+    const st = (cs: any[], id: string) => cs.find((x) => x.id === id)?.statut;
+    let cs = (await j(await appel(C, "GET", "?sante=1"))).connecteurs;
+    ok(st(cs, "images") === "actif" && st(cs, "claude") === "actif" && st(cs, "gmail") === "bientot" && st(cs, "canva") === "bientot", "connecteurs : les vrais sont « Connecté », ceux pas encore ouverts « Pas connecté »");
+    await sql`DELETE FROM starvibe_settings WHERE key = 'compagnon_sante'`;
+    modelesHttp = 401;
+    cs = (await j(await appel(C, "GET", "?sante=1"))).connecteurs;
+    ok(st(cs, "images") === "erreur" && /refusée/.test(cs.find((x: any) => x.id === "images").raison) && /Impossible de se connecter/.test(cs.find((x: any) => x.id === "images").detail), "connecteur à clé refusée : détecté tout seul, « Impossible de se connecter » avec la raison");
+    d = await j(await appel(C, "GET", ""));
+    ok(d.capacites.images === false && st(d.capacites.connecteurs, "images") === "erreur", "connecteur en panne : Keydou ne l'utilise plus (images désactivées)");
+    await appel(C, "POST", "", { action: "consentir" });
+    reponseIA = JSON.stringify({ reponse: "Voici", image: { prompt: "un chat", format: "carre" } });
+    d = await j(await appel(C, "POST", "", { action: "chat", message: "Crée une image d'un chat" }));
+    ok(!d.image && /momentanément indisponible/.test(d.reponse), "connecteur en panne : une demande d'image reçoit un message clair, sans insister ni facturer");
+    modelesHttp = 200; await sql`DELETE FROM starvibe_settings WHERE key = 'compagnon_sante'`;
+    cs = (await j(await appel(C, "GET", "?sante=1"))).connecteurs; ok(st(cs, "images") === "actif", "connecteur rétabli : redevient « Connecté » après vérification");
+    await noterSante(sql, "voix", false, "erreur 401");
+    ok(st(lister((await (await import("../netlify/functions/_compagnon2.mts")).lireSante(sql))), "voix") === "erreur" && st(lister({ voix: { ok: false, at: Date.now() - SANTE_FRAIS_MS - 1000, raison: "x" } }), "voix") === "actif", "une panne est signalée une heure, puis le connecteur est réessayé");
+    await sql`DELETE FROM starvibe_settings WHERE key = 'compagnon_sante'`;
+  }
 } catch (e) { console.log("ÉCHEC : exception", e); ko++; }
 console.log(ko ? "ECHECS : " + ko : "TOUS LES TESTS OK"); process.exit(ko ? 1 : 0);

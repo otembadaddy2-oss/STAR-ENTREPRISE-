@@ -4,7 +4,7 @@
 //   GET  ?directs=1                  → { visible, peutDiffuser, ouvert, directs:[{code,titre,hote,photo,debut}], monDirect }
 //   POST { action:"rejoindre"|"quitter" }                                       liste d'attente
 //   POST { action:"demarrer", titre }       → { code, url, jeton, identite, nom, titre, finAt }   (animateur)
-//   POST { action:"regarder", code }        → { url, jeton, identite, nom, hote, animateur, titre, finAt, hoteIdentite, hoteNom }
+//   POST { action:"regarder", code, spectateur? } → { url, jeton, identite, nom, hote, animateur, titre, finAt, hoteIdentite, hoteNom }
 //   POST { action:"notifier", subscription } → ce téléphone est prévenu quand les personnes suivies passent en direct
 //   POST { action:"battement", code }       (animateur : signe de vie toutes les 30 s)  → { ok, fini }
 //   POST { action:"terminer"|"retirer", code, identite? }   (animateur seulement)
@@ -14,7 +14,7 @@ import type { Context, Config } from "@netlify/functions";
 import { ensureSchema, db, json } from "./_db.mts";
 import { requireAuth } from "./_auth.mts";
 import { configLk, creerPiece, fermerPiece, retirer, nouveauCode, codeValide } from "./_salon.mts";
-import { PLAFOND_SPECTATEURS, DUREE_MAX_MIN, DIRECTS_PAR_JOUR, BATTEMENT_MAX_S, titreNettoye, identiteDe, identiteValide, jetonDirect, prevenirAbonnes } from "./_eclat.mts";
+import { PLAFOND_SPECTATEURS, DUREE_MAX_MIN, DIRECTS_PAR_JOUR, BATTEMENT_MAX_S, titreNettoye, identiteDe, identiteSpectateur, identiteValide, jetonDirect, prevenirAbonnes } from "./_eclat.mts";
 import { pushCompte } from "./_compagnon.mts";
 
 const ORG = "star_vibe";
@@ -120,8 +120,10 @@ export default async (req: Request, _context: Context) => {
         if (clos) return json({ error: "Ce direct est terminé.", code: "termine" }, 410);
         if (!configLk().pret) return json({ error: "ÉCLAT n'est pas encore branché. Réessaie un peu plus tard." }, 503);
         const moi = await identiteVisible(sql, accountId); const hote = await identiteVisible(sql, Number(d.hote_id));
-        const jeton = await jetonDirect(code, identiteDe(accountId), moi.nom, estHote, moi.photo, Math.ceil((fin.getTime() - Date.now()) / 1000));
-        return json({ ok: true, url: configLk().url, jeton, identite: identiteDe(accountId), nom: moi.nom, photo: moi.photo, animateur: estHote, titre: d.titre, finAt: fin.toISOString(), hoteIdentite: identiteDe(Number(d.hote_id)), hoteNom: hote.nom });
+        // L'animateur qui revient reprend son rôle ; avec « spectateur », même l'animateur regarde sans couper sa propre diffusion.
+        const animateur = estHote && b.spectateur !== true; const ident = animateur ? identiteDe(accountId) : identiteSpectateur(accountId);
+        const jeton = await jetonDirect(code, ident, moi.nom, animateur, moi.photo, Math.ceil((fin.getTime() - Date.now()) / 1000));
+        return json({ ok: true, url: configLk().url, jeton, identite: ident, nom: moi.nom, photo: moi.photo, animateur, titre: d.titre, finAt: fin.toISOString(), hoteIdentite: identiteDe(Number(d.hote_id)), hoteNom: hote.nom });
       }
       if (!estHote) return json({ error: "Seule la personne qui diffuse peut faire cela." }, 403);
       if (b.action === "battement") {

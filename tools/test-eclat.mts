@@ -55,6 +55,16 @@ const jtS = (await jwtVerify(r.d.jeton, new TextEncoder().encode(process.env.LIV
 ok(r.s === 200 && jtS.video.canPublish === false && jtS.video.canSubscribe === true && jtS.video.canPublishData === true && r.d.animateur === false && r.d.hoteIdentite === `m${anim.id}`, "regarder : le spectateur reçoit mais ne publie pas la vidéo ; il peut écrire et réagir");
 r = await lire(await appel(inconnu, "POST", "", { action: "regarder", code })); ok(r.s === 403, "test fermé : un membre ordinaire ne peut pas regarder");
 r = await lire(await appel(anim, "POST", "", { action: "regarder", code })); ok(r.d.animateur === true, "l'animateur qui revient retrouve son rôle");
+{
+  const jt = (await jwtVerify(r.d.jeton, new TextEncoder().encode(process.env.LIVEKIT_API_SECRET!))).payload as any;
+  ok(jt.video.canPublish === true && r.d.identite === `m${anim.id}`, "animateur : identité m<compte>, il publie");
+  const rs = await lire(await appel(anim, "POST", "", { action: "regarder", code, spectateur: true }));
+  const js = (await jwtVerify(rs.d.jeton, new TextEncoder().encode(process.env.LIVEKIT_API_SECRET!))).payload as any;
+  ok(rs.d.animateur === false && js.video.canPublish === false && /^v\d+x[a-z0-9]+$/.test(rs.d.identite) && rs.d.identite !== `m${anim.id}`, "l'animateur qui regarde depuis un 2e téléphone devient spectateur et ne coupe pas sa diffusion");
+  const a1 = await lire(await appel(fan, "POST", "", { action: "regarder", code })), a2 = await lire(await appel(fan, "POST", "", { action: "regarder", code }));
+  ok(a1.d.identite !== a2.d.identite && /^v\d+x/.test(a1.d.identite), "un même spectateur sur deux téléphones : deux identités différentes (aucun n'est déconnecté)");
+  const rr = await lire(await appel(anim, "POST", "", { action: "retirer", code, identite: a1.d.identite })); ok(rr.s === 200, "l'animateur peut retirer cette identité de spectateur");
+}
 
 // Droits de l'animateur
 r = await lire(await appel(fan, "POST", "", { action: "terminer", code })); ok(r.s === 403, "un spectateur ne peut pas terminer le direct");

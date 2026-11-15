@@ -8,6 +8,7 @@
 // (page paiements.html). Le webhook ci-dessous est prêt pour la confirmation
 // automatique : il exige STARVIBE_PAYMENT_WEBHOOK_SECRET, comme pour les
 // abonnements, et refuse tout tant que ce secret n'est pas configuré.
+import { compagnonOuvert } from "./_compagnon.mts";
 import type { Context, Config } from "@netlify/functions";
 import { ensureSchema, db, json } from "./_db.mts";
 import { randomUUID } from "node:crypto";
@@ -419,7 +420,7 @@ async function chatKeydou(sql: any, req: Request, body: Record<string, unknown>)
       // (cache) pour être facturées bien moins cher ; effort « low » : réponse rapide, peu de réflexion. À réévaluer vers 2 500 abonnements.
       body: JSON.stringify({
         model: process.env.KEYDOU_MODEL || "claude-sonnet-5-5", max_tokens: 1200, output_config: { effort: "low" },
-        system: [{ type: "text", text: promptKeydou(await resumeAnnuaire(sql), req.headers.get("x-komyo-lang") === "en", ((await sql`SELECT value FROM starvibe_settings WHERE key = 'compagnon_ouvert'`) as { value: string }[])[0]?.value === "on"), cache_control: { type: "ephemeral" } }],
+        system: [{ type: "text", text: promptKeydou(await resumeAnnuaire(sql), req.headers.get("x-komyo-lang") === "en", (await compagnonOuvert(sql))), cache_control: { type: "ephemeral" } }],
         messages: propres,
       }),
     });

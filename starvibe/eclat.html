@@ -58,9 +58,13 @@
   .sheet input{width:100%;padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,.2);background:#120c1d;color:#fff;font:600 15px 'Inter',Arial,sans-serif;margin-bottom:12px;}
   .sheet .lien{display:block;width:100%;margin-top:10px;background:none;border:0;color:#cdbfe8;font:600 14px 'Inter',Arial,sans-serif;padding:10px;cursor:pointer;}
   #scene{position:fixed;inset:0;z-index:40;background:#000;display:flex;flex-direction:column;height:100vh;height:100dvh;color:#fff;}
-  #stage{position:relative;flex:none;height:38%;min-height:200px;background:#000;overflow:hidden;transition:height .25s ease;}
+  #stage{position:relative;flex:none;width:100%;height:42%;min-height:200px;background:#000;overflow:hidden;transition:height .25s ease;}
+  #stage.paysage{height:56.25vw;min-height:0;}
+  #stage.portrait{height:52%;}
   #scene.cache #stage{height:100%;}
   #vid{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;}
+  #stage.portrait #vid{object-fit:cover;object-position:50% 28%;}
+  #scene.cache #stage.paysage{height:100%;}
   .haut{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 12px 28px;background:linear-gradient(180deg,rgba(0,0,0,.65),transparent);z-index:3;}
   .haut button{background:none;border:0;color:#fff;font-size:26px;line-height:1;padding:4px 8px;cursor:pointer;}
   .pill{display:inline-flex;align-items:center;gap:6px;font:800 13px 'Sora',Arial,sans-serif;letter-spacing:.04em;padding:6px 12px;border-radius:10px;background:#d6201a;}
@@ -69,12 +73,13 @@
   .titre{flex:1;min-width:0;font:700 13px 'Sora',Arial,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right;opacity:.9;}
   .bas-video{position:absolute;left:10px;right:10px;bottom:8px;display:flex;align-items:center;gap:8px;z-index:3;}
   .bas-video .esp{flex:1;}
-  .rb{border:0;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;font:700 13px 'Sora',Arial,sans-serif;min-width:42px;height:42px;padding:0 12px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;}
+  .rb{border:0;border-radius:999px;background:rgba(40,40,48,.78);backdrop-filter:blur(4px);color:#fff;font:700 13px 'Sora',Arial,sans-serif;min-width:44px;height:44px;font-size:19px;padding:0 12px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;}
   .rb.off{background:#d6201a;}.rb.fin{background:#d6201a;}
   #attente{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:30px;font:600 15px/1.5 'Inter',Arial,sans-serif;color:#e9e4f5;background:rgba(0,0,0,.55);z-index:2;}
   #chat{flex:1;min-height:0;display:flex;flex-direction:column;background:#161219;}
   #scene.cache #chat{display:none;}
-  #fil{flex:1;min-height:0;overflow-y:auto;padding:10px 14px;overscroll-behavior:contain;}
+  #fil{flex:1;min-height:0;overflow-y:auto;padding:10px 14px;overscroll-behavior:contain;display:flex;flex-direction:column;-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 36px);mask-image:linear-gradient(to bottom,transparent 0,#000 36px);}
+  #fil > :first-child{margin-top:auto;}
   .c{display:flex;gap:10px;padding:8px 0;align-items:flex-start;}
   .c .rond{width:34px;height:34px;font-size:13px;}
   .c .tx{min-width:0;}.c .tx b{display:block;font:700 14px 'Sora',Arial,sans-serif;color:#fff;}.c .tx span{display:block;font:500 15px/1.35 'Inter',Arial,sans-serif;color:#e8e3f0;word-break:break-word;}
@@ -98,6 +103,12 @@
   .coeur-vol svg{width:100%;height:100%;filter:drop-shadow(0 0 3px rgba(238,18,40,.95)) drop-shadow(0 0 9px rgba(238,18,40,.75));}
   .coeur-vol.emo{display:flex;align-items:center;justify-content:center;font-size:24px;line-height:1;}
   @keyframes coeurVol{0%{opacity:0;transform:translate(0,0) scale(.4);}12%{opacity:1;transform:translate(0,-18px) scale(1.15);}55%{opacity:.95;transform:translate(var(--x1,10px),-170px) scale(1);}100%{opacity:0;transform:translate(var(--x2,-14px),-330px) scale(.8) rotate(var(--r,12deg));}}
+  /* Le pouce KOMYO : rond orange, pouce blanc (la différence avec le pouce bleu de Facebook) */
+  .pouce{display:inline-block;width:1em;height:1em;vertical-align:middle;}
+  .reacts button .pouce{width:38px;height:38px;}
+  .fl .em .pouce{width:30px;height:30px;}
+  .coeur-vol.pc{display:flex;align-items:center;justify-content:center;}
+  .coeur-vol.pc .pouce{width:100%;height:100%;filter:drop-shadow(0 2px 6px rgba(255,107,74,.8));}
   .fl{position:absolute;bottom:110px;width:46px;height:46px;animation:monte 3.4s ease-out forwards;will-change:transform,opacity;}
   .fl .rond{width:46px;height:46px;border:2px solid #fff;box-shadow:0 4px 14px rgba(0,0,0,.5);}
   .fl .em{position:absolute;right:-8px;bottom:-8px;font-size:26px;line-height:1;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));}
@@ -168,7 +179,7 @@
   <div id="chat">
     <div id="fil" aria-live="polite"></div>
     <div class="saisie"><input id="saisie" type="text" maxlength="200" placeholder="Ajouter un commentaire…" autocomplete="off" enterkeyhint="send"><button id="bEnvoi" type="button">Envoyer</button></div>
-    <div class="reacts" id="reacts"><button type="button" data-e="👍" aria-label="J'aime">👍</button><button type="button" data-e="❤️" aria-label="Cœur">❤️</button><button type="button" data-e="🥰" aria-label="Adore">🥰</button><button type="button" data-e="😄" aria-label="Haha">😄</button><button type="button" data-e="😮" aria-label="Waouh">😮</button><button type="button" data-e="😢" aria-label="Triste">😢</button><button type="button" data-e="🔥" aria-label="Feu">🔥</button></div>
+    <div class="reacts" id="reacts"><button type="button" data-e="👍" aria-label="J'aime"></button><button type="button" data-e="❤️" aria-label="Cœur">❤️</button><button type="button" data-e="🥰" aria-label="Adore">🥰</button><button type="button" data-e="😄" aria-label="Haha">😄</button><button type="button" data-e="😮" aria-label="Waouh">😮</button><button type="button" data-e="😢" aria-label="Triste">😢</button><button type="button" data-e="🔥" aria-label="Feu">🔥</button></div>
     <div class="barre"><button id="bCache" type="button" aria-label="Cacher la discussion">⌄</button><span>Discussion en direct</span></div>
   </div>
   <button id="tri" type="button" aria-label="Afficher la discussion">◂</button>
@@ -205,7 +216,7 @@
   btn.addEventListener('click', function(){ appel(btn.classList.contains('ok') ? 'quitter' : 'rejoindre'); });
 
   // ---------- Accueil d'ÉCLAT : directs en cours + « Passer en direct » ----------
-  var visible = false, nom = '';
+  var visible = false, nom = '', monDirectCode = '';
   function chargeAccueil(){
     if (!token){ login.hidden = false; return Promise.resolve(); }
     return api(null, '?directs=1').then(function(r){
@@ -220,11 +231,11 @@
       (d.directs || []).forEach(function(x){
         var b = document.createElement('button'); b.type = 'button'; b.className = 'lv';
         b.innerHTML = '<span class="rond">' + rondContenu(x.hote, x.photo) + '</span><span class="t"><b>' + esc(x.titre) + '</b><span>' + esc(x.hote) + '</span></span><span class="go"><i class="dot" style="width:8px;height:8px"></i>Regarder</span>';
-        b.addEventListener('click', function(){ regarder(x.code); }); L.appendChild(b);
+        b.addEventListener('click', function(){ regarder(x.code, true); }); L.appendChild(b);
       });
       $('encours').hidden = !(d.directs && d.directs.length); $('aucun').hidden = !!(d.directs && d.directs.length);
-      var mon = d.monDirect; $('btnDirect').textContent = mon ? '🔴 Revenir dans mon direct' : '🔴 Passer en direct';
-      $('btnDirect').onclick = function(){ if (mon) regarder(mon.code); else { $('titreErr').textContent = ''; $('sheetTitre').hidden = false; setTimeout(function(){ $('titreDirect').focus(); }, 80); } };
+      var mon = d.monDirect; monDirectCode = mon ? mon.code : ''; $('btnDirect').textContent = mon ? '🔴 Revenir dans mon direct' : '🔴 Passer en direct';
+      $('btnDirect').onclick = function(){ if (mon) regarder(mon.code, false); else { $('titreErr').textContent = ''; $('sheetTitre').hidden = false; setTimeout(function(){ $('titreDirect').focus(); }, 80); } };
     }).catch(function(){ $('liveMsg').textContent = 'Connexion impossible pour le moment.'; });
   }
   function initiale(n){ n = (n || '?').trim(); return esc((n.charAt(0) || '?').toUpperCase()); }
@@ -242,8 +253,8 @@
       $('sheetTitre').hidden = true; ouvrirScene(r.d, true, r.d.identite, r.d.titre);
     }).catch(function(){ b.disabled = false; $('titreErr').textContent = 'Connexion impossible. Réessaie.'; });
   });
-  function regarder(code){
-    api({ action: 'regarder', code: code }).then(function(r){
+  function regarder(code, spectateur){
+    api({ action: 'regarder', code: code, spectateur: !!spectateur }).then(function(r){
       if (!r.ok){ toast(r.d.error || 'Impossible de rejoindre ce direct.'); if (r.d.code === 'termine') chargeAccueil(); return; }
       ouvrirScene(r.d, r.d.animateur, r.d.hoteIdentite, r.d.titre, code);
     }).catch(function(){ toast('Connexion impossible. Réessaie.'); });
@@ -273,7 +284,7 @@
     sess = s; estAnimateur = !!animateur; hoteId = hote; codeDirect = code || s.code; fini = false;
     nom = s.nom || '';
     $('scene').hidden = false; $('page').style.display = 'none'; $('scene').classList.remove('cache');
-    $('fil').innerHTML = ''; $('flot').innerHTML = ''; histo = []; histoRecu = false; $('vid').srcObject = null; $('attente').hidden = false;
+    $('fil').innerHTML = ''; $('flot').innerHTML = ''; histo = []; histoRecu = false; $('stage').classList.remove('paysage', 'portrait'); $('vid').srcObject = null; $('attente').hidden = false;
     $('attente').textContent = estAnimateur ? 'Démarrage de ta caméra…' : 'Connexion au direct…';
     $('titreLive').textContent = titre || ''; $('nVus').textContent = '0';
     ['bMic','bCam','bFlip','bPart','bFin'].forEach(function(i){ $(i).hidden = !estAnimateur; });
@@ -282,6 +293,12 @@
     try { history.replaceState(null, '', '?v=' + codeDirect); } catch (e) {}
     connecter();
   }
+  // Écran large : la vidéo occupe toute la largeur ; paysage = format cinéma plein cadre, portrait = grand cadre rempli
+  function ajusterVideo(){
+    var v = $('vid'), st = $('stage'); if (!v.videoWidth || !v.videoHeight) return;
+    var paysage = v.videoWidth >= v.videoHeight; st.classList.toggle('paysage', paysage); st.classList.toggle('portrait', !paysage); setTimeout(bas, 320);
+  }
+  $('vid').addEventListener('loadedmetadata', ajusterVideo); $('vid').addEventListener('resize', ajusterVideo); $('vid').addEventListener('playing', ajusterVideo);
   function banniere(t){ var b = $('banniere'); if (!t){ b.hidden = true; return; } b.textContent = t; b.hidden = false; }
   function compte(){ if (room) $('nVus').textContent = String(room.remoteParticipants ? room.remoteParticipants.size : 0); }
   function attacher(track, p){
@@ -295,7 +312,9 @@
   }
   function connecter(){
     var L = LK(), E = L.RoomEvent;
-    var r = new L.Room({ adaptiveStream: true, dynacast: true }); room = r;
+    var opts = { adaptiveStream: true, dynacast: true };
+    if (estAnimateur && L.VideoPresets){ opts.videoCaptureDefaults = { resolution: L.VideoPresets.h720.resolution, facingMode: 'user' }; opts.publishDefaults = { simulcast: true, videoEncoding: { maxBitrate: 1500000, maxFramerate: 30 } }; }
+    var r = new L.Room(opts); room = r;
     r.on(E.TrackSubscribed, function(t, pub, p){ attacher(t, p); })
      .on(E.TrackUnsubscribed, function(t){ t.detach().forEach(function(el){ if (el !== $('vid')) el.remove(); }); })
      .on(E.ParticipantConnected, function(p){ compte(); if (p.identity === hoteId){ clearTimeout(graceHote); banniere(''); } else if (estAnimateur){ setTimeout(function(){ envoyerHistorique(p.identity); }, 1500); } })
@@ -407,18 +426,27 @@
   $('bEnvoi').addEventListener('click', envoiCommentaire);
   $('saisie').addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); envoiCommentaire(); } });
 
+  // Le pouce KOMYO (SVG : rond orange dégradé, pouce blanc)
+  var POUCE_ID = 0;
+  function pouceSvg(){
+    var id = 'pg' + (++POUCE_ID);
+    return '<svg class="pouce" viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="' + id + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF6B4A"/><stop offset="1" stop-color="#E8A93D"/></linearGradient></defs><circle cx="24" cy="24" r="23" fill="url(#' + id + ')"/><g transform="translate(10.5 10.5) scale(1.125)"><path fill="#fff" d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></g></svg>';
+  }
+  (function(){ var b = document.querySelector('#reacts button[data-e="👍"]'); if (b) b.innerHTML = pouceSvg(); })();
+
   // Réactions : le rond de la personne (sa photo) monte avec l'émoticône, puis disparaît
   var enVol = 0, enRafale = 0, HEART = 'M12 21s-7.5-4.6-10-9.3C.4 8 2 4.5 5.6 4c2-.3 3.9.6 6.4 3 2.5-2.4 4.4-3.3 6.4-3C22 4.5 23.6 8 22 11.7 19.5 16.4 12 21 12 21z';
   function rafale(emoji, x0, y0){
     if (enRafale > 70) return;
-    var coeur = (emoji === '❤️' || emoji === '🥰'), n = coeur ? 7 : 5;
+    var coeur = (emoji === '❤️' || emoji === '🥰'), pouce = (emoji === '👍'), n = coeur ? 7 : 5;
     for (var i = 0; i < n; i++){
-      var c = document.createElement('div'); c.className = 'coeur-vol' + (coeur ? '' : ' emo'); c.setAttribute('aria-hidden', 'true');
+      var c = document.createElement('div'); c.className = 'coeur-vol' + (coeur ? '' : (pouce ? ' pc' : ' emo')); c.setAttribute('aria-hidden', 'true');
       c.style.left = x0 + 'px'; c.style.top = y0 + 'px';
       c.style.setProperty('--x1', (Math.random() * 60 - 40) + 'px'); c.style.setProperty('--x2', (Math.random() * 90 - 60) + 'px');
       c.style.setProperty('--w', (i * 0.11) + 's'); c.style.setProperty('--d', (1.5 + Math.random() * 0.7) + 's'); c.style.setProperty('--r', (Math.random() * 40 - 20) + 'deg');
       var sc = 0.75 + Math.random() * 0.7; c.style.width = c.style.height = (26 * sc) + 'px';
       if (coeur) c.innerHTML = '<svg viewBox="0 0 24 24"><defs><radialGradient id="hg' + (++idHg) + '" cx="35%" cy="28%" r="75%"><stop offset="0" stop-color="#ff4a3d"/><stop offset=".5" stop-color="#ee1228"/><stop offset="1" stop-color="#c70019"/></radialGradient></defs><path fill="url(#hg' + idHg + ')" d="' + HEART + '"/></svg>';
+      else if (pouce) c.innerHTML = pouceSvg();
       else { c.textContent = emoji; c.style.fontSize = (22 * sc) + 'px'; }
       $('flot').appendChild(c); enRafale++;
       setTimeout((function(el){ return function(){ el.remove(); enRafale--; }; })(c), 2800);
@@ -431,7 +459,7 @@
     if (enVol > 30) return; enVol++;
     var f = document.createElement('div'); f.className = 'fl'; f.style.right = (14 + Math.random() * 70) + 'px'; f.style.setProperty('--dx', Math.round((Math.random() - .5) * 60) + 'px');
     f.style.animationDuration = (2.8 + Math.random() * 1.2) + 's';
-    f.appendChild(rond(auteur, photo)); var em = document.createElement('span'); em.className = 'em'; em.textContent = emoji; f.appendChild(em);
+    f.appendChild(rond(auteur, photo)); var em = document.createElement('span'); em.className = 'em'; if (emoji === '👍') em.innerHTML = pouceSvg(); else em.textContent = emoji; f.appendChild(em);
     $('flot').appendChild(f); setTimeout(function(){ f.remove(); enVol--; }, 4200);
   }
   var dernierReact = 0;
@@ -444,7 +472,7 @@
   // ---------- Départ ----------
   if (!token){ login.hidden = false; return; }
   var v = (new URLSearchParams(location.search).get('v') || '').toUpperCase();
-  chargeAccueil().then(function(){ if (v && visible) { var go = function(){ regarder(v); }; if (LK()) go(); else window.addEventListener('load', go); } });
+  chargeAccueil().then(function(){ if (v && visible) { var go = function(){ regarder(v, v !== monDirectCode); }; if (LK()) go(); else window.addEventListener('load', go); } });
 })();
 </script>
 </body>
