@@ -97,11 +97,51 @@
   .imgb .acts a,.imgb .acts button{border:1.5px solid var(--ink);background:#fff;color:var(--ink);border-radius:99px;padding:7px 12px;font:700 12.5px 'Inter',Arial,sans-serif;text-decoration:none;}
   .imgb .ia{font-size:11px;color:var(--dim);margin-top:6px;}
   .actuel{display:inline-block;background:#dcf3e8;color:#1f6b4f;font:700 11px 'Inter',Arial,sans-serif;border-radius:99px;padding:3px 9px;margin-left:6px;vertical-align:middle;}
+
+  /* ===== Interface allégée (comme une appli de discussion moderne) ===== */
+  .bar{flex:none;display:flex;align-items:center;gap:4px;padding:calc(6px + env(safe-area-inset-top)) 8px 6px;background:var(--cream);}
+  .bar .ib{width:44px;height:44px;border:0;background:none;border-radius:50%;display:grid;place-items:center;color:var(--ink);padding:0;text-decoration:none;font:700 26px 'Sora',Arial,sans-serif;cursor:pointer;}
+  .bar .ib:active{background:#f0e6d2;}
+  .bar .ttl{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:8px;font:700 16px 'Sora',Arial,sans-serif;white-space:nowrap;overflow:hidden;}
+  .bar .ttl img{width:28px;height:auto;flex:none;}
+  .scene{padding:0 14px;gap:8px;} .kd{width:84px;min-height:74px;} .kd img.kd-img{width:56px;}
+  .etat{font-size:12.5px;padding:7px 11px;border-radius:14px;}
+  #ov{position:fixed;inset:0;background:rgba(36,21,54,.42);z-index:40;}
+  .sheet{position:fixed;z-index:41;background:#fff;color:var(--ink);}
+  .sheet.bottom{left:0;right:0;bottom:0;max-height:80%;overflow:auto;border-radius:22px 22px 0 0;padding:8px 14px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -12px 40px rgba(36,21,54,.25);animation:shUp .2s ease-out;}
+  .sheet.left{top:0;bottom:0;left:0;width:min(84%,330px);background:var(--cream);padding:calc(14px + env(safe-area-inset-top)) 10px 18px;overflow:auto;box-shadow:12px 0 40px rgba(36,21,54,.25);animation:shLeft .2s ease-out;}
+  @keyframes shUp{from{transform:translateY(40px);opacity:.4;}to{transform:none;opacity:1;}}
+  @keyframes shLeft{from{transform:translateX(-40px);opacity:.4;}to{transform:none;opacity:1;}}
+  .sheet .grip{width:42px;height:4px;border-radius:9px;background:#d9cfe3;margin:2px auto 10px;}
+  .sheet .st{display:flex;align-items:center;gap:10px;font:700 16px 'Sora',Arial,sans-serif;margin:2px 4px 10px;} .sheet .st .x{margin-left:auto;border:0;background:#f3ecdf;border-radius:50%;width:32px;height:32px;font-size:15px;color:var(--ink);}
+  .sheet .sec{font:700 11px 'Sora',Arial,sans-serif;color:var(--dim);letter-spacing:.06em;text-transform:uppercase;margin:14px 6px 4px;}
+  .sheet .row{display:flex;align-items:center;gap:10px;padding:12px 8px;border-radius:12px;font-size:15px;font-weight:600;}
+  .sheet .row .sp{flex:1;}
+  .sheet .info{font-size:12.5px;color:var(--dim);margin:8px 8px 0;line-height:1.5;}
+  .dhead{display:flex;align-items:center;gap:10px;margin:0 6px 10px;} .dhead img{width:42px;height:auto;} .dhead b{font:700 16px 'Sora',Arial,sans-serif;display:block;}
+  .tabs{display:flex;flex-direction:column;gap:2px;padding:4px 0 0;}
+  .tabs button{flex:none;border:0;background:none;text-align:left;border-radius:12px;padding:13px 12px;font:600 15.5px 'Inter',Arial,sans-serif;color:var(--ink);}
+  .tabs button.on{background:#f1e7d2;color:var(--ink);border:0;}
+  .sheet .lnk{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;text-align:left;padding:13px 12px;border-radius:12px;font:600 15.5px 'Inter',Arial,sans-serif;color:var(--ink);text-decoration:none;cursor:pointer;}
+  .modes{display:flex;flex-direction:column;gap:2px;padding:0;overflow:visible;max-height:none;}
+  .modes button{border:0;background:none;border-radius:12px;padding:13px 12px;text-align:left;font:600 15px 'Inter',Arial,sans-serif;color:var(--ink);white-space:normal;display:flex;align-items:center;gap:10px;width:100%;}
+  .modes button.on{background:#f1e7d2;color:var(--ink);border:0;} .modes button.on:after{content:"✓";margin-left:auto;color:var(--ok);font-weight:800;}
+  .quota{font-size:12.5px;color:var(--dim);text-align:left;padding:2px 8px;} 
+  .plus3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:4px 0 6px;}
+  .plus3 button{border:1.5px solid var(--line);background:#fff;border-radius:16px;padding:16px 4px;font:600 13.5px 'Inter',Arial,sans-serif;color:var(--ink);display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;}
+  .compose{display:block;margin:6px 12px calc(10px + env(safe-area-inset-bottom));padding:8px 10px 8px 14px;border:1.5px solid var(--line);border-radius:26px;background:#fff;box-shadow:0 8px 24px -16px rgba(36,21,54,.35);}
+  .compose textarea{display:block;width:100%;flex:none;border:0;border-radius:0;padding:8px 2px 6px;font:16px 'Inter',Arial,sans-serif;resize:none;max-height:130px;min-height:28px;background:transparent;outline:none;color:var(--ink);}
+  .compose .crow{display:flex;align-items:center;gap:6px;margin-top:2px;}
+  .compose .crow .sp{flex:1;}
+  .compose .cb{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--line);background:#fff;display:grid;place-items:center;padding:0;color:var(--ink);align-self:auto;font-size:0;cursor:pointer;flex:none;}
+  .compose .cb.ecoute{background:var(--bad);border-color:var(--bad);color:#fff;animation:pls 1s infinite;}
+  .compose .pill{width:auto;height:auto;flex:0 1 auto;min-width:0;background:#f6efe2;color:var(--ink);border:0;border-radius:99px;padding:8px 12px;font:600 12.5px 'Inter',Arial,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;}
+  .compose .send{width:44px;height:44px;flex:none;border-radius:50%;border:0;background:linear-gradient(135deg,var(--coral),var(--gold));color:#fff;display:grid;place-items:center;padding:0;cursor:pointer;}
+  .compose .send:disabled{opacity:.45;}
 </style>
 </head>
 <body>
-<div class="top"><img src="assets/img/keydou.webp" alt="Keydou"><div><h1>Keydou Compagnon</h1><p>Ton assistant personnel, chaque jour</p></div><a href="accueil.html">Retour</a></div>
-
+<div class="bar"><a class="ib" id="lnkRetourBar" href="accueil.html" aria-label="Retour à KOMYO" hidden>‹</a><button class="ib" id="btnMenu" type="button" aria-label="Menu" hidden><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg></button><div class="ttl"><img src="assets/img/keydou.webp" alt=""><span>Keydou Compagnon</span></div><button class="ib" id="btnMore" type="button" aria-label="Domaine et réglages" hidden><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5" r="1.9" fill="currentColor"/><circle cx="12" cy="12" r="1.9" fill="currentColor"/><circle cx="12" cy="19" r="1.9" fill="currentColor"/></svg></button></div>
 <main>
   <div class="pane" id="out" hidden><div class="card"><h2>Connecte-toi à KOMYO</h2><p class="note">Keydou Compagnon est réservé aux membres KOMYO.</p><a class="btn gold" style="margin-top:10px" href="inscription.html">Se connecter / Créer un compte</a></div></div>
 
@@ -155,22 +195,13 @@
 
   <div id="app" hidden style="flex:1;min-height:0;display:flex;flex-direction:column">
     <div class="limite" id="finBandeau" hidden style="margin-top:10px"><span id="finTxt"></span> <button class="btn gold" id="finBtn" style="margin-top:8px">Reconduire mon abonnement</button></div>
-    <div class="planrow">
-      <span class="chip" id="chipNiveau">Essentiel</span>
-      <span class="sp"></span>
-      <button class="iconbtn" id="btnVoix" type="button" title="Keydou lit ses réponses à voix haute" aria-label="Lecture à voix haute">🔇</button>
-      <button class="iconbtn plus" id="btnPlus" type="button" title="Changer d'offre" aria-label="Changer d'offre">+</button>
-    </div>
-    <div class="tabs"><button data-t="chat" class="on">Discuter</button><button data-t="rappels">Rappels</button><button data-t="donnees">Mes données</button></div>
-
     <section id="t-chat" style="flex:1;min-height:0;display:flex;flex-direction:column">
       <div class="scene"><div class="kd" id="kd"><img class="kd-img" src="assets/img/keydou.webp" alt="Keydou"></div><div class="etat" id="etat" aria-live="polite">Écris-moi ou parle-moi.</div></div>
       <div class="pane" id="fil"><div class="chat" id="chat"></div></div>
       <div class="limite" id="limite" hidden></div>
-      <div class="modes" id="modes" role="group" aria-label="Domaine de la question"></div>
-      <div class="quota" id="quota"></div>
       <div class="pj" id="pj" hidden><span>📎</span><b id="pjNom"></b><button type="button" id="pjOte" aria-label="Retirer le fichier">✕</button></div>
-      <div class="compose"><button class="clip" id="clip" type="button" aria-label="Envoyer une photo ou un document" title="Photo ou document">📎</button><input type="file" id="fichier" accept="image/*,application/pdf" hidden><button class="mic" id="mic" type="button" aria-label="Parler à Keydou" title="Parler à Keydou">🎤</button><textarea id="msg" rows="1" maxlength="1500" placeholder="Écris à Keydou…"></textarea><button id="envoi">Envoyer</button></div>
+      <div class="compose"><textarea id="msg" rows="1" maxlength="1500" placeholder="Écris à Keydou…"></textarea><div class="crow"><button class="cb" id="clip" type="button" aria-label="Ajouter une photo ou un fichier" title="Ajouter"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><button class="pill" id="pill" type="button" aria-label="Choisir le domaine"><span id="pillTxt">Auto</span> ▾</button><span class="sp"></span><button class="cb" id="mic" type="button" aria-label="Parler à Keydou" title="Parler à Keydou"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button><button class="send" id="envoi" type="button" aria-label="Envoyer"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button></div></div>
+      <input type="file" id="fichier" accept="image/*,application/pdf" hidden><input type="file" id="fichierPhoto" accept="image/*" hidden><input type="file" id="fichierCam" accept="image/*" capture="environment" hidden>
     </section>
 
     <section id="t-rappels" class="pane" hidden>
@@ -200,6 +231,32 @@
   </div>
 </main>
 
+
+<div id="ov" hidden></div>
+<aside class="sheet left" id="drawer" hidden role="dialog" aria-label="Menu">
+  <div class="dhead"><img src="assets/img/keydou.webp" alt=""><div><b>Keydou Compagnon</b><span class="chip" id="chipNiveau" style="margin-top:4px">Essentiel</span></div></div>
+  <div class="tabs"><button data-t="chat" class="on">💬  Discuter</button><button data-t="rappels">⏰  Rappels</button><button data-t="donnees">👤  Mes données</button></div>
+  <div class="sec">Mon offre</div>
+  <button class="lnk" id="btnPlus" type="button">⭐  Changer d'offre</button>
+  <a class="lnk" id="lnkRetour" href="accueil.html">←  Retour à KOMYO</a>
+</aside>
+<section class="sheet bottom" id="sheetMore" hidden role="dialog" aria-label="Domaine et réglages">
+  <div class="grip"></div><div class="st">Domaine de la question<button class="x" type="button" data-fermer aria-label="Fermer">✕</button></div>
+  <div class="modes" id="modes" role="group" aria-label="Domaine de la question"></div>
+  <div class="sec">Réglages</div>
+  <div class="row"><span>Lire les réponses à voix haute</span><span class="sp"></span><button class="iconbtn" id="btnVoix" type="button" title="Keydou lit ses réponses à voix haute" aria-label="Lecture à voix haute">🔇</button></div>
+  <div class="quota" id="quota"></div>
+</section>
+<section class="sheet bottom" id="sheetPlus" hidden role="dialog" aria-label="Ajouter">
+  <div class="grip"></div><div class="st">Ajouter<button class="x" type="button" data-fermer aria-label="Fermer">✕</button></div>
+  <div class="plus3">
+    <button type="button" id="optCam"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Appareil photo</button>
+    <button type="button" id="optPhoto"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M21 16l-5-5-8 9"/></svg>Photos</button>
+    <button type="button" id="optFichier"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg>Fichiers</button>
+  </div>
+  <div class="info">Keydou lit les photos et les PDF (3 Mo au maximum).</div>
+</section>
+
 <script>
 (function(){
   var API='/api/starvibe-compagnon', token='', etat=null;
@@ -211,7 +268,19 @@
     return fetch(API+(qs||''),{method:method,headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:body?JSON.stringify(Object.assign({tz:TZ},body)):undefined})
       .then(function(r){ return r.json().catch(function(){return {};}).then(function(d){ return {ok:r.ok,status:r.status,data:d}; }); });
   }
-  function show(id){ ['out','ferme','offres','pay','consent','app'].forEach(function(x){ $(x).hidden=(x!==id); }); if(id==='app') $('app').style.display='flex'; }
+  function show(id){ ['out','ferme','offres','pay','consent','app'].forEach(function(x){ $(x).hidden=(x!==id); }); if(id==='app') $('app').style.display='flex'; fermer(); $('btnMenu').hidden=$('btnMore').hidden=(id!=='app'); $('lnkRetourBar').hidden=(id==='app'); }
+  // ---- Menus cachés : tiroir (≡), feuille du domaine (⋮ et pastille), feuille « + » ----
+  var ouvert='';
+  function ouvrir(id){ fermer(); ouvert=id; $('ov').hidden=false; $(id).hidden=false; }
+  function fermer(){ if(!ouvert) return; $(ouvert).hidden=true; $('ov').hidden=true; ouvert=''; }
+  $('ov').addEventListener('click',fermer);
+  Array.prototype.forEach.call(document.querySelectorAll('[data-fermer]'),function(b){ b.addEventListener('click',fermer); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') fermer(); });
+  $('btnMenu').addEventListener('click',function(){ ouvrir('drawer'); });
+  $('btnMore').addEventListener('click',function(){ ouvrir('sheetMore'); });
+  $('pill').addEventListener('click',function(){ ouvrir('sheetMore'); });
+  $('clip').addEventListener('click',function(){ ouvrir('sheetPlus'); });
+  function majPill(){ var m='Auto'; if(mode!=='auto'&&cap&&cap.modes){ cap.modes.forEach(function(x){ if(x.id===mode) m=x.label; }); } var niv=(etat&&etat.acces&&etat.acces.niveau==='complet')?'Pro 200':'Essentiel 65'; $('pillTxt').textContent=m+' · '+niv; }
   if(!token){ show('out'); return; }
 
   var cap=null, mode='auto', piece=null;
@@ -221,7 +290,7 @@
     var box=$('modes'); if(!box||box.childNodes.length) return;
     var liste=[{id:'auto',label:'Auto',emoji:'✨'}].concat((cap&&cap.modes)||[]);
     liste.forEach(function(m){ var b=document.createElement('button'); b.type='button'; b.dataset.m=m.id; b.textContent=m.emoji+' '+m.label; if(m.id===mode) b.className='on';
-      b.addEventListener('click',function(){ mode=m.id; Array.prototype.forEach.call(box.children,function(x){ x.className=(x.dataset.m===mode?'on':''); }); }); box.appendChild(b); });
+      b.addEventListener('click',function(){ mode=m.id; Array.prototype.forEach.call(box.children,function(x){ x.className=(x.dataset.m===mode?'on':''); }); majPill(); fermer(); }); box.appendChild(b); });
   }
   function quota(q){
     if(!q) return;
@@ -284,7 +353,7 @@
       initKd();
       $('finBandeau').hidden=!etat.finBientot; if(etat.finBientot) $('finTxt').textContent=etat.texteFin;
       var pro=etat.acces.niveau==='complet'; var ch=$('chipNiveau');
-      ch.className='chip'+(pro?' pro':''); ch.innerHTML='🐻 '+(pro?'Complet · Pro':'Essentiel')+' <small>'+(pro?'200':'65')+' messages/jour'+(etat.acces.source==='test'?' · test':'')+'</small>';
+      majPill(); ch.className='chip'+(pro?' pro':''); ch.innerHTML='🐻 '+(pro?'Complet · Pro':'Essentiel')+' <small>'+(pro?'200':'65')+' messages/jour'+(etat.acces.source==='test'?' · test':'')+'</small>';
       $('aboTxt').textContent='Offre '+etat.acces.label+(etat.acces.source==='test'?' (invitation de test)':'')+(etat.acces.fin?' · valable jusqu’au '+new Date(etat.acces.fin).toLocaleDateString('fr-FR'):'')+'.';
       if(etat.notifications>0){ $('notifTxt').textContent='Notifications activées sur '+etat.notifications+' appareil(s).'; $('notifBtn').textContent='Réactiver sur ce téléphone'; }
       call('GET','?historique=1').then(function(h){
@@ -309,7 +378,7 @@
   }
   $('offresRetour').addEventListener('click',function(){ show('app'); });
   $('btnPlus').addEventListener('click',function(){
-    var a=etat&&etat.acces;
+    fermer(); var a=etat&&etat.acces;
     ouvrirOffres('Changer d\u2019offre', a&&a.niveau==='complet'
       ? 'Tu es en Complet (Pro). Tu peux le reconduire, ou passer à Essentiel à la fin de ta période.'
       : 'Passe à Complet (Pro) pour 19 $ par mois : 200 messages par jour, rappels illimités, recherches approfondies, réflexion plus poussée, 30 photos ou documents lus par jour, 25 images créées par mois. Ton Essentiel en cours n\u2019est pas perdu : il reprend après ton Complet.');
@@ -368,7 +437,7 @@
     });
   }
   Array.prototype.forEach.call(document.querySelectorAll('[data-instbtn]'),function(b){ b.addEventListener('click',installer); });
-  if(standalone){ Array.prototype.forEach.call(document.querySelectorAll('[data-inst]'),function(x){ x.hidden=true; }); var rt=document.querySelector('.top a'); if(rt) rt.hidden=true; }
+  if(standalone){ Array.prototype.forEach.call(document.querySelectorAll('[data-inst]'),function(x){ x.hidden=true; }); ['lnkRetourBar','lnkRetour'].forEach(function(i){ var rt=$(i); if(rt) rt.hidden=true; }); }
 
   $('okConsent').addEventListener('change',function(){ $('btnConsent').disabled=!this.checked; });
   $('btnConsent').addEventListener('click',function(){ call('POST','',{action:'consentir'}).then(function(r){ if(r.ok) charge(); else $('errConsent').textContent=r.data.error||'Erreur'; }); });
@@ -377,6 +446,7 @@
     document.querySelectorAll('.tabs button').forEach(function(x){ x.classList.toggle('on',x===b); });
     ['chat','rappels','donnees'].forEach(function(t){ var s=$('t-'+t); s.hidden=(t!==b.dataset.t); if(t==='chat') s.style.display=(t===b.dataset.t?'flex':'none'); });
     if(b.dataset.t==='rappels') listeRappels();
+    fermer();
   }); });
 
   var occupe=false, vientDeLaVoix=false;
@@ -385,14 +455,14 @@
   function etatTxt(t){ $('etat').textContent=t; }
   var kdRetente=false;
   function initKd(){ if(kd) return;
-    if(!window.KeydouVivant){ if(!kdRetente){ kdRetente=true; var sc=document.createElement('script'); sc.src='assets/keydou-vivant-v1.js?r=2'; sc.onload=initKd; document.head.appendChild(sc); } return; } try{ kd=KeydouVivant.creer($('kd'),{taille:120}); kd.vie(true); kd.jouer('wave'); }catch(e){ kd=null; } }
+    if(!window.KeydouVivant){ if(!kdRetente){ kdRetente=true; var sc=document.createElement('script'); sc.src='assets/keydou-vivant-v1.js?r=2'; sc.onload=initKd; document.head.appendChild(sc); } return; } try{ kd=KeydouVivant.creer($('kd'),{taille:76}); kd.vie(true); kd.jouer('wave'); }catch(e){ kd=null; } }
   function kdBase(e){ if(kd) kd.base(e); }
   function kdGeste(g){ if(kd) kd.jouer(g); }
   function parlerUnPeu(txt){ if(!kd) return; kd.base('talk'); clearTimeout(tParle); tParle=setTimeout(function(){ if(!enParole){ kd.base('idle'); etatTxt('À toi !'); } },Math.min(5000,700+String(txt||'').length*30)); }
   function envoyer(){
     var t=$('msg').value.trim(); if((!t&&!piece)||occupe) return;
     var pj=piece; piece=null; $('pj').hidden=true; $('fichier').value='';
-    occupe=true; $('envoi').disabled=true; bulle('user',(pj?'📎 '+pj.nom+(t?' · ':''):'')+t); $('msg').value='';
+    occupe=true; $('envoi').disabled=true; bulle('user',(pj?'📎 '+pj.nom+(t?' · ':''):'')+t); $('msg').value=''; $('msg').style.height='auto';
     kdBase('think'); etatTxt('Je réfléchis…');
     var att=document.createElement('div'); att.className='m ky'; att.textContent='Keydou réfléchit…'; $('chat').appendChild(att); $('fil').scrollTop=$('fil').scrollHeight;
     call('POST','',{action:'chat',message:t,mode:mode,piece:pj?{data:pj.data}:undefined}).then(function(r){
@@ -427,8 +497,11 @@
       im.src=String(rd.result);
     }; rd.readAsDataURL(f);
   }
-  $('clip').addEventListener('click',function(){ $('fichier').click(); });
-  $('fichier').addEventListener('change',function(){ lireFichier(this.files&&this.files[0]); });
+  $('optCam').addEventListener('click',function(){ fermer(); $('fichierCam').click(); });
+  $('optPhoto').addEventListener('click',function(){ fermer(); $('fichierPhoto').click(); });
+  $('optFichier').addEventListener('click',function(){ fermer(); $('fichier').click(); });
+  ['fichier','fichierPhoto','fichierCam'].forEach(function(i){ $(i).addEventListener('change',function(){ var f=this.files&&this.files[0]; this.value=''; lireFichier(f); }); });
+  $('msg').addEventListener('input',function(){ this.style.height='auto'; this.style.height=Math.min(130,this.scrollHeight)+'px'; });
   $('pjOte').addEventListener('click',function(){ piece=null; $('pj').hidden=true; $('fichier').value=''; });
   $('envoi').addEventListener('click',envoyer);
   $('msg').addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); envoyer(); } });
@@ -496,8 +569,8 @@
   function listeRappels(){
     call('GET','?rappels=1').then(function(r){
       if(!r.ok) return;
-      var L=$('listeRappels'); if(!r.data.rappels.length){ L.innerHTML='<p class="note" style="text-align:center">Aucun rappel pour l’instant.</p>'; return; }
-      L.innerHTML=r.data.rappels.map(function(x){
+      var L=$('listeRappels'); if(!(r.data.rappels||[]).length){ L.innerHTML='<p class="note" style="text-align:center">Aucun rappel pour l’instant.</p>'; return; }
+      L.innerHTML=(r.data.rappels||[]).map(function(x){
         var d=new Date(x.quand); var rep=x.repetition?' · chaque '+({jour:'jour',semaine:'semaine',mois:'mois',an:'année'})[x.repetition]:'';
         return '<div class="rem"><div class="d"><small>'+MOIS[d.getMonth()]+'</small>'+d.getDate()+'</div><div class="t"><b>'+esc(x.titre)+'</b><br><span>'+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})+rep+(x.actif?'':' · terminé')+'</span></div>'+
           '<button class="tog'+(x.actif?' on':'')+'" data-b="'+x.id+'" data-a="'+(x.actif?0:1)+'" aria-label="Activer ou désactiver"></button><button data-s="'+x.id+'" aria-label="Supprimer">🗑</button></div>';
