@@ -30,6 +30,7 @@ const staffToken = await issueToken({ sub: "1", username: "carry", displayName: 
 const staff = { token: staffToken };
 
 await sql`DELETE FROM starvibe_settings WHERE key = 'eclat_ouvert'`;
+await sql`DELETE FROM starvibe_eclat_directs`;   // base de test : on repart de zéro (des directs d'un essai précédent fausseraient la liste)
 const anim = await membre("Wilfried", "k1.jpg"), fan = await membre("Sabine"), inconnu = await membre("Hennoch");
 await sql`INSERT INTO starvibe_salon_acces (account_id) VALUES (${anim.id}), (${fan.id}) ON CONFLICT DO NOTHING`;
 
@@ -121,5 +122,5 @@ r = await lire(await appel(staff, "POST", "", { action: "ouvrir", on: false }));
 r = await lire(await appel(staff, "GET", "?admin=1")); ok(r.d.ouvert === false && r.d.pret === true && Array.isArray(r.d.directs), "équipe : état et derniers directs");
 r = await lire(await appel(inconnu, "POST", "", { action: "ouvrir", on: true })); ok(r.s !== 200 || r.d.ok !== true, "un membre ne peut pas ouvrir ÉCLAT à tous");
 ok(titreNettoye("") === "Direct ÉCLAT" && titreNettoye("a".repeat(200)).length === 60 && identiteValide("m12") && !identiteValide("12"), "titres et identités");
-await sql`DELETE FROM starvibe_settings WHERE key = 'eclat_ouvert'`;
+await sql`DELETE FROM starvibe_settings WHERE key = 'eclat_ouvert'`; await sql`DELETE FROM starvibe_eclat_directs`;
 console.log(ko ? `\n${ko} ÉCHEC(S)` : "\nTOUS LES TESTS OK"); process.exit(ko ? 1 : 0);
