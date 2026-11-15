@@ -17,8 +17,11 @@ const capEssai = () => ({ voix: { actif: false, max: 0, restantes: 0 }, images: 
 const GREET = 'Bonjour ! Je suis Keydou, ton compagnon. Je retiens tes rendez-vous, je te rappelle au bon moment, et je réponds à tes questions. Que veux-tu savoir ?';
 (async () => {
   const b = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] });
-  const ctx = await b.newContext({ viewport: { width: 540, height: 1080 }, deviceScaleFactor: 1, recordVideo: { dir: '/tmp/video/rec', size: { width: 540, height: 1080 } } });
-  const pg = await ctx.newPage(); const T0 = Date.now(); const R = () => (Date.now() - T0) / 1000;
+  const ctx = await b.newContext({ viewport: { width: 390, height: 562 }, deviceScaleFactor: 2.1026 });
+  const pg = await ctx.newPage(); const T0 = Date.now();
+  const cdp = await ctx.newCDPSession(pg); const FR = []; let n = 0; fs.rmSync('/tmp/video/hf', { recursive: true, force: true }); fs.mkdirSync('/tmp/video/hf', { recursive: true });
+  cdp.on('Page.screencastFrame', async (f) => { const t = f.metadata.timestamp - T0 / 1000; const name = 'f' + String(n++).padStart(5, '0') + '.jpg'; fs.writeFileSync('/tmp/video/hf/' + name, Buffer.from(f.data, 'base64')); FR.push([t, name]); try { await cdp.send('Page.screencastFrameAck', { sessionId: f.sessionId }); } catch (e) {} });
+  await cdp.send('Page.startScreencast', { format: 'jpeg', quality: 82, maxWidth: 820, maxHeight: 1182, everyNthFrame: 1 }); const R = () => (Date.now() - T0) / 1000;
   const until = async (r) => { const w = (r - R()) * 1000; if (w > 0) await pg.waitForTimeout(w); else if (w < -400) console.log('RETARD', r, 'à', R().toFixed(2)); };
   const errs = []; pg.on('pageerror', e => errs.push(String(e)));
   await pg.route('**/api/starvibe-subscription**', async (route) => { const m = route.request().method(); if (m === 'POST') { const c = JSON.parse(route.request().postData() || '{}'); return route.fulfill({ status: 201, json: { abonnement: { id: '77', plan: c.plan, montantAttendu: { compagnon_premium: 20400, compagnon_prestige: 28600, compagnon_complet: 11100 }[c.plan] || 5000, statut: 'en_attente_paiement', referencePaiement: 'KOMYO-77', numeroReception: '+242 06 656 50 50', numeroAirtel: '' } } }); } return route.fulfill({ json: {} }); });
@@ -35,6 +38,9 @@ const GREET = 'Bonjour ! Je suis Keydou, ton compagnon. Je retiens tes rendez-vo
     return route.fulfill({ json: {} });
   });
   await pg.addInitScript(() => { localStorage.setItem('starvibe_token', 'x'); });
+  let boucle = true; const SH = []; let ns = 0; fs.rmSync('/tmp/video/hs', { recursive: true, force: true }); fs.mkdirSync('/tmp/video/hs', { recursive: true });
+  const shots = (async () => { while (boucle) { const t = R(); if (t < 5.8) { await new Promise(r => setTimeout(r, 40)); continue; } try { const buf = await pg.screenshot({ type: 'jpeg', quality: 82 }); const name = 's' + String(ns++).padStart(5, '0') + '.jpg'; fs.writeFileSync('/tmp/video/hs/' + name, buf); SH.push([t + 0.04, name]); } catch (e) { await new Promise(r => setTimeout(r, 30)); } } })();
+  
   await pg.goto('http://localhost:8097/starvibe/compagnon.html');
   // Scène B : animation d'ouverture réelle puis écran d'essai gratuit
   await pg.waitForSelector('#app', { state: 'visible', timeout: 30000 }); console.log('app visible à', R().toFixed(2));
@@ -61,5 +67,5 @@ const GREET = 'Bonjour ! Je suis Keydou, ton compagnon. Je retiens tes rendez-vo
   await pg.click('[data-d=connecteurs]').catch(e => console.log('conn', e.message)); await until(110.0);
   await pg.keyboard.press('Escape'); await pg.waitForTimeout(500); await pg.click('[data-d=donnees]').catch(e => console.log('donn', e.message)); await until(113.5);
   console.log('fin à', R().toFixed(2), 'erreurs', JSON.stringify(errs));
-  const vid = pg.video(); await ctx.close(); console.log('video', await vid.path()); await b.close(); srv.close();
+  boucle = false; await shots; fs.writeFileSync('/tmp/video/hs.json', JSON.stringify(SH)); await cdp.send('Page.stopScreencast'); fs.writeFileSync('/tmp/video/hf.json', JSON.stringify(FR)); console.log('shots', SH.length); console.log('frames', FR.length); await ctx.close(); await b.close(); srv.close();
 })().catch(e => { console.error('ERR', e); srv.close(); process.exit(1); });
