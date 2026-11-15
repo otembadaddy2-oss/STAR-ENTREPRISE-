@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Keydou pour les entreprises — KOMYO</title>
+<meta name="description" content="Un assistant intelligent qui connaît votre entreprise et répond à vos clients sur votre site et WhatsApp, et Keydou Compagnon pour toute votre équipe, sur une seule facture.">
+<meta name="theme-color" content="#241536">
+<link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">
+<link rel="preload" href="/starvibe/assets/fonts/inter-latin-v1.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/starvibe/assets/fonts/komyo-fonts-v1.css">
+<style>
+  :root{--ink:#241536;--gold:#E8A93D;--coral:#FF6B4A;--cream:#FFFBF3;--dim:#625676;--line:#eee2cc;--ok:#1f8f4a;}
+  *{box-sizing:border-box;}
+  html,body{max-width:100%;overflow-x:hidden;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Inter',Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.55;}
+  h1,h2,h3{font-family:'Sora',Arial,sans-serif;margin:0;line-height:1.18;}
+  a{color:inherit;}
+  .wrap{max-width:980px;margin:0 auto;padding:0 18px;}
+  .hero{background:linear-gradient(150deg,#241536 0%,#4a2a6b 60%,#7a3b5e 100%);color:#fff;padding:calc(28px + env(safe-area-inset-top)) 0 40px;border-radius:0 0 30px 30px;}
+  .hero .brand{display:flex;align-items:center;gap:10px;font:700 13px 'Sora',Arial,sans-serif;opacity:.95;}
+  .hero .brand img{width:42px;height:auto;}
+  .hero h1{font-size:clamp(28px,6vw,46px);margin-top:22px;max-width:16em;}
+  .hero h1 em{font-style:normal;color:var(--gold);}
+  .hero p.lead{font-size:clamp(15px,2.4vw,18px);max-width:34em;margin:14px 0 0;opacity:.94;}
+  .cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;}
+  .btn{display:inline-block;border-radius:14px;padding:13px 20px;font:700 14.5px 'Sora',Arial,sans-serif;text-decoration:none;border:2px solid transparent;}
+  .btn.gold{background:linear-gradient(120deg,var(--coral),var(--gold));color:#fff;} .btn.line{border-color:#fff;color:#fff;} .btn.dark{background:var(--ink);color:#fff;}
+  section{padding:34px 0 6px;}
+  section h2{font-size:clamp(22px,4vw,30px);margin-bottom:6px;} section .sub{color:var(--dim);max-width:42em;margin:0 0 16px;}
+  .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));}
+  .card{background:#fff;border:1.5px solid var(--line);border-radius:20px;padding:18px;box-shadow:0 12px 26px -20px rgba(36,21,54,.35);}
+  .card h3{font-size:17px;margin-bottom:6px;} .card p{margin:6px 0 0;font-size:14.5px;} .card ul{margin:8px 0 0;padding-left:18px;font-size:14px;color:var(--dim);}
+  .ico{font-size:30px;line-height:1;margin-bottom:8px;}
+  .steps{counter-reset:s;display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));}
+  .steps .card{position:relative;padding-top:22px;} .steps .card::before{counter-increment:s;content:counter(s);position:absolute;top:-14px;left:16px;width:30px;height:30px;border-radius:50%;background:var(--ink);color:#fff;font:800 15px 'Sora',Arial,sans-serif;display:grid;place-items:center;}
+  .chatdemo{background:#fff;border:1.5px solid var(--line);border-radius:22px;padding:14px;max-width:440px;}
+  .b{max-width:88%;padding:9px 12px;border-radius:15px;font-size:14px;margin:6px 0;} .b.c{background:var(--ink);color:#fff;margin-left:auto;border-bottom-right-radius:4px;} .b.k{background:#fff7ea;border:1px solid var(--line);border-bottom-left-radius:4px;}
+  .twocol{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));align-items:start;}
+  .plans{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));}
+  .plan{background:#fff;border:1.5px solid var(--line);border-radius:20px;padding:18px;display:flex;flex-direction:column;}
+  .plan.fav{border-color:var(--coral);box-shadow:0 14px 30px -18px rgba(255,107,74,.6);}
+  .plan h3{font-size:17px;} .plan .p{font:800 28px 'Sora',Arial,sans-serif;margin:8px 0 0;} .plan .p small{font:600 13px 'Inter',Arial,sans-serif;color:var(--dim);}
+  .plan .f{font-size:13px;color:var(--dim);margin:2px 0 8px;} .plan ul{margin:6px 0 0;padding-left:18px;font-size:13.5px;} .plan li{margin:3px 0;}
+  .tag{display:inline-block;background:var(--coral);color:#fff;border-radius:99px;padding:2px 10px;font:700 11px 'Sora',Arial,sans-serif;margin-bottom:6px;align-self:flex-start;}
+  table{width:100%;border-collapse:collapse;background:#fff;border:1.5px solid var(--line);border-radius:16px;overflow:hidden;font-size:14px;}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;} th{background:#fff4de;font:700 13px 'Sora',Arial,sans-serif;} tr:last-child td{border-bottom:0;}
+  .scroll{overflow-x:auto;}
+  .safe{background:#241536;color:#fff;border-radius:24px;padding:22px;} .safe h2{color:#fff;} .safe ul{margin:10px 0 0;padding-left:20px;} .safe li{margin:6px 0;}
+  details{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin:8px 0;} summary{font:700 14.5px 'Sora',Arial,sans-serif;cursor:pointer;} details p{margin:8px 0 0;font-size:14px;color:var(--dim);}
+  .note{font-size:12.5px;color:var(--dim);margin-top:8px;}
+  .final{text-align:center;padding:34px 18px 14px;} .final h2{margin-bottom:8px;}
+  footer{padding:18px 18px calc(30px + env(safe-area-inset-bottom));text-align:center;font-size:12.5px;color:var(--dim);}
+  @media print{ .hero{border-radius:0;} .cta,.noprint{display:none!important;} h2,h3{break-after:avoid;} .card,.plan,details,.safe,.chatdemo{break-inside:avoid;} body{background:#fff;} }
+</style>
+</head>
+<body>
+<header class="hero"><div class="wrap">
+  <div class="brand"><img src="assets/img/keydou.webp" alt="Keydou" width="42" height="42"> KOMYO · STAR ENTREPRISE</div>
+  <h1>Votre entreprise répond à ses clients <em>24 heures sur 24</em>, sans embaucher.</h1>
+  <p class="lead">Keydou est un assistant intelligent qui <b>connaît votre entreprise</b> (vos produits, vos prix, vos horaires, vos règles) et répond à vos clients sur votre site et sur WhatsApp. Et Keydou Compagnon peut aussi aider toute votre équipe, sur <b>une seule facture</b>.</p>
+  <div class="cta noprint"><a class="btn gold" href="https://wa.me/242066565050">Parler à l'équipe sur WhatsApp</a><a class="btn line" href="entreprise.html">Créer mon espace gratuit</a></div>
+</div></header>
+
+<main class="wrap">
+  <section>
+    <h2>Deux offres, un seul interlocuteur</h2>
+    <p class="sub">Choisissez l'une, l'autre, ou les deux. Une seule facture, payée par Mobile Money (ou virement pour les montants importants).</p>
+    <div class="grid">
+      <div class="card"><div class="ico">👥</div><h3>Équipe</h3><p>Vos employés ont Keydou Compagnon niveau <b>Complet</b> : rappels de rendez-vous, rédaction, calculs, recherches vérifiées avec leurs sources, lecture de documents et de photos (voix de Keydou : 2 lectures par jour et 10 images par mois et par personne). <b>5, 10 ou 25 places</b>, un seul paiement, vous gérez les invitations.</p>
+        <ul><li>Un gérant invite ses employés par leur numéro</li><li>Keydou peut connaître votre entreprise (option)</li><li>Les discussions de chaque employé restent privées</li></ul></div>
+      <div class="card"><div class="ico">💬</div><h3>Assistant pour vos clients</h3><p>Vous lui donnez vos informations : produits, prix, horaires, questions fréquentes, règles. Il répond aux clients <b>à votre place, au nom de votre entreprise</b>, sur votre site et sur WhatsApp Business. Quand il ne sait pas, <b>il passe la main à un de vos conseillers</b>.</p>
+        <ul><li>Installation du module en une ligne sur votre site</li><li>Statistiques et questions sans réponse</li><li>Une base de connaissances qui s'enrichit</li></ul></div>
+      <div class="card"><div class="ico">🏛️</div><h3>Sur mesure</h3><p>Banque, hôtellerie, administration, santé, enseignement : nous cadrons avec vous les règles, le ton et les informations à donner, la connexion WhatsApp et la mise en route. <a href="https://wa.me/242066565050">Parlons-en.</a></p>
+        <ul><li>Règles métier et ton de l'institution</li><li>Contact humain à chaque étape sensible</li><li>Accompagnement de l'équipe STAR ENTREPRISE</li></ul></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Ce que vos clients vivent</h2>
+    <p class="sub">Des réponses courtes, justes, au ton de votre entreprise. Jamais une invention : si l'information n'est pas dans vos fiches, l'assistant le dit et vous passe la main.</p>
+    <div class="twocol">
+      <div class="chatdemo"><div class="b c">Bonjour, une chambre double pour deux nuits, c'est combien ?</div><div class="b k">Bonjour ! La chambre double coûte 50 000 FCFA la nuit, petit-déjeuner compris : 100 000 FCFA pour deux nuits. Souhaitez-vous réserver ?</div><div class="b c">Vous acceptez les chiens ?</div><div class="b k">Non, les animaux ne sont pas acceptés dans l'hôtel.</div><div class="b c">Et un transfert depuis l'aéroport ?</div><div class="b k">Je n'ai pas cette information. Notre réception peut vous répondre : +242 06 … (WhatsApp).</div><p class="note">Exemple illustré (hôtel fictif). Chaque entreprise a ses propres informations.</p></div>
+      <div>
+        <div class="card"><h3>Exemples de questions traitées</h3>
+          <ul><li><b>Hôtels et restaurants</b> : tarifs, disponibilités à confirmer, horaires, règles, accès</li><li><b>Boutiques</b> : produits, prix, livraison, retours, paiements acceptés</li><li><b>Banques et microfinance</b> : produits, documents à fournir, agences, horaires (jamais de solde ni de conseil personnalisé)</li><li><b>Administrations</b> : démarches, pièces à fournir, horaires, guichets</li><li><b>Cliniques et écoles</b> : horaires, rendez-vous, frais, règlement (jamais de diagnostic)</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Pour démarrer : 4 étapes</h2>
+    <div class="steps">
+      <div class="card"><h3>Créez votre espace</h3><p>Gratuit, depuis un compte KOMYO. Vous essayez l'assistant avec 20 messages d'essai.</p></div>
+      <div class="card"><h3>Écrivez vos fiches</h3><p>Produits, prix, horaires, règles, questions fréquentes. Quelques minutes suffisent pour commencer.</p></div>
+      <div class="card"><h3>Choisissez un forfait</h3><p>Dépôt Mobile Money au montant exact : l'ouverture est automatique. Virement possible.</p></div>
+      <div class="card"><h3>Installez-le</h3><p>Collez une ligne sur votre site. Pour WhatsApp, notre équipe connecte votre numéro avec vous.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Les forfaits</h2>
+    <p class="sub">Prix mensuels, 30 jours par période, sans renouvellement automatique. FCFA calculés au taux de 584 FCFA pour 1 $ (révisable).</p>
+    <h3 style="margin:14px 0 8px">Assistant pour vos clients</h3>
+    <div class="plans">
+      <div class="plan"><h3>Départ</h3><div class="p">39 $ <small>/ mois</small></div><div class="f">≈ 22 800 FCFA</div><ul><li>Votre site internet</li><li>3 000 messages de clients par mois</li><li>Base de connaissances : ~20 000 signes (≈ 8 pages)</li><li>Passage à un humain, statistiques</li></ul></div>
+      <div class="plan fav"><span class="tag">Le plus choisi</span><h3>Business</h3><div class="p">99 $ <small>/ mois</small></div><div class="f">≈ 57 800 FCFA</div><ul><li>Site internet <b>+ WhatsApp Business</b></li><li>6 000 messages de clients par mois</li><li>Base de connaissances : ~60 000 signes (≈ 25 pages)</li><li>Connexion WhatsApp accompagnée</li></ul></div>
+      <div class="plan"><h3>Grand compte</h3><div class="p">349 $ <small>/ mois</small></div><div class="f">≈ 203 800 FCFA</div><ul><li>Site + WhatsApp Business</li><li>20 000 messages de clients par mois</li><li>Base de connaissances : ~120 000 signes (≈ 50 pages)</li><li>Mise en route par l'équipe STAR ENTREPRISE</li></ul></div>
+    </div>
+    <h3 style="margin:22px 0 8px">Équipe (Keydou Compagnon niveau Complet)</h3>
+    <div class="plans">
+      <div class="plan"><h3>Équipe 5</h3><div class="p">79 $ <small>/ mois</small></div><div class="f">≈ 46 100 FCFA · 15,80 $ par personne</div><ul><li>5 personnes (gérant compris)</li><li>4 500 messages d'équipe par mois</li></ul></div>
+      <div class="plan"><h3>Équipe 10</h3><div class="p">139 $ <small>/ mois</small></div><div class="f">≈ 81 200 FCFA · 13,90 $ par personne</div><ul><li>10 personnes</li><li>8 500 messages d'équipe par mois</li></ul></div>
+      <div class="plan"><h3>Équipe 25</h3><div class="p">299 $ <small>/ mois</small></div><div class="f">≈ 174 600 FCFA · 11,96 $ par personne</div><ul><li>25 personnes</li><li>18 750 messages d'équipe par mois</li></ul></div>
+    </div>
+    <p class="note">Au-delà du nombre de messages du forfait, l'assistant s'arrête poliment et donne votre contact humain : aucune surprise de facture. Mastercard et Visa : vous serez informés dès que possible.</p>
+  </section>
+
+  <section>
+    <div class="safe">
+      <h2>Sûr pour votre image et vos clients</h2>
+      <ul>
+        <li><b>Il annonce qu'il est une intelligence artificielle</b> dès le premier message, et invite à confirmer auprès d'un conseiller pour une décision importante.</li>
+        <li><b>Jamais de contenu sexuel, d'armes, de violence, de haine, de drogue ni de faux documents.</b> Ces demandes sont refusées avant même d'atteindre l'IA.</li>
+        <li><b>Il n'invente rien</b> : prix, horaires, adresses et règles viennent uniquement de vos fiches. Sinon, il passe la main à un humain.</li>
+        <li><b>Il ne demande jamais</b> de numéro de carte, de code secret ou de code SMS, et ne les enregistre pas.</li>
+        <li><b>Résiste aux manipulations</b> : un client ne peut pas lui faire révéler ses consignes ni changer de rôle.</li>
+        <li><b>Secteurs sensibles</b> (banque, santé, administration, droit) : informations générales seulement, jamais de solde, de dossier ni de conseil personnalisé.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Vos données et celles de vos clients</h2>
+    <div class="grid">
+      <div class="card"><h3>Séparées et maîtrisées</h3><p>Vos fiches et les conversations de vos clients sont <b>isolées de celles des autres entreprises</b>. Vous choisissez la durée de conservation (30, 90 ou 365 jours), vous exportez ou effacez tout quand vous voulez.</p></div>
+      <div class="card"><h3>Qui peut lire quoi ?</h3><p>L'équipe STAR ENTREPRISE ne voit que des chiffres. Elle ne lit les conversations que si <b>vous ouvrez l'accès support</b> (7 jours au plus, fermable à tout moment). Les discussions d'un employé avec Keydou ne sont jamais visibles par le gérant.</p></div>
+      <div class="card"><h3>Où sont hébergées les données ?</h3><p>Chez des prestataires d'hébergement et de base de données <b>à l'étranger</b> (pas sur un serveur au Congo). Les réponses sont préparées par l'IA d'Anthropic ; selon ses conditions commerciales, vos contenus <b>ne servent pas à entraîner ses modèles</b>. Pour une institution soumise à des règles de localisation des données, parlons-en avant de signer.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Questions fréquentes</h2>
+    <details><summary>Faut-il un informaticien pour l'installer ?</summary><p>Non. Sur votre site, il suffit de coller une ligne de code (votre prestataire web le fait en deux minutes). Pour WhatsApp Business, notre équipe vous accompagne.</p></details>
+    <details><summary>Et si l'assistant se trompe ?</summary><p>Il ne répond que d'après vos fiches et dit quand il ne sait pas. Vous voyez les questions sans réponse et les conversations pour corriger vos fiches. Il invite aussi le client à confirmer auprès d'un conseiller pour toute décision importante. Une IA peut toutefois se tromper : gardez un contact humain.</p></details>
+    <details><summary>Mes clients doivent-ils avoir KOMYO ?</summary><p>Non. Vos clients utilisent simplement votre site ou WhatsApp. Seuls le gérant et les employés de l'équipe ont un compte KOMYO gratuit.</p></details>
+    <details><summary>Comment payer ?</summary><p>Par dépôt Mobile Money au montant exact (ouverture automatique), ou par virement pour les montants importants (notre équipe active le forfait). Une facture unique regroupe tous vos paiements. Mastercard et Visa : vous serez informés dès que possible.</p></details>
+    <details><summary>Que se passe-t-il si je dépasse le nombre de messages ?</summary><p>L'assistant s'arrête poliment et donne votre contact humain. Vous pouvez passer au forfait supérieur à tout moment.</p></details>
+    <details><summary>Quelles langues ?</summary><p>Le français en priorité ; l'assistant répond dans la langue du client quand il la comprend. Les langues locales (lingala, kituba) ne sont pas garanties.</p></details>
+  </section>
+
+  <div class="final">
+    <h2>On commence quand vous voulez</h2>
+    <p class="sub" style="margin:0 auto 16px">Créez votre espace gratuitement et essayez l'assistant avec vos propres informations.</p>
+    <div class="cta noprint" style="justify-content:center"><a class="btn dark" href="entreprise.html">Créer mon espace</a><a class="btn gold" href="https://wa.me/242066565050">Écrire sur WhatsApp</a></div>
+  </div>
+</main>
+<footer>STAR ENTREPRISE · Brazzaville, Congo · +242 06 656 50 50 · contact@starentreprise.com</footer>
+</body>
+</html>

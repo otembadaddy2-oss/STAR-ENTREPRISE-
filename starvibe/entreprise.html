@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KOMYO — Keydou pour mon entreprise</title>
+<meta name="theme-color" content="#141414">
+<meta name="robots" content="noindex">
+<link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">
+<link rel="preload" href="/starvibe/assets/fonts/inter-latin-v1.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/starvibe/assets/fonts/komyo-fonts-v1.css">
+<style>
+  :root{--ink:#241536;--gold:#E8A93D;--coral:#FF6B4A;--cream:#FFFBF3;--dim:#6b5f80;--line:#eee2cc;--ok:#1f8f4a;--bad:#c0392b;}
+  *{box-sizing:border-box;}
+  html,body{max-width:100%;overflow-x:hidden;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Inter',Arial,sans-serif;-webkit-font-smoothing:antialiased;min-height:100%;}
+  h1,h2,h3{font-family:'Sora',Arial,sans-serif;margin:0;}
+  [hidden]{display:none!important;}
+  .top{background:linear-gradient(135deg,#FF6B4A,#E8A93D);color:#fff;padding:calc(12px + env(safe-area-inset-top)) 16px 14px;border-radius:0 0 22px 22px;display:flex;align-items:center;gap:10px;}
+  .top img{width:44px;height:auto;filter:drop-shadow(0 3px 5px rgba(0,0,0,.25));}
+  .top h1{font-size:18px;line-height:1.15;} .top p{margin:2px 0 0;font-size:12px;opacity:.95;}
+  .top a{color:#fff;text-decoration:none;font:700 12px 'Sora',Arial,sans-serif;margin-left:auto;}
+  .tabs{display:flex;gap:6px;padding:10px 14px 4px;overflow-x:auto;position:sticky;top:0;background:var(--cream);z-index:5;-webkit-overflow-scrolling:touch;}
+  .tabs button{flex:none;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:9px 12px;font:700 12.5px 'Sora',Arial,sans-serif;color:var(--ink);cursor:pointer;}
+  .tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+  main{padding:10px 14px calc(24px + env(safe-area-inset-bottom));max-width:760px;margin:0 auto;}
+  .card{background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:14px;margin-bottom:12px;box-shadow:0 10px 24px -18px rgba(36,21,54,.25);}
+  .card h2{font-size:16px;margin-bottom:6px;} .card h3{font-size:14px;margin:10px 0 4px;}
+  .note{font-size:12.5px;color:var(--dim);line-height:1.5;margin:6px 0 0;}
+  .btn{display:block;width:100%;border:0;border-radius:12px;padding:12px;font:700 14px 'Sora',Arial,sans-serif;color:#fff;background:var(--ink);cursor:pointer;text-align:center;text-decoration:none;margin-top:10px;}
+  .btn.gold{background:linear-gradient(120deg,var(--coral),var(--gold));} .btn.line{background:#fff;color:var(--ink);border:1.5px solid var(--ink);} .btn.red{background:var(--bad);} .btn.small{display:inline-block;width:auto;padding:8px 12px;font-size:12.5px;margin:6px 6px 0 0;}
+  .btn:disabled{opacity:.5;}
+  label{display:block;font:700 12.5px 'Sora',Arial,sans-serif;margin:10px 0 4px;}
+  input,textarea,select{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;font:15px 'Inter',Arial,sans-serif;background:#fff;color:var(--ink);}
+  textarea{resize:vertical;min-height:70px;}
+  .row{display:flex;gap:8px;flex-wrap:wrap;} .row>*{flex:1 1 140px;}
+  .kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px;}
+  .kpi div{background:#fff8ea;border-radius:14px;padding:10px;} .kpi b{display:block;font:800 20px 'Sora',Arial,sans-serif;} .kpi span{font-size:11.5px;color:var(--dim);}
+  .pill{display:inline-block;border-radius:99px;padding:3px 10px;font:700 11.5px 'Sora',Arial,sans-serif;background:#eee;} .pill.ok{background:#dff3e6;color:var(--ok);} .pill.no{background:#fde8e5;color:var(--bad);} .pill.wait{background:#fff1d1;color:#8a5a00;}
+  .bar{height:9px;border-radius:9px;background:#f0e6d2;overflow:hidden;margin-top:6px;} .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--coral),var(--gold));}
+  .li{padding:10px 0;border-top:1px solid var(--line);font-size:14px;} .li:first-child{border-top:0;} .li small{color:var(--dim);display:block;margin-top:2px;line-height:1.4;}
+  .chat{display:flex;flex-direction:column;gap:8px;max-height:340px;overflow:auto;padding:4px 0;}
+  .m{max-width:88%;padding:9px 12px;border-radius:16px;font-size:14px;line-height:1.45;white-space:pre-wrap;word-wrap:break-word;}
+  .me{align-self:flex-end;background:var(--ink);color:#fff;border-bottom-right-radius:4px;} .ky{align-self:flex-start;background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px;}
+  pre.code{background:#241536;color:#ffe9b8;padding:12px;border-radius:12px;font-size:12px;white-space:pre-wrap;word-break:break-all;margin:8px 0 0;}
+  .err{color:var(--bad);font-size:13px;font-weight:600;margin-top:6px;} .good{color:var(--ok);font-size:13px;font-weight:600;margin-top:6px;}
+  .plan{border:1.5px solid var(--line);border-radius:14px;padding:12px;margin-top:10px;} .plan.actuel{border-color:var(--ok);background:#f3fbf6;}
+  .plan b.prix{font:800 18px 'Sora',Arial,sans-serif;} .plan ul{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.5;color:var(--dim);}
+  table{width:100%;border-collapse:collapse;font-size:13px;} th,td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--line);} td.n,th.n{text-align:right;white-space:nowrap;}
+  .rem{background:#fff8ea;border-radius:12px;padding:10px 12px;margin-top:8px;} .rem span{font-size:12px;color:var(--dim);}
+  @media print{ body *{visibility:hidden;} #factureZone,#factureZone *{visibility:visible;} #factureZone{position:absolute;left:0;top:0;width:100%;border:0;box-shadow:none;} .noprint{display:none!important;} }
+</style>
+</head>
+<body>
+<div class="top noprint">
+  <img src="assets/img/keydou.webp" alt="Keydou" width="44" height="44">
+  <div><h1>Keydou pour mon entreprise</h1><p>Équipe · Assistant pour vos clients · une seule facture</p></div>
+  <a href="compagnon.html">← Keydou</a>
+</div>
+
+<main>
+  <div id="vOut" hidden><div class="card"><h2>Connecte-toi à KOMYO</h2><p class="note">L'espace entreprise est réservé aux membres KOMYO : le gérant crée son compte gratuit, puis son espace.</p><a class="btn gold" href="inscription.html">Se connecter / Créer un compte</a></div></div>
+
+  <div id="vChargement" class="card"><p class="note">Chargement…</p></div>
+
+  <div id="vCreer" hidden>
+    <div class="card"><h2>Créer l'espace de mon entreprise</h2>
+      <p class="note">C'est gratuit. Vous pouvez saisir les informations de votre entreprise et <b>essayer l'assistant avec 20 messages</b> avant de choisir un forfait.</p>
+      <label for="cNom">Nom de l'entreprise</label><input id="cNom" maxlength="80" placeholder="Ex. Hôtel Mbamou">
+      <label for="cSecteur">Secteur d'activité</label><input id="cSecteur" maxlength="60" placeholder="Ex. hôtel, banque, boutique, administration, clinique…">
+      <button class="btn gold" id="cOk">Créer mon espace</button><div class="err" id="cErr"></div>
+    </div>
+    <div class="card"><h2>Ce que vous pouvez faire</h2>
+      <div class="li"><b>Équipe</b><small>5, 10 ou 25 employés avec Keydou Compagnon niveau Complet, sur une seule facture.</small></div>
+      <div class="li"><b>Assistant pour vos clients</b><small>Keydou connaît votre entreprise (produits, prix, horaires, règles) et répond à vos clients sur votre site et sur WhatsApp Business.</small></div>
+      <a class="btn line" href="entreprises.html">Voir l'offre complète et les prix</a>
+    </div>
+  </div>
+
+  <div id="vMembre" hidden>
+    <div class="card"><h2 id="mTitre">Équipe</h2><p class="note" id="mTxt"></p>
+      <div id="mBoutons"></div><div class="err" id="mErr"></div>
+      <a class="btn line" href="compagnon.html">Ouvrir Keydou Compagnon</a>
+    </div>
+  </div>
+
+  <div id="vGerant" hidden>
+    <div class="tabs noprint" id="tabs">
+      <button data-t="accueil" class="on">Accueil</button><button data-t="equipe">Équipe</button><button data-t="assistant">Assistant</button><button data-t="savoir">Savoir</button><button data-t="canaux">Canaux</button><button data-t="forfaits">Forfaits &amp; facture</button><button data-t="confid">Confidentialité</button>
+    </div>
+
+    <section id="t-accueil">
+      <div class="card"><h2 id="aNom"></h2><p class="note" id="aSous"></p>
+        <div id="aForfaits"></div>
+        <div class="kpi" id="aKpi"></div>
+        <p class="note">Les 30 derniers jours. « Passés à un humain » = questions auxquelles l'assistant n'avait pas la réponse.</p>
+      </div>
+      <div class="card"><h2>Pour démarrer</h2><div id="aEtapes"></div></div>
+      <div class="card"><h2>Questions sans réponse</h2><p class="note">Ces questions de vos clients n'ont pas de réponse dans vos fiches. Ajoutez-les : l'assistant saura répondre la prochaine fois.</p><div id="aSans"></div></div>
+    </section>
+
+    <section id="t-equipe" hidden>
+      <div class="card"><h2>Mon équipe</h2><p class="note" id="eInfo"></p><div id="eListe"></div></div>
+      <div class="card"><h2>Inviter un employé</h2>
+        <p class="note">La personne doit avoir un compte KOMYO gratuit. Elle verra l'invitation dans Keydou Compagnon et doit l'accepter.</p>
+        <label for="eTel">Numéro de téléphone (avec l'indicatif)</label><input id="eTel" inputmode="tel" placeholder="+242 06 000 00 00">
+        <button class="btn gold" id="eInv">Envoyer l'invitation</button><div class="err" id="eErr"></div><div class="good" id="eOk"></div>
+      </div>
+      <div class="card"><h2>Keydou de l'équipe connaît l'entreprise</h2>
+        <p class="note">Si vous activez ceci, Keydou Compagnon de vos employés peut répondre sur vos produits, prix et procédures d'après les fiches de l'onglet « Savoir ».</p>
+        <label style="display:flex;gap:8px;align-items:center;font:600 14px 'Inter',Arial,sans-serif"><input type="checkbox" id="eSavoir" style="width:auto"> Partager le savoir de l'entreprise avec l'équipe</label>
+      </div>
+      <div class="card"><h2>Ce que vous voyez, ce que vous ne voyez pas</h2><p class="note">Vous voyez qui est dans l'équipe et le <b>nombre</b> de messages du mois de chacun. Vous ne voyez <b>jamais</b> le contenu des discussions d'un employé avec Keydou : elles restent privées.</p></div>
+    </section>
+
+    <section id="t-assistant" hidden>
+      <div class="card"><h2>Mon assistant</h2>
+        <label for="sNom">Nom de l'entreprise</label><input id="sNom" maxlength="80">
+        <label for="sSecteur">Secteur</label><input id="sSecteur" maxlength="60">
+        <label for="sAssist">Nom de l'assistant (facultatif)</label><input id="sAssist" maxlength="30" placeholder="Keydou">
+        <label for="sTon">Ton</label><select id="sTon"><option value="chaleureux">Chaleureux</option><option value="professionnel">Professionnel</option><option value="formel">Formel</option><option value="décontracté">Décontracté</option></select>
+        <label for="sAccueil">Message d'accueil (facultatif)</label><textarea id="sAccueil" maxlength="300" placeholder="Bonjour ! Je suis Keydou, l'assistant de …"></textarea>
+        <p class="note">Le système ajoute toujours : « Vous parlez à une intelligence artificielle ».</p>
+        <label for="sContact">Contact humain (téléphone, WhatsApp, e-mail)</label><input id="sContact" maxlength="200" placeholder="+242 06 … ou contact@…">
+        <label for="sConsignes">Consignes particulières (facultatif)</label><textarea id="sConsignes" maxlength="1500" placeholder="Ex. Toujours proposer de réserver. Ne jamais parler de politique."></textarea>
+        <label for="sCouleur">Couleur du module</label><input id="sCouleur" type="color" style="height:44px;padding:4px">
+        <button class="btn gold" id="sOk">Enregistrer</button><div class="good" id="sMsg"></div><div class="err" id="sErr"></div>
+      </div>
+      <div class="card"><h2>Essayer mon assistant</h2><p class="note" id="tInfo"></p>
+        <div class="chat" id="tChat"></div>
+        <label for="tIn">Votre question de client</label><textarea id="tIn" maxlength="1000" style="min-height:56px" placeholder="Ex. Quels sont vos horaires ?"></textarea>
+        <button class="btn" id="tOk">Envoyer</button><button class="btn line" id="tEff">Effacer ce test</button><div class="err" id="tErr"></div>
+      </div>
+      <div class="card"><h2>Conversations de mes clients</h2><p class="note">Pour améliorer vos fiches. Les identités sont masquées.</p><button class="btn line" id="vConv">Afficher les conversations</button><div id="cvListe"></div></div>
+    </section>
+
+    <section id="t-savoir" hidden>
+      <div class="card"><h2 id="kTitre">Ajouter une information</h2>
+        <p class="note">Plus vos fiches sont précises, meilleures sont les réponses. L'assistant <b>ne dit que ce qui est écrit ici</b> ; sinon il passe la main à un humain.</p>
+        <label for="kType">Type</label><select id="kType"><option value="fiche">Information (horaires, adresse, présentation…)</option><option value="produit">Produit, service ou prix</option><option value="qr">Question fréquente + réponse</option><option value="regle">Règle ou politique (annulation, retour, paiement…)</option></select>
+        <label for="kTitreIn" id="kTitreLb">Titre</label><input id="kTitreIn" maxlength="120" placeholder="Ex. Chambre double">
+        <label for="kTexte">Texte</label><textarea id="kTexte" maxlength="2000" placeholder="Ex. 50 000 FCFA la nuit, petit-déjeuner compris."></textarea>
+        <button class="btn gold" id="kOk">Ajouter</button><button class="btn line" id="kAnnule" hidden>Annuler la modification</button><div class="err" id="kErr"></div>
+        <div class="note" id="kTaille"></div><div class="bar"><i id="kBar" style="width:0"></i></div>
+      </div>
+      <div class="card"><h2>Mes fiches</h2><div id="kListe"></div></div>
+    </section>
+
+    <section id="t-canaux" hidden>
+      <div class="card"><h2>Mon site internet</h2><p class="note">Collez cette ligne dans votre site, juste avant la fin de la page (&lt;/body&gt;). L'assistant n'apparaît que sur les sites listés ci-dessous.</p>
+        <label for="wDom">Adresses de vos sites (une par ligne)</label><textarea id="wDom" placeholder="monsite.cg&#10;boutique.monsite.cg"></textarea>
+        <button class="btn gold" id="wOk">Enregistrer les adresses</button><div class="good" id="wMsg"></div>
+        <h3>Code à coller</h3><pre class="code" id="wCode"></pre>
+        <button class="btn line" id="wCopie">Copier le code</button>
+        <p class="note" id="wEtat"></p>
+        <button class="btn line small" id="wCle">Changer la clé (en cas de fuite)</button>
+      </div>
+      <div class="card"><h2>WhatsApp Business</h2><div id="waEtat"></div>
+        <p class="note">La connexion de votre numéro WhatsApp Business est faite avec l'équipe STAR ENTREPRISE (elle demande votre compte Meta). Le service WhatsApp est compris à partir du forfait « Assistant Business ».</p>
+        <button class="btn gold" id="waDem">Demander la connexion WhatsApp</button><div class="good" id="waMsg"></div>
+      </div>
+    </section>
+
+    <section id="t-forfaits" hidden>
+      <div class="card noprint"><h2>Forfaits</h2><p class="note">Un forfait dure 30 jours et se paie par dépôt Mobile Money, comme les offres Keydou. <b>Gros montant ?</b> Le paiement par virement est possible : écrivez-nous au <b>+242 06 656 50 50</b>, l'équipe active votre forfait.</p><div id="pListe"></div><div class="err" id="pErr"></div></div>
+      <div class="card" id="factureZone"><h2>Facture unique</h2><p class="note" id="fEmetteur"></p><div id="fTable"></div>
+        <p class="note" id="fMentions"></p><button class="btn line noprint" id="fImp">Imprimer ou enregistrer en PDF</button></div>
+    </section>
+
+    <section id="t-confid" hidden>
+      <div class="card"><h2>Confidentialité de vos clients</h2>
+        <p class="note">Vos fiches et les conversations de vos clients sont <b>séparées de celles des autres entreprises</b>. L'équipe STAR ENTREPRISE ne voit que des chiffres (nombre de messages), pas le contenu, sauf si <b>vous</b> ouvrez l'accès support.</p>
+        <p class="note"><b>Où sont les données ?</b> Chez des prestataires d'hébergement <b>à l'étranger</b> (Netlify et une base de données cloud), pas sur un serveur au Congo. Les réponses sont préparées par l'IA de la société Anthropic : selon ses conditions commerciales, vos contenus <b>ne servent pas à entraîner ses modèles</b>. Les numéros de carte ne sont jamais enregistrés.</p>
+        <label for="rRet">Durée de conservation des conversations</label>
+        <select id="rRet"><option value="30">30 jours</option><option value="90">90 jours</option><option value="365">365 jours</option></select>
+        <button class="btn gold" id="rOk">Enregistrer</button><div class="good" id="rMsg"></div>
+      </div>
+      <div class="card"><h2>Accès de l'équipe support</h2><p class="note" id="rSup"></p><button class="btn line" id="rSupBtn"></button></div>
+      <div class="card"><h2>Mes données</h2>
+        <button class="btn line" id="rExp">Télécharger toutes mes données</button>
+        <button class="btn red" id="rEff">Effacer toutes les conversations</button>
+        <button class="btn red" id="rSupp">Supprimer mon espace entreprise</button><div class="err" id="rErr"></div>
+        <p class="note">La suppression efface l'espace, les fiches, l'équipe et les conversations. Les factures déjà payées restent conservées pour la comptabilité.</p>
+      </div>
+    </section>
+  </div>
+
+  <div id="vPay" hidden>
+    <div class="card"><h2 id="payTitre">Paiement</h2>
+      <div class="rem"><span>Montant exact</span><br><b id="payMontant"></b></div>
+      <div class="rem"><span>Dépôt Mobile Money au</span><br><b id="payNum"></b></div>
+      <div class="rem"><span>Référence</span><br><b id="payRef"></b></div>
+      <p class="note">Faites le dépôt du montant exact. Votre forfait s'ouvre tout seul dès que le dépôt est reconnu. Tapez votre code secret Mobile Money sur votre téléphone, jamais ici.</p>
+      <div class="note" id="payEtat" style="font-weight:600">⏳ En attente du dépôt…</div>
+      <button class="btn line" id="payAnnule">Annuler cette demande</button>
+    </div>
+  </div>
+</main>
+
+<script>
+(function(){
+  var API='/api/entreprise', SUB='/api/starvibe-subscription', token='', D=null, pollT=null, subId=null, edit=0, ongletCourant='accueil';
+  try{ token=localStorage.getItem('starvibe_token')||''; }catch(e){}
+  var $=function(i){ return document.getElementById(i); };
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function fcfa(n){ return Number(n).toLocaleString('fr-FR').replace(/ | /g,' ')+' FCFA'; }
+  function jour(d){ try{ return new Date(d).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}); }catch(e){ return ''; } }
+  function appel(url,method,qs,body){
+    return fetch(url+(qs||''),{method:method,headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:body?JSON.stringify(body):undefined})
+      .then(function(r){ return r.json().catch(function(){return {};}).then(function(d){ return {ok:r.ok,status:r.status,data:d}; }); });
+  }
+  var call=function(m,qs,b){ return appel(API,m,qs,b); }, callSub=function(m,qs,b){ return appel(SUB,m,qs,b); };
+  function vue(id){ ['vOut','vChargement','vCreer','vMembre','vGerant','vPay'].forEach(function(x){ $(x).hidden=(x!==id); }); window.scrollTo(0,0); }
+  function onglet(t){
+    ongletCourant=t;
+    Array.prototype.forEach.call(document.querySelectorAll('#tabs button'),function(b){ b.classList.toggle('on',b.dataset.t===t); });
+    ['accueil','equipe','assistant','savoir','canaux','forfaits','confid'].forEach(function(x){ $('t-'+x).hidden=(x!==t); });
+    if(t==='forfaits') chargeFacture();
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#tabs button'),function(b){ b.addEventListener('click',function(){ onglet(b.dataset.t); }); });
+
+  function charge(){
+    if(!token){ vue('vOut'); return; }
+    call('GET','').then(function(r){
+      if(r.status===401){ try{ localStorage.removeItem('starvibe_token'); }catch(e){} vue('vOut'); return; }
+      if(!r.ok){ $('vChargement').innerHTML='<p class="err">Impossible de charger. Réessayez dans un instant.</p>'; vue('vChargement'); return; }
+      D=r.data;
+      if(D.role==='aucun'){ vue('vCreer'); }
+      else if(D.role==='membre'){ rendreMembre(); vue('vMembre'); }
+      else { rendre(); vue('vGerant'); onglet(ongletCourant); }
+    });
+  }
+
+  // ---------- Créer ----------
+  $('cOk').addEventListener('click',function(){
+    $('cErr').textContent='';
+    call('POST','',{action:'creer',nom:$('cNom').value,secteur:$('cSecteur').value}).then(function(r){
+      if(!r.ok){ $('cErr').textContent=r.data.error||'Impossible de créer l’espace.'; return; }
+      charge();
+    });
+  });
+
+  // ---------- Employé invité ----------
+  function rendreMembre(){
+    var e=D.entreprise||{}, inv=e.statut==='invite';
+    $('mTitre').textContent=inv?('Invitation de '+e.nom):('Équipe '+e.nom);
+    $('mTxt').textContent=inv?'On vous invite à rejoindre l’équipe. En acceptant, vous profitez de Keydou Compagnon niveau Complet offert par votre entreprise. Vos discussions avec Keydou restent privées : votre gérant ne voit jamais leur contenu.':'Vous faites partie de l’équipe. Keydou Compagnon niveau Complet est offert par votre entreprise.';
+    $('mBoutons').innerHTML=inv?'<button class="btn gold" id="mOui">Accepter</button><button class="btn line" id="mNon">Refuser</button>':'<button class="btn line" id="mNon">Quitter l’équipe</button>';
+    if($('mOui')) $('mOui').onclick=function(){ call('POST','',{action:'equipe_accepter'}).then(function(r){ if(!r.ok){ $('mErr').textContent=r.data.error||'Impossible.'; return; } charge(); }); };
+    $('mNon').onclick=function(){ call('POST','',{action:inv?'equipe_refuser':'equipe_quitter'}).then(function(r){ if(!r.ok){ $('mErr').textContent=r.data.error||'Impossible.'; return; } charge(); }); };
+  }
+
+  // ---------- Rendu du tableau de bord ----------
+  function barre(u,m){ var p=m>0?Math.min(100,Math.round(u*100/m)):0; return '<div class="bar"><i style="width:'+p+'%"></i></div>'; }
+  function rendre(){
+    var e=D.entreprise, f=D.forfaits, s=D.stats;
+    $('aNom').textContent=e.nom; $('aSous').textContent=(e.secteur?e.secteur+' · ':'')+'Clé : '+e.cle;
+    var h='';
+    if(f.assistant) h+='<div class="li"><span class="pill ok">Assistant actif</span> <b>'+esc(f.assistant.label)+'</b><small>Jusqu’au '+jour(f.assistant.fin)+' · '+f.assistant.messages.toLocaleString('fr-FR')+' messages de clients par mois · '+(f.assistant.canaux.indexOf('whatsapp')>=0?'site + WhatsApp':'site')+'</small>'+barre(s.messages30,f.assistant.messages)+'<small>'+s.messages30+' / '+f.assistant.messages.toLocaleString('fr-FR')+' messages sur 30 jours</small></div>';
+    else h+='<div class="li"><span class="pill wait">Assistant : essai</span><small>'+(e.essaiRestant)+' messages d’essai restants dans l’onglet « Assistant ». Choisissez un forfait pour l’installer sur votre site.</small></div>';
+    if(f.equipe) h+='<div class="li"><span class="pill ok">Équipe active</span> <b>'+esc(f.equipe.label)+'</b><small>Jusqu’au '+jour(f.equipe.fin)+' · '+(D.places?D.places.prises:0)+' / '+f.equipe.postes+' places</small>'+barre(f.equipe.pool.utilises,f.equipe.pool.max)+'<small>'+f.equipe.pool.utilises.toLocaleString('fr-FR')+' / '+f.equipe.pool.max.toLocaleString('fr-FR')+' messages d’équipe sur 30 jours</small></div>';
+    else h+='<div class="li"><span class="pill">Équipe : pas de forfait</span><small>Choisissez un forfait Équipe pour inviter vos employés.</small></div>';
+    $('aForfaits').innerHTML=h;
+    $('aKpi').innerHTML=[[s.messages30,'messages de clients'],[s.visiteurs30,'clients différents'],[s.versHumain30,'passés à un humain'],[s.refus30,'demandes refusées (sécurité)']].map(function(x){ return '<div><b>'+x[0]+'</b><span>'+x[1]+'</span></div>'; }).join('');
+    var n=D.savoir.fiches.length, dom=e.domaines.length>0, fo=!!(f.assistant||f.equipe);
+    $('aEtapes').innerHTML=[[true,'Espace créé'],[n>=3,'Au moins 3 fiches dans « Savoir » ('+n+')'],[!!e.contact,'Contact humain renseigné (onglet Assistant)'],[dom,'Adresse de votre site (onglet Canaux)'],[fo,'Forfait choisi (onglet Forfaits)']].map(function(x){ return '<div class="li">'+(x[0]?'✅':'⬜')+' '+x[1]+'</div>'; }).join('');
+    $('aSans').innerHTML=D.questionsSansReponse.length?D.questionsSansReponse.map(function(q,i){ return '<div class="li">« '+esc(q.question)+' »<small>'+jour(q.quand)+'</small><button class="btn line small" data-q="'+i+'">Ajouter une réponse</button></div>'; }).join(''):'<p class="note">Aucune pour le moment.</p>';
+    Array.prototype.forEach.call(document.querySelectorAll('[data-q]'),function(b){ b.onclick=function(){ var q=D.questionsSansReponse[Number(b.dataset.q)]; edit=0; $('kType').value='qr'; majKTitre(); $('kTitreIn').value=q.question.slice(0,120); $('kTexte').value=''; onglet('savoir'); $('kTexte').focus(); }; });
+    // Équipe
+    $('eInfo').textContent=D.places?(D.places.prises+' place(s) sur '+D.places.total+' utilisée(s).'):'Pas de forfait Équipe : choisissez-en un dans « Forfaits & facture » pour inviter vos employés.';
+    $('eListe').innerHTML=D.equipe.map(function(m){ return '<div class="li"><b>'+esc(m.nom||'Membre')+'</b> '+(m.role==='gerant'?'<span class="pill">Gérant</span>':'<span class="pill '+(m.statut==='actif'?'ok':'wait')+'">'+(m.statut==='actif'?'Actif':'Invité')+'</span>')+'<small>'+esc(m.telephone)+' · '+m.messages30+' messages ce mois</small>'+(m.role==='gerant'?'':'<button class="btn line small" data-r="'+m.accountId+'">Retirer</button>')+'</div>'; }).join('');
+    Array.prototype.forEach.call(document.querySelectorAll('[data-r]'),function(b){ b.onclick=function(){ if(!confirm('Retirer cette personne de l’équipe ?')) return; call('POST','',{action:'membre_retirer',account_id:Number(b.dataset.r)}).then(charge); }; });
+    $('eSavoir').checked=!!e.savoirEquipe;
+    // Assistant
+    $('sNom').value=e.nom; $('sSecteur').value=e.secteur; $('sAssist').value=e.nomAssistant; $('sTon').value=e.ton||'chaleureux'; $('sAccueil').value=e.accueil; $('sContact').value=e.contact; $('sConsignes').value=e.consignes; $('sCouleur').value=e.couleur||'#FF6B4A';
+    $('tInfo').textContent=f.assistant?'Votre forfait est actif : ces essais ne sont pas comptés dans vos messages de clients.':(e.essaiRestant+' messages d’essai restants.');
+    // Savoir
+    rendreSavoir();
+    // Canaux
+    $('wDom').value=e.domaines.split(' ').join('\n'); $('wCode').textContent=D.canaux.site.code;
+    $('wEtat').textContent=D.canaux.site.actif?'✅ Module actif sur vos sites.':(!f.assistant?'Le module s’active avec un forfait Assistant.':(!D.canaux.site.domainesOk?'Ajoutez l’adresse de votre site pour l’activer.':''));
+    var w=D.canaux.whatsapp;
+    $('waEtat').innerHTML=w.statut==='connecte'?'<span class="pill ok">Connecté</span>':(w.statut==='demande'?'<span class="pill wait">Demande envoyée : l’équipe vous contacte</span>':'<span class="pill no">Pas connecté</span>')+(w.compris?'':' <span class="pill">Non compris dans votre forfait</span>');
+    $('waDem').hidden=(w.statut!=='non_connecte');
+    // Confidentialité
+    $('rRet').value=String(e.retentionJours);
+    var ouvert=e.supportJusqu&&new Date(e.supportJusqu).getTime()>Date.now();
+    $('rSup').textContent=ouvert?('Accès support OUVERT jusqu’au '+jour(e.supportJusqu)+' : l’équipe STAR ENTREPRISE peut lire vos conversations pour vous aider.'):'Accès support FERMÉ : l’équipe ne peut pas lire vos conversations. Ouvrez-le 7 jours si vous voulez de l’aide sur une réponse.';
+    $('rSupBtn').textContent=ouvert?'Fermer l’accès support':'Ouvrir l’accès support pour 7 jours';
+    // Forfaits
+    rendreForfaits();
+  }
+
+  // ---------- Équipe ----------
+  $('eInv').addEventListener('click',function(){ $('eErr').textContent=''; $('eOk').textContent=''; call('POST','',{action:'membre_inviter',telephone:$('eTel').value}).then(function(r){ if(!r.ok){ $('eErr').textContent=r.data.error||'Impossible.'; return; } $('eOk').textContent=r.data.message; $('eTel').value=''; charge(); }); });
+  $('eSavoir').addEventListener('change',function(){ call('POST','',{action:'maj',savoirEquipe:$('eSavoir').checked}).then(function(r){ if(r.ok) D=r.data; }); });
+
+  // ---------- Assistant ----------
+  $('sOk').addEventListener('click',function(){ $('sMsg').textContent=''; $('sErr').textContent='';
+    call('POST','',{action:'maj',nom:$('sNom').value,secteur:$('sSecteur').value,nomAssistant:$('sAssist').value,ton:$('sTon').value,accueil:$('sAccueil').value,contact:$('sContact').value,consignes:$('sConsignes').value,couleur:$('sCouleur').value}).then(function(r){
+      if(!r.ok){ $('sErr').textContent=r.data.error||'Impossible.'; return; } D=r.data; rendre(); onglet(ongletCourant); $('sMsg').textContent='✅ Enregistré.'; });
+  });
+  function bulle(c,t){ var d=document.createElement('div'); d.className='m '+c; d.textContent=t; $('tChat').appendChild(d); $('tChat').scrollTop=99999; return d; }
+  $('tOk').addEventListener('click',function(){
+    var t=$('tIn').value.trim(); if(!t) return; $('tErr').textContent=''; $('tIn').value=''; bulle('me',t); var a=bulle('ky','…'); $('tOk').disabled=true;
+    call('POST','',{action:'tester',message:t}).then(function(r){ $('tOk').disabled=false;
+      if(!r.ok){ a.remove(); $('tErr').textContent=r.data.error||'Impossible.'; return; }
+      a.textContent=r.data.reponse; if(!D.forfaits.assistant){ D.entreprise.essaiRestant=r.data.essaiRestant; $('tInfo').textContent=r.data.essaiRestant+' messages d’essai restants.'; } });
+  });
+  $('tEff').addEventListener('click',function(){ $('tChat').innerHTML=''; call('POST','',{action:'tester_effacer'}); });
+  $('vConv').addEventListener('click',function(){
+    call('GET','?conversations=1').then(function(r){
+      var l=r.data.conversations||[];
+      $('cvListe').innerHTML=l.length?l.map(function(c,i){ return '<div class="li"><b>'+esc(c.canal==='whatsapp'?'WhatsApp':'Site')+'</b> · '+c.nb+' message(s)'+(c.humain?' <span class="pill wait">passé à un humain</span>':'')+(c.refus?' <span class="pill no">refus</span>':'')+'<small>'+jour(c.dernier)+' · « '+esc(String(c.debut||'').slice(0,90))+' »</small><button class="btn line small" data-v="'+esc(c.visiteur)+'">Lire</button><div id="cv'+i+'"></div></div>'; }).join(''):'<p class="note">Aucune conversation pour le moment.</p>';
+      Array.prototype.forEach.call(document.querySelectorAll('[data-v]'),function(b){ b.onclick=function(){ call('GET','?conversations=1&visiteur='+encodeURIComponent(b.dataset.v)).then(function(x){ var z=b.nextElementSibling; z.innerHTML=(x.data.messages||[]).map(function(m){ return '<div class="m '+(m.role==='user'?'me':'ky')+'" style="max-width:100%;margin-top:6px">'+esc(m.texte)+'</div>'; }).join(''); }); }; });
+    });
+  });
+
+  // ---------- Savoir ----------
+  function majKTitre(){ var qr=$('kType').value==='qr'; $('kTitreLb').textContent=qr?'La question':'Titre'; $('kTitreIn').placeholder=qr?'Ex. Acceptez-vous les animaux ?':'Ex. Chambre double'; }
+  $('kType').addEventListener('change',majKTitre);
+  function rendreSavoir(){
+    var S=D.savoir, noms=S.types;
+    $('kTaille').textContent=S.taille.toLocaleString('fr-FR')+' / '+S.max.toLocaleString('fr-FR')+' signes utilisés';
+    $('kBar').style.width=Math.min(100,Math.round(S.taille*100/S.max))+'%';
+    $('kListe').innerHTML=S.fiches.length?S.fiches.map(function(f){ return '<div class="li"><span class="pill">'+esc(noms[f.type]||f.type)+'</span> <b>'+esc(f.titre)+'</b><small>'+esc(f.texte.slice(0,160))+(f.texte.length>160?'…':'')+'</small><button class="btn line small" data-e="'+f.id+'">Modifier</button><button class="btn line small" data-s="'+f.id+'">Supprimer</button></div>'; }).join(''):'<p class="note">Aucune fiche. Commencez par vos horaires, vos prix et vos règles.</p>';
+    Array.prototype.forEach.call(document.querySelectorAll('[data-e]'),function(b){ b.onclick=function(){ var f=S.fiches.filter(function(x){ return x.id===Number(b.dataset.e); })[0]; if(!f) return; edit=f.id; $('kType').value=f.type; majKTitre(); $('kTitreIn').value=f.titre; $('kTexte').value=f.texte; $('kOk').textContent='Enregistrer la modification'; $('kAnnule').hidden=false; $('kTitre').textContent='Modifier la fiche'; window.scrollTo(0,0); }; });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-s]'),function(b){ b.onclick=function(){ if(!confirm('Supprimer cette fiche ?')) return; call('POST','',{action:'savoir_supprimer',id:Number(b.dataset.s)}).then(function(r){ if(r.ok){ D.savoir.fiches=r.data.savoir.fiches; D.savoir.taille=r.data.savoir.taille; rendreSavoir(); } }); }; });
+  }
+  function resetSavoir(){ edit=0; $('kTitreIn').value=''; $('kTexte').value=''; $('kOk').textContent='Ajouter'; $('kAnnule').hidden=true; $('kTitre').textContent='Ajouter une information'; }
+  $('kAnnule').addEventListener('click',resetSavoir);
+  $('kOk').addEventListener('click',function(){ $('kErr').textContent='';
+    call('POST','',{action:edit?'savoir_modifier':'savoir_ajouter',id:edit,type:$('kType').value,titre:$('kTitreIn').value,texte:$('kTexte').value}).then(function(r){
+      if(!r.ok){ $('kErr').textContent=r.data.error||'Impossible.'; return; } D.savoir=r.data.savoir; resetSavoir(); rendreSavoir(); });
+  });
+
+  // ---------- Canaux ----------
+  $('wOk').addEventListener('click',function(){ $('wMsg').textContent=''; call('POST','',{action:'maj',domaines:$('wDom').value}).then(function(r){ if(r.ok){ D=r.data; rendre(); onglet(ongletCourant); $('wMsg').textContent='✅ Adresses enregistrées.'; } }); });
+  $('wCopie').addEventListener('click',function(){ var t=$('wCode').textContent; if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(function(){ $('wCopie').textContent='✅ Copié'; }); } else { var r=document.createRange(); r.selectNode($('wCode')); getSelection().removeAllRanges(); getSelection().addRange(r); $('wCopie').textContent='Sélectionné : copiez-le'; } });
+  $('wCle').addEventListener('click',function(){ if(!confirm('L’ancien code cessera de fonctionner. Continuer ?')) return; call('POST','',{action:'regenerer_cle'}).then(function(r){ if(r.ok){ D=r.data; rendre(); onglet(ongletCourant); } }); });
+  $('waDem').addEventListener('click',function(){ call('POST','',{action:'wa_demander'}).then(function(){ $('waMsg').textContent='✅ Demande envoyée. L’équipe STAR ENTREPRISE vous contacte.'; charge(); }); });
+
+  // ---------- Forfaits, paiement, facture ----------
+  function rendreForfaits(){
+    var eq=D.forfaits.equipe, as=D.forfaits.assistant;
+    function carte(f){
+      var actuel=(f.type==='equipe'?eq:as)&&(f.type==='equipe'?eq:as).id===f.id;
+      var det=f.type==='equipe'?['Jusqu’à '+f.postes+' personnes (vous compris)','Keydou Compagnon niveau Complet pour chacun','Pool de '+(f.postes*f.poolParPoste).toLocaleString('fr-FR')+' messages par mois pour l’équipe','Une seule facture']:['Jusqu’à '+f.messages.toLocaleString('fr-FR')+' messages de clients par mois','Canaux : '+(f.canaux.indexOf('whatsapp')>=0?'site internet + WhatsApp Business':'site internet'),'Base de connaissances jusqu’à '+Math.round(f.savoirMax/1000)+' 000 signes','Passage à un humain, statistiques, conversations'];
+      return '<div class="plan'+(actuel?' actuel':'')+'"><b>'+esc(f.label)+'</b> '+(actuel?'<span class="pill ok">Votre forfait</span>':'')+'<br><b class="prix">'+f.usd+' $</b> <small>≈ '+fcfa(f.fcfa)+' par mois</small><ul>'+det.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul><button class="btn gold small" data-p="'+f.id+'">'+(actuel?'Reconduire':'Choisir')+'</button></div>';
+    }
+    $('pListe').innerHTML='<h3>Équipe</h3>'+D.forfaitsDisponibles.filter(function(f){ return f.type==='equipe'; }).map(carte).join('')+'<h3>Assistant pour vos clients</h3>'+D.forfaitsDisponibles.filter(function(f){ return f.type==='assistant'; }).map(carte).join('');
+    Array.prototype.forEach.call(document.querySelectorAll('[data-p]'),function(b){ b.onclick=function(){ choisir(b.dataset.p,b); }; });
+  }
+  function choisir(plan,b){
+    $('pErr').textContent=''; b.disabled=true;
+    callSub('POST','',{action:'choisir_plan',plan:plan,mois:1}).then(function(r){
+      b.disabled=false;
+      if(!r.ok){ $('pErr').textContent=r.data.error||'Impossible de créer la demande.'; return; }
+      var a=r.data.abonnement, f=D.forfaitsDisponibles.filter(function(x){ return x.id===plan; })[0]; subId=a.id;
+      $('payTitre').textContent='Paiement · '+(f?f.label:'Forfait'); $('payMontant').textContent=fcfa(a.montantAttendu)+(f?' (≈ '+f.usd+' $)':'');
+      $('payNum').textContent=a.numeroReception; $('payRef').textContent=a.referencePaiement; $('payEtat').textContent='⏳ En attente du dépôt…';
+      vue('vPay'); suivre(Date.now());
+    });
+  }
+  function suivre(debut){
+    clearTimeout(pollT);
+    callSub('GET','?suivi='+encodeURIComponent(subId)).then(function(r){
+      var st=r.ok&&r.data.abonnement?r.data.abonnement.statut:'';
+      if(st==='actif'){ $('payEtat').textContent='✅ Dépôt reconnu ! Votre forfait est ouvert.'; ongletCourant='forfaits'; setTimeout(charge,1200); return; }
+      if(st==='paiement_invalide'){ $('payEtat').textContent='Le montant reçu ne correspond pas. Écrivez-nous : contact@starentreprise.com'; return; }
+      if(st==='annule') return;
+      if(Date.now()-debut>30*60000){ $('payEtat').textContent='Toujours en attente. Quand votre dépôt est fait, rouvrez cette page : votre forfait s’ouvrira tout seul.'; return; }
+      pollT=setTimeout(function(){ suivre(debut); },4000);
+    });
+  }
+  $('payAnnule').addEventListener('click',function(){ clearTimeout(pollT); callSub('POST','',{action:'annuler_demande',id:Number(subId)}).then(function(){ ongletCourant='forfaits'; charge(); }); });
+  function chargeFacture(){
+    call('GET','?facture=1').then(function(r){
+      if(!r.ok) return; var F=r.data;
+      $('fEmetteur').innerHTML='<b>'+esc(F.emetteur.nom)+'</b> · '+esc(F.emetteur.ville)+' · '+esc(F.emetteur.telephone)+' · '+esc(F.emetteur.email)+'<br>Client : <b>'+esc(F.client.nom)+'</b>'+(F.client.secteur?' ('+esc(F.client.secteur)+')':'');
+      $('fTable').innerHTML=F.lignes.length?'<table><thead><tr><th>N°</th><th>Forfait</th><th>Période</th><th class="n">Montant</th></tr></thead><tbody>'+F.lignes.map(function(l){ return '<tr><td>'+esc(l.numero)+'</td><td>'+esc(l.forfait)+(l.mois>1?' × '+l.mois+' mois':'')+'</td><td>'+jour(l.du)+' → '+jour(l.au)+'</td><td class="n">'+fcfa(l.montant)+'</td></tr>'; }).join('')+'</tbody><tfoot><tr><th colspan="3">Total</th><th class="n">'+fcfa(F.total)+'</th></tr></tfoot></table>':'<p class="note">Aucun paiement pour le moment.</p>';
+      $('fMentions').textContent=F.emetteur.mentions;
+    });
+  }
+  $('fImp').addEventListener('click',function(){ window.print(); });
+
+  // ---------- Confidentialité ----------
+  $('rOk').addEventListener('click',function(){ call('POST','',{action:'maj',retentionJours:Number($('rRet').value)}).then(function(r){ if(r.ok){ D=r.data; $('rMsg').textContent='✅ Enregistré.'; } }); });
+  $('rSupBtn').addEventListener('click',function(){ var ouvert=D.entreprise.supportJusqu&&new Date(D.entreprise.supportJusqu).getTime()>Date.now(); call('POST','',{action:'support_acces',jours:ouvert?0:7}).then(charge); });
+  $('rExp').addEventListener('click',function(){
+    fetch(API+'?export=1',{headers:{Authorization:'Bearer '+token}}).then(function(r){ return r.blob(); }).then(function(b){ var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='keydou-entreprise-export.json'; document.body.appendChild(a); a.click(); a.remove(); });
+  });
+  $('rEff').addEventListener('click',function(){ if(!confirm('Effacer TOUTES les conversations de vos clients ? C’est définitif.')) return; call('POST','',{action:'effacer_conversations'}).then(function(){ charge(); }); });
+  $('rSupp').addEventListener('click',function(){
+    if(prompt('Pour supprimer définitivement votre espace entreprise, écrivez : SUPPRIMER')!=='SUPPRIMER') return;
+    call('POST','',{action:'supprimer_entreprise',confirmer:true}).then(function(r){ if(!r.ok){ $('rErr').textContent=r.data.error||'Impossible.'; return; } ongletCourant='accueil'; charge(); });
+  });
+
+  charge();
+})();
+</script>
+</body>
+</html>

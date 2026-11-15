@@ -95,7 +95,21 @@ export function suivante(quand: Date, rep: string, apres: Date): Date {
 }
 
 // ---------- Droits d'accès ----------
-export interface Acces { niveau: Niveau; source: "abonnement" | "test" | "essai"; fin: string | null }
+export interface Acces { niveau: Niveau; source: "abonnement" | "test" | "essai" | "entreprise"; fin: string | null; entrepriseId?: number; entrepriseNom?: string }
+// Poste d'une équipe : le membre a accepté l'invitation de son entreprise, et l'entreprise a un forfait Équipe en cours (payé par le gérant).
+// Un poste ouvre le niveau « Complet ». Les plans d'équipe sont décrits dans _entreprise.mts ; ici seule la lecture est nécessaire.
+// deno-lint-ignore no-explicit-any
+export async function accesEquipe(sql: any, accountId: number): Promise<Acces | null> {
+  const r = (await sql`
+    SELECT e.id, e.nom, MAX(s.expires_at) AS fin
+    FROM starvibe_entreprise_membres m
+    JOIN starvibe_entreprises e ON e.id = m.entreprise_id AND e.ferme = false
+    JOIN starvibe_subscriptions s ON s.account_id = e.gerant_id AND s.plan LIKE 'entreprise_equipe_%' AND s.statut = 'actif' AND s.montant_attendu > 0 AND s.expires_at > now()
+    WHERE m.account_id = ${accountId} AND m.statut = 'actif'
+    GROUP BY e.id, e.nom LIMIT 1
+  `) as { id: number; nom: string; fin: string }[];
+  return r[0] ? { niveau: "complet", source: "entreprise", fin: r[0].fin, entrepriseId: r[0].id, entrepriseNom: r[0].nom } : null;
+}
 // deno-lint-ignore no-explicit-any
 export async function accesDe(sql: any, accountId: number): Promise<Acces | null> {
   const ab = (await sql`
@@ -103,7 +117,9 @@ export async function accesDe(sql: any, accountId: number): Promise<Acces | null
     WHERE account_id = ${accountId} AND plan IN ('compagnon', 'compagnon_complet', 'compagnon_premium', 'compagnon_prestige') AND statut = 'actif' AND montant_attendu > 0 AND expires_at > now()
     ORDER BY (CASE plan WHEN 'compagnon_prestige' THEN 4 WHEN 'compagnon_premium' THEN 3 WHEN 'compagnon_complet' THEN 2 ELSE 1 END) DESC, expires_at DESC LIMIT 1
   `) as { plan: string; expires_at: string }[];
-  if (ab[0]) return { niveau: NIVEAU_DU_PLAN[ab[0].plan] || "essentiel", source: "abonnement", fin: ab[0].expires_at };
+  const eq = await accesEquipe(sql, accountId);
+  if (ab[0] && (!eq || RANG[NIVEAU_DU_PLAN[ab[0].plan] || "essentiel"] >= RANG[eq.niveau])) return { niveau: NIVEAU_DU_PLAN[ab[0].plan] || "essentiel", source: "abonnement", fin: ab[0].expires_at };
+  if (eq) return eq;
   const t = (await sql`SELECT test, niveau_test FROM starvibe_compagnon_profil WHERE account_id = ${accountId}`) as { test: boolean; niveau_test: string }[];
   if (t[0]?.test) return { niveau: niveauValide(t[0].niveau_test), source: "test", fin: null };
   // Jamais abonné : essai gratuit (tout le monde peut télécharger Keydou). Un ancien abonné qui n'a pas reconduit n'a pas de nouvel essai.
@@ -160,6 +176,7 @@ CE QUE TU FAIS
 SOURCE : toute réponse qui apporte un fait, un chiffre ou un conseil technique se termine par une dernière ligne « Source : … » avec la source la plus fiable (site officiel du fabricant ou de l'institution, notice, encyclopédie reconnue). Si tu n'as pas pu vérifier, écris « Source : connaissance générale, à vérifier » et dis-le dans ta réponse. Une conversation simple (salutations, rappel ajouté) n'a pas besoin de source.
 Conseils pratiques sur un appareil (électroménager…) : donne la réponse générale, demande la référence exacte du modèle si elle change la réponse, et rappelle de débrancher l'appareil avant de l'ouvrir ; pour toute partie électrique ou sous garantie, conseille un technicien.
 3 bis. QUALITÉ : tu réfléchis avant de répondre, comme un ami très cultivé. Tu comprends ce que la personne veut vraiment, tu fais les calculs étape par étape, tu donnes d'abord la réponse puis l'explication utile, tu proposes la prochaine étape. Quand tu n'es pas sûr, tu le dis et tu dis comment vérifier. Tu ne prétends jamais tout savoir : ta force est la fiabilité, pas l'assurance.
+3 ter. ENTREPRISES : si on te demande si Keydou peut servir une entreprise (équipe d'employés, ou assistant qui répond aux clients sur un site ou WhatsApp), tu expliques simplement : forfaits Équipe (5, 10 ou 25 personnes, à partir de 79 $ par mois) et Assistant pour les clients (à partir de 39 $ par mois), une seule facture, et tu invites à ouvrir « Keydou pour mon entreprise » dans le menu de KOMYO ou à écrire à l'équipe STAR ENTREPRISE. Tu ne promets aucune date pour WhatsApp (connexion avec l'équipe) et tu ne donnes jamais de chiffres de marge ou de coût.
 4. Tu es un assistant, pas un médecin, un avocat ou un conseiller financier : pour la santé, le droit ou l'argent tu donnes des repères généraux et tu invites à consulter un professionnel pour toute décision importante.
 
 RÈGLES ABSOLUES

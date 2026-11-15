@@ -13,7 +13,7 @@ export function db() {
 // Version du schéma = empreinte du texte de ensureSchema() ci-dessous (vérifiée par tools/test-schema.mts).
 // Quand tu modifies une instruction du schéma : lance « node --experimental-strip-types tools/test-schema.mts --ecrire »
 // pour mettre à jour cette ligne. Sans cela, la base ne serait pas mise à jour (le test échoue pour te le rappeler).
-const SCHEMA_VERSION = "02801096aec08471";
+const SCHEMA_VERSION = "6c97902c0a5e5052";
 
 // Idempotent schema setup — safe to call on every cold start.
 // Rapide : les ~80 instructions ne sont rejouées que si SCHEMA_VERSION a changé depuis la dernière fois
@@ -853,6 +853,17 @@ export async function ensureSchema() {
   // ÉCLAT : les directs (une salle vidéo par direct ; « vu_at » = dernier signe de vie de l'animateur)
   await sql`CREATE TABLE IF NOT EXISTS starvibe_eclat_directs (id SERIAL PRIMARY KEY, code TEXT NOT NULL UNIQUE, hote_id INTEGER NOT NULL, titre TEXT NOT NULL DEFAULT '', debut_at TIMESTAMPTZ NOT NULL DEFAULT now(), fin_at TIMESTAMPTZ NOT NULL, ferme_at TIMESTAMPTZ, vu_at TIMESTAMPTZ NOT NULL DEFAULT now())`;
   await sql`CREATE INDEX IF NOT EXISTS starvibe_eclat_directs_hote_idx ON starvibe_eclat_directs (hote_id, debut_at)`;
+
+  // Keydou pour les entreprises : espace entreprise (gérant, équipe, assistant des clients), savoir de l'entreprise, conversations des clients.
+  await sql`CREATE TABLE IF NOT EXISTS starvibe_entreprises (id SERIAL PRIMARY KEY, nom TEXT NOT NULL, secteur TEXT NOT NULL DEFAULT '', gerant_id INTEGER NOT NULL UNIQUE, cle_publique TEXT NOT NULL UNIQUE, nom_assistant TEXT NOT NULL DEFAULT '', accueil TEXT NOT NULL DEFAULT '', ton TEXT NOT NULL DEFAULT 'chaleureux', consignes TEXT NOT NULL DEFAULT '', contact TEXT NOT NULL DEFAULT '', domaines TEXT NOT NULL DEFAULT '', couleur TEXT NOT NULL DEFAULT '#FF6B4A', retention_jours INTEGER NOT NULL DEFAULT 90, savoir_equipe BOOLEAN NOT NULL DEFAULT false, support_jusqu TIMESTAMPTZ, essai_utilise INTEGER NOT NULL DEFAULT 0, wa_demande BOOLEAN NOT NULL DEFAULT false, wa_phone_id TEXT NOT NULL DEFAULT '', wa_token_chiffre TEXT NOT NULL DEFAULT '', wa_actif BOOLEAN NOT NULL DEFAULT false, ferme BOOLEAN NOT NULL DEFAULT false, created_at TIMESTAMPTZ NOT NULL DEFAULT now())`;
+  await sql`CREATE TABLE IF NOT EXISTS starvibe_entreprise_membres (entreprise_id INTEGER NOT NULL, account_id INTEGER NOT NULL, role TEXT NOT NULL DEFAULT 'membre', statut TEXT NOT NULL DEFAULT 'invite', created_at TIMESTAMPTZ NOT NULL DEFAULT now(), PRIMARY KEY (entreprise_id, account_id))`;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_entreprise_membres_compte_idx ON starvibe_entreprise_membres (account_id, statut)`;
+  await sql`CREATE TABLE IF NOT EXISTS starvibe_entreprise_savoir (id SERIAL PRIMARY KEY, entreprise_id INTEGER NOT NULL, type TEXT NOT NULL DEFAULT 'fiche', titre TEXT NOT NULL DEFAULT '', texte TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT now(), updated_at TIMESTAMPTZ NOT NULL DEFAULT now())`;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_entreprise_savoir_ent_idx ON starvibe_entreprise_savoir (entreprise_id)`;
+  await sql`CREATE TABLE IF NOT EXISTS starvibe_entreprise_conv (id SERIAL PRIMARY KEY, entreprise_id INTEGER NOT NULL, canal TEXT NOT NULL DEFAULT 'site', visiteur TEXT NOT NULL DEFAULT '', ip TEXT NOT NULL DEFAULT '', role TEXT NOT NULL, texte TEXT NOT NULL, tokens_in INTEGER NOT NULL DEFAULT 0, tokens_cache INTEGER NOT NULL DEFAULT 0, tokens_out INTEGER NOT NULL DEFAULT 0, escalade BOOLEAN NOT NULL DEFAULT false, refuse BOOLEAN NOT NULL DEFAULT false, ext_id TEXT NOT NULL DEFAULT '', created_at TIMESTAMPTZ NOT NULL DEFAULT now())`;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_entreprise_conv_ent_idx ON starvibe_entreprise_conv (entreprise_id, created_at)`;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_entreprise_conv_visiteur_idx ON starvibe_entreprise_conv (visiteur, created_at)`;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_entreprise_conv_ext_idx ON starvibe_entreprise_conv (ext_id) WHERE ext_id <> ''`;
 
   await sql`CREATE TABLE IF NOT EXISTS schema_meta (cle TEXT PRIMARY KEY, valeur TEXT NOT NULL, maj TIMESTAMPTZ NOT NULL DEFAULT now())`;
   await sql`INSERT INTO schema_meta (cle, valeur) VALUES ('ddl', ${empreinte}) ON CONFLICT (cle) DO UPDATE SET valeur = EXCLUDED.valeur, maj = now()`;

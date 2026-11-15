@@ -10,6 +10,7 @@
 // fonction est écrite pour qu'un vrai webhook (action "confirmer_paiement")
 // puisse être branché plus tard sans rien changer côté client.
 import { compagnonOuvert, accesDe, PACKS_IMAGES, estPackImages, prixPack, AVANTAGES } from "./_compagnon.mts";
+import { FORFAITS, estForfaitEntreprise, entrepriseDuGerant } from "./_entreprise.mts";
 import type { Context, Config } from "@netlify/functions";
 import { ensureSchema, db, json } from "./_db.mts";
 import { recuAbonnement } from "./_recu.mts";
@@ -46,7 +47,10 @@ const PLANS_COMPAGNON: Record<string, { label: string; montant: number; descript
 // Packs de crédits d'images (Keydou Compagnon) : même paiement par dépôt, même reconnaissance du dépôt, même reçu.
 const PLANS_PACKS: Record<string, { label: string; montant: number; description: string }> = Object.fromEntries(
   Object.entries(PACKS_IMAGES).map(([id, p]) => [id, { label: `Keydou Compagnon · ${p.label}`, montant: p.montant, description: `${p.images} images de plus à créer avec Keydou, en plus de ton quota du mois. Elles ne se périment pas.` }]));
-const PLANS_TOUS: Record<string, { label: string; montant: number; description: string }> = { ...PLANS, ...PLANS_COMPAGNON, ...PLANS_PACKS };
+// Keydou pour les entreprises (forfaits Équipe et Assistant, voir _entreprise.mts) : payés par le gérant, par le même dépôt Mobile Money ; les gros montants peuvent être activés par virement par l'équipe.
+const PLANS_ENTREPRISE: Record<string, { label: string; montant: number; description: string }> = Object.fromEntries(
+  Object.values(FORFAITS).map((f) => [f.id, { label: `Keydou Entreprises · ${f.label}`, montant: f.fcfa, description: `${f.usd} $ par mois : ${f.resume} Valable 30 jours.` }]));
+const PLANS_TOUS: Record<string, { label: string; montant: number; description: string }> = { ...PLANS, ...PLANS_COMPAGNON, ...PLANS_PACKS, ...PLANS_ENTREPRISE };
 
 function clean(value: unknown, maxLen: number): string {
   return String(value ?? "").trim().slice(0, maxLen);
@@ -294,8 +298,11 @@ export default async (req: Request, _context: Context) => {
     }
 
     if (action === "choisir_plan") {
-      const plan = clean(body.plan, 20);
+      const plan = clean(body.plan, 40);
       if (!PLANS_TOUS[plan]) return json({ error: "Plan inconnu" }, 400);
+      if (estForfaitEntreprise(plan)) {
+        if (!(await entrepriseDuGerant(sql, accountId))) return json({ error: "Crée d'abord ton espace entreprise (page Keydou Entreprises), puis choisis ton forfait.", code: "entreprise_requise" }, 403);
+      }
       if (PLANS_COMPAGNON[plan]) {
         const ouvert = (await compagnonOuvert(sql));
         // Un abonné (ou ancien abonné) peut toujours reconduire, même quand l'offre est fermée aux nouveaux clients.
