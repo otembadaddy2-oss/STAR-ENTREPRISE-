@@ -302,3 +302,5 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - À l'ouverture du Compagnon : animation KOMYO (le monde en mouvement) + voix d'ouverture, une fois par ouverture.
 - Connecteurs : vert « Connecté », gris « Pas connecté » (pas encore ouvert), rouge « Impossible de se connecter » (échec réel détecté : clé refusée, modèle absent, crédit épuisé) ; une panne est signalée 1 h puis réessayée ; Keydou n'utilise pas un connecteur en panne ; bouton « Vérifier maintenant ». Les connecteurs externes (Gmail, Canva, Adobe, GitHub, ChatGPT, Grok, Llama, Kling…) restent « Pas connecté » : chacun demande une application déclarée chez le fournisseur et l'autorisation de chaque client.
 - Décisions prises à la place de Carry (à lui de les changer) : essai = 5 messages ; rediffusion non faite (stockage + clés + coût).
+
+- Images du Compagnon (décision de Carry, 15/11) : essai 2 images en tout, Essentiel 10 par mois, Complet 35 par mois (réglables par COMPAGNON_IMAGES_ESSAI / _ESSENTIEL / _COMPLET). Règles de sécurité inchangées (pas de personne réelle, pas d'enfant, pas de contenu sexuel ou violent).

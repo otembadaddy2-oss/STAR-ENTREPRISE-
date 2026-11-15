@@ -399,7 +399,7 @@ export default async (req: Request, _context: Context) => {
   const imgUtil = await imagesUtilisees(sql, accountId);
   const imgMax = IMAGES_PAR_MOIS(acces.niveau);
   const imgRestantes = Math.max(0, imgMax - imgUtil.n);
-  const suppEssai = essai ? "\n\nESSAI GRATUIT. La personne n'a pas encore d'abonnement : réponds brièvement et utilement, sans créer de rappel ni d'image, sans recherche. Si elle demande un rappel, une image, un fichier ou une vérification approfondie, explique gentiment que ces options sont comprises dans l'abonnement (Essentiel 5 000 FCFA par mois, Complet 19 $ par mois) et n'ajoute ni \"rappels\" ni \"image\"." : "";
+  const suppEssai = essai ? "\n\nESSAI GRATUIT. La personne n'a pas encore d'abonnement : réponds brièvement et utilement, sans créer de rappel, sans recherche. Elle a droit à 2 images d'essai (tu peux en créer quand elle le demande clairement). Si elle demande un rappel, un fichier ou une vérification approfondie, explique gentiment que ces options sont comprises dans l'abonnement (Essentiel 5 000 FCFA par mois, Complet 19 $ par mois) et n'ajoute pas \"rappels\"." : "";
   const imagesOk = imagesDisponibles() && !enPanne(await lireSante(sql), "images");
   const supp = supplement(mode, { imagesRestantes: imgRestantes, imagesPossibles: imagesOk, niveau: acces.niveau, piece: !!pj }) + suppEssai;
   const contexte = [
@@ -480,7 +480,8 @@ export default async (req: Request, _context: Context) => {
     const promptImg = clean(imageDemandee.prompt, 900);
     let refusImage = "";
     if (!imagesOk) refusImage = imagesDisponibles() ? "La création d'images est momentanément indisponible : réessaie un peu plus tard." : "La création d'images n'est pas encore ouverte : elle arrive bientôt.";
-    else if (imgMax <= 0) refusImage = essai ? MSG_OPTION_ABONNE : "La création d'images est comprise dans l'offre Complet (19 $ par mois). Touche « + » pour changer d'offre.";
+    else if (imgMax <= 0) refusImage = "La création d'images est comprise dans l'offre Complet (19 $ par mois). Touche « + » pour changer d'offre.";
+    else if (essai && imgRestantes <= 0) refusImage = "Tu as utilisé tes 2 images d'essai. Pour en créer d'autres : Essentiel (5 000 FCFA par mois, 10 images par mois) ou Complet (19 $ par mois, 35 images par mois).";
     else if (imgRestantes <= 0) refusImage = `Tu as utilisé tes ${imgMax} images de ce mois. Tu pourras en créer une nouvelle dans ${imgUtil.joursAvantNouvelle} jour${imgUtil.joursAvantNouvelle > 1 ? "s" : ""}.`;
     else {
       const v = verifierDemandeImage(`${message} ${promptImg}`);

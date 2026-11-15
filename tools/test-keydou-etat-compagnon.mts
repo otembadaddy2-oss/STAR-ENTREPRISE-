@@ -16,7 +16,7 @@ const poser = (v: string) => sql`INSERT INTO starvibe_settings (key, value) VALU
 const demander = (n: number) => keydou(new Request("https://t.test/api/starvibe-keydou", { method: "POST", headers: { "content-type": "application/json", "x-nf-client-connection-ip": "10.7.7." + n }, body: JSON.stringify({ action: "chat", message: "C'est quoi Keydou Compagnon ?" }) }), {} as never);
 try {
   await poser("off"); let r = await demander(1);
-  ok(r.status === 200 && vus.length === 1 && /Keydou Compagnon est OUVERT/.test(vus[0]) && /ne prescrit JAMAIS/.test(vus[0]) && !/PAS encore ouvert/.test(vus[0]) && /5 messages en tout/.test(vus[0]) && !/jamais gratuit/i.test(vus[0]), "ouvert en permanence : Keydou annonce le Compagnon ouvert à tous, avec l'essai et les offres");
+  ok(r.status === 200 && vus.length === 1 && /Keydou Compagnon est OUVERT/.test(vus[0]) && /ne prescrit JAMAIS/.test(vus[0]) && !/PAS encore ouvert/.test(vus[0]) && /5 messages d.essai en tout/.test(vus[0]) && !/jamais gratuit/i.test(vus[0]), "ouvert en permanence : Keydou annonce le Compagnon ouvert à tous, avec l'essai et les offres");
   await poser("on"); r = await demander(2);
   ok(vus.length === 2 && /PAS encore ouvert/.test(vus[1]) && !/Keydou Compagnon est OUVERT/.test(vus[1]), "fermeture d'urgence : Keydou dit « pas encore ouvert », sans date");
   ok(/SÉCURITÉ : personne n'a accès au système/.test(vus[1]) && /solaire/.test(vus[1]), "la règle de sécurité et les autres consignes sont toujours présentes");

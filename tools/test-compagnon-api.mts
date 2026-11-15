@@ -47,11 +47,11 @@ try {
 
   // --- État : capacités ---
   let d = await j(await appel(C, "GET", ""));
-  ok(d.capacites?.images === true && d.capacites.imagesMax === 25 && d.capacites.imagesRestantes === 25 && d.capacites.modes.length === 8, "état Complet : 25 images, 8 domaines (dont Tests)");
+  ok(d.capacites?.images === true && d.capacites.imagesMax === 35 && d.capacites.imagesRestantes === 35 && d.capacites.modes.length === 8, "état Complet : 25 images, 8 domaines (dont Tests)");
   ok(d.capacites.voix?.actif === true && d.capacites.voix.max === 2 && d.capacites.voix.restantes === 2, "état Complet : voix de Keydou active (2 lectures par jour pendant ce test)");
   ok(typeof d.compte?.initiales === "string" && d.compte.initiales.length >= 1 && Array.isArray(d.capacites.connecteurs) && d.capacites.connecteurs.find((x: any) => x.id === "images")?.statut === "actif" && d.capacites.connecteurs.find((x: any) => x.id === "voix")?.statut === "actif" && d.capacites.connecteurs.find((x: any) => x.id === "gmail")?.statut === "bientot" && d.capacites.liste.length === 7, "état : compte (initiales), connecteurs (images et voix actifs, Gmail bientôt) et capacités");
   d = await j(await appel(E, "GET", ""));
-  ok(d.capacites?.imagesMax === 3 && d.capacites.piecesMax === 5 && d.capacites.voix?.actif === false, "état Essentiel : 3 images, 5 pièces par jour, pas de voix de Keydou");
+  ok(d.capacites?.imagesMax === 10 && d.capacites.piecesMax === 5 && d.capacites.voix?.actif === false, "état Essentiel : 3 images, 5 pièces par jour, pas de voix de Keydou");
 
   // --- Modes, réflexion, consigne ---
   reponseIA = JSON.stringify({ reponse: "Le paludisme est une maladie… Ce n'est pas un avis médical.", seuil: false, rappels: [], notes: [], supprimer_rappels: [], image: null });
@@ -77,7 +77,7 @@ try {
   // --- Création d'image : succès (Complet) ---
   reponseIA = JSON.stringify({ reponse: "Je te prépare ça !", seuil: false, rappels: [], notes: [], supprimer_rappels: [], image: { prompt: "Un coucher de soleil sur le fleuve Congo, couleurs chaudes", format: "paysage" } });
   d = await j(await appel(C, "POST", "", { action: "chat", message: "Crée-moi une image d'un coucher de soleil sur le fleuve" }));
-  ok(!!d.image?.id && d.image.statut === "attente" && d.capacites.imagesRestantes === 24, "image demandée : acceptée, il en reste 24");
+  ok(!!d.image?.id && d.image.statut === "attente" && d.capacites.imagesRestantes === 34, "image demandée : acceptée, il en reste 34");
   await attendre(400);
   const st = await j(await appel(C, "GET", `?image=${d.image.id}&statut=1`));
   ok(st.statut === "ok", "la tâche de fond a fabriqué l'image");
@@ -101,13 +101,13 @@ try {
   const hist = await j(await appel(C, "GET", "?historique=1"));
   ok(hist.messages.some((m: any) => /\[\[img:\d+\]\]/.test(m.texte)), "l'historique garde le repère de l'image");
 
-  // --- Création d'image : Essentiel (3 images par mois) ---
-  for (let i = 1; i <= 3; i++) {
+  // --- Création d'image : Essentiel (10 images par mois) ---
+  for (let i = 1; i <= 10; i++) {
     d = await j(await appel(E, "POST", "", { action: "chat", message: "Crée-moi une affiche d'anniversaire avec des ballons n°" + i }));
-    ok(!!d.image?.id && d.capacites.imagesRestantes === 3 - i, "Essentiel : image " + i + " acceptée, il en reste " + (3 - i));
+    ok(!!d.image?.id && d.capacites.imagesRestantes === 10 - i, "Essentiel : image " + i + " acceptée, il en reste " + (10 - i));
   }
   d = await j(await appel(E, "POST", "", { action: "chat", message: "Crée-moi encore une affiche d'anniversaire" }));
-  ok(!d.image && /3 images/.test(d.reponse), "Essentiel : la 4e image du mois est refusée avec un message clair");
+  ok(!d.image && /10 images/.test(d.reponse), "Essentiel : la 11e image du mois est refusée avec un message clair");
   await attendre(400);
 
   // --- Sécurité : enfants, faux documents, personnes réelles ---
@@ -117,7 +117,7 @@ try {
     d = await j(await appel(C, "POST", "", { action: "chat", message: msg }));
     ok(!d.image && appelsImage.length === avant, "refusée sans appeler le service d'images : " + prompt);
   }
-  ok((await j(await appel(C, "GET", ""))).capacites.imagesRestantes === 23, "les refus ne consomment pas de quota (une image de plus a été créée par le test du modèle suivant)");
+  ok((await j(await appel(C, "GET", ""))).capacites.imagesRestantes === 33, "les refus ne consomment pas de quota (une image de plus a été créée par le test du modèle suivant)");
 
   // --- Refus du service d'images (modération) : pas compté ---
   imageStatut = 400;
@@ -131,14 +131,14 @@ try {
     ok(/erreur 400|refusé/.test(String(rr.detail)) && !/sk-/.test(String(rr.detail)), "testeur : la raison technique est visible, sans clé");
   }
   imageStatut = 200;
-  ok((await j(await appel(C, "GET", ""))).capacites.imagesRestantes === 23, "une image refusée ne compte pas dans le quota");
+  ok((await j(await appel(C, "GET", ""))).capacites.imagesRestantes === 33, "une image refusée ne compte pas dans le quota");
 
   // --- Quota mensuel épuisé ---
   const D = await compte("quota", "complet");
-  for (let i = 0; i < 25; i++) await sql`INSERT INTO starvibe_compagnon_images (account_id, prompt, statut) VALUES (${D.id}, 'x', 'ok')`;
+  for (let i = 0; i < 35; i++) await sql`INSERT INTO starvibe_compagnon_images (account_id, prompt, statut) VALUES (${D.id}, 'x', 'ok')`;
   reponseIA = JSON.stringify({ reponse: "Je te prépare ça !", image: { prompt: "Un jardin fleuri au printemps", format: "carre" } });
   d = await j(await appel(D, "POST", "", { action: "chat", message: "Un jardin fleuri" }));
-  ok(!d.image && /25 images/.test(d.reponse), "quota épuisé : message clair avec le délai");
+  ok(!d.image && /35 images/.test(d.reponse), "quota épuisé : message clair avec le délai");
 
   // --- Pièces jointes ---
   reponseIA = JSON.stringify({ reponse: "Je vois une facture de 25 000 FCFA.", seuil: false, rappels: [], notes: [], supprimer_rappels: [], image: null });
@@ -238,10 +238,17 @@ try {
     const X = { id: a[0].id, token: await issueToken({ sub: String(a[0].id), username: "essai", displayName: "essai", org: "star_vibe", role: "member" }) };
     let e = await j(await appel(X, "GET", "?acces=1")); ok(e.visible === true && e.ouvert === true, "essai : Keydou Compagnon est visible et ouvert à tout membre, sans case à cocher");
     let r0 = await appel(X, "GET", ""); e = await j(r0); ok(r0.status === 200 && e.acces?.niveau === "essai" && e.acces.label === "Essai gratuit" && e.acces.source === "essai", "essai : un membre sans abonnement entre en « Essai gratuit »");
-    ok(e.quota.messagesMax === 5 && e.quota.messagesUtilises === 0 && e.capacites.imagesMax === 0 && e.capacites.piecesMax === 0 && e.capacites.voix.actif === false && e.capacites.liste.filter((x: any) => x.actif).map((x: any) => x.id).join() === "discussion", "essai : 5 messages, ni images, ni pièces, ni voix, ni rappels (seule la discussion reste)");
+    ok(e.quota.messagesMax === 5 && e.quota.messagesUtilises === 0 && e.capacites.imagesMax === 2 && e.capacites.piecesMax === 0 && e.capacites.voix.actif === false && e.capacites.liste.filter((x: any) => x.actif).map((x: any) => x.id).join() === "discussion,images", "essai : 5 messages et 2 images ; ni pièces, ni voix, ni rappels");
     await appel(X, "POST", "", { action: "consentir" });
     reponseIA = JSON.stringify({ reponse: "Bonjour !", seuil: false, rappels: [], notes: [], supprimer_rappels: [], image: null });
-    for (let i = 1; i <= 5; i++) { const r = await appel(X, "POST", "", { action: "chat", message: "Question " + i }); if (r.status !== 200) { ok(false, "essai : message " + i + " accepté (statut " + r.status + ")"); } }
+    // 2 images d'essai (chacune compte comme un message), la 3e est refusée avec l'invitation
+    reponseIA = JSON.stringify({ reponse: "Voilà !", seuil: false, rappels: [], notes: [], supprimer_rappels: [], image: { prompt: "Un lion souriant en peinture à l'huile", format: "carre" } });
+    let di1 = await j(await appel(X, "POST", "", { action: "chat", message: "Crée-moi un lion souriant n°1" })); let di2 = await j(await appel(X, "POST", "", { action: "chat", message: "Crée-moi un lion souriant n°2" }));
+    ok(!!di1.image?.id && !!di2.image?.id && di2.capacites.imagesRestantes === 0, "essai : 2 images d'essai acceptées");
+    const di3 = await j(await appel(X, "POST", "", { action: "chat", message: "Crée-moi un lion souriant n°3" }));
+    ok(!di3.image && /2 images d'essai/.test(di3.reponse) && /10 images par mois/.test(di3.reponse) && /35 images par mois/.test(di3.reponse), "essai : la 3e image est refusée avec l'invitation (Essentiel 10, Complet 35)");
+    reponseIA = JSON.stringify({ reponse: "Bonjour !", seuil: false, rappels: [], notes: [], supprimer_rappels: [], image: null });
+    for (let i = 1; i <= 2; i++) { const r = await appel(X, "POST", "", { action: "chat", message: "Question " + i }); if (r.status !== 200) { ok(false, "essai : message " + (i + 3) + " accepté (statut " + r.status + ")"); } }
     const r6 = await appel(X, "POST", "", { action: "chat", message: "Question 6" }); const d6 = await j(r6);
     ok(r6.status === 402 && d6.code === "essai_termine" && d6.essaiTermine === true && /5 messages d'essai/.test(d6.error) && /5 000 FCFA/.test(d6.error) && /19 \$/.test(d6.error), "essai : après 5 messages, invitation claire à l'offre 5 000 FCFA ou 19 $ (Pro)");
     ok(vus.filter((v: any) => /ESSAI GRATUIT/.test(String(v.corps.system?.[1]?.text || ""))).length >= 1, "essai : l'IA est prévenue que la personne est en essai (réponses courtes, options réservées aux abonnés)");
