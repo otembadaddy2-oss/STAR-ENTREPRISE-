@@ -1,9 +1,11 @@
 name: Déployer ALPHA (site + backend) sur Netlify
 
+# Économie de crédits Netlify (16/11/2026) : chaque exécution = un déploiement en production (≈ 15 crédits).
+# Avant, chaque envoi de travail sur la branche de développement déclenchait un déploiement (23 en 24 heures).
+# Maintenant : seulement quand le travail est fusionné dans « main » (la mise en ligne voulue), ou à la main (workflow_dispatch).
 on:
   push:
     branches:
-      - claude/video-mp4-social-media-0hgpf6
       - main
     paths:
       - "alpha/**"
