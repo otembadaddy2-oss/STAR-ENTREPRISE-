@@ -13,9 +13,9 @@ Source : 4 documents officiels photographiés par Carry OTEMBA le 16/11/2026. Le
 | SCIEN (entreprise) | 2174308 | Institut National de la Statistique, 06/09/2026 |
 | SCIET (établissement) | 2174308013 | Institut National de la Statistique, 06/09/2026 |
 | Autorisation d'exercice des activités commerciales | n° AEXE20540EI19575BZV070926/MCAC/DGCI/DPCN, code activité J620001.04.20540 | Ministère du Commerce, DGCI, 07/09/2026 |
-| NIU | EN ATTENTE (Carry l'envoie ; en attendant, son NIU personnel) | DGID |
+| NIU | P200000001912652 (NIU personnel du titulaire, utilisé en attendant la nouvelle plaque ; lu sur une photo de la carte, à revérifier) | DGID |
 | Adresse du principal établissement (publique, RCCM) | 30, avenue Mbemba Théophile, Makélékélé, Brazzaville | — |
-| Téléphone sur les documents officiels | 06 618 76 05 (le contact public du site est le +242 06 656 50 50) | — |
+| Téléphone officiel de STAR ENTREPRISE (à communiquer partout) | +242 06 656 50 50 (décision de Carry le 16/11/2026) | — |
 
 À ne JAMAIS publier : domicile personnel, date de naissance, numéros de carte d'identité, scans des documents.
 

@@ -164,7 +164,7 @@ export default async (req: Request, _context: Context) => {
     if (url.searchParams.get("facture") === "1") {
       const lignes = (await sql`SELECT id, plan, mois, montant_recu, methode, reference_transaction, started_at, expires_at FROM starvibe_subscriptions WHERE account_id = ${accountId} AND plan LIKE 'entreprise_%' AND statut = 'actif' AND montant_attendu > 0 ORDER BY started_at DESC LIMIT 60`) as { id: number; plan: string; mois: number; montant_recu: number; methode: string; reference_transaction: string; started_at: string; expires_at: string }[];
       return json({
-        emetteur: { nom: "STAR ENTREPRISE", ville: "Brazzaville, Congo", telephone: NUMERO_CONTACT, email: "contact@starentreprise.com", mentions: "Mentions légales (RCCM, NIU) à compléter par STAR ENTREPRISE avant émission officielle." },
+        emetteur: { nom: "STAR ENTREPRISE", ville: "Brazzaville, Congo", telephone: NUMERO_CONTACT, email: "contact@starentreprise.com", mentions: "Ets STAR ENTREPRISE, entreprise individuelle · 30, avenue Mbemba Théophile, Makélékélé, Brazzaville · RCCM CG-BZV-01-2026-A10-01950 · NIU P200000001912652 · SCIEN 2174308 · SCIET 2174308013 · Autorisation d'exercice n° AEXE20540EI19575BZV070926/MCAC/DGCI/DPCN." },
         client: { nom: miens.nom, secteur: miens.secteur },
         lignes: lignes.map((l) => ({ numero: `FAC-${miens.id}-${l.id}`, forfait: FORFAITS[l.plan]?.label || l.plan, mois: l.mois, montant: l.montant_recu, methode: l.methode, reference: l.reference_transaction, du: l.started_at, au: l.expires_at })),
         total: lignes.reduce((n, l) => n + Number(l.montant_recu || 0), 0),
