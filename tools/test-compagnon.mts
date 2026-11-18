@@ -1,4 +1,4 @@
-import { modeDe, verifierDemandeImage, validerPiece, supplement, idImageDansTexte, marqueImage, formatImage, mimeDepuisOctets, EFFORT, MAX_JETONS, LIMITE_REPONSE, MODE_PROFOND, gardePrescription, MSG_PAS_DE_DOSE, IMAGES_PAR_MOIS, PIECES_PAR_JOUR, texteAVoix, VOIX_PAR_JOUR, VOIX_SIGNES_MAX, texteCompagnonPourKeydou, cleValide, nettoyerErreur, ordonnerModelesImage, connecteurs, listeCapacites } from "../netlify/functions/_compagnon2.mts";
+import { MODES, modeDe, verifierDemandeImage, validerPiece, supplement, idImageDansTexte, marqueImage, formatImage, mimeDepuisOctets, EFFORT, MAX_JETONS, LIMITE_REPONSE, MODE_PROFOND, gardePrescription, MSG_PAS_DE_DOSE, IMAGES_PAR_MOIS, PIECES_PAR_JOUR, texteAVoix, VOIX_PAR_JOUR, VOIX_SIGNES_MAX, texteCompagnonPourKeydou, cleValide, nettoyerErreur, ordonnerModelesImage, connecteurs, listeCapacites } from "../netlify/functions/_compagnon2.mts";
 import { delaiRetour, formatDuree, localVersUtc, suivante, parleDeMedicaments, fuseauValide, FENETRE_MS } from "../netlify/functions/_compagnon.mts";
 let ko = 0; const ok = (n: string, c: boolean) => { if (!c) ko++; console.log((c ? "OK  " : "ECHEC ") + n); };
 const H = 3600000, now = Date.UTC(2026, 10, 8, 12, 0, 0);
@@ -74,6 +74,20 @@ ok("mode Tests : biologie moléculaire", modeDe("Explique-moi la PCR en biologie
 ok("mode Tests : fais-moi passer un test", modeDe("Fais-moi passer un test de génétique") === "examens");
 ok("mode Tests : QCM", modeDe("Voici un QCM de biochimie") === "examens");
 ok("mode Santé : pas pris pour un test", modeDe("J'ai de la fièvre et mal à la gorge") === "sante");
+
+// ---------- Mode Rédaction et création ----------
+ok("mode Rédaction : lettre de motivation", modeDe("Écris-moi une lettre de motivation pour un poste de comptable") === "redaction");
+ok("mode Rédaction : courrier au ministère", modeDe("Rédige une demande adressée au ministère") === "redaction");
+ok("mode Rédaction : discours", modeDe("Compose un discours pour le mariage de mon frère") === "redaction");
+ok("mode Rédaction : brief vidéo", modeDe("Fais-moi un brief créatif pour une vidéo de 30 secondes") === "redaction");
+ok("mode Rédaction : un poème", modeDe("écris un poème sur Brazzaville") === "redaction");
+ok("mode Santé garde la priorité sur Rédaction", modeDe("J'ai mal au ventre, écris-moi ce que je dois faire") === "sante");
+ok("mode Droit inchangé : question sur le bail", modeDe("Que dit la loi sur le bail et le loyer ?") === "droit");
+ok("mode Général inchangé", modeDe("Bonjour Keydou, comment vas-tu ?") === "general");
+ok("mode Rédaction : listé dans les domaines proposés", MODES.redaction && MODES.redaction.label === "Rédaction");
+ok("mode Rédaction : consigne complète (texte prêt à envoyer, champs à compléter, brief Higgsfield, pas d'invention)", /\[à compléter\]/.test(supplement("redaction", { imagesRestantes: 0, imagesPossibles: false, niveau: "complet" })) && /Higgsfield/.test(supplement("redaction", { imagesRestantes: 0, imagesPossibles: false, niveau: "complet" })) && /JAMAIS un chiffre/.test(supplement("redaction", { imagesRestantes: 0, imagesPossibles: false, niveau: "complet" })));
+ok("mode Rédaction : réponses longues autorisées (plus que le mode général)", LIMITE_REPONSE("redaction", "essentiel") > LIMITE_REPONSE("general", "essentiel") && MAX_JETONS("essentiel", "redaction") === MAX_JETONS("essentiel", "sante"));
+ok("mode Rédaction : pas de réflexion plus poussée (coût maîtrisé)", EFFORT("complet", "redaction") === EFFORT("complet", "general"));
 ok("réflexion maximale en Santé et en Tests (Complet)", EFFORT("complet", "sante") === "high" && EFFORT("complet", "examens") === "high" && EFFORT("essentiel", "sante") === "medium");
 ok("réflexion normale ailleurs", EFFORT("complet", "cuisine") === "medium" && EFFORT("essentiel", "droit") === "low" && EFFORT("complet") === "medium");
 ok("réponses plus longues en Santé/Tests", MAX_JETONS("complet", "sante") === 4500 && MAX_JETONS("complet", "general") === 2200 && LIMITE_REPONSE("examens") === 6000 && LIMITE_REPONSE("cuisine") === 1800 && MODE_PROFOND("sante") && !MODE_PROFOND("droit"));
