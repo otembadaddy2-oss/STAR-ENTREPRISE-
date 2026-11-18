@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>STAR GPU — démonstration</title>
+<style>
+:root{color-scheme:dark;--fond:#070b1a;--carte:#10172e;--bord:#24305a;--texte:#eaf0ff;--doux:#8fa0cc;--or:#ffc94a;--bleu:#4aa8ff}
+*{box-sizing:border-box}body{margin:0;background:var(--fond);color:var(--texte);font:15px/1.45 system-ui,sans-serif;padding:16px;padding-top:calc(16px + env(safe-area-inset-top,0px))}
+h1{font-size:22px;margin:0 0 4px}h1 b{color:var(--or)}h2{font-size:16px;margin:0 0 8px;color:var(--bleu)}
+.s{color:var(--doux);margin:0 0 14px}.c{background:var(--carte);border:1px solid var(--bord);border-radius:12px;padding:14px;margin:0 0 14px;max-width:640px}
+canvas{max-width:100%;border-radius:8px;display:block;background:#000}.r{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+button{background:#1b2750;color:var(--texte);border:1px solid var(--bord);border-radius:8px;padding:10px 12px;font:inherit}button:active{background:#2a3a78}
+code,.m{font-family:ui-monospace,monospace;font-size:13px;color:var(--or)}.m{white-space:pre-wrap;display:block;margin-top:6px}
+</style></head><body>
+<h1>STAR <b>GPU</b> v1.0</h1>
+<p class="s">Bibliothèque de calcul graphique de STAR ENTREPRISE : filtres d'images, milliers de sprites pour les jeux, calcul de matrices pour l'IA. Elle utilise le vrai processeur graphique de ton appareil.</p>
+
+<div class="c"><h2>Ton appareil</h2><span class="m" id="info">…</span></div>
+
+<div class="c"><h2>1. Images : filtres calculés sur le GPU</h2>
+<canvas id="cvImg" width="320" height="200"></canvas>
+<div class="r"><button data-f="original">Original</button><button data-f="grayscale">Gris</button><button data-f="sepia">Sépia</button><button data-f="blur">Flou</button><button data-f="sharpen">Net</button><button data-f="vignette">Vignette</button><button data-f="invert">Négatif</button></div></div>
+
+<div class="c"><h2>2. Jeux : sprites en un seul appel</h2>
+<canvas id="cvSpr" width="320" height="200"></canvas>
+<div class="r"><button id="bMoins">− sprites</button><button id="bPlus">+ sprites</button></div><span class="m" id="infoSpr">…</span></div>
+
+<div class="c"><h2>3. IA : multiplication de matrices</h2>
+<div class="r"><button id="bBench">Mesurer (256 × 256)</button><button id="bBench2">Mesurer (512 × 512)</button></div><span class="m" id="infoIA">Appuie pour mesurer.</span></div>
+
+<script src="star-gpu.js"></script>
+<script>
+(function(){
+  var gpu = StarGPU.create(), $ = function(i){ return document.getElementById(i); };
+  window.__gpu = gpu;
+  $('info').textContent = (gpu.info.ok ? 'GPU actif (WebGL2)' : 'Secours processeur central') + '\n' + gpu.info.renderer + '\nTexture max : ' + gpu.info.maxTexture + '  ·  calcul flottant : ' + (gpu.info.calculFlottant ? 'oui' : 'non');
+  if (!gpu.info.ok) return;
+
+  // 1) Image d'essai dessinée à la volée, puis filtrée
+  var src = document.createElement('canvas'); src.width = 320; src.height = 200; var c = src.getContext('2d');
+  var g = c.createLinearGradient(0, 0, 320, 200); g.addColorStop(0, '#1d4ed8'); g.addColorStop(.55, '#f59e0b'); g.addColorStop(1, '#dc2626'); c.fillStyle = g; c.fillRect(0, 0, 320, 200);
+  c.fillStyle = '#fff'; c.beginPath(); c.arc(220, 70, 38, 0, 7); c.fill(); c.fillStyle = '#0a0a0a'; c.font = 'bold 34px system-ui'; c.fillText('STAR GPU', 24, 150);
+  c.strokeStyle = '#fff'; c.lineWidth = 3; for (var i = 0; i < 6; i++) { c.beginPath(); c.moveTo(20 + i * 14, 20); c.lineTo(60 + i * 14, 90); c.stroke(); }
+  window.__src = src;
+  var cvImg = $('cvImg'), g2 = StarGPU.create(document.createElement('canvas'));
+  function montrer(nom){
+    var im = g2.image(src);
+    if (nom === 'grayscale') im.filter('grayscale', 1); else if (nom === 'sepia') im.filter('sepia', 1);
+    else if (nom === 'blur') im.filter('blur', 3); else if (nom === 'sharpen') im.filter('sharpen', 1.2);
+    else if (nom === 'vignette') im.filter('vignette', 1); else if (nom === 'invert') im.filter('invert');
+    im.toCanvas(cvImg);
+  }
+  document.querySelectorAll('[data-f]').forEach(function(b){ b.onclick = function(){ montrer(b.dataset.f); }; });
+  montrer('original');
+
+  // 2) Sprites animés
+  var cvSpr = $('cvSpr'), gs = StarGPU.create(cvSpr), nb = 5000, lot = gs.sprites(60000), t0 = performance.now(), frames = 0, tFps = t0, fps = 0;
+  var etat = []; function remplir(){ while (etat.length < 60000) etat.push({ x: Math.random() * 320, y: Math.random() * 200, vx: (Math.random() - .5) * 60, vy: (Math.random() - .5) * 60, t: Math.random() * 6, h: Math.random() }); }
+  remplir();
+  function teinte(h){ return [0.5 + 0.5 * Math.sin(h * 6.28), 0.5 + 0.5 * Math.sin(h * 6.28 + 2.1), 0.5 + 0.5 * Math.sin(h * 6.28 + 4.2), 0.85]; }
+  var dernier = performance.now();
+  function boucle(now){
+    var dt = Math.min(0.05, (now - dernier) / 1000); dernier = now; lot.clear(); lot.fond(0.03, 0.04, 0.1, 1);
+    for (var i = 0; i < nb; i++){ var s = etat[i]; s.x += s.vx * dt; s.y += s.vy * dt; if (s.x < 0 || s.x > 320) s.vx = -s.vx; if (s.y < 0 || s.y > 200) s.vy = -s.vy; s.t += dt * 2;
+      lot.add({ x: s.x, y: s.y, w: 5, h: 5, rot: s.t, color: teinte(s.h + now / 8000) }); }
+    lot.draw(null, 320, 200); frames++;
+    if (now - tFps > 700){ fps = Math.round(frames * 1000 / (now - tFps)); frames = 0; tFps = now; $('infoSpr').textContent = nb + ' sprites · ' + fps + ' images/seconde'; window.__fps = fps; }
+    requestAnimationFrame(boucle);
+  }
+  $('bPlus').onclick = function(){ nb = Math.min(60000, nb * 2); }; $('bMoins').onclick = function(){ nb = Math.max(500, Math.floor(nb / 2)); };
+  window.__sprites = { lot: lot, gs: gs }; requestAnimationFrame(boucle);
+
+  // 3) Matrices
+  function bench(n){ var r = gpu.benchmark(n); $('infoIA').textContent = n + '×' + n + ' (' + (n * n * n / 1e6).toFixed(0) + ' millions d\'opérations)\nProcesseur central : ' + r.cpuMs + ' ms\nGPU : ' + r.gpuMs + ' ms (×' + r.rapport + ')\nÉcart de résultat : ' + r.ecartMax.toExponential(1); window.__bench = r; }
+  $('bBench').onclick = function(){ bench(256); }; $('bBench2').onclick = function(){ bench(512); };
+})();
+</script></body></html>
