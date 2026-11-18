@@ -3,15 +3,21 @@
 // - à l'heure : la notification principale ; un rappel qui se répète passe à sa prochaine date, les autres s'éteignent ;
 // - un rappel en retard de plus de 24 h n'est pas envoyé (pas de notification périmée) ;
 // - jamais pour une personne sans accès valide (abonnement terminé ou test retiré).
+// ÉCONOMIE DE CRÉDITS : cette tâche passe toutes les 5 minutes mais ne réveille la base de données que si un rappel est dû, une fois par
+// heure (balayage des abonnements et purge), ou si le signal est illisible. Voir _rappels_signal.mts.
 import type { Config } from "@netlify/functions";
 import { ensureSchema, db } from "./_db.mts";
 import { accesDe, pushCompte, suivante, formatDuree, texteFinAbonnement } from "./_compagnon.mts";
 import { poster } from "./_msg.mts";
 import { purgerConversations } from "./_entreprise.mts";
+import { decider, signaler, terminer } from "./_rappels_signal.mts";
 
 interface Due { id: number; account_id: number; titre: string; quand: string; repetition: string; avant_minutes: number; avant_envoye: boolean }
 
 export default async () => {
+  const maintenant0 = new Date();
+  const decision = await decider(maintenant0);
+  if (!decision.complet) return new Response(JSON.stringify({ ignore: true, raison: decision.raison }), { headers: { "content-type": "application/json" } });
   await ensureSchema();
   const { sql } = db();
   // Conversations des clients des entreprises : effacées automatiquement après la durée choisie par chaque gérant (30, 90 ou 365 jours).
@@ -45,6 +51,7 @@ export default async () => {
     if (r.repetition) {
       const prochaine = suivante(quand, r.repetition, maintenant);
       await sql`UPDATE starvibe_compagnon_rappels SET quand = ${prochaine.toISOString()}, avant_envoye = false, envoye_at = now() WHERE id = ${r.id}`;
+      await signaler(prochaine, r.avant_minutes);
     } else {
       await sql`UPDATE starvibe_compagnon_rappels SET actif = false, envoye_at = now() WHERE id = ${r.id}`;
     }
@@ -69,7 +76,8 @@ export default async () => {
     try { await poster(sql, f.account_id, { kind: "info", titre: "🐻 Ton abonnement Keydou Compagnon se termine demain", texte: `${f.nom ? "Bonjour " + f.nom + ". " : ""}${t}`, lien: "/starvibe/compagnon.html" }); } catch { /* ignore */ }
     prevenus++;
   }
-  return new Response(JSON.stringify({ examines: dus.length, envoyes, finsAbonnement: prevenus }), { headers: { "content-type": "application/json" } });
+  await terminer(maintenant0);
+  return new Response(JSON.stringify({ examines: dus.length, envoyes, finsAbonnement: prevenus, raison: decision.raison }), { headers: { "content-type": "application/json" } });
 };
 
 export const config: Config = { schedule: "*/5 * * * *" };
