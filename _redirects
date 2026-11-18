@@ -11,6 +11,9 @@ http://komyo.starentreprise.com/   /starvibe/  301!
 /bienvenue  /starvibe/bienvenue.html  200
 
 # Fichiers du dépôt qui n'ont pas à être publics (code des fonctions, outils, notes internes, annuaires de Keydou) : introuvables.
+# Jeu ASTRO QUEST : gardé de côté, NON PUBLIC jusqu'à l'ordre de Carry. Pour le publier : supprimer cette ligne (et la précédente), puis un déploiement.
+/jeu-astro/*      /404.html  404!
+/jeu-astro        /404.html  404!
 /netlify/*        /404.html  404!
 /tools/*          /404.html  404!
 /node_modules/*   /404.html  404!
