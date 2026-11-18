@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>ASTRO QUEST — Cap sur les étoiles</title>
+<meta name="description" content="Jeu d'aventure spatial : pilote ta fusée, détruis les monstres, réponds aux gardiens des planètes et pose-toi sur les 8 mondes du système solaire.">
+<meta name="theme-color" content="#05071a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Astro Quest">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+:root{--cy:#4de1ff;--mg:#ff5fd2;--or:#ffb347;--gd:#ffd24d;--ok:#35e08a;--bad:#ff4d6d;--nuit:#05071a;--verre:rgba(10,14,44,.74)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+html,body{margin:0;height:100%;background:var(--nuit);overflow:hidden;overscroll-behavior:none;touch-action:none;font-family:"Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif;color:#eaf4ff}
+#jeu{position:fixed;left:50%;top:0;transform:translateX(-50%);height:100%;}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+/* ------- Interface par-dessus le jeu ------- */
+#hud{position:absolute;left:0;right:0;top:0;padding:calc(10px + env(safe-area-inset-top)) 12px 0;pointer-events:none;display:none}
+#hud.on{display:block}
+.hrow{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.chip{background:var(--verre);border:1px solid rgba(120,210,255,.35);border-radius:14px;padding:6px 11px;font-weight:800;font-size:12.5px;letter-spacing:.04em;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 0 14px rgba(77,225,255,.18)}
+.chip b{color:var(--gd)}
+#boucl{display:flex;gap:4px}
+#boucl i{width:22px;height:9px;border-radius:5px;background:linear-gradient(90deg,#35e0ff,#4d7bff);box-shadow:0 0 8px #35e0ff;transition:.25s}
+#boucl i.off{background:#2a3050;box-shadow:none;opacity:.6}
+#prog{height:5px;border-radius:4px;background:rgba(255,255,255,.12);margin-top:8px;overflow:hidden}
+#prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cy),var(--mg));box-shadow:0 0 10px var(--cy);transition:width .25s}
+#btns{position:absolute;right:10px;top:calc(60px + env(safe-area-inset-top));display:none;flex-direction:column;gap:8px}
+#btns.on{display:flex}
+#btns button{pointer-events:auto;width:40px;height:40px;border-radius:50%;border:1px solid rgba(120,210,255,.4);background:var(--verre);color:#fff;font-size:17px;backdrop-filter:blur(8px)}
+.ecran{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:calc(18px + env(safe-area-inset-top)) 18px calc(18px + env(safe-area-inset-bottom));text-align:center}
+.ecran.on{display:flex;animation:entree .45s ease both}
+@keyframes entree{from{opacity:0;transform:scale(.96) translateY(10px)}to{opacity:1;transform:none}}
+.logo{font-weight:900;font-size:clamp(40px,13vw,62px);line-height:.95;letter-spacing:.07em;margin:0;background:linear-gradient(180deg,#fff 0%,#8fe9ff 40%,#4d7bff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 18px rgba(77,225,255,.65));animation:flotte 3.2s ease-in-out infinite}
+.logo small{display:block;font-size:.34em;letter-spacing:.42em;color:var(--or);-webkit-text-fill-color:var(--or);margin-top:8px;filter:drop-shadow(0 0 8px rgba(255,179,71,.6))}
+@keyframes flotte{50%{transform:translateY(-7px)}}
+.sous{margin:14px 0 22px;color:#bfd6ff;font-size:15px;max-width:290px;line-height:1.45}
+.btn{pointer-events:auto;border:0;cursor:pointer;font:900 17px "Trebuchet MS","Segoe UI",system-ui,sans-serif;letter-spacing:.07em;color:#07102a;background:linear-gradient(180deg,#8fffd6,#35e08a 55%,#12b86a);border-radius:18px;padding:15px 34px;box-shadow:0 8px 0 #0a7a47,0 0 28px rgba(53,224,138,.55);transition:transform .08s,box-shadow .08s;min-width:210px}
+.btn:active{transform:translateY(5px);box-shadow:0 3px 0 #0a7a47,0 0 18px rgba(53,224,138,.5)}
+.btn.sec{background:linear-gradient(180deg,#5b6bb8,#3a4690);color:#fff;box-shadow:0 6px 0 #232c66;font-size:14px;padding:11px 24px;min-width:0;margin-top:16px}
+.btn.sec:active{box-shadow:0 2px 0 #232c66}
+.btn.rouge{background:linear-gradient(180deg,#ff9aa9,#ff4d6d 55%,#d12849);box-shadow:0 8px 0 #8a1830,0 0 28px rgba(255,77,109,.5);color:#fff}
+.meilleur{margin-top:18px;font-size:13px;color:#9fb6e8}
+.meilleur b{color:var(--gd)}
+.signature{position:absolute;left:0;right:0;bottom:calc(12px + env(safe-area-inset-bottom));font-size:11.5px;color:#8ea5da;letter-spacing:.06em}
+.signature b{color:var(--gd)}
+.carte{background:var(--verre);border:1px solid rgba(120,210,255,.4);border-radius:24px;padding:20px 18px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 0 36px rgba(77,225,255,.2),inset 0 0 24px rgba(77,225,255,.06);width:100%;max-width:420px}
+.regles{text-align:left;font-size:14px;line-height:1.5;margin:0;padding:0;list-style:none}
+.regles li{margin:8px 0;padding-left:30px;position:relative}
+.regles li:before{content:attr(data-i);position:absolute;left:0;top:0;font-size:19px}
+/* ------- Quiz du gardien ------- */
+#quiz{justify-content:flex-end;padding-bottom:calc(14px + env(safe-area-inset-bottom))}
+#quiz .carte{padding:16px 14px 14px}
+.gard{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:.12em;color:var(--mg);text-transform:uppercase;margin-bottom:6px}
+.gard span{background:rgba(255,95,210,.16);border:1px solid rgba(255,95,210,.5);border-radius:10px;padding:3px 9px}
+.gard em{font-style:normal;color:var(--gd);margin-left:auto;font-size:11.5px}
+#qtxt{font-size:17px;font-weight:800;line-height:1.3;margin:2px 0 12px;text-align:left}
+.rep{display:flex;align-items:center;gap:10px;width:100%;text-align:left;margin:7px 0;padding:11px 12px;border-radius:15px;border:1.5px solid rgba(120,210,255,.4);background:linear-gradient(180deg,rgba(40,60,130,.7),rgba(20,30,80,.7));color:#fff;font:700 15px/1.25 "Trebuchet MS","Segoe UI",system-ui,sans-serif;cursor:pointer;transition:transform .08s,background .2s,border-color .2s;pointer-events:auto}
+.rep:active{transform:scale(.98)}
+.rep b{flex:none;width:28px;height:28px;border-radius:9px;background:rgba(77,225,255,.18);border:1px solid rgba(77,225,255,.6);display:flex;align-items:center;justify-content:center;color:var(--cy);font-size:14px}
+.rep.bon{background:linear-gradient(180deg,#1fa862,#0f7a45);border-color:#8fffc4;box-shadow:0 0 22px rgba(53,224,138,.7);animation:pulse .5s}
+.rep.mauvais{background:linear-gradient(180deg,#b3304a,#7a1830);border-color:#ff9aa9;animation:secoue .45s}
+.rep.revele{border-color:#8fffc4;box-shadow:0 0 16px rgba(53,224,138,.55)}
+.rep[disabled]{pointer-events:none}
+@keyframes pulse{50%{transform:scale(1.04)}}
+@keyframes secoue{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+#msg{min-height:22px;margin-top:6px;font-weight:900;font-size:15px;letter-spacing:.03em}
+#msg.ok{color:var(--ok)}#msg.ko{color:var(--bad)}
+/* ------- Annonces (compte à rebours, niveau) ------- */
+#annonce{position:absolute;left:0;right:0;top:34%;text-align:center;pointer-events:none;font-weight:900;font-size:clamp(46px,16vw,78px);letter-spacing:.06em;color:#fff;text-shadow:0 0 24px var(--cy),0 0 50px var(--mg);opacity:0}
+#annonce.go{animation:annonce 1s ease both}
+#annonce small{display:block;font-size:.3em;letter-spacing:.3em;color:var(--or);text-shadow:0 0 14px var(--or)}
+@keyframes annonce{0%{opacity:0;transform:scale(1.7)}25%{opacity:1;transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:scale(.92)}}
+#flash{position:absolute;inset:0;pointer-events:none;opacity:0;background:#ff2d55;mix-blend-mode:screen}
+#flash.go{animation:flash .45s ease}
+@keyframes flash{0%{opacity:.55}100%{opacity:0}}
+.etoiles{font-size:38px;letter-spacing:.1em;margin:4px 0 8px;filter:drop-shadow(0 0 14px rgba(255,210,77,.8))}
+.etoiles i{font-style:normal;display:inline-block;animation:pop .5s ease both}
+.etoiles i.vide{opacity:.25;filter:grayscale(1)}
+@keyframes pop{from{transform:scale(0) rotate(-120deg)}to{transform:none}}
+.titre2{margin:0 0 6px;font-weight:900;font-size:25px;letter-spacing:.05em}
+.fait{background:rgba(255,210,77,.1);border:1px solid rgba(255,210,77,.4);border-radius:14px;padding:11px 13px;font-size:13.5px;line-height:1.45;color:#ffeeb0;margin:12px 0 16px;text-align:left}
+.fait b{color:var(--gd)}
+.score{font-size:15px;color:#bfd6ff;margin:2px 0}
+.score b{color:var(--gd);font-size:21px}
+.nouv{color:var(--ok);font-weight:900;letter-spacing:.1em;animation:pulse 1s infinite}
+#install{display:none}
+#ios{display:none;font-size:12.5px;color:#bfd6ff;margin-top:12px;max-width:290px;line-height:1.4}
+@media (prefers-reduced-motion:reduce){.logo{animation:none}}
+</style>
+</head>
+<body>
+<div id="jeu">
+  <canvas id="c" aria-label="Jeu ASTRO QUEST"></canvas>
+
+  <div id="hud">
+    <div class="hrow"><div class="chip" id="hNiv">NIVEAU 1</div><div class="chip">⭐ <b id="hScore">0</b></div><div class="chip" id="boucl" aria-label="Bouclier"><i></i><i></i><i></i></div></div>
+    <div id="prog"><i></i></div>
+  </div>
+  <div id="btns"><button id="bPause" aria-label="Pause">⏸</button><button id="bSon" aria-label="Son">🔊</button></div>
+  <div id="annonce"></div>
+  <div id="flash"></div>
+
+  <!-- Écran titre -->
+  <div class="ecran on" id="titre">
+    <h1 class="logo">ASTRO<br>QUEST<small>CAP SUR LES ÉTOILES</small></h1>
+    <p class="sous">Pilote ta fusée, détruis les monstres de l'espace et pose-toi sur les 8 mondes du système solaire.</p>
+    <button class="btn" id="bJouer">▶ JOUER</button>
+    <button class="btn sec" id="bRegles">Comment jouer ?</button>
+    <button class="btn sec" id="install" style="margin-top:10px">📲 Installer sur mon téléphone</button>
+    <div id="ios">Sur iPhone : touche <b>Partager</b> puis <b>« Sur l'écran d'accueil »</b> pour installer le jeu.</div>
+    <div class="meilleur">Meilleur score : <b id="best">0</b></div>
+    <div class="signature">Créé par <b>STAR ENTREPRISE</b> · Un seul groupe, toutes les solutions pour votre vie</div>
+  </div>
+
+  <!-- Règles -->
+  <div class="ecran" id="regles">
+    <div class="carte">
+      <h2 class="titre2">Comment jouer</h2>
+      <ul class="regles">
+        <li data-i="👆">Glisse ton doigt pour piloter la fusée. Elle tire toute seule.</li>
+        <li data-i="👾">Détruis les monstres pour t'approcher de la planète. Évite leurs tirs !</li>
+        <li data-i="🪐">Arrivé près de la planète, son gardien te pose une question d'astronomie.</li>
+        <li data-i="✅">Bonne réponse : tu atterris et tu passes au niveau suivant.</li>
+        <li data-i="🔁">Mauvaise réponse : tu as une seconde chance avec une autre question.</li>
+        <li data-i="💀">Deux erreurs de suite : GAME OVER.</li>
+      </ul>
+      <div style="text-align:center"><button class="btn sec" id="bRegOk">J'ai compris</button></div>
+    </div>
+  </div>
+
+  <!-- Question du gardien -->
+  <div class="ecran" id="quiz">
+    <div class="carte">
+      <div class="gard"><span id="qGard">Gardien</span><em id="qChance">Question 1</em></div>
+      <div id="qtxt"></div>
+      <div id="qrep"></div>
+      <div id="msg" role="status"></div>
+    </div>
+  </div>
+
+  <!-- Atterrissage réussi -->
+  <div class="ecran" id="pose">
+    <div class="carte">
+      <p class="nouv" style="margin:0">ATTERRISSAGE RÉUSSI</p>
+      <h2 class="titre2" id="pPlan">Mars</h2>
+      <div class="etoiles" id="pEtoiles"></div>
+      <div class="score">Score : <b id="pScore">0</b></div>
+      <div class="fait"><b>Le savais-tu ?</b><br><span id="pFait"></span></div>
+      <button class="btn" id="bSuite">🚀 DÉCOLLER</button>
+    </div>
+  </div>
+
+  <!-- Game Over -->
+  <div class="ecran" id="fin">
+    <div class="carte">
+      <h2 class="titre2" style="color:var(--bad);font-size:40px;letter-spacing:.08em;text-shadow:0 0 22px rgba(255,77,109,.8)">GAME OVER</h2>
+      <p class="sous" style="margin:6px auto 12px" id="fMsg"></p>
+      <div class="score">Score : <b id="fScore">0</b></div>
+      <div class="score" id="fBest"></div>
+      <div class="fait" id="fCorrection" style="margin-top:14px"></div>
+      <button class="btn rouge" id="bRejouer">↻ REJOUER</button>
+      <br><button class="btn sec" id="bMenu">Menu</button>
+    </div>
+  </div>
+
+  <!-- Victoire -->
+  <div class="ecran" id="gagne">
+    <div class="carte">
+      <p class="nouv" style="margin:0">MISSION ACCOMPLIE</p>
+      <h2 class="titre2" style="font-size:28px;margin-top:6px">Explorateur de l'espace !</h2>
+      <div class="etoiles" id="gEtoiles"></div>
+      <p class="sous" style="margin:6px auto 12px">Tu t'es posé sur les 8 mondes du système solaire. Bravo, astronaute !</p>
+      <div class="score">Score final : <b id="gScore">0</b></div>
+      <div class="score" id="gBest"></div>
+      <br><button class="btn" id="bRej2">↻ REJOUER</button>
+      <br><button class="btn sec" id="bMenu2">Menu</button>
+    </div>
+  </div>
+
+  <!-- Pause -->
+  <div class="ecran" id="pauseE">
+    <div class="carte"><h2 class="titre2">Pause</h2><button class="btn" id="bReprendre">▶ CONTINUER</button><br><button class="btn sec" id="bQuitter">Quitter la partie</button></div>
+  </div>
+</div>
+<script src="questions.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
