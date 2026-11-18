@@ -13,7 +13,7 @@ export function db() {
 // Version du schéma = empreinte du texte de ensureSchema() ci-dessous (vérifiée par tools/test-schema.mts).
 // Quand tu modifies une instruction du schéma : lance « node --experimental-strip-types tools/test-schema.mts --ecrire »
 // pour mettre à jour cette ligne. Sans cela, la base ne serait pas mise à jour (le test échoue pour te le rappeler).
-const SCHEMA_VERSION = "6c97902c0a5e5052";
+const SCHEMA_VERSION = "65117e4c8382c285";
 
 // Idempotent schema setup — safe to call on every cold start.
 // Rapide : les ~80 instructions ne sont rejouées que si SCHEMA_VERSION a changé depuis la dernière fois
@@ -629,6 +629,32 @@ export async function ensureSchema() {
     )
   `;
   await sql`CREATE INDEX IF NOT EXISTS starvibe_blocks_blocked_idx ON starvibe_blocks (blocked)`;
+
+  // DISCUSSIONS : messages entre amis Myo (adultes pour l'instant). Un message = une ligne ; lu_at vide tant que le destinataire ne l'a pas ouvert.
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_dm (
+      id SERIAL PRIMARY KEY,
+      de_account INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      vers_account INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      texte TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      lu_at TIMESTAMPTZ
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_dm_vers_idx ON starvibe_dm (vers_account, lu_at)`;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_dm_de_idx ON starvibe_dm (de_account, created_at)`;
+  // Signalements d'une personne ou d'un message : l'extrait (derniers messages) n'est gardé que parce que la personne qui signale le demande.
+  await sql`
+    CREATE TABLE IF NOT EXISTS starvibe_dm_signalements (
+      id SERIAL PRIMARY KEY,
+      de_account INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      contre_account INTEGER NOT NULL REFERENCES starvibe_accounts(id) ON DELETE CASCADE,
+      motif TEXT NOT NULL DEFAULT '',
+      extrait TEXT NOT NULL DEFAULT '',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_dm_sig_contre_idx ON starvibe_dm_signalements (contre_account, created_at)`;
 
   // KABA+ : partage de contact (Gmail ou WhatsApp) entre amis Myo adultes, uniquement avec l'accord de la personne
   await sql`ALTER TABLE starvibe_accounts ADD COLUMN IF NOT EXISTS contact_gmail TEXT NOT NULL DEFAULT ''`;
