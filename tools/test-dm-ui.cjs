@@ -51,7 +51,7 @@ const UA_IOS = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebK
       }
       if (m === "POST") {
         const b = JSON.parse(route.request().postData()); envois.push(b);
-        if (b.action === "envoyer") { const nm = { id: 3, moi: true, texte: b.texte, date: new Date().toISOString(), lu: false }; msgs.push(nm); return rep({ ok: true, message: nm, notifie: true }); }
+        if (b.action === "envoyer") { const nm = { id: msgs.length + 1, moi: true, texte: b.texte, date: new Date().toISOString(), lu: false }; msgs.push(nm); return rep({ ok: true, message: nm, notifie: true }); }
         if (b.action === "signaler") return rep({ ok: true, message: "Merci. L'équipe KOMYO va regarder. Tu peux aussi bloquer cette personne pour ne plus recevoir ses messages." });
       }
       return rep({ error: "?" }, 400);
@@ -76,6 +76,20 @@ const UA_IOS = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebK
   ok(envois.some((e) => e.action === "envoyer" && e.texte === "Super, j'apporte à manger"), "l'envoi appelle le serveur avec le bon texte");
   ok(/j'apporte à manger/.test(await page.textContent("#fil")), "le message apparaît tout de suite dans la discussion");
   await page.screenshot({ path: "/tmp/dm-conv.png" });
+  // --- Écran façon messagerie moderne (inspiré de la capture TikTok de Carry) ---
+  ok(/Alice/.test(await page.textContent(".intro")) && /amis sur KOMYO/.test(await page.textContent(".intro")), "en-tête de profil de l'ami en haut de la discussion");
+  ok((await page.$$(".sep")).length === 1 && /Aujourd'hui \d\d:\d\d/.test(await page.textContent(".sep")), "séparateur de jour « Aujourd'hui HH:MM » (un seul pour les messages du même moment)");
+  ok((await page.$$(".l.lui .av")).length >= 1, "la photo/initiale de l'ami est à côté de ses messages");
+  ok((await page.$$("#reacts button")).length === 8, "8 réactions rapides sous la discussion");
+  const avant = envois.length; await page.click("#reacts button[data-e='❤️']"); await page.waitForTimeout(250);
+  ok(envois.length === avant + 1 && envois[envois.length - 1].texte === "❤️", "un seul toucher sur ❤️ envoie la réaction");
+  ok(await page.evaluate(() => [...document.querySelectorAll(".b.moi.gros")].some((e) => /❤️/.test(e.textContent))), "un message qui n'est qu'un émoji s'affiche en grand, sans bulle");
+  await page.click("#bEmo"); ok(await page.isVisible("#panneau"), "le bouton 😊 ouvre le panneau d'émojis");
+  await page.click("#gEmo button[data-e='😂']"); ok((await page.inputValue("#texte")).includes("😂"), "un émoji touché s'ajoute au message en cours");
+  await page.fill("#texte", ""); await page.click("#panneau .onglets button[data-o='st']"); ok(await page.evaluate(() => document.getElementById("gEmo").classList.contains("st")), "l'onglet Autocollants affiche de grands autocollants");
+  const av2 = envois.length; await page.click("#gEmo button[data-e='🔥']"); await page.waitForTimeout(250);
+  ok(envois.length === av2 + 1 && envois[envois.length - 1].texte === "🔥" && !(await page.isVisible("#panneau")), "un autocollant s'envoie tout de suite et ferme le panneau");
+  await page.screenshot({ path: "/tmp/dm-conv2.png" });
   await page.click("#titre"); await page.click("#mSig"); await page.waitForSelector("#sOui");
   await page.screenshot({ path: "/tmp/dm-signal.png" });
   await page.click("#sOui"); await page.waitForSelector("#sBloq");

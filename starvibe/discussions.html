@@ -22,12 +22,30 @@
 .badge{background:var(--coral);color:#fff;border-radius:12px;min-width:22px;height:22px;padding:0 6px;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
 .conv{display:flex;flex-direction:column;height:calc(100dvh - 118px);min-height:340px}
 .fil{flex:1;overflow-y:auto;padding:6px 2px;display:flex;flex-direction:column;gap:6px}
-.b{max-width:82%;padding:9px 12px;border-radius:16px;font-size:14px;line-height:1.4;white-space:pre-wrap;word-wrap:break-word}
+.intro{display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 0 8px;text-align:center}
+.intro .av{width:74px;height:74px;font-size:28px}.intro b{font-size:17px}.intro span.s{font-size:12.5px;color:var(--dim)}
+.sep{align-self:center;font-size:11.5px;color:var(--dim);padding:6px 0 2px}
+.l{display:flex;align-items:flex-end;gap:6px;max-width:100%}.l.moi{justify-content:flex-end}
+.l .pt{width:28px;height:28px;font-size:12px}
+.b{max-width:82%;padding:9px 12px;border-radius:18px;font-size:14px;line-height:1.4;white-space:pre-wrap;word-wrap:break-word}
+.b.gros{background:none!important;border:0!important;padding:2px 4px;font-size:46px;line-height:1.1;color:inherit}.b.gros small{font-size:10.5px;color:var(--dim)}
+.l.moi .b{max-width:78%}.l.lui .b{max-width:76%}
 .b.moi{align-self:flex-end;background:linear-gradient(120deg,var(--coral),var(--gold));color:#fff;border-bottom-right-radius:4px}
 .b.lui{align-self:flex-start;background:#fff;border:1.5px solid var(--line);border-bottom-left-radius:4px}
 .b small{display:block;font-size:10.5px;opacity:.75;margin-top:3px}
-.compose{display:flex;gap:8px;align-items:flex-end;padding-top:10px}
-.compose textarea{flex:1;min-height:44px;max-height:120px;resize:none}
+.reacts{display:flex;gap:8px;overflow-x:auto;padding:8px 0 2px;scrollbar-width:none}.reacts::-webkit-scrollbar{display:none}
+.reacts button{flex:none;border:1.5px solid var(--line);background:#fff;border-radius:20px;height:40px;min-width:46px;padding:0 12px;font-size:20px;cursor:pointer}
+.reacts button:active,.emo button:active{transform:scale(.92)}
+.compose{display:flex;gap:8px;align-items:flex-end;padding-top:8px}
+.compose .boite{flex:1;display:flex;align-items:flex-end;background:#fff;border:1.5px solid var(--line);border-radius:24px;padding:2px 4px 2px 14px}
+.compose textarea{flex:1;min-height:40px;max-height:120px;resize:none;border:0!important;box-shadow:none!important;background:none!important;outline:none;padding:10px 0}
+.compose .bemo{flex:none;width:40px;height:40px;border-radius:50%;border:0;background:none;font-size:22px;cursor:pointer}
+.compose .btn{border-radius:22px}
+.panneau{border:1.5px solid var(--line);background:#fff;border-radius:16px 16px 0 0;margin-top:8px;max-height:36vh;display:flex;flex-direction:column;overflow:hidden}
+.panneau .onglets{display:flex;gap:6px;padding:8px 10px 0}.panneau .onglets button{border:0;background:none;font:inherit;font-weight:800;font-size:13px;padding:6px 10px;border-radius:10px;color:var(--dim);cursor:pointer}
+.panneau .onglets button.on{background:#f7f1e3;color:var(--navy)}
+.emo{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;padding:8px;overflow-y:auto}.emo button{border:0;background:none;font-size:25px;height:42px;border-radius:10px;cursor:pointer}
+.emo.st{grid-template-columns:repeat(4,1fr)}.emo.st button{font-size:44px;height:70px}
 .menu{position:absolute;right:16px;top:58px;background:#fff;border:1.5px solid var(--line);border-radius:14px;box-shadow:0 10px 24px -12px rgba(36,21,54,.5);padding:6px;z-index:5;min-width:200px}
 .menu button{display:block;width:100%;text-align:left;background:none;border:0;padding:11px 12px;font:inherit;font-weight:700;font-size:13.5px;border-radius:10px;cursor:pointer;color:var(--navy)}
 .menu button:hover{background:#f7f1e3}
@@ -48,10 +66,12 @@
     <div class="conv">
       <div class="fil" id="fil" aria-live="polite"></div>
       <div id="infoEnvoi" class="erreur" role="alert"></div>
+      <div class="reacts" id="reacts" aria-label="Réactions rapides"></div>
       <form class="compose" id="formEnvoi">
-        <textarea id="texte" rows="1" maxlength="1000" placeholder="Écris ton message…" aria-label="Ton message"></textarea>
+        <div class="boite"><textarea id="texte" rows="1" maxlength="1000" placeholder="Message…" aria-label="Ton message"></textarea><button class="bemo" type="button" id="bEmo" aria-label="Émojis et autocollants" aria-expanded="false">😊</button></div>
         <button class="btn" type="submit" id="btnEnvoi">Envoyer</button>
       </form>
+      <div class="panneau" id="panneau" hidden><div class="onglets"><button type="button" class="on" data-o="emo">Émojis</button><button type="button" data-o="st">Autocollants</button></div><div class="emo" id="gEmo"></div></div>
     </div>
   </div>
 </div>
@@ -92,7 +112,18 @@
   }
 
   // ---------------- Une discussion ----------------
-  function bulle(m,dernierMoi){ return '<div class="b '+(m.moi?'moi':'lui')+'" data-id="'+m.id+'">'+esc(m.texte)+'<small>'+heure(m.date)+(m.moi&&dernierMoi&&m.lu?' · Lu ✓':'')+'</small></div>'; }
+  var TZ='Africa/Brazzaville', dernierJour='', dernierTemps=0;
+  function cleJour(d){ return new Date(d).toLocaleDateString('fr-CA',{timeZone:TZ}); }
+  function libJour(d){ var k=cleJour(d), aujK=cleJour(new Date()), hierK=cleJour(new Date(Date.now()-864e5)); if(k===aujK) return 'Aujourd\'hui'; if(k===hierK) return 'Hier'; var x=new Date(d); if(Date.now()-x.getTime()<6*864e5) return x.toLocaleDateString('fr-FR',{weekday:'long',timeZone:TZ}); return x.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric',timeZone:TZ}); }
+  function hh(d){ return new Date(d).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',timeZone:TZ}); }
+  function seulEmoji(t){ var u=t.replace(/[\s\u200d\ufe0f]/g,''); if(!u||u.length>24) return false; try{ if(!/^(?:\p{Extended_Pictographic}|\p{Regional_Indicator})+$/u.test(u)) return false; return (u.match(/\p{Extended_Pictographic}|\p{Regional_Indicator}/gu)||[]).length<=3; }catch(e){ return false; } }
+  function bulle(m,dernierMoi){
+    var sep=''; var t=new Date(m.date).getTime();
+    if(cleJour(m.date)!==dernierJour||t-dernierTemps>3*3600e3){ sep='<div class="sep">'+libJour(m.date)+' '+hh(m.date)+'</div>'; }
+    dernierJour=cleJour(m.date); dernierTemps=t;
+    var av=(!m.moi&&amiCourant)?'<span class="av pt">'+(amiCourant.photoUrl?'<img src="'+esc(amiCourant.photoUrl)+'" alt="">':esc((amiCourant.nom||'?').charAt(0).toUpperCase()))+'</span>':'';
+    return sep+'<div class="l '+(m.moi?'moi':'lui')+'">'+av+'<div class="b '+(m.moi?'moi':'lui')+(seulEmoji(m.texte)?' gros':'')+'" data-id="'+m.id+'">'+esc(m.texte)+'<small>'+heure(m.date)+(m.moi&&dernierMoi&&m.lu?' · Lu ✓':'')+'</small></div></div>';
+  }
   function ouvrir(profilId){
     clearInterval(minuteur); vueListe.hidden=true; etat.hidden=false; etat.textContent='Chargement…'; $('infoEnvoi').textContent='';
     history.replaceState(null,'','discussions.html?avec='+profilId);
@@ -102,8 +133,9 @@
       amiCourant=r.d.ami; vueConv.hidden=false;
       $('titre').textContent=amiCourant.nom; $('sous').textContent='';
       $('retour').textContent='← Discussions'; $('retour').href='#'; $('retour').onclick=function(e){ e.preventDefault(); afficherListe(); };
-      var fil=$('fil'); fil.innerHTML=''; dernierId=0;
-      if(!r.d.messages.length) fil.innerHTML='<div class="state" id="vide">Aucun message. Écris le premier 👋</div>';
+      var fil=$('fil'); fil.innerHTML=''; dernierId=0; dernierJour=''; dernierTemps=0;
+      fil.innerHTML='<div class="intro">'+avatar(amiCourant)+'<b>'+esc(amiCourant.nom)+'</b><span class="s">Vous êtes amis sur KOMYO</span></div>';
+      if(!r.d.messages.length) fil.insertAdjacentHTML('beforeend','<div class="state" id="vide">Aucun message. Écris le premier 👋</div>');
       ajouter(r.d.messages);
       if(r.d.enPause) $('infoEnvoi').textContent='Ton envoi de messages est en pause le temps d\'un contrôle par l\'équipe KOMYO.';
       fil.scrollTop=fil.scrollHeight;
@@ -124,16 +156,29 @@
   }
   document.addEventListener('visibilitychange',function(){ if(!document.hidden) rafraichir(); });
 
-  $('formEnvoi').addEventListener('submit',function(e){
-    e.preventDefault(); var t=$('texte').value.trim(); if(!t||!amiCourant) return;
-    var b=$('btnEnvoi'); b.disabled=true; $('infoEnvoi').textContent='';
+  function envoi(t){
+    if(!t||!amiCourant) return; var b=$('btnEnvoi'); b.disabled=true; $('infoEnvoi').textContent='';
     api('',{action:'envoyer',profilId:amiCourant.profilId,texte:t}).then(function(r){
       b.disabled=false;
       if(!r.ok){ $('infoEnvoi').textContent=r.d.error||'Envoi impossible. Réessaie.'; return; }
       $('texte').value=''; $('texte').style.height='auto'; ajouter([r.d.message]);
       if(r.d.notifie===false) $('infoEnvoi').innerHTML='<span style="color:var(--dim)">Message envoyé. '+esc(amiCourant.nom)+' le verra en ouvrant KOMYO.</span>';
     }).catch(function(){ b.disabled=false; $('infoEnvoi').textContent='Connexion interrompue. Réessaie.'; });
-  });
+  }
+  $('formEnvoi').addEventListener('submit',function(e){ e.preventDefault(); envoi($('texte').value.trim()); });
+  // Réactions rapides : un seul geste envoie
+  $('reacts').innerHTML=['❤️','😂','👍','👋','🔥','🙏','😍','🎉'].map(function(x){ return '<button type="button" data-e="'+x+'" aria-label="Envoyer '+x+'">'+x+'</button>'; }).join('');
+  $('reacts').addEventListener('click',function(e){ var b=e.target.closest('button'); if(b) envoi(b.getAttribute('data-e')); });
+  // Panneau émojis (on les met dans le message) et autocollants (grands, envoyés tout de suite)
+  var EMO=['😀','😃','😄','😁','😆','😅','😂','🤣','😊','🙂','😉','😍','🥰','😘','😋','😎','🤩','🥳','😇','🤗','🤔','😏','😴','😢','😭','😤','😡','🤯','😱','🙄','😬','🤝','👍','👎','👏','🙌','🙏','💪','👋','✌️','🤞','👌','🫶','❤️','🧡','💛','💚','💙','💜','🖤','💔','💯','🔥','✨','🎉','🎂','🎁','🌹','☀️','🌍','🇨🇬','🍽️','🍺','☕','⚽','🎵','💃','🕺','🚗','🏠','📞','💬','📸','✅','❌','⚠️','⭐'];
+  var STK=['🔥','❤️','😂','👏','🙏','🥰','😍','🎉','💯','🤝','💪','🇨🇬','😎','🤩','😭','👋'];
+  function grille(mode){ var g=$('gEmo'); g.className='emo'+(mode==='st'?' st':''); g.innerHTML=(mode==='st'?STK:EMO).map(function(x){ return '<button type="button" data-e="'+x+'">'+x+'</button>'; }).join(''); g.setAttribute('data-mode',mode); }
+  grille('emo');
+  $('bEmo').addEventListener('click',function(){ var p=$('panneau'); p.hidden=!p.hidden; this.setAttribute('aria-expanded',String(!p.hidden)); });
+  $('panneau').querySelector('.onglets').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b) return; this.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on',x===b); }); grille(b.getAttribute('data-o')); });
+  $('gEmo').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b) return; var x=b.getAttribute('data-e');
+    if(this.getAttribute('data-mode')==='st'){ envoi(x); $('panneau').hidden=true; $('bEmo').setAttribute('aria-expanded','false'); }
+    else { var t=$('texte'), a=t.selectionStart==null?t.value.length:t.selectionStart, z=t.selectionEnd==null?a:t.selectionEnd; t.value=t.value.slice(0,a)+x+t.value.slice(z); t.focus(); t.selectionStart=t.selectionEnd=a+x.length; } });
   $('texte').addEventListener('input',function(){ this.style.height='auto'; this.style.height=Math.min(120,this.scrollHeight)+'px'; });
 
   // ---------------- Bloquer / signaler ----------------
