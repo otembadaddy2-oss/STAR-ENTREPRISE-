@@ -342,7 +342,7 @@
       decodeur: function () {
         var dec = new TextDecoder('utf-8'), brut = [];
         return { ajouter: function (tid) {
-          var s = tokens[tid]; if (types[tid] === 3) return '';
+          var s = tokens[tid]; if (s === undefined || types[tid] === 3) return '';
           var bytes = []; for (var c of s) { var b = U2B[c]; if (b === undefined) { bytes.push.apply(bytes, Array.from(enc.encode(c))); } else bytes.push(b); }
           return dec.decode(new Uint8Array(bytes), { stream: true });
         } };
@@ -363,7 +363,8 @@
   async function charger(src, options) {
     options = options || {};
     var prog = options.progression || function () {}, g = await ouvrirGGUF(src), kv = g.kv, arch = kv['general.architecture'];
-    if (arch !== 'qwen2' && arch !== 'llama') throw new Error('Architecture « ' + arch + ' » non prise en charge (qwen2 ou llama).');
+    if (arch !== 'qwen2') throw new Error('Ce modèle (architecture « ' + arch + ' ») n\'est pas pris en charge pour l\'instant : STAR IA lit les modèles Qwen2 et Qwen2.5 (fichiers .gguf).');
+    var pre = kv['tokenizer.ggml.pre']; if (pre && pre !== 'qwen2') throw new Error('Découpage de texte « ' + pre + ' » non pris en charge : seuls les modèles Qwen2 / Qwen2.5 le sont pour l\'instant.');
     var P = arch + '.', cfg = {
       arch: arch, couches: kv[P + 'block_count'], dim: kv[P + 'embedding_length'], ffn: kv[P + 'feed_forward_length'], tetes: kv[P + 'attention.head_count'],
       tetesKV: kv[P + 'attention.head_count_kv'] || kv[P + 'attention.head_count'], eps: kv[P + 'attention.layer_norm_rms_epsilon'] || 1e-6, base: kv[P + 'rope.freq_base'] || 10000,
@@ -487,12 +488,13 @@
         var fin = [tok.id('<|im_end|>'), tok.id('<|endoftext|>'), kv['tokenizer.ggml.eos_token_id']].filter(function (v) { return v !== undefined; });
         var tPrem = performance.now(), nGen = 0;
         for (var i = 0; i < maxT; i++) {
+          for (var z = tok.taille; z < lg.length; z++) lg[z] = -Infinity;   // les lignes de réserve du modèle (au-delà du vocabulaire) ne sont jamais choisies
           var nxt = echantillonner(lg, o, hist); if (fin.indexOf(nxt) >= 0) { if (o.nourrirFin !== false && pos < cfg.ctx) avancer(nxt, false); break; }
           sortieIds.push(nxt); hist.push(nxt); nGen++; var morceau = dec.ajouter(nxt); texte += morceau; if (o.onToken) o.onToken(morceau, nxt);
           if (o.signal && o.signal.annule) break;
           if (pos >= cfg.ctx) break;
           lg = avancer(nxt, true);
-          if (i % 2 === 1) await new Promise(function (r) { setTimeout(r, 0); }); // laisse respirer l'écran du téléphone
+          if (o.pauseMs) await new Promise(function (r) { setTimeout(r, o.pauseMs); }); else if (i % 2 === 1) await new Promise(function (r) { setTimeout(r, 0); }); // laisse respirer l'écran du téléphone (mode Économie : pause plus longue)
         }
         var t1 = performance.now(); return { texte: texte, ids: sortieIds, motsParSeconde: nGen > 1 ? (nGen - 1) / ((t1 - tPrem) / 1000) : 0, msPremier: tPrem - t0 };
       },

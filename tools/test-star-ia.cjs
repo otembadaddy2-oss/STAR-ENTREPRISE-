@@ -13,6 +13,16 @@ const ecartRel = (a, b) => { let e = 0, m = 0; for (let i = 0; i < a.length; i++
   ok(tousOk, "tokenizer identique à llama.cpp sur " + n + " textes (français, anglais, accents, emoji, chiffres, espaces, jetons spéciaux)");
   const aller = "Bonjour, ça va ? 🙂 L'été à Brazzaville.", dec = m0.tokenizer.decoder(m0.tokenizer.encoder(aller, true));
   ok(dec === aller, "encoder puis décoder redonne le même texte : " + JSON.stringify(dec));
+  // 1b. Formats de poids : STAR IA doit décompresser exactement comme la bibliothèque officielle « gguf » (python/dump-quant-ref.py)
+  if (fs.existsSync(path.join(dir, "q-info.json"))) {
+    const qi = JSON.parse(fs.readFileSync(path.join(dir, "q-info.json"), "utf8")), noms = [];
+    for (const [nom, inf] of Object.entries(qi)) {
+      const raw = new Uint8Array(fs.readFileSync(path.join(dir, "q-" + nom + ".bin"))), b = fs.readFileSync(path.join(dir, "q-" + nom + ".f32")), ref32 = new Float32Array(b.buffer, b.byteOffset, b.byteLength / 4);
+      const mien = IA.dequantiser(inf.type, raw, inf.n); let e = 0; for (let i = 0; i < ref32.length; i++) e = Math.max(e, Math.abs(mien[i] - ref32[i]));
+      if (e > 1e-6) { ok(false, "format " + nom + " : écart " + e); } else noms.push(nom);
+    }
+    ok(noms.length === Object.keys(qi).length, "décompression identique à la bibliothèque officielle pour " + noms.join(", "));
+  }
   // 2. Scores (logits) : processeur, puis comparaison à llama.cpp, pour chaque format de poids
   const comparer = async (f, refNom, seuil, etiquette) => {
     const m = await charge(f), r = ref.logits[refNom], lg = m.logits(r.seq), e = ecartRel(lg, r.dernier);

@@ -14,6 +14,16 @@ let ko = 0; const ok = (c, m) => { console.log((c ? "OK  " : "ÉCHEC ") + m); if
   ok(noir > 1e5, "l'image filtrée n'est pas noire (somme des couleurs " + noir + ")");
   await page.click("#bUc"); await page.waitForTimeout(2500); const uc = await page.evaluate(() => window.__uc);
   ok(uc && uc.ecartMax < 1e-2, "UC STAR répond dans la version un seul fichier : " + JSON.stringify(uc));
+  // STAR IA dans la version un seul fichier : choisir un modèle sur l'appareil et discuter (petit modèle de test)
+  const modele = path.resolve(process.argv[3] || "/tmp/ia-test/test-q8_0.gguf");
+  if (require("fs").existsSync(modele)) {
+    ok(await page.evaluate(() => typeof StarIA === "object" && typeof StarIA.charger === "function"), "STAR IA est présent dans le fichier unique");
+    await page.setInputFiles("#iaFic", modele); await page.waitForSelector("#iaChat:not([hidden])", { timeout: 60000 });
+    await page.fill("#iaSaisie", "Bonjour"); await page.fill("#iaLong", "32"); await page.click("#iaEnvoi");
+    await page.waitForFunction(() => /mots\/seconde/.test(document.getElementById("iaStats").textContent), null, { timeout: 60000 });
+    const nbBulles = (await page.$$("#iaFil .bu")).length;
+    ok(/GPU/.test(await page.textContent("#iaEtat")) && nbBulles === 2, "conversation avec un modèle dans le fichier unique : " + (await page.textContent("#iaStats")).split("\n").join(" | "));
+  }
   ok(erreurs.length === 0, "aucune erreur dans la console " + erreurs.slice(0, 2).join(" | "));
   await nav.close(); console.log(ko ? ko + " ÉCHEC(S)" : "TOUS LES TESTS PASSENT"); process.exit(ko ? 1 : 0);
 })().catch((e) => { console.log("ÉCHEC", e); process.exit(1); });
