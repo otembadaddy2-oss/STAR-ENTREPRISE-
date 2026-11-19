@@ -33,7 +33,7 @@ const JOURS_SIGNALEMENT = 7;
 const PHOTO_MAX_OCTETS = 2_000_000;        // après réduction sur le téléphone une photo fait ~150 à 400 Ko
 const PHOTOS_PAR_JOUR = 40;
 const RE_PHOTO = /^\[\[photo:(\d+-\d+\/[0-9a-f-]{36})\]\]$/;
-let magasinTest: { get: (k: string, o?: unknown) => Promise<unknown>; set: (k: string, v: ArrayBuffer, o?: unknown) => Promise<unknown> } | null = null;
+let magasinTest: { get: (k: string, o?: unknown) => Promise<unknown>; set: (k: string, v: ArrayBuffer, o?: unknown) => Promise<unknown>; delete: (k: string) => Promise<unknown> } | null = null;
 export function __utiliserMagasinPhotos(m: typeof magasinTest) { magasinTest = m; }   // pour les tests : pas de vrai stockage
 const magasinPhotos = () => (magasinTest || getStore({ name: "dm-photos", consistency: "strong" })) as NonNullable<typeof magasinTest>;
 // Ce que voit la liste / la notification à la place du repère technique.
@@ -131,11 +131,11 @@ export default async (req: Request, _context: Context) => {
       const m = /^(\d+)-(\d+)\/[0-9a-f-]{36}$/.exec(cle);
       if (!m || (Number(m[1]) !== moi && Number(m[2]) !== moi)) return json({ error: "Photo introuvable." }, 404);
       const autre = Number(m[1]) === moi ? Number(m[2]) : Number(m[1]);
-      if (await bloques(moi, autre)) return json({ error: "Photo introuvable." }, 404);
+      if (await bloques(moi, autre) || !(await sontAmis(moi, autre))) return json({ error: "Photo introuvable." }, 404);
       const blob = (await magasinPhotos().get(cle, { type: "arrayBuffer" })) as ArrayBuffer | null;
       if (!blob) return json({ error: "Photo introuvable." }, 404);
       const meta = typeImage(new Uint8Array(blob)) || "image/jpeg";
-      return new Response(blob, { status: 200, headers: { "content-type": meta, "cache-control": "private, max-age=86400", "x-content-type-options": "nosniff" } });
+      return new Response(blob, { status: 200, headers: { "content-type": meta, "cache-control": "private, max-age=86400", "vary": "Authorization", "x-content-type-options": "nosniff" } });
     }
 
     if (url.searchParams.get("avec")) {
@@ -177,7 +177,7 @@ export default async (req: Request, _context: Context) => {
   if (!cible) return json({ error: "Personne introuvable." }, 404);
 
   // Enregistre un message (texte, photo ou « j'aime ») après toutes les vérifications, et prévient l'ami.
-  const poster = async (stocke: string, extraLimite?: () => Promise<Response | null>): Promise<Response> => {
+  const poster = async (stocke: string, avant?: () => Promise<Response | null>, apresEchec?: () => Promise<void>): Promise<Response> => {
     const v = await verifier(monProfil, cible);
     if (!v.ok) return json({ error: v.raison, code: v.code }, 403);
     if (await enPause(moi)) return json({ error: "Ton envoi de messages est en pause le temps d'un contrôle par l'équipe KOMYO.", code: "pause" }, 403);
@@ -185,8 +185,17 @@ export default async (req: Request, _context: Context) => {
     if ((r10[0]?.n || 0) >= LIMITE_10_MIN) return json({ error: "Doucement : trop de messages en peu de temps. Réessaie dans quelques minutes.", code: "limite" }, 429);
     const rj = (await sql`SELECT COUNT(*)::int AS n FROM starvibe_dm WHERE de_account = ${moi} AND created_at > now() - interval '24 hours'`) as { n: number }[];
     if ((rj[0]?.n || 0) >= LIMITE_JOUR) return json({ error: "Tu as atteint la limite de messages pour aujourd'hui. Reviens demain.", code: "limite_jour" }, 429);
-    if (extraLimite) { const refus = await extraLimite(); if (refus) return refus; }
-    const ins = (await sql`INSERT INTO starvibe_dm (de_account, vers_account, texte) VALUES (${moi}, ${cible.account_id}, ${stocke}) RETURNING id, created_at`) as { id: number; created_at: string }[];
+    if (avant) { const refus = await avant(); if (refus) return refus; }
+    // Insertion CONDITIONNELLE : le contrôle des limites et l'ajout se font dans la même requête, donc des envois simultanés ne dépassent pas les seuils.
+    let ins: { id: number; created_at: string }[] = [];
+    try {
+      ins = (await sql`INSERT INTO starvibe_dm (de_account, vers_account, texte)
+        SELECT ${moi}, ${cible.account_id}, ${stocke}
+        WHERE (SELECT COUNT(*) FROM starvibe_dm WHERE de_account = ${moi} AND created_at > now() - interval '10 minutes') < ${LIMITE_10_MIN}
+          AND (SELECT COUNT(*) FROM starvibe_dm WHERE de_account = ${moi} AND created_at > now() - interval '24 hours') < ${LIMITE_JOUR}
+        RETURNING id, created_at`) as { id: number; created_at: string }[];
+    } catch (e) { if (apresEchec) await apresEchec().catch(() => {}); throw e; }
+    if (!ins.length) { if (apresEchec) await apresEchec().catch(() => {}); return json({ error: "Doucement : trop de messages en peu de temps. Réessaie dans quelques minutes.", code: "limite" }, 429); }
     // La notification ne bloque jamais l'envoi : si elle échoue, le message est quand même là.
     let notifie = 0;
     const court = apercu(stocke);
@@ -219,7 +228,7 @@ export default async (req: Request, _context: Context) => {
       if ((rp[0]?.n || 0) >= PHOTOS_PAR_JOUR) return json({ error: "Tu as envoyé beaucoup de photos aujourd'hui. Reviens demain.", code: "photos_jour" }, 429);
       await magasinPhotos().set(cle, octets.buffer.slice(octets.byteOffset, octets.byteOffset + octets.byteLength) as ArrayBuffer, { metadata: { typeMime: mime, de: moi } });
       return null;
-    });
+    }, async () => { await magasinPhotos().delete(cle); });
   }
 
   if (action === "signaler") {

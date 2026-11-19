@@ -127,7 +127,7 @@
     }
     function lancer(expr, a, b, N, u) {
       verifier(expr);
-      if (ok) { var r = gpuKernel(expr, a, b, N, u); if (r) { var sortie = lire(r, N); if (sortie) return sortie; } }
+      if (ok) { try { var r = gpuKernel(expr, a, b, N, u); if (r) { var sortie = lire(r, N); if (sortie) return sortie; } } catch (e) { /* formule non acceptée par ce GPU : repli sur le processeur */ } }
       return cpuKernel(expr, a, b, N, u);
     }
 
@@ -167,7 +167,7 @@
       verifier(expr); if (!REDUCTIONS[op]) throw new Error('UC STAR : résumé inconnu « ' + op + ' » (sum, min, max).');
       var N = donnees.length;
       if (ok) {
-        var k = gpuKernel(expr, donnees, null, N, u);
+        var k = null; try { k = gpuKernel(expr, donnees, null, N, u); } catch (e) { k = null; }
         if (k) { var r = reduireGPU(k.c.t, N, k.f, op); gl.deleteTexture(k.ta); gl.deleteTexture(k.tb); gl.deleteFramebuffer(k.c.f); gl.deleteTexture(k.c.t); if (r !== null) return r; }
       }
       return reduireCPU(cpuKernel(expr, donnees, null, N, u), op);

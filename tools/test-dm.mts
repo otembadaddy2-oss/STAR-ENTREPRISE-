@@ -9,7 +9,7 @@ const apiDm = (await import("../netlify/functions/api-starvibe-dm.mts")).default
 const apiMyo = (await import("../netlify/functions/api-starvibe-myo.mts")).default;
 const { __utiliserMagasinPhotos } = await import("../netlify/functions/api-starvibe-dm.mts");
 const stock = new Map<string, ArrayBuffer>();
-__utiliserMagasinPhotos({ get: async (k: string) => stock.get(k) ?? null, set: async (k: string, v: ArrayBuffer) => { stock.set(k, v); } });
+__utiliserMagasinPhotos({ get: async (k: string) => stock.get(k) ?? null, set: async (k: string, v: ArrayBuffer) => { stock.set(k, v); }, delete: async (k: string) => { stock.delete(k); } });
 const webpush = (await import("web-push")).default as unknown as { sendNotification: (...a: unknown[]) => Promise<unknown> };
 let ko = 0; const ok = (c: boolean, m: string) => { console.log((c ? "OK  " : "ÉCHEC ") + m); if (!c) ko++; };
 
@@ -184,6 +184,21 @@ try {
   d = await j(await dm(ub, "POST", "", { action: "signaler", profilId: ua.profil, motif: "x", joindre: true }));
   const sg = (await sql`SELECT extrait FROM starvibe_dm_signalements WHERE de_account = ${ub.id} AND contre_account = ${ua.id} ORDER BY id DESC LIMIT 1`) as { extrait: string }[];
   ok(sg[0].extrait.includes("[photo]") && !sg[0].extrait.includes("[[photo:"), "dans un signalement, la photo est notée « [photo] » (pas de clé d'accès)");
+
+  // ================= 10. Corrections après relecture =================
+  const rapide = await compte("Rapide"), ami9 = await compte("Ami9"); await amis(rapide, ami9);
+  const rafale = await Promise.all(Array.from({ length: 60 }, (_, i) => envoyer(rapide, ami9, "r" + i)));
+  const passes = rafale.filter((x) => x.status === 200).length;
+  const nbSql = ((await sql`SELECT COUNT(*)::int AS n FROM starvibe_dm WHERE de_account = ${rapide.id}`) as { n: number }[])[0].n;
+  ok(nbSql <= 30 && passes === nbSql, "60 envois SIMULTANÉS : jamais plus de 30 messages enregistrés en 10 minutes (" + nbSql + ") et le nombre de succès correspond");
+  const avantStock = stock.size; const rafP = await Promise.all(Array.from({ length: 10 }, () => ph(rapide, ami9, jpeg(2000))));
+  ok(rafP.every((x) => x.status === 429) && stock.size === avantStock, "photos refusées par la limite : aucun fichier orphelin n'est gardé dans le stockage");
+  const u1 = await compte("Ancien1"), u2 = await compte("Ancien2"); await amis(u1, u2);
+  const pp = await j(await ph(u1, u2, jpeg(3000))); const clef = pp.message.texte.slice(8, -2);
+  ok((await lireP(u2, clef)).status === 200, "tant qu'ils sont amis, la photo est visible");
+  await sql`DELETE FROM starvibe_myo WHERE (de_account = ${u1.id} AND vers_account = ${u2.id}) OR (de_account = ${u2.id} AND vers_account = ${u1.id})`;
+  ok((await lireP(u2, clef)).status === 404 && (await lireP(u1, clef)).status === 404, "amitié terminée : plus personne ne peut rouvrir la photo");
+  ok((await lireP(ub, cle)).headers.get("vary")?.toLowerCase().includes("authorization") === true, "la photo est mise en cache en tenant compte du jeton (téléphone partagé)");
 } catch (e) {
   console.log("ÉCHEC : exception", e); ko++;
 }

@@ -107,6 +107,11 @@ const UA_IOS = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebK
   ok(envois.length === avJ + 1 && envois[envois.length - 1].texte === "[[jaime]]", "le j'aime KOMYO (pouce orange) est la 1re réaction rapide et s'envoie en un toucher");
   ok(await page.evaluate(() => !!document.querySelector(".b.moi.gros svg.pouce")) && !/\[\[jaime/.test(await page.textContent("#fil")), "le j'aime s'affiche en grand pouce orange, sans le texte technique");
   await page.screenshot({ path: "/tmp/dm-conv3.png" });
+  // --- Corrections après relecture ---
+  await page.fill("#texte", "brouillon en cours"); await page.click("#reacts button[data-e='🔥']"); await page.waitForTimeout(250);
+  ok(await page.inputValue("#texte") === "brouillon en cours", "toucher une réaction ne vide plus le message en cours d'écriture");
+  const idAvant = await page.evaluate(() => document.querySelectorAll(".b[data-id]").length);
+  await page.fill("#texte", ""); 
   await page.click("#titre"); await page.click("#mSig"); await page.waitForSelector("#sOui");
   await page.screenshot({ path: "/tmp/dm-signal.png" });
   await page.click("#sOui"); await page.waitForSelector("#sBloq");

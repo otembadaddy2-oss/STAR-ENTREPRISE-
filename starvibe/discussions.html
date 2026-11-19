@@ -133,7 +133,7 @@
   function cleJour(d){ return new Date(d).toLocaleDateString('fr-CA',{timeZone:TZ}); }
   function libJour(d){ var k=cleJour(d), aujK=cleJour(new Date()), hierK=cleJour(new Date(Date.now()-864e5)); if(k===aujK) return 'Aujourd\'hui'; if(k===hierK) return 'Hier'; var x=new Date(d); if(Date.now()-x.getTime()<6*864e5) return x.toLocaleDateString('fr-FR',{weekday:'long',timeZone:TZ}); return x.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric',timeZone:TZ}); }
   function hh(d){ return new Date(d).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',timeZone:TZ}); }
-  function seulEmoji(t){ var u=t.replace(/[\s\u200d\ufe0f]/g,''); if(!u||u.length>24) return false; try{ if(!/^(?:\p{Extended_Pictographic}|\p{Regional_Indicator})+$/u.test(u)) return false; return (u.match(/\p{Extended_Pictographic}|\p{Regional_Indicator}/gu)||[]).length<=3; }catch(e){ return false; } }
+  function seulEmoji(t){ var u=t.replace(/[\s\u200d\ufe0f]/g,''); if(!u||u.length>24) return false; try{ var A=new RegExp('^(?:\\p{Extended_Pictographic}|\\p{Regional_Indicator})+$','u'), B=new RegExp('\\p{Extended_Pictographic}|\\p{Regional_Indicator}','gu'); if(!A.test(u)) return false; return (u.match(B)||[]).length<=3; }catch(e){ return false; } }
   // Le pouce KOMYO (rond orange, pouce blanc), le même que dans ÉCLAT
   var pouceN=0;
   function pouceSvg(){ var id='pg'+(++pouceN);
@@ -160,7 +160,7 @@
     return sep+'<div class="l '+(m.moi?'moi':'lui')+'">'+av+'<div class="b '+(m.moi?'moi':'lui')+((jaime||(!mp&&seulEmoji(m.texte)))?' gros':'')+(mp?' photo':'')+'" data-id="'+m.id+'">'+corps+'<small>'+heure(m.date)+(m.moi&&dernierMoi&&m.lu?' · Lu ✓':'')+'</small></div></div>';
   }
   function ouvrir(profilId){
-    clearInterval(minuteur); vueListe.hidden=true; etat.hidden=false; etat.textContent='Chargement…'; $('infoEnvoi').textContent='';
+    clearInterval(minuteur); $('texte').value=''; $('texte').style.height='auto'; vueListe.hidden=true; etat.hidden=false; etat.textContent='Chargement…'; $('infoEnvoi').textContent='';
     history.replaceState(null,'','discussions.html?avec='+profilId);
     api('?avec='+profilId).then(function(r){
       etat.hidden=true;
@@ -171,37 +171,37 @@
       var fil=$('fil'); fil.innerHTML=''; dernierId=0; dernierJour=''; dernierTemps=0;
       fil.innerHTML='<div class="intro">'+avatar(amiCourant)+'<b>'+esc(amiCourant.nom)+'</b><span class="s">Vous êtes amis sur KOMYO</span></div>';
       if(!r.d.messages.length) fil.insertAdjacentHTML('beforeend','<div class="state" id="vide">Aucun message. Écris le premier 👋</div>');
-      ajouter(r.d.messages);
+      ajouter(r.d.messages,true);
       if(r.d.enPause) $('infoEnvoi').textContent='Ton envoi de messages est en pause le temps d\'un contrôle par l\'équipe KOMYO.';
       fil.scrollTop=fil.scrollHeight;
       minuteur=setInterval(rafraichir,20000);   // 20 s, seulement quand l'écran est visible : économise le serveur
     }).catch(function(){ etat.textContent='Connexion interrompue. Réessaie.'; });
   }
-  function ajouter(msgs){
+  function ajouter(msgs,depuisServeur){
     if(!msgs.length) return; var fil=$('fil'), vide=$('vide'); if(vide) vide.remove();
     var basPres=fil.scrollHeight-fil.scrollTop-fil.clientHeight<80;
-    msgs.forEach(function(m){ if(m.id>dernierId) dernierId=m.id; if(!fil.querySelector('[data-id="'+m.id+'"]')) fil.insertAdjacentHTML('beforeend',bulle(m,false)); });
+    msgs.forEach(function(m){ if(depuisServeur&&m.id>dernierId) dernierId=m.id; if(!fil.querySelector('[data-id="'+m.id+'"]')) fil.insertAdjacentHTML('beforeend',bulle(m,false)); });
     chargerPhotos();
-    var moiMsgs=fil.querySelectorAll('.b.moi'); moiMsgs.forEach(function(el){ var s=el.querySelector('small'); if(s) s.textContent=s.textContent.replace(' · Lu ✓',''); });
-    var lu=null; msgs.forEach(function(m){ if(m.moi&&m.lu) lu=m.id; }); if(lu){ var el=fil.querySelector('[data-id="'+lu+'"] small'); if(el&&el.textContent.indexOf('Lu')<0) el.textContent+=' · Lu ✓'; }
+    var lu=null; msgs.forEach(function(m){ if(m.moi&&m.lu) lu=m.id; });
+    if(lu){ fil.querySelectorAll('.b.moi small').forEach(function(sm){ sm.textContent=sm.textContent.replace(' · Lu ✓',''); }); var el=fil.querySelector('[data-id="'+lu+'"] small'); if(el&&el.textContent.indexOf('Lu')<0) el.textContent+=' · Lu ✓'; }
     if(basPres) fil.scrollTop=fil.scrollHeight;
   }
   function rafraichir(){
     if(document.hidden||!amiCourant) return;
-    api('?avec='+amiCourant.profilId+'&apres='+dernierId).then(function(r){ if(r.ok) ajouter(r.d.messages); }).catch(function(){});
+    api('?avec='+amiCourant.profilId+'&apres='+dernierId).then(function(r){ if(r.ok) ajouter(r.d.messages,true); }).catch(function(){});
   }
   document.addEventListener('visibilitychange',function(){ if(!document.hidden) rafraichir(); });
 
-  function envoi(t){
+  function envoi(t,viderBrouillon){
     if(!t||!amiCourant) return; var b=$('btnEnvoi'); b.disabled=true; $('infoEnvoi').textContent='';
     api('',{action:'envoyer',profilId:amiCourant.profilId,texte:t}).then(function(r){
       b.disabled=false;
       if(!r.ok){ $('infoEnvoi').textContent=r.d.error||'Envoi impossible. Réessaie.'; return; }
-      $('texte').value=''; $('texte').style.height='auto'; ajouter([r.d.message]);
+      if(viderBrouillon){ $('texte').value=''; $('texte').style.height='auto'; } ajouter([r.d.message]);
       if(r.d.notifie===false) $('infoEnvoi').innerHTML='<span style="color:var(--dim)">Message envoyé. '+esc(amiCourant.nom)+' le verra en ouvrant KOMYO.</span>';
     }).catch(function(){ b.disabled=false; $('infoEnvoi').textContent='Connexion interrompue. Réessaie.'; });
   }
-  $('formEnvoi').addEventListener('submit',function(e){ e.preventDefault(); envoi($('texte').value.trim()); });
+  $('formEnvoi').addEventListener('submit',function(e){ e.preventDefault(); envoi($('texte').value.trim(),true); });
   // Réactions rapides : un seul geste envoie
   $('reacts').innerHTML='<button type="button" data-e="[[jaime]]" aria-label="Envoyer un j\'aime KOMYO">'+pouceSvg()+'</button>'+['❤️','😂','👋','🔥','🙏','😍','🎉'].map(function(x){ return '<button type="button" data-e="'+x+'" aria-label="Envoyer '+x+'">'+x+'</button>'; }).join('');
   $('reacts').addEventListener('click',function(e){ var b=e.target.closest('button'); if(b) envoi(b.getAttribute('data-e')); });
