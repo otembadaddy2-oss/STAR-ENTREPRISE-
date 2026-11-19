@@ -45,6 +45,7 @@ const UA_IOS = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebK
           { profilId: 7, nom: "Alice", photoUrl: null, dernier: { texte: "Salut Carry, tu viens ce soir ?", deMoi: false, date: new Date().toISOString() }, nonLus: 2 },
           { profilId: 8, nom: "Bob", photoUrl: null, dernier: null, nonLus: 0 }] });
       }
+      if (m === "GET" && u.searchParams.get("photo")) return route.fulfill({ status: 200, contentType: "image/png", body: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8DwHwAFAAH/q842iQAAAABJRU5ErkJggg==", "base64") });
       if (m === "GET" && u.searchParams.get("avec")) {
         const apres = Number(u.searchParams.get("apres")) || 0;
         return rep({ ami: { profilId: 7, nom: "Alice", photoUrl: null }, messages: msgs.filter((x) => x.id > apres), enPause: false });
@@ -52,6 +53,7 @@ const UA_IOS = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebK
       if (m === "POST") {
         const b = JSON.parse(route.request().postData()); envois.push(b);
         if (b.action === "envoyer") { const nm = { id: msgs.length + 1, moi: true, texte: b.texte, date: new Date().toISOString(), lu: false }; msgs.push(nm); return rep({ ok: true, message: nm, notifie: true }); }
+        if (b.action === "photo") { const nm = { id: msgs.length + 1, moi: true, texte: "[[photo:7-9/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa]]", date: new Date().toISOString(), lu: false }; msgs.push(nm); return rep({ ok: true, message: nm, notifie: true }); }
         if (b.action === "signaler") return rep({ ok: true, message: "Merci. L'équipe KOMYO va regarder. Tu peux aussi bloquer cette personne pour ne plus recevoir ses messages." });
       }
       return rep({ error: "?" }, 400);
@@ -90,6 +92,26 @@ const UA_IOS = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebK
   const av2 = envois.length; await page.click("#gEmo button[data-e='🔥']"); await page.waitForTimeout(250);
   ok(envois.length === av2 + 1 && envois[envois.length - 1].texte === "🔥" && !(await page.isVisible("#panneau")), "un autocollant s'envoie tout de suite et ferme le panneau");
   await page.screenshot({ path: "/tmp/dm-conv2.png" });
+  // --- Photos, caméra et « j'aime » KOMYO ---
+  ok(await page.isVisible("#bPlus"), "bouton « + » pour joindre une photo, à gauche de la zone d'écriture");
+  await page.click("#bPlus"); ok(await page.isVisible("#menuJoindre") && /Prendre une photo/.test(await page.textContent("#menuJoindre")) && /galerie/.test(await page.textContent("#menuJoindre")), "le menu propose « Prendre une photo » et « Photo de la galerie »");
+  ok(await page.getAttribute("#fCam", "capture") === "environment" && await page.evaluate(() => document.getElementById("jVid").disabled), "« Prendre une photo » ouvre la caméra arrière ; la vidéo est annoncée « bientôt »");
+  const PNG1 = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8DwHwAFAAH/q842iQAAAABJRU5ErkJggg==", "base64");
+  await page.click("#jGal"); await page.setInputFiles("#fGal", { name: "p.png", mimeType: "image/png", buffer: PNG1 });
+  await page.waitForSelector("#pOui"); ok(/Envoyer cette photo à Alice/.test(await page.textContent(".dlg")), "un aperçu demande confirmation avant l'envoi de la photo");
+  const avP = envois.length; await page.click("#pOui"); await page.waitForSelector(".b.photo img.ph");
+  const pe = envois[envois.length - 1]; ok(envois.length === avP + 1 && pe.action === "photo" && /^data:image\/jpeg;base64,/.test(pe.image) && pe.profilId === 7, "la photo est réduite en JPEG puis envoyée à la bonne personne");
+  await page.waitForFunction(() => { const i = document.querySelector("img.ph"); return i && i.src.startsWith("blob:"); }); ok(true, "la photo privée s'affiche (chargée avec le jeton d'accès)");
+  await page.click("img.ph"); ok(await page.isVisible(".dlg img"), "toucher la photo l'ouvre en grand"); await page.click("#zFin");
+  const avJ = envois.length; await page.click("#reacts button[data-e='[[jaime]]']"); await page.waitForTimeout(250);
+  ok(envois.length === avJ + 1 && envois[envois.length - 1].texte === "[[jaime]]", "le j'aime KOMYO (pouce orange) est la 1re réaction rapide et s'envoie en un toucher");
+  ok(await page.evaluate(() => !!document.querySelector(".b.moi.gros svg.pouce")) && !/\[\[jaime/.test(await page.textContent("#fil")), "le j'aime s'affiche en grand pouce orange, sans le texte technique");
+  await page.screenshot({ path: "/tmp/dm-conv3.png" });
+  // --- Corrections après relecture ---
+  await page.fill("#texte", "brouillon en cours"); await page.click("#reacts button[data-e='🔥']"); await page.waitForTimeout(250);
+  ok(await page.inputValue("#texte") === "brouillon en cours", "toucher une réaction ne vide plus le message en cours d'écriture");
+  const idAvant = await page.evaluate(() => document.querySelectorAll(".b[data-id]").length);
+  await page.fill("#texte", ""); 
   await page.click("#titre"); await page.click("#mSig"); await page.waitForSelector("#sOui");
   await page.screenshot({ path: "/tmp/dm-signal.png" });
   await page.click("#sOui"); await page.waitForSelector("#sBloq");

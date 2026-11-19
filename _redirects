@@ -52,3 +52,5 @@ http://komyo.starentreprise.com/   /starvibe/  301!
 /starvibe-demo/README.md                            /404.html  404!
 
 /docs/arena/*    /404.html  404!
+# Fiche d'identité légale (RCCM, NIU, SCIEN) : jamais publique ; Carry l'envoie lui-même en PDF quand il doit prouver que l'entreprise est en règle.
+/docs/identite/*  /404.html  404!

@@ -51,12 +51,12 @@
 
   var VS = '#version 300 es\nvoid main(){vec2 p=vec2((gl_VertexID<<1)&2,gl_VertexID&2);gl_Position=vec4(p*2.-1.,0.,1.);}';
   function fsKernel(expr) {
-    return '#version 300 es\nprecision highp float;\nuniform sampler2D tx;uniform sampler2D tb;uniform vec4 dims;uniform vec4 u;out float sortie;\nconst float PI=3.14159265358979;\n' +
+    return '#version 300 es\nprecision highp float;precision highp sampler2D;\nuniform sampler2D tx;uniform sampler2D tb;uniform vec4 dims;uniform vec4 u;out float sortie;\nconst float PI=3.14159265358979;\n' +
       'void main(){ivec2 o=ivec2(gl_FragCoord.xy);float i=float(o.y)*dims.x+float(o.x);float n=dims.z;\n' +
       'float x=texelFetch(tx,o,0).r;float a=x;float b=texelFetch(tb,o,0).r;float u0=u.x,u1=u.y,u2=u.z,u3=u.w;\n' +
       'sortie=(' + versGLSL(expr) + ');}';
   }
-  var FS_REDUIRE = '#version 300 es\nprecision highp float;\nuniform sampler2D src;uniform ivec2 taille;uniform float valides;uniform int mode;out float sortie;\n' +
+  var FS_REDUIRE = '#version 300 es\nprecision highp float;precision highp sampler2D;\nuniform sampler2D src;uniform ivec2 taille;uniform float valides;uniform int mode;out float sortie;\n' +
     'float lire(ivec2 p){if(p.x>=taille.x||p.y>=taille.y)return mode==0?0.:(mode==1?3.4e38:-3.4e38);' +
     'float idx=float(p.y)*float(taille.x)+float(p.x);if(idx>=valides)return mode==0?0.:(mode==1?3.4e38:-3.4e38);return texelFetch(src,p,0).r;}\n' +
     'float comb(float p,float q){return mode==0?p+q:(mode==1?min(p,q):max(p,q));}\n' +
@@ -67,7 +67,7 @@
   function create(gpuOuCanvas, options) {
     var gpu = gpuOuCanvas && gpuOuCanvas.compute ? gpuOuCanvas : (typeof StarGPU !== 'undefined' ? StarGPU.create(gpuOuCanvas, options) : null);
     if (!gpu) throw new Error('UC STAR : charge d\'abord star-gpu.js.');
-    var gl = gpu.gl, ok = !!(gl && gpu.info.ok && gpu.info.calculFlottant);
+    var gl = gpu.gl, ok = !!(gl && gpu.info.ok && gpu.info.calculFlottant && gpu.info.precisionOk !== false);
     var uc = { version: VERSION, gpu: gpu, backend: ok ? 'gpu' : 'cpu', cache: {} };
     uc.info = { version: VERSION, backend: uc.backend, renderer: gpu.info.renderer, maxTexture: gpu.info.maxTexture };
 
@@ -127,7 +127,7 @@
     }
     function lancer(expr, a, b, N, u) {
       verifier(expr);
-      if (ok) { var r = gpuKernel(expr, a, b, N, u); if (r) { var sortie = lire(r, N); if (sortie) return sortie; } }
+      if (ok) { try { var r = gpuKernel(expr, a, b, N, u); if (r) { var sortie = lire(r, N); if (sortie) return sortie; } } catch (e) { /* formule non acceptée par ce GPU : repli sur le processeur */ } }
       return cpuKernel(expr, a, b, N, u);
     }
 
@@ -167,7 +167,7 @@
       verifier(expr); if (!REDUCTIONS[op]) throw new Error('UC STAR : résumé inconnu « ' + op + ' » (sum, min, max).');
       var N = donnees.length;
       if (ok) {
-        var k = gpuKernel(expr, donnees, null, N, u);
+        var k = null; try { k = gpuKernel(expr, donnees, null, N, u); } catch (e) { k = null; }
         if (k) { var r = reduireGPU(k.c.t, N, k.f, op); gl.deleteTexture(k.ta); gl.deleteTexture(k.tb); gl.deleteFramebuffer(k.c.f); gl.deleteTexture(k.c.t); if (r !== null) return r; }
       }
       return reduireCPU(cpuKernel(expr, donnees, null, N, u), op);
