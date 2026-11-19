@@ -38,6 +38,9 @@ let ko = 0; const ok = (c, m) => { console.log((c ? "OK  " : "ÉCHEC ") + m); if
     const refus = (e) => { try { uc.map(new Float32Array([1]), e); return false; } catch (x) { return x.message; } };
     out.refus = [refus("alert(1)"), refus("x; fetch('/')"), refus("window.x"), refus("")];
     out.million = [uc.mapReduce(new Float32Array(1000000).fill(0.5), 'x*x', 'sum'), uc.reduce(new Float32Array(1000000).fill(0.5), 'sum')];
+    out.reduceGpu = [uc.reduceGpu, uc.info.reduceGpu];
+    const ucCpuSomme = UCStar.create(uc.gpu, { reduceGpu: false });
+    out.sommeSecours = [ucCpuSomme.mapReduce(new Float32Array(1000000).fill(0.5), 'x*x', 'sum'), ucCpuSomme.reduceGpu];
     out.bench = uc.benchmark(200000);
     return out;
   });
@@ -52,6 +55,8 @@ let ko = 0; const ok = (c, m) => { console.log((c ? "OK  " : "ÉCHEC ") + m); if
   ok(r.mm.join() === "19,22,43,50", "matmul passe par STAR GPU : " + r.mm.join(","));
   ok(r.refus.every((m) => typeof m === "string" && /UC STAR/.test(m)), "les formules dangereuses sont refusées : " + r.refus.map((m) => m.slice(0, 40)).join(" | "));
   ok(Math.abs(r.million[0] - 250000) < 1 && Math.abs(r.million[1] - 500000) < 1, "somme de 1 000 000 de valeurs exacte (cas relevé sur téléphone : 250 000 attendu) : " + r.million.join(" / "));
+  ok(r.reduceGpu[0] === true && r.reduceGpu[1] === true, "auto-test des sommes sur GPU réussi (" + r.reduceGpu.join("/") + ")");
+  ok(Math.abs(r.sommeSecours[0] - 250000) < 1 && r.sommeSecours[1] === false, "si l'auto-test des sommes échoue, le processeur donne 250000 : " + r.sommeSecours.join(" / "));
   console.log("INFO mesure (bac à sable sans vrai GPU, sans valeur de vitesse) : " + JSON.stringify(r.bench));
   ok(erreurs.length === 0, "aucune erreur dans la console " + erreurs.slice(0, 3).join(" | "));
   await nav.close(); srv.close(); console.log(ko ? `\n${ko} ÉCHEC(S)` : "\nTOUS LES TESTS PASSENT"); process.exit(ko ? 1 : 0);

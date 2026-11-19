@@ -76,7 +76,7 @@ code,.m{font-family:ui-monospace,monospace;font-size:13px;color:var(--or)}.m{whi
   function bench(n){ var r = gpu.benchmark(n); $('infoIA').textContent = n + '×' + n + ' (' + (n * n * n / 1e6).toFixed(0) + ' millions d\'opérations)\nProcesseur central : ' + r.cpuMs + ' ms\nGPU : ' + r.gpuMs + ' ms (×' + r.rapport + ')\nÉcart de résultat : ' + r.ecartMax.toExponential(1); window.__bench = r; }
   var uc = UCStar.create(gpu);
   $('bUc').onclick = function(){ var r = uc.benchmark(1000000), d = new Float32Array(1000000).fill(0.5), t0 = performance.now(), somme = uc.mapReduce(d, 'x*x', 'sum'), t1 = performance.now() - t0;
-    $('infoUC').textContent = 'Calcul : ' + r.N + ' valeurs (' + r.backend + ')\nProcesseur central : ' + r.cpuMs + ' ms\nUC STAR : ' + r.ucMs + ' ms (×' + r.rapport + ')\nÉcart de résultat : ' + r.ecartMax.toExponential(1) + '\nSomme de 1 000 000 de carrés : ' + somme + ' en ' + Math.round(t1) + ' ms'; window.__uc = r; };
+    $('infoUC').textContent = 'Calcul : ' + r.N + ' valeurs (' + r.backend + ')\nProcesseur central : ' + r.cpuMs + ' ms\nUC STAR : ' + r.ucMs + ' ms (×' + r.rapport + ')\nÉcart de résultat : ' + r.ecartMax.toExponential(1) + '\nSomme de 1 000 000 de carrés : ' + somme + ' en ' + Math.round(t1) + ' ms (' + (uc.reduceGpu ? 'GPU, vérifié' : 'processeur : le GPU de cet appareil ne donne pas une somme fiable') + ')'; window.__uc = r; };
   $('bBench').onclick = function(){ bench(256); }; $('bBench2').onclick = function(){ bench(512); };
 })();
 </script></body></html>

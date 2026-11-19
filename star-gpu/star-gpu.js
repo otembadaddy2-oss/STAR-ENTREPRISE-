@@ -65,7 +65,7 @@
     'uniform sampler2D tex;uniform int texture_active;\n' +
     'void main(){vec4 t=texture_active==1?texture(tex,uv):vec4(1.);sortie=t*couleur;if(sortie.a<.003)discard;}';
 
-  var FS_MATMUL = '#version 300 es\nprecision highp float;precision highp sampler2D;\nout float sortie;\n' +
+  var FS_MATMUL = '#version 300 es\nprecision highp float;precision highp int;precision highp sampler2D;\nout float sortie;\n' +
     'uniform sampler2D A;uniform sampler2D B;uniform int k;\n' +
     'void main(){ivec2 o=ivec2(gl_FragCoord.xy);float s=0.;for(int p=0;p<k;p++){s+=texelFetch(A,ivec2(p,o.y),0).r*texelFetch(B,ivec2(o.x,p),0).r;}sortie=s;}';
 
