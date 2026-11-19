@@ -51,7 +51,4 @@ http://komyo.starentreprise.com/   /starvibe/  301!
 /README.md                                          /404.html  404!
 /starvibe-demo/README.md                            /404.html  404!
 
-# STAR GPU (bibliothèque + démo) : hors ligne tant que Carry ne dit pas « publie » (retirer ces lignes pour l'ouvrir)
-/star-gpu         /404.html  404!
-/star-gpu/*       /404.html  404!
 /docs/arena/*    /404.html  404!
