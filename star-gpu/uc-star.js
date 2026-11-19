@@ -51,15 +51,15 @@
 
   var VS = '#version 300 es\nvoid main(){vec2 p=vec2((gl_VertexID<<1)&2,gl_VertexID&2);gl_Position=vec4(p*2.-1.,0.,1.);}';
   function fsKernel(expr) {
-    return '#version 300 es\nprecision highp float;precision highp sampler2D;\nuniform sampler2D tx;uniform sampler2D tb;uniform vec4 dims;uniform vec4 u;out float sortie;\nconst float PI=3.14159265358979;\n' +
+    return '#version 300 es\nprecision highp float;precision highp int;precision highp sampler2D;\nuniform sampler2D tx;uniform sampler2D tb;uniform vec4 dims;uniform vec4 u;out float sortie;\nconst float PI=3.14159265358979;\n' +
       'void main(){ivec2 o=ivec2(gl_FragCoord.xy);float i=float(o.y)*dims.x+float(o.x);float n=dims.z;\n' +
       'float x=texelFetch(tx,o,0).r;float a=x;float b=texelFetch(tb,o,0).r;float u0=u.x,u1=u.y,u2=u.z,u3=u.w;\n' +
       'sortie=(' + versGLSL(expr) + ');}';
   }
-  var FS_REDUIRE = '#version 300 es\nprecision highp float;precision highp sampler2D;\nuniform sampler2D src;uniform ivec2 taille;uniform float valides;uniform int mode;out float sortie;\n' +
-    'float lire(ivec2 p){if(p.x>=taille.x||p.y>=taille.y)return mode==0?0.:(mode==1?3.4e38:-3.4e38);' +
-    'float idx=float(p.y)*float(taille.x)+float(p.x);if(idx>=valides)return mode==0?0.:(mode==1?3.4e38:-3.4e38);return texelFetch(src,p,0).r;}\n' +
-    'float comb(float p,float q){return mode==0?p+q:(mode==1?min(p,q):max(p,q));}\n' +
+  var FS_REDUIRE = '#version 300 es\nprecision highp float;precision highp int;precision highp sampler2D;\nuniform sampler2D src;uniform vec2 taille;uniform float valides;uniform float mode;out float sortie;\n' +
+    'float lire(ivec2 p){float px=float(p.x),py=float(p.y);float vide=mode<0.5?0.:(mode<1.5?3.4e38:-3.4e38);if(px>=taille.x||py>=taille.y)return vide;' +
+    'if(py*taille.x+px>=valides)return vide;return texelFetch(src,p,0).r;}\n' +
+    'float comb(float p,float q){return mode<0.5?p+q:(mode<1.5?min(p,q):max(p,q));}\n' +
     'void main(){ivec2 o=ivec2(gl_FragCoord.xy)*2;float s=comb(comb(lire(o),lire(o+ivec2(1,0))),comb(lire(o+ivec2(0,1)),lire(o+ivec2(1,1))));sortie=s;}';
 
   var REDUCTIONS = { sum: { m: 0, id: 0, f: function (p, q) { return p + q; } }, min: { m: 1, id: Infinity, f: Math.min }, max: { m: 2, id: -Infinity, f: Math.max } };
@@ -72,6 +72,7 @@
     uc.info = { version: VERSION, backend: uc.backend, renderer: gpu.info.renderer, maxTexture: gpu.info.maxTexture };
 
     var vide = ok ? gl.createVertexArray() : null, progs = {}, factice = null;
+    uc.reduceGpu = false;   // les sommes/minimums/maximums sur GPU ne sont utilisés que si un auto-test sur 1 000 000 de valeurs est exact
     function programme(cle, fs) {
       if (progs[cle]) return progs[cle];
       function sh(t, s) { var o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error('UC STAR : formule refusée par le GPU : ' + gl.getShaderInfoLog(o)); return o; }
@@ -145,7 +146,7 @@
         if (!c) { if (courant.propre) gl.deleteTexture(courant.t); return null; }
         gl.useProgram(pr.p); gl.bindFramebuffer(gl.FRAMEBUFFER, c.f); gl.viewport(0, 0, w2, h2); gl.disable(gl.BLEND);
         gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, courant.t); gl.uniform1i(pr.u.src, 0);
-        gl.uniform2i(pr.u.taille, courant.w, courant.h); gl.uniform1f(pr.u.valides, valides); gl.uniform1i(pr.u.mode, R.m); plein();
+        gl.uniform2f(pr.u.taille, courant.w, courant.h); gl.uniform1f(pr.u.valides, valides); gl.uniform1f(pr.u.mode, R.m); plein();
         if (courant.propre) gl.deleteTexture(courant.t); gl.deleteFramebuffer(c.f);
         courant = { t: c.t, w: w2, h: h2, propre: true }; valides = 1e30;
       }
@@ -154,10 +155,27 @@
       var err = gl.getError(); gl.deleteFramebuffer(cf); if (courant.propre) gl.deleteTexture(courant.t);
       return err === gl.NO_ERROR ? out[0] : null;
     }
+    function reduceFiable() {
+      // Auto-test (une seule fois) : un téléphone dont le GPU se trompe sur les grands tableaux est détecté ici, et le processeur prend le relais.
+      if (reduceFiable.fait) return reduceFiable.ok;
+      reduceFiable.fait = true; reduceFiable.ok = false;
+      if (!ok || (options && options.reduceGpu === false)) return false;
+      try {
+        var N = 1000000, d = new Float32Array(N).fill(0.25), f = forme(N);
+        if (f) {
+          var t = tex(f.W, f.H, remplir(d, N, f)), r = reduireGPU(t, N, f, 'sum'); gl.deleteTexture(t);
+          var m = new Float32Array(N); m[123456] = 7; m[999999] = -3;
+          var t2 = tex(f.W, f.H, remplir(m, N, f)), rm = reduireGPU(t2, N, f, 'max'); gl.deleteTexture(t2);
+          reduceFiable.ok = r !== null && Math.abs(r - 250000) < 0.5 && rm === 7;
+        }
+      } catch (e) { reduceFiable.ok = false; }
+      uc.reduceGpu = reduceFiable.ok; uc.info.reduceGpu = reduceFiable.ok;
+      return reduceFiable.ok;
+    }
     uc.reduce = function (donnees, op) {
       if (!REDUCTIONS[op]) throw new Error('UC STAR : résumé inconnu « ' + op + ' » (sum, min, max).');
       var N = donnees.length; if (!N) return REDUCTIONS[op].id;
-      if (ok) {
+      if (ok && reduceFiable()) {
         var f = forme(N);
         if (f) { var t = tex(f.W, f.H, remplir(donnees, N, f)); var r = reduireGPU(t, N, f, op); gl.deleteTexture(t); if (r !== null) return r; }
       }
@@ -166,6 +184,7 @@
     uc.mapReduce = function (donnees, expr, op, u) {
       verifier(expr); if (!REDUCTIONS[op]) throw new Error('UC STAR : résumé inconnu « ' + op + ' » (sum, min, max).');
       var N = donnees.length;
+      if (ok && !reduceFiable()) return reduireCPU(lancer(expr, donnees, null, N, u), op);   // le calcul de chaque valeur reste sur le GPU
       if (ok) {
         var k = null; try { k = gpuKernel(expr, donnees, null, N, u); } catch (e) { k = null; }
         if (k) { var r = reduireGPU(k.c.t, N, k.f, op); gl.deleteTexture(k.ta); gl.deleteTexture(k.tb); gl.deleteFramebuffer(k.c.f); gl.deleteTexture(k.c.t); if (r !== null) return r; }

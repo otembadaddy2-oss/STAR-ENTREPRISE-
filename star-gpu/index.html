@@ -9,6 +9,12 @@ h1{font-size:22px;margin:0 0 4px}h1 b{color:var(--or)}h2{font-size:16px;margin:0
 canvas{max-width:100%;border-radius:8px;display:block;background:#000}.r{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
 button{background:#1b2750;color:var(--texte);border:1px solid var(--bord);border-radius:8px;padding:10px 12px;font:inherit}button:active{background:#2a3a78}
 code,.m{font-family:ui-monospace,monospace;font-size:13px;color:var(--or)}.m{white-space:pre-wrap;display:block;margin-top:6px}
+.s2{color:var(--doux);font-size:13px;margin:0 0 10px}.c label{display:block;color:var(--doux);font-size:13px;margin:8px 0 2px}
+.c input[type=text],.c textarea{width:100%;background:#0b1126;color:var(--texte);border:1px solid var(--bord);border-radius:8px;padding:10px;font:inherit}
+.c input[type=file]{width:100%;color:var(--doux)}progress{width:100%;height:10px;margin-top:8px}
+#iaFil{max-height:46vh;overflow:auto;margin:10px 0;display:flex;flex-direction:column;gap:8px}
+.bu{max-width:88%;padding:9px 12px;border-radius:14px;white-space:pre-wrap;word-break:break-word}.bu.moi{align-self:flex-end;background:#26408a}.bu.ia{align-self:flex-start;background:#1b2750;border:1px solid var(--bord)}
+.reg{display:flex;gap:12px;flex-wrap:wrap;color:var(--doux);font-size:13px;align-items:center;margin:6px 0}.reg input[type=range]{width:110px}
 </style></head><body>
 <h1>STAR <b>GPU</b> + UC <b>STAR</b></h1>
 <p class="s">Bibliothèque de calcul graphique de STAR ENTREPRISE : filtres d'images, milliers de sprites pour les jeux, calcul de matrices pour l'IA. Elle utilise le vrai processeur graphique de ton appareil.</p>
@@ -29,8 +35,23 @@ code,.m{font-family:ui-monospace,monospace;font-size:13px;color:var(--or)}.m{whi
 <div class="c"><h2>4. UC STAR : une formule, un million de calculs</h2>
 <div class="r"><button id="bUc">Calculer 1 000 000 de valeurs</button></div><span class="m" id="infoUC">Appuie pour calculer sin(x)·cos(x)+√x avec UC STAR.</span></div>
 
+<div class="c" id="ia"><h2>5. STAR IA : discuter avec une IA générative</h2>
+<p class="s2">Un petit modèle de langage (Qwen2.5, 0,5 milliard de paramètres, licence Apache 2.0) tourne dans ton appareil, avec le GPU quand il est fiable. Rien n'est envoyé à un serveur de discussion. Le fichier du modèle fait environ 0,3 à 0,6 Go : télécharge-le en Wi-Fi, une seule fois, il reste ensuite dans ton appareil. C'est un petit modèle : il comprend le français mais se trompe plus souvent que les grands assistants en ligne.</p>
+<div class="r"><button id="iaQ4">Télécharger (4 bits, plus léger)</button><button id="iaQ8">Télécharger (8 bits, plus précis)</button></div>
+<label for="iaUrl">ou adresse d'un fichier modèle .gguf</label><input type="text" id="iaUrl" placeholder="https://…/modele.gguf" autocomplete="off" autocapitalize="off" spellcheck="false">
+<div class="r"><button id="iaUrlGo">Télécharger cette adresse</button></div>
+<label for="iaFic">ou choisir un fichier .gguf déjà sur ton appareil</label><input type="file" id="iaFic" accept=".gguf">
+<progress id="iaProg" value="0" max="1" hidden></progress><span class="m" id="iaEtat">Choisis un modèle pour commencer.</span>
+<div id="iaChat" hidden>
+<div id="iaFil" aria-live="polite"></div>
+<label for="iaSaisie">Ton message</label><textarea id="iaSaisie" rows="2" placeholder="Écris en français…"></textarea>
+<div class="r"><button id="iaEnvoi">Envoyer</button><button id="iaStop" disabled>Arrêter</button><button id="iaNouv">Nouvelle conversation</button></div>
+<div class="reg"><label style="margin:0">Créativité <input type="range" id="iaTemp" min="0" max="1.2" step="0.1" value="0.7"></label><label style="margin:0">Longueur max <input type="range" id="iaLong" min="32" max="400" step="16" value="160"></label><label style="margin:0"><input type="checkbox" id="iaEco"> Mode Économie (moins de chaleur)</label></div>
+<span class="m" id="iaStats"></span></div></div>
+
 <script src="star-gpu.js"></script>
 <script src="uc-star.js"></script>
+<script src="star-ia.js"></script>
 <script>
 (function(){
   var gpu = StarGPU.create(), $ = function(i){ return document.getElementById(i); };
@@ -76,7 +97,58 @@ code,.m{font-family:ui-monospace,monospace;font-size:13px;color:var(--or)}.m{whi
   function bench(n){ var r = gpu.benchmark(n); $('infoIA').textContent = n + '×' + n + ' (' + (n * n * n / 1e6).toFixed(0) + ' millions d\'opérations)\nProcesseur central : ' + r.cpuMs + ' ms\nGPU : ' + r.gpuMs + ' ms (×' + r.rapport + ')\nÉcart de résultat : ' + r.ecartMax.toExponential(1); window.__bench = r; }
   var uc = UCStar.create(gpu);
   $('bUc').onclick = function(){ var r = uc.benchmark(1000000), d = new Float32Array(1000000).fill(0.5), t0 = performance.now(), somme = uc.mapReduce(d, 'x*x', 'sum'), t1 = performance.now() - t0;
-    $('infoUC').textContent = 'Calcul : ' + r.N + ' valeurs (' + r.backend + ')\nProcesseur central : ' + r.cpuMs + ' ms\nUC STAR : ' + r.ucMs + ' ms (×' + r.rapport + ')\nÉcart de résultat : ' + r.ecartMax.toExponential(1) + '\nSomme de 1 000 000 de carrés : ' + somme + ' en ' + Math.round(t1) + ' ms'; window.__uc = r; };
+    $('infoUC').textContent = 'Calcul : ' + r.N + ' valeurs (' + r.backend + ')\nProcesseur central : ' + r.cpuMs + ' ms\nUC STAR : ' + r.ucMs + ' ms (×' + r.rapport + ')\nÉcart de résultat : ' + r.ecartMax.toExponential(1) + '\nSomme de 1 000 000 de carrés : ' + somme + ' en ' + Math.round(t1) + ' ms (' + (uc.reduceGpu ? 'GPU, vérifié' : 'processeur : le GPU de cet appareil ne donne pas une somme fiable') + ')'; window.__uc = r; };
   $('bBench').onclick = function(){ bench(256); }; $('bBench2').onclick = function(){ bench(512); };
+})();
+</script>
+<script>
+(function(){
+  var $ = function(i){ return document.getElementById(i); }, URL_Q4 = 'https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/qwen2.5-0.5b-instruct-q4_0.gguf', URL_Q8 = 'https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/qwen2.5-0.5b-instruct-q8_0.gguf';
+  var modele = null, msgs = [], signal = null, occupe = false, gIA = null;
+  function etat(t){ $('iaEtat').textContent = t; }
+  function prog(p, t){ var b = $('iaProg'); b.hidden = false; b.value = Math.max(0, Math.min(1, p)); if (t) etat(t); }
+  async function obtenir(url){
+    var cache = (window.caches && location.protocol !== 'file:') ? await caches.open('star-ia-v1') : null, rep = null;
+    try { if (cache) rep = await cache.match(url); } catch (e) { rep = null; }
+    if (rep) { etat('Modèle déjà présent dans ton appareil : pas de téléchargement.'); return await rep.blob(); }
+    try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+    var r = await fetch(url); if (!r.ok) throw new Error('Téléchargement impossible (code ' + r.status + '). Vérifie l\'adresse ou ta connexion.');
+    var total = +r.headers.get('content-length') || 0, lu = 0, lecteur = r.body.getReader();
+    var flux = new ReadableStream({ pull: async function(ctrl){ var x = await lecteur.read(); if (x.done) { ctrl.close(); return; } lu += x.value.length; prog(total ? lu / total : 0, 'Téléchargement : ' + Math.round(lu / 1048576) + ' Mo' + (total ? ' sur ' + Math.round(total / 1048576) + ' Mo' : '')); ctrl.enqueue(x.value); } });
+    var copie = new Response(flux, { headers: { 'content-type': 'application/octet-stream' } });
+    if (cache) { try { await cache.put(url, copie); var r2 = await cache.match(url); return await r2.blob(); } catch (e) { throw new Error('Pas assez de place dans ton appareil pour garder le modèle (' + e.message + '). Libère de la place ou choisis le modèle 4 bits.'); } }
+    return await copie.blob();
+  }
+  async function demarrer(blobOuPromesse){
+    if (occupe) return; occupe = true; ['iaQ4','iaQ8','iaUrlGo'].forEach(function(i){ $(i).disabled = true; });
+    try {
+      var blob = await blobOuPromesse; prog(0, 'Lecture du modèle…'); gIA = gIA || StarGPU.create();
+      var t0 = performance.now();
+      modele = await StarIA.charger(StarIA.sourceBlob(blob), { gpu: gIA, progression: function(p, n){ prog(p, 'Préparation du modèle : ' + Math.round(p * 100) + ' %'); } });
+      msgs = []; modele.nouvelleConversation(); $('iaFil').textContent = ''; $('iaChat').hidden = false; $('iaProg').hidden = true;
+      var c = modele.cfg; etat((c.nom || 'Modèle') + ' prêt en ' + ((performance.now() - t0) / 1000).toFixed(1) + ' s\n' + c.couches + ' couches · ' + c.dim + ' dimensions · mémoire ' + c.ctx + ' mots\nCalcul : ' + (modele.gpu.utilise ? 'GPU (auto-test réussi)' : 'processeur — ' + modele.gpu.raison));
+      window.__ia = modele;
+    } catch (e) { $('iaProg').hidden = true; etat('Impossible : ' + e.message); modele = null; $('iaChat').hidden = true; }
+    occupe = false; ['iaQ4','iaQ8','iaUrlGo'].forEach(function(i){ $(i).disabled = false; });
+  }
+  $('iaQ4').onclick = function(){ $('iaUrl').value = URL_Q4; demarrer(obtenir(URL_Q4)); };
+  $('iaQ8').onclick = function(){ $('iaUrl').value = URL_Q8; demarrer(obtenir(URL_Q8)); };
+  $('iaUrlGo').onclick = function(){ var u = $('iaUrl').value.trim(); if (!/^https?:\/\//.test(u) && !/^\//.test(u)) { etat('Colle une adresse qui commence par https://'); return; } demarrer(obtenir(u)); };
+  $('iaFic').onchange = function(){ var f = this.files && this.files[0]; if (f) demarrer(Promise.resolve(f)); };
+  function bulle(cls, txt){ var d = document.createElement('div'); d.className = 'bu ' + cls; d.textContent = txt; $('iaFil').appendChild(d); $('iaFil').scrollTop = 1e9; return d; }
+  async function envoyer(){
+    var t = $('iaSaisie').value.trim(); if (!t || !modele || occupe) return; occupe = true; $('iaSaisie').value = ''; $('iaEnvoi').disabled = true; $('iaStop').disabled = false;
+    msgs.push({ role: 'user', content: t }); bulle('moi', t); var b = bulle('ia', '…'), txt = ''; signal = { annule: false };
+    try {
+      var r = await modele.discuter(msgs, { maxTokens: +$('iaLong').value, temperature: +$('iaTemp').value, signal: signal, pauseMs: $('iaEco').checked ? 40 : 0, onToken: function(m){ txt += m; b.textContent = txt; $('iaFil').scrollTop = 1e9; } });
+      msgs.push({ role: 'assistant', content: r.texte }); if (!r.texte) b.textContent = '(pas de réponse)';
+      $('iaStats').textContent = r.ids.length + ' mots · ' + r.motsParSeconde.toFixed(1) + ' mots/seconde · premier mot après ' + Math.round(r.msPremier) + ' ms · calcul : ' + (modele.gpu.utilise ? 'GPU' : 'processeur') + (signal.annule ? ' · arrêté' : '');
+      if (modele.position >= modele.cfg.ctx - 20) $('iaStats').textContent += '\nLa mémoire de la conversation est presque pleine : appuie sur « Nouvelle conversation ».';
+    } catch (e) { b.textContent = 'Erreur : ' + e.message; msgs.pop(); }
+    occupe = false; $('iaEnvoi').disabled = false; $('iaStop').disabled = true;
+  }
+  $('iaEnvoi').onclick = envoyer; $('iaSaisie').onkeydown = function(e){ if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); envoyer(); } };
+  $('iaStop').onclick = function(){ if (signal) signal.annule = true; };
+  $('iaNouv').onclick = function(){ if (!modele || occupe) return; modele.nouvelleConversation(); msgs = []; $('iaFil').textContent = ''; $('iaStats').textContent = ''; };
 })();
 </script></body></html>

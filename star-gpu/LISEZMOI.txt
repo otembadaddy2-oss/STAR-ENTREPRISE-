@@ -1,6 +1,6 @@
 STAR-TECH : la boîte à outils de calcul de STAR ENTREPRISE
 ==========================================================
-Deux fichiers à garder, sans installation, qui marchent dans le navigateur d'un téléphone ou d'un PC :
+Trois fichiers à garder, sans installation, qui marchent dans le navigateur d'un téléphone ou d'un PC :
 
 1) star-gpu.js  = STAR GPU. Utilise le processeur graphique (GPU) de l'appareil pour :
    - des images : filtres gris, sépia, flou, netteté, luminosité, vignette, négatif ;
@@ -8,23 +8,41 @@ Deux fichiers à garder, sans installation, qui marchent dans le navigateur d'un
    - l'IA : multiplication de matrices et couches de neurones.
 2) uc-star.js   = UC STAR (Unified Compute). Au-dessus de STAR GPU : on écrit UNE formule et elle est calculée en parallèle
    sur des millions de valeurs (map, zip, generate, reduce). Même résultat sur GPU ou sur processeur central.
+3) star-ia.js   = STAR IA. Fait tourner un petit modèle d'IA générative (modèle de langage Qwen2 / Qwen2.5 au format .gguf,
+   poids compressés en 4 ou 8 bits) dans l'appareil, mot par mot, sur le GPU quand il est fiable, sinon sur le processeur.
 
 Comment s'en servir (dans une page web) :
    <script src="star-gpu.js"></script>
    <script src="uc-star.js"></script>
+   <script src="star-ia.js"></script>
    <script>
      const gpu = StarGPU.create();            // le GPU de l'appareil
      const uc  = UCStar.create(gpu);          // la couche de calcul
      const y = uc.map(tableau, 'sin(x)*u0+1', [2]);
      const total = uc.mapReduce(tableau, 'x*x', 'sum');
+
+     // IA générative : un fichier modèle .gguf (choisi sur l'appareil, ou téléchargé)
+     const modele = await StarIA.charger(StarIA.sourceBlob(fichier), { gpu });
+     const rep = await modele.discuter([{ role: 'user', content: 'Bonjour !' }], { maxTokens: 160, onToken: (t) => afficher(t) });
    </script>
-Le fichier demo.html montre tout en action (ouvre-le dans le navigateur).
+Le fichier demo.html montre tout en action (ouvre-le dans le navigateur). Section 5 : la conversation avec le modèle.
+
+STAR IA, ce qu'il sait faire (testé contre llama.cpp, le programme de référence) :
+- lire les fichiers GGUF (architecture Qwen2 / Qwen2.5) avec poids F32, F16, BF16, Q8_0, Q4_0, Q4_1, Q5_0, Q5_1, Q6_K ;
+- le vocabulaire et le découpage du texte (BPE sur octets, comme Qwen2), les jetons spéciaux, le gabarit de conversation ChatML ;
+- la mémoire de conversation (cache), la création mot par mot, la température, l'arrêt en cours de route ;
+- un auto-test au chargement : si le GPU de l'appareil ne donne pas EXACTEMENT les mêmes résultats que le processeur, STAR IA n'utilise pas le GPU.
+Modèle conseillé : Qwen2.5-0.5B-Instruct (licence Apache 2.0, comprend le français), fichier q4_0 (~0,3 Go) ou q8_0 (~0,5 Go).
+Respecter la licence du modèle et citer son auteur (Qwen / Alibaba Cloud).
 
 À savoir, honnêtement :
 - Ce n'est pas une carte graphique ni CUDA (qui appartient à NVIDIA). C'est un logiciel qui exploite le GPU déjà présent dans l'appareil.
-- La vitesse dépend de l'appareil : c'est le bouton « Mesurer » de la démo qui donne la vérité pour CHAQUE téléphone.
+- La vitesse dépend de l'appareil : c'est le bouton « Mesurer » de la démo, et les « mots/seconde » de la conversation, qui donnent la vérité pour CHAQUE téléphone.
 - Le GPU calcule en 32 bits : sur les formules à saut (fract, floor) de minuscules écarts au bord du saut sont normaux.
-- Si l'appareil n'a pas de GPU compatible, tout bascule automatiquement sur le processeur central.
-- Le calcul intensif chauffe : pour un jeu, limiter les images par seconde (voir X SAPHIR Arena, mode « Économie »).
+- Si l'appareil n'a pas de GPU compatible, tout bascule automatiquement sur le processeur central (beaucoup plus lent pour l'IA).
+- Le calcul intensif chauffe : pour un jeu, limiter les images par seconde (voir X SAPHIR Arena, mode « Économie ») ; pour l'IA, cocher « Mode Économie ».
+- Un petit modèle (0,5 milliard de paramètres) comprend le français mais se trompe bien plus souvent que les grands assistants en ligne.
+  Les gros modèles (milliards de paramètres) ne tiennent pas dans la mémoire d'un téléphone. L'IA qui crée des images n'est pas incluse.
+- Au moment d'écrire ce fichier, la vitesse de STAR IA n'avait pas encore été mesurée sur un vrai téléphone (seulement l'exactitude des calculs, testée contre llama.cpp).
 
 © STAR ENTREPRISE, Brazzaville. Fichiers à conserver et à réutiliser librement dans les projets du groupe.

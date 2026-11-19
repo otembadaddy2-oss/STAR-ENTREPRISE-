@@ -2,6 +2,8 @@
 
 Demande de Carry : plus de 4 combattants ; **personnages différents, pouvoirs différents** ; ennemis démoniaques déchaînés ; combos, intensité, vrais mouvements ; qualité « meilleure que Street Fighter », style réaliste de l'affiche. Un long métrage X SAPHIR (Cycle I, d'après les BD) est aussi prévu : le jeu et le film partagent les mêmes personnages et la même direction artistique.
 
+**Règle (précisée par Carry le 19/11) : la source des personnages est le catalogue X SAPHIR, le même que pour le film et les séries, y compris les 4 personnages de X SAPHIR Arena.** Les listes ci-dessous sont un brouillon construit avec les seules pages vues jusqu'ici ; elles seront remplacées par le catalogue complet dès que Carry l'aura envoyé. Aucun personnage n'est inventé : tout ce qui n'est pas dans le catalogue reste marqué [proposition].
+
 Légende : **[canon]** = déjà dans les documents du projet (BD, scénario) ; **[proposition]** = idée à valider par Carry, à ne pas considérer comme fixée.
 
 ## Deux ennemis distincts (corrigé le 19/11 d'après les catalogues de Carry)
