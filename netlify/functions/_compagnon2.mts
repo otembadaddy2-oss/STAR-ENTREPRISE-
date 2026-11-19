@@ -10,10 +10,11 @@ import { AVANTAGES, RANG, type Niveau } from "./_compagnon.mts";
 const norm = (t: string) => String(t || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
 // ---------- Modes par domaine ----------
-export type Mode = "general" | "sante" | "droit" | "cuisine" | "mecanique" | "business" | "education" | "examens";
+export type Mode = "general" | "sante" | "redaction" | "droit" | "cuisine" | "mecanique" | "business" | "education" | "examens";
 export const MODES: Record<Mode, { label: string; emoji: string }> = {
   general: { label: "Général", emoji: "🐻" },
   sante: { label: "Santé", emoji: "🩺" },
+  redaction: { label: "Rédaction", emoji: "✍️" },
   droit: { label: "Droit", emoji: "⚖️" },
   cuisine: { label: "Cuisine", emoji: "🍲" },
   mecanique: { label: "Mécanique", emoji: "🔧" },
@@ -24,6 +25,7 @@ export const MODES: Record<Mode, { label: string; emoji: string }> = {
 const DETECTION: [Mode, RegExp][] = [
   ["examens", /\b(passe(r)? un test|fais[- ]moi passer|teste[- ]moi|quiz|qcm|examen blanc|note sur 10|sur 10\b|concours|biologie moleculaire|biochimie|genetique|microbiologie|immunologie|physiologie|anatomie|pharmacologie)/],
   ["sante", /\b(mal (a|au|aux|de|d)\b|maux|ventre|gorge|sante|malad|symptom|douleur|fievre|palu|paludisme|toux|diarrhe|vomi|tension|diabet|enceinte|grossesse|vaccin|medecin|hopital|clinique|infection|allerg|blessure|cancer|vih|sida|nutrition|sommeil|depression|migraine|urgence medicale|cicatri|saign)/],
+  ["redaction", /\b(ecris[- ]moi|ecris (une|un|le|la|des|mon|ma)|redige|rediger|redaction|composer? (une|un)|lettre (de|au|a|d)|une lettre|un courrier|un mail|un courriel|un e-?mail|un discours|un poeme|une chanson|un slogan|une annonce|un post\b|une publication|un scenario|un script|une histoire|une presentation|un compte[- ]rendu|un cv\b|lettre de motivation|un message (pour|a|d)|texte (de|pour|d)|une demande (de|d|au|a)|brief creatif|storyboard|prompt (pour|d)|idee de video|une video|une animation)/],
   ["droit", /\b(loi|lois|droit|droits|avocat|tribunal|contrat|bail|loyer|heritage|succession|divorce|notaire|plainte|licenci|code du travail|impot|fiscal|douane|visa|titre de sejour|nationalite|acte de naissance|permis de|greffe|huissier)/],
   ["mecanique", /\b(voiture|moto|moteur|panne|garage|pneu|batterie|frein|vidange|climatis|frigo|refrigerateur|machine a laver|groupe electrogene|panneau solaire|onduleur|plomberie|electricite|disjoncteur|ampoule|courant)/],
   ["cuisine", /\b(recette|cuisin|cuire|cuisson|sauce|ingredient|pondu|saka|manioc|poulet|poisson|gateau|patisserie|plat |repas|epice|conserv|marmite|four )/],
@@ -47,6 +49,14 @@ const CONSIGNES_MODE: Record<Mode, string> = {
 - Tu VÉRIFIES avec l'outil de recherche quand il est disponible et tu cites une source de référence (OMS, ministère de la Santé, Institut Pasteur, société savante, hôpital universitaire, revue reconnue). Si la vérification n'est pas disponible, tu le dis et tu restes plus général.
 - Signes graves (difficulté à respirer, douleur à la poitrine, perte de connaissance, convulsions, forte fièvre chez un bébé ou une femme enceinte, saignement important, idées de suicide…) : tu dis clairement d'aller TOUT DE SUITE aux urgences ou d'appeler les secours, sans inventer de numéro.
 - LONGUEUR : en ce mode, tes réponses peuvent être longues et complètes (jusqu'à environ 30 lignes) : la règle des réponses courtes ne s'applique pas ici. Tu termines par une courte phrase du type « Ce n'est pas un avis médical : parles-en à un médecin. ».`,
+  redaction: `MODE RÉDACTION ET CRÉATION. Tu écris comme un excellent rédacteur professionnel : lettres et courriers officiels, e-mails, demandes administratives, discours, annonces, posts pour les réseaux sociaux, slogans, histoires, poèmes, chansons, scénarios, scripts de vidéo, CV et lettres de motivation, comptes rendus, résumés, traductions.
+- Tu livres le TEXTE COMPLET, prêt à copier et à envoyer, dans un français soigné et correct (ou la langue demandée), avec le ton demandé (officiel, chaleureux, commercial, poétique…). Des phrases précises, jamais de remplissage ni de généralités.
+- S'il manque une information indispensable (destinataire, date, nom, montant), tu écris quand même le texte avec des champs clairs « [à compléter] » et tu poses UNE seule question à la fin. Tu n'inventes JAMAIS un chiffre, un nom, une loi, un article de loi ou une référence officielle.
+- Courrier officiel : lieu et date, objet, formule d'appel exacte (« Monsieur le Ministre, »), corps structuré, formule de politesse soutenue, liste des pièces jointes si utile, signature.
+- À la fin, tu proposes UNE amélioration utile (version plus courte, plus formelle, traduction, version pour WhatsApp).
+- IMAGES, VIDÉOS, ANIMATIONS : tu sais écrire le BRIEF créatif complet (idée, scènes numérotées avec leur durée, style visuel, ambiance, musique, texte à l'écran, format vertical, carré ou horizontal) et le prompt prêt à coller dans des outils comme Higgsfield, Adobe Firefly, Blender ou Canva. Pour une image simple, tu peux la créer toi-même si les instructions complémentaires t'y autorisent. Tu ne dis JAMAIS que tu as créé une vidéo ou une animation : tu n'as pas encore ces outils branchés, tu le dis simplement et tu donnes le brief.
+- Tu ne rédiges rien d'illégal ou de trompeur : pas de faux document, de fausse signature, de faux avis ni de message de harcèlement.
+- LONGUEUR : en ce mode, tes réponses peuvent être longues et complètes (jusqu'à environ 40 lignes) : la règle des réponses courtes ne s'applique pas ici.`,
   droit: `MODE DROIT USUEL. Tu donnes des repères généraux (travail, location, famille, papiers, contrats, démarches) pour le pays de la personne (Congo-Brazzaville par défaut, sinon son pays). Tu VÉRIFIES les textes et démarches officielles avec l'outil de recherche, tu cites la source, et tu précises que les lois changent. Tu orientes vers un avocat, un notaire, un greffe ou l'administration pour toute décision importante. Tu n'aides jamais à falsifier un document, à tromper quelqu'un ou à contourner la loi.`,
   cuisine: `MODE CUISINE. Recettes simples et précises (quantités, temps, étapes), cuisine africaine et du monde, substitutions d'ingrédients, conservation. Sécurité alimentaire d'abord (cuisson, réfrigération, hygiène) et attention aux allergies. Tu adaptes aux ingrédients que la personne a sous la main.`,
   mecanique: `MODE MÉCANIQUE ET ÉLECTRICITÉ. Voiture, moto, électroménager, installation solaire, plomberie, électricité. La SÉCURITÉ passe d'abord : débrancher, couper le courant, jamais de manipulation de haute tension, de gaz ou de batterie ouverte sans professionnel. Tu demandes la marque et le modèle quand la réponse change, tu proposes un diagnostic simple par étapes et tu dis quand il faut un technicien. Tu ne conseilles jamais de contourner une protection de sécurité.`,
@@ -67,8 +77,8 @@ export const MODE_PROFOND = (m: Mode): boolean => m === "sante" || m === "examen
 const NOM_ENV = (n: Niveau) => n.toUpperCase();
 export const EFFORT = (n: Niveau, m: Mode = "general"): string =>
   process.env[`COMPAGNON_EFFORT_${NOM_ENV(n)}`] || (MODE_PROFOND(m) ? AVANTAGES[n].effortProfond : AVANTAGES[n].effortGeneral);
-export const MAX_JETONS = (n: Niveau, m: Mode = "general"): number => (MODE_PROFOND(m) ? AVANTAGES[n].jetonsProfond : AVANTAGES[n].jetonsGeneral);
-export const LIMITE_REPONSE = (m: Mode = "general", n: Niveau = "complet"): number => (MODE_PROFOND(m) ? Math.max(6000, Math.round(AVANTAGES[n].longueurReponse * 3.3)) : AVANTAGES[n].longueurReponse);
+export const MAX_JETONS = (n: Niveau, m: Mode = "general"): number => (MODE_PROFOND(m) || m === "redaction" ? AVANTAGES[n].jetonsProfond : AVANTAGES[n].jetonsGeneral);
+export const LIMITE_REPONSE = (m: Mode = "general", n: Niveau = "complet"): number => (MODE_PROFOND(m) || m === "redaction" ? Math.max(6000, Math.round(AVANTAGES[n].longueurReponse * 3.3)) : AVANTAGES[n].longueurReponse);
 export const MODELE_NIVEAU = (n: Niveau): string => (RANG[n] >= RANG.complet && process.env[`COMPAGNON_MODEL_${NOM_ENV(n)}`]) || (n === "complet" && process.env.COMPAGNON_MODEL_COMPLET) || process.env.COMPAGNON_MODEL || "claude-sonnet-5-5";
 const entier = (v: string | undefined, d: number) => { const n = Number(v); return v !== undefined && v !== "" && Number.isFinite(n) && n >= 0 ? Math.floor(n) : d; };
 // Images créées sur 30 jours glissants, photos ou documents lus sur 24 heures.

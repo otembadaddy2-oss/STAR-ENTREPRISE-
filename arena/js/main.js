@@ -16,7 +16,7 @@
       resume: 'REPRENDRE', restart: 'RECOMMENCER', quit: 'QUITTER LE COMBAT', pause: 'PAUSE', movelist: 'LISTE DES COUPS',
       win: 'VICTOIRE !', lose: 'DÉFAITE', draw: 'ÉGALITÉ', next: 'COMBAT SUIVANT', rematch: 'REVANCHE', menu: 'MENU', retry: 'RÉESSAYER', nextOpp: 'Prochain adversaire', champion: 'TU ES LE CHAMPION !', champS: 'Tous les héros sont tombés. L\'Arène X SAPHIR est à toi.', fightN: 'COMBAT',
       dummy: 'Adversaire', stand: 'Debout', crouch: 'Accroupi', jump: 'Saute', cpu: 'Ordinateur', guard: 'Garde', gNone: 'Aucune', gAll: 'Toujours', superBar: 'Jauge de super', sNormal: 'Normale', sInf: 'Infinie', showIn: 'Afficher mes commandes', yes: 'Oui', no: 'Non', reset: 'REMETTRE EN PLACE',
-      language: 'Langue', music: 'Musique', sfx: 'Bruitages', voice: 'Voix de l\'annonceur', volume: 'Volume', difficulty: 'Difficulté (contre l\'ordinateur)', rounds: 'Manches pour gagner', fx: 'Effets visuels', fxFull: 'Complets', fxLow: 'Réduits', flash: 'Flashs lumineux', touch: 'Commandes tactiles', tAuto: 'Auto', tOn: 'Oui', tOff: 'Non', on: 'Oui', off: 'Non',
+      language: 'Langue', music: 'Musique', sfx: 'Bruitages', voice: 'Voix de l\'annonceur', volume: 'Volume', difficulty: 'Difficulté (contre l\'ordinateur)', rounds: 'Manches pour gagner', fx: 'Effets visuels', fxFull: 'Complets', fxLow: 'Réduits', perf: 'Performance', pAuto: 'Auto', pEco: 'Économie (chauffe moins)', pMax: 'Maximum', flash: 'Flashs lumineux', touch: 'Commandes tactiles', tAuto: 'Auto', tOn: 'Oui', tOff: 'Non', on: 'Oui', off: 'Non',
       lv1: 'Facile', lv2: 'Normal', lv3: 'Difficile', lv4: 'Féroce',
       rotate: 'Tourne ton téléphone en mode paysage', hint: 'Joystick à gauche pour bouger · Boutons P / PP / K / KK pour frapper · Maintiens SPÉCIAL + un bouton pour lancer un coup spécial · SUPER quand la jauge est pleine',
       credit: 'X SAPHIR © Carry OTEMBA · STAR ENTREPRISE · Les noms des techniques sont des désignations de travail', installHelp: 'Sur iPhone : Partager → « Sur l\'écran d\'accueil ». Sur Android/ordinateur : bouton Installer.',
@@ -37,7 +37,7 @@
       resume: 'RESUME', restart: 'RESTART', quit: 'QUIT FIGHT', pause: 'PAUSED', movelist: 'MOVE LIST',
       win: 'VICTORY!', lose: 'DEFEAT', draw: 'DRAW', next: 'NEXT FIGHT', rematch: 'REMATCH', menu: 'MENU', retry: 'TRY AGAIN', nextOpp: 'Next opponent', champion: 'YOU ARE THE CHAMPION!', champS: 'Every hero has fallen. The X SAPHIR Arena is yours.', fightN: 'FIGHT',
       dummy: 'Opponent', stand: 'Standing', crouch: 'Crouching', jump: 'Jumping', cpu: 'Computer', guard: 'Guard', gNone: 'None', gAll: 'Always', superBar: 'Super gauge', sNormal: 'Normal', sInf: 'Infinite', showIn: 'Show my inputs', yes: 'Yes', no: 'No', reset: 'RESET POSITIONS',
-      language: 'Language', music: 'Music', sfx: 'Sound effects', voice: 'Announcer voice', volume: 'Volume', difficulty: 'Difficulty (vs computer)', rounds: 'Rounds to win', fx: 'Visual effects', fxFull: 'Full', fxLow: 'Reduced', flash: 'Light flashes', touch: 'Touch controls', tAuto: 'Auto', tOn: 'On', tOff: 'Off', on: 'On', off: 'Off',
+      language: 'Language', music: 'Music', sfx: 'Sound effects', voice: 'Announcer voice', volume: 'Volume', difficulty: 'Difficulty (vs computer)', rounds: 'Rounds to win', fx: 'Visual effects', fxFull: 'Full', fxLow: 'Reduced', perf: 'Performance', pAuto: 'Auto', pEco: 'Saver (runs cooler)', pMax: 'Maximum', flash: 'Light flashes', touch: 'Touch controls', tAuto: 'Auto', tOn: 'On', tOff: 'Off', on: 'On', off: 'Off',
       lv1: 'Easy', lv2: 'Normal', lv3: 'Hard', lv4: 'Fierce',
       rotate: 'Rotate your phone to landscape', hint: 'Left joystick to move · P / PP / K / KK buttons to strike · Hold SPECIAL + a button for a special move · SUPER when the gauge is full',
       credit: 'X SAPHIR © Carry OTEMBA · STAR ENTREPRISE · Technique names are working designations', installHelp: 'On iPhone: Share → "Add to Home Screen". On Android/desktop: Install button.',
@@ -57,7 +57,7 @@
   };
 
   // ---------- réglages ----------
-  var S = { lang: 'fr', music: true, sfx: true, voice: true, vol: 0.9, fx: 'full', flash: true, touch: 'auto', level: 2, rounds: 2 };
+  var S = { lang: 'fr', music: true, sfx: true, voice: true, vol: 0.9, fx: 'full', perf: 'auto', flash: true, touch: 'auto', level: 2, rounds: 2 };
   try { var sv = JSON.parse(localStorage.getItem('xs_arena_v1') || '{}'); for (var k in sv) if (k in S) S[k] = sv[k]; } catch (e) { /* stockage indisponible */ }
   function save() { try { localStorage.setItem('xs_arena_v1', JSON.stringify(S)); } catch (e) { /* rien */ } }
   function t(k) { return (TX[S.lang] || TX.fr)[k] || TX.fr[k] || k; }
@@ -71,8 +71,12 @@
   var G = { screen: 'title', mode: 'arcade', p1: 'calpros', p2: 'kormal', stage: 'pointe-noire', match: null, demo: null, ai: [null, null], paused: false, arcade: null, over: 0, sel: 0, selSide: 0, training: { dummy: 'stand', block: 'none', rage: false, infinite: true }, acc: 0, vacc: 0, last: 0, t: 0 };
   var touchMode = false;
 
+  // Performance : « auto » = 60 images/s au maximum (même sur écran 90/120 Hz) et passage en économie si la batterie est faible ; « eco » = 30 images/s, image moins lourde, effets réduits ; « max » = sans limite.
+  var batterieFaible = false;
+  try { if (navigator.getBattery) navigator.getBattery().then(function (b) { var maj = function () { var f = !b.charging && b.level <= 0.2; if (f !== batterieFaible) { batterieFaible = f; applySettings(); } }; b.addEventListener('levelchange', maj); b.addEventListener('chargingchange', maj); maj(); }); } catch (e) { /* non disponible */ }
+  function perfMode() { return S.perf === 'auto' ? (batterieFaible ? 'eco' : 'auto') : S.perf; }
   function applySettings() {
-    audio.sfxOn = S.sfx; audio.voiceOn = S.voice; audio.lang = S.lang; audio.setVolume(S.vol); audio.setMusic(S.music); R.lang = S.lang; R.fxOn = S.fx === 'full'; R.flashOn = S.flash; R.lowFx = S.fx !== 'full';
+    audio.sfxOn = S.sfx; audio.voiceOn = S.voice; audio.lang = S.lang; audio.setVolume(S.vol); audio.setMusic(S.music); R.lang = S.lang; R.fxOn = S.fx === 'full'; R.flashOn = S.flash; R.eco = perfMode() === 'eco'; R.lowFx = S.fx !== 'full' || R.eco; if (R.resize) R.resize();
     document.documentElement.lang = S.lang; $('rotate-t').textContent = t('rotate'); $('hud-btn').setAttribute('aria-label', t('pause'));
     updateTouchVisible();
   }
@@ -266,6 +270,7 @@
       ['voice', seg('voice', [[1, t('on')], [0, t('off')]], S.voice ? 1 : 0)],
       ['volume', '<input type="range" id="op-vol" min="0" max="100" value="' + Math.round(S.vol * 100) + '" aria-label="' + t('volume') + '">'],
       ['fx', seg('fx', [['full', t('fxFull')], ['low', t('fxLow')]], S.fx)],
+      ['perf', seg('perf', [['auto', t('pAuto')], ['eco', t('pEco')], ['max', t('pMax')]], S.perf)],
       ['flash', seg('flash', [[1, t('on')], [0, t('off')]], S.flash ? 1 : 0)],
       ['touch', seg('touch', [['auto', t('tAuto')], ['on', t('tOn')], ['off', t('tOff')]], S.touch)]
     ];
@@ -346,6 +351,7 @@
 
   function frame(ts) {
     requestAnimationFrame(frame);
+    var pm = perfMode(), ecart = pm === 'max' ? 0 : pm === 'eco' ? 31 : 15.5, dessine = !(ecart && ts - (G.lastDraw || 0) < ecart); if (dessine) G.lastDraw = ts;
     var dt = Math.min(50, ts - (G.last || ts)); G.last = ts; G.t++;
     pollPad();
     if (G.screen === 'fight' && G.match) {
@@ -358,10 +364,10 @@
         touch.superReady(m.f[0].rage >= 100);
         if (G.over > 110 && !G.resultShown) { G.resultShown = true; showResult(); }
       }
-      R.draw(m);
+      if (dessine) R.draw(m);
     } else if (G.demoOn && G.demo) {
       G.vacc += dt / 16.667; while (G.vacc >= 1) { demoStep(); R.tick(G.demo); G.vacc -= 1; }
-      R.draw(G.demo);
+      if (dessine) R.draw(G.demo);
     }
   }
 

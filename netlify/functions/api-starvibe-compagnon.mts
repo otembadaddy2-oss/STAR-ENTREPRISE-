@@ -14,6 +14,7 @@ import { ensureSchema, db, json } from "./_db.mts";
 import { requireAuth } from "./_auth.mts";
 import { entrepriseParId, forfaitActif, poolEquipe, savoirPourEquipe, PLAFOND_EQUIPE } from "./_entreprise.mts";
 import { vapidKeys, last9, decisionToken, checkDecisionToken } from "./_push.mts";
+import { signaler } from "./_rappels_signal.mts";
 import {
   AVANTAGES, niveauValide, ESSAI_MESSAGES, MSG_ESSAI_FINI, MSG_OPTION_ABONNE, compagnonOuvert, PACKS_IMAGES, PACKS_TXT, creditsImages, prixPack,
   LIMITES, CONSENTEMENT_VERSION, REPETITIONS, MODELE, OFFRES_TXT, manifesteKeydou, accesDe, aDejaAbonne, texteFinAbonnement, etatQuota, fuseauValide, heureLocale, localVersUtc, parleDeMedicaments, consigne, type Niveau,
@@ -47,6 +48,7 @@ async function creerRappel(sql: any, accountId: number, niveau: Niveau, o: { tit
     INSERT INTO starvibe_compagnon_rappels (account_id, titre, quand, repetition, avant_minutes)
     VALUES (${accountId}, ${titre}, ${o.quand.toISOString()}, ${rep}, ${avant}) RETURNING id
   `) as { id: number }[];
+  await signaler(o.quand, avant); // la tâche des rappels ne réveille la base que si un rappel est dû (économie de crédits)
   return { ok: true, id: r[0].id };
 }
 
@@ -362,6 +364,10 @@ export default async (req: Request, _context: Context) => {
     if (action === "rappel_supprimer") await sql`DELETE FROM starvibe_compagnon_rappels WHERE id = ${id} AND account_id = ${accountId}`;
     else if (body.actif === false) await sql`UPDATE starvibe_compagnon_rappels SET actif = false WHERE id = ${id} AND account_id = ${accountId}`;
     else await sql`UPDATE starvibe_compagnon_rappels SET actif = true, avant_envoye = false WHERE id = ${id} AND account_id = ${accountId} AND (quand > now() OR repetition <> '')`;
+    if (action === "rappel_bascule" && body.actif !== false) {
+      const q = (await sql`SELECT quand, avant_minutes FROM starvibe_compagnon_rappels WHERE id = ${id} AND account_id = ${accountId} AND actif = true`) as { quand: string; avant_minutes: number }[];
+      if (q[0]) await signaler(new Date(q[0].quand), Number(q[0].avant_minutes) || 0);
+    }
     return json({ ok: true });
   }
 

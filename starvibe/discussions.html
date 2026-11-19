@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KOMYO — Discussions</title>
+<meta name="theme-color" content="#FFFBF3">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/img/icons/komyo-192-v2.png" type="image/png">
+<link rel="preload" href="/starvibe/assets/fonts/inter-latin-v1.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/starvibe/assets/fonts/komyo-fonts-v1.css">
+<link rel="stylesheet" href="assets/komyo-boutique-v1.css">
+<link rel="manifest" href="manifest-komyo.json">
+<style>
+.ami{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line);cursor:pointer;background:none;border-left:0;border-right:0;border-top:0;width:100%;text-align:left;font:inherit;color:inherit}
+.ami:last-child{border-bottom:0}
+.av{width:46px;height:46px;border-radius:50%;background:linear-gradient(120deg,var(--coral),var(--gold));color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex:none;overflow:hidden}
+.av img{width:100%;height:100%;object-fit:cover}
+.ami .nom{font-weight:800;font-size:14px}
+.ami .apercu{font-size:12.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:62vw}
+.ami .corps{min-width:0;flex:1}
+.badge{background:var(--coral);color:#fff;border-radius:12px;min-width:22px;height:22px;padding:0 6px;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.conv{display:flex;flex-direction:column;height:calc(100dvh - 118px);min-height:340px}
+.fil{flex:1;overflow-y:auto;padding:6px 2px;display:flex;flex-direction:column;gap:6px}
+.intro{display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 0 8px;text-align:center}
+.intro .av{width:74px;height:74px;font-size:28px}.intro b{font-size:17px}.intro span.s{font-size:12.5px;color:var(--dim)}
+.sep{align-self:center;font-size:11.5px;color:var(--dim);padding:6px 0 2px}
+.l{display:flex;align-items:flex-end;gap:6px;max-width:100%}.l.moi{justify-content:flex-end}
+.l .pt{width:28px;height:28px;font-size:12px}
+.b{max-width:82%;padding:9px 12px;border-radius:18px;font-size:14px;line-height:1.4;white-space:pre-wrap;word-wrap:break-word}
+.b.gros{background:none!important;border:0!important;padding:2px 4px;font-size:46px;line-height:1.1;color:inherit}.b.gros small{font-size:10.5px;color:var(--dim)}
+.l.moi .b{max-width:78%}.l.lui .b{max-width:76%}
+.b.moi{align-self:flex-end;background:linear-gradient(120deg,var(--coral),var(--gold));color:#fff;border-bottom-right-radius:4px}
+.b.lui{align-self:flex-start;background:#fff;border:1.5px solid var(--line);border-bottom-left-radius:4px}
+.b small{display:block;font-size:10.5px;opacity:.75;margin-top:3px}
+.reacts{display:flex;gap:8px;overflow-x:auto;padding:8px 0 2px;scrollbar-width:none}.reacts::-webkit-scrollbar{display:none}
+.reacts button{flex:none;border:1.5px solid var(--line);background:#fff;border-radius:20px;height:40px;min-width:46px;padding:0 12px;font-size:20px;cursor:pointer}
+.reacts button:active,.emo button:active{transform:scale(.92)}
+.compose{display:flex;gap:8px;align-items:flex-end;padding-top:8px}
+.compose .boite{flex:1;display:flex;align-items:flex-end;background:#fff;border:1.5px solid var(--line);border-radius:24px;padding:2px 4px 2px 14px}
+.compose textarea{flex:1;min-height:40px;max-height:120px;resize:none;border:0!important;box-shadow:none!important;background:none!important;outline:none;padding:10px 0}
+.compose .bemo{flex:none;width:40px;height:40px;border-radius:50%;border:0;background:none;font-size:22px;cursor:pointer}
+.compose .btn{border-radius:22px}
+.panneau{border:1.5px solid var(--line);background:#fff;border-radius:16px 16px 0 0;margin-top:8px;max-height:36vh;display:flex;flex-direction:column;overflow:hidden}
+.panneau .onglets{display:flex;gap:6px;padding:8px 10px 0}.panneau .onglets button{border:0;background:none;font:inherit;font-weight:800;font-size:13px;padding:6px 10px;border-radius:10px;color:var(--dim);cursor:pointer}
+.panneau .onglets button.on{background:#f7f1e3;color:var(--navy)}
+.emo{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;padding:8px;overflow-y:auto}.emo button{border:0;background:none;font-size:25px;height:42px;border-radius:10px;cursor:pointer}
+.emo.st{grid-template-columns:repeat(4,1fr)}.emo.st button{font-size:44px;height:70px}
+.menu{position:absolute;right:16px;top:58px;background:#fff;border:1.5px solid var(--line);border-radius:14px;box-shadow:0 10px 24px -12px rgba(36,21,54,.5);padding:6px;z-index:5;min-width:200px}
+.menu button{display:block;width:100%;text-align:left;background:none;border:0;padding:11px 12px;font:inherit;font-weight:700;font-size:13.5px;border-radius:10px;cursor:pointer;color:var(--navy)}
+.menu button:hover{background:#f7f1e3}
+.menu button.rouge{color:var(--err)}
+.dlg{position:fixed;inset:0;background:rgba(36,21,54,.5);display:flex;align-items:flex-end;justify-content:center;z-index:9}
+.dlg>div{background:#fff;width:100%;max-width:560px;border-radius:22px 22px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom))}
+.erreur{color:var(--err);font-size:13px;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="row"><h1 id="titre">Discussions</h1><a class="back" id="retour" href="accueil.html">← Mon espace</a></div><p id="sous">Écris à tes amis KOMYO. Ils reçoivent une notification sur leur téléphone.</p></div>
+<div class="wrap" style="position:relative">
+  <div id="notifs"></div>
+  <div id="etat" class="state">Chargement…</div>
+  <div id="sortie" class="state" hidden>Tu n'es pas connecté.<br><a href="inscription.html?mode=login">Se connecter / Créer un compte</a></div>
+  <div id="vueListe" hidden></div>
+  <div id="vueConv" hidden>
+    <div class="conv">
+      <div class="fil" id="fil" aria-live="polite"></div>
+      <div id="infoEnvoi" class="erreur" role="alert"></div>
+      <div class="reacts" id="reacts" aria-label="Réactions rapides"></div>
+      <form class="compose" id="formEnvoi">
+        <div class="boite"><textarea id="texte" rows="1" maxlength="1000" placeholder="Message…" aria-label="Ton message"></textarea><button class="bemo" type="button" id="bEmo" aria-label="Émojis et autocollants" aria-expanded="false">😊</button></div>
+        <button class="btn" type="submit" id="btnEnvoi">Envoyer</button>
+      </form>
+      <div class="panneau" id="panneau" hidden><div class="onglets"><button type="button" class="on" data-o="emo">Émojis</button><button type="button" data-o="st">Autocollants</button></div><div class="emo" id="gEmo"></div></div>
+    </div>
+  </div>
+</div>
+<script src="assets/notifs-v1.js"></script>
+<script>
+(function(){
+  var token=''; try{ token=localStorage.getItem('starvibe_token')||''; }catch(e){}
+  var $=function(i){ return document.getElementById(i); };
+  var etat=$('etat'), sortie=$('sortie'), vueListe=$('vueListe'), vueConv=$('vueConv');
+  if(!token){ etat.hidden=true; sortie.hidden=false; return; }
+  function esc(t){ return String(t==null?'':t).replace(/[&<>"']/g,function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+  function api(chemin,corps,base){ var o={headers:{'Authorization':'Bearer '+token}}; if(corps){ o.method='POST'; o.headers['Content-Type']='application/json'; o.body=JSON.stringify(corps); }
+    return fetch((base||'/api/starvibe-dm')+(chemin||''),o).then(function(r){ if(r.status===401){ try{localStorage.removeItem('starvibe_token');}catch(e){} etat.hidden=true; vueListe.hidden=true; vueConv.hidden=true; sortie.hidden=false; throw new Error('401'); }
+      return r.json().then(function(d){ return {ok:r.ok,status:r.status,d:d}; }); }); }
+  function heure(d){ var x=new Date(d); var auj=new Date(); var h=x.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',timeZone:'Africa/Brazzaville'}); return x.toDateString()===auj.toDateString()?h:x.toLocaleDateString('fr-FR',{day:'numeric',month:'short',timeZone:'Africa/Brazzaville'})+' '+h; }
+  function avatar(a){ return '<span class="av">'+(a.photoUrl?'<img src="'+esc(a.photoUrl)+'" alt="">':esc((a.nom||'?').charAt(0).toUpperCase()))+'</span>'; }
+
+  var amiCourant=null, dernierId=0, minuteur=null;
+
+  // ---------------- Liste des amis ----------------
+  function afficherListe(){
+    clearInterval(minuteur); amiCourant=null; dernierId=0;
+    $('titre').textContent='Discussions'; $('sous').textContent='Écris à tes amis KOMYO. Ils reçoivent une notification sur leur téléphone.';
+    $('retour').textContent='← Mon espace'; $('retour').onclick=null; $('retour').href='accueil.html';
+    vueConv.hidden=true; vueListe.hidden=true; etat.hidden=false; etat.textContent='Chargement…';
+    history.replaceState(null,'','discussions.html');
+    api('?conversations=1').then(function(r){
+      etat.hidden=true; vueListe.hidden=false;
+      if(!r.ok){ vueListe.innerHTML='<div class="state">Impossible de charger tes discussions.</div>'; return; }
+      if(!r.d.autorise){ vueListe.innerHTML='<div class="card"><b>Discussions réservées aux adultes</b><p class="hint" style="margin-top:6px">'+esc(r.d.message||'')+'</p></div>'; return; }
+      if(!r.d.conversations.length){ vueListe.innerHTML='<div class="card"><b>Tu n\'as pas encore d\'amis KOMYO</b><p class="hint" style="margin-top:6px">Invite quelqu\'un depuis Myo. Quand il accepte, vous pourrez vous écrire ici.</p><a class="btn" href="myo.html">Inviter un ami</a></div>'; return; }
+      vueListe.innerHTML='<div class="card" style="padding:6px 14px">'+r.d.conversations.map(function(c){
+        var ap=c.dernier?(c.dernier.deMoi?'Moi : ':'')+esc(c.dernier.texte):'<i>Dis bonjour 👋</i>';
+        return '<button type="button" class="ami" data-id="'+c.profilId+'" data-nom="'+esc(c.nom)+'">'+avatar(c)+'<span class="corps"><span class="nom">'+esc(c.nom)+'</span><br><span class="apercu">'+ap+'</span></span>'+(c.nonLus?'<span class="badge" aria-label="'+c.nonLus+' non lus">'+c.nonLus+'</span>':'')+'</button>';
+      }).join('')+'</div>';
+      vueListe.querySelectorAll('.ami').forEach(function(b){ b.addEventListener('click',function(){ ouvrir(Number(b.dataset.id)); }); });
+    }).catch(function(){ etat.textContent='Connexion interrompue. Réessaie.'; });
+  }
+
+  // ---------------- Une discussion ----------------
+  var TZ='Africa/Brazzaville', dernierJour='', dernierTemps=0;
+  function cleJour(d){ return new Date(d).toLocaleDateString('fr-CA',{timeZone:TZ}); }
+  function libJour(d){ var k=cleJour(d), aujK=cleJour(new Date()), hierK=cleJour(new Date(Date.now()-864e5)); if(k===aujK) return 'Aujourd\'hui'; if(k===hierK) return 'Hier'; var x=new Date(d); if(Date.now()-x.getTime()<6*864e5) return x.toLocaleDateString('fr-FR',{weekday:'long',timeZone:TZ}); return x.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric',timeZone:TZ}); }
+  function hh(d){ return new Date(d).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',timeZone:TZ}); }
+  function seulEmoji(t){ var u=t.replace(/[\s\u200d\ufe0f]/g,''); if(!u||u.length>24) return false; try{ if(!/^(?:\p{Extended_Pictographic}|\p{Regional_Indicator})+$/u.test(u)) return false; return (u.match(/\p{Extended_Pictographic}|\p{Regional_Indicator}/gu)||[]).length<=3; }catch(e){ return false; } }
+  function bulle(m,dernierMoi){
+    var sep=''; var t=new Date(m.date).getTime();
+    if(cleJour(m.date)!==dernierJour||t-dernierTemps>3*3600e3){ sep='<div class="sep">'+libJour(m.date)+' '+hh(m.date)+'</div>'; }
+    dernierJour=cleJour(m.date); dernierTemps=t;
+    var av=(!m.moi&&amiCourant)?'<span class="av pt">'+(amiCourant.photoUrl?'<img src="'+esc(amiCourant.photoUrl)+'" alt="">':esc((amiCourant.nom||'?').charAt(0).toUpperCase()))+'</span>':'';
+    return sep+'<div class="l '+(m.moi?'moi':'lui')+'">'+av+'<div class="b '+(m.moi?'moi':'lui')+(seulEmoji(m.texte)?' gros':'')+'" data-id="'+m.id+'">'+esc(m.texte)+'<small>'+heure(m.date)+(m.moi&&dernierMoi&&m.lu?' · Lu ✓':'')+'</small></div></div>';
+  }
+  function ouvrir(profilId){
+    clearInterval(minuteur); vueListe.hidden=true; etat.hidden=false; etat.textContent='Chargement…'; $('infoEnvoi').textContent='';
+    history.replaceState(null,'','discussions.html?avec='+profilId);
+    api('?avec='+profilId).then(function(r){
+      etat.hidden=true;
+      if(!r.ok){ vueConv.hidden=true; vueListe.hidden=false; vueListe.innerHTML='<div class="card"><b>Discussion indisponible</b><p class="hint" style="margin-top:6px">'+esc(r.d.error||'')+'</p><button class="btn light" id="vRetour" type="button">← Mes discussions</button></div>'; $('vRetour').addEventListener('click',afficherListe); return; }
+      amiCourant=r.d.ami; vueConv.hidden=false;
+      $('titre').textContent=amiCourant.nom; $('sous').textContent='';
+      $('retour').textContent='← Discussions'; $('retour').href='#'; $('retour').onclick=function(e){ e.preventDefault(); afficherListe(); };
+      var fil=$('fil'); fil.innerHTML=''; dernierId=0; dernierJour=''; dernierTemps=0;
+      fil.innerHTML='<div class="intro">'+avatar(amiCourant)+'<b>'+esc(amiCourant.nom)+'</b><span class="s">Vous êtes amis sur KOMYO</span></div>';
+      if(!r.d.messages.length) fil.insertAdjacentHTML('beforeend','<div class="state" id="vide">Aucun message. Écris le premier 👋</div>');
+      ajouter(r.d.messages);
+      if(r.d.enPause) $('infoEnvoi').textContent='Ton envoi de messages est en pause le temps d\'un contrôle par l\'équipe KOMYO.';
+      fil.scrollTop=fil.scrollHeight;
+      minuteur=setInterval(rafraichir,20000);   // 20 s, seulement quand l'écran est visible : économise le serveur
+    }).catch(function(){ etat.textContent='Connexion interrompue. Réessaie.'; });
+  }
+  function ajouter(msgs){
+    if(!msgs.length) return; var fil=$('fil'), vide=$('vide'); if(vide) vide.remove();
+    var basPres=fil.scrollHeight-fil.scrollTop-fil.clientHeight<80;
+    msgs.forEach(function(m){ if(m.id>dernierId) dernierId=m.id; if(!fil.querySelector('[data-id="'+m.id+'"]')) fil.insertAdjacentHTML('beforeend',bulle(m,false)); });
+    var moiMsgs=fil.querySelectorAll('.b.moi'); moiMsgs.forEach(function(el){ var s=el.querySelector('small'); if(s) s.textContent=s.textContent.replace(' · Lu ✓',''); });
+    var lu=null; msgs.forEach(function(m){ if(m.moi&&m.lu) lu=m.id; }); if(lu){ var el=fil.querySelector('[data-id="'+lu+'"] small'); if(el&&el.textContent.indexOf('Lu')<0) el.textContent+=' · Lu ✓'; }
+    if(basPres) fil.scrollTop=fil.scrollHeight;
+  }
+  function rafraichir(){
+    if(document.hidden||!amiCourant) return;
+    api('?avec='+amiCourant.profilId+'&apres='+dernierId).then(function(r){ if(r.ok) ajouter(r.d.messages); }).catch(function(){});
+  }
+  document.addEventListener('visibilitychange',function(){ if(!document.hidden) rafraichir(); });
+
+  function envoi(t){
+    if(!t||!amiCourant) return; var b=$('btnEnvoi'); b.disabled=true; $('infoEnvoi').textContent='';
+    api('',{action:'envoyer',profilId:amiCourant.profilId,texte:t}).then(function(r){
+      b.disabled=false;
+      if(!r.ok){ $('infoEnvoi').textContent=r.d.error||'Envoi impossible. Réessaie.'; return; }
+      $('texte').value=''; $('texte').style.height='auto'; ajouter([r.d.message]);
+      if(r.d.notifie===false) $('infoEnvoi').innerHTML='<span style="color:var(--dim)">Message envoyé. '+esc(amiCourant.nom)+' le verra en ouvrant KOMYO.</span>';
+    }).catch(function(){ b.disabled=false; $('infoEnvoi').textContent='Connexion interrompue. Réessaie.'; });
+  }
+  $('formEnvoi').addEventListener('submit',function(e){ e.preventDefault(); envoi($('texte').value.trim()); });
+  // Réactions rapides : un seul geste envoie
+  $('reacts').innerHTML=['❤️','😂','👍','👋','🔥','🙏','😍','🎉'].map(function(x){ return '<button type="button" data-e="'+x+'" aria-label="Envoyer '+x+'">'+x+'</button>'; }).join('');
+  $('reacts').addEventListener('click',function(e){ var b=e.target.closest('button'); if(b) envoi(b.getAttribute('data-e')); });
+  // Panneau émojis (on les met dans le message) et autocollants (grands, envoyés tout de suite)
+  var EMO=['😀','😃','😄','😁','😆','😅','😂','🤣','😊','🙂','😉','😍','🥰','😘','😋','😎','🤩','🥳','😇','🤗','🤔','😏','😴','😢','😭','😤','😡','🤯','😱','🙄','😬','🤝','👍','👎','👏','🙌','🙏','💪','👋','✌️','🤞','👌','🫶','❤️','🧡','💛','💚','💙','💜','🖤','💔','💯','🔥','✨','🎉','🎂','🎁','🌹','☀️','🌍','🇨🇬','🍽️','🍺','☕','⚽','🎵','💃','🕺','🚗','🏠','📞','💬','📸','✅','❌','⚠️','⭐'];
+  var STK=['🔥','❤️','😂','👏','🙏','🥰','😍','🎉','💯','🤝','💪','🇨🇬','😎','🤩','😭','👋'];
+  function grille(mode){ var g=$('gEmo'); g.className='emo'+(mode==='st'?' st':''); g.innerHTML=(mode==='st'?STK:EMO).map(function(x){ return '<button type="button" data-e="'+x+'">'+x+'</button>'; }).join(''); g.setAttribute('data-mode',mode); }
+  grille('emo');
+  $('bEmo').addEventListener('click',function(){ var p=$('panneau'); p.hidden=!p.hidden; this.setAttribute('aria-expanded',String(!p.hidden)); });
+  $('panneau').querySelector('.onglets').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b) return; this.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on',x===b); }); grille(b.getAttribute('data-o')); });
+  $('gEmo').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b) return; var x=b.getAttribute('data-e');
+    if(this.getAttribute('data-mode')==='st'){ envoi(x); $('panneau').hidden=true; $('bEmo').setAttribute('aria-expanded','false'); }
+    else { var t=$('texte'), a=t.selectionStart==null?t.value.length:t.selectionStart, z=t.selectionEnd==null?a:t.selectionEnd; t.value=t.value.slice(0,a)+x+t.value.slice(z); t.focus(); t.selectionStart=t.selectionEnd=a+x.length; } });
+  $('texte').addEventListener('input',function(){ this.style.height='auto'; this.style.height=Math.min(120,this.scrollHeight)+'px'; });
+
+  // ---------------- Bloquer / signaler ----------------
+  var menu=null;
+  function fermerMenu(){ if(menu){ menu.remove(); menu=null; } }
+  $('titre').addEventListener('click',function(){
+    if(!amiCourant) return; if(menu){ fermerMenu(); return; }
+    menu=document.createElement('div'); menu.className='menu';
+    menu.innerHTML='<button type="button" id="mSig">⚠️ Signaler cette personne</button><button type="button" class="rouge" id="mBloq">🚫 Bloquer cette personne</button>';
+    document.querySelector('.wrap').appendChild(menu);
+    $('mSig').addEventListener('click',function(){ fermerMenu(); signaler(); });
+    $('mBloq').addEventListener('click',function(){ fermerMenu(); bloquer(); });
+  });
+  document.addEventListener('click',function(e){ if(menu&&e.target!==$('titre')&&!menu.contains(e.target)) fermerMenu(); });
+  function dialogue(html){ var d=document.createElement('div'); d.className='dlg'; d.innerHTML='<div>'+html+'</div>'; document.body.appendChild(d); d.addEventListener('click',function(e){ if(e.target===d) d.remove(); }); return d; }
+  function bloquer(){
+    var d=dialogue('<b>Bloquer '+esc(amiCourant.nom)+' ?</b><p class="hint" style="margin-top:6px">Vous ne serez plus amis : plus de messages ni d\'invitations dans aucun sens. Cette personne n\'est pas prévenue.</p><button class="btn block" id="bOui" type="button" style="background:var(--err)">Bloquer</button><button class="btn light block" id="bNon" type="button" style="margin-top:8px">Annuler</button>');
+    d.querySelector('#bNon').addEventListener('click',function(){ d.remove(); });
+    d.querySelector('#bOui').addEventListener('click',function(){
+      api('',{action:'bloquer',profilId:amiCourant.profilId},'/api/starvibe-myo').then(function(r){ d.remove(); if(r.ok) afficherListe(); else alert(r.d.error||'Impossible de bloquer pour le moment.'); }).catch(function(){ d.remove(); });
+    });
+  }
+  function signaler(){
+    var d=dialogue('<b>Signaler '+esc(amiCourant.nom)+'</b><p class="hint" style="margin:6px 0 10px">L\'équipe KOMYO sera prévenue et regardera.</p><label class="lbl" for="sMotif" style="margin-top:0">Pourquoi ?</label><select id="sMotif"><option>Insultes ou harcèlement</option><option>Arnaque ou demande d\'argent</option><option>Contenu choquant</option><option>Faux profil</option><option>Autre</option></select><label style="display:flex;gap:8px;align-items:flex-start;font-size:13px;margin:12px 0"><input type="checkbox" id="sJoindre" checked style="margin-top:3px"><span>Envoyer à l\'équipe les 10 derniers messages de cette discussion, pour qu\'elle comprenne.</span></label><button class="btn block" id="sOui" type="button">Envoyer le signalement</button><button class="btn light block" id="sNon" type="button" style="margin-top:8px">Annuler</button><div class="erreur" id="sErr"></div>');
+    d.querySelector('#sNon').addEventListener('click',function(){ d.remove(); });
+    d.querySelector('#sOui').addEventListener('click',function(){
+      api('',{action:'signaler',profilId:amiCourant.profilId,motif:d.querySelector('#sMotif').value,joindre:d.querySelector('#sJoindre').checked}).then(function(r){
+        if(!r.ok){ d.querySelector('#sErr').textContent=r.d.error||'Signalement impossible.'; return; }
+        d.querySelector('div').innerHTML='<b>Merci ✅</b><p class="hint" style="margin:6px 0 12px">'+esc(r.d.message)+'</p><button class="btn block" id="sBloq" type="button" style="background:var(--err)">Bloquer cette personne</button><button class="btn light block" id="sFin" type="button" style="margin-top:8px">Fermer</button>';
+        d.querySelector('#sFin').addEventListener('click',function(){ d.remove(); });
+        d.querySelector('#sBloq').addEventListener('click',function(){ d.remove(); bloquer(); });
+      }).catch(function(){ d.querySelector('#sErr').textContent='Connexion interrompue. Réessaie.'; });
+    });
+  }
+
+  // ---------------- Démarrage ----------------
+  window.KomyoNotifs&&window.KomyoNotifs.init({token:token,zone:$('notifs')});
+  var avec=Number(new URLSearchParams(location.search).get('avec'))||0;
+  if(avec) ouvrir(avec); else afficherListe();
+})();
+</script>
+</body>
+</html>
