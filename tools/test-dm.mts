@@ -7,6 +7,9 @@ const { ensureSchema, db } = await import("../netlify/functions/_db.mts");
 const { issueToken } = await import("../netlify/functions/_auth.mts");
 const apiDm = (await import("../netlify/functions/api-starvibe-dm.mts")).default;
 const apiMyo = (await import("../netlify/functions/api-starvibe-myo.mts")).default;
+const { __utiliserMagasinPhotos } = await import("../netlify/functions/api-starvibe-dm.mts");
+const stock = new Map<string, ArrayBuffer>();
+__utiliserMagasinPhotos({ get: async (k: string) => stock.get(k) ?? null, set: async (k: string, v: ArrayBuffer) => { stock.set(k, v); } });
 const webpush = (await import("web-push")).default as unknown as { sendNotification: (...a: unknown[]) => Promise<unknown> };
 let ko = 0; const ok = (c: boolean, m: string) => { console.log((c ? "OK  " : "ÉCHEC ") + m); if (!c) ko++; };
 
@@ -145,6 +148,42 @@ try {
   d = await j(await dm(alice, "GET", "?pushkey=1")); ok(typeof d.publicKey === "string" && d.publicKey.length > 40, "la clé publique des notifications est fournie");
   r = await dm(alice, "POST", "", { action: "inconnue", profilId: bob.profil }); ok(r.status === 400, "action inconnue : 400");
   r = await appel(apiDm as any, alice, "DELETE", "/api/starvibe-dm"); ok(r.status === 405, "méthode non autorisée : 405");
+
+  // ================= 9. Photos et « j'aime » =================
+  const ua = await compte("Ulrich"), ub = await compte("Ursule"); await amis(ua, ub);
+  const jpeg = (n: number) => { const b = Buffer.alloc(n, 7); b[0] = 0xff; b[1] = 0xd8; b[2] = 0xff; return "data:image/jpeg;base64," + b.toString("base64"); };
+  const ph = (de: C, vers: C, image: string) => dm(de, "POST", "", { action: "photo", profilId: vers.profil, image });
+  await dm(ub, "POST", "", { action: "notifier", subscription: { endpoint: "https://push.test/ursule", keys: { p256dh: "p", auth: "a" } }, label: "x" });
+  envoisPush.length = 0;
+  r = await ph(ua, ub, jpeg(50_000)); d = await j(r);
+  ok(r.status === 200 && /^\[\[photo:\d+-\d+\/[0-9a-f-]{36}\]\]$/.test(d.message.texte), "Ulrich envoie une photo à Bob : message avec repère de photo");
+  const cle = d.message.texte.slice(8, -2);
+  ok(stock.has(cle), "la photo est rangée dans le stockage sous la clé donnée");
+  ok(envoisPush.at(-1)?.payload?.body === "📷 Photo", "la notification dit « 📷 Photo » (pas le repère technique)");
+  const lireP = (c: { token: string } | null, k: string) => dm(c, "GET", "?photo=" + encodeURIComponent(k));
+  r = await lireP(ub, cle); ok(r.status === 200 && r.headers.get("content-type") === "image/jpeg" && r.headers.get("cache-control")?.startsWith("private"), "Ursule peut voir la photo (type image, cache privé)");
+  ok((await lireP(ua, cle)).status === 200, "L'expéditrice peut aussi la revoir");
+  ok((await lireP(carla, cle)).status === 404, "Carla (hors discussion) ne peut PAS voir la photo");
+  ok((await lireP(null, cle)).status === 401, "sans connexion : refusé");
+  ok((await lireP(ub, "1-2/../../x")).status === 404, "une clé trafiquée est refusée");
+  d = await j(await dm(ub, "GET", "?conversations=1")); const chezB = d.conversations.find((x: any) => x.nom === "Ulrich");
+  ok(chezB && /Photo/.test(chezB.dernier.texte) && !chezB.dernier.texte.includes("[["), "la liste affiche « 📷 Photo » comme dernier message");
+  r = await envoyer(ua, ub, "[[photo:" + cle + "]]"); d = await j(r);
+  ok(d.message.texte.startsWith("[ [photo:"), "on ne peut pas fabriquer un repère de photo à la main (volée de la photo d'un autre)");
+  r = await ph(ua, ub, "data:image/jpeg;base64,AAAA"); ok(r.status === 400, "un faux fichier (pas une vraie image) est refusé");
+  r = await ph(ua, ub, "data:text/html;base64,PGI+"); ok(r.status === 400, "un autre type de fichier est refusé");
+  r = await ph(ua, ub, jpeg(2_100_000)); ok(r.status === 413, "photo trop lourde (> 2 Mo) : refusée (413)");
+  r = await ph(carla, ub, jpeg(1000)); ok(r.status === 403, "on ne peut envoyer de photo qu'à un ami");
+  r = await ph(mina, noe, jpeg(1000)); ok(r.status === 403, "photos réservées aux adultes comme les messages");
+  const pho = await compte("Photographe"), cible3 = await compte("Cible3"); await amis(pho, cible3);
+  for (let i = 0; i < 40; i++) await sql`INSERT INTO starvibe_dm (de_account, vers_account, texte, created_at) VALUES (${pho.id}, ${cible3.id}, ${"[[photo:x" + i + "]]"}, now() - interval '3 hours')`;
+  r = await ph(pho, cible3, jpeg(1000)); d = await j(r); ok(r.status === 429 && d.code === "photos_jour", "plus de 40 photos par jour : limite");
+  r = await envoyer(ub, ua, "[[jaime]]"); d = await j(r); ok(d.message.texte === "[[jaime]]", "le « j'aime » KOMYO est accepté tel quel");
+  envoisPush.length = 0; await dm(ua, "POST", "", { action: "notifier", subscription: { endpoint: "https://push.test/ulrich", keys: { p256dh: "p", auth: "a" } }, label: "x" });
+  await envoyer(ub, ua, "[[jaime]]"); ok(envoisPush.at(-1)?.payload?.body === "👍 J'aime", "la notification dit « 👍 J'aime »");
+  d = await j(await dm(ub, "POST", "", { action: "signaler", profilId: ua.profil, motif: "x", joindre: true }));
+  const sg = (await sql`SELECT extrait FROM starvibe_dm_signalements WHERE de_account = ${ub.id} AND contre_account = ${ua.id} ORDER BY id DESC LIMIT 1`) as { extrait: string }[];
+  ok(sg[0].extrait.includes("[photo]") && !sg[0].extrait.includes("[[photo:"), "dans un signalement, la photo est notée « [photo] » (pas de clé d'accès)");
 } catch (e) {
   console.log("ÉCHEC : exception", e); ko++;
 }
