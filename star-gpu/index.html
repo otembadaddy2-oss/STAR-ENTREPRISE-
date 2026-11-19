@@ -126,7 +126,7 @@ code,.m{font-family:ui-monospace,monospace;font-size:13px;color:var(--or)}.m{whi
       var t0 = performance.now();
       modele = await StarIA.charger(StarIA.sourceBlob(blob), { gpu: gIA, progression: function(p, n){ prog(p, 'Préparation du modèle : ' + Math.round(p * 100) + ' %'); } });
       msgs = []; modele.nouvelleConversation(); $('iaFil').textContent = ''; $('iaChat').hidden = false; $('iaProg').hidden = true;
-      var c = modele.cfg; etat((c.nom || 'Modèle') + ' prêt en ' + ((performance.now() - t0) / 1000).toFixed(1) + ' s\n' + c.couches + ' couches · ' + c.dim + ' dimensions · mémoire ' + c.ctx + ' mots\nCalcul : ' + (modele.gpu.utilise ? 'GPU (auto-test réussi)' : 'processeur — ' + modele.gpu.raison));
+      var c = modele.cfg; etat((c.nom || 'Modèle') + ' prêt en ' + ((performance.now() - t0) / 1000).toFixed(1) + ' s\n' + c.couches + ' couches · ' + c.dim + ' dimensions · mémoire ' + c.ctx + ' mots\nCalcul : ' + modele.gpu.texte);
       window.__ia = modele;
     } catch (e) { $('iaProg').hidden = true; etat('Impossible : ' + e.message); modele = null; $('iaChat').hidden = true; }
     occupe = false; ['iaQ4','iaQ8','iaUrlGo'].forEach(function(i){ $(i).disabled = false; });
@@ -142,7 +142,7 @@ code,.m{font-family:ui-monospace,monospace;font-size:13px;color:var(--or)}.m{whi
     try {
       var r = await modele.discuter(msgs, { maxTokens: +$('iaLong').value, temperature: +$('iaTemp').value, signal: signal, pauseMs: $('iaEco').checked ? 40 : 0, onToken: function(m){ txt += m; b.textContent = txt; $('iaFil').scrollTop = 1e9; } });
       msgs.push({ role: 'assistant', content: r.texte }); if (!r.texte) b.textContent = '(pas de réponse)';
-      $('iaStats').textContent = r.ids.length + ' mots · ' + r.motsParSeconde.toFixed(1) + ' mots/seconde · premier mot après ' + Math.round(r.msPremier) + ' ms · calcul : ' + (modele.gpu.utilise ? 'GPU' : 'processeur') + (signal.annule ? ' · arrêté' : '');
+      $('iaStats').textContent = r.ids.length + ' mots · ' + r.motsParSeconde.toFixed(1) + ' mots/seconde · premier mot après ' + Math.round(r.msPremier) + ' ms · calcul : ' + (modele.gpu.utilise ? modele.gpu.mode : 'processeur') + (signal.annule ? ' · arrêté' : '');
       if (modele.position >= modele.cfg.ctx - 20) $('iaStats').textContent += '\nLa mémoire de la conversation est presque pleine : appuie sur « Nouvelle conversation ».';
     } catch (e) { b.textContent = 'Erreur : ' + e.message; msgs.pop(); }
     occupe = false; $('iaEnvoi').disabled = false; $('iaStop').disabled = true;

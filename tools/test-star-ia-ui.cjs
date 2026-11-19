@@ -20,7 +20,7 @@ const texte = (page, sel) => page.textContent(sel);
   ok(await page.locator("#iaChat").isHidden(), "la conversation est cachée tant qu'aucun modèle n'est chargé");
   // 1. Fichier choisi sur l'appareil
   await page.setInputFiles("#iaFic", path.join(dir, "test-q8_0.gguf")); await page.waitForSelector("#iaChat:not([hidden])", { timeout: 60000 });
-  const etat = await texte(page, "#iaEtat"); ok(/prêt/.test(etat) && /GPU \(auto-test réussi\)/.test(etat), "modèle chargé depuis un fichier local, GPU utilisé : " + etat.replace(/\n/g, " | "));
+  const etat = await texte(page, "#iaEtat"); ok(/prêt/.test(etat) && /GPU intégral \(auto-test réussi\)/.test(etat), "modèle chargé depuis un fichier local, GPU utilisé : " + etat.replace(/\n/g, " | "));
   await page.fill("#iaSaisie", "Bonjour"); await page.fill("#iaLong", "32"); await page.click("#iaEnvoi");
   await page.waitForFunction(() => document.querySelectorAll("#iaFil .bu.ia").length === 1 && /mots\/seconde/.test(document.getElementById("iaStats").textContent), null, { timeout: 60000 });
   const bulles = await page.$$eval("#iaFil .bu", (e) => e.map((x) => x.className + ":" + x.textContent.length)); ok(bulles.length === 2 && /moi/.test(bulles[0]) && /ia/.test(bulles[1]), "un message envoyé, une réponse affichée : " + bulles.join(" "));

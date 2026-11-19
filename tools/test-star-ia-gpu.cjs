@@ -27,7 +27,7 @@ let ko = 0; const ok = (c, m) => { console.log((c ? "OK  " : "ÉCHEC ") + m); if
       const blob = await (await fetch("/modeles/" + f)).blob(), src = StarIA.sourceBlob(blob);
       const mg = await StarIA.charger(src, { gpu }), mc = await StarIA.charger(src, { utiliserGPU: false }), seq = refLogits[f].seq;
       const lg = mg.logits(seq), lc = mc.logits(seq);
-      out[f] = { gpuUtilise: mg.gpu.utilise, ecartGpuCpu: ecart(lg, lc), ecartRef: ecart(lg, refLogits[f.replace("test-", "deq-")] ? [] : []), nbCouches: mg.cfg.couches };
+      out[f] = { mode: mg.gpu.mode, testIntegral: mg.gpu.testIntegral, raison: mg.gpu.raison, gpuUtilise: mg.gpu.utilise, ecartGpuCpu: ecart(lg, lc), ecartRef: ecart(lg, refLogits[f.replace("test-", "deq-")] ? [] : []), nbCouches: mg.cfg.couches };
       mg.nouvelleConversation(); const g1 = await mg.generer(mg.tokenizer.encoder("<|im_start|>user\nBonjour<|im_end|>\n<|im_start|>assistant\n", true), { maxTokens: 8, temperature: 0, repetition: 1 });
       mc.nouvelleConversation(); const g2 = await mc.generer(mc.tokenizer.encoder("<|im_start|>user\nBonjour<|im_end|>\n<|im_start|>assistant\n", true), { maxTokens: 8, temperature: 0, repetition: 1 });
       let k = 0; while (k < g1.ids.length && g1.ids[k] === g2.ids[k]) k++; out[f].prefixe = k; out[f].memesMots = k >= Math.min(4, g1.ids.length) && g1.ids.length === g2.ids.length; out[f].mots = g1.ids.length; out[f].g1 = g1.ids; out[f].g2 = g2.ids;
@@ -39,7 +39,7 @@ let ko = 0; const ok = (c, m) => { console.log((c ? "OK  " : "ÉCHEC ") + m); if
   ok(res.gpuOk, "le GPU du bac à sable (logiciel) a les nombres flottants 32 bits et la précision requise");
   ok(res.autotest.ok, "auto-test GPU : 4 matrices (8 et 4 bits, petites et de plus de 4096 rangées) identiques au processeur : " + ["q8", "q4", "q8Gros", "q4Gros"].map((k) => k + " " + res.autotest[k].ecart.toExponential(1)).join(", "));
   for (const f of ["test-q8_0.gguf", "test-q4_0.gguf", "test-mixte.gguf"]) {
-    const r = res[f]; ok(r.gpuUtilise && r.ecartGpuCpu < 1e-4 && r.memesMots, f + " : GPU utilisé, scores GPU = processeur (écart relatif " + r.ecartGpuCpu.toExponential(1) + "), les 4 premiers mots générés sont les mêmes (" + r.mots + " mots ; GPU " + r.g1.join(",") + " / processeur " + r.g2.join(",") + ")");
+    const r = res[f]; ok(r.gpuUtilise && (r.mode === "GPU intégral" || (f === "test-mixte.gguf" && r.mode === "GPU + processeur")) && (!r.testIntegral || r.testIntegral.ecartRel < 1e-3) && r.ecartGpuCpu < 1e-4 && r.memesMots, f + " : mode " + r.mode + " (auto-test intégral " + (r.testIntegral ? r.testIntegral.ecartRel.toExponential(1) : "—") + (r.mode !== "GPU intégral" ? " ; " + r.raison : "") + "), GPU utilisé, scores GPU = processeur (écart relatif " + r.ecartGpuCpu.toExponential(1) + "), les 4 premiers mots générés sont les mêmes (" + r.mots + " mots ; GPU " + r.g1.join(",") + " / processeur " + r.g2.join(",") + ")");
   }
   ok(res.parUrl.gpu && res.parUrl.mots === 3, "chargement par adresse web (téléchargement par morceaux « Range ») : " + JSON.stringify(res.parUrl));
   ok(erreurs.length === 0, "aucune erreur dans la console " + erreurs.slice(0, 3).join(" | "));
