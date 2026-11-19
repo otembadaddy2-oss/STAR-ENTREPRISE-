@@ -18,7 +18,7 @@ let ko = 0; const ok = (c, m) => { console.log((c ? "OK  " : "ÉCHEC ") + m); if
 
   const info = await page.evaluate(() => window.__gpu.info);
   ok(info.ok, "WebGL2 disponible : " + info.renderer);
-  ok(info.calculFlottant, "calcul flottant (EXT_color_buffer_float) disponible");
+  ok(info.calculFlottant, "calcul flottant (EXT_color_buffer_float) disponible"); ok(info.precisionOk === true, "contrôle de précision 32 bits réussi");
 
   // Matrices : le GPU doit donner le même résultat que le processeur central
   const mat = await page.evaluate(() => {

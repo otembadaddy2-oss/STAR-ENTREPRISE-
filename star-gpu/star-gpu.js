@@ -65,7 +65,7 @@
     'uniform sampler2D tex;uniform int texture_active;\n' +
     'void main(){vec4 t=texture_active==1?texture(tex,uv):vec4(1.);sortie=t*couleur;if(sortie.a<.003)discard;}';
 
-  var FS_MATMUL = '#version 300 es\nprecision highp float;\nout float sortie;\n' +
+  var FS_MATMUL = '#version 300 es\nprecision highp float;precision highp sampler2D;\nout float sortie;\n' +
     'uniform sampler2D A;uniform sampler2D B;uniform int k;\n' +
     'void main(){ivec2 o=ivec2(gl_FragCoord.xy);float s=0.;for(int p=0;p<k;p++){s+=texelFetch(A,ivec2(p,o.y),0).r*texelFetch(B,ivec2(o.x,p),0).r;}sortie=s;}';
 
@@ -256,9 +256,14 @@
       if (err !== gl.NO_ERROR) return cpu.matmul(A, B, m, k, n);
       return C;
     }
+    // Contrôle de précision : certains téléphones (Mali, Adreno) lisent les nombres en demi-précision (3 chiffres). On le détecte
+    // une fois au démarrage : 100000.25 n'existe pas en demi-précision. Si le test échoue, les calculs passent sur le processeur central.
+    gpu.info.precisionOk = true;
+    if (ext) { try { var t = matmulGPU(new Float32Array([1]), new Float32Array([100000.25]), 1, 1, 1); gpu.info.precisionOk = Math.abs(t[0] - 100000.25) < 0.01; } catch (e) { gpu.info.precisionOk = false; } }
+    var matmulSur = function (A, B, m, k, n) { return gpu.info.precisionOk ? matmulGPU(A, B, m, k, n) : cpu.matmul(A, B, m, k, n); };
     gpu.compute = {
-      matmul: function (A, B, m, k, n) { return matmulGPU(A, B, m, k, n); },
-      dense: function (X, W, b, m, k, n, act) { return activer(matmulGPU(X, W, m, k, n), b, m, n, act); }
+      matmul: function (A, B, m, k, n) { return matmulSur(A, B, m, k, n); },
+      dense: function (X, W, b, m, k, n, act) { return activer(matmulSur(X, W, m, k, n), b, m, n, act); }
     };
 
     // ---- Mesure de vitesse (honnête : le GPU n'est pas toujours plus rapide sur de petites tailles) ----
@@ -266,8 +271,8 @@
       taille = taille || 256; var N = taille * taille, A = new Float32Array(N), B = new Float32Array(N);
       for (var i = 0; i < N; i++) { A[i] = Math.sin(i * 0.01); B[i] = Math.cos(i * 0.013); }
       var t0 = performance.now(); var Cc = cpu.matmul(A, B, taille, taille, taille); var tCpu = performance.now() - t0;
-      matmulGPU(A, B, taille, taille, taille); // échauffement (compilation)
-      t0 = performance.now(); var Cg = matmulGPU(A, B, taille, taille, taille); var tGpu = performance.now() - t0;
+      matmulSur(A, B, taille, taille, taille); // échauffement (compilation)
+      t0 = performance.now(); var Cg = matmulSur(A, B, taille, taille, taille); var tGpu = performance.now() - t0;
       var ecart = 0; for (var j = 0; j < N; j += 97) ecart = Math.max(ecart, Math.abs(Cc[j] - Cg[j]));
       return { taille: taille, cpuMs: Math.round(tCpu * 10) / 10, gpuMs: Math.round(tGpu * 10) / 10, rapport: Math.round(tCpu / Math.max(tGpu, 0.01) * 10) / 10, ecartMax: ecart };
     };
