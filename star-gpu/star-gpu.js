@@ -3,7 +3,7 @@
  * Elle utilise le VRAI processeur graphique de l'appareil (téléphone ou PC) via WebGL2.
  * Trois services : 1) filtres d'images  2) milliers de sprites pour les jeux  3) calcul de matrices pour l'IA.
  *
- * Utilisation :  <script src="star-gpu.js"></script>
+ * Utilisation :  balise script vers ce fichier
  *   const gpu = StarGPU.create();            // ou StarGPU.create(canvasExistant)
  *   gpu.info                                  // { ok, renderer, maxTexture, calculFlottant }
  *   gpu.image(img).filter('grayscale',1).filter('blur',4).toCanvas(canvas)

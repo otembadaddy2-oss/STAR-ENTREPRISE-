@@ -24,7 +24,7 @@
   }
   Render.prototype.tr = function (k) { return (TXT[this.lang] || TXT.fr)[k]; };
   Render.prototype.resize = function () {
-    var dpr = Math.min(2, root.devicePixelRatio || 1), w = this.cv.clientWidth || W, s = clamp(w * dpr / W, 0.75, 2.2);
+    var dpr = Math.min(this.eco ? 1 : 2, root.devicePixelRatio || 1), w = this.cv.clientWidth || W, s = clamp(w * dpr / W, 0.75, this.eco ? 1.1 : 2.2);
     var nw = Math.round(W * s), nh = Math.round(H * s); if (this.cv.width !== nw) { this.cv.width = nw; this.cv.height = nh; } this.scale = s;
   };
   Render.prototype.setStage = function (id) { for (var i = 0; i < Data.stages.length; i++) if (Data.stages[i].id === id) this.stage = Data.stages[i]; };

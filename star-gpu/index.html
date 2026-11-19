@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>STAR GPU — démonstration</title>
+<title>STAR GPU et UC STAR — démonstration</title>
 <style>
 :root{color-scheme:dark;--fond:#070b1a;--carte:#10172e;--bord:#24305a;--texte:#eaf0ff;--doux:#8fa0cc;--or:#ffc94a;--bleu:#4aa8ff}
 *{box-sizing:border-box}body{margin:0;background:var(--fond);color:var(--texte);font:15px/1.45 system-ui,sans-serif;padding:16px;padding-top:calc(16px + env(safe-area-inset-top,0px))}
@@ -10,7 +10,7 @@ canvas{max-width:100%;border-radius:8px;display:block;background:#000}.r{display
 button{background:#1b2750;color:var(--texte);border:1px solid var(--bord);border-radius:8px;padding:10px 12px;font:inherit}button:active{background:#2a3a78}
 code,.m{font-family:ui-monospace,monospace;font-size:13px;color:var(--or)}.m{white-space:pre-wrap;display:block;margin-top:6px}
 </style></head><body>
-<h1>STAR <b>GPU</b> v1.0</h1>
+<h1>STAR <b>GPU</b> + UC <b>STAR</b></h1>
 <p class="s">Bibliothèque de calcul graphique de STAR ENTREPRISE : filtres d'images, milliers de sprites pour les jeux, calcul de matrices pour l'IA. Elle utilise le vrai processeur graphique de ton appareil.</p>
 
 <div class="c"><h2>Ton appareil</h2><span class="m" id="info">…</span></div>
@@ -26,7 +26,11 @@ code,.m{font-family:ui-monospace,monospace;font-size:13px;color:var(--or)}.m{whi
 <div class="c"><h2>3. IA : multiplication de matrices</h2>
 <div class="r"><button id="bBench">Mesurer (256 × 256)</button><button id="bBench2">Mesurer (512 × 512)</button></div><span class="m" id="infoIA">Appuie pour mesurer.</span></div>
 
+<div class="c"><h2>4. UC STAR : une formule, un million de calculs</h2>
+<div class="r"><button id="bUc">Calculer 1 000 000 de valeurs</button></div><span class="m" id="infoUC">Appuie pour calculer sin(x)·cos(x)+√x avec UC STAR.</span></div>
+
 <script src="star-gpu.js"></script>
+<script src="uc-star.js"></script>
 <script>
 (function(){
   var gpu = StarGPU.create(), $ = function(i){ return document.getElementById(i); };
@@ -70,6 +74,9 @@ code,.m{font-family:ui-monospace,monospace;font-size:13px;color:var(--or)}.m{whi
 
   // 3) Matrices
   function bench(n){ var r = gpu.benchmark(n); $('infoIA').textContent = n + '×' + n + ' (' + (n * n * n / 1e6).toFixed(0) + ' millions d\'opérations)\nProcesseur central : ' + r.cpuMs + ' ms\nGPU : ' + r.gpuMs + ' ms (×' + r.rapport + ')\nÉcart de résultat : ' + r.ecartMax.toExponential(1); window.__bench = r; }
+  var uc = UCStar.create(gpu);
+  $('bUc').onclick = function(){ var r = uc.benchmark(1000000), d = new Float32Array(1000000).fill(0.5), t0 = performance.now(), somme = uc.mapReduce(d, 'x*x', 'sum'), t1 = performance.now() - t0;
+    $('infoUC').textContent = 'Calcul : ' + r.N + ' valeurs (' + r.backend + ')\nProcesseur central : ' + r.cpuMs + ' ms\nUC STAR : ' + r.ucMs + ' ms (×' + r.rapport + ')\nÉcart de résultat : ' + r.ecartMax.toExponential(1) + '\nSomme de 1 000 000 de carrés : ' + somme + ' en ' + Math.round(t1) + ' ms'; window.__uc = r; };
   $('bBench').onclick = function(){ bench(256); }; $('bBench2').onclick = function(){ bench(512); };
 })();
 </script></body></html>

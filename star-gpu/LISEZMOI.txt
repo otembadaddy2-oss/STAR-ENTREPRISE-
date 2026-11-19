@@ -1,0 +1,30 @@
+STAR-TECH : la boîte à outils de calcul de STAR ENTREPRISE
+==========================================================
+Deux fichiers à garder, sans installation, qui marchent dans le navigateur d'un téléphone ou d'un PC :
+
+1) star-gpu.js  = STAR GPU. Utilise le processeur graphique (GPU) de l'appareil pour :
+   - des images : filtres gris, sépia, flou, netteté, luminosité, vignette, négatif ;
+   - des jeux : des milliers de petites images (sprites) dessinées en un seul appel ;
+   - l'IA : multiplication de matrices et couches de neurones.
+2) uc-star.js   = UC STAR (Unified Compute). Au-dessus de STAR GPU : on écrit UNE formule et elle est calculée en parallèle
+   sur des millions de valeurs (map, zip, generate, reduce). Même résultat sur GPU ou sur processeur central.
+
+Comment s'en servir (dans une page web) :
+   <script src="star-gpu.js"></script>
+   <script src="uc-star.js"></script>
+   <script>
+     const gpu = StarGPU.create();            // le GPU de l'appareil
+     const uc  = UCStar.create(gpu);          // la couche de calcul
+     const y = uc.map(tableau, 'sin(x)*u0+1', [2]);
+     const total = uc.mapReduce(tableau, 'x*x', 'sum');
+   </script>
+Le fichier demo.html montre tout en action (ouvre-le dans le navigateur).
+
+À savoir, honnêtement :
+- Ce n'est pas une carte graphique ni CUDA (qui appartient à NVIDIA). C'est un logiciel qui exploite le GPU déjà présent dans l'appareil.
+- La vitesse dépend de l'appareil : c'est le bouton « Mesurer » de la démo qui donne la vérité pour CHAQUE téléphone.
+- Le GPU calcule en 32 bits : sur les formules à saut (fract, floor) de minuscules écarts au bord du saut sont normaux.
+- Si l'appareil n'a pas de GPU compatible, tout bascule automatiquement sur le processeur central.
+- Le calcul intensif chauffe : pour un jeu, limiter les images par seconde (voir X SAPHIR Arena, mode « Économie »).
+
+© STAR ENTREPRISE, Brazzaville. Fichiers à conserver et à réutiliser librement dans les projets du groupe.
