@@ -6,10 +6,11 @@ HISTORIQUE DES VERSIONS : STAR-TECH
   - Choix du mot réécrit : environ 10 fois moins de calcul par mot sur le processeur (mesuré sur ordinateur : 6,7 ms → 0,7 ms).
   - Dernier mot d'une réponse coupée ou arrêtée : désormais gardé dans la mémoire de la conversation.
   - Suite de conversation au bon format (« <|im_end|> » puis saut de ligne entre deux messages).
-  - Réglages de départ plus prudents (créativité 0,3) ; avertissement « petit modèle, peut se tromper » dans la démo ; message quand la réponse est coupée par la longueur maximale ;
+  - Avertissement « petit modèle, peut se tromper » dans la démo ; message quand la réponse est coupée par la longueur maximale ;
     détail du temps par mot (calcul / choix du mot) affiché dans la démo.
-  - Consigne de départ plus précise : français, phrases courtes, répondre à la question, dire « je ne suis pas sûr » plutôt qu'inventer.
-    (Effet sur la qualité des réponses non mesuré avec le vrai modèle au moment de la livraison.)
+  - Réglages de départ décidés d'après les essais sur un vrai téléphone (20/11/2026) : créativité 0,7 (à 0,3 le modèle se répétait et disait des choses fausses) et consigne de départ courte
+    « Réponds en français, de façon brève. » (avec une consigne plus longue, le modèle recopiait la consigne dans sa réponse et se présentait sous le nom de l'entreprise).
+  - Mesures de la version 1.1 sur téléphone (GPU Mali-G57, Qwen2.5-0.5B q4_0) : 3,3 à 3,4 mots/s ; premier mot après 1,7 s (message court, début de conversation) et 6,8 à 7,0 s (question de 40 mots).
   UC STAR : aucune modification.  STAR GPU : aucune modification.
   Dossier de vente : licence (modèle), notices de tiers, mode d'emploi, historique, empreintes SHA-256.
 

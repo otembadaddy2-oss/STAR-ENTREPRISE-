@@ -17,7 +17,9 @@ Ce qui a été vérifié (honnêtement)
     sur chacune, l'auto-test du démarrage décide seul d'utiliser le GPU ou, s'il n'est pas exact, de basculer sur le processeur.
   - Mesures sur un téléphone Android (Mali-G57), version du 19-20/11/2026 : matrices 256×256 : GPU 3,3 fois plus rapide que le processeur ; 512×512 : 8,3 fois ; UC STAR sur 1 000 000 de valeurs : environ 54 fois ;
     5 000 sprites à 60 images par seconde ; STAR IA avec Qwen2.5-0.5B (q4_0) : environ 3 mots par seconde, premier mot après 4 à 7 secondes.
-    La version 1.1 réduit le temps avant le premier mot ; ses mesures sur téléphone ne sont pas encore faites au moment d'écrire ces lignes.
+    Version 1.1 (mesurée le 20/11/2026 sur le même téléphone) : 3,3 à 3,4 mots par seconde (environ 0,29 s par mot, dont 5 ms pour choisir le mot) ; premier mot après 1,7 s pour un message court
+    au début d'une conversation (4,4 s avant la version 1.1), et après 6,8 à 7,0 s pour une question de 40 mots, car la question est lue mot par mot (environ 0,17 s par mot) : cette lecture n'est pas accélérée.
+    Chargement du modèle (une fois) : environ 26 s. Qualité : un petit modèle de 0,5 milliard de paramètres répond souvent à côté (voir « À savoir »).
 
 À savoir, honnêtement
   - Ce n'est pas une carte graphique, ni CUDA (qui appartient à NVIDIA). C'est un logiciel qui exploite le GPU déjà présent dans l'appareil, par le navigateur (WebGL2).

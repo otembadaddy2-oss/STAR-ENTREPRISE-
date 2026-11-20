@@ -24,7 +24,7 @@ const texte = (page, sel) => page.textContent(sel);
   ok(/en arrière-plan/.test(etat) && (await page.evaluate(() => window.__ia.arrierePlan === true)), "le calcul tourne en arrière-plan (l'écran reste libre)");
   const pos0 = await page.evaluate(() => window.__ia.position);
   ok(pos0 > 5, "le message système est déjà calculé au chargement (position de départ " + pos0 + ")");
-  ok((await page.inputValue("#iaTemp")) === "0.3" && (await page.inputValue("#iaLong")) === "208", "réglages de départ : créativité basse (0,3), longueur 208");
+  ok((await page.inputValue("#iaTemp")) === "0.7" && (await page.inputValue("#iaLong")) === "208", "réglages de départ : créativité 0,7, longueur 208");
   ok(/peut se tromper/.test(await texte(page, "#iaAvert")) && (await page.locator("#iaAvert").isVisible()), "l'avertissement « petit modèle, peut se tromper » est visible");
   // l'écran reste réactif pendant la réponse : on mesure le plus long « trou » du fil principal pendant que le modèle réfléchit
   await page.evaluate(() => { window.__trous = { max: 0, n: 0 }; let t = performance.now(); window.__minut = setInterval(() => { const m = performance.now(); window.__trous.max = Math.max(window.__trous.max, m - t); window.__trous.n++; t = m; }, 20); });
