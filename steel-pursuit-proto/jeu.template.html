@@ -8,7 +8,8 @@
 html,body{margin:0;height:100%;background:var(--nuit);color:#eef2fb;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;overflow:hidden}
 #jeu{position:fixed;inset:0;display:flex;flex-direction:column}
 #zone{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
-canvas{background:#000;max-width:100%;max-height:100%;aspect-ratio:16/9;width:auto;height:auto;image-rendering:auto}
+canvas{background:#000;width:100%;max-height:100%;aspect-ratio:16/9;height:auto}
+@media (orientation:portrait){#zone{align-items:flex-start}canvas{margin-top:8px}.b{bottom:22px;width:62px;height:62px}}
 #menu{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(7,11,24,.94);padding:10px;text-align:center;overflow:auto}
 #menu h1{margin:0;font-size:clamp(18px,4.5vw,30px);letter-spacing:.06em;color:var(--or)}
 #menu h1 small{display:block;font-size:.5em;color:#8da0d0;letter-spacing:.3em}
@@ -25,7 +26,7 @@ canvas{background:#000;max-width:100%;max-height:100%;aspect-ratio:16/9;width:au
 .b.on{background:#3d7bffcc}
 @media (pointer:coarse){#tactile{display:block}}
 #tourner{display:none;position:absolute;inset:0;background:var(--nuit);z-index:5;align-items:center;justify-content:center;text-align:center;padding:20px;font-size:18px}
-@media (orientation:portrait) and (pointer:coarse){#tourner{display:flex}}
+
 </style></head><body>
 <div id="jeu"><div id="zone">
 <canvas id="c" width="960" height="540"></canvas>
@@ -36,7 +37,6 @@ canvas{background:#000;max-width:100%;max-height:100%;aspect-ratio:16/9;width:au
  <button id="go">COURIR</button>
  <div id="info">Clavier : Espace/↑ sauter · ↓ glisser · F tirer · Q compétence · S arme spéciale. Téléphone : boutons A B C et R1 R2. Prototype jouable du stage 1 : formes dessinées par le code, cartes officielles pour la sélection ; les modèles 3D viendront après.</div>
 </div>
-<div id="tourner">Tourne ton téléphone en mode paysage 📱↔</div>
 </div></div>
 <script>
 const CARTES=__CARTES__;
@@ -65,7 +65,7 @@ addEventListener('keyup',e=>{const k=KM[e.key];if(k)release(e.key==='ArrowDown'?
 function demarrer(i){
  const h=H[i];$('menu').style.display='none';
  S={h,etat:'jeu',t:0,x:0,vit:430*h.vitesse,y:0,vy:0,sol:true,glisse:0,pv:3,inv:0,pieces:0,jauge:0,cd1:0,cd1max:h.cd1,furtif:0,over:0,overAcc:0,
-  obst:[],pieces_:[],rob:[],balles:[],ennemiB:[],part:[],boss:null,fin:null,longueur:21000,tireCd:0,anim:0,msg:'',msgT:0,emp:0,tremble:0,tir:0};
+  px(){return this.x+200},obst:[],pieces_:[],rob:[],balles:[],ennemiB:[],part:[],boss:null,fin:null,longueur:21000,tireCd:0,anim:0,msg:'',msgT:0,emp:0,tremble:0,tir:0};
  const al=mulberry(7+i);
  let x=1400;while(x<S.longueur-1500){const r=al();
   if(r<.34){S.obst.push({t:'caisse',x,w:56,h:58})}
@@ -95,7 +95,6 @@ function boum(x,y,c){for(let i=0;i<14;i++)S.part.push({x,y,vx:(Math.random()-.5)
 // coordonnées : monde x ; écran = x - cam
 function maj(dt){
  const s=S;s.t+=dt;s.anim+=dt*8;let ts=1;if(s.over>0){ts=.45;s.over-=dt}else if(s.overAcc>0){ts=1.35;s.overAcc-=dt}
- s.px=()=>s.x+200;
  const d=dt*ts;
  s.tireCd-=dt;s.cd1=Math.max(0,s.cd1-dt);s.inv-=dt;s.furtif-=dt;s.emp-=dt;s.msgT-=dt;s.tir-=dt;s.tremble=Math.max(0,s.tremble-dt*3);
  if(s.glisse>0){s.glisse-=d;if(s.glisse<=0)s.glisse=0}
