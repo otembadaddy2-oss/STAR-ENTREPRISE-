@@ -360,6 +360,126 @@
   }
   function vecteur(m) { return m.kind === 'f32' ? m.w : ligne(m, 0); }
 
+  // =====================================================================================
+  // 5b. Calcul « tout sur le GPU » : toutes les opérations d'un mot (normalisation, RoPE, attention, SwiGLU, produits)
+  //     s'enchaînent sur le GPU, sans aller-retour avec le processeur. Une seule lecture à la fin de chaque mot.
+  //     Les vecteurs sont rangés dans des textures de 128 colonnes : l'élément j est en (j % 128, j / 128).
+  // =====================================================================================
+  var ENT = '#version 300 es\nprecision highp float;precision highp int;precision highp sampler2D;precision highp usampler2D;\n' +
+    'float Vv(sampler2D t,int j){return texelFetch(t,ivec2(j&127,j>>7),0).r;}\nint IDX(){return int(gl_FragCoord.y)*128+int(gl_FragCoord.x);}\nout float o;\n';
+  var P4 = 'vec4 P4(sampler2D t,int k){return texelFetch(t,ivec2(k&31,k>>5),0);}\n';
+  var ENT4 = ENT.replace('out float o;', 'out vec4 o;').replace('int IDX()', 'int IDX4()').replace('int IDX4(){return int(gl_FragCoord.y)*128+int(gl_FragCoord.x);}', 'int IDX4(){return (int(gl_FragCoord.y)*32+int(gl_FragCoord.x))*4;}');
+  var MV = 'uniform usampler2D W;uniform sampler2D S;uniform sampler2D X;uniform sampler2D A;uniform int NB;uniform int R0;uniform int NR;uniform int NC;uniform int HA;\n' +
+    'void main(){int r=IDX();int rr=r-R0;if(r>=NR||rr<0||rr>=NC){o=0.;return;}float sum=0.;for(int b=0;b<NB;b++){float sc=texelFetch(S,ivec2(b,rr),0).r;float acc=0.;\n';
+  var FS_MV8 = ENT + P4 + MV + 'for(int t=0;t<8;t++){uint v=texelFetch(W,ivec2(b*8+t,rr),0).r;vec4 xv=P4(X,b*8+t);\n' +
+    'int a0=int(v&255u);a0-=(a0&128)<<1;int a1=int((v>>8u)&255u);a1-=(a1&128)<<1;int a2=int((v>>16u)&255u);a2-=(a2&128)<<1;int a3=int((v>>24u)&255u);a3-=(a3&128)<<1;\n' +
+    'acc+=float(a0)*xv.x+float(a1)*xv.y+float(a2)*xv.z+float(a3)*xv.w;}\nsum+=sc*acc;}if(HA==1)sum+=Vv(A,r);o=sum;}';
+  var FS_MV4 = ENT + P4 + MV + 'for(int t=0;t<4;t++){uint v=texelFetch(W,ivec2(b*4+t,rr),0).r;vec4 xl=P4(X,b*8+t),xh=P4(X,b*8+4+t);\n' +
+    'int l0=int(v&15u)-8,h0=int((v>>4u)&15u)-8,l1=int((v>>8u)&15u)-8,h1=int((v>>12u)&15u)-8,l2=int((v>>16u)&15u)-8,h2=int((v>>20u)&15u)-8,l3=int((v>>24u)&15u)-8,h3=int((v>>28u)&15u)-8;\n' +
+    'acc+=float(l0)*xl.x+float(l1)*xl.y+float(l2)*xl.z+float(l3)*xl.w+float(h0)*xh.x+float(h1)*xh.y+float(h2)*xh.z+float(h3)*xh.w;}\nsum+=sc*acc;}if(HA==1)sum+=Vv(A,r);o=sum;}';
+  var FS_RMS = ENT4 + 'uniform sampler2D X;uniform sampler2D Wn;uniform int N;uniform float EPS;void main(){int e=IDX4();if(e>=N){o=vec4(0.);return;}float s=0.;for(int i=0;i<N;i++){float v=Vv(X,i);s+=v*v;}float k=inversesqrt(s/float(N)+EPS);\n' +
+    'o=vec4(Vv(X,e)*k*Vv(Wn,e),e+1<N?Vv(X,e+1)*k*Vv(Wn,e+1):0.,e+2<N?Vv(X,e+2)*k*Vv(Wn,e+2):0.,e+3<N?Vv(X,e+3)*k*Vv(Wn,e+3):0.);}';
+  var ROPE = 'uniform sampler2D QKV;uniform sampler2D ROT;uniform int OFF;uniform int HD;uniform int NQ;\n' +
+    'float rope(int e){int i=e%HD;int HALF=HD/2;if(i<HALF){float a=Vv(QKV,OFF+e),b=Vv(QKV,OFF+e+HALF);return a*Vv(ROT,i)-b*Vv(ROT,HALF+i);}int ii=i-HALF;float a=Vv(QKV,OFF+e-HALF),b=Vv(QKV,OFF+e);return b*Vv(ROT,ii)+a*Vv(ROT,HALF+ii);}\n';
+  var FS_ROPEQ = ENT + ROPE + 'void main(){int j=IDX();if(j>=NQ){o=0.;return;}o=rope(j);}';
+  var FS_KW = ENT + ROPE + 'void main(){o=rope(int(gl_FragCoord.x));}';
+  var FS_VW = ENT + ROPE + 'void main(){o=Vv(QKV,OFF+int(gl_FragCoord.x));}';
+  var FS_SCORES = ENT + 'uniform sampler2D Q;uniform sampler2D K;uniform int HD;uniform int REP;uniform float SC;void main(){int t=int(gl_FragCoord.x),h=int(gl_FragCoord.y);int kvh=h/REP;float s=0.;for(int i=0;i<HD;i++)s+=Vv(Q,h*HD+i)*texelFetch(K,ivec2(kvh*HD+i,t),0).r;o=s*SC;}';
+  var FS_STATS = ENT + 'uniform sampler2D S;uniform int NP;void main(){int x=int(gl_FragCoord.x),h=int(gl_FragCoord.y);float m=-3.4e38;for(int t=0;t<NP;t++)m=max(m,texelFetch(S,ivec2(t,h),0).r);if(x==0){o=m;return;}float s=0.;for(int t=0;t<NP;t++)s+=exp(texelFetch(S,ivec2(t,h),0).r-m);o=s;}';
+  var FS_ATT = ENT4 + 'uniform sampler2D S;uniform sampler2D ST;uniform sampler2D Vc;uniform int NP;uniform int HD;uniform int REP;uniform int QD;\n' +
+    'void main(){int j=IDX4();if(j>=QD){o=vec4(0.);return;}int h=j/HD,d=j%HD,kvh=h/REP;float m=texelFetch(ST,ivec2(0,h),0).r,sm=texelFetch(ST,ivec2(1,h),0).r;vec4 acc=vec4(0.);int c=kvh*HD+d;\n' +
+    'for(int t=0;t<NP;t++){float p=exp(texelFetch(S,ivec2(t,h),0).r-m);acc+=p*vec4(texelFetch(Vc,ivec2(c,t),0).r,texelFetch(Vc,ivec2(c+1,t),0).r,texelFetch(Vc,ivec2(c+2,t),0).r,texelFetch(Vc,ivec2(c+3,t),0).r);}o=acc/sm;}';
+  var FS_SWIGLU = ENT4 + 'uniform sampler2D G;uniform int FF;float sw(int j){if(j>=FF)return 0.;float g=Vv(G,j);return g/(1.+exp(-g))*Vv(G,FF+j);}void main(){int e=IDX4();o=vec4(sw(e),sw(e+1),sw(e+2),sw(e+3));}';
+
+  function creerPipeline(gl, cfg, couches, norme, sortieH) {
+    var progs = {}, vide = gl.createVertexArray(), D = cfg.dim, QD = cfg.q, KVD = cfg.kvd, HD = cfg.hd, H = cfg.tetes, REP = cfg.tetes / cfg.tetesKV, CTX = cfg.ctx;
+    function prog(cle, fs) {
+      if (progs[cle]) return progs[cle];
+      function sh(t, s) { var o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error('STAR IA : shader refusé (' + cle + ') : ' + gl.getShaderInfoLog(o)); return o; }
+      var p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(p);
+      if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error('STAR IA : ' + gl.getProgramInfoLog(p));
+      var u = {}, nb = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS); for (var k = 0; k < nb; k++) { var nm = gl.getActiveUniform(p, k).name; u[nm] = gl.getUniformLocation(p, nm); }
+      return (progs[cle] = { p: p, u: u });
+    }
+    function tex(w, h) {
+      var t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.R32F, w, h, 0, gl.RED, gl.FLOAT, null); return t;
+    }
+    function cible(w, h) {
+      var t = tex(w, h), f = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, f); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0);
+      if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) throw new Error('STAR IA : cible flottante refusée');
+      return { t: t, f: f, w: w, h: h };
+    }
+    function vec(n) { var h = Math.max(1, Math.ceil(n / 128)), c = cible(128, h); c.n = n; return c; }
+    // vecteur rangé par groupes de 4 (RGBA32F, 32 groupes par ligne) : sert d'entrée aux produits, 4 fois moins de lectures
+    function vec4(n) {
+      var h = Math.max(1, Math.ceil(n / 128)), t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, 32, h, 0, gl.RGBA, gl.FLOAT, null);
+      var f = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, f); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0);
+      if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) throw new Error('STAR IA : cible RGBA flottante refusée');
+      return { t: t, f: f, w: 32, h: h, n: n };
+    }
+    function remplirVec(v, arr) { var b = new Float32Array(128 * v.h); b.set(arr.length > v.n ? arr.subarray(0, v.n) : arr); gl.bindTexture(gl.TEXTURE_2D, v.t); gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1); gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, 128, v.h, gl.RED, gl.FLOAT, b); }
+    function passe(pr, cb, vx, vy, vw, vh, texs, ints, flottants) {
+      gl.useProgram(pr.p); gl.bindFramebuffer(gl.FRAMEBUFFER, cb.f); gl.viewport(vx, vy, vw, vh);
+      var u = 0; for (var nom in texs) { gl.activeTexture(gl.TEXTURE0 + u); gl.bindTexture(gl.TEXTURE_2D, texs[nom]); gl.uniform1i(pr.u[nom] || null, u); u++; }
+      for (var k in ints) gl.uniform1i(pr.u[k] || null, ints[k]); for (var k2 in flottants) gl.uniform1f(pr.u[k2] || null, flottants[k2]);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    }
+    gl.bindVertexArray(vide); gl.disable(gl.BLEND);
+    var pMV = { q8: prog('mv8', FS_MV8), q4: prog('mv4', FS_MV4) }, pRMS = prog('rms', FS_RMS), pRQ = prog('ropeq', FS_ROPEQ), pKW = prog('kw', FS_KW), pVW = prog('vw', FS_VW),
+      pSC = prog('scores', FS_SCORES), pST = prog('stats', FS_STATS), pAT = prog('att', FS_ATT), pSW = prog('swiglu', FS_SWIGLU);
+    function mv(h, x, out, ajout) {
+      var pr = pMV[h.kind];
+      for (var i = 0; i < h.morceaux.length; i++) { var c = h.morceaux[i], vy = i * 32, vh = Math.min(32, out.h - vy);
+        passe(pr, out, 0, vy, 128, vh, { W: c.wt, S: c.st, X: x.t, A: (ajout || x).t }, { NB: h.nb, R0: i * LIGNES_PAR_MORCEAU, NR: h.rows, NC: c.n, HA: ajout ? 1 : 0 }, {}); }
+    }
+    function rms(x, wn, out) { passe(pRMS, out, 0, 0, 32, out.h, { X: x.t, Wn: wn.t }, { N: D }, { EPS: cfg.eps }); }
+    // vecteurs de travail
+    var Xa = vec(D), Xb = vec(D), H1 = vec4(D), QKV = vec(QD + 2 * KVD), QR = vec(QD), ATT = vec4(QD), GU = vec(2 * cfg.ffn), ACT = vec4(cfg.ffn), ROT = vec(HD), LOG = vec(cfg.vocab);
+    var S = cible(CTX, H), ST = cible(2, H), NF = vec(D); remplirVec(NF, vecteur(norme));
+    var cK = [], cV = [], poids = [];
+    for (var l = 0; l < cfg.couches; l++) {
+      var L = couches[l], an = vec(D), fn = vec(D), bs = null; remplirVec(an, L.an); remplirVec(fn, L.fn); if (L.biais) { bs = vec(QD + 2 * KVD); remplirVec(bs, L.biais); }
+      poids.push({ an: an, fn: fn, bs: bs, h: L.h }); cK.push(cible(KVD, CTX)); cV.push(cible(KVD, CTX));
+    }
+    var rotBuf = new Float32Array(HD), invFreq = new Float32Array(HD / 2); for (var f = 0; f < HD / 2; f++) invFreq[f] = Math.pow(cfg.base, -2 * f / HD);
+    var logitsBuf = new Float32Array(128 * LOG.h);
+    return {
+      // Un mot : met le vecteur du mot en entrée, enchaîne les couches sur le GPU, lit les scores seulement si demandé
+      avancer: function (xEmbed, pos, voulLogits) {
+        remplirVec(Xa, xEmbed);
+        for (var f2 = 0; f2 < HD / 2; f2++) { var ang = pos * invFreq[f2]; rotBuf[f2] = Math.cos(ang); rotBuf[HD / 2 + f2] = Math.sin(ang); } remplirVec(ROT, rotBuf);
+        var np = pos + 1, cur = Xa, nxt = Xb;
+        for (var l2 = 0; l2 < poids.length; l2++) {
+          var P = poids[l2];
+          rms(cur, P.an, H1);
+          mv(P.h.qkv, H1, QKV, P.bs);
+          passe(pRQ, QR, 0, 0, 128, QR.h, { QKV: QKV.t, ROT: ROT.t }, { OFF: 0, HD: HD, NQ: QD }, {});
+          passe(pKW, cK[l2], 0, pos, KVD, 1, { QKV: QKV.t, ROT: ROT.t }, { OFF: QD, HD: HD, NQ: 0 }, {});
+          passe(pVW, cV[l2], 0, pos, KVD, 1, { QKV: QKV.t, ROT: ROT.t }, { OFF: QD + KVD, HD: HD, NQ: 0 }, {});
+          passe(pSC, S, 0, 0, np, H, { Q: QR.t, K: cK[l2].t }, { HD: HD, REP: REP }, { SC: 1 / Math.sqrt(HD) });
+          passe(pST, ST, 0, 0, 2, H, { S: S.t }, { NP: np }, {});
+          passe(pAT, ATT, 0, 0, 32, ATT.h, { S: S.t, ST: ST.t, Vc: cV[l2].t }, { NP: np, HD: HD, REP: REP, QD: QD }, {});
+          mv(P.h.o, ATT, nxt, cur);
+          rms(nxt, P.fn, H1);
+          mv(P.h.gu, H1, GU, null);
+          passe(pSW, ACT, 0, 0, 32, ACT.h, { G: GU.t }, { FF: cfg.ffn }, {});
+          mv(P.h.d, ACT, cur, nxt);
+        }
+        if (!voulLogits) { gl.flush(); return null; }
+        rms(cur, NF, H1); mv(sortieH, H1, LOG, null);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, LOG.f); gl.readPixels(0, 0, 128, LOG.h, gl.RED, gl.FLOAT, logitsBuf);
+        if (gl.getError() !== gl.NO_ERROR) throw new Error('STAR IA : lecture GPU impossible');
+        return logitsBuf.subarray(0, cfg.vocab);
+      }
+    };
+  }
+
   async function charger(src, options) {
     options = options || {};
     var prog = options.progression || function () {}, g = await ouvrirGGUF(src), kv = g.kv, arch = kv['general.architecture'];
@@ -410,7 +530,8 @@
     // ---- état de la conversation (cache des clés/valeurs) ----
     var hd = cfg.hd, kvd = cfg.kvd, cacheK = [], cacheV = [];
     function viderCache() { cacheK = []; cacheV = []; for (var i = 0; i < cfg.couches; i++) { cacheK.push(new Float32Array(cfg.ctx * kvd)); cacheV.push(new Float32Array(cfg.ctx * kvd)); } }
-    viderCache();
+    function libererCache() { cacheK = []; cacheV = []; }
+    var pipe = null;   // calcul « tout sur le GPU » (voir creerPipeline) ; null = on garde le mode GPU + processeur
     var pos = 0, tampon = { x: new Float32Array(cfg.dim), h: new Float32Array(cfg.dim), att: new Float32Array(cfg.q), sc: new Float32Array(cfg.ctx) };
     var invFreq = new Float32Array(hd / 2); for (var f = 0; f < hd / 2; f++) invFreq[f] = Math.pow(cfg.base, -2 * f / hd);
     function produit(L, nom, h, x, y) {
@@ -422,6 +543,11 @@
 
     function avancer(token, voulLogits) {
       if (pos >= cfg.ctx) throw new Error('STAR IA : conversation trop longue pour la mémoire du modèle (' + cfg.ctx + ' mots).');
+      if (pipe) { ligne(embed, token, tampon.x); var r = pipe.avancer(tampon.x, pos, voulLogits); pos++; return r; }
+      return avancerHybride(token, voulLogits);
+    }
+    function avancerHybride(token, voulLogits) {
+      if (!cacheK.length) viderCache();
       var D = cfg.dim, x = tampon.x, h = tampon.h; ligne(embed, token, x);
       var qkvN = cfg.q + 2 * kvd, qkv = new Float32Array(qkvN + 8), att = tampon.att, rep = cfg.tetes / cfg.tetesKV, echelle = 1 / Math.sqrt(hd), sc = tampon.sc, nPos = pos + 1;
       var o = new Float32Array(D + 8), gu = new Float32Array(2 * cfg.ffn + 8), dd = new Float32Array(D + 8), act = new Float32Array(cfg.ffn);
@@ -475,6 +601,19 @@
       return cand[garde - 1];
     }
 
+    // ---- Calcul « tout sur le GPU » : utilisé seulement s'il redonne les mêmes scores que le mode GPU + processeur ----
+    gpuInfo.mode = gpuApi ? 'GPU + processeur' : 'processeur';
+    if (gpuApi && options.toutGPU !== false && sortieH && couches.every(function (L) { return L.h && L.h.qkv && L.h.o && L.h.gu && L.h.d; }) && cfg.ctx <= gl.getParameter(gl.MAX_TEXTURE_SIZE) && cfg.vocab > 12) {
+      try {
+        var pp = creerPipeline(gl, cfg, couches, norme, sortieH), idA = 3, idB = 11, xa = new Float32Array(cfg.dim), xb = new Float32Array(cfg.dim);
+        pos = 0; avancerHybride(idA, false); var l1 = Float32Array.from(avancerHybride(idB, true)); libererCache(); pos = 0;
+        ligne(embed, idA, xa); pp.avancer(xa, 0, false); ligne(embed, idB, xb); var l2 = pp.avancer(xb, 1, true), ee = 0, mm = 0;
+        for (var qi = 0; qi < l1.length; qi++) { ee = Math.max(ee, Math.abs(l1[qi] - l2[qi])); mm = Math.max(mm, Math.abs(l1[qi])); }
+        gpuInfo.testIntegral = { ecartRel: ee / Math.max(mm, 1e-9) };
+        if (ee / Math.max(mm, 1e-9) < 2e-3) { pipe = pp; gpuInfo.mode = 'GPU intégral'; } else gpuInfo.raison += ' ; le mode GPU intégral ne donne pas les mêmes résultats sur cet appareil : mode GPU + processeur gardé';
+      } catch (e) { pipe = null; pos = 0; gpuInfo.raison += ' ; mode GPU intégral indisponible (' + e.message + ')'; }
+    }
+    gpuInfo.texte = gpuApi ? gpuInfo.mode + ' (auto-test réussi)' : 'processeur — ' + gpuInfo.raison;
     var modele = {
       version: VERSION, cfg: cfg, tokenizer: tok, gpu: gpuInfo, kv: kv,
       get position() { return pos; },
@@ -505,7 +644,7 @@
       discuter: async function (messages, o) {
         // messages = tout l'historique ; on ne donne au modèle que les nouveaux messages (le cache garde le reste)
         o = o || {}; var dejaVu = this._vu || 0, nouveaux = messages.slice(dejaVu), txt = '';
-        if (dejaVu === 0 && messages[0].role !== 'system') txt += '<|im_start|>system\n' + (o.systeme || 'Tu es un assistant utile de STAR ENTREPRISE. Réponds en français, simplement.') + '<|im_end|>\n';
+        if (dejaVu === 0 && messages[0].role !== 'system') txt += '<|im_start|>system\n' + (o.systeme || 'Réponds en français, de façon brève.') + '<|im_end|>\n';
         txt += this.gabarit(nouveaux, true);
         var ids = tok.encoder(txt, true), res = await this.generer(ids, o); this._vu = messages.length + 1; return res;
       },
@@ -515,8 +654,75 @@
     return modele;
   }
 
+  // =====================================================================================
+  // 6. Calcul en arrière-plan (Web Worker) : l'écran ne se fige plus pendant que le modèle réfléchit.
+  //    Le travailleur reçoit le code de STAR GPU et de STAR IA (texte) et charge le modèle avec son propre GPU (OffscreenCanvas).
+  // =====================================================================================
+  function travailleurMain() {
+    var modele = null, signal = null;
+    function envoyer(type, d) { var o = { type: type }; for (var k in d) o[k] = d[k]; self.postMessage(o); }
+    self.onmessage = async function (e) {
+      var m = e.data;
+      try {
+        if (m.type === 'charger') {
+          if (typeof OffscreenCanvas === 'undefined') throw new Error('OffscreenCanvas absent');
+          var gpu = StarGPU.create(new OffscreenCanvas(1, 1));
+          modele = await StarIA.charger(StarIA.sourceBlob(m.blob), { gpu: gpu, toutGPU: m.toutGPU, contexteMax: m.contexteMax, progression: function (p, n) { envoyer('progression', { p: p, n: n }); } });
+          envoyer('pret', { cfg: modele.cfg, gpu: modele.gpu, gpuPrincipalOk: !!(gpu.info && gpu.info.ok) });
+        } else if (m.type === 'discuter') {
+          signal = { annule: false }; var o = {}; for (var k in m.options) o[k] = m.options[k]; o.signal = signal; o.onToken = function (t) { envoyer('token', { t: t }); };
+          var r = await modele.discuter(m.messages, o);
+          envoyer('fin', { texte: r.texte, ids: r.ids, motsParSeconde: r.motsParSeconde, msPremier: r.msPremier, position: modele.position });
+        } else if (m.type === 'stop') { if (signal) signal.annule = true; }
+        else if (m.type === 'nouvelle') { modele.nouvelleConversation(); envoyer('position', { position: 0 }); }
+      } catch (err) { envoyer('erreur', { message: err && err.message ? err.message : String(err), phase: m.type }); }
+    };
+  }
+  // sources = [texte de star-gpu.js, texte de star-ia.js]. Renvoie un objet qui s'utilise comme celui de charger() (discuter, nouvelleConversation, cfg, gpu, position).
+  function chargerEnArrierePlan(blob, options) {
+    options = options || {};
+    return new Promise(function (resolve, reject) {
+      if (typeof Worker === 'undefined' || typeof OffscreenCanvas === 'undefined' || typeof Blob === 'undefined' || !options.sources) return reject(new Error('arrière-plan non disponible'));
+      var w, url, attente = null, pos = 0, minuteur = null, pret = false, proxy;
+      try {
+        url = URL.createObjectURL(new Blob([options.sources[0], '\n', options.sources[1], '\n(', travailleurMain.toString(), ')();'], { type: 'text/javascript' }));
+        w = new Worker(url);
+      } catch (e) { return reject(e); }
+      function fin() { if (minuteur) { clearInterval(minuteur); minuteur = null; } }
+      w.onerror = function (ev) { fin(); var msg = new Error('arrière-plan : ' + (ev && ev.message ? ev.message : 'erreur du travailleur')); if (!pret) { w.terminate(); reject(msg); } else if (attente) { var a = attente; attente = null; a.rej(msg); } };
+      w.onmessage = function (e) {
+        var m = e.data;
+        if (m.type === 'progression') { if (options.progression) options.progression(m.p, m.n); }
+        else if (m.type === 'pret') {
+          pret = true;
+          proxy = {
+            version: VERSION, cfg: m.cfg, gpu: m.gpu, arrierePlan: true, gpuPrincipalOk: m.gpuPrincipalOk,
+            get position() { return pos; },
+            discuter: function (messages, o) {
+              o = o || {};
+              return new Promise(function (res, rej) {
+                attente = { res: res, rej: rej, onToken: o.onToken };
+                var opts = {}; for (var k in o) if (typeof o[k] !== 'function' && k !== 'signal') opts[k] = o[k];
+                if (o.signal) minuteur = setInterval(function () { if (o.signal.annule) { w.postMessage({ type: 'stop' }); fin(); } }, 80);
+                w.postMessage({ type: 'discuter', messages: messages, options: opts });
+              });
+            },
+            nouvelleConversation: function () { pos = 0; w.postMessage({ type: 'nouvelle' }); },
+            terminer: function () { fin(); w.terminate(); URL.revokeObjectURL(url); }
+          };
+          resolve(proxy);
+        }
+        else if (m.type === 'token') { if (attente && attente.onToken) attente.onToken(m.t); }
+        else if (m.type === 'fin') { fin(); pos = m.position; var a = attente; attente = null; if (a) a.res({ texte: m.texte, ids: m.ids, motsParSeconde: m.motsParSeconde, msPremier: m.msPremier }); }
+        else if (m.type === 'position') pos = m.position;
+        else if (m.type === 'erreur') { fin(); var err = new Error(m.message); if (!pret) { w.terminate(); err.phase = m.phase; reject(err); } else if (attente) { var b = attente; attente = null; b.rej(err); } }
+      };
+      w.postMessage({ type: 'charger', blob: blob, toutGPU: options.toutGPU, contexteMax: options.contexteMax });
+    });
+  }
+
   var StarIA = {
-    version: VERSION, charger: charger, sourceBuffer: sourceBuffer, sourceBlob: sourceBlob, sourceUrl: sourceUrl, ouvrirGGUF: ouvrirGGUF, lireTenseur: lireTenseur,
+    version: VERSION, charger: charger, chargerEnArrierePlan: chargerEnArrierePlan, sourceBuffer: sourceBuffer, sourceBlob: sourceBlob, sourceUrl: sourceUrl, ouvrirGGUF: ouvrirGGUF, lireTenseur: lireTenseur,
     dequantiser: dequantiser, tenseurVersMat: tenseurVersMat, matvecCPU: matvecCPU, creerTokenizer: creerTokenizer, creerGPU: creerGPU, autoTestGPU: autoTestGPU, TYPES: TYPES, ligne: ligne
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = StarIA; else racine.StarIA = StarIA;
