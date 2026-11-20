@@ -28,9 +28,19 @@ let ko = 0; const ok = (c, m) => { console.log((c ? "OK  " : "ÉCHEC ") + m); if
       const mg = await StarIA.charger(src, { gpu }), mc = await StarIA.charger(src, { utiliserGPU: false }), seq = refLogits[f].seq;
       const lg = mg.logits(seq), lc = mc.logits(seq);
       out[f] = { mode: mg.gpu.mode, testIntegral: mg.gpu.testIntegral, raison: mg.gpu.raison, gpuUtilise: mg.gpu.utilise, ecartGpuCpu: ecart(lg, lc), ecartRef: ecart(lg, refLogits[f.replace("test-", "deq-")] ? [] : []), nbCouches: mg.cfg.couches };
-      mg.nouvelleConversation(); const g1 = await mg.generer(mg.tokenizer.encoder("<|im_start|>user\nBonjour<|im_end|>\n<|im_start|>assistant\n", true), { maxTokens: 8, temperature: 0, repetition: 1 });
-      mc.nouvelleConversation(); const g2 = await mc.generer(mc.tokenizer.encoder("<|im_start|>user\nBonjour<|im_end|>\n<|im_start|>assistant\n", true), { maxTokens: 8, temperature: 0, repetition: 1 });
+      mg.reinitialiser(); const g1 = await mg.generer(mg.tokenizer.encoder("<|im_start|>user\nBonjour<|im_end|>\n<|im_start|>assistant\n", true), { maxTokens: 8, temperature: 0, repetition: 1 });
+      mc.reinitialiser(); const g2 = await mc.generer(mc.tokenizer.encoder("<|im_start|>user\nBonjour<|im_end|>\n<|im_start|>assistant\n", true), { maxTokens: 8, temperature: 0, repetition: 1 });
       let k = 0; while (k < g1.ids.length && g1.ids[k] === g2.ids[k]) k++; out[f].prefixe = k; out[f].memesMots = k >= Math.min(4, g1.ids.length) && g1.ids.length === g2.ids.length; out[f].mots = g1.ids.length; out[f].g1 = g1.ids; out[f].g2 = g2.ids;
+    }
+    // message système gardé en mémoire : GPU = processeur = calcul complet depuis zéro, avant et après « nouvelle conversation », et suite de conversation
+    { const blob = await (await fetch("/modeles/test-q8_0.gguf")).blob(), src = StarIA.sourceBlob(blob), mg = await StarIA.charger(src, { gpu }), mc = await StarIA.charger(src, { utiliserGPU: false });
+      const o = { maxTokens: 8, temperature: 0, repetition: 1, systeme: mg.systemeDefaut }, msgs = [{ role: "user", content: "Bonjour" }], enc = (t) => mg.tokenizer.encoder(t, true), depart = mg.positionDepart, posChargement = mg.position;
+      const a = await mg.discuter(msgs, o); mg.nouvelleConversation(); const posNouv = mg.position, a2 = await mg.discuter(msgs, o);
+      const sys = "<|im_start|>system\n" + mg.systemeDefaut + "<|im_end|>\n", plein = enc(sys + "<|im_start|>user\nBonjour<|im_end|>\n<|im_start|>assistant\n"); mg.reinitialiser(); const r = await mg.generer(plein, o);
+      const c = await mc.discuter(msgs, o), accord = (x, y) => { let k = 0; while (k < x.length && x[k] === y[k]) k++; return k >= Math.min(4, x.length) && x.length === y.length; };
+      const suite = msgs.concat([{ role: "assistant", content: a.texte }, { role: "user", content: "Et toi ?" }]); mg.reinitialiser(); await mg.discuter(msgs, o); const b = await mg.discuter(suite, { maxTokens: 4, temperature: 0, repetition: 1 });
+      const imEnd = mg.tokenizer.id("<|im_end|>"), seq = enc(sys).concat(enc("<|im_start|>user\nBonjour<|im_end|>\n<|im_start|>assistant\n"), (await (async () => { mg.reinitialiser(); const t = await mg.discuter(msgs, o); return t.ids; })()), enc("<|im_end|>\n<|im_start|>user\nEt toi ?<|im_end|>\n<|im_start|>assistant\n")), lg = Float32Array.from(mg.logits(seq)); let am = 0; for (let i = 0; i < lg.length; i++) if (lg[i] > lg[am]) am = i;
+      out.systeme = { mode: mg.gpu.mode, depart, posChargement, posNouv, a: a.ids, a2: a2.ids, r: r.ids, c: c.ids, memeAvecApres: accord(a.ids, a2.ids) && accord(a.ids, r.ids), memeCpu: accord(a.ids, c.ids), suiteMot: b.ids[0], suiteRef: am, suiteTermine: a.termine || false };
     }
     // chargement par adresse web avec « Range » (comme depuis Hugging Face)
     const mu = await StarIA.charger(StarIA.sourceUrl("/modeles/test-q8_0.gguf"), { gpu }); out.parUrl = { gpu: mu.gpu.utilise, mots: (await mu.generer(mu.tokenizer.encoder("Salut", true), { maxTokens: 3, temperature: 0 })).ids.length };
@@ -41,6 +51,7 @@ let ko = 0; const ok = (c, m) => { console.log((c ? "OK  " : "ÉCHEC ") + m); if
   for (const f of ["test-q8_0.gguf", "test-q4_0.gguf", "test-mixte.gguf"]) {
     const r = res[f]; ok(r.gpuUtilise && (r.mode === "GPU intégral" || (f === "test-mixte.gguf" && r.mode === "GPU + processeur")) && (!r.testIntegral || r.testIntegral.ecartRel < 1e-3) && r.ecartGpuCpu < 1e-4 && r.memesMots, f + " : mode " + r.mode + " (auto-test intégral " + (r.testIntegral ? r.testIntegral.ecartRel.toExponential(1) : "—") + (r.mode !== "GPU intégral" ? " ; " + r.raison : "") + "), GPU utilisé, scores GPU = processeur (écart relatif " + r.ecartGpuCpu.toExponential(1) + "), les 4 premiers mots générés sont les mêmes (" + r.mots + " mots ; GPU " + r.g1.join(",") + " / processeur " + r.g2.join(",") + ")");
   }
+  { const x = res.systeme; ok(x.mode === "GPU intégral" && x.depart > 5 && x.posChargement === x.depart && x.posNouv === x.depart, "message système précalculé au chargement (" + x.depart + " mots) et repris à chaque nouvelle conversation, mode " + x.mode); ok(x.memeAvecApres && x.memeCpu, "réponse identique avec message système mémorisé, après nouvelle conversation, calcul complet et processeur : " + x.a.join(",") + " | " + x.a2.join(",") + " | " + x.r.join(",") + " | " + x.c.join(",")); ok(x.suiteMot === x.suiteRef, "suite de conversation sur GPU : 1er mot de la 2e réponse " + x.suiteMot + " = " + x.suiteRef + " (calcul complet)"); }
   ok(res.parUrl.gpu && res.parUrl.mots === 3, "chargement par adresse web (téléchargement par morceaux « Range ») : " + JSON.stringify(res.parUrl));
   ok(erreurs.length === 0, "aucune erreur dans la console " + erreurs.slice(0, 3).join(" | "));
   await nav.close(); srv.close(); console.log(ko ? `\n${ko} ÉCHEC(S)` : "\nTOUS LES TESTS PASSENT"); process.exit(ko ? 1 : 0);

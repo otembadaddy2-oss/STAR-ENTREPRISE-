@@ -49,6 +49,26 @@ const ecartRel = (a, b) => { let e = 0, m = 0; for (let i = 0; i < a.length; i++
   const conv = []; conv.push({ role: "user", content: "Salut" }); const rc = await mq.discuter(conv, { maxTokens: 5, temperature: 0 });
   conv.push({ role: "assistant", content: rc.texte }); conv.push({ role: "user", content: "Et toi ?" }); const rc2 = await mq.discuter(conv, { maxTokens: 5, temperature: 0 });
   ok(typeof rc2.texte === "string" && mq.position > 10, "conversation sur plusieurs messages (mémoire gardée, position " + mq.position + ")");
+  // 3b. Message système gardé en mémoire (cache) : mêmes résultats qu'un calcul complet depuis zéro, et chaque nouvelle conversation repart du même point
+  {
+    const m = await charge("test-q8_0.gguf"), o = { maxTokens: 6, temperature: 0, repetition: 1 }, msgs = [{ role: "user", content: "Bonjour" }], enc = (t) => m.tokenizer.encoder(t, true);
+    const sysTxt = "<|im_start|>system\n" + m.systemeDefaut + "<|im_end|>\n", userTxt = "<|im_start|>user\nBonjour<|im_end|>\n<|im_start|>assistant\n";
+    ok(JSON.stringify(enc(sysTxt + userTxt)) === JSON.stringify(enc(sysTxt).concat(enc(userTxt))), "découper le message système du reste donne exactement les mêmes mots que le texte entier (" + enc(sysTxt).length + " mots de message système)");
+    const a = await m.discuter(msgs, o); m.nouvelleConversation(); const dep = m.position, depart = m.positionDepart, a2 = await m.discuter(msgs, o);
+    m.reinitialiser(); const r = await m.generer(enc(sysTxt + userTxt), o);
+    ok(JSON.stringify(a.ids) === JSON.stringify(r.ids) && JSON.stringify(a2.ids) === JSON.stringify(r.ids) && dep === depart && dep > 5, "message système mémorisé : réponse identique au calcul complet, avant et après « nouvelle conversation » (mots " + a.ids.join(",") + ", départ " + dep + ")");
+    // suite de la conversation : ce que le modèle a en mémoire = message système + 1re question + 1re réponse (dernier mot compris) + fermeture + 2e question
+    const m2 = await charge("test-q8_0.gguf"), t1 = await m2.discuter(msgs, o), imEnd = m2.tokenizer.id("<|im_end|>");
+    const suite = msgs.concat([{ role: "assistant", content: t1.texte }, { role: "user", content: "Et toi ?" }]);
+    const seq = enc(sysTxt).concat(enc(userTxt), t1.ids, t1.termine ? [imEnd] : [], enc((t1.termine ? "" : "<|im_end|>") + "\n<|im_start|>user\nEt toi ?<|im_end|>\n<|im_start|>assistant\n"));
+    const t2 = await m2.discuter(suite, { maxTokens: 1, temperature: 0, repetition: 1 }), pos2 = m2.position, lg2 = m2.logits(seq); let am = 0; for (let i = 0; i < lg2.length; i++) if (lg2[i] > lg2[am]) am = i;
+    ok(pos2 === seq.length + 1 && t2.ids[0] === am, "suite de conversation : la mémoire contient bien tout ce qui a été dit (" + seq.length + " mots, 1er mot de la 2e réponse " + t2.ids[0] + "/" + am + ", réponse " + (t1.coupe ? "coupée" : "terminée") + ")");
+    // choix du mot : « topK 1 » = toujours le meilleur ; « topK 5 » = toujours un des 5 meilleurs, et pas toujours le même
+    const seqT = enc("<|im_start|>user\nBonjour<|im_end|>\n<|im_start|>assistant\n"), lgT = Float32Array.from(m2.logits(seqT)), top = Array.from(lgT.keys()).sort((x, y) => lgT[y] - lgT[x]).slice(0, 5);
+    let graine = 12345; const alea = () => (graine = (graine * 1664525 + 1013904223) >>> 0) / 4294967296, vus = new Set(); let dansTop = true, meilleur = true;
+    for (let k = 0; k < 120; k++) { m2.reinitialiser(); const g = await m2.generer(seqT, { maxTokens: 1, temperature: 1, topK: 5, topP: 1, repetition: 1, aleatoire: alea }); vus.add(g.ids[0]); if (top.indexOf(g.ids[0]) < 0) dansTop = false; m2.reinitialiser(); const h = await m2.generer(seqT, { maxTokens: 1, temperature: 1, topK: 1, repetition: 1, aleatoire: alea }); if (h.ids[0] !== top[0]) meilleur = false; }
+    ok(dansTop && meilleur && vus.size > 1, "choix du mot : topK 1 donne toujours le meilleur, topK 5 reste dans les 5 meilleurs (" + vus.size + " mots différents sur 120 essais)");
+  }
   // 4. Cas d'erreur propres
   let msg = ""; try { await IA.charger(IA.sourceBuffer(Buffer.from("pas un modèle du tout, pas un modèle du tout"))); } catch (e) { msg = e.message; }
   ok(/GGUF/.test(msg), "un mauvais fichier est refusé clairement : " + msg);

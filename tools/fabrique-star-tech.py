@@ -14,8 +14,12 @@ page = page.replace("</body></html>", '<script type="text/plain" id="srcGpu">' +
 open(os.path.join(sortie, "STAR-TECH-demo.html"), "w", encoding="utf-8").write(page)   # page complète (à ouvrir ou à publier telle quelle)
 corps = re.sub(r"^<!doctype html>\s*<html[^>]*>\s*<head>\s*<meta charset=\"utf-8\">\s*<meta name=\"viewport\"[^>]*>\s*", "", page, flags=re.I)
 open(os.path.join(sortie, "STAR-TECH-demo-artifact.html"), "w", encoding="utf-8").write(corps.replace("</head><body>", "</head>\n").replace("</body></html>", ""))
+import hashlib
+fichiers = [("star-gpu/star-gpu.js", "star-gpu.js"), ("star-gpu/uc-star.js", "uc-star.js"), ("star-gpu/star-ia.js", "star-ia.js"), (os.path.join(sortie, "STAR-TECH-demo.html"), "demo.html"), ("star-gpu/LISEZMOI.txt", "LISEZMOI.txt")]
+for f in ("MODE-D-EMPLOI.txt", "LICENCE.txt", "NOTICES.txt", "CHANGELOG.txt"): fichiers.append(("star-gpu/pack/" + f, f))
+for src, _ in fichiers: assert os.path.exists(src), "fichier manquant : " + src
+sommes = "".join("%s  %s\n" % (hashlib.sha256(open(src, "rb").read()).hexdigest(), nom) for src, nom in fichiers)   # empreintes : prouvent que les fichiers n'ont pas été modifiés
 with zipfile.ZipFile(os.path.join(sortie, "STAR-TECH.zip"), "w", zipfile.ZIP_DEFLATED) as z:
-    z.write("star-gpu/star-gpu.js", "STAR-TECH/star-gpu.js"); z.write("star-gpu/uc-star.js", "STAR-TECH/uc-star.js"); z.write("star-gpu/star-ia.js", "STAR-TECH/star-ia.js")
-    z.write(os.path.join(sortie, "STAR-TECH-demo.html"), "STAR-TECH/demo.html")
-    if os.path.exists("star-gpu/LISEZMOI.txt"): z.write("star-gpu/LISEZMOI.txt", "STAR-TECH/LISEZMOI.txt")
+    for src, nom in fichiers: z.write(src, "STAR-TECH/" + nom)
+    z.writestr("STAR-TECH/SHA256SUMS.txt", sommes)
 print("écrit dans", sortie, sorted(os.listdir(sortie)))

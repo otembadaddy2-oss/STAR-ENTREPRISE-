@@ -1,0 +1,46 @@
+MODE D'EMPLOI : STAR-TECH 1.1 (STAR GPU · UC STAR · STAR IA)
+============================================================
+
+A. TESTER EN 3 MINUTES (téléphone ou ordinateur)
+1. Ouvre le fichier demo.html dans un navigateur récent (testé : Chrome sur Android et sur ordinateur ; les autres navigateurs, dont Safari et Firefox, n'ont pas été testés). Aucune installation.
+2. Carte « Ton appareil » : elle dit si le GPU est utilisé. « GPU actif » = bon signe.
+3. Section « Mesurer » : appuie sur « Mesurer 256 » puis « Mesurer 512 » ; plus bas « Calculer 1 000 000 ». Tu vois le temps du processeur, celui du GPU, le gain (×) et l'écart de résultat
+   (un écart très petit comme 0 ou 1e-5 est normal et bon).
+4. Section 5 « STAR IA » : appuie sur « Télécharger (4 bits, plus léger) » EN WI-FI (≈ 0,4 Go, une seule fois : le fichier reste ensuite dans l'appareil).
+   Attends « prêt », écris un message en français, appuie sur « Envoyer ». La ligne jaune du bas donne la vitesse réelle de TON appareil.
+   Boutons : « Arrêter » coupe la réponse ; « Nouvelle conversation » repart de zéro ; « Mode Économie » chauffe moins ; « Créativité » bas = plus sérieux ; « Longueur max » = taille maximale de la réponse.
+5. Hors connexion : une fois le fichier .gguf enregistré dans l'appareil, STAR IA marche sans internet : ouvre demo.html et utilise « Choisir un fichier ».
+
+B. L'UTILISER DANS UNE PAGE WEB
+   <script src="star-gpu.js"></script> <script src="uc-star.js"></script> <script src="star-ia.js"></script>
+   <script>
+     const gpu = StarGPU.create();                    // le GPU de l'appareil
+     const uc  = UCStar.create(gpu);                  // la couche de calcul
+     const y = uc.map(tableau, 'sin(x)*u0+1', [2]);   // une formule, des millions de valeurs
+     const total = uc.mapReduce(tableau, 'x*x', 'sum');
+     // IA : un fichier .gguf choisi sur l'appareil ou téléchargé
+     const modele = await StarIA.charger(StarIA.sourceBlob(fichier), { gpu });
+     const rep = await modele.discuter([{ role: 'user', content: 'Bonjour !' }], { maxTokens: 200, temperature: 0.3, onToken: (t) => afficher(t) });
+   </script>
+   Pour que l'écran reste libre pendant que le modèle réfléchit, utilise StarIA.chargerEnArrierePlan(blob, { sources: [texteDeStarGpuJs, texteDeStarIaJs] }) : c'est ce que fait demo.html (voir la fonction « demarrer »).
+   Si l'arrière-plan n'est pas disponible dans le navigateur, STAR IA calcule dans la page (l'écran peut alors se figer un instant).
+
+C. LES RÈGLES À DONNER À TES CLIENTS
+   - « STAR IA est un petit assistant qui tourne dans l'appareil : privé, sans abonnement, sans internet. Il peut se tromper : vérifie les informations importantes. »
+   - Ne jamais écrire « compatible CUDA », « équivalent NVIDIA » ni « remplace une carte graphique ».
+   - Toujours citer le modèle utilisé et son auteur (Qwen2.5 : Alibaba Cloud / Qwen, Apache 2.0).
+
+D. SI ÇA NE MARCHE PAS
+   - « Modèle introuvable / code 404 » : l'adresse du fichier .gguf est fausse ; copie-la depuis la page officielle du modèle.
+   - « Pas assez de place » : libère de l'espace dans le téléphone (≥ 1 Go) ou prends le modèle 4 bits.
+   - « Ce fichier n'est pas un modèle GGUF » ou « architecture non prise en charge » : STAR IA lit seulement Qwen2 / Qwen2.5.
+   - La page indique « processeur » au lieu de « GPU intégral » : le GPU de cet appareil n'a pas passé l'auto-test (résultats inexacts) ; STAR IA reste juste mais devient beaucoup plus lente. C'est voulu : exactitude d'abord.
+   - Réponses lentes ou téléphone qui chauffe : coche « Mode Économie », ferme les autres onglets, branche le chargeur, baisse « Longueur max ».
+   - Le navigateur se ferme tout seul en chargeant un gros modèle : la mémoire vive est pleine. Prends le modèle 4 bits.
+
+E. PLUS GROS MODÈLES (indication, non testée sur téléphone)
+   La limite est la mémoire VIVE (RAM), pas le disque : compter à peu près la taille du fichier .gguf + 30 % pour calculer. Un modèle 1,5 milliard de paramètres en 4 bits fait ~1 Go : prévoir un appareil avec au moins 6 Go de RAM libre.
+   Plus le modèle est gros, plus il est lent et plus il consomme. STAR-TECH 1.1 n'a été validé sur un vrai modèle que pour Qwen2.5-0.5B.
+
+F. SUPPORT
+   WhatsApp +242 06 656 50 50 · contact@starentreprise.com. Indique : le téléphone ou l'ordinateur, le navigateur, ce que dit la carte « Ton appareil », et une capture d'écran de la ligne jaune.

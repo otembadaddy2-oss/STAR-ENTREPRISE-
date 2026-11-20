@@ -1,0 +1,59 @@
+LICENCE D'UTILISATION STAR-TECH
+(STAR GPU · UC STAR · STAR IA)  —  modèle de licence, version 1.0 du 20/11/2026
+
+*** PROJET : ce texte est un MODÈLE rédigé par STAR ENTREPRISE avec l'aide d'un assistant informatique, SANS avocat. ***
+*** Il doit être relu et adapté par un juriste (droit de la République du Congo / OHADA) avant toute vente. ***
+*** Les passages entre [crochets] sont à compléter pour chaque vente (bon de commande). ***
+
+1. LES PARTIES
+Le Concédant : STAR ENTREPRISE, Brazzaville, République du Congo. Contact : contact@starentreprise.com · WhatsApp +242 06 656 50 50.
+Le Licencié : [nom de l'entreprise ou de la personne qui achète, adresse, contact].
+
+2. L'OBJET
+Le « Logiciel STAR-TECH » désigne : star-gpu.js (STAR GPU), uc-star.js (UC STAR), star-ia.js (STAR IA), la page de démonstration demo.html
+et les documents qui les accompagnent (mode d'emploi, notices, historique des versions).
+
+3. CE QUE LE LICENCIÉ A LE DROIT DE FAIRE
+Une licence NON exclusive, NON transférable et NON sous-licenciable, pour la durée et le périmètre écrits sur le bon de commande :
+[durée : ex. 12 mois / illimitée] · [périmètre : ex. 1 entreprise, 1 produit, jusqu'à N sites web ou N applications].
+Dans ce cadre, le Licencié peut utiliser le Logiciel STAR-TECH à l'intérieur de ses propres sites, applications et projets, et l'adapter à ses besoins internes.
+
+4. CE QUI EST INTERDIT
+- vendre, louer, prêter, publier ou distribuer le Logiciel STAR-TECH, son code ou le fichier d'achat (zip), seul ou intégré à un produit qui permettrait à d'autres de le récupérer et de le réutiliser comme bibliothèque ;
+- créer et diffuser un produit concurrent fabriqué à partir de ce code ;
+- retirer ou modifier les mentions de droit d'auteur et de marque ;
+- prétendre en être l'auteur, ou utiliser les noms et le logo de STAR ENTREPRISE, STAR GPU, UC STAR, STAR IA sans accord écrit ;
+- affirmer, dans une publicité ou une fiche produit, que STAR-TECH est « compatible CUDA », « équivalent NVIDIA », ou qu'il remplace une carte graphique : c'est faux et cela exposerait le Licencié à des poursuites.
+
+5. PROPRIÉTÉ
+Le Logiciel STAR-TECH reste la propriété de STAR ENTREPRISE (droit d'auteur, marques et noms). La licence ne transfère aucun droit de propriété.
+Les modèles d'intelligence artificielle que le Licencié télécharge pour les faire tourner (par exemple Qwen2.5 d'Alibaba Cloud) ne sont PAS fournis par STAR ENTREPRISE :
+ils appartiennent à leurs auteurs et restent soumis à LEURS licences (voir NOTICES.txt). Le Licencié doit les respecter.
+
+6. SUPPORT ET MISES À JOUR
+[Inclus pendant : ex. 6 mois à partir de la livraison — assistance par WhatsApp / e-mail, correction des erreurs, nouvelles versions.] Au-delà : selon l'offre de support en vigueur.
+
+7. GARANTIES ET LIMITES (à lire attentivement)
+a) Le Logiciel STAR-TECH est fourni « en l'état ». STAR ENTREPRISE garantit qu'il a été testé comme indiqué dans le mode d'emploi, et seulement dans ces conditions.
+b) La vitesse dépend de l'appareil de l'utilisateur final (téléphone, ordinateur, navigateur). STAR ENTREPRISE ne garantit aucune vitesse précise.
+c) STAR IA fait tourner un petit modèle de langage : ses réponses peuvent être fausses, incomplètes ou hors sujet. Elles ne constituent JAMAIS un avis médical, juridique,
+   financier ou professionnel. Le Licencié est responsable de la façon dont il présente et utilise ces réponses auprès de ses propres clients.
+d) STAR-TECH n'est pas CUDA, n'est pas un produit de NVIDIA et n'est pas affilié à NVIDIA ni à aucun fabricant de puces. C'est un logiciel qui utilise le processeur graphique déjà présent dans l'appareil, par le navigateur (WebGL).
+
+8. LIMITATION DE RESPONSABILITÉ
+Dans la limite permise par la loi, la responsabilité de STAR ENTREPRISE est limitée au prix payé pour la licence, et exclut les pertes indirectes (perte de clients, de revenus, de données). [À valider par un juriste.]
+
+9. DONNÉES
+STAR IA calcule dans l'appareil de l'utilisateur : STAR ENTREPRISE ne reçoit pas les conversations. Le Licencié reste seul responsable des données qu'il collecte ou envoie lui-même dans son propre produit.
+
+10. RÉSILIATION
+En cas de non-respect des articles 3, 4 ou 5, STAR ENTREPRISE peut mettre fin à la licence ; le Licencié doit alors cesser d'utiliser le Logiciel STAR-TECH et en détruire les copies.
+
+11. DROIT APPLICABLE ET LITIGES
+[Droit de la République du Congo ; tentative de règlement à l'amiable, puis tribunaux de Brazzaville — à confirmer par un juriste.]
+
+Fait à [lieu], le [date], en deux exemplaires.
+
+Pour STAR ENTREPRISE : [nom, qualité, signature]            Le Licencié : [nom, qualité, signature]
+
+© STAR ENTREPRISE, Brazzaville. Tous droits réservés.

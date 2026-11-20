@@ -1,0 +1,23 @@
+NOTICES : éléments de tiers et mentions obligatoires (STAR-TECH 1.1)
+====================================================================
+
+1) Ce que STAR ENTREPRISE a écrit : star-gpu.js, uc-star.js, star-ia.js, demo.html. © STAR ENTREPRISE, Brazzaville. Utilisation selon LICENCE.txt.
+   Aucune bibliothèque externe n'est incluse dans ces fichiers : tout le code est de STAR ENTREPRISE.
+
+2) Modèles d'intelligence artificielle (NON inclus dans STAR-TECH, téléchargés séparément par l'utilisateur)
+   - Qwen2.5-0.5B-Instruct (et autres modèles Qwen2.5) : © Alibaba Cloud / équipe Qwen. Licence Apache 2.0 (https://www.apache.org/licenses/LICENSE-2.0).
+     Si tu diffuses ce modèle ou une version transformée (par exemple au format GGUF), tu dois conserver cette licence, citer l'auteur et indiquer les modifications.
+     Le fichier GGUF de démonstration est publié par le Qwen team sur Hugging Face : https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF
+   - Le Licencié est responsable de vérifier la licence de tout autre modèle qu'il choisit. STAR IA ne lit que l'architecture Qwen2 / Qwen2.5 ;
+     les autres architectures (Llama, Qwen3, etc.) sont refusées avec un message clair.
+
+3) Format GGUF : format de fichier public du projet ggml / llama.cpp (licence MIT). STAR IA ne contient aucun code de llama.cpp ;
+   llama.cpp n'a été utilisé que comme PROGRAMME DE RÉFÉRENCE pour les tests de STAR ENTREPRISE.
+
+4) Marques de tiers citées uniquement à titre d'information ; elles appartiennent à leurs propriétaires :
+   CUDA et NVIDIA (NVIDIA Corporation) ; WebGL et WebGPU (Khronos Group, W3C) ; Mali (Arm) ; Qwen (Alibaba Cloud) ; Hugging Face ; Chrome, Android (Google) ; Safari, iPhone (Apple).
+   STAR-TECH n'est ni affilié, ni approuvé, ni sponsorisé par ces sociétés, et n'est pas « compatible CUDA » ni « équivalent NVIDIA ».
+
+5) Marques de STAR ENTREPRISE : STAR ENTREPRISE, STAR GPU, UC STAR (Unified Compute), STAR IA, STAR-TECH.
+   Statut : noms utilisés par STAR ENTREPRISE. Aucun dépôt officiel de marque (OAPI / OMPI, classes 9 et 42) n'était confirmé au 20/11/2026 :
+   à faire avant toute commercialisation à grande échelle. Une simple recherche sur internet n'est pas une vérification juridique.
