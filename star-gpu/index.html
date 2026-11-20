@@ -46,7 +46,7 @@ code,.m{font-family:ui-monospace,monospace;font-size:13px;color:var(--or)}.m{whi
 <div id="iaFil" aria-live="polite"></div>
 <label for="iaSaisie">Ton message</label><textarea id="iaSaisie" rows="2" placeholder="Écris en français…"></textarea>
 <div class="r"><button id="iaEnvoi">Envoyer</button><button id="iaStop" disabled>Arrêter</button><button id="iaNouv">Nouvelle conversation</button></div>
-<div class="reg"><label style="margin:0" title="Bas = réponses plus sérieuses et plus stables ; haut = plus variées mais plus risquées">Créativité <input type="range" id="iaTemp" min="0" max="1.2" step="0.1" value="0.3"></label><label style="margin:0">Longueur max <input type="range" id="iaLong" min="32" max="400" step="16" value="208"></label><label style="margin:0"><input type="checkbox" id="iaEco"> Mode Économie (moins de chaleur)</label></div>
+<div class="reg"><label style="margin:0" title="Bas = réponses plus prudentes mais qui peuvent se répéter ; haut = plus variées mais plus risquées">Créativité <input type="range" id="iaTemp" min="0" max="1.2" step="0.1" value="0.7"></label><label style="margin:0">Longueur max <input type="range" id="iaLong" min="32" max="400" step="16" value="208"></label><label style="margin:0"><input type="checkbox" id="iaEco"> Mode Économie (moins de chaleur)</label></div>
 <span class="m" id="iaStats"></span><p class="s2" id="iaAvert" style="margin-top:8px">Attention : STAR IA est un petit modèle (0,5 milliard de paramètres). Elle peut se tromper ou répondre à côté. Vérifie toujours les informations importantes (santé, argent, droit). Rien de ce qu'elle écrit n'est un avis professionnel.</p></div></div>
 
 <script src="star-gpu.js"></script>

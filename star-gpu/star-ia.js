@@ -622,9 +622,7 @@
     gpuInfo.texte = gpuApi ? gpuInfo.mode + ' (auto-test réussi)' : 'processeur — ' + gpuInfo.raison;
     // Message système de départ. Il est calculé UNE fois et gardé dans la mémoire du modèle (cache) : ensuite chaque nouvelle conversation
     // repart de là, sans le recalculer. Sur un téléphone, cela économise plusieurs secondes avant le premier mot.
-    var SYSTEME_LONG = 'Tu es STAR IA, l\'assistant de STAR ENTREPRISE (Brazzaville). Réponds en français, en phrases courtes et simples, directement à la question posée. Si tu n\'es pas sûr, dis « je ne suis pas sûr » : n\'invente rien.';
-    var SYSTEME_COURT = 'Réponds en français, de façon brève.';   // pour les modes sans « tout GPU » (processeur, GPU + processeur), où chaque mot de départ coûte cher
-    var systemeDefaut = pipe ? SYSTEME_LONG : SYSTEME_COURT, prefixe = null;   // prefixe = { txt, n } : mots du message système déjà calculés (positions 0 à n-1)
+    var systemeDefaut = 'Réponds en français, de façon brève.', prefixe = null;   // consigne courte : un essai avec une consigne plus longue a fait recopier la consigne par le modèle (mesure du 20/11/2026) ; prefixe = { txt, n } : mots du message système déjà calculés (positions 0 à n-1)
     function gabaritSysteme(txt) { return '<|im_start|>system\n' + txt + '<|im_end|>\n'; }
     function preparerPrefixe(txt) { var ids = tok.encoder(gabaritSysteme(txt), true); pos = 0; prefixe = null; for (var i = 0; i < ids.length; i++) avancer(ids[i], false); prefixe = { txt: txt, n: ids.length }; }
     var modele = {

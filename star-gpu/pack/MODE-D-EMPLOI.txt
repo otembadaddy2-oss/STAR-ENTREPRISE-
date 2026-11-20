@@ -8,7 +8,7 @@ A. TESTER EN 3 MINUTES (téléphone ou ordinateur)
    (un écart très petit comme 0 ou 1e-5 est normal et bon).
 4. Section 5 « STAR IA » : appuie sur « Télécharger (4 bits, plus léger) » EN WI-FI (≈ 0,4 Go, une seule fois : le fichier reste ensuite dans l'appareil).
    Attends « prêt », écris un message en français, appuie sur « Envoyer ». La ligne jaune du bas donne la vitesse réelle de TON appareil.
-   Boutons : « Arrêter » coupe la réponse ; « Nouvelle conversation » repart de zéro ; « Mode Économie » chauffe moins ; « Créativité » bas = plus sérieux ; « Longueur max » = taille maximale de la réponse.
+   Boutons : « Arrêter » coupe la réponse ; « Nouvelle conversation » repart de zéro ; « Mode Économie » chauffe moins ; « Créativité » bas = plus prudent mais le modèle peut se répéter (0,7 par défaut) ; « Longueur max » = taille maximale de la réponse.
 5. Hors connexion : une fois le fichier .gguf enregistré dans l'appareil, STAR IA marche sans internet : ouvre demo.html et utilise « Choisir un fichier ».
 
 B. L'UTILISER DANS UNE PAGE WEB
@@ -20,7 +20,7 @@ B. L'UTILISER DANS UNE PAGE WEB
      const total = uc.mapReduce(tableau, 'x*x', 'sum');
      // IA : un fichier .gguf choisi sur l'appareil ou téléchargé
      const modele = await StarIA.charger(StarIA.sourceBlob(fichier), { gpu });
-     const rep = await modele.discuter([{ role: 'user', content: 'Bonjour !' }], { maxTokens: 200, temperature: 0.3, onToken: (t) => afficher(t) });
+     const rep = await modele.discuter([{ role: 'user', content: 'Bonjour !' }], { maxTokens: 200, temperature: 0.7, onToken: (t) => afficher(t) });
    </script>
    Pour que l'écran reste libre pendant que le modèle réfléchit, utilise StarIA.chargerEnArrierePlan(blob, { sources: [texteDeStarGpuJs, texteDeStarIaJs] }) : c'est ce que fait demo.html (voir la fonction « demarrer »).
    Si l'arrière-plan n'est pas disponible dans le navigateur, STAR IA calcule dans la page (l'écran peut alors se figer un instant).
