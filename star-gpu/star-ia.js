@@ -623,8 +623,8 @@
     // Message système de départ. Il est calculé UNE fois et gardé dans la mémoire du modèle (cache) : ensuite chaque nouvelle conversation
     // repart de là, sans le recalculer. Sur un téléphone, cela économise plusieurs secondes avant le premier mot.
     var SYSTEME_LONG = 'Tu es STAR IA, l\'assistant de STAR ENTREPRISE (Brazzaville). Réponds en français, en phrases courtes et simples, directement à la question posée. Si tu n\'es pas sûr, dis « je ne suis pas sûr » : n\'invente rien.';
-    var SYSTEME_COURT = 'Réponds en français, de façon brève.';   // pour le mode « processeur seul », où chaque mot de départ coûte cher
-    var systemeDefaut = gpuApi ? SYSTEME_LONG : SYSTEME_COURT, prefixe = null;   // prefixe = { txt, n } : mots du message système déjà calculés (positions 0 à n-1)
+    var SYSTEME_COURT = 'Réponds en français, de façon brève.';   // pour les modes sans « tout GPU » (processeur, GPU + processeur), où chaque mot de départ coûte cher
+    var systemeDefaut = pipe ? SYSTEME_LONG : SYSTEME_COURT, prefixe = null;   // prefixe = { txt, n } : mots du message système déjà calculés (positions 0 à n-1)
     function gabaritSysteme(txt) { return '<|im_start|>system\n' + txt + '<|im_end|>\n'; }
     function preparerPrefixe(txt) { var ids = tok.encoder(gabaritSysteme(txt), true); pos = 0; prefixe = null; for (var i = 0; i < ids.length; i++) avancer(ids[i], false); prefixe = { txt: txt, n: ids.length }; }
     var modele = {
@@ -678,7 +678,7 @@
       },
       nouvelleConversation: function () { pos = prefixe ? prefixe.n : 0; this._vu = 0; }
     };
-    if (gpuApi && options.prechauffer !== false) { try { modele.prechauffer(); } catch (e) { pos = 0; prefixe = null; } }   // le message système est calculé pendant que tu lis « prêt »
+    if (pipe && options.prechauffer !== false) { try { modele.prechauffer(); } catch (e) { pos = 0; prefixe = null; } }   // le message système est calculé pendant que tu lis « prêt »
     prog(1, 'prêt');
     return modele;
   }
