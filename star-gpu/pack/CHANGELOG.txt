@@ -1,0 +1,19 @@
+HISTORIQUE DES VERSIONS : STAR-TECH
+
+1.1  (20/11/2026)  — STAR GPU 1.0 · UC STAR 1.0 · STAR IA 1.1
+  STAR IA
+  - Message système (consigne de départ) calculé UNE fois et gardé en mémoire : chaque nouvelle conversation repart de là, le premier mot arrive plus vite.
+  - Choix du mot réécrit : environ 10 fois moins de calcul par mot sur le processeur (mesuré sur ordinateur : 6,7 ms → 0,7 ms).
+  - Dernier mot d'une réponse coupée ou arrêtée : désormais gardé dans la mémoire de la conversation.
+  - Suite de conversation au bon format (« <|im_end|> » puis saut de ligne entre deux messages).
+  - Réglages de départ plus prudents (créativité 0,3) ; avertissement « petit modèle, peut se tromper » dans la démo ; message quand la réponse est coupée par la longueur maximale ;
+    détail du temps par mot (calcul / choix du mot) affiché dans la démo.
+  - Consigne de départ plus précise : français, phrases courtes, répondre à la question, dire « je ne suis pas sûr » plutôt qu'inventer.
+    (Effet sur la qualité des réponses non mesuré avec le vrai modèle au moment de la livraison.)
+  UC STAR : aucune modification.  STAR GPU : aucune modification.
+  Dossier de vente : licence (modèle), notices de tiers, mode d'emploi, historique, empreintes SHA-256.
+
+1.0  (19-20/11/2026)
+  - STAR GPU : filtres d'images, sprites, matrices. UC STAR : formules parallèles (map, zip, generate, reduce) avec auto-test.
+  - STAR IA : lecteur GGUF, découpage du texte (BPE) identique à llama.cpp, modèle Qwen2/Qwen2.5 sur le GPU (mode « tout GPU »), calcul en arrière-plan, auto-tests avec repli sur le processeur.
+  - Correction d'une erreur de somme du GPU Mali (16380 au lieu de 250000), vérifiée sur deux téléphones.

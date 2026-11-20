@@ -1,4 +1,5 @@
 /*!
+ * © STAR ENTREPRISE, Brazzaville. Tous droits réservés. Utilisation sous licence (voir LICENCE.txt) : contact@starentreprise.com · WhatsApp +242 06 656 50 50
  * STAR GPU v1.0 : bibliothèque de calcul graphique de STAR ENTREPRISE (un seul fichier, aucune dépendance).
  * Elle utilise le VRAI processeur graphique de l'appareil (téléphone ou PC) via WebGL2.
  * Trois services : 1) filtres d'images  2) milliers de sprites pour les jeux  3) calcul de matrices pour l'IA.

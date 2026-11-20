@@ -1,5 +1,6 @@
 /*!
- * STAR IA v1.0 — moteur de modèles de langage de STAR ENTREPRISE (fait partie de STAR GPU).
+ * © STAR ENTREPRISE, Brazzaville. Tous droits réservés. Utilisation sous licence (voir LICENCE.txt) : contact@starentreprise.com · WhatsApp +242 06 656 50 50
+ * STAR IA v1.1 — moteur de modèles de langage de STAR ENTREPRISE (fait partie de STAR GPU).
  * Lit un fichier GGUF (Qwen2 / Qwen2.5 et architectures proches), le fait tourner mot par mot,
  * sur le GPU de l'appareil (WebGL2, poids compressés en 4 ou 8 bits) ou, à défaut, sur le processeur.
  *
@@ -12,7 +13,7 @@
  */
 (function (racine) {
   'use strict';
-  var VERSION = '1.0';
+  var VERSION = '1.1';
 
   // =====================================================================================
   // 1. Lecture du fichier GGUF
@@ -588,17 +589,22 @@
       var rp = o.repetition === undefined ? 1.1 : o.repetition;
       if (rp !== 1 && historique.length) { var vus = new Set(historique.slice(-64)); vus.forEach(function (t) { if (t < n) logits[t] = logits[t] > 0 ? logits[t] / rp : logits[t] * rp; }); }
       if (temp <= 0) { var bi = 0, bv = -Infinity; for (i = 0; i < n; i++) if (logits[i] > bv) { bv = logits[i]; bi = i; } return bi; }
-      var topK = o.topK || 40, topP = o.topP || 0.9, idx = Array.from({ length: n }, function (_, j) { return j; });
-      // sélection partielle des topK
-      var cand = []; var seuil = -Infinity;
-      for (i = 0; i < n; i++) { var v = logits[i]; if (cand.length < topK || v > seuil) { cand.push(i); if (cand.length > topK * 2) { cand.sort(function (a, b) { return logits[b] - logits[a]; }); cand.length = topK; seuil = logits[cand[topK - 1]]; } } }
-      cand.sort(function (a, b) { return logits[b] - logits[a]; }); cand.length = Math.min(cand.length, topK);
-      var m0 = logits[cand[0]], pr = cand.map(function (j) { return Math.exp((logits[j] - m0) / temp); }), s = pr.reduce(function (a, b) { return a + b; }, 0);
+      var topK = Math.max(1, Math.min(o.topK || 40, n)), topP = o.topP || 0.9;
+      // les topK meilleurs scores en une seule passe (petits tableaux fixes : pas de tri du vocabulaire entier, pas de grosse allocation par mot)
+      var K = new Float32Array(topK), KI = new Int32Array(topK), nk = 0, mn = Infinity, mi = 0, j;
+      for (i = 0; i < n; i++) {
+        var v = logits[i];
+        if (nk === topK) { if (v <= mn) continue; K[mi] = v; KI[mi] = i; }
+        else { K[nk] = v; KI[nk++] = i; if (nk < topK) continue; }
+        mn = Infinity; for (j = 0; j < topK; j++) if (K[j] < mn) { mn = K[j]; mi = j; }
+      }
+      var ordre = []; for (j = 0; j < nk; j++) ordre.push(j); ordre.sort(function (a, b) { return K[b] - K[a]; });
+      var m0 = K[ordre[0]], pr = ordre.map(function (q) { return Math.exp((K[q] - m0) / temp); }), s = pr.reduce(function (a, b) { return a + b; }, 0);
       pr = pr.map(function (p) { return p / s; });
       var cum = 0, garde = 0; for (i = 0; i < pr.length; i++) { cum += pr[i]; garde = i + 1; if (cum >= topP) break; }
       var s2 = 0; for (i = 0; i < garde; i++) s2 += pr[i]; var r = (o.aleatoire ? o.aleatoire() : Math.random()) * s2, acc = 0;
-      for (i = 0; i < garde; i++) { acc += pr[i]; if (r <= acc) return cand[i]; }
-      return cand[garde - 1];
+      for (i = 0; i < garde; i++) { acc += pr[i]; if (r <= acc) return KI[ordre[i]]; }
+      return KI[ordre[garde - 1]];
     }
 
     // ---- Calcul « tout sur le GPU » : utilisé seulement s'il redonne les mêmes scores que le mode GPU + processeur ----
@@ -614,28 +620,40 @@
       } catch (e) { pipe = null; pos = 0; gpuInfo.raison += ' ; mode GPU intégral indisponible (' + e.message + ')'; }
     }
     gpuInfo.texte = gpuApi ? gpuInfo.mode + ' (auto-test réussi)' : 'processeur — ' + gpuInfo.raison;
+    // Message système de départ. Il est calculé UNE fois et gardé dans la mémoire du modèle (cache) : ensuite chaque nouvelle conversation
+    // repart de là, sans le recalculer. Sur un téléphone, cela économise plusieurs secondes avant le premier mot.
+    var SYSTEME_LONG = 'Tu es STAR IA, l\'assistant de STAR ENTREPRISE (Brazzaville). Réponds en français, en phrases courtes et simples, directement à la question posée. Si tu n\'es pas sûr, dis « je ne suis pas sûr » : n\'invente rien.';
+    var SYSTEME_COURT = 'Réponds en français, de façon brève.';   // pour le mode « processeur seul », où chaque mot de départ coûte cher
+    var systemeDefaut = gpuApi ? SYSTEME_LONG : SYSTEME_COURT, prefixe = null;   // prefixe = { txt, n } : mots du message système déjà calculés (positions 0 à n-1)
+    function gabaritSysteme(txt) { return '<|im_start|>system\n' + txt + '<|im_end|>\n'; }
+    function preparerPrefixe(txt) { var ids = tok.encoder(gabaritSysteme(txt), true); pos = 0; prefixe = null; for (var i = 0; i < ids.length; i++) avancer(ids[i], false); prefixe = { txt: txt, n: ids.length }; }
     var modele = {
-      version: VERSION, cfg: cfg, tokenizer: tok, gpu: gpuInfo, kv: kv,
+      version: VERSION, cfg: cfg, tokenizer: tok, gpu: gpuInfo, kv: kv, systemeDefaut: systemeDefaut,
       get position() { return pos; },
-      reinitialiser: function () { pos = 0; },
+      get positionDepart() { return prefixe ? prefixe.n : 0; },
+      reinitialiser: function () { pos = 0; prefixe = null; this._vu = 0; },
       // Donne des mots au modèle (sans rien générer) et renvoie les scores du dernier
       nourrir: function (ids, logitsFin) { var lg = null; for (var i = 0; i < ids.length; i++) lg = avancer(ids[i], logitsFin && i === ids.length - 1); return lg; },
-      logits: function (ids) { pos = 0; return Float32Array.from(this.nourrir(ids, true)); },
+      logits: function (ids) { pos = 0; prefixe = null; this._vu = 0; return Float32Array.from(this.nourrir(ids, true)); },
+      prechauffer: function (txt) { preparerPrefixe(txt || systemeDefaut); this._vu = 0; },
       // Génère à la suite des mots donnés
       generer: async function (ids, o) {
         o = o || {}; var maxT = o.maxTokens || 128, sortieIds = [], t0 = performance.now(), lg = this.nourrir(ids, true), dec = tok.decodeur(), texte = '', hist = ids.slice();
         var fin = [tok.id('<|im_end|>'), tok.id('<|endoftext|>'), kv['tokenizer.ggml.eos_token_id']].filter(function (v) { return v !== undefined; });
-        var tPrem = performance.now(), nGen = 0;
+        var tPrem = performance.now(), nGen = 0, tCalc = 0, tChoix = 0, coupe = false, termine = false, ta;
         for (var i = 0; i < maxT; i++) {
           for (var z = tok.taille; z < lg.length; z++) lg[z] = -Infinity;   // les lignes de réserve du modèle (au-delà du vocabulaire) ne sont jamais choisies
-          var nxt = echantillonner(lg, o, hist); if (fin.indexOf(nxt) >= 0) { if (o.nourrirFin !== false && pos < cfg.ctx) avancer(nxt, false); break; }
+          ta = performance.now(); var nxt = echantillonner(lg, o, hist); tChoix += performance.now() - ta;
+          if (fin.indexOf(nxt) >= 0) { termine = true; if (o.nourrirFin !== false && pos < cfg.ctx) avancer(nxt, false); break; }
           sortieIds.push(nxt); hist.push(nxt); nGen++; var morceau = dec.ajouter(nxt); texte += morceau; if (o.onToken) o.onToken(morceau, nxt);
-          if (o.signal && o.signal.annule) break;
           if (pos >= cfg.ctx) break;
-          lg = avancer(nxt, true);
+          if (o.signal && o.signal.annule) { avancer(nxt, false); break; }   // arrêt demandé : le dernier mot affiché est quand même gardé dans la mémoire
+          if (i === maxT - 1) { coupe = true; avancer(nxt, false); break; }   // longueur maximale atteinte : la réponse est coupée
+          ta = performance.now(); lg = avancer(nxt, true); tCalc += performance.now() - ta;
           if (o.pauseMs) await new Promise(function (r) { setTimeout(r, o.pauseMs); }); else if (i % 2 === 1) await new Promise(function (r) { setTimeout(r, 0); }); // laisse respirer l'écran du téléphone (mode Économie : pause plus longue)
         }
-        var t1 = performance.now(); return { texte: texte, ids: sortieIds, motsParSeconde: nGen > 1 ? (nGen - 1) / ((t1 - tPrem) / 1000) : 0, msPremier: tPrem - t0 };
+        var t1 = performance.now(), nm = Math.max(1, nGen - 1);
+        return { texte: texte, ids: sortieIds, motsParSeconde: nGen > 1 ? (nGen - 1) / ((t1 - tPrem) / 1000) : 0, msPremier: tPrem - t0, coupe: coupe, termine: termine, msCalculParMot: tCalc / nm, msChoixParMot: tChoix / Math.max(1, nGen) };
       },
       // Conversation façon ChatML (Qwen) ; garde la mémoire d'un message à l'autre
       gabarit: function (messages, ouvrirReponse) {
@@ -644,12 +662,23 @@
       discuter: async function (messages, o) {
         // messages = tout l'historique ; on ne donne au modèle que les nouveaux messages (le cache garde le reste)
         o = o || {}; var dejaVu = this._vu || 0, nouveaux = messages.slice(dejaVu), txt = '';
-        if (dejaVu === 0 && messages[0].role !== 'system') txt += '<|im_start|>system\n' + (o.systeme || 'Réponds en français, de façon brève.') + '<|im_end|>\n';
+        if (dejaVu === 0) {
+          if (messages[0].role !== 'system') {
+            var sys = o.systeme || systemeDefaut;
+            if (prefixe && prefixe.txt === sys) pos = prefixe.n; else preparerPrefixe(sys);   // le message système est déjà dans la mémoire : on repart de là
+          } else { pos = 0; prefixe = null; }   // l'appelant fournit son propre message système : tout est recalculé
+        }
+        // Suite d'une conversation : on ferme d'abord la réponse précédente (« <|im_end|> » puis un saut de ligne, comme le veut le format ChatML de Qwen)
+        if (dejaVu > 0) txt += (this._fermee ? '' : '<|im_end|>') + '\n';
         txt += this.gabarit(nouveaux, true);
-        var ids = tok.encoder(txt, true), res = await this.generer(ids, o); this._vu = messages.length + 1; return res;
+        var ids = tok.encoder(txt, true), reste = cfg.ctx - pos - ids.length;
+        if (reste < 8) { if (dejaVu === 0) { pos = 0; prefixe = null; } throw new Error('STAR IA : ce message est trop long pour la mémoire du modèle (' + cfg.ctx + ' mots). Raccourcis-le, ou appuie sur « Nouvelle conversation ».'); }   // refusé AVANT de toucher à la mémoire : la conversation reste intacte
+        var o2 = {}; for (var k in o) o2[k] = o[k]; o2.maxTokens = Math.min(o.maxTokens || 128, reste - 1);
+        var res = await this.generer(ids, o2); this._vu = messages.length + 1; this._fermee = !!res.termine; return res;
       },
-      nouvelleConversation: function () { pos = 0; this._vu = 0; }
+      nouvelleConversation: function () { pos = prefixe ? prefixe.n : 0; this._vu = 0; }
     };
+    if (gpuApi && options.prechauffer !== false) { try { modele.prechauffer(); } catch (e) { pos = 0; prefixe = null; } }   // le message système est calculé pendant que tu lis « prêt »
     prog(1, 'prêt');
     return modele;
   }
@@ -668,13 +697,13 @@
           if (typeof OffscreenCanvas === 'undefined') throw new Error('OffscreenCanvas absent');
           var gpu = StarGPU.create(new OffscreenCanvas(1, 1));
           modele = await StarIA.charger(StarIA.sourceBlob(m.blob), { gpu: gpu, toutGPU: m.toutGPU, contexteMax: m.contexteMax, progression: function (p, n) { envoyer('progression', { p: p, n: n }); } });
-          envoyer('pret', { cfg: modele.cfg, gpu: modele.gpu, gpuPrincipalOk: !!(gpu.info && gpu.info.ok) });
+          envoyer('pret', { cfg: modele.cfg, gpu: modele.gpu, gpuPrincipalOk: !!(gpu.info && gpu.info.ok), position: modele.position });
         } else if (m.type === 'discuter') {
           signal = { annule: false }; var o = {}; for (var k in m.options) o[k] = m.options[k]; o.signal = signal; o.onToken = function (t) { envoyer('token', { t: t }); };
           var r = await modele.discuter(m.messages, o);
-          envoyer('fin', { texte: r.texte, ids: r.ids, motsParSeconde: r.motsParSeconde, msPremier: r.msPremier, position: modele.position });
+          envoyer('fin', { texte: r.texte, ids: r.ids, motsParSeconde: r.motsParSeconde, msPremier: r.msPremier, coupe: r.coupe, msCalculParMot: r.msCalculParMot, msChoixParMot: r.msChoixParMot, position: modele.position });
         } else if (m.type === 'stop') { if (signal) signal.annule = true; }
-        else if (m.type === 'nouvelle') { modele.nouvelleConversation(); envoyer('position', { position: 0 }); }
+        else if (m.type === 'nouvelle') { modele.nouvelleConversation(); envoyer('position', { position: modele.position }); }
       } catch (err) { envoyer('erreur', { message: err && err.message ? err.message : String(err), phase: m.type }); }
     };
   }
@@ -694,7 +723,7 @@
         var m = e.data;
         if (m.type === 'progression') { if (options.progression) options.progression(m.p, m.n); }
         else if (m.type === 'pret') {
-          pret = true;
+          pret = true; pos = m.position || 0;
           proxy = {
             version: VERSION, cfg: m.cfg, gpu: m.gpu, arrierePlan: true, gpuPrincipalOk: m.gpuPrincipalOk,
             get position() { return pos; },
@@ -707,13 +736,13 @@
                 w.postMessage({ type: 'discuter', messages: messages, options: opts });
               });
             },
-            nouvelleConversation: function () { pos = 0; w.postMessage({ type: 'nouvelle' }); },
+            nouvelleConversation: function () { w.postMessage({ type: 'nouvelle' }); },
             terminer: function () { fin(); w.terminate(); URL.revokeObjectURL(url); }
           };
           resolve(proxy);
         }
         else if (m.type === 'token') { if (attente && attente.onToken) attente.onToken(m.t); }
-        else if (m.type === 'fin') { fin(); pos = m.position; var a = attente; attente = null; if (a) a.res({ texte: m.texte, ids: m.ids, motsParSeconde: m.motsParSeconde, msPremier: m.msPremier }); }
+        else if (m.type === 'fin') { fin(); pos = m.position; var a = attente; attente = null; if (a) a.res({ texte: m.texte, ids: m.ids, motsParSeconde: m.motsParSeconde, msPremier: m.msPremier, coupe: m.coupe, msCalculParMot: m.msCalculParMot, msChoixParMot: m.msChoixParMot }); }
         else if (m.type === 'position') pos = m.position;
         else if (m.type === 'erreur') { fin(); var err = new Error(m.message); if (!pret) { w.terminate(); err.phase = m.phase; reject(err); } else if (attente) { var b = attente; attente = null; b.rej(err); } }
       };

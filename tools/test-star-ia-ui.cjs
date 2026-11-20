@@ -22,16 +22,29 @@ const texte = (page, sel) => page.textContent(sel);
   await page.setInputFiles("#iaFic", path.join(dir, "test-q8_0.gguf")); await page.waitForSelector("#iaChat:not([hidden])", { timeout: 60000 });
   const etat = await texte(page, "#iaEtat"); ok(/prêt/.test(etat) && /GPU intégral \(auto-test réussi\)/.test(etat), "modèle chargé depuis un fichier local, GPU utilisé : " + etat.replace(/\n/g, " | "));
   ok(/en arrière-plan/.test(etat) && (await page.evaluate(() => window.__ia.arrierePlan === true)), "le calcul tourne en arrière-plan (l'écran reste libre)");
+  const pos0 = await page.evaluate(() => window.__ia.position);
+  ok(pos0 > 5, "le message système est déjà calculé au chargement (position de départ " + pos0 + ")");
+  ok((await page.inputValue("#iaTemp")) === "0.3" && (await page.inputValue("#iaLong")) === "208", "réglages de départ : créativité basse (0,3), longueur 208");
+  ok(/peut se tromper/.test(await texte(page, "#iaAvert")) && (await page.locator("#iaAvert").isVisible()), "l'avertissement « petit modèle, peut se tromper » est visible");
   // l'écran reste réactif pendant la réponse : on mesure le plus long « trou » du fil principal pendant que le modèle réfléchit
   await page.evaluate(() => { window.__trous = { max: 0, n: 0 }; let t = performance.now(); window.__minut = setInterval(() => { const m = performance.now(); window.__trous.max = Math.max(window.__trous.max, m - t); window.__trous.n++; t = m; }, 20); });
   await page.fill("#iaSaisie", "Bonjour"); await page.fill("#iaLong", "32"); await page.click("#iaEnvoi");
   await page.waitForFunction(() => document.querySelectorAll("#iaFil .bu.ia").length === 1 && /mots\/seconde/.test(document.getElementById("iaStats").textContent), null, { timeout: 60000 });
   const trous = await page.evaluate(() => { clearInterval(window.__minut); return window.__trous; }); ok(trous.n > 20 && trous.max < 500, "écran réactif pendant la réponse : plus long arrêt de la page " + Math.round(trous.max) + " ms sur " + trous.n + " mesures");
   const bulles = await page.$$eval("#iaFil .bu", (e) => e.map((x) => x.className + ":" + x.textContent.length)); ok(bulles.length === 2 && /moi/.test(bulles[0]) && /ia/.test(bulles[1]), "un message envoyé, une réponse affichée : " + bulles.join(" "));
-  ok(/mots\/seconde/.test(await texte(page, "#iaStats")), "la vitesse est affichée : " + (await texte(page, "#iaStats")).replace(/\n/g, " | "));
+  const st1 = await texte(page, "#iaStats"); ok(/mots\/seconde/.test(st1) && /Détail : \d+ ms pour calculer un mot/.test(st1), "la vitesse et le détail du temps sont affichés : " + st1.replace(/\n/g, " | "));
+  { const nm = +/(\d+) mots/.exec(st1)[1]; ok(nm < 32 || /coupée/.test(st1), "réponse coupée par la longueur max : le message le dit (" + nm + " mots)"); }
   await page.fill("#iaSaisie", "Et toi ?"); await page.click("#iaEnvoi"); await page.waitForFunction(() => document.querySelectorAll("#iaFil .bu.ia").length === 2 && !document.getElementById("iaEnvoi").disabled, null, { timeout: 60000 });
-  const pos = await page.evaluate(() => window.__ia.position); ok(pos > 20, "la mémoire de conversation continue sur le 2e message (position " + pos + ")");
-  await page.click("#iaNouv"); ok((await page.evaluate(() => window.__ia.position)) === 0 && (await page.$$("#iaFil .bu")).length === 0, "« Nouvelle conversation » vide l'écran et la mémoire");
+  const pos = await page.evaluate(() => window.__ia.position); ok(pos > pos0 + 10, "la mémoire de conversation continue sur le 2e message (position " + pos + ", départ " + pos0 + ")");
+  await page.click("#iaNouv"); await page.waitForFunction((p) => window.__ia.position === p, pos0, { timeout: 10000 }); ok((await page.evaluate(() => window.__ia.position)) === pos0 && (await page.$$("#iaFil .bu")).length === 0, "« Nouvelle conversation » vide l'écran et repart du message système déjà calculé (position " + pos0 + ")");
+  // message trop long pour la mémoire du modèle : erreur claire, état intact, la conversation reprend normalement ensuite
+  await page.fill("#iaSaisie", "Bonjour ".repeat(900)); await page.click("#iaEnvoi");
+  await page.waitForFunction(() => /trop long/.test(document.getElementById("iaFil").textContent), null, { timeout: 60000 });
+  ok(await page.evaluate(() => !document.getElementById("iaEnvoi").disabled), "message trop long : erreur claire affichée et bouton Envoyer de nouveau disponible");
+  await page.fill("#iaSaisie", "Salut"); await page.fill("#iaLong", "32"); await page.click("#iaEnvoi");
+  await page.waitForFunction(() => document.querySelectorAll("#iaFil .bu.ia").length === 2 && /mots\/seconde/.test(document.getElementById("iaStats").textContent), null, { timeout: 60000 });
+  ok(true, "après l'erreur, la conversation continue normalement");
+  await page.click("#iaNouv"); await page.waitForFunction(() => document.querySelectorAll("#iaFil .bu").length === 0, null, { timeout: 10000 });
   // 2. Arrêt d'une génération longue
   await page.fill("#iaLong", "400"); await page.fill("#iaSaisie", "Raconte"); await page.click("#iaEnvoi");
   await page.waitForFunction(() => document.querySelector("#iaFil .bu.ia") && document.querySelector("#iaFil .bu.ia").textContent.length > 2, null, { timeout: 60000 });

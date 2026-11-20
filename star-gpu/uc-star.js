@@ -1,4 +1,5 @@
 /*!
+ * © STAR ENTREPRISE, Brazzaville. Tous droits réservés. Utilisation sous licence (voir LICENCE.txt) : contact@starentreprise.com · WhatsApp +242 06 656 50 50
  * UC STAR v1.0 : « Unified Compute », technologie de calcul parallèle de STAR ENTREPRISE.
  * Principe : on écrit UNE formule, UC STAR la fait calculer en parallèle par le GPU de l'appareil
  * (milliers de calculs en même temps) ou, à défaut, par le processeur central. Même résultat des deux côtés.
