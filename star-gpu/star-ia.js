@@ -367,14 +367,18 @@
   // =====================================================================================
   var ENT = '#version 300 es\nprecision highp float;precision highp int;precision highp sampler2D;precision highp usampler2D;\n' +
     'float Vv(sampler2D t,int j){return texelFetch(t,ivec2(j&127,j>>7),0).r;}\nint IDX(){return int(gl_FragCoord.y)*128+int(gl_FragCoord.x);}\nout float o;\n';
+  var P4 = 'vec4 P4(sampler2D t,int k){return texelFetch(t,ivec2(k&31,k>>5),0);}\n';
+  var ENT4 = ENT.replace('out float o;', 'out vec4 o;').replace('int IDX()', 'int IDX4()').replace('int IDX4(){return int(gl_FragCoord.y)*128+int(gl_FragCoord.x);}', 'int IDX4(){return (int(gl_FragCoord.y)*32+int(gl_FragCoord.x))*4;}');
   var MV = 'uniform usampler2D W;uniform sampler2D S;uniform sampler2D X;uniform sampler2D A;uniform int NB;uniform int R0;uniform int NR;uniform int NC;uniform int HA;\n' +
     'void main(){int r=IDX();int rr=r-R0;if(r>=NR||rr<0||rr>=NC){o=0.;return;}float sum=0.;for(int b=0;b<NB;b++){float sc=texelFetch(S,ivec2(b,rr),0).r;float acc=0.;\n';
-  var FS_MV8 = ENT + MV + 'for(int t=0;t<8;t++){uint v=texelFetch(W,ivec2(b*8+t,rr),0).r;int j=b*32+t*4;\n' +
+  var FS_MV8 = ENT + P4 + MV + 'for(int t=0;t<8;t++){uint v=texelFetch(W,ivec2(b*8+t,rr),0).r;vec4 xv=P4(X,b*8+t);\n' +
     'int a0=int(v&255u);a0-=(a0&128)<<1;int a1=int((v>>8u)&255u);a1-=(a1&128)<<1;int a2=int((v>>16u)&255u);a2-=(a2&128)<<1;int a3=int((v>>24u)&255u);a3-=(a3&128)<<1;\n' +
-    'acc+=float(a0)*Vv(X,j)+float(a1)*Vv(X,j+1)+float(a2)*Vv(X,j+2)+float(a3)*Vv(X,j+3);}\nsum+=sc*acc;}if(HA==1)sum+=Vv(A,r);o=sum;}';
-  var FS_MV4 = ENT + MV + 'for(int t=0;t<4;t++){uint v=texelFetch(W,ivec2(b*4+t,rr),0).r;int j=b*32+t*4;\n' +
-    'for(int k=0;k<4;k++){uint by=(v>>(8u*uint(k)))&255u;acc+=float(int(by&15u)-8)*Vv(X,j+k)+float(int(by>>4u)-8)*Vv(X,j+16+k);}}\nsum+=sc*acc;}if(HA==1)sum+=Vv(A,r);o=sum;}';
-  var FS_RMS = ENT + 'uniform sampler2D X;uniform sampler2D Wn;uniform int N;uniform float EPS;void main(){int j=IDX();if(j>=N){o=0.;return;}float s=0.;for(int i=0;i<N;i++){float v=Vv(X,i);s+=v*v;}o=Vv(X,j)*inversesqrt(s/float(N)+EPS)*Vv(Wn,j);}';
+    'acc+=float(a0)*xv.x+float(a1)*xv.y+float(a2)*xv.z+float(a3)*xv.w;}\nsum+=sc*acc;}if(HA==1)sum+=Vv(A,r);o=sum;}';
+  var FS_MV4 = ENT + P4 + MV + 'for(int t=0;t<4;t++){uint v=texelFetch(W,ivec2(b*4+t,rr),0).r;vec4 xl=P4(X,b*8+t),xh=P4(X,b*8+4+t);\n' +
+    'int l0=int(v&15u)-8,h0=int((v>>4u)&15u)-8,l1=int((v>>8u)&15u)-8,h1=int((v>>12u)&15u)-8,l2=int((v>>16u)&15u)-8,h2=int((v>>20u)&15u)-8,l3=int((v>>24u)&15u)-8,h3=int((v>>28u)&15u)-8;\n' +
+    'acc+=float(l0)*xl.x+float(l1)*xl.y+float(l2)*xl.z+float(l3)*xl.w+float(h0)*xh.x+float(h1)*xh.y+float(h2)*xh.z+float(h3)*xh.w;}\nsum+=sc*acc;}if(HA==1)sum+=Vv(A,r);o=sum;}';
+  var FS_RMS = ENT4 + 'uniform sampler2D X;uniform sampler2D Wn;uniform int N;uniform float EPS;void main(){int e=IDX4();if(e>=N){o=vec4(0.);return;}float s=0.;for(int i=0;i<N;i++){float v=Vv(X,i);s+=v*v;}float k=inversesqrt(s/float(N)+EPS);\n' +
+    'o=vec4(Vv(X,e)*k*Vv(Wn,e),e+1<N?Vv(X,e+1)*k*Vv(Wn,e+1):0.,e+2<N?Vv(X,e+2)*k*Vv(Wn,e+2):0.,e+3<N?Vv(X,e+3)*k*Vv(Wn,e+3):0.);}';
   var ROPE = 'uniform sampler2D QKV;uniform sampler2D ROT;uniform int OFF;uniform int HD;uniform int NQ;\n' +
     'float rope(int e){int i=e%HD;int HALF=HD/2;if(i<HALF){float a=Vv(QKV,OFF+e),b=Vv(QKV,OFF+e+HALF);return a*Vv(ROT,i)-b*Vv(ROT,HALF+i);}int ii=i-HALF;float a=Vv(QKV,OFF+e-HALF),b=Vv(QKV,OFF+e);return b*Vv(ROT,ii)+a*Vv(ROT,HALF+ii);}\n';
   var FS_ROPEQ = ENT + ROPE + 'void main(){int j=IDX();if(j>=NQ){o=0.;return;}o=rope(j);}';
@@ -382,9 +386,10 @@
   var FS_VW = ENT + ROPE + 'void main(){o=Vv(QKV,OFF+int(gl_FragCoord.x));}';
   var FS_SCORES = ENT + 'uniform sampler2D Q;uniform sampler2D K;uniform int HD;uniform int REP;uniform float SC;void main(){int t=int(gl_FragCoord.x),h=int(gl_FragCoord.y);int kvh=h/REP;float s=0.;for(int i=0;i<HD;i++)s+=Vv(Q,h*HD+i)*texelFetch(K,ivec2(kvh*HD+i,t),0).r;o=s*SC;}';
   var FS_STATS = ENT + 'uniform sampler2D S;uniform int NP;void main(){int x=int(gl_FragCoord.x),h=int(gl_FragCoord.y);float m=-3.4e38;for(int t=0;t<NP;t++)m=max(m,texelFetch(S,ivec2(t,h),0).r);if(x==0){o=m;return;}float s=0.;for(int t=0;t<NP;t++)s+=exp(texelFetch(S,ivec2(t,h),0).r-m);o=s;}';
-  var FS_ATT = ENT + 'uniform sampler2D S;uniform sampler2D ST;uniform sampler2D Vc;uniform int NP;uniform int HD;uniform int REP;uniform int QD;\n' +
-    'void main(){int j=IDX();if(j>=QD){o=0.;return;}int h=j/HD,d=j%HD,kvh=h/REP;float m=texelFetch(ST,ivec2(0,h),0).r,sm=texelFetch(ST,ivec2(1,h),0).r,acc=0.;for(int t=0;t<NP;t++)acc+=exp(texelFetch(S,ivec2(t,h),0).r-m)*texelFetch(Vc,ivec2(kvh*HD+d,t),0).r;o=acc/sm;}';
-  var FS_SWIGLU = ENT + 'uniform sampler2D G;uniform int FF;void main(){int j=IDX();if(j>=FF){o=0.;return;}float g=Vv(G,j);o=g/(1.+exp(-g))*Vv(G,FF+j);}';
+  var FS_ATT = ENT4 + 'uniform sampler2D S;uniform sampler2D ST;uniform sampler2D Vc;uniform int NP;uniform int HD;uniform int REP;uniform int QD;\n' +
+    'void main(){int j=IDX4();if(j>=QD){o=vec4(0.);return;}int h=j/HD,d=j%HD,kvh=h/REP;float m=texelFetch(ST,ivec2(0,h),0).r,sm=texelFetch(ST,ivec2(1,h),0).r;vec4 acc=vec4(0.);int c=kvh*HD+d;\n' +
+    'for(int t=0;t<NP;t++){float p=exp(texelFetch(S,ivec2(t,h),0).r-m);acc+=p*vec4(texelFetch(Vc,ivec2(c,t),0).r,texelFetch(Vc,ivec2(c+1,t),0).r,texelFetch(Vc,ivec2(c+2,t),0).r,texelFetch(Vc,ivec2(c+3,t),0).r);}o=acc/sm;}';
+  var FS_SWIGLU = ENT4 + 'uniform sampler2D G;uniform int FF;float sw(int j){if(j>=FF)return 0.;float g=Vv(G,j);return g/(1.+exp(-g))*Vv(G,FF+j);}void main(){int e=IDX4();o=vec4(sw(e),sw(e+1),sw(e+2),sw(e+3));}';
 
   function creerPipeline(gl, cfg, couches, norme, sortieH) {
     var progs = {}, vide = gl.createVertexArray(), D = cfg.dim, QD = cfg.q, KVD = cfg.kvd, HD = cfg.hd, H = cfg.tetes, REP = cfg.tetes / cfg.tetesKV, CTX = cfg.ctx;
@@ -408,6 +413,16 @@
       return { t: t, f: f, w: w, h: h };
     }
     function vec(n) { var h = Math.max(1, Math.ceil(n / 128)), c = cible(128, h); c.n = n; return c; }
+    // vecteur rangé par groupes de 4 (RGBA32F, 32 groupes par ligne) : sert d'entrée aux produits, 4 fois moins de lectures
+    function vec4(n) {
+      var h = Math.max(1, Math.ceil(n / 128)), t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, 32, h, 0, gl.RGBA, gl.FLOAT, null);
+      var f = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, f); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0);
+      if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) throw new Error('STAR IA : cible RGBA flottante refusée');
+      return { t: t, f: f, w: 32, h: h, n: n };
+    }
     function remplirVec(v, arr) { var b = new Float32Array(128 * v.h); b.set(arr.length > v.n ? arr.subarray(0, v.n) : arr); gl.bindTexture(gl.TEXTURE_2D, v.t); gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1); gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, 128, v.h, gl.RED, gl.FLOAT, b); }
     function passe(pr, cb, vx, vy, vw, vh, texs, ints, flottants) {
       gl.useProgram(pr.p); gl.bindFramebuffer(gl.FRAMEBUFFER, cb.f); gl.viewport(vx, vy, vw, vh);
@@ -423,9 +438,9 @@
       for (var i = 0; i < h.morceaux.length; i++) { var c = h.morceaux[i], vy = i * 32, vh = Math.min(32, out.h - vy);
         passe(pr, out, 0, vy, 128, vh, { W: c.wt, S: c.st, X: x.t, A: (ajout || x).t }, { NB: h.nb, R0: i * LIGNES_PAR_MORCEAU, NR: h.rows, NC: c.n, HA: ajout ? 1 : 0 }, {}); }
     }
-    function rms(x, wn, out) { passe(pRMS, out, 0, 0, 128, out.h, { X: x.t, Wn: wn.t }, { N: D }, { EPS: cfg.eps }); }
+    function rms(x, wn, out) { passe(pRMS, out, 0, 0, 32, out.h, { X: x.t, Wn: wn.t }, { N: D }, { EPS: cfg.eps }); }
     // vecteurs de travail
-    var Xa = vec(D), Xb = vec(D), H1 = vec(D), QKV = vec(QD + 2 * KVD), QR = vec(QD), ATT = vec(QD), GU = vec(2 * cfg.ffn), ACT = vec(cfg.ffn), ROT = vec(HD), LOG = vec(cfg.vocab);
+    var Xa = vec(D), Xb = vec(D), H1 = vec4(D), QKV = vec(QD + 2 * KVD), QR = vec(QD), ATT = vec4(QD), GU = vec(2 * cfg.ffn), ACT = vec4(cfg.ffn), ROT = vec(HD), LOG = vec(cfg.vocab);
     var S = cible(CTX, H), ST = cible(2, H), NF = vec(D); remplirVec(NF, vecteur(norme));
     var cK = [], cV = [], poids = [];
     for (var l = 0; l < cfg.couches; l++) {
@@ -449,11 +464,11 @@
           passe(pVW, cV[l2], 0, pos, KVD, 1, { QKV: QKV.t, ROT: ROT.t }, { OFF: QD + KVD, HD: HD, NQ: 0 }, {});
           passe(pSC, S, 0, 0, np, H, { Q: QR.t, K: cK[l2].t }, { HD: HD, REP: REP }, { SC: 1 / Math.sqrt(HD) });
           passe(pST, ST, 0, 0, 2, H, { S: S.t }, { NP: np }, {});
-          passe(pAT, ATT, 0, 0, 128, ATT.h, { S: S.t, ST: ST.t, Vc: cV[l2].t }, { NP: np, HD: HD, REP: REP, QD: QD }, {});
+          passe(pAT, ATT, 0, 0, 32, ATT.h, { S: S.t, ST: ST.t, Vc: cV[l2].t }, { NP: np, HD: HD, REP: REP, QD: QD }, {});
           mv(P.h.o, ATT, nxt, cur);
           rms(nxt, P.fn, H1);
           mv(P.h.gu, H1, GU, null);
-          passe(pSW, ACT, 0, 0, 128, ACT.h, { G: GU.t }, { FF: cfg.ffn }, {});
+          passe(pSW, ACT, 0, 0, 32, ACT.h, { G: GU.t }, { FF: cfg.ffn }, {});
           mv(P.h.d, ACT, cur, nxt);
         }
         if (!voulLogits) { gl.flush(); return null; }
