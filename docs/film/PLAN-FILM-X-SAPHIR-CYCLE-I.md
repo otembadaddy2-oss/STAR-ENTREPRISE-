@@ -47,3 +47,10 @@ Abonnements Higgsfield actuels (vus sur le compte) : **PLUS 49 $/mois = 1 000 cr
 
 ## 6. Prochaine action
 Dès que le compte a des crédits : lancer le pilote (étape 3). D'ici là, étapes 1 et 2 en gratuit.
+
+---
+## État des fichiers « flux » / films d'action Higgsfield (relevé du 20/11/2026)
+- Bibliothèque Higgsfield vérifiée en lecture seule : les 60 dernières vidéos (PIOUPIOU, hymnes, Naël/Clémence, groupe) et les 40 dernières images (PIOUPIOU, portraits, hall d'hôtel, médailles) ne contiennent **aucun** plan d'action X SAPHIR / modèle « flux ».
+- Déjà gardés dans le dépôt pour le film : 10 couvertures de tomes (docs/film/references), analyse de la vidéo de référence, plan du film, pub X SAPHIR (docs/pub-xsaphir), affiche 10 tomes.
+- **À renvoyer par Carry** : les fichiers « flux » d'action (images ou vidéos) et les MP4 Street Fighter (inspiration de réalisation, au bon moment). Ils seront rangés dans docs/film/references/ avec leur prompt.
+- Vision jeu/caméras : voir docs/arena/VISION-JEU-DECORS-CAMERAS.md.
