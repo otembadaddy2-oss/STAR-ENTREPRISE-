@@ -21,8 +21,12 @@ const texte = (page, sel) => page.textContent(sel);
   // 1. Fichier choisi sur l'appareil
   await page.setInputFiles("#iaFic", path.join(dir, "test-q8_0.gguf")); await page.waitForSelector("#iaChat:not([hidden])", { timeout: 60000 });
   const etat = await texte(page, "#iaEtat"); ok(/prêt/.test(etat) && /GPU intégral \(auto-test réussi\)/.test(etat), "modèle chargé depuis un fichier local, GPU utilisé : " + etat.replace(/\n/g, " | "));
+  ok(/en arrière-plan/.test(etat) && (await page.evaluate(() => window.__ia.arrierePlan === true)), "le calcul tourne en arrière-plan (l'écran reste libre)");
+  // l'écran reste réactif pendant la réponse : on mesure le plus long « trou » du fil principal pendant que le modèle réfléchit
+  await page.evaluate(() => { window.__trous = { max: 0, n: 0 }; let t = performance.now(); window.__minut = setInterval(() => { const m = performance.now(); window.__trous.max = Math.max(window.__trous.max, m - t); window.__trous.n++; t = m; }, 20); });
   await page.fill("#iaSaisie", "Bonjour"); await page.fill("#iaLong", "32"); await page.click("#iaEnvoi");
   await page.waitForFunction(() => document.querySelectorAll("#iaFil .bu.ia").length === 1 && /mots\/seconde/.test(document.getElementById("iaStats").textContent), null, { timeout: 60000 });
+  const trous = await page.evaluate(() => { clearInterval(window.__minut); return window.__trous; }); ok(trous.n > 20 && trous.max < 500, "écran réactif pendant la réponse : plus long arrêt de la page " + Math.round(trous.max) + " ms sur " + trous.n + " mesures");
   const bulles = await page.$$eval("#iaFil .bu", (e) => e.map((x) => x.className + ":" + x.textContent.length)); ok(bulles.length === 2 && /moi/.test(bulles[0]) && /ia/.test(bulles[1]), "un message envoyé, une réponse affichée : " + bulles.join(" "));
   ok(/mots\/seconde/.test(await texte(page, "#iaStats")), "la vitesse est affichée : " + (await texte(page, "#iaStats")).replace(/\n/g, " | "));
   await page.fill("#iaSaisie", "Et toi ?"); await page.click("#iaEnvoi"); await page.waitForFunction(() => document.querySelectorAll("#iaFil .bu.ia").length === 2 && !document.getElementById("iaEnvoi").disabled, null, { timeout: 60000 });
@@ -34,7 +38,7 @@ const texte = (page, sel) => page.textContent(sel);
   await page.click("#iaStop"); await page.waitForFunction(() => /arrêté/.test(document.getElementById("iaStats").textContent), null, { timeout: 60000 }); ok(true, "le bouton Arrêter interrompt la réponse");
   // 3. Téléchargement par adresse + garde dans le navigateur
   await page.fill("#iaUrl", base + "/modeles/test-q4_0.gguf"); const avant = demandesModele; await page.evaluate(() => { document.getElementById("iaEtat").textContent = ""; }); await page.click("#iaUrlGo");
-  await page.waitForFunction(() => /prêt/.test(document.getElementById("iaEtat").textContent), null, { timeout: 60000 });
+  try { await page.waitForFunction(() => /prêt/.test(document.getElementById("iaEtat").textContent), null, { timeout: 60000 }); } catch (e) { console.log("  état à l'échec :", JSON.stringify(await texte(page, "#iaEtat")), erreurs.slice(0, 3)); throw e; }
   ok(demandesModele === avant + 1, "téléchargement par adresse : le modèle est demandé une fois (" + (demandesModele - avant) + ")");
   await page.reload(); await page.waitForTimeout(500); await page.fill("#iaUrl", base + "/modeles/test-q4_0.gguf"); const avant2 = demandesModele; await page.click("#iaUrlGo");
   await page.waitForSelector("#iaChat:not([hidden])", { timeout: 60000 }); ok(demandesModele === avant2, "après rechargement de la page, le modèle vient de la mémoire du navigateur : 0 téléchargement (" + (demandesModele - avant2) + ")");

@@ -9,6 +9,8 @@ for nom, code in (("star-gpu.js", gpu), ("uc-star.js", uc), ("star-ia.js", ia)):
     assert "</script" not in code.lower(), nom + " contient </script : insertion impossible dans une page"
 page = page.replace('<script src="star-gpu.js"></script>', "<script>\n" + gpu + "\n</script>").replace('<script src="uc-star.js"></script>', "<script>\n" + uc + "\n</script>").replace('<script src="star-ia.js"></script>', "<script>\n" + ia + "\n</script>")
 assert 'src="star-' not in page and 'src="uc-star' not in page, "une bibliothèque n'a pas été insérée dans la page"
+# copie du code en texte (pour le calcul en arrière-plan : le travailleur reçoit ce texte)
+page = page.replace("</body></html>", '<script type="text/plain" id="srcGpu">' + gpu + '</script><script type="text/plain" id="srcIa">' + ia + '</script></body></html>')
 open(os.path.join(sortie, "STAR-TECH-demo.html"), "w", encoding="utf-8").write(page)   # page complète (à ouvrir ou à publier telle quelle)
 corps = re.sub(r"^<!doctype html>\s*<html[^>]*>\s*<head>\s*<meta charset=\"utf-8\">\s*<meta name=\"viewport\"[^>]*>\s*", "", page, flags=re.I)
 open(os.path.join(sortie, "STAR-TECH-demo-artifact.html"), "w", encoding="utf-8").write(corps.replace("</head><body>", "</head>\n").replace("</body></html>", ""))

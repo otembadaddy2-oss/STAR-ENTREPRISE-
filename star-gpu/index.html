@@ -82,7 +82,10 @@ code,.m{font-family:ui-monospace,monospace;font-size:13px;color:var(--or)}.m{whi
   remplir();
   function teinte(h){ return [0.5 + 0.5 * Math.sin(h * 6.28), 0.5 + 0.5 * Math.sin(h * 6.28 + 2.1), 0.5 + 0.5 * Math.sin(h * 6.28 + 4.2), 0.85]; }
   var dernier = performance.now();
+  var visible = true; try { new IntersectionObserver(function(e){ visible = e[0].isIntersecting; }).observe(cvSpr); } catch (e) {}
   function boucle(now){
+    // l'animation s'arrête quand elle n'est pas à l'écran, ou quand STAR IA travaille : le GPU est libre pour le modèle (et la batterie respire)
+    if (window.__spritesPause || document.hidden || !visible){ dernier = now; requestAnimationFrame(boucle); return; }
     var dt = Math.min(0.05, (now - dernier) / 1000); dernier = now; lot.clear(); lot.fond(0.03, 0.04, 0.1, 1);
     for (var i = 0; i < nb; i++){ var s = etat[i]; s.x += s.vx * dt; s.y += s.vy * dt; if (s.x < 0 || s.x > 320) s.vx = -s.vx; if (s.y < 0 || s.y > 200) s.vy = -s.vy; s.t += dt * 2;
       lot.add({ x: s.x, y: s.y, w: 5, h: 5, rot: s.t, color: teinte(s.h + now / 8000) }); }
@@ -119,14 +122,26 @@ code,.m{font-family:ui-monospace,monospace;font-size:13px;color:var(--or)}.m{whi
     if (cache) { try { await cache.put(url, copie); var r2 = await cache.match(url); return await r2.blob(); } catch (e) { throw new Error('Pas assez de place dans ton appareil pour garder le modèle (' + e.message + '). Libère de la place ou choisis le modèle 4 bits.'); } }
     return await copie.blob();
   }
+  async function sourcesIA(){
+    var a = $('srcGpu'), b = $('srcIa'); if (a && b) return [a.textContent, b.textContent];
+    var r = await Promise.all([fetch('star-gpu.js'), fetch('star-ia.js')]); if (!r[0].ok || !r[1].ok) throw new Error('sources introuvables'); return [await r[0].text(), await r[1].text()];
+  }
   async function demarrer(blobOuPromesse){
-    if (occupe) return; occupe = true; ['iaQ4','iaQ8','iaUrlGo'].forEach(function(i){ $(i).disabled = true; });
+    if (occupe) return; occupe = true; window.__spritesPause = true;   // libère le GPU pour le modèle ['iaQ4','iaQ8','iaUrlGo'].forEach(function(i){ $(i).disabled = true; });
     try {
       var blob = await blobOuPromesse; prog(0, 'Lecture du modèle…'); gIA = gIA || StarGPU.create();
-      var t0 = performance.now();
-      modele = await StarIA.charger(StarIA.sourceBlob(blob), { gpu: gIA, progression: function(p, n){ prog(p, 'Préparation du modèle : ' + Math.round(p * 100) + ' %'); } });
+      if (modele && modele.terminer) { modele.terminer(); } modele = null;
+      var t0 = performance.now(), suivi = function(p, n){ prog(p, 'Préparation du modèle : ' + Math.round(p * 100) + ' %'); };
+      // 1) en arrière-plan (l'écran ne se fige pas) ; 2) sinon dans la page
+      if (window.Worker && window.OffscreenCanvas) {
+        try {
+          modele = await StarIA.chargerEnArrierePlan(blob, { sources: await sourcesIA(), progression: suivi });
+          if (!modele.gpu.utilise && gIA.info.ok && gIA.info.calculFlottant) { modele.terminer(); modele = null; }   // le GPU n'est pas utilisable en arrière-plan sur cet appareil
+        } catch (e) { if (/GGUF|architecture|Poids manquant|Découpage|non pris en charge|Vocabulaire|vocabulaire/.test(e.message)) throw e; modele = null; }
+      }
+      if (!modele) modele = await StarIA.charger(StarIA.sourceBlob(blob), { gpu: gIA, progression: suivi });
       msgs = []; modele.nouvelleConversation(); $('iaFil').textContent = ''; $('iaChat').hidden = false; $('iaProg').hidden = true;
-      var c = modele.cfg; etat((c.nom || 'Modèle') + ' prêt en ' + ((performance.now() - t0) / 1000).toFixed(1) + ' s\n' + c.couches + ' couches · ' + c.dim + ' dimensions · mémoire ' + c.ctx + ' mots\nCalcul : ' + modele.gpu.texte);
+      var c = modele.cfg; etat((c.nom || 'Modèle') + ' prêt en ' + ((performance.now() - t0) / 1000).toFixed(1) + ' s\n' + c.couches + ' couches · ' + c.dim + ' dimensions · mémoire ' + c.ctx + ' mots\nCalcul : ' + modele.gpu.texte + (modele.arrierePlan ? ' · en arrière-plan (l\'écran reste libre)' : ' · dans la page (l\'écran peut se figer un instant)'));
       window.__ia = modele;
     } catch (e) { $('iaProg').hidden = true; etat('Impossible : ' + e.message); modele = null; $('iaChat').hidden = true; }
     occupe = false; ['iaQ4','iaQ8','iaUrlGo'].forEach(function(i){ $(i).disabled = false; });

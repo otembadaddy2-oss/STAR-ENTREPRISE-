@@ -639,8 +639,75 @@
     return modele;
   }
 
+  // =====================================================================================
+  // 6. Calcul en arrière-plan (Web Worker) : l'écran ne se fige plus pendant que le modèle réfléchit.
+  //    Le travailleur reçoit le code de STAR GPU et de STAR IA (texte) et charge le modèle avec son propre GPU (OffscreenCanvas).
+  // =====================================================================================
+  function travailleurMain() {
+    var modele = null, signal = null;
+    function envoyer(type, d) { var o = { type: type }; for (var k in d) o[k] = d[k]; self.postMessage(o); }
+    self.onmessage = async function (e) {
+      var m = e.data;
+      try {
+        if (m.type === 'charger') {
+          if (typeof OffscreenCanvas === 'undefined') throw new Error('OffscreenCanvas absent');
+          var gpu = StarGPU.create(new OffscreenCanvas(1, 1));
+          modele = await StarIA.charger(StarIA.sourceBlob(m.blob), { gpu: gpu, toutGPU: m.toutGPU, contexteMax: m.contexteMax, progression: function (p, n) { envoyer('progression', { p: p, n: n }); } });
+          envoyer('pret', { cfg: modele.cfg, gpu: modele.gpu, gpuPrincipalOk: !!(gpu.info && gpu.info.ok) });
+        } else if (m.type === 'discuter') {
+          signal = { annule: false }; var o = {}; for (var k in m.options) o[k] = m.options[k]; o.signal = signal; o.onToken = function (t) { envoyer('token', { t: t }); };
+          var r = await modele.discuter(m.messages, o);
+          envoyer('fin', { texte: r.texte, ids: r.ids, motsParSeconde: r.motsParSeconde, msPremier: r.msPremier, position: modele.position });
+        } else if (m.type === 'stop') { if (signal) signal.annule = true; }
+        else if (m.type === 'nouvelle') { modele.nouvelleConversation(); envoyer('position', { position: 0 }); }
+      } catch (err) { envoyer('erreur', { message: err && err.message ? err.message : String(err), phase: m.type }); }
+    };
+  }
+  // sources = [texte de star-gpu.js, texte de star-ia.js]. Renvoie un objet qui s'utilise comme celui de charger() (discuter, nouvelleConversation, cfg, gpu, position).
+  function chargerEnArrierePlan(blob, options) {
+    options = options || {};
+    return new Promise(function (resolve, reject) {
+      if (typeof Worker === 'undefined' || typeof OffscreenCanvas === 'undefined' || typeof Blob === 'undefined' || !options.sources) return reject(new Error('arrière-plan non disponible'));
+      var w, url, attente = null, pos = 0, minuteur = null, pret = false, proxy;
+      try {
+        url = URL.createObjectURL(new Blob([options.sources[0], '\n', options.sources[1], '\n(', travailleurMain.toString(), ')();'], { type: 'text/javascript' }));
+        w = new Worker(url);
+      } catch (e) { return reject(e); }
+      function fin() { if (minuteur) { clearInterval(minuteur); minuteur = null; } }
+      w.onerror = function (ev) { fin(); var msg = new Error('arrière-plan : ' + (ev && ev.message ? ev.message : 'erreur du travailleur')); if (!pret) { w.terminate(); reject(msg); } else if (attente) { var a = attente; attente = null; a.rej(msg); } };
+      w.onmessage = function (e) {
+        var m = e.data;
+        if (m.type === 'progression') { if (options.progression) options.progression(m.p, m.n); }
+        else if (m.type === 'pret') {
+          pret = true;
+          proxy = {
+            version: VERSION, cfg: m.cfg, gpu: m.gpu, arrierePlan: true, gpuPrincipalOk: m.gpuPrincipalOk,
+            get position() { return pos; },
+            discuter: function (messages, o) {
+              o = o || {};
+              return new Promise(function (res, rej) {
+                attente = { res: res, rej: rej, onToken: o.onToken };
+                var opts = {}; for (var k in o) if (typeof o[k] !== 'function' && k !== 'signal') opts[k] = o[k];
+                if (o.signal) minuteur = setInterval(function () { if (o.signal.annule) { w.postMessage({ type: 'stop' }); fin(); } }, 80);
+                w.postMessage({ type: 'discuter', messages: messages, options: opts });
+              });
+            },
+            nouvelleConversation: function () { pos = 0; w.postMessage({ type: 'nouvelle' }); },
+            terminer: function () { fin(); w.terminate(); URL.revokeObjectURL(url); }
+          };
+          resolve(proxy);
+        }
+        else if (m.type === 'token') { if (attente && attente.onToken) attente.onToken(m.t); }
+        else if (m.type === 'fin') { fin(); pos = m.position; var a = attente; attente = null; if (a) a.res({ texte: m.texte, ids: m.ids, motsParSeconde: m.motsParSeconde, msPremier: m.msPremier }); }
+        else if (m.type === 'position') pos = m.position;
+        else if (m.type === 'erreur') { fin(); var err = new Error(m.message); if (!pret) { w.terminate(); err.phase = m.phase; reject(err); } else if (attente) { var b = attente; attente = null; b.rej(err); } }
+      };
+      w.postMessage({ type: 'charger', blob: blob, toutGPU: options.toutGPU, contexteMax: options.contexteMax });
+    });
+  }
+
   var StarIA = {
-    version: VERSION, charger: charger, sourceBuffer: sourceBuffer, sourceBlob: sourceBlob, sourceUrl: sourceUrl, ouvrirGGUF: ouvrirGGUF, lireTenseur: lireTenseur,
+    version: VERSION, charger: charger, chargerEnArrierePlan: chargerEnArrierePlan, sourceBuffer: sourceBuffer, sourceBlob: sourceBlob, sourceUrl: sourceUrl, ouvrirGGUF: ouvrirGGUF, lireTenseur: lireTenseur,
     dequantiser: dequantiser, tenseurVersMat: tenseurVersMat, matvecCPU: matvecCPU, creerTokenizer: creerTokenizer, creerGPU: creerGPU, autoTestGPU: autoTestGPU, TYPES: TYPES, ligne: ligne
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = StarIA; else racine.StarIA = StarIA;
