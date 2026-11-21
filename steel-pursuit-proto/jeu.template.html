@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>X SAPHIR ARENA · Steel Pursuit — Stage 1 (prototype)</title>
+<style>
+:root{--or:#e6b84a;--nuit:#070b18;--bleu:#3d7bff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+html,body{margin:0;height:100%;background:var(--nuit);color:#eef2fb;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;overflow:hidden}
+#jeu{position:fixed;inset:0;display:flex;flex-direction:column}
+#zone{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+canvas{background:#000;width:100%;max-height:100%;aspect-ratio:16/9;height:auto}
+@media (orientation:portrait){#zone{align-items:flex-start}canvas{margin-top:8px}.b{bottom:22px;width:62px;height:62px}}
+#menu{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(7,11,24,.94);padding:10px;text-align:center;overflow:auto}
+#menu h1{margin:0;font-size:clamp(18px,4.5vw,30px);letter-spacing:.06em;color:var(--or)}
+#menu h1 small{display:block;font-size:.5em;color:#8da0d0;letter-spacing:.3em}
+.cartes{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.carte{width:clamp(96px,21vw,150px);border:2px solid #1d2a4d;border-radius:8px;background:#0d1428;padding:0;overflow:hidden;cursor:pointer;color:inherit;font:inherit}
+.carte img{width:100%;display:block}
+.carte b{display:block;font-size:12px;padding:3px 4px 0}
+.carte span{display:block;font-size:10px;color:#9fb0dd;padding:0 4px 4px}
+.carte.on{border-color:var(--or);box-shadow:0 0 14px #e6b84a88}
+#go{font:700 16px system-ui;padding:11px 30px;border-radius:24px;border:0;background:linear-gradient(#f0c866,#c99422);color:#241a00;cursor:pointer}
+#info{font-size:11px;color:#8da0d0;max-width:560px}
+#tactile{display:none;position:absolute;inset:0;pointer-events:none}
+.b{position:absolute;bottom:10px;width:clamp(48px,11vw,66px);height:clamp(48px,11vw,66px);border-radius:50%;border:2px solid #ffffff88;background:#0d142899;color:#fff;font:700 14px system-ui;pointer-events:auto;display:flex;align-items:center;justify-content:center}
+.b.on{background:#3d7bffcc}
+@media (pointer:coarse){#tactile{display:block}}
+#tourner{display:none;position:absolute;inset:0;background:var(--nuit);z-index:5;align-items:center;justify-content:center;text-align:center;padding:20px;font-size:18px}
+
+</style></head><body>
+<div id="jeu"><div id="zone">
+<canvas id="c" width="960" height="540"></canvas>
+<div id="tactile"></div>
+<div id="menu">
+ <h1>X SAPHIR ARENA<small>STEEL PURSUIT · STAGE 1 · PROTOTYPE</small></h1>
+ <div class="cartes" id="cartes"></div>
+ <button id="go">COURIR</button>
+ <div id="info">Clavier : Espace/↑ sauter · ↓ glisser · F tirer · Q compétence · S arme spéciale. Téléphone : boutons A B C et R1 R2. Prototype jouable du stage 1 : formes dessinées par le code, cartes officielles pour la sélection ; les modèles 3D viendront après.</div>
+</div>
+</div></div>
+<script>
+const CARTES=__CARTES__;
+const H=[
+ {id:'lyra',nom:'LYRA SPARK',role:'vitesse · grappin',cheveux:'#5b3a7a',arm:'#f2f2f7',arm2:'#17171f',lueur:'#6aa8ff',vitesse:1.08,r1:'Grappin : désarme le robot le plus proche',cd1:15,r2:'Overdrive : temps ralenti 3 s puis accélération 2 s',haut:0.93},
+ {id:'vipera',nom:'VIPERA SHADE',role:'infiltration · contre',cheveux:'#e0b95a',arm:'#161a2a',arm2:'#2f6bff',lueur:'#3d7bff',vitesse:1,r1:'Dôme de furtivité : les tirs t\'ignorent 3 s',cd1:20,r2:'Frappe Vipère : 4 coups sur les robots proches',haut:1},
+ {id:'nyra',nom:'NYRA VOLT',role:'hacker · pièges',cheveux:'#f5f5f5',arm:'#f6f1e4',arm2:'#14141c',lueur:'#35c2ff',vitesse:1,r1:'Piratage : un robot se retourne contre les siens',cd1:18,r2:'Écran EMP : étourdit les robots, stoppe les tirs',haut:1},
+ {id:'luna',nom:'LUNA BLAZE',role:'coureuse principale',cheveux:'#241638',arm:'#ffffff',arm2:'#111118',lueur:'#9a6bff',vitesse:1.05,r1:'Overdrive (provisoire) : vitesse max 3 s',cd1:15,r2:'Pistolets pulse : rafale sur la voie',haut:0.93}
+];
+const cv=document.getElementById('c'),g=cv.getContext('2d'),W=960,Hh=540,SOL=430;
+let choix=0,S=null,touche={},dernier=0,acc=0;
+const $=id=>document.getElementById(id);
+// ---------- menu ----------
+H.forEach((h,i)=>{const b=document.createElement('button');b.className='carte'+(i===0?' on':'');b.innerHTML='<img alt="'+h.nom+'" src="'+CARTES[h.id]+'"><b>'+h.nom+'</b><span>'+h.role+'</span>';b.onclick=()=>{choix=i;document.querySelectorAll('.carte').forEach((x,j)=>x.classList.toggle('on',j===i));};$('cartes').appendChild(b);});
+$('go').onclick=()=>{demarrer(choix)};
+// ---------- tactile ----------
+[['A','a',null,'right:84px'],['B','b',null,'right:14px'],['C','c',null,'right:154px'],['R1','r1',null,'left:14px'],['R2','r2',null,'left:84px']].forEach(([t,k,_,pos])=>{const d=document.createElement('div');d.className='b';d.textContent=t;d.style.cssText=pos;d.dataset.k=k;$('tactile').appendChild(d);
+ const on=e=>{e.preventDefault();d.classList.add('on');press(k)},off=e=>{e.preventDefault();d.classList.remove('on');release(k)};
+ d.addEventListener('touchstart',on,{passive:false});d.addEventListener('touchend',off,{passive:false});d.addEventListener('touchcancel',off,{passive:false});d.addEventListener('mousedown',on);d.addEventListener('mouseup',off);});
+function press(k){touche[k]=true;if(!S||S.etat!=='jeu')return;if(k==='a')sauter();if(k==='b')glisser();if(k==='c')tirer();if(k==='r1')comp1();if(k==='r2')comp2();}
+function release(k){touche[k]=false;if(k==='b'&&S)S.glisse=0.0001}
+const KM={' ':'a','ArrowUp':'a','w':'a','ArrowDown':'b','s':'r2','f':'c','q':'r1','S':'r2'};
+addEventListener('keydown',e=>{const k=KM[e.key];if(k&&!e.repeat){if(e.key==='ArrowDown'||e.key==='s'&&false)press('b');else press(k);e.preventDefault()}});
+addEventListener('keyup',e=>{const k=KM[e.key];if(k)release(e.key==='ArrowDown'?'b':k)});
+// ---------- état ----------
+function demarrer(i){
+ const h=H[i];$('menu').style.display='none';
+ S={h,etat:'jeu',t:0,x:0,vit:430*h.vitesse,y:0,vy:0,sol:true,glisse:0,pv:3,inv:0,pieces:0,jauge:0,cd1:0,cd1max:h.cd1,furtif:0,over:0,overAcc:0,
+  px(){return this.x+200},obst:[],pieces_:[],rob:[],balles:[],ennemiB:[],part:[],boss:null,fin:null,longueur:21000,tireCd:0,anim:0,msg:'',msgT:0,emp:0,tremble:0,tir:0};
+ const al=mulberry(7+i);
+ let x=1400;while(x<S.longueur-1500){const r=al();
+  if(r<.34){S.obst.push({t:'caisse',x,w:56,h:58})}
+  else if(r<.58){S.obst.push({t:'barre',x,w:80,h:22,y:SOL-82})}
+  else if(r<.9){S.rob.push({x,y:SOL,hp:2,cd:1.2+al()*1,ally:0,stun:0,roue:0});}
+  const n=3+((al()*4)|0);for(let k=0;k<n;k++)S.pieces_.push({x:x+260+k*42,y:SOL-60-Math.sin(k/(n-1)*Math.PI)*70,p:0});
+  x+=520+al()*420;}
+ dernier=performance.now();acc=0;message('STAGE 1 · Désert industriel',2);
+}
+function mulberry(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function message(t,d){S.msg=t;S.msgT=d}
+const hauteur=()=>S.glisse>0?46:112*S.h.haut;
+function sauter(){if(S.sol&&S.glisse<=0){S.vy=-880;S.sol=false}}
+function glisser(){if(S.sol){S.glisse=.62}else S.vy=Math.max(S.vy,500)}
+function tirer(){if(S.tireCd>0)return;S.tireCd=.22;S.balles.push({x:S.px()+40,y:SOL-S.y-(S.glisse>0?22:62),v:1000});S.tir=.1}
+function comp1(){if(S.cd1>0)return;const id=S.h.id;S.cd1=S.cd1max;
+ if(id==='lyra'){const r=cibleRobot();if(r){boum(r.x,r.y-40,'#6aa8ff');r.hp=0;message('Grappin !',1)}else message('Grappin : aucune cible',1)}
+ else if(id==='vipera'){S.furtif=3;message('Furtivité 3 s',1)}
+ else if(id==='nyra'){const r=cibleRobot();if(r){r.ally=5;message('Piratage !',1)}else message('Piratage : aucune cible',1)}
+ else{S.over=3;S.overAcc=2;message('Overdrive',1)}}
+function comp2(){if(S.jauge<100)return;S.jauge=0;const id=S.h.id,cibles=[...S.rob,...(S.boss?S.boss.t:[])].filter(r=>r.hp>0&&r.x-S.x<900);
+ if(id==='lyra'||id==='luna'){S.over=3;S.overAcc=2;message('Overdrive',1)}
+ else if(id==='vipera'){cibles.forEach(r=>{r.hp-=2;boum(r.x,r.y-40,'#3d7bff')});message('Frappe Vipère',1)}
+ else{S.emp=3;S.ennemiB.length=0;cibles.forEach(r=>r.stun=3);message('Écran EMP',1)}}
+function cibleRobot(){let m=null;for(const r of S.rob)if(r.hp>0&&!r.ally&&r.x>S.x+80&&r.x<S.x+760&&(!m||r.x<m.x))m=r;return m}
+function boum(x,y,c){for(let i=0;i<14;i++)S.part.push({x,y,vx:(Math.random()-.5)*420,vy:(Math.random()-.8)*380,l:.6,c})}
+// coordonnées : monde x ; écran = x - cam
+function maj(dt){
+ const s=S;s.t+=dt;s.anim+=dt*8;let ts=1;if(s.over>0){ts=.45;s.over-=dt}else if(s.overAcc>0){ts=1.35;s.overAcc-=dt}
+ const d=dt*ts;
+ s.tireCd-=dt;s.cd1=Math.max(0,s.cd1-dt);s.inv-=dt;s.furtif-=dt;s.emp-=dt;s.msgT-=dt;s.tir-=dt;s.tremble=Math.max(0,s.tremble-dt*3);
+ if(s.glisse>0){s.glisse-=d;if(s.glisse<=0)s.glisse=0}
+ if(!s.sol){s.vy+=2300*d;s.y-=s.vy*d;if(s.y<=0){s.y=0;s.vy=0;s.sol=true}}
+ const combat=!!s.boss;
+ if(!combat){s.x+=s.vit*(1+Math.min(.25,s.x/s.longueur*.3))*d;}
+ if(!combat&&s.x>s.longueur&&!s.boss){lancerBoss()}
+ // joueur
+ const px=s.px(),py=SOL-s.y,hb={x:px-16,y:py-hauteur(),w:32,h:hauteur()};
+ // obstacles
+ for(const o of s.obst){const oy=o.t==='caisse'?SOL-o.h:o.y;if(s.inv<=0&&hb.x<o.x+o.w&&hb.x+hb.w>o.x&&hb.y<oy+o.h&&hb.y+hb.h>oy)blesser(o.t==='caisse'?'Caisse !':'Barre !')}
+ // pièces
+ for(const p of s.pieces_){if(!p.p&&Math.abs(p.x-px)<40&&Math.abs(p.y-(py-50))<60){p.p=1;s.pieces++;s.jauge=Math.min(100,s.jauge+2)}}
+ // robots
+ for(const r of s.rob){if(r.hp<=0)continue;if(r.ally>0){r.ally-=dt;r.x+=500*d;for(const q of s.rob)if(q!==r&&q.hp>0&&!q.ally&&Math.abs(q.x-r.x)<50){q.hp=0;boum(q.x,q.y-40,'#35c2ff');s.jauge=Math.min(100,s.jauge+8)}continue}
+  r.roue+=dt*9;if(r.stun>0){r.stun-=dt;continue}
+  if(r.x-px<760&&r.x-px>-60){r.cd-=dt;if(r.cd<=0){r.cd=1.6;s.ennemiB.push({x:r.x-40,y:SOL-62,v:-520,seul:1})}}
+  if(s.inv<=0&&hb.x<r.x+44&&hb.x+hb.w>r.x-44&&hb.y<SOL&&hb.y+hb.h>SOL-96)blesser('Collision !')}
+ // balles du joueur
+ for(const b of s.balles){b.x+=b.v*dt;for(const r of [...s.rob,...(s.boss?s.boss.t:[])]){if(r.hp>0&&!r.ally&&Math.abs(b.x-r.x)<(r.g?66:40)&&Math.abs(b.y-(SOL-(r.g?70:50)))<(r.g?80:50)){b.v=0;b.x=-9e9;r.hp--;boum(b.x<0?r.x:b.x,b.y,'#ffcf4a');if(r.hp<=0){boum(r.x,SOL-60,'#ff8a3a');s.jauge=Math.min(100,s.jauge+10)}}}}
+ s.balles=s.balles.filter(b=>b.x>-1e8&&b.x<s.x+1400);
+ // balles ennemies
+ for(const b of s.ennemiB){b.x+=b.v*d;if(s.inv<=0&&s.furtif<=0&&Math.abs(b.x-px)<22&&b.y>hb.y-6&&b.y<hb.y+hb.h+6){b.x=-9e9;blesser('Touché !')}}
+ s.ennemiB=s.ennemiB.filter(b=>b.x>-1e8&&b.x>s.x-200&&b.x<s.x+3500);
+ if(s.boss)majBoss(dt,d,px,hb);
+ for(const p of s.part){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=900*dt;p.l-=dt}s.part=s.part.filter(p=>p.l>0);
+ if(s.pv<=0&&s.etat==='jeu'){s.etat='perdu';finir(false)}
+}
+function blesser(t){const s=S;s.pv--;s.inv=1.3;s.tremble=1;message(t,.8);if(s.pv>0)s.jauge=Math.max(0,s.jauge-10)}
+function lancerBoss(){const s=S;s.x=s.longueur;const bx=s.x+200+560;
+ s.boss={t:[{x:bx,hp:10,g:1,roue:0,stun:0,cote:0,phase:0},{x:bx+170,hp:10,g:1,roue:0,stun:0,cote:1,phase:0}],cd:1.6,pas:0,alerte:null};
+ s.rob=s.rob.filter(r=>r.x<s.x);s.ennemiB=[];message('SCOUT ALPHA',2.2)}
+function majBoss(dt,d,px,hb){const s=S,B=s.boss;let vivants=B.t.filter(r=>r.hp>0);
+ for(const r of B.t)r.roue+=dt*6;
+ if(!vivants.length){if(s.etat==='jeu'){s.etat='gagne';finir(true)}return}
+ if(s.emp>0)return;
+ B.cd-=d;
+ if(B.alerte){B.alerte.t-=d;if(B.alerte.t<=0){const a=B.alerte;s.ennemiB.push({x:a.r.x-60,y:a.y,v:-640});B.alerte=null}}
+ else if(B.cd<=0){const r=vivants[B.pas%vivants.length];const lane=[SOL-26,SOL-62,SOL-92][(B.pas*2+((Math.random()*2)|0))%3];B.alerte={r,y:lane,t:.6};B.cd=vivants.length>1?1.2:1.0;B.pas++}}
+function finir(ok){const s=S;s.fin={ok,pieces:s.pieces,temps:s.t};const best=+(localStorage.getItem('sp_pieces')||0);try{localStorage.setItem('sp_pieces',best+s.pieces)}catch(e){}
+ setTimeout(()=>{$('menu').style.display='flex';$('go').textContent=ok?'REJOUER':'RÉESSAYER';$('info').textContent=ok?('STAGE 1 RÉUSSI · '+s.pieces+' pièces · '+s.t.toFixed(0)+' s. Le stage 2 (Canyon mécanique, Dune Hunter) est la suite.'):'Raté : '+s.pieces+' pièces. Le jeu recommence au début du stage (comme dans le catalogue).';},ok?1500:900)}
+// ---------- dessin ----------
+function ciel(){const gr=g.createLinearGradient(0,0,0,SOL);gr.addColorStop(0,'#2a1d3d');gr.addColorStop(.55,'#c4683a');gr.addColorStop(1,'#f0b25a');g.fillStyle=gr;g.fillRect(0,0,W,Hh);
+ const cam=S.x;g.fillStyle='#fff6';g.beginPath();g.arc(760,110,38,0,7);g.fill();
+ for(let c=0;c<2;c++){g.fillStyle=c?'#3a2a3a':'#563a45';const sp=c?.35:.15;for(let i=-1;i<12;i++){const bx=i*130-(cam*sp)%130,hh=90+((i*37+c*11)%7)*28;g.fillRect(bx,SOL-hh-(c?0:60),84,hh+60)}}}
+function sol(){g.fillStyle='#5a3b26';g.fillRect(0,SOL,W,Hh-SOL);g.fillStyle='#2a1c14';g.fillRect(0,SOL,W,6);for(let i=0;i<20;i++){const x=(i*90-(S.x*1)%90);g.fillStyle='#3d2819';g.fillRect(x,SOL+30,40,4)}}
+function roue(x,y,r,a){g.fillStyle='#14141a';g.beginPath();g.arc(x,y,r,0,7);g.fill();g.strokeStyle='#d6d1c4';g.lineWidth=r*.12;g.beginPath();g.arc(x,y,r*.62,0,7);g.stroke();g.fillStyle='#d6d1c4';for(let i=0;i<6;i++){const q=a+i*1.047;g.fillRect(x+Math.cos(q)*r*.3-2,y+Math.sin(q)*r*.3-2,4,4)}}
+function scout(x,y,r,s,ally,stun){g.save();g.translate(x,y);g.scale(s,s);roue(0,-26,26,r);g.fillStyle=ally?'#8fe3ff':(stun?'#9aa':'#efe3c6');g.beginPath();g.arc(0,-72,30,0,7);g.fill();g.fillStyle='#f2b320';g.fillRect(-52,-80,22,26);g.fillRect(30,-80,22,26);g.fillStyle='#222';g.fillRect(-56,-70,8,6);g.fillRect(48,-70,8,6);g.fillStyle=stun?'#555':'#ff2a2a';g.beginPath();g.arc(0,-72,11,0,7);g.fill();g.fillStyle='#fff8';g.beginPath();g.arc(-3,-75,3,0,7);g.fill();g.fillStyle='#222';g.font='bold 12px system-ui';g.fillText('01',-8,-52);g.restore()}
+function heroine(px,py,cam){const s=S,h=s.h,gl=s.glisse>0,sc=h.haut;const x=px-cam;g.save();g.translate(x,py);if(s.inv>0&&Math.floor(s.t*20)%2)g.globalAlpha=.4;if(s.furtif>0)g.globalAlpha=.35;
+ const ph=Math.sin(s.anim),ph2=Math.sin(s.anim+Math.PI);
+ g.fillStyle='#0003';g.beginPath();g.ellipse(0,s.y?6+s.y*.0:0,28,6,0,0,7);g.fill();
+ if(gl){g.fillStyle=h.arm2;g.fillRect(-34,-26,64,20);g.fillStyle=h.arm;g.fillRect(-10,-40,34,22);g.fillStyle='#c98f68';g.beginPath();g.arc(30,-34,14,0,7);g.fill();g.fillStyle=h.cheveux;g.beginPath();g.arc(26,-40,13,Math.PI,0);g.fill();g.fillStyle=h.lueur;g.fillRect(-36,-12,70,3)}
+ else{const lj=s.sol?ph*18:10,rj=s.sol?ph2*18:-14;g.strokeStyle=h.arm2;g.lineWidth=13*sc;g.lineCap='round';g.beginPath();g.moveTo(-6,-50*sc);g.lineTo(-6+lj,-4);g.moveTo(6,-50*sc);g.lineTo(6+rj,-4);g.stroke();
+  g.strokeStyle=h.lueur;g.lineWidth=5;g.beginPath();g.moveTo(-6+lj,-4);g.lineTo(-6+lj+8,-4);g.moveTo(6+rj,-4);g.lineTo(6+rj+8,-4);g.stroke();
+  g.fillStyle=h.arm2;g.fillRect(-14,-90*sc,28,44*sc);g.fillStyle=h.arm;g.fillRect(-11,-86*sc,22,26*sc);g.fillStyle=h.lueur;g.fillRect(-13,-52*sc,26,4);
+  g.strokeStyle=h.arm2;g.lineWidth=8;g.beginPath();g.moveTo(8,-80*sc);g.lineTo(34,-72*sc+(s.tir>0?-6:0));g.stroke();g.fillStyle='#ddd';g.fillRect(30,-78*sc+(s.tir>0?-6:0),16,7);
+  g.fillStyle='#c98f68';g.beginPath();g.arc(2,-102*sc,13,0,7);g.fill();g.fillStyle=h.cheveux;g.beginPath();g.arc(0,-104*sc,14,Math.PI*.95,Math.PI*2.05);g.fill();g.beginPath();g.ellipse(-14,-98*sc,10,5+Math.abs(ph)*3,.3,0,7);g.fill();
+  if(h.id==='vipera'){g.fillStyle='#111';g.fillRect(-8,-100*sc,20,8)}
+  if(h.id==='nyra'){g.strokeStyle='#d8b84a';g.lineWidth=2;g.beginPath();g.arc(6,-102*sc,5,0,7);g.stroke()}}
+ g.restore();
+ if(s.furtif>0){g.strokeStyle='#3d7bff88';g.lineWidth=3;g.beginPath();g.arc(x,py-55,66,0,7);g.stroke()}}
+function dessiner(){
+ const s=S,cam=s.x,sh=s.tremble>0?(Math.random()-.5)*8*s.tremble:0;g.save();g.translate(sh,0);
+ ciel();sol();
+ for(const o of s.obst){if(o.x-cam>-120&&o.x-cam<W+50){if(o.t==='caisse'){g.fillStyle='#8a6a3a';g.fillRect(o.x-cam,SOL-o.h,o.w,o.h);g.strokeStyle='#4a3419';g.lineWidth=3;g.strokeRect(o.x-cam,SOL-o.h,o.w,o.h);g.beginPath();g.moveTo(o.x-cam,SOL-o.h);g.lineTo(o.x-cam+o.w,SOL);g.stroke()}else{g.fillStyle='#3a3a46';g.fillRect(o.x-cam+10,o.y-60,6,60+82-60);g.fillRect(o.x-cam+o.w-16,o.y-60,6,142);g.fillStyle='#f2b320';g.fillRect(o.x-cam,o.y,o.w,o.h);g.fillStyle='#222';for(let i=0;i<5;i++)g.fillRect(o.x-cam+4+i*16,o.y,8,o.h)}}}
+ for(const p of s.pieces_){if(!p.p&&p.x-cam>-30&&p.x-cam<W+30){g.fillStyle='#ffd34a';g.beginPath();g.arc(p.x-cam,p.y+Math.sin(s.t*5+p.x)*3,10,0,7);g.fill();g.strokeStyle='#a97b08';g.lineWidth=2;g.stroke()}}
+ for(const r of s.rob){if(r.hp>0&&r.x-cam>-100&&r.x-cam<W+100)scout(r.x-cam,SOL,r.roue,1,r.ally>0,r.stun>0)}
+ if(s.boss){for(const r of s.boss.t){if(r.hp>0)scout(r.x-cam,SOL+8,r.roue,1.5,false,r.stun>0)}
+  if(s.boss.alerte){const a=s.boss.alerte;g.fillStyle='#ff3030'+(Math.floor(s.t*16)%2?'cc':'55');g.fillRect(a.r.x-cam-W,a.y-5,W-40,10)}}
+ for(const b of s.ennemiB){g.fillStyle='#ff4a2a';g.fillRect(b.x-cam-16,b.y-4,34,8);g.fillStyle='#ffd0a0';g.fillRect(b.x-cam-6,b.y-2,16,4)}
+ for(const b of s.balles){g.fillStyle=s.h.lueur;g.fillRect(b.x-cam-14,b.y-3,28,6)}
+ heroine(s.px(),SOL-s.y,cam);
+ for(const p of s.part){g.fillStyle=p.c;g.globalAlpha=Math.max(0,p.l*1.6);g.fillRect(p.x-cam,p.y,5,5);g.globalAlpha=1}
+ g.restore();
+ // interface
+ g.fillStyle='#000a';g.fillRect(0,0,W,50);g.font='bold 15px system-ui';g.fillStyle='#e6b84a';g.fillText(s.h.nom,14,22);
+ for(let i=0;i<3;i++){g.fillStyle=i<s.pv?'#ff4a6a':'#4a2a35';g.fillRect(14+i*22,30,16,12)}
+ g.fillStyle='#ffd34a';g.beginPath();g.arc(112,36,8,0,7);g.fill();g.fillStyle='#fff';g.fillText(String(s.pieces),126,41);
+ const pr=s.boss?1:Math.min(1,s.x/s.longueur);g.fillStyle='#fff3';g.fillRect(260,18,440,8);g.fillStyle='#e6b84a';g.fillRect(260,18,440*pr,8);g.fillStyle='#fff';g.font='11px system-ui';g.fillText('STAGE 1 → BOSS',260,40);
+ g.fillStyle='#fff3';g.fillRect(740,12,200,8);g.fillStyle=s.jauge>=100?'#6aff9a':'#3d7bff';g.fillRect(740,12,2*s.jauge,8);g.fillStyle='#fff';g.fillText('R2 '+(s.jauge>=100?'PRÊT':Math.floor(s.jauge)+'%'),740,38);
+ g.fillStyle=s.cd1>0?'#aaa':'#6aff9a';g.fillText('R1 '+(s.cd1>0?Math.ceil(s.cd1)+' s':'PRÊT'),840,38);
+ if(s.boss){const hp=s.boss.t.reduce((a,r)=>a+Math.max(0,r.hp),0);g.fillStyle='#0008';g.fillRect(280,500,400,16);g.fillStyle='#ff4a2a';g.fillRect(282,502,396*hp/20,12);g.fillStyle='#fff';g.font='bold 12px system-ui';g.fillText('SCOUT ALPHA',282,496)}
+ if(s.msgT>0){g.font='bold 30px system-ui';g.textAlign='center';g.fillStyle='#000a';g.fillText(s.msg,W/2+2,152);g.fillStyle='#e6b84a';g.fillText(s.msg,W/2,150);g.textAlign='left'}
+ if(s.etat==='gagne'||s.etat==='perdu'){g.fillStyle='#000a';g.fillRect(0,0,W,Hh);g.font='bold 44px system-ui';g.textAlign='center';g.fillStyle=s.etat==='gagne'?'#6aff9a':'#ff6a6a';g.fillText(s.etat==='gagne'?'STAGE 1 RÉUSSI':'MISSION ÉCHOUÉE',W/2,Hh/2);g.textAlign='left'}
+}
+function boucle(now){requestAnimationFrame(boucle);if(!S||S.etat==='menu')return;let dt=Math.min(.05,(now-dernier)/1000);dernier=now;acc+=dt;let n=0;while(acc>=1/60&&n<4){if(S.etat==='jeu')maj(1/60);acc-=1/60;n++}dessiner()}
+requestAnimationFrame(boucle);
+window.__sp={get S(){return S},demarrer,press,release};
+</script></body></html>

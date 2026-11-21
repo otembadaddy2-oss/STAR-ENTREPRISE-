@@ -7,6 +7,7 @@ Contenu du dossier
   star-gpu.js    STAR GPU : utilise le processeur graphique (GPU) de l'appareil : filtres d'images, milliers de sprites pour les jeux, matrices pour l'IA.
   uc-star.js     UC STAR (Unified Compute) : on écrit UNE formule, elle est calculée en parallèle sur des millions de valeurs. Même résultat sur GPU ou sur processeur central.
   star-ia.js     STAR IA : fait tourner un petit modèle d'IA générative (Qwen2 / Qwen2.5, format .gguf, poids compressés en 4 ou 8 bits) dans l'appareil, mot par mot.
+  star-ia-webgpu.js  Moteur WebGPU de STAR IA (OPTIONNEL, en essai) : sur les appareils qui proposent WebGPU, il peut remplacer WebGL2 ; la démo permet de comparer les deux sur ton appareil. Sans lui, tout fonctionne comme avant.
   demo.html      La démonstration complète : ouvre-la dans un navigateur (téléphone ou ordinateur). Aucune installation.
   MODE-D-EMPLOI.txt  Pas à pas : tester, utiliser dans une page, dépanner.
   LICENCE.txt    Modèle de licence (à faire valider par un juriste). NOTICES.txt : mentions de tiers. CHANGELOG.txt : historique. SHA256SUMS.txt : empreintes des fichiers.

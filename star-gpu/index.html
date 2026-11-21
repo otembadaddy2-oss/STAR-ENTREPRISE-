@@ -41,17 +41,20 @@ code,.m{font-family:ui-monospace,monospace;font-size:13px;color:var(--or)}.m{whi
 <label for="iaUrl">ou adresse d'un fichier modèle .gguf</label><input type="text" id="iaUrl" placeholder="https://…/modele.gguf" autocomplete="off" autocapitalize="off" spellcheck="false">
 <div class="r"><button id="iaUrlGo">Télécharger cette adresse</button></div>
 <label for="iaFic">ou choisir un fichier .gguf déjà sur ton appareil</label><input type="file" id="iaFic" accept=".gguf">
+<label for="iaMoteur">Moteur de calcul</label><select id="iaMoteur"><option value="webgl2">WebGL2 (éprouvé)</option><option value="webgpu">WebGPU (essai : plus récent, à comparer)</option></select>
 <progress id="iaProg" value="0" max="1" hidden></progress><span class="m" id="iaEtat">Choisis un modèle pour commencer.</span>
 <div id="iaChat" hidden>
 <div id="iaFil" aria-live="polite"></div>
 <label for="iaSaisie">Ton message</label><textarea id="iaSaisie" rows="2" placeholder="Écris en français…"></textarea>
 <div class="r"><button id="iaEnvoi">Envoyer</button><button id="iaStop" disabled>Arrêter</button><button id="iaNouv">Nouvelle conversation</button></div>
+<div class="r"><button id="iaComp">Comparer WebGL2 et WebGPU (environ 1 minute)</button></div><span class="m" id="iaComparaison"></span>
 <div class="reg"><label style="margin:0" title="Bas = réponses plus prudentes mais qui peuvent se répéter ; haut = plus variées mais plus risquées">Créativité <input type="range" id="iaTemp" min="0" max="1.2" step="0.1" value="0.7"></label><label style="margin:0">Longueur max <input type="range" id="iaLong" min="32" max="400" step="16" value="208"></label><label style="margin:0"><input type="checkbox" id="iaEco"> Mode Économie (moins de chaleur)</label></div>
 <span class="m" id="iaStats"></span><p class="s2" id="iaAvert" style="margin-top:8px">Attention : STAR IA est un petit modèle (0,5 milliard de paramètres). Elle peut se tromper ou répondre à côté. Vérifie toujours les informations importantes (santé, argent, droit). Rien de ce qu'elle écrit n'est un avis professionnel.</p></div></div>
 
 <script src="star-gpu.js"></script>
 <script src="uc-star.js"></script>
 <script src="star-ia.js"></script>
+<script src="star-ia-webgpu.js"></script>
 <script>
 (function(){
   var gpu = StarGPU.create(), $ = function(i){ return document.getElementById(i); };
@@ -107,7 +110,8 @@ code,.m{font-family:ui-monospace,monospace;font-size:13px;color:var(--or)}.m{whi
 <script>
 (function(){
   var $ = function(i){ return document.getElementById(i); }, URL_Q4 = 'https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/qwen2.5-0.5b-instruct-q4_0.gguf', URL_Q8 = 'https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/qwen2.5-0.5b-instruct-q8_0.gguf';
-  var modele = null, msgs = [], signal = null, occupe = false, gIA = null;
+  var modele = null, msgs = [], signal = null, occupe = false, gIA = null, dernierBlob = null, comparant = false;
+  if (!navigator.gpu || !window.StarIAWebGPU) { var oW = $('iaMoteur').querySelector('option[value=webgpu]'); oW.textContent = 'WebGPU (non disponible sur cet appareil)'; oW.disabled = true; $('iaComp').disabled = true; }
   function etat(t){ $('iaEtat').textContent = t; }
   function prog(p, t){ var b = $('iaProg'); b.hidden = false; b.value = Math.max(0, Math.min(1, p)); if (t) etat(t); }
   async function obtenir(url){
@@ -123,23 +127,25 @@ code,.m{font-family:ui-monospace,monospace;font-size:13px;color:var(--or)}.m{whi
     return await copie.blob();
   }
   async function sourcesIA(){
-    var a = $('srcGpu'), b = $('srcIa'); if (a && b) return [a.textContent, b.textContent];
-    var r = await Promise.all([fetch('star-gpu.js'), fetch('star-ia.js')]); if (!r[0].ok || !r[1].ok) throw new Error('sources introuvables'); return [await r[0].text(), await r[1].text()];
+    var a = $('srcGpu'), b = $('srcIa'), c = $('srcWg'); if (a && b) return [a.textContent, b.textContent, c ? c.textContent : ''];
+    var r = await Promise.all([fetch('star-gpu.js'), fetch('star-ia.js'), fetch('star-ia-webgpu.js').catch(function(){ return { ok: false }; })]); if (!r[0].ok || !r[1].ok) throw new Error('sources introuvables'); return [await r[0].text(), await r[1].text(), r[2].ok ? await r[2].text() : ''];
   }
-  async function demarrer(blobOuPromesse){
+  async function demarrer(blobOuPromesse, moteurForce){
     if (occupe) return; occupe = true; window.__spritesPause = true;   // libère le GPU pour le modèle ['iaQ4','iaQ8','iaUrlGo'].forEach(function(i){ $(i).disabled = true; });
     try {
-      var blob = await blobOuPromesse; prog(0, 'Lecture du modèle…'); gIA = gIA || StarGPU.create();
+      var blob = await blobOuPromesse; dernierBlob = blob; prog(0, 'Lecture du modèle…'); gIA = gIA || StarGPU.create();
+      var voulWG = (moteurForce || $('iaMoteur').value) === 'webgpu' && !!navigator.gpu && !!window.StarIAWebGPU;
       if (modele && modele.terminer) { modele.terminer(); } modele = null;
       var t0 = performance.now(), suivi = function(p, n){ prog(p, 'Préparation du modèle : ' + Math.round(p * 100) + ' %'); };
       // 1) en arrière-plan (l'écran ne se fige pas) ; 2) sinon dans la page
       if (window.Worker && window.OffscreenCanvas) {
         try {
-          modele = await StarIA.chargerEnArrierePlan(blob, { sources: await sourcesIA(), progression: suivi });
-          if (!modele.gpu.utilise && gIA.info.ok && gIA.info.calculFlottant) { modele.terminer(); modele = null; }   // le GPU n'est pas utilisable en arrière-plan sur cet appareil
+          modele = await StarIA.chargerEnArrierePlan(blob, { sources: await sourcesIA(), webgpu: voulWG, progression: suivi });
+          if (!modele.gpu.utilise && !voulWG && gIA.info.ok && gIA.info.calculFlottant) { modele.terminer(); modele = null; }   // le GPU n'est pas utilisable en arrière-plan sur cet appareil
         } catch (e) { if (/GGUF|architecture|Poids manquant|Découpage|non pris en charge|Vocabulaire|vocabulaire/.test(e.message)) throw e; modele = null; }
       }
-      if (!modele) modele = await StarIA.charger(StarIA.sourceBlob(blob), { gpu: gIA, progression: suivi });
+      if (!modele) { var wgPage = null; if (voulWG) { try { wgPage = await StarIAWebGPU.ouvrir(); } catch (e) { wgPage = null; } } modele = await StarIA.charger(StarIA.sourceBlob(blob), { gpu: gIA, webgpu: wgPage, progression: suivi }); }
+      window.__chargeMs = performance.now() - t0;
       msgs = []; modele.nouvelleConversation(); $('iaFil').textContent = ''; $('iaChat').hidden = false; $('iaProg').hidden = true;
       var c = modele.cfg; etat((c.nom || 'Modèle') + ' prêt en ' + ((performance.now() - t0) / 1000).toFixed(1) + ' s\n' + c.couches + ' couches · ' + c.dim + ' dimensions · mémoire ' + c.ctx + ' mots\nCalcul : ' + modele.gpu.texte + (modele.arrierePlan ? ' · en arrière-plan (l\'écran reste libre)' : ' · dans la page (l\'écran peut se figer un instant)'));
       window.__ia = modele;
@@ -166,6 +172,30 @@ code,.m{font-family:ui-monospace,monospace;font-size:13px;color:var(--or)}.m{whi
   }
   $('iaEnvoi').onclick = envoyer; $('iaSaisie').onkeydown = function(e){ if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); envoyer(); } };
   $('iaStop').onclick = function(){ if (signal) signal.annule = true; };
+  // Comparaison des deux moteurs sur CET appareil : même modèle, même question, même réglage (température 0). Chiffres réels, rien de promis.
+  async function comparer(){
+    if (!dernierBlob || occupe || comparant) return; comparant = true; $('iaComp').disabled = true; var lignes = [], res = {};
+    $('iaComparaison').textContent = 'Comparaison en cours : chaque moteur recharge le modèle puis répond à la même question…';
+    for (var moteur of ['webgl2', 'webgpu']) {
+      var nom = moteur === 'webgl2' ? 'WebGL2' : 'WebGPU';
+      if (moteur === 'webgpu' && (!navigator.gpu || !window.StarIAWebGPU)) { lignes.push(nom + ' : non disponible sur cet appareil'); continue; }
+      $('iaMoteur').value = moteur; await demarrer(Promise.resolve(dernierBlob), moteur);
+      if (!modele) { lignes.push(nom + ' : échec du chargement'); continue; }
+      try {
+        var mode = modele.gpu.utilise ? modele.gpu.mode : 'processeur', chg = (window.__chargeMs || 0) / 1000;
+        var r = await modele.discuter([{ role: 'user', content: 'Explique en deux phrases à quoi sert un GPU.' }], { maxTokens: 48, temperature: 0, repetition: 1 });
+        res[moteur] = r.motsParSeconde;
+        lignes.push(nom + ' (calcul réel : ' + mode + ') : ' + r.motsParSeconde.toFixed(1) + ' mots/s · premier mot ' + (r.msPremier / 1000).toFixed(1) + ' s · chargement ' + chg.toFixed(0) + ' s' + (moteur === 'webgpu' && mode !== 'WebGPU' ? '\n   WebGPU demandé mais non utilisé : ' + modele.gpu.raison : ''));
+      } catch (e) { lignes.push(nom + ' : erreur ' + e.message); }
+    }
+    var mieux = res.webgpu !== undefined && res.webgl2 !== undefined ? (res.webgpu > res.webgl2 * 1.05 ? 'webgpu' : 'webgl2') : 'webgl2';
+    lignes.push(mieux === 'webgpu' ? 'Résultat : WebGPU est plus rapide sur cet appareil.' : (res.webgpu !== undefined && res.webgl2 !== undefined ? 'Résultat : WebGL2 reste le meilleur choix sur cet appareil (WebGPU n\'est pas plus rapide de plus de 5 %).' : 'Résultat : comparaison impossible, WebGL2 gardé.'));
+    lignes.push('GPU : ' + (gIA && gIA.info ? gIA.info.renderer : '?'));
+    $('iaMoteur').value = mieux; var actuel = modele && modele.gpu && modele.gpu.mode === 'WebGPU' ? 'webgpu' : 'webgl2'; if (!modele || actuel !== mieux) await demarrer(Promise.resolve(dernierBlob), mieux);
+    $('iaComparaison').textContent = lignes.join('\n'); window.__comparaison = { res: res, mieux: mieux, lignes: lignes };
+    comparant = false; $('iaComp').disabled = false;
+  }
+  $('iaComp').onclick = comparer;
   $('iaNouv').onclick = function(){ if (!modele || occupe) return; modele.nouvelleConversation(); msgs = []; $('iaFil').textContent = ''; $('iaStats').textContent = ''; };
 })();
 </script></body></html>
