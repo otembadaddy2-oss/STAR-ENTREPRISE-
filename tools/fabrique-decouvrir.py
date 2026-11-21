@@ -15,26 +15,91 @@ E = html.escape
 WA = 'https://wa.me/242066565050'
 MAIL = 'contact@starentreprise.com'
 
-# ------------------------------------------------------------------ filiales
-def carte(i, f):
-    nom, rub, txt, img, mode, page = f
-    if mode.startswith('art-'):
-        fond = f'<div class="fi art {mode}" aria-hidden="true"><div class="art-halo"></div><img class="art-mark" src="img/mark.webp" alt=""><span class="art-nom">{E(nom)}</span></div>'
+# ------------------------------------------------------------------ chapitres (une filiale = un grand chapitre)
+def _fig(img, leg, mode, big=False):
+    cls = 'gf ' + mode
+    return (f'<figure class="{cls}"><div class="gfi"><img src="img/{img}.webp" alt="{E(leg)}" loading="lazy" decoding="async"></div>'
+            f'<figcaption>{E(leg)}</figcaption></figure>')
+def chapitre(i, c):
+    n = i + 1
+    wa = f"{WA}?text=" + __import__('urllib.parse').parse.quote(f"Bonjour STAR ENTREPRISE, je souhaite des informations sur {c['nom']}.")
+    if c.get('art'):
+        hero = (f'<div class="ch-hero art art-{c["art"]}"><div class="art-halo"></div><img class="art-mark" src="img/mark.webp" alt="">'
+                f'<span class="art-nom">{E(c["nom"])}</span></div>')
     else:
-        fond = f'<div class="fi {mode}"><img src="img/{img}.webp" alt="{E(nom)} — {E(rub)}" loading="lazy" decoding="async"></div>'
-    return (f'<article class="fcard" data-i="{i+1}">{fond}<div class="fshade"></div>'
-            f'<div class="ftxt"><span class="fnum">{i+1:02d}<small>/{len(FILIALES)}</small></span><span class="frub">{E(rub)}</span>'
-            f'<h3>{E(nom)}</h3><p>{E(txt)}</p>'
-            f'<a class="flink" href="https://starentreprise.com/{page}" target="_blank" rel="noopener">Découvrir sur le site officiel <i>→</i></a></div></article>')
-FIL = '\n'.join(carte(i, f) for i, f in enumerate(FILIALES))
+        im, leg, mode = c['imgs'][0]
+        if mode == 'cover':
+            hero = f'<div class="ch-hero cover"><img src="img/{im}.webp" alt="{E(leg)}" loading="lazy" decoding="async"></div>'
+        elif mode == 'affiche':
+            hero = (f'<div class="ch-hero affiche"><img class="bg" src="img/{im}.webp" alt="" aria-hidden="true" loading="lazy">'
+                    f'<img class="fg" src="img/{im}.webp" alt="{E(leg)}" loading="lazy" decoding="async"></div>')
+        else:
+            hero = f'<div class="ch-hero {mode}"><img class="lg" src="img/{im}.webp" alt="{E(leg)}" loading="lazy" decoding="async"></div>'
+    pts = ''.join(f'<li><b>{E(a)}</b><span>{E(b)}</span></li>' for a, b in c['pts'])
+    reste = c['imgs'][1:] if not c.get('art') else c['imgs']
+    if not c.get('art') and c['imgs'] and c['imgs'][0][2] != 'cover':
+        pass
+    galerie = ''
+    if reste:
+        galerie = '<div class="gal">' + ''.join(_fig(*x) for x in reste) + '</div>'
+    video = ''
+    if c.get('video'):
+        video = (f'<div class="vid"><video id="v-{c["video"]}" muted loop playsinline preload="none" controls poster="img/p-{c["video"]}.webp">'
+                 f'<source src="video/{c["video"]}.mp4" type="video/mp4"></video><span>Le film des événements STAR EVENTS</span></div>')
+    return (f'<article class="chap" id="f{n}" data-n="{n}">{hero}<div class="ch-voile"></div>'
+            f'<header class="ch-titre"><span class="ch-num">{n:02d}<small> / 21</small></span><span class="ch-rub">{E(c["rub"])}</span>'
+            f'<h3>{E(c["nom"])}</h3><p class="ch-acc">{E(c["accroche"])}</p></header>'
+            f'<div class="wrap ch-corps"><p class="ch-intro">{E(c["intro"])}</p><ul class="pts">{pts}</ul>{galerie}{video}'
+            f'<div class="cta"><a class="btn wa" href="{wa}" target="_blank" rel="noopener">Demander des informations</a>'
+            f'<a class="btn" href="https://starentreprise.com/{c["page"]}" target="_blank" rel="noopener">Page officielle →</a></div></div></article>')
+def pole(i):
+    r, nom, sous = POLES[i]
+    return f'<div class="pole"><span class="pole-n">{r}</span><h2>{E(nom)}</h2><p>{E(sous)}</p></div>'
+CHAP = ''
+for i, c in enumerate(CHAPITRES):
+    if i in POLES: CHAP += pole(i) + '\n'
+    CHAP += chapitre(i, c) + '\n'
+CHIPS = ''.join(f'<a href="#f{i+1}" data-n="{i+1}">{E(c["nom"])}</a>' for i, c in enumerate(CHAPITRES))
+FIL = CHAP  # (nom conservé pour le gabarit)
 
 # ------------------------------------------------------------------ tomes
 TOMES = '\n'.join(f'<figure class="tome"><img src="img/t{n:02d}.webp" alt="X SAPHIR — Tome {n}, couverture" loading="lazy" decoding="async"><figcaption>TOME {n}</figcaption></figure>' for n in range(1, 11))
+
+
+def gal_html(items, mode='affiche'):
+    return '<div class="gal big">' + ''.join(
+        f'<figure class="gf {m}"><div class="gfi"><img src="img/{i}.webp" alt="{E(l)}" loading="lazy" decoding="async"></div><figcaption>{E(l)}{(" — " + E(d)) if d else ""}</figcaption></figure>'
+        for i, l, d, m in items) + '</div>'
+ARENA_AFF = gal_html([
+ ('ar-affiche-A', 'X SAPHIR Arena', 'Le héros et les héroïnes', 'affiche'), ('ar-affiche-B', 'X SAPHIR Arena', 'Face à la menace rouge', 'affiche'),
+ ('ar-legendes-1', 'Légendes', 'Calpros en pleine puissance', 'affiche'), ('ar-legendes-2', 'Légendes', 'Les Trois Forces', 'affiche'),
+ ('ar-film-pursuit', 'Steel Pursuit', 'Héroïnes et robots', 'affiche'), ('ar-pursuit-1', 'Steel Pursuit', 'La course commence', 'affiche'),
+ ('ar-pursuit-2', 'Steel Pursuit', 'Équipe de choc', 'affiche')])
+HEROS = ''.join(
+    f'<figure class="hero-c"><img src="img/{i}.webp" alt="{E(n)}" loading="lazy" decoding="async"><figcaption><b>{E(n)}</b><span>{E(s)}</span></figcaption></figure>'
+    for i, n, s in [('ar-carte-calpros', 'CALPROS', 'Le porteur des Trois Forces'), ('ar-carte-nia', 'NIA MENSAH', "L'architecte magnétique"),
+                    ('ar-carte-ayanda', 'AYANDA ZULU', 'Le Phénix'), ('ar-carte-kormal', 'KOR-MAL', 'La menace rouge'), ('ar-carte-nakata', 'SATANA NAKATA', 'Une figure de la saga')])
+CONCEPTS = gal_html([('ar-concept-1', 'Le roster en préparation', '', 'cover'), ('ar-concept-2', 'Affiche du jeu : concept', '', 'cover'), ('ar-luna', 'Fiche héroïne : Luna Blaze', '', 'affiche')])
+ASTRO = gal_html([('g-astro', 'ASTRO QUEST', 'Cap sur les étoiles', 'affiche'), ('g-astro-regles', 'ASTRO QUEST', 'Les règles', 'affiche'),
+                  ('g-astro-vol', 'ASTRO QUEST', 'Vol entre les ennemis', 'affiche'), ('g-astro-gardien', 'ASTRO QUEST', 'Le gardien de Jupiter', 'affiche')])
+MARQUES = gal_html([
+ ('c-lamah-poster', 'Pices LAMAH', 'La nature a le goût de l\'exception', 'affiche'), ('c-pioupiou', 'PIOUPIOU', "L'univers des petits", 'cover'),
+ ('a-pioupiou-komyo', 'PIOUPIOU × KOMYO', 'Les enfants aussi ont leur espace', 'affiche'), ('c-lapinbio', 'Lapin Bio', 'Le bio de chez nous', 'cover'),
+ ('c-burkina', 'Burkina Faso Bio', "Terre d'opportunités, terre de richesses", 'cover'), ('c-sosdoc', 'SOS DOC', 'Plateforme numérique', 'cover'),
+ ('c-staralerte', 'STAR ALERTE', 'Un geste rapide peut sauver une vie', 'cover'), ('c-dinnovation-btp', 'D-Innovation BTP', "Des infrastructures qui tiennent l'épreuve du terrain", 'cover'),
+ ('c-dinnovation-pressing', 'D-Innovation Pressing', 'Le soin du linge', 'cover'), ('c-kindimbou', 'Kindimbou', "Un guide d'utilisation clair", 'cover'),
+ ('g-sarah', 'Sarah', 'Assistante digitale des clients STAR ENTREPRISE', 'affiche')])
 
 CSS = r"""
 @font-face{font-family:"Inter Display";font-weight:300;font-display:swap;src:url(polices/inter-display-300.woff2) format("woff2")}
 @font-face{font-family:"Inter Display";font-weight:600;font-display:swap;src:url(polices/inter-display-600.woff2) format("woff2")}
 @font-face{font-family:"Inter Display";font-weight:800;font-display:swap;src:url(polices/inter-display-800.woff2) format("woff2")}
+@font-face{font-family:"Playfair Display";font-weight:700;font-display:swap;src:url(polices/playfair-display-latin-700-normal.woff2) format("woff2")}
+@font-face{font-family:"Playfair Display";font-weight:800;font-display:swap;src:url(polices/playfair-display-latin-800-normal.woff2) format("woff2")}
+@font-face{font-family:"Playfair Display";font-weight:700;font-style:italic;font-display:swap;src:url(polices/playfair-display-latin-700-italic.woff2) format("woff2")}
+@font-face{font-family:"Cormorant Garamond";font-weight:500;font-style:italic;font-display:swap;src:url(polices/cormorant-garamond-latin-500-italic.woff2) format("woff2")}
+@font-face{font-family:"Cormorant Garamond";font-weight:600;font-style:italic;font-display:swap;src:url(polices/cormorant-garamond-latin-600-italic.woff2) format("woff2")}
+@font-face{font-family:"Great Vibes";font-weight:400;font-display:swap;src:url(polices/great-vibes-latin-400-normal.woff2) format("woff2")}
 :root{--bg:#07090f;--bg2:#0d1220;--ink:#f6f1e6;--mute:#aeb4c4;--gold:#e3b653;--gold2:#ffe29a;--blue:#2c5be0;--line:rgba(227,182,83,.28);--glass:rgba(13,18,32,.62);--r:22px;--ease:cubic-bezier(.2,.8,.2,1)}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
@@ -45,7 +110,9 @@ a{color:inherit}
 .gold{background:linear-gradient(100deg,#b98a2c 0%,var(--gold2) 35%,var(--gold) 55%,#fff1c2 75%,#b98a2c 100%);background-size:220% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 6s linear infinite}
 @keyframes shine{to{background-position:220% center}}
 .eyebrow{display:inline-block;font-weight:600;font-size:.74rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
-h1,h2,h3{font-weight:800;line-height:1.06;letter-spacing:-.02em;text-wrap:balance}
+h1,h2,h3,.manif{font-family:"Playfair Display","Times New Roman",Georgia,serif;font-weight:800;line-height:1.08;letter-spacing:-.012em;text-wrap:balance}
+.script{font-family:"Great Vibes","Brush Script MT",cursive;font-weight:400;letter-spacing:0;color:var(--gold2)}
+.ital{font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-weight:500}
 h2{font-size:clamp(2rem,7.4vw,4.1rem);margin-bottom:16px}
 .lead{font-size:clamp(1.02rem,3.8vw,1.28rem);color:var(--mute);max-width:46ch;text-wrap:pretty}
 section{position:relative;padding-block:clamp(70px,13vw,140px)}
@@ -60,7 +127,7 @@ section{position:relative;padding-block:clamp(70px,13vw,140px)}
 #prog{position:fixed;inset:0 auto auto 0;height:3px;width:0;background:linear-gradient(90deg,var(--gold),var(--gold2));z-index:60;box-shadow:0 0 12px var(--gold)}
 /* barre */
 #bar{position:fixed;inset:0 0 auto 0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:calc(10px + env(safe-area-inset-top,0px)) clamp(16px,4vw,32px) 12px;background:linear-gradient(#07090ff2 55%,#07090f00);transition:transform .45s var(--ease);pointer-events:none}
-#bar.cache{transform:translateY(-110%)}
+#bar.cache,body.in-fil #bar{transform:translateY(-110%)}
 #bar>*{pointer-events:auto}
 #bar img{width:46px;height:46px;object-fit:contain;filter:drop-shadow(0 2px 10px #000)}
 #bar a.btn{padding:11px 18px;font-size:.86rem;background:rgba(7,9,15,.7);backdrop-filter:blur(8px)}
@@ -113,7 +180,7 @@ body.intro-on #bar,body.intro-on #prog{opacity:0}
 .chiffre b{display:block;font-weight:800;font-size:clamp(2.4rem,11vw,4.2rem);line-height:1}
 .chiffre span{display:block;color:var(--mute);font-size:.9rem;margin-top:8px}
 @media(min-width:760px){.chiffres{grid-template-columns:repeat(4,1fr)}}
-.manif{font-weight:800;font-size:clamp(1.7rem,6.8vw,3.6rem);line-height:1.12;letter-spacing:-.02em;max-width:22ch}
+.manif{font-size:clamp(1.8rem,7vw,3.8rem);line-height:1.14;max-width:22ch}
 .manif span{opacity:.18;transition:opacity .6s}
 .manif span.on{opacity:1}
 
@@ -156,6 +223,59 @@ body.intro-on #bar,body.intro-on #prog{opacity:0}
 .fprog{height:3px;margin:6px max(18px,calc((100vw - 1180px)/2 + 40px)) 0;background:#ffffff1a;border-radius:3px;overflow:hidden}
 .fprog i{display:block;height:100%;width:4.7%;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .3s}
 .fhint{margin:14px max(18px,calc((100vw - 1180px)/2 + 40px)) 0;color:var(--mute);font-size:.85rem}
+
+
+/* ===== UNIVERS : chapitres par filiale ===== */
+.chips{position:sticky;top:0;z-index:40;display:flex;gap:8px;overflow-x:auto;padding:calc(8px + env(safe-area-inset-top,0px)) 16px 10px;background:linear-gradient(#07090ff5 70%,#07090f00);scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips a{flex:0 0 auto;font:600 .78rem/1 "Inter Display",sans-serif;text-decoration:none;padding:9px 13px;border-radius:999px;border:1px solid var(--line);background:#0d1220cc;color:var(--mute);white-space:nowrap;transition:all .3s}
+.chips a.on{background:linear-gradient(135deg,#f6d27a,#c8912c);color:#1a1204;border-color:transparent}
+.pole{padding:clamp(70px,14vw,130px) clamp(18px,5vw,40px) 26px;max-width:1180px;margin:0 auto}
+.pole-n{display:block;font-family:"Playfair Display",serif;font-style:italic;font-weight:700;font-size:clamp(3.5rem,18vw,8rem);line-height:.9;color:transparent;-webkit-text-stroke:1px var(--gold);opacity:.8}
+.pole h2{margin:8px 0 6px;font-size:clamp(2rem,8vw,4.4rem)}
+.pole p{font-family:"Cormorant Garamond",serif;font-style:italic;font-weight:500;font-size:clamp(1.25rem,4.6vw,1.9rem);color:var(--gold2)}
+.chap{position:relative;margin-bottom:clamp(60px,11vw,120px)}
+.ch-hero{position:relative;height:min(94svh,860px);overflow:hidden;background:#000}
+.ch-hero.cover img{width:100%;height:100%;object-fit:cover;transform:scale(1.04);transition:transform 2.4s var(--ease)}
+.chap.in .ch-hero.cover img{transform:scale(1.12)}
+.ch-hero.affiche{background:#080d1c}
+.ch-hero.affiche .bg{position:absolute;inset:-6%;width:112%;height:112%;object-fit:cover;filter:blur(34px) brightness(.55) saturate(1.2)}
+.ch-hero.affiche .fg{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);height:78%;width:auto;max-width:92%;object-fit:contain;border-radius:14px;box-shadow:0 40px 90px -20px #000,0 0 0 1px #ffffff1f}
+.ch-hero.logo-noir{background:#050505}.ch-hero.logo-blanc{background:#fff}
+.ch-hero .lg{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);width:min(78%,560px);height:auto;max-height:64%;object-fit:contain}
+.ch-hero.art{display:grid;place-items:center;background:radial-gradient(80% 60% at 50% 42%,#16306e,#070b18);height:min(80svh,700px)}
+.ch-hero.art-mbote{background:radial-gradient(80% 60% at 50% 42%,#5a3a07,#0b0a05)}
+.ch-hero.art .art-halo{position:absolute;width:150%;aspect-ratio:1;background:conic-gradient(from 0deg,transparent,rgba(255,226,154,.32),transparent 30%,rgba(255,226,154,.22),transparent 60%);animation:spin 16s linear infinite;top:-40%}
+.ch-hero.art .art-mark{position:relative;width:min(34%,220px);filter:drop-shadow(0 0 40px #e3b653);margin-top:-14%}
+.ch-hero.art .art-nom{position:absolute;top:56%;font-family:"Playfair Display",serif;font-weight:800;letter-spacing:.16em;font-size:clamp(1.1rem,4.4vw,1.6rem);color:var(--gold2)}
+.ch-voile{position:absolute;left:0;right:0;top:0;height:min(94svh,860px);pointer-events:none;background:linear-gradient(180deg,#07090f55 0%,#07090f00 28%,#07090f66 52%,#07090fee 86%,var(--bg) 100%)}
+.chap:has(.art) .ch-voile{height:min(80svh,700px)}
+.ch-titre{position:absolute;left:0;right:0;top:0;height:min(94svh,860px);display:flex;flex-direction:column;justify-content:flex-end;padding:0 clamp(18px,5vw,40px) clamp(26px,6vw,56px);max-width:1180px;margin:0 auto;gap:6px}
+.chap:has(.art) .ch-titre{height:min(80svh,700px)}
+.ch-num{font-family:"Playfair Display",serif;font-style:italic;font-weight:700;font-size:1.15rem;color:var(--gold)}
+.ch-num small{font-family:"Inter Display",sans-serif;font-style:normal;font-weight:300;color:var(--mute);font-size:.8rem}
+.ch-rub{font-weight:600;font-size:.72rem;letter-spacing:.24em;text-transform:uppercase;color:var(--gold2)}
+.ch-titre h3{font-size:clamp(2.3rem,10.5vw,5.6rem);text-shadow:0 4px 40px #000}
+.ch-acc{font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-weight:500;font-size:clamp(1.3rem,5vw,2.1rem);color:#f2e9d2;max-width:30ch;line-height:1.2;text-shadow:0 2px 20px #000}
+.ch-corps{margin-top:6px}
+.ch-intro{font-size:clamp(1.04rem,3.9vw,1.3rem);color:#d9dbe4;max-width:60ch;text-wrap:pretty;margin-bottom:26px}
+.pts{display:grid;gap:12px;list-style:none;margin-bottom:30px}
+@media(min-width:760px){.pts{grid-template-columns:repeat(2,1fr)}}
+.pts li{padding:18px 18px 18px 20px;border-radius:16px;border:1px solid var(--line);background:linear-gradient(135deg,rgba(227,182,83,.10),rgba(13,18,32,.6));position:relative}
+.pts li::before{content:"";position:absolute;left:0;top:18px;bottom:18px;width:3px;border-radius:3px;background:linear-gradient(var(--gold2),var(--gold))}
+.pts b{display:block;font-family:"Playfair Display",serif;font-weight:700;font-size:1.12rem;margin-bottom:4px;color:var(--gold2)}
+.pts span{color:var(--mute);font-size:.96rem}
+.gal{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 calc(-1 * clamp(18px,5vw,40px)) 30px;padding:4px clamp(18px,5vw,40px) 14px;scrollbar-width:none}
+.gal::-webkit-scrollbar{display:none}
+.gf{flex:0 0 min(86vw,520px);scroll-snap-align:center}
+.gf .gfi{border-radius:20px;overflow:hidden;border:1px solid var(--line);background:#000;box-shadow:0 30px 60px -28px #000}
+.gf img{width:100%;height:auto;max-height:78svh;object-fit:contain}
+.gf.cover img{object-fit:cover;aspect-ratio:4/3}
+.gf.logo-noir .gfi{background:#050505}.gf.logo-blanc .gfi{background:#fff}
+.gf figcaption{margin-top:9px;font-family:"Cormorant Garamond",serif;font-style:italic;font-weight:600;font-size:1.12rem;color:var(--gold2);text-align:center}
+.vid{margin:0 auto 30px;max-width:320px}
+.vid video{width:100%;aspect-ratio:9/16;border-radius:20px;border:1px solid var(--line);background:#000}
+.vid span{display:block;margin-top:8px;text-align:center;font-family:"Cormorant Garamond",serif;font-style:italic;font-size:1.1rem;color:var(--gold2)}
 
 /* AFFICHES */
 .posters{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;padding:20px max(18px,calc((100vw - 1180px)/2 + 40px)) 30px;scrollbar-width:none;perspective:1200px}
@@ -234,6 +354,36 @@ body.intro-on #bar,body.intro-on #prog{opacity:0}
 .marquee span{margin-inline:22px;color:var(--gold)}
 @keyframes mq{to{transform:translateX(-50%)}}
 
+
+.gal.big .gf{flex-basis:min(84vw,430px)}
+.gal.big .gf.cover img{aspect-ratio:16/10}
+.herosrow{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;padding:10px max(18px,calc((100vw - 1180px)/2 + 40px)) 24px;scrollbar-width:none}
+.herosrow::-webkit-scrollbar{display:none}
+.hero-c{flex:0 0 min(80vw,360px);scroll-snap-align:center;position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--line);background:#000;box-shadow:0 40px 70px -30px #000}
+.hero-c img{width:100%;height:auto}
+.hero-c figcaption{position:absolute;left:0;right:0;bottom:0;padding:50px 16px 16px;background:linear-gradient(transparent,#000e);display:flex;flex-direction:column;gap:2px}
+.hero-c b{font-family:"Playfair Display",serif;font-weight:800;font-size:1.3rem;letter-spacing:.04em}
+.hero-c span{font-family:"Cormorant Garamond",serif;font-style:italic;font-weight:600;font-size:1.15rem;color:var(--gold2)}
+.sub{margin:clamp(54px,10vw,100px) 0 14px;font-size:clamp(1.7rem,6.8vw,3rem)}
+.sub small{display:block;font-family:"Inter Display",sans-serif;font-weight:600;font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.article{display:grid;gap:14px;margin-block:44px;padding-top:34px;border-top:1px solid var(--line)}
+.article h3{font-size:clamp(1.6rem,6.4vw,2.6rem)}
+.article p{color:#d3d6e0;font-size:clamp(1.02rem,3.8vw,1.2rem);max-width:62ch;text-wrap:pretty}
+.article .ital{margin-top:10px;font-size:clamp(1.3rem,5vw,1.8rem);color:var(--gold2);line-height:1.25}
+@media(min-width:900px){.article{grid-template-columns:1fr 1.5fr;gap:60px}}
+.engage{display:grid;gap:12px;margin-top:22px}
+@media(min-width:760px){.engage{grid-template-columns:repeat(4,1fr)}}
+.engage div{padding:22px;border-radius:20px;border:1px solid var(--line);background:var(--glass)}
+.engage b{display:block;font-family:"Playfair Display",serif;font-weight:800;font-size:1.35rem;color:var(--gold2);margin-bottom:6px}
+.engage span{color:var(--mute);font-size:.95rem}
+details.q{border:1px solid var(--line);border-radius:16px;padding:0;margin-bottom:10px;background:var(--glass);overflow:hidden}
+details.q summary{cursor:pointer;list-style:none;padding:18px 20px;font-weight:600;font-size:1.04rem;display:flex;justify-content:space-between;gap:14px}
+details.q summary::-webkit-details-marker{display:none}
+details.q summary::after{content:"+";color:var(--gold);font-size:1.4rem;line-height:1;transition:transform .3s}
+details.q[open] summary::after{transform:rotate(45deg)}
+details.q p{padding:0 20px 20px;color:var(--mute);max-width:70ch}
+.signature{font-size:clamp(2.2rem,9vw,3.6rem);line-height:1;margin-top:12px}
+
 /* contact */
 #contact{background:radial-gradient(90% 70% at 50% 0,#14265a66,transparent)}
 .coord{display:grid;gap:12px;margin-block:26px}
@@ -286,7 +436,7 @@ BODY = r"""
   <div class="slides" aria-hidden="true">
     <div class="slide on"><img src="img/f-beach.webp" alt=""></div>
     <div class="slide"><img src="img/f-wedding.webp" alt=""></div>
-    <div class="slide"><img src="img/f-clinique.webp" alt=""></div>
+    <div class="slide"><img src="img/f-grimpeurs.webp" alt=""></div>
     <div class="slide"><img src="img/f-casa.webp" alt=""></div>
     <div class="slide"><img src="img/f-meubles.webp" alt=""></div>
   </div>
@@ -319,18 +469,16 @@ BODY = r"""
       <span class="eyebrow rv">Le fondateur</span>
       <h2 class="rv">Carry <span class="gold">OTEMBA</span></h2>
       <p class="lead rv d1">PDG de STAR ENTREPRISE. Du soin de la famille à l'énergie solaire, de l'art à l'intelligence artificielle : une vision, celle de mettre au service des Congolais, et bien au-delà, des solutions sérieuses, belles et accessibles.</p>
+      <p class="signature script rv d2">Carry Otemba</p>
       <p class="lead rv d2" style="margin-top:14px">Chaque filiale a son métier, son équipe et son identité. Toutes partagent la même promesse : <b style="color:var(--ink);font-weight:600">un seul groupe, toutes les solutions pour votre vie.</b></p>
     </div>
   </div>
 </section>
 
-<section id="filiales">
-  <div class="wrap fhead"><span class="eyebrow rv">Nos filiales</span><h2 class="rv">21 filiales.<br><span class="gold">Une seule étoile.</span></h2><p class="lead rv d1">Faites glisser pour découvrir chaque filiale, son univers et ce qu'elle peut faire pour vous.</p></div>
-  <div class="fstrip" id="fstrip">
+<section id="filiales" style="padding-inline:0">
+  <div class="wrap fhead"><span class="eyebrow rv">Nos filiales</span><h2 class="rv">21 filiales.<br><span class="gold">Une seule étoile.</span></h2><p class="lead rv d1">Chaque filiale a son métier, son équipe et son univers. Parcourez-les une à une : de grandes images, des services précis, et un contact direct.</p></div>
+  <nav class="chips" id="chips" aria-label="Aller à une filiale">%%CHIPS%%</nav>
 %%FILIALES%%
-  </div>
-  <div class="fprog"><i id="fbar"></i></div>
-  <p class="fhint">Glissez vers la gauche ← pour la suite</p>
 </section>
 
 <div class="marquee" aria-hidden="true"><div>%%MARQUEE%%%%MARQUEE%%</div></div>
@@ -367,7 +515,7 @@ BODY = r"""
       <li class="rv d1">Choisissez pour qui vous vous connectez : vous-même ou votre enfant. C'est prêt&nbsp;!</li>
     </ol>
     <div class="duo inv" style="margin-top:60px">
-      <div class="phone rv" id="ph-komyo"><video id="v-komyo" playsinline preload="none" poster="img/p-komyo-monde.webp"><source src="video/komyo-monde.mp4" type="video/mp4"></video><button class="play" type="button" aria-label="Lire la vidéo KOMYO"><span>▶</span></button></div>
+      <div class="phone rv" id="ph-komyo"><video id="v-komyo" playsinline preload="none" poster="img/p-komyo-generique.webp"><source src="video/komyo-generique.mp4" type="video/mp4"></video><button class="play" type="button" aria-label="Lire la vidéo KOMYO"><span>▶</span></button></div>
       <div><span class="eyebrow rv">En vidéo</span><h2 class="rv" style="font-size:clamp(1.8rem,6.6vw,3rem)">KOMYO, le monde <span class="gold">en mouvement</span></h2><p class="lead rv d1">Écrire. Envoyer. Vivre ensemble. Regardez le film de présentation, puis contactez-nous pour en savoir plus.</p><div class="cta rv d2" style="margin-top:20px"><a class="btn wa" href="%%WA%%?text=Bonjour%20STAR%20ENTREPRISE%2C%20je%20veux%20en%20savoir%20plus%20sur%20KOMYO" target="_blank" rel="noopener">Parler à notre service client</a></div></div>
     </div>
   </div>
@@ -406,57 +554,84 @@ BODY = r"""
     <div>
       <span class="eyebrow rv">Le livre</span>
       <h2 class="rv">De l'Ombre <span class="gold">à la Lumière</span></h2>
-      <p class="lead rv d1">Le livre de Carry OTEMBA, publié par les Éditions Renaissance. Une histoire de passage, de courage et de lumière. Disponible auprès de STAR ENTREPRISE.</p>
+      <p class="ital rv d1" style="font-size:clamp(1.4rem,5.4vw,2rem);color:var(--gold2);margin-bottom:10px">Mon combat. Ma résurrection. Ma mission.</p>
+      <p class="lead rv d1">Le récit de Carry OTEMBA, publié par les Éditions Renaissance : l'histoire vraie d'un entrepreneur congolais. Un parcours de résilience, de foi et de réussite. Disponible auprès de STAR ENTREPRISE.</p>
       <div class="cta rv d2" style="margin-top:22px"><a class="btn wa" href="%%WA%%?text=Bonjour%2C%20je%20veux%20commander%20le%20livre%20De%20l%27Ombre%20%C3%A0%20la%20Lumi%C3%A8re" target="_blank" rel="noopener">Commander le livre</a></div>
     </div>
   </div>
+</section>
 
-  <div class="wrap" style="margin-top:clamp(70px,12vw,130px)">
-    <span class="eyebrow rv">La saga</span>
+<section id="saga" style="background:linear-gradient(180deg,var(--bg),#0b1330 40%,#1a0b10 80%,var(--bg))">
+  <div class="wrap">
+    <span class="eyebrow rv">La saga · le jeu</span>
     <h2 class="rv">X <span class="gold">SAPHIR</span></h2>
-    <p class="lead rv d1">Dix tomes. Un héros. Les Trois Forces. Découvrez les couvertures de la saga.</p>
+    <p class="lead rv d1">Les dix tomes sont terminés et disponibles. Un héros, Calpros, les Trois Forces, un clan et le Saphir des Deux Mondes. Voici les couvertures, puis l'univers du jeu qui arrive.</p>
   </div>
   <div class="tomes">
 %%TOMES%%
   </div>
-
   <div class="wrap">
     <div class="wide rv" style="margin-top:20px"><video id="v-xs" muted loop playsinline preload="none" poster="img/p-xsaphir-intro.webp"><source src="video/xsaphir-intro.mp4" type="video/mp4"></video></div>
-    <h3 class="rv" style="margin:60px 0 18px;font-size:clamp(1.5rem,6vw,2.4rem)">X SAPHIR Arena · <span class="gold">Calpros VS KOR-MAL</span></h3>
+    <h3 class="sub rv"><small>Bientôt disponible</small>X SAPHIR <span class="gold">Arena</span></h3>
+    <p class="lead rv d1">Le jeu de combat de la saga : des héros, des héroïnes et des adversaires redoutables, dans des décors inspirés de Pointe-Noire et de Brazzaville. Voici les affiches de l'univers.</p>
+  </div>
+%%ARENA_AFF%%
+  <div class="wrap"><h3 class="sub rv"><small>Les personnages</small>Qui sont-ils <span class="gold">?</span></h3></div>
+  <div class="herosrow">%%HEROS%%</div>
+  <div class="wrap">
+    <h3 class="sub rv"><small>Le duel</small>Calpros <span class="gold">VS</span> KOR-MAL</h3>
     <div class="duel rv">
       <div class="side"><img src="img/x-calpros.webp" alt="Calpros, le porteur des Trois Forces" loading="lazy"><div class="nm">CALPROS</div></div>
       <div class="side k"><img src="img/x-kormal.webp" alt="KOR-MAL" loading="lazy"><div class="nm">KOR-MAL</div></div>
       <div class="vs">VS</div>
     </div>
-    <div class="gridcards">
-      <div class="bientot rv"><div><span>BIENTÔT</span><b>CALPROS VS CRAVOS</b></div></div>
-      <div class="jeu rv d1"><img src="img/x-arena-saga.webp" alt="Affiche du jeu X SAPHIR Arena" loading="lazy"><div><span>JEU EN PRÉPARATION</span><b>X SAPHIR Arena</b></div></div>
-      <div class="jeu rv d2"><img src="img/g-astro.webp" alt="Jeu ASTRO QUEST" loading="lazy"><div><span>JEU EN COURS</span><b>ASTRO QUEST</b></div></div>
-    </div>
+    <div class="bientot rv" style="margin-top:14px;aspect-ratio:2/.9"><div><span>BIENTÔT</span><b>CALPROS VS CRAVOS</b></div></div>
+    <h3 class="sub rv"><small>En préparation</small>Dans les coulisses du <span class="gold">jeu</span></h3>
   </div>
+%%CONCEPTS%%
+  <div class="wrap">
+    <h3 class="sub rv"><small>Jeu en cours</small>ASTRO <span class="gold">QUEST</span></h3>
+    <p class="lead rv d1">Un jeu d'aventure à travers le système solaire : huit planètes, des questions d'astronomie et des gardiens à vaincre. Créé par STAR ENTREPRISE.</p>
+  </div>
+%%ASTRO%%
 </section>
 
 <section id="creations">
   <div class="wrap">
     <span class="eyebrow rv">Créations de STAR ENTREPRISE</span>
     <h2 class="rv">Des marques qui <span class="gold">donnent envie</span></h2>
-    <p class="lead rv d1">Alimentation, santé, protection, éducation, culture : toutes ces marques sont nées chez STAR ENTREPRISE.</p>
-    <div class="mosaic">
-      <figure class="rv"><img src="img/c-lamah-poster.webp" alt="Pices LAMAH" loading="lazy"><figcaption>Pices LAMAH</figcaption></figure>
-      <figure class="rv d1"><img src="img/c-pioupiou.webp" alt="PIOUPIOU" loading="lazy"><figcaption>PIOUPIOU</figcaption></figure>
-      <figure class="rv d2"><img src="img/c-lapinbio.webp" alt="Lapin Bio" loading="lazy"><figcaption>Lapin Bio</figcaption></figure>
-      <figure class="rv"><img src="img/c-bissapop.webp" alt="BISSA POP" loading="lazy"><figcaption>BISSA POP</figcaption></figure>
-      <figure class="rv d1"><img src="img/c-burkina.webp" alt="Burkina Faso Bio" loading="lazy"><figcaption>Burkina Faso Bio</figcaption></figure>
-      <figure class="rv d2"><img src="img/c-sosdoc.webp" alt="SOS DOC" loading="lazy"><figcaption>SOS DOC</figcaption></figure>
-      <figure class="rv"><img src="img/c-staralerte.webp" alt="STAR ALERTE" loading="lazy"><figcaption>STAR ALERTE</figcaption></figure>
-      <figure class="rv d1"><img src="img/c-kindimbou.webp" alt="Kindimbou" loading="lazy"><figcaption>Kindimbou</figcaption></figure>
-      <figure class="rv d2"><img src="img/c-dinnovation-btp.webp" alt="D-Innovation BTP" loading="lazy"><figcaption>D-Innovation BTP</figcaption></figure>
-    </div>
+    <p class="lead rv d1">Alimentation, enfance, santé, sécurité, infrastructures, assistance : ces marques et ces identités sont nées chez STAR ENTREPRISE.</p>
+  </div>
+%%MARQUES%%
+  <div class="wrap">
     <div class="duo" style="margin-top:70px">
       <div class="wide rv" style="aspect-ratio:9/16;max-width:340px;margin-inline:auto"><video id="v-star" playsinline preload="none" poster="img/p-star-entreprise.webp" controls><source src="video/star-entreprise.mp4" type="video/mp4"></video></div>
-      <div><span class="eyebrow rv">Le film</span><h2 class="rv" style="font-size:clamp(1.8rem,6.6vw,3rem)">Un seul groupe. <span class="gold">Toutes les solutions.</span></h2><p class="lead rv d1">Regardez STAR ENTREPRISE en 20 secondes. Et pour vos mariages, anniversaires et grands événements :</p>
-      <div class="wide rv d2" style="aspect-ratio:9/16;max-width:260px;margin-top:16px"><video id="v-ev" muted loop playsinline preload="none" poster="img/p-events.webp" controls><source src="video/events.mp4" type="video/mp4"></video></div></div>
+      <div><span class="eyebrow rv">Le film</span><h2 class="rv" style="font-size:clamp(1.8rem,6.6vw,3rem)">Un seul groupe. <span class="gold">Toutes les solutions.</span></h2><p class="lead rv d1">STAR ENTREPRISE en moins de vingt-cinq secondes : restaurant, salle de sport, yaourt, entreprise… votre projet a sa place ici.</p></div>
     </div>
+  </div>
+</section>
+
+<section id="histoire">
+  <div class="wrap">
+    <span class="eyebrow rv">Le blog de STAR ENTREPRISE</span>
+    <h2 class="rv">Notre histoire, <span class="gold">en détail</span></h2>
+    <p class="lead rv d1">Pourquoi un seul groupe ? Comment travaillons-nous ? Ce que vous pouvez attendre de nous.</p>
+
+    <div class="article rv"><div><span class="eyebrow">Article 1</span><h3>Une seule étoile, des métiers qui se parlent</h3><p class="ital">Ce que la santé, l'habitat, l'énergie et la création ont en commun.</p></div>
+      <div><p>STAR ENTREPRISE est née d'une idée simple : au lieu de multiplier les interlocuteurs, réunir des métiers utiles à la vie de tous les jours sous une même exigence. Une famille peut ainsi épargner avec LIBOKÉ, se soigner à la Clinique Havre de Vie, aménager sa maison avec STAR GALERIE MEUBLES, s'équiper en énergie solaire avec STAR ÉNERGIE, et garder le lien avec ses proches sur KOMYO, sans repartir de zéro à chaque fois.</p><p style="margin-top:12px">Un seul compte, plusieurs services, un paiement sécurisé et une assistance rapide : c'est la promesse du groupe. Et avec STAR MBOTÉ, la fidélité est récompensée dans toutes les filiales.</p></div></div>
+
+    <div class="article rv"><div><span class="eyebrow">Article 2</span><h3>L'exigence STAR ENTREPRISE, appliquée à chaque détail</h3><p class="ital">Quatre habitudes qui ne changent pas, d'une filiale à l'autre.</p></div>
+      <div><div class="engage" style="margin-top:0;grid-template-columns:1fr 1fr"><div><b>Écoute</b><span>Nous partons de votre besoin, pas de notre catalogue.</span></div><div><b>Qualité</b><span>Des produits et des équipes sélectionnés avec soin.</span></div><div><b>Transparence</b><span>État, délais et conditions annoncés sans surprise.</span></div><div><b>Suivi</b><span>Nous restons présents après la prestation.</span></div></div></div></div>
+
+    <div class="article rv"><div><span class="eyebrow">Article 3</span><h3>Innover depuis le Congo</h3><p class="ital">Des applications, de l'intelligence artificielle et une saga, créées chez nous.</p></div>
+      <div><p>STAR ENTREPRISE ne se contente pas de distribuer : elle crée. KOMYO, le réseau social qui réunit la famille. Keydou, le compagnon qui répond et qui guide. STAR TECH, nos technologies de calcul graphique et d'intelligence artificielle qui tournent sur un simple téléphone. X SAPHIR, une saga de dix tomes devenue univers de jeu. Chaque création porte la même signature et reste la propriété de STAR ENTREPRISE.</p></div></div>
+
+    <h3 class="sub rv"><small>Questions fréquentes</small>Vous vous <span class="gold">demandez</span>…</h3>
+    <details class="q rv"><summary>Comment vous contacter ?</summary><p>Par WhatsApp au +242 06 656 50 50 (service client), par e-mail à contact@starentreprise.com ou par téléphone. Nous sommes à Brazzaville et à Pointe-Noire.</p></details>
+    <details class="q rv"><summary>Comment payer ?</summary><p>Selon les services : Mobile Money, Airtel Money ou paiement à la livraison. Demandez-nous le détail pour la filiale qui vous intéresse.</p></details>
+    <details class="q rv"><summary>Comment obtenir un prix ou un devis ?</summary><p>Écrivez-nous sur WhatsApp en indiquant la filiale et votre besoin : nous vous répondons avec une proposition adaptée.</p></details>
+    <details class="q rv"><summary>Comment rejoindre l'équipe ?</summary><p>Remplissez le formulaire ci-dessous et joignez votre CV (PDF ou Word, 5 Mo maximum) : l'équipe recrutement vous recontacte.</p></details>
+    <details class="q rv"><summary>Puis-je utiliser vos images, logos ou vidéos ?</summary><p>Non, sans autorisation écrite. Tous les droits sont réservés à STAR ENTREPRISE. Pour une collaboration ou un partenariat, contactez-nous.</p></details>
   </div>
 </section>
 
@@ -540,11 +715,10 @@ var ms=$$('span',m),mio=io&&new IntersectionObserver(function(es){es.forEach(fun
 var cio=io&&new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;var el=e.target,n=+el.dataset.n,t0=performance.now(),d=reduit?1:1400;(function f(t){var k=Math.min(1,(t-t0)/d);el.textContent=Math.round(n*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(f)})(t0);cio.unobserve(el)})},{threshold:.6});
 $$('.chiffre b').forEach(function(b){cio?cio.observe(b):b.textContent=b.dataset.n});
 
-/* ----- filiales : carte active + barre ----- */
-var fs=$('#fstrip'),fc=$$('.fcard',fs),fb=$('#fbar');
-function actif(){var c=fs.scrollLeft+fs.clientWidth/2,best=0,bd=1e9;fc.forEach(function(k,i){var d=Math.abs(k.offsetLeft+k.offsetWidth/2-c);if(d<bd){bd=d;best=i}});fc.forEach(function(k,i){k.classList.toggle('act',i===best)});var mx=fs.scrollWidth-fs.clientWidth;fb.style.width=(100/fc.length+(mx>0?fs.scrollLeft/mx*(100-100/fc.length):0))+'%'}
-fs.addEventListener('scroll',actif,{passive:true});addEventListener('resize',actif);actif();
-(function(){var d=0,x0=0,s0=0;fs.addEventListener('pointerdown',function(e){if(e.pointerType!=='mouse')return;d=1;x0=e.clientX;s0=fs.scrollLeft;fs.style.scrollSnapType='none';fs.style.cursor='grabbing'});addEventListener('pointermove',function(e){if(d)fs.scrollLeft=s0-(e.clientX-x0)});addEventListener('pointerup',function(){if(d){d=0;fs.style.scrollSnapType='';fs.style.cursor=''}})})();
+/* ----- filiales : puce active + chapitre vivant ----- */
+var chips=$$('#chips a'),chaps=$$('.chap');
+if('IntersectionObserver' in window){new IntersectionObserver(function(es){body.classList.toggle('in-fil',es[0].isIntersecting)},{rootMargin:'-80px 0px -60% 0px'}).observe($('#filiales'))}
+if('IntersectionObserver' in window){var cio2=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');var n=e.target.dataset.n;chips.forEach(function(c){var on=c.dataset.n===n;c.classList.toggle('on',on);if(on){var bar=c.parentNode;bar.scrollTo({left:c.offsetLeft-bar.clientWidth/2+c.offsetWidth/2,behavior:'smooth'})}})}})},{threshold:.35});chaps.forEach(function(c){cio2.observe(c)})}else{chaps.forEach(function(c){c.classList.add('in')})}
 
 /* ----- inclinaison 3D des affiches ----- */
 if(!reduit&&matchMedia('(hover:hover)').matches){$$('.tilt').forEach(function(el){el.addEventListener('pointermove',function(e){var r=el.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;el.style.transform='rotateY('+(x*14)+'deg) rotateX('+(-y*14)+'deg) scale(1.03)'});el.addEventListener('pointerleave',function(){el.style.transform=''})})}
@@ -588,7 +762,7 @@ f.addEventListener('submit',function(e){e.preventDefault();msg.style.color='';
 
 def page(prefix=''):
     marq = ''.join(f'<span>★</span>{E(f[0])} ' for f in FILIALES)
-    b = (BODY.replace('%%FILIALES%%', FIL).replace('%%TOMES%%', TOMES).replace('%%MARQUEE%%', marq)
+    b = (BODY.replace('%%ARENA_AFF%%', ARENA_AFF).replace('%%HEROS%%', HEROS).replace('%%CONCEPTS%%', CONCEPTS).replace('%%ASTRO%%', ASTRO).replace('%%MARQUES%%', MARQUES).replace('%%FILIALES%%', FIL).replace('%%CHIPS%%', CHIPS).replace('%%TOMES%%', TOMES).replace('%%MARQUEE%%', marq)
          .replace('%%WA%%', WA).replace('%%MAIL%%', MAIL).replace('%%WASVG%%', WA_SVG))
     return ('<!doctype html><html lang="fr"><head><meta charset="utf-8">'
             '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'

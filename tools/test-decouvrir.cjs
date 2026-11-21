@@ -12,14 +12,11 @@ const path = require('path');
   await shot('01-intro');
   await p.click('#entrer'); await p.waitForTimeout(500); await shot('02-rideau'); await p.waitForTimeout(1800); await shot('03-hero');
   const intro = await p.evaluate(() => getComputedStyle(document.getElementById('intro')).display); console.log('intro masquée:', intro === 'none');
-  // défilement section par section
-  const ids = ['manifeste', 'fondateur', 'filiales', 'komyo', 'energie', 'tech', 'culture', 'creations', 'contact'];
+  // défilement : sections puis chapitres de filiales (cibles représentatives)
+  const ids = ['manifeste', 'fondateur', 'filiales', 'f1', 'f2', 'f4', 'f6', 'f8', 'f10', 'f11', 'f15', 'f17', 'f19', 'f20', 'f21', 'komyo', 'tech', 'culture', 'saga', 'creations', 'histoire', 'contact'];
   let k = 4;
-  for (const id of ids) { await p.evaluate(i => document.getElementById(i).scrollIntoView({ behavior: 'instant' }), id); await p.waitForTimeout(1300); await p.evaluate(() => window.scrollBy(0, 80)); await p.waitForTimeout(500); await shot(String(k++).padStart(2, '0') + '-' + id); }
-  // filiales : défile jusqu'à la fin
-  await p.evaluate(() => document.getElementById('filiales').scrollIntoView({ behavior: 'instant' })); await p.waitForTimeout(500);
-  for (const i of [5, 16, 20]) { await p.evaluate(n => { const s = document.getElementById('fstrip'); const c = s.children[n]; s.scrollTo({ left: c.offsetLeft - (s.clientWidth - c.offsetWidth) / 2, behavior: 'instant' }) }, i); await p.waitForTimeout(900); await shot('f-' + String(i + 1).padStart(2, '0')); }
-  const nb = await p.evaluate(() => document.querySelectorAll('.fcard').length); console.log('cartes filiales:', nb);
+  for (const id of ids) { await p.evaluate(i => document.getElementById(i).scrollIntoView({ behavior: 'instant' }), id); await p.waitForTimeout(1100); await p.evaluate(() => window.scrollBy(0, 40)); await p.waitForTimeout(400); await shot(String(k++).padStart(2, '0') + '-' + id); }
+  const nb = await p.evaluate(() => document.querySelectorAll('.chap').length); console.log('chapitres filiales:', nb);
   // images cassées
   const casse = await p.evaluate(() => [...document.images].filter(i => i.complete === false || (i.complete && i.naturalWidth === 0 && i.loading !== 'lazy')).map(i => i.src.slice(-40)));
   await p.evaluate(() => [...document.images].forEach(i => i.loading = 'eager')); await p.waitForTimeout(2500);

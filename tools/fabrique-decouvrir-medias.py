@@ -59,7 +59,7 @@ for k, f in {'calpros': 'arena/img/realiste/calpros-idle.webp', 'kormal': 'arena
              'arena-pursuit': 'arena/img/realiste/affiche-film-pursuit.webp'}.items():
     img(R(f), 'x-' + k, 760, 78)
 # --- créations (portfolio du site)
-for k in ['bissapop', 'burkina', 'dinnovation-btp', 'kindimbou', 'lamah-poster', 'lapinbio', 'pioupiou', 'sosdoc', 'staralerte', 'dinnovation-pressing']:
+for k in ['burkina', 'dinnovation-btp', 'kindimbou', 'lamah-poster', 'lapinbio', 'pioupiou', 'sosdoc', 'staralerte', 'dinnovation-pressing']:
     img(R(f'assets/img/portfolio-{k}.webp'), 'c-' + k, 640, 76)
 # --- jeu en cours
 S = os.environ.get('ASTRO_APERCUS', '')
@@ -78,9 +78,54 @@ def vid(src, name, w, h, crf, audio=True, t=None):
     cmd += ['-c:a', 'aac', '-b:a', '64k'] if audio else ['-an']
     subprocess.run(cmd + [V + name + '.mp4'], check=True)
     print(name, os.path.getsize(V + name + '.mp4') // 1024, 'Ko')
-vid(R('assets/social/star-entreprise-video-wow-2026-08.mp4'), 'star-entreprise', 540, 960, 30)
-vid(R('assets/video/pub-komyo-monde/pub-komyo-monde-v2-720p.mp4'), 'komyo-monde', 540, 960, 31)
-vid(R('pilipili-events/assets/video/showreel.mp4'), 'events', 540, 960, 32, audio=False)
+if '--video' in sys.argv: vid(R('assets/social/star-entreprise-video-wow-2026-08.mp4'), 'star-entreprise', 540, 960, 30)
+if '--video' in sys.argv: vid(R('pilipili-events/assets/video/showreel.mp4'), 'events', 540, 960, 32, audio=False)
 up = os.environ.get('XSAPHIR_INTRO', '')
-if up and os.path.exists(up):
+if '--video' in sys.argv and up and os.path.exists(up):
     vid(up, 'xsaphir-intro', 960, 540, 29, audio=False)
+
+kg = os.environ.get('KOMYO_GENERIQUE', '')
+if '--video' in sys.argv and kg and os.path.exists(kg):
+    vid(kg, 'komyo-generique', 540, 960, 31)
+
+# ================= V2 : grandes images par filiale, univers X SAPHIR Arena, créations =================
+def gal(src, name, w=1200, q=80): img(src, name, w, q)
+ZI = lambda f: Z + f
+V2 = {
+ 'g-liboke-social': ZI('liboke-accompagnement-social-des-familles.jpg'), 'g-clinique-logo': ZI('logo-clinique-havre-de-vie.jpg'),
+ 'g-immo-chambre': ZI('mobilier-residentiel-chambre.jpg'), 'g-meubles-chambre': ZI('mobilier-residentiel-chambre.jpg'),
+ 'g-decobaby-ours': ZI('0002.jpg'), 'g-jet-2': ZI('showcase-new.jpg'),
+ 'g-beach-panorama': ZI('vue-de-star-beach-village-bord-de-mer-a-pointe-noire.jpg'),
+ 'g-wedding-mariee': ZI('0006.jpg'), 'g-wedding-cortege': ZI('0007.jpg'), 'g-wedding-m1': ZI('M1.jpg'), 'g-wedding-m2': ZI('M2.jpg'), 'g-wedding-5': ZI('star-beauty-wedding-5.jpg'),
+ 'g-casa-coiffure': ZI('0008.jpg'), 'g-casa-tresses': ZI('0009.jpg'), 'g-casa-maquillage': ZI('0010.jpg'), 'g-casa-soin': ZI('0011.jpg'),
+ 'g-art-1': ZI('carryo-kaleidoscope.jpg'), 'g-art-2': ZI('carryo-racines.jpg'), 'g-art-3': ZI('carryo-elegance.jpg'), 'g-art-4': ZI('carryo-regard-sauvage.jpg'),
+ 'g-art-5': ZI('carryo-vibrations-d.jpg'), 'g-art-6': ZI('carryo-visages-multiples.jpg'), 'g-art-7': ZI('carryo-marche-de-couleurs.jpg'), 'g-art-8': ZI('carryo-eclats-d.jpg'),
+ 'g-creat-lamah': R('alpha/assets/img/carousel-branding.webp'), 'g-creat-services': R('alpha/assets/img/carousel-services.webp'),
+ 'g-creat-idees': R('alpha/assets/img/carousel-idees.webp'), 'g-creat-diamant': R('alpha/assets/img/carousel-diamant.webp'),
+ 'g-creat-cle': R('alpha/assets/img/carousel-cle.webp'), 'g-sarah': R('alpha/assets/img/carousel-equipe.webp'),
+ 'g-energie-carte': ZI('star-energie-carte.jpg'),
+ # X SAPHIR Arena
+ 'ar-affiche-A': R('arena/img/realiste/affiche-A.webp'), 'ar-affiche-B': R('arena/img/realiste/affiche-B.webp'),
+ 'ar-film-pursuit': R('arena/img/realiste/affiche-film-pursuit.webp'), 'ar-legendes-1': R('arena/img/realiste/affiche-legendes-1.webp'),
+ 'ar-legendes-2': R('arena/img/realiste/affiche-legendes-2.webp'), 'ar-pursuit-1': R('arena/img/realiste/affiche-pursuit-1.webp'),
+ 'ar-pursuit-2': R('arena/img/realiste/affiche-pursuit-2.webp'),
+ 'ar-carte-calpros': R('arena/img/realiste/carte-calpros.webp'), 'ar-carte-nia': R('arena/img/realiste/carte-nia.webp'),
+ 'ar-carte-ayanda': R('arena/img/realiste/carte-ayanda.webp'), 'ar-carte-kormal': R('arena/img/realiste/carte-kormal.webp'),
+ 'ar-carte-nakata': R('arena/img/realiste/carte-nakata.webp'),
+ 'ar-concept-1': R('docs/arena/catalogue/references/arena-concept-jeu-aelys-zahra-noxia.png'),
+ 'ar-concept-2': R('docs/arena/catalogue/references/arena-affiche-raven-zara-luna.png'),
+ 'ar-luna': R('docs/arena/catalogue/references/arena-fiche-luna-blaze.png'),
+}
+for k, f in V2.items():
+    try: gal(f, k, 1100 if k.startswith(('g-art', 'g-wedding', 'g-casa', 'ar-')) else 1000, 80)
+    except Exception as e: print('ABSENT', k, e)
+for f in ['playfair-display-latin-700-normal', 'playfair-display-latin-800-normal', 'playfair-display-latin-700-italic',
+          'cormorant-garamond-latin-500-italic', 'cormorant-garamond-latin-600-italic', 'great-vibes-latin-400-normal']:
+    for d in ['playfair-display', 'cormorant-garamond', 'great-vibes']:
+        s = os.environ.get('FONTSOURCE', '') + f'/{d}/files/{f}.woff2'
+        if os.path.exists(s): shutil.copy(s, ROOT + '/decouvrir/polices/'); print('police', f)
+open(ROOT + '/decouvrir/polices/LICENCES.txt', 'a').write("\n- Playfair Display, Cormorant Garamond, Great Vibes (sous-ensembles latins, via Fontsource) : SIL Open Font License 1.1.\n")
+# aperçus du jeu ASTRO QUEST (créé par STAR ENTREPRISE)
+if S and os.path.isdir(S):
+    for n, f in [('g-astro-regles', '2-regles.png'), ('g-astro-vol', '3-vol-ennemis.png'), ('g-astro-gardien', '4-jupiter-gardien.png')]:
+        if os.path.exists(S + '/' + f): img(S + '/' + f, n, 700, 80)
