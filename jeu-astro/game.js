@@ -17,6 +17,8 @@
   var MONDES = window.ASTRO_MONDES;
   function lsGet(k, d) { try { var v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* mode privé */ } }
+  var STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.4l2.9 6.2 6.7.8-5 4.6 1.3 6.7L12 17.4l-5.9 3.3 1.3-6.7-5-4.6 6.7-.8z"/></svg>';
+  var ICO_SON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z"/><path d="M15.5 8.5a5 5 0 010 7M18 6a8.5 8.5 0 010 12" fill="none" stroke-width="1.7" stroke-linecap="round"/></svg>', ICO_MUET = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z"/><path d="M16 9.5l5 5M21 9.5l-5 5" fill="none" stroke-width="1.7" stroke-linecap="round"/></svg>';
 
   /* ====================== Écran ====================== */
   var cvs = $('c'), ctx = cvs.getContext('2d'), jeu = $('jeu');
@@ -125,6 +127,7 @@
   }
   // Planète « sphère » : texture qui tourne + ombre + halo d'atmosphère
   function dessinerPlanete(c, tex, cx, cy, r, rot, halo, anneaux, vdec) {
+    if (window.ASTRO_PREMIUM && window.ASTRO_PREMIUM.planete(c, tex, cx, cy, r, rot, halo, anneaux, vdec)) return;
     c.save();
     if (anneaux) dessinerAnneaux(c, cx, cy, r, true);
     c.globalCompositeOperation = 'lighter';
@@ -150,6 +153,7 @@
   /* ====================== Fonds : nébuleuse + étoiles ====================== */
   var neb = null, nebMonde = -1, stars = [];
   function creerNebuleuse(niv) {
+    if (window.ASTRO_PREMIUM) return window.ASTRO_PREMIUM.nebuleuse(W, H, MONDES[Math.max(0, niv)].nebuleuse);
     var m = MONDES[Math.max(0, niv)], c = document.createElement('canvas'); c.width = W; c.height = H; var x = c.getContext('2d');
     var g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#03041a'); g.addColorStop(.5, '#080c30'); g.addColorStop(1, '#04051c'); x.fillStyle = g; x.fillRect(0, 0, W, H);
     x.globalCompositeOperation = 'lighter';
@@ -165,12 +169,13 @@
   function initEtoiles() {
     stars = [];
     [[70, .6, 12], [44, 1.05, 32], [24, 1.7, 64]].forEach(function (L, l) {
-      for (var i = 0; i < L[0]; i++) stars.push({ x: rnd(0, W), y: rnd(0, H), r: L[1] * rnd(.7, 1.25), v: L[2], l: l, tw: rnd(0, TAU), teinte: Math.random() < .2 ? '#ffd9a8' : Math.random() < .3 ? '#b8d4ff' : '#ffffff' });
+      for (var i = 0; i < L[0]; i++) stars.push({ big: l === 2 && i < 5, x: rnd(0, W), y: rnd(0, H), r: L[1] * rnd(.7, 1.25), v: L[2], l: l, tw: rnd(0, TAU), teinte: Math.random() < .2 ? '#ffd9a8' : Math.random() < .3 ? '#b8d4ff' : '#ffffff' });
     });
   }
 
   /* ====================== Dessins : fusée, monstres, gardien ====================== */
   function dessinerFusee(c, x, y, o) {
+    if (window.ASTRO_PREMIUM) return window.ASTRO_PREMIUM.fusee(c, x, y, o);
     o = o || {}; var s = o.s || 1, fl = o.flamme == null ? 1 : o.flamme, T = o.t || 0;
     c.save(); c.translate(x, y); c.rotate(o.incl || 0); c.scale(s, s);
     if (o.bouclier) {   // bulle de protection
@@ -241,10 +246,11 @@
     [-1, 1].forEach(function (sg) { c.fillStyle = '#fff'; c.beginPath(); c.arc(sg * r * .3, -r * .08, r * .22, 0, TAU); c.fill(); c.fillStyle = '#300'; c.beginPath(); c.arc(sg * r * .3 + Math.cos(ang) * 2, -r * .08 + Math.sin(ang) * 2, r * .1, 0, TAU); c.fill(); c.strokeStyle = '#300'; c.lineWidth = 2.2; c.beginPath(); c.moveTo(sg * r * .55, -r * .38); c.lineTo(sg * r * .08, -r * .22); c.stroke(); });
     c.restore();
   }
-  var DESSIN = { blob: dessinerBlob, poulpe: dessinerPoulpe, soucoupe: dessinerSoucoupe, piquant: dessinerPiquant };
+  var DESSIN = window.ASTRO_PREMIUM ? { blob: window.ASTRO_PREMIUM.drone, poulpe: window.ASTRO_PREMIUM.chasseur, soucoupe: window.ASTRO_PREMIUM.soucoupe, piquant: window.ASTRO_PREMIUM.mine } : { blob: dessinerBlob, poulpe: dessinerPoulpe, soucoupe: dessinerSoucoupe, piquant: dessinerPiquant };
 
   // Le gardien de la planète (grand, flottant, aura de la couleur du monde)
   function dessinerGardien(c, x, y, s, t, humeur, halo) {
+    if (window.ASTRO_PREMIUM) return window.ASTRO_PREMIUM.gardien(c, x, y, s, t, humeur, halo);
     c.save(); c.translate(x, y + Math.sin(t * 2) * 4); c.scale(s, s);
     c.globalCompositeOperation = 'lighter'; var au = c.createRadialGradient(0, -10, 10, 0, -10, 95); au.addColorStop(0, halo + '.5)'); au.addColorStop(1, halo + '0)'); c.fillStyle = au; c.beginPath(); c.arc(0, -10, 95, 0, TAU); c.fill(); c.globalCompositeOperation = 'source-over';
     var cp = c.createLinearGradient(0, 0, 0, 80); cp.addColorStop(0, '#3a2480'); cp.addColorStop(1, '#150a40'); c.fillStyle = cp;
@@ -350,7 +356,7 @@
     poserQuestion(); hud(true);
   }
   function poserQuestion() {
-    var q = S.questions[S.essai - 1], m = monde(); $('qGard').textContent = m.gardien; $('qChance').textContent = S.essai === 1 ? 'Question 1 sur 2' : '⚠ Seconde chance'; $('qtxt').textContent = q.q;
+    var q = S.questions[S.essai - 1], m = monde(); $('qGard').textContent = m.gardien; $('qChance').textContent = S.essai === 1 ? 'Question 1 sur 2' : 'Seconde chance'; $('qtxt').textContent = q.q;
     var opts = shuffle([{ t: q.ok, b: true }].concat(q.faux.map(function (f) { return { t: f, b: false }; }))), box = $('qrep'); box.innerHTML = '';
     opts.forEach(function (o, i) { var b = document.createElement('button'); b.className = 'rep'; b.type = 'button'; b.innerHTML = '<b>' + 'ABCD'.charAt(i) + '</b><span></span>'; b.lastChild.textContent = o.t; b.dataset.bon = o.b ? '1' : '0'; b.addEventListener('click', function () { repondre(b); }); box.appendChild(b); });
     $('msg').textContent = ''; $('msg').className = ''; montrer('quiz');
@@ -359,12 +365,12 @@
   function repondre(btn) {
     var q = S.questions[S.essai - 1], bons = Array.prototype.slice.call($('qrep').children); bons.forEach(function (b) { b.disabled = true; }); AU.init(); var ok = btn.dataset.bon === '1';
     if (ok) {
-      btn.classList.add('bon'); $('msg').className = 'ok'; $('msg').textContent = 'Bonne réponse ! ✨'; AU.bon(); S.score += S.essai === 1 ? 100 : 50; majHud(); S.gardien.humeur = 'salut';
+      btn.classList.add('bon'); $('msg').className = 'ok'; $('msg').textContent = 'Bonne réponse'; AU.bon(); S.score += S.essai === 1 ? 100 : 50; majHud(); S.gardien.humeur = 'salut';
       for (var i = 0; i < 24; i++) addPart({ k: 'etin', x: W / 2 + rnd(-40, 40), y: 210, vx: rnd(-120, 120), vy: rnd(-160, 20), r: 2.2, vie: rnd(.5, 1), max: 1, c: [255, 230, 120] });
       setTimeout(atterrir, 1250);
     } else {
       btn.classList.add('mauvais'); bons.forEach(function (b) { if (b.dataset.bon === '1') b.classList.add('revele'); }); S.erreurs++; AU.mauvais(); vibre(120); flashRouge(); if (!REDUIT) S.shake = 8; S.gardien.humeur = 'rire';
-      $('msg').className = 'ko'; $('msg').textContent = '❌ Mauvaise réponse ! La bonne réponse était : ' + q.ok;
+      $('msg').className = 'ko'; $('msg').textContent = 'Mauvaise réponse. La bonne réponse était : ' + q.ok;
       if (S.essai === 1) setTimeout(function () { S.essai = 2; S.gardien.humeur = ''; poserQuestion(); }, 2300);
       else setTimeout(perdu, 2300);
     }
@@ -375,8 +381,8 @@
   }
   function pose() {
     var etoiles = S.essai === 1 ? (S.bouclier >= 2 ? 3 : 2) : 1; S.score += S.bouclier * 20; majHud(); S.derniereEtoiles = etoiles;
-    $('pPlan').textContent = monde().planete.toUpperCase(); $('pEtoiles').innerHTML = [1, 2, 3].map(function (i) { return '<i class="' + (i <= etoiles ? '' : 'vide') + '" style="animation-delay:' + (i * .18) + 's">⭐</i>'; }).join('');
-    $('pScore').textContent = S.score; $('pFait').textContent = monde().fait; $('bSuite').textContent = S.niveau === MONDES.length - 1 ? '🏆 TERMINER LA MISSION' : '🚀 DÉCOLLER VERS ' + MONDES[S.niveau + 1].planete.toUpperCase();
+    $('pPlan').textContent = monde().planete.toUpperCase(); $('pEtoiles').innerHTML = [1, 2, 3].map(function (i) { return '<i class="' + (i <= etoiles ? '' : 'vide') + '" style="animation-delay:' + (i * .18) + 's">' + STAR_SVG + '</i>'; }).join('');
+    $('pScore').textContent = S.score; $('pFait').textContent = monde().fait; $('bSuite').textContent = S.niveau === MONDES.length - 1 ? 'TERMINER LA MISSION' : 'DÉCOLLER VERS ' + MONDES[S.niveau + 1].planete.toUpperCase();
     montrer('pose'); S.mode = 'pose'; hud(false);
   }
   function suite() {
@@ -395,7 +401,7 @@
   }
   function victoire() {
     montrer(null); hud(false); S.mode = 'gagne'; S.tm = 0; S.planete.vis = false; S.sol.vis = false; preparerFond(7); var nouveau = sauveScore(); var et = S.erreurs === 0 ? 3 : S.erreurs <= 2 ? 2 : 1;
-    $('gEtoiles').innerHTML = [1, 2, 3].map(function (i) { return '<i class="' + (i <= et ? '' : 'vide') + '" style="animation-delay:' + (i * .2) + 's">⭐</i>'; }).join(''); $('gScore').textContent = S.score;
+    $('gEtoiles').innerHTML = [1, 2, 3].map(function (i) { return '<i class="' + (i <= et ? '' : 'vide') + '" style="animation-delay:' + (i * .2) + 's">' + STAR_SVG + '</i>'; }).join(''); $('gScore').textContent = S.score;
     $('gBest').innerHTML = nouveau ? '<span class="nouv">NOUVEAU RECORD !</span>' : 'Meilleur score : <b>' + S.meilleur + '</b>'; S.x = S.tx = W / 2; S.y = H - 150; AU.bon();
     setTimeout(function () { if (S.mode === 'gagne') montrer('gagne'); }, 900);
   }
@@ -508,6 +514,7 @@
     c.drawImage(neb, 0, S.defile % H, W, H); c.drawImage(neb, 0, (S.defile % H) - H, W, H);
     for (var i = 0; i < stars.length; i++) {
       var s = stars[i], al = .55 + .45 * Math.sin(S.t * 2 + s.tw), len = S.warp > 1.6 ? s.r * (1 + (S.warp - 1) * (s.l + .4) * 2.2) : 0;
+      if (s.big && !len && window.ASTRO_PREMIUM) { window.ASTRO_PREMIUM.etoileBrillante(c, s.x, s.y, s.r * 1.4, al, s.teinte); continue; }
       c.globalAlpha = al; c.fillStyle = s.teinte; if (len) c.fillRect(s.x - s.r / 2, s.y - len, s.r, len + s.r); else { c.beginPath(); c.arc(s.x, s.y, s.r, 0, TAU); c.fill(); }
     }
     c.globalAlpha = 1;
@@ -544,7 +551,7 @@
     });
     c.globalCompositeOperation = 'source-over';
     // textes flottants
-    c.font = '900 15px "Trebuchet MS",sans-serif'; c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = 'rgba(0,0,30,.8)';
+    c.font = '700 14px "JetBrains Mono","Inter Display",system-ui,sans-serif'; c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = 'rgba(0,0,30,.8)';
     S.textes.forEach(function (t) { c.globalAlpha = clamp(t.vie * 2, 0, 1); c.fillStyle = t.col; c.strokeText(t.txt, t.x, t.y); c.fillText(t.txt, t.x, t.y); }); c.globalAlpha = 1;
   }
   function dessinerDecorTitre(c) {
@@ -587,7 +594,7 @@
   $('bPause').addEventListener('click', basculerPause);
   $('bReprendre').addEventListener('click', basculerPause);
   $('bQuitter').addEventListener('click', function () { S.mode = 'titre'; versTitre(); });
-  function majBoutonSon() { $('bSon').textContent = AU.muet ? '🔇' : '🔊'; }
+  function majBoutonSon() { $('bSon').innerHTML = AU.muet ? ICO_MUET : ICO_SON; }
   $('bSon').addEventListener('click', function () { AU.muet = !AU.muet; lsSet('astro_muet', AU.muet ? '1' : '0'); majBoutonSon(); AU.init(); AU.clic(); });
 
   /* ====================== Installation sur le téléphone (PWA) ====================== */

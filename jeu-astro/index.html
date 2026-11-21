@@ -14,83 +14,91 @@
 <link rel="icon" href="icons/icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <style>
-:root{--cy:#4de1ff;--mg:#ff5fd2;--or:#ffb347;--gd:#ffd24d;--ok:#35e08a;--bad:#ff4d6d;--nuit:#05071a;--verre:rgba(10,14,44,.74)}
+@font-face{font-family:"Inter Display";font-weight:300;font-style:normal;font-display:swap;src:url(polices/inter-display-300.woff2) format("woff2")}
+@font-face{font-family:"Inter Display";font-weight:600;font-style:normal;font-display:swap;src:url(polices/inter-display-600.woff2) format("woff2")}
+@font-face{font-family:"Inter Display";font-weight:800;font-style:normal;font-display:swap;src:url(polices/inter-display-800.woff2) format("woff2")}
+@font-face{font-family:"JetBrains Mono";font-weight:500;font-style:normal;font-display:swap;src:url(polices/jbmono-500.woff2) format("woff2")}
+@font-face{font-family:"JetBrains Mono";font-weight:700;font-style:normal;font-display:swap;src:url(polices/jbmono-700.woff2) format("woff2")}
+:root{--cy:#7fe7ff;--cy2:#35c7f0;--or:#e9c46a;--gd:#f0cf7a;--ok:#3ddc97;--bad:#ff5a78;--nuit:#04060f;--verre:rgba(9,13,32,.62);--trait:rgba(190,215,255,.16);--txt:#e9eff9;--doux:#9aa9c6;--mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;--aff:"Inter Display","Inter","Segoe UI",system-ui,-apple-system,sans-serif}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
-html,body{margin:0;height:100%;background:var(--nuit);overflow:hidden;overscroll-behavior:none;touch-action:none;font-family:"Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif;color:#eaf4ff}
+html,body{margin:0;height:100%;background:var(--nuit);overflow:hidden;overscroll-behavior:none;touch-action:none;font-family:var(--aff);font-weight:300;color:var(--txt)}
 #jeu{position:fixed;left:50%;top:0;transform:translateX(-50%);height:100%;}
 canvas{display:block;width:100%;height:100%;touch-action:none}
+#jeu:after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 42%,rgba(0,0,0,0) 55%,rgba(0,0,8,.55) 100%)}   /* vignettage de cinéma */
+svg{fill:currentColor;stroke:currentColor;stroke-width:0}
 /* ------- Interface par-dessus le jeu ------- */
-#hud{position:absolute;left:0;right:0;top:0;padding:calc(10px + env(safe-area-inset-top)) 12px 0;pointer-events:none;display:none}
+#hud{position:absolute;left:0;right:0;top:0;padding:calc(10px + env(safe-area-inset-top)) 12px 0;pointer-events:none;display:none;z-index:2}
 #hud.on{display:block}
 .hrow{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.chip{background:var(--verre);border:1px solid rgba(120,210,255,.35);border-radius:14px;padding:6px 11px;font-weight:800;font-size:12.5px;letter-spacing:.04em;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 0 14px rgba(77,225,255,.18)}
-.chip b{color:var(--gd)}
-#boucl{display:flex;gap:4px}
-#boucl i{width:22px;height:9px;border-radius:5px;background:linear-gradient(90deg,#35e0ff,#4d7bff);box-shadow:0 0 8px #35e0ff;transition:.25s}
-#boucl i.off{background:#2a3050;box-shadow:none;opacity:.6}
-#prog{height:5px;border-radius:4px;background:rgba(255,255,255,.12);margin-top:8px;overflow:hidden}
-#prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cy),var(--mg));box-shadow:0 0 10px var(--cy);transition:width .25s}
-#btns{position:absolute;right:10px;top:calc(60px + env(safe-area-inset-top));display:none;flex-direction:column;gap:8px}
+.chip{background:var(--verre);border:1px solid var(--trait);border-radius:10px;padding:6px 11px;font:600 11px var(--aff);text-transform:uppercase;letter-spacing:.16em;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:inset 0 1px 0 rgba(255,255,255,.08);display:flex;align-items:center;gap:7px}
+.chip b{font:700 14px var(--mono);letter-spacing:0;color:var(--gd)}
+.chip svg{width:13px;height:13px;color:var(--gd);fill:var(--gd)}
+#boucl{display:flex;gap:4px;padding:8px 10px}
+#boucl i{width:20px;height:5px;border-radius:2px;background:linear-gradient(90deg,#7fe7ff,#35c7f0);box-shadow:0 0 8px rgba(127,231,255,.7);transition:.25s}
+#boucl i.off{background:#252c46;box-shadow:none}
+#prog{height:2px;border-radius:2px;background:rgba(255,255,255,.1);margin-top:9px;overflow:hidden}
+#prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cy2),var(--cy));box-shadow:0 0 8px var(--cy);transition:width .25s}
+#btns{position:absolute;right:10px;top:calc(60px + env(safe-area-inset-top));display:none;flex-direction:column;gap:8px;z-index:2}
 #btns.on{display:flex}
-#btns button{pointer-events:auto;width:40px;height:40px;border-radius:50%;border:1px solid rgba(120,210,255,.4);background:var(--verre);color:#fff;font-size:17px;backdrop-filter:blur(8px)}
-.ecran{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:calc(18px + env(safe-area-inset-top)) 18px calc(18px + env(safe-area-inset-bottom));text-align:center}
-.ecran.on{display:flex;animation:entree .45s ease both}
-@keyframes entree{from{opacity:0;transform:scale(.96) translateY(10px)}to{opacity:1;transform:none}}
-.logo{font-weight:900;font-size:clamp(40px,13vw,62px);line-height:.95;letter-spacing:.07em;margin:0;background:linear-gradient(180deg,#fff 0%,#8fe9ff 40%,#4d7bff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 18px rgba(77,225,255,.65));animation:flotte 3.2s ease-in-out infinite}
-.logo small{display:block;font-size:.34em;letter-spacing:.42em;color:var(--or);-webkit-text-fill-color:var(--or);margin-top:8px;filter:drop-shadow(0 0 8px rgba(255,179,71,.6))}
-@keyframes flotte{50%{transform:translateY(-7px)}}
-.sous{margin:14px 0 22px;color:#bfd6ff;font-size:15px;max-width:290px;line-height:1.45}
-.btn{pointer-events:auto;border:0;cursor:pointer;font:900 17px "Trebuchet MS","Segoe UI",system-ui,sans-serif;letter-spacing:.07em;color:#07102a;background:linear-gradient(180deg,#8fffd6,#35e08a 55%,#12b86a);border-radius:18px;padding:15px 34px;box-shadow:0 8px 0 #0a7a47,0 0 28px rgba(53,224,138,.55);transition:transform .08s,box-shadow .08s;min-width:210px}
-.btn:active{transform:translateY(5px);box-shadow:0 3px 0 #0a7a47,0 0 18px rgba(53,224,138,.5)}
-.btn.sec{background:linear-gradient(180deg,#5b6bb8,#3a4690);color:#fff;box-shadow:0 6px 0 #232c66;font-size:14px;padding:11px 24px;min-width:0;margin-top:16px}
-.btn.sec:active{box-shadow:0 2px 0 #232c66}
-.btn.rouge{background:linear-gradient(180deg,#ff9aa9,#ff4d6d 55%,#d12849);box-shadow:0 8px 0 #8a1830,0 0 28px rgba(255,77,109,.5);color:#fff}
-.meilleur{margin-top:18px;font-size:13px;color:#9fb6e8}
-.meilleur b{color:var(--gd)}
-.signature{position:absolute;left:0;right:0;bottom:calc(12px + env(safe-area-inset-bottom));font-size:11.5px;color:#8ea5da;letter-spacing:.06em}
-.signature b{color:var(--gd)}
-.carte{background:var(--verre);border:1px solid rgba(120,210,255,.4);border-radius:24px;padding:20px 18px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 0 36px rgba(77,225,255,.2),inset 0 0 24px rgba(77,225,255,.06);width:100%;max-width:420px}
-.regles{text-align:left;font-size:14px;line-height:1.5;margin:0;padding:0;list-style:none}
-.regles li{margin:8px 0;padding-left:30px;position:relative}
-.regles li:before{content:attr(data-i);position:absolute;left:0;top:0;font-size:19px}
+#btns button{pointer-events:auto;width:38px;height:38px;border-radius:10px;border:1px solid var(--trait);background:var(--verre);color:var(--txt);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:0}
+#btns svg{width:18px;height:18px}
+.ecran{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:calc(18px + env(safe-area-inset-top)) 18px calc(18px + env(safe-area-inset-bottom));text-align:center;z-index:3}
+.ecran.on{display:flex;animation:entree .5s ease both}
+@keyframes entree{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.logo{font:800 clamp(40px,13.5vw,66px)/.92 var(--aff);letter-spacing:.16em;margin:0 0 0 .16em;background:linear-gradient(180deg,#ffffff 0%,#cfe1f7 46%,#7e93b8 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 18px rgba(127,231,255,.35))}
+.logo small{display:block;font:600 clamp(9px,2.7vw,11px) var(--aff);letter-spacing:.5em;margin:16px 0 0 .5em;color:var(--or);-webkit-text-fill-color:var(--or);filter:none;text-transform:uppercase}
+.sous{margin:20px 0 26px;color:var(--doux);font-size:14.5px;max-width:290px;line-height:1.55;font-weight:300}
+.btn{pointer-events:auto;border:1px solid rgba(190,240,255,.55);cursor:pointer;font:600 13px var(--aff);letter-spacing:.3em;text-transform:uppercase;color:#031018;background:linear-gradient(180deg,#a9f1ff,#58d6f5 60%,#2fb7de);border-radius:12px;padding:16px 38px;box-shadow:0 0 0 1px rgba(255,255,255,.12) inset,0 10px 30px rgba(53,199,240,.32);transition:transform .1s,box-shadow .2s,filter .2s;min-width:220px}
+.btn:active{transform:translateY(2px) scale(.99);filter:brightness(.94)}
+.btn.sec{background:rgba(255,255,255,.05);color:var(--txt);border:1px solid var(--trait);box-shadow:none;font-size:11px;letter-spacing:.24em;padding:12px 26px;min-width:0;margin-top:14px}
+.btn.rouge{background:linear-gradient(180deg,#ffa1b3,#ff5a78 60%,#d6325a);border-color:rgba(255,200,210,.6);color:#2a030c;box-shadow:0 10px 30px rgba(255,90,120,.3)}
+.meilleur{margin-top:22px;font:500 11px var(--aff);letter-spacing:.22em;text-transform:uppercase;color:var(--doux)}
+.meilleur b{font:700 14px var(--mono);letter-spacing:0;color:var(--gd);margin-left:6px}
+.signature{position:absolute;left:0;right:0;bottom:calc(14px + env(safe-area-inset-bottom));font:300 10.5px var(--aff);color:#7f8eac;letter-spacing:.12em}
+.signature b{font-weight:600;color:var(--gd)}
+.carte{background:var(--verre);border:1px solid var(--trait);border-radius:18px;padding:22px 20px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 20px 60px rgba(0,0,10,.5),inset 0 1px 0 rgba(255,255,255,.09);width:100%;max-width:420px}
+.regles{text-align:left;font-size:14px;line-height:1.5;margin:0;padding:0;list-style:none;font-weight:300}
+.regles li{margin:11px 0;padding-left:40px;position:relative;min-height:26px}
+.regles li:before{content:attr(data-i);position:absolute;left:0;top:1px;font:700 11px var(--mono);color:var(--cy);border:1px solid rgba(127,231,255,.4);border-radius:7px;width:28px;height:22px;display:flex;align-items:center;justify-content:center;letter-spacing:0}
 /* ------- Quiz du gardien ------- */
 #quiz{justify-content:flex-end;padding-bottom:calc(14px + env(safe-area-inset-bottom))}
 #quiz .carte{padding:16px 14px 14px}
-.gard{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:.12em;color:var(--mg);text-transform:uppercase;margin-bottom:6px}
-.gard span{background:rgba(255,95,210,.16);border:1px solid rgba(255,95,210,.5);border-radius:10px;padding:3px 9px}
-.gard em{font-style:normal;color:var(--gd);margin-left:auto;font-size:11.5px}
-#qtxt{font-size:17px;font-weight:800;line-height:1.3;margin:2px 0 12px;text-align:left}
-.rep{display:flex;align-items:center;gap:10px;width:100%;text-align:left;margin:7px 0;padding:11px 12px;border-radius:15px;border:1.5px solid rgba(120,210,255,.4);background:linear-gradient(180deg,rgba(40,60,130,.7),rgba(20,30,80,.7));color:#fff;font:700 15px/1.25 "Trebuchet MS","Segoe UI",system-ui,sans-serif;cursor:pointer;transition:transform .08s,background .2s,border-color .2s;pointer-events:auto}
-.rep:active{transform:scale(.98)}
-.rep b{flex:none;width:28px;height:28px;border-radius:9px;background:rgba(77,225,255,.18);border:1px solid rgba(77,225,255,.6);display:flex;align-items:center;justify-content:center;color:var(--cy);font-size:14px}
-.rep.bon{background:linear-gradient(180deg,#1fa862,#0f7a45);border-color:#8fffc4;box-shadow:0 0 22px rgba(53,224,138,.7);animation:pulse .5s}
-.rep.mauvais{background:linear-gradient(180deg,#b3304a,#7a1830);border-color:#ff9aa9;animation:secoue .45s}
-.rep.revele{border-color:#8fffc4;box-shadow:0 0 16px rgba(53,224,138,.55)}
+.gard{display:flex;align-items:center;gap:8px;font:600 10.5px var(--aff);letter-spacing:.22em;color:var(--cy);text-transform:uppercase;margin-bottom:8px}
+.gard span{background:rgba(127,231,255,.09);border:1px solid rgba(127,231,255,.35);border-radius:7px;padding:4px 9px}
+.gard em{font:500 11px var(--mono);font-style:normal;color:var(--gd);margin-left:auto;letter-spacing:.04em;text-transform:none}
+#qtxt{font:600 17px/1.34 var(--aff);margin:2px 0 14px;text-align:left;letter-spacing:-.01em}
+.rep{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin:8px 0;padding:12px 13px;border-radius:12px;border:1px solid var(--trait);background:rgba(255,255,255,.04);color:var(--txt);font:600 15px/1.25 var(--aff);cursor:pointer;transition:transform .08s,background .2s,border-color .2s;pointer-events:auto}
+.rep:active{transform:scale(.985);background:rgba(127,231,255,.1)}
+.rep b{flex:none;width:28px;height:28px;border-radius:8px;background:rgba(127,231,255,.1);border:1px solid rgba(127,231,255,.4);display:flex;align-items:center;justify-content:center;color:var(--cy);font:700 12px var(--mono)}
+.rep.bon{background:rgba(61,220,151,.18);border-color:rgba(130,255,200,.8);box-shadow:0 0 24px rgba(61,220,151,.4);animation:pulse .5s}
+.rep.mauvais{background:rgba(255,90,120,.18);border-color:rgba(255,170,190,.8);animation:secoue .45s}
+.rep.revele{border-color:rgba(130,255,200,.8);box-shadow:0 0 16px rgba(61,220,151,.4)}
 .rep[disabled]{pointer-events:none}
-@keyframes pulse{50%{transform:scale(1.04)}}
+@keyframes pulse{50%{transform:scale(1.03)}}
 @keyframes secoue{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
-#msg{min-height:22px;margin-top:6px;font-weight:900;font-size:15px;letter-spacing:.03em}
+#msg{min-height:22px;margin-top:8px;font:600 13px var(--aff);letter-spacing:.08em}
 #msg.ok{color:var(--ok)}#msg.ko{color:var(--bad)}
 /* ------- Annonces (compte à rebours, niveau) ------- */
-#annonce{position:absolute;left:0;right:0;top:34%;text-align:center;pointer-events:none;font-weight:900;font-size:clamp(46px,16vw,78px);letter-spacing:.06em;color:#fff;text-shadow:0 0 24px var(--cy),0 0 50px var(--mg);opacity:0}
+#annonce{position:absolute;left:0;right:0;top:34%;text-align:center;pointer-events:none;font:800 clamp(46px,16vw,78px) var(--aff);letter-spacing:.14em;color:#fff;text-shadow:0 0 30px rgba(127,231,255,.55);opacity:0;z-index:2}
 #annonce.go{animation:annonce 1s ease both}
-#annonce small{display:block;font-size:.3em;letter-spacing:.3em;color:var(--or);text-shadow:0 0 14px var(--or)}
-@keyframes annonce{0%{opacity:0;transform:scale(1.7)}25%{opacity:1;transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:scale(.92)}}
-#flash{position:absolute;inset:0;pointer-events:none;opacity:0;background:#ff2d55;mix-blend-mode:screen}
+#annonce small{display:block;font:600 .22em var(--aff);letter-spacing:.5em;color:var(--or);text-shadow:none;margin-top:6px;text-transform:uppercase}
+@keyframes annonce{0%{opacity:0;transform:scale(1.5)}25%{opacity:1;transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:scale(.94)}}
+#flash{position:absolute;inset:0;pointer-events:none;opacity:0;background:#ff2d55;mix-blend-mode:screen;z-index:2}
 #flash.go{animation:flash .45s ease}
-@keyframes flash{0%{opacity:.55}100%{opacity:0}}
-.etoiles{font-size:38px;letter-spacing:.1em;margin:4px 0 8px;filter:drop-shadow(0 0 14px rgba(255,210,77,.8))}
+@keyframes flash{0%{opacity:.45}100%{opacity:0}}
+.etoiles{display:flex;justify-content:center;gap:10px;margin:8px 0 12px}
 .etoiles i{font-style:normal;display:inline-block;animation:pop .5s ease both}
-.etoiles i.vide{opacity:.25;filter:grayscale(1)}
+.etoiles svg{width:36px;height:36px;color:var(--gd);fill:var(--gd);filter:drop-shadow(0 0 12px rgba(240,207,122,.55))}
+.etoiles i.vide svg{opacity:.2;filter:none}
 @keyframes pop{from{transform:scale(0) rotate(-120deg)}to{transform:none}}
-.titre2{margin:0 0 6px;font-weight:900;font-size:25px;letter-spacing:.05em}
-.fait{background:rgba(255,210,77,.1);border:1px solid rgba(255,210,77,.4);border-radius:14px;padding:11px 13px;font-size:13.5px;line-height:1.45;color:#ffeeb0;margin:12px 0 16px;text-align:left}
-.fait b{color:var(--gd)}
-.score{font-size:15px;color:#bfd6ff;margin:2px 0}
-.score b{color:var(--gd);font-size:21px}
-.nouv{color:var(--ok);font-weight:900;letter-spacing:.1em;animation:pulse 1s infinite}
+.titre2{margin:0 0 6px;font:800 25px var(--aff);letter-spacing:.14em;text-transform:uppercase}
+.fait{background:rgba(240,207,122,.06);border:1px solid rgba(240,207,122,.28);border-radius:12px;padding:12px 14px;font-size:13.5px;line-height:1.5;color:#efe3bd;margin:14px 0 18px;text-align:left;font-weight:300}
+.fait b{font-weight:600;color:var(--gd);letter-spacing:.06em}
+.score{font:500 11px var(--aff);letter-spacing:.2em;text-transform:uppercase;color:var(--doux);margin:4px 0}
+.score b{font:700 22px var(--mono);letter-spacing:0;color:var(--gd);margin-left:8px}
+.nouv{color:var(--ok);font:600 10.5px var(--aff);letter-spacing:.32em;animation:pulse 1.4s infinite}
 #install{display:none}
-#ios{display:none;font-size:12.5px;color:#bfd6ff;margin-top:12px;max-width:290px;line-height:1.4}
+#ios{display:none;font-size:12.5px;color:var(--doux);margin-top:12px;max-width:290px;line-height:1.4}
 @media (prefers-reduced-motion:reduce){.logo{animation:none}}
 </style>
 </head>
@@ -99,10 +107,10 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
   <canvas id="c" aria-label="Jeu ASTRO QUEST"></canvas>
 
   <div id="hud">
-    <div class="hrow"><div class="chip" id="hNiv">NIVEAU 1</div><div class="chip">⭐ <b id="hScore">0</b></div><div class="chip" id="boucl" aria-label="Bouclier"><i></i><i></i><i></i></div></div>
+    <div class="hrow"><div class="chip" id="hNiv">NIVEAU 1</div><div class="chip"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.4l2.9 6.2 6.7.8-5 4.6 1.3 6.7L12 17.4l-5.9 3.3 1.3-6.7-5-4.6 6.7-.8z"/></svg><b id="hScore">0</b></div><div class="chip" id="boucl" aria-label="Bouclier"><i></i><i></i><i></i></div></div>
     <div id="prog"><i></i></div>
   </div>
-  <div id="btns"><button id="bPause" aria-label="Pause">⏸</button><button id="bSon" aria-label="Son">🔊</button></div>
+  <div id="btns"><button id="bPause" aria-label="Pause"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="5" width="3.8" height="14" rx="1"/><rect x="13.7" y="5" width="3.8" height="14" rx="1"/></svg></button><button id="bSon" aria-label="Son"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z"/><path d="M15.5 8.5a5 5 0 010 7M18 6a8.5 8.5 0 010 12" fill="none" stroke-width="1.7" stroke-linecap="round"/></svg></button></div>
   <div id="annonce"></div>
   <div id="flash"></div>
 
@@ -110,9 +118,9 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
   <div class="ecran on" id="titre">
     <h1 class="logo">ASTRO<br>QUEST<small>CAP SUR LES ÉTOILES</small></h1>
     <p class="sous">Pilote ta fusée, détruis les monstres de l'espace et pose-toi sur les 8 mondes du système solaire.</p>
-    <button class="btn" id="bJouer">▶ JOUER</button>
+    <button class="btn" id="bJouer">Jouer</button>
     <button class="btn sec" id="bRegles">Comment jouer ?</button>
-    <button class="btn sec" id="install" style="margin-top:10px">📲 Installer sur mon téléphone</button>
+    <button class="btn sec" id="install" style="margin-top:10px">Installer sur mon téléphone</button>
     <div id="ios">Sur iPhone : touche <b>Partager</b> puis <b>« Sur l'écran d'accueil »</b> pour installer le jeu.</div>
     <div class="meilleur">Meilleur score : <b id="best">0</b></div>
     <div class="signature">Créé par <b>STAR ENTREPRISE</b> · Un seul groupe, toutes les solutions pour votre vie</div>
@@ -123,12 +131,12 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
     <div class="carte">
       <h2 class="titre2">Comment jouer</h2>
       <ul class="regles">
-        <li data-i="👆">Glisse ton doigt pour piloter la fusée. Elle tire toute seule.</li>
-        <li data-i="👾">Détruis les monstres pour t'approcher de la planète. Évite leurs tirs !</li>
-        <li data-i="🪐">Arrivé près de la planète, son gardien te pose une question d'astronomie.</li>
-        <li data-i="✅">Bonne réponse : tu atterris et tu passes au niveau suivant.</li>
-        <li data-i="🔁">Mauvaise réponse : tu as une seconde chance avec une autre question.</li>
-        <li data-i="💀">Deux erreurs de suite : GAME OVER.</li>
+        <li data-i="01">Glisse ton doigt pour piloter la fusée. Elle tire toute seule.</li>
+        <li data-i="02">Détruis les monstres pour t'approcher de la planète. Évite leurs tirs !</li>
+        <li data-i="03">Arrivé près de la planète, son gardien te pose une question d'astronomie.</li>
+        <li data-i="04">Bonne réponse : tu atterris et tu passes au niveau suivant.</li>
+        <li data-i="05">Mauvaise réponse : tu as une seconde chance avec une autre question.</li>
+        <li data-i="06">Deux erreurs de suite : GAME OVER.</li>
       </ul>
       <div style="text-align:center"><button class="btn sec" id="bRegOk">J'ai compris</button></div>
     </div>
@@ -152,19 +160,19 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
       <div class="etoiles" id="pEtoiles"></div>
       <div class="score">Score : <b id="pScore">0</b></div>
       <div class="fait"><b>Le savais-tu ?</b><br><span id="pFait"></span></div>
-      <button class="btn" id="bSuite">🚀 DÉCOLLER</button>
+      <button class="btn" id="bSuite">Décoller</button>
     </div>
   </div>
 
   <!-- Game Over -->
   <div class="ecran" id="fin">
     <div class="carte">
-      <h2 class="titre2" style="color:var(--bad);font-size:40px;letter-spacing:.08em;text-shadow:0 0 22px rgba(255,77,109,.8)">GAME OVER</h2>
+      <h2 class="titre2" style="color:var(--bad);font-size:34px;letter-spacing:.2em;text-shadow:0 0 26px rgba(255,90,120,.5)">GAME OVER</h2>
       <p class="sous" style="margin:6px auto 12px" id="fMsg"></p>
       <div class="score">Score : <b id="fScore">0</b></div>
       <div class="score" id="fBest"></div>
       <div class="fait" id="fCorrection" style="margin-top:14px"></div>
-      <button class="btn rouge" id="bRejouer">↻ REJOUER</button>
+      <button class="btn rouge" id="bRejouer">Rejouer</button>
       <br><button class="btn sec" id="bMenu">Menu</button>
     </div>
   </div>
@@ -173,22 +181,23 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
   <div class="ecran" id="gagne">
     <div class="carte">
       <p class="nouv" style="margin:0">MISSION ACCOMPLIE</p>
-      <h2 class="titre2" style="font-size:28px;margin-top:6px">Explorateur de l'espace !</h2>
+      <h2 class="titre2" style="font-size:22px;margin-top:8px">Explorateur de l'espace</h2>
       <div class="etoiles" id="gEtoiles"></div>
       <p class="sous" style="margin:6px auto 12px">Tu t'es posé sur les 8 mondes du système solaire. Bravo, astronaute !</p>
       <div class="score">Score final : <b id="gScore">0</b></div>
       <div class="score" id="gBest"></div>
-      <br><button class="btn" id="bRej2">↻ REJOUER</button>
+      <br><button class="btn" id="bRej2">Rejouer</button>
       <br><button class="btn sec" id="bMenu2">Menu</button>
     </div>
   </div>
 
   <!-- Pause -->
   <div class="ecran" id="pauseE">
-    <div class="carte"><h2 class="titre2">Pause</h2><button class="btn" id="bReprendre">▶ CONTINUER</button><br><button class="btn sec" id="bQuitter">Quitter la partie</button></div>
+    <div class="carte"><h2 class="titre2">Pause</h2><button class="btn" id="bReprendre">Continuer</button><br><button class="btn sec" id="bQuitter">Quitter la partie</button></div>
   </div>
 </div>
 <script src="questions.js"></script>
+<script src="premium.js"></script>
 <script src="game.js"></script>
 </body>
 </html>
