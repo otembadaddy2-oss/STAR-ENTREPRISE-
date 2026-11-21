@@ -36,3 +36,11 @@ Total indicatif : **≈ 45 crédits, jusqu'à ≈ 90 avec les retouches**. Solde
 - Textures de planètes à plat : risque de raccord et de déformation aux pôles ; alternative : disque photoréaliste sans rotation.
 - Droits : vérifier les conditions de la formule Higgsfield pour un usage commercial avant de vendre le jeu.
 - Prix, quotas et modèles évoluent : relire le solde et le prix exact au moment de lancer.
+
+## Vision de distribution (demande de Carry, 21/11/2026)
+« Les créer de façon à permettre aux gens de les télécharger sur leur téléphone et de les jouer, comme tous les autres jeux X SAPHIR, X SAPHIR Arena, le film X SAPHIR (tomes 1 à 10) : tout cela serait amélioré. »
+- **Déjà vrai pour ASTRO QUEST** : jeu installable (PWA) : `manifest.webmanifest`, `sw.js` (version astro-v2, polices et premium.js ajoutés au cache hors connexion), icônes, bouton « Installer sur mon téléphone » (Android) et consigne iPhone.
+- **À faire pour la famille X SAPHIR** (après les jeux eux-mêmes) : un **portail unique installable** « X SAPHIR » regroupant ASTRO QUEST, Steel Pursuit, X SAPHIR Arena (combat), et plus tard le film / les 10 tomes (bandes-annonces, affiches). Chaque jeu reste aussi installable seul. Même charte visuelle premium (polices Inter Display / JetBrains Mono, interface en verre).
+- **Boutiques d'applications (option, plus tard)** : Android Play Store (compte développeur ≈ 25 $ une fois, via une application web empaquetée) ; iPhone App Store (≈ 99 $/an, règles plus strictes). L'installation par le navigateur (PWA) ne coûte rien et marche tout de suite.
+- **Prérequis** : mise en ligne publique (retirer les lignes `/jeu-astro/*` etc. de `_redirects` au moment voulu par Carry), crédits Netlify suffisants, images Higgsfield pour le réalisme.
+- **Photos de la NASA** : non téléchargeables depuis le bac à sable (hôtes d'images bloqués par le proxy). Il faudrait que Carry autorise l'accès réseau à un hôte d'images libres de droits (la demande s'affiche à lui dans l'application) ; sinon les planètes restent générées par calcul ou viennent de Higgsfield.
