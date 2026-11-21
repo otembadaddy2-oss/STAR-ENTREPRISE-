@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Test WebGPU – STAR GPU</title>
+<style>
+:root{--bg:#0f1620;--fg:#eef2f7;--mut:#9fb0c3;--card:#18222f;--ok:#3ddc84;--ko:#ff6b6b;--acc:#f5b63a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.45 system-ui,sans-serif;padding:20px 16px 60px;max-width:640px;margin-inline:auto}
+h1{font-size:1.35rem;margin:0 0 4px}
+p.s{color:var(--mut);margin:0 0 18px}
+button{width:100%;padding:18px;border:0;border-radius:14px;background:var(--acc);color:#1b1300;font-size:1.1rem;font-weight:700}
+button:disabled{opacity:.6}
+.c{background:var(--card);border-radius:14px;padding:14px 16px;margin-top:14px}
+.c h2{font-size:.9rem;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin:0 0 8px}
+.r{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid #243244}
+.r:last-child{border:0}.r b{text-align:right;word-break:break-word}
+.ok{color:var(--ok)}.ko{color:var(--ko)}
+.big{font-size:1.25rem;font-weight:700;margin:0 0 6px}
+textarea{width:100%;height:150px;border-radius:10px;border:1px solid #2c3b50;background:#0b1118;color:var(--fg);padding:10px;font:13px/1.4 monospace}
+</style></head><body>
+<h1>Test WebGPU</h1>
+<p class="s">STAR GPU · gratuit, ne change rien sur ton téléphone, rien n'est envoyé nulle part.</p>
+<button id="go">Lancer le test</button>
+<div id="out"></div>
+<div class="c" id="cp" hidden><h2>À me renvoyer</h2>
+<textarea id="txt" readonly></textarea>
+<button id="copy" style="margin-top:10px">Copier le résultat</button></div>
+<script>
+const out=document.getElementById('out'),R=[];
+function card(t,rows,head,cls){let h='<div class="c"><h2>'+t+'</h2>';if(head)h+='<p class="big '+(cls||'')+'">'+head+'</p>';
+ rows.forEach(r=>h+='<div class="r"><span>'+r[0]+'</span><b>'+r[1]+'</b></div>');out.insertAdjacentHTML('beforeend',h+'</div>');
+ R.push('== '+t+(head?' : '+head:''));rows.forEach(r=>R.push(r[0]+' : '+String(r[1]).replace(/<[^>]+>/g,'')));}
+const WGSL=`
+struct P{n:u32};
+@group(0) @binding(0) var<storage,read> w: array<f32>;
+@group(0) @binding(1) var<storage,read> x: array<f32>;
+@group(0) @binding(2) var<storage,read_write> y: array<f32>;
+@group(0) @binding(3) var<uniform> p: P;
+var<workgroup> part: array<f32,64>;
+@compute @workgroup_size(64)
+fn main(@builtin(workgroup_id) wg: vec3<u32>, @builtin(local_invocation_id) li: vec3<u32>){
+ let row=wg.x; var s=0.0; var j=li.x;
+ while(j<p.n){ s+=w[row*p.n+j]*x[j]; j+=64u; }
+ part[li.x]=s; workgroupBarrier();
+ var st=32u;
+ while(st>0u){ if(li.x<st){ part[li.x]=part[li.x]+part[li.x+st]; } workgroupBarrier(); st=st>>1u; }
+ if(li.x==0u){ y[row]=part[0]; }
+}`;
+function webgl2(){try{const c=document.createElement('canvas'),g=c.getContext('webgl2');if(!g)return null;
+ const e=g.getExtension('WEBGL_debug_renderer_info');return e?g.getParameter(e.UNMASKED_RENDERER_WEBGL):g.getParameter(g.RENDERER);}catch(e){return null}}
+async function run(){
+ out.innerHTML='';R.length=0;
+ const ua=navigator.userAgent;
+ const m=ua.match(/Android [\d.]+/),ch=ua.match(/(Chrome|Firefox|SamsungBrowser|EdgA|OPR)\/[\d.]+/);
+ card('Ton appareil',[['Système',m?m[0]:(/iPhone|iPad/.test(ua)?'iOS':'autre')],['Navigateur',ch?ch[0]:'inconnu'],
+  ['Page sécurisée (https/fichier)',window.isSecureContext?'oui':'non'],['GPU vu par WebGL2',webgl2()||'indisponible']]);
+ if(!('gpu' in navigator)){
+  card('Résultat',[['Détail','Ce navigateur n\'expose pas WebGPU. Essaie avec Chrome à jour (Android 12 ou plus).']],'WebGPU non disponible','ko');finish();return;}
+ let ad;try{ad=await navigator.gpu.requestAdapter();}catch(e){ad=null}
+ if(!ad){card('Résultat',[['Détail','WebGPU existe mais aucune carte graphique n\'est accessible (pilote ou appareil trop ancien).']],'WebGPU non disponible','ko');finish();return;}
+ let info={};try{info=ad.info||(ad.requestAdapterInfo?await ad.requestAdapterInfo():{})}catch(e){}
+ const L=ad.limits,F=[...ad.features];
+ card('Ton GPU via WebGPU',[
+  ['Fabricant',info.vendor||'?'],['Architecture',info.architecture||'?'],['Description',info.description||info.device||'?'],
+  ['Mémoire partagée rapide (SMEM) par groupe',(L.maxComputeWorkgroupStorageSize/1024)+' Ko'],
+  ['Plus grand tampon',Math.round(L.maxBufferSize/1048576)+' Mo'],
+  ['Taille de groupe max',L.maxComputeInvocationsPerWorkgroup],
+  ['Calculs en demi-précision (f16)',F.includes('shader-f16')?'<span class=ok>oui</span>':'non'],
+  ['Sous-groupes (subgroups)',F.includes('subgroups')?'<span class=ok>oui</span>':'non']],'WebGPU disponible','ok');
+ let dev;try{dev=await ad.requestDevice();}catch(e){card('Résultat',[['Erreur',e.message]],'Impossible d\'ouvrir le GPU','ko');finish();return;}
+ const N=2048,bytes=N*N*4;
+ const W=new Float32Array(N*N).fill(1),X=new Float32Array(N).fill(1);
+ const U=GPUBufferUsage;
+ const bw=dev.createBuffer({size:bytes,usage:U.STORAGE|U.COPY_DST}),bx=dev.createBuffer({size:N*4,usage:U.STORAGE|U.COPY_DST}),
+  by=dev.createBuffer({size:N*4,usage:U.STORAGE|U.COPY_SRC}),bp=dev.createBuffer({size:16,usage:U.UNIFORM|U.COPY_DST}),
+  rb=dev.createBuffer({size:N*4,usage:U.MAP_READ|U.COPY_DST});
+ dev.queue.writeBuffer(bw,0,W);dev.queue.writeBuffer(bx,0,X);dev.queue.writeBuffer(bp,0,new Uint32Array([N,0,0,0]));
+ const mod=dev.createShaderModule({code:WGSL});
+ const pipe=await dev.createComputePipelineAsync({layout:'auto',compute:{module:mod,entryPoint:'main'}});
+ const bg=dev.createBindGroup({layout:pipe.getBindGroupLayout(0),entries:[bw,bx,by,bp].map((b,i)=>({binding:i,resource:{buffer:b}}))});
+ async function pass(k){const e=dev.createCommandEncoder(),p=e.beginComputePass();p.setPipeline(pipe);p.setBindGroup(0,bg);
+  for(let i=0;i<k;i++)p.dispatchWorkgroups(N);p.end();dev.queue.submit([e.finish()]);await dev.queue.onSubmittedWorkDone();}
+ await pass(3);
+ const K=60,t0=performance.now();await pass(K);const dt=(performance.now()-t0)/1000;
+ const e=dev.createCommandEncoder();e.copyBufferToBuffer(by,0,rb,0,N*4);dev.queue.submit([e.finish()]);
+ await rb.mapAsync(GPUMapMode.READ);const y=new Float32Array(rb.getMappedRange().slice(0));rb.unmap();
+ const good=Math.abs(y[0]-N)<0.5&&Math.abs(y[N-1]-N)<0.5;
+ const gbs=bytes*K/dt/1e9;
+ card('Mesure (lecture de 16 Mo × '+K+')',[
+  ['Calcul juste',good?'<span class=ok>oui</span>':'<span class=ko>NON ('+y[0]+')</span>'],
+  ['Temps total',(dt*1000).toFixed(0)+' ms'],['Temps par passage',(dt*1000/K).toFixed(2)+' ms'],
+  ['Vitesse mémoire mesurée',gbs.toFixed(1)+' Go/s']],good?'Le calcul WebGPU fonctionne':'Résultat faux','ok');
+ if(!good)out.lastChild.querySelector('.big').className='big ko';
+ finish();
+}
+function finish(){document.getElementById('txt').value=R.join('\n');document.getElementById('cp').hidden=false;document.getElementById('go').disabled=false;document.getElementById('go').textContent='Relancer le test';}
+document.getElementById('go').onclick=async()=>{const b=document.getElementById('go');b.disabled=true;b.textContent='Test en cours…';
+ try{await run();}catch(e){card('Erreur',[['Détail',e.message||String(e)]],'Le test a échoué','ko');finish();}};
+document.getElementById('copy').onclick=async()=>{const t=document.getElementById('txt');try{await navigator.clipboard.writeText(t.value);document.getElementById('copy').textContent='Copié ✔';}catch(e){t.select();document.execCommand('copy');document.getElementById('copy').textContent='Copié ✔';}};
+</script></body></html>
