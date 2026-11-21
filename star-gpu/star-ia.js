@@ -728,8 +728,9 @@
       try {
         if (m.type === 'charger') {
           if (typeof OffscreenCanvas === 'undefined') throw new Error('OffscreenCanvas absent');
-          var gpu = StarGPU.create(new OffscreenCanvas(1, 1));
-          modele = await StarIA.charger(StarIA.sourceBlob(m.blob), { gpu: gpu, toutGPU: m.toutGPU, contexteMax: m.contexteMax, progression: function (p, n) { envoyer('progression', { p: p, n: n }); } });
+          var gpu = StarGPU.create(new OffscreenCanvas(1, 1)), wgApi = null;
+          if (m.webgpu && typeof StarIAWebGPU !== 'undefined') { try { wgApi = await StarIAWebGPU.ouvrir(); } catch (e) { wgApi = null; } }   // WebGPU demandé : essayé dans le travailleur aussi
+          modele = await StarIA.charger(StarIA.sourceBlob(m.blob), { gpu: gpu, webgpu: wgApi, toutGPU: m.toutGPU, contexteMax: m.contexteMax, progression: function (p, n) { envoyer('progression', { p: p, n: n }); } });
           envoyer('pret', { cfg: modele.cfg, gpu: modele.gpu, gpuPrincipalOk: !!(gpu.info && gpu.info.ok), position: modele.position });
         } else if (m.type === 'discuter') {
           signal = { annule: false }; var o = {}; for (var k in m.options) o[k] = m.options[k]; o.signal = signal; o.onToken = function (t) { envoyer('token', { t: t }); };
@@ -740,14 +741,14 @@
       } catch (err) { envoyer('erreur', { message: err && err.message ? err.message : String(err), phase: m.type }); }
     };
   }
-  // sources = [texte de star-gpu.js, texte de star-ia.js]. Renvoie un objet qui s'utilise comme celui de charger() (discuter, nouvelleConversation, cfg, gpu, position).
+  // sources = [texte de star-gpu.js, texte de star-ia.js, (option) texte de star-ia-webgpu.js]. Renvoie un objet qui s'utilise comme celui de charger() (discuter, nouvelleConversation, cfg, gpu, position).
   function chargerEnArrierePlan(blob, options) {
     options = options || {};
     return new Promise(function (resolve, reject) {
       if (typeof Worker === 'undefined' || typeof OffscreenCanvas === 'undefined' || typeof Blob === 'undefined' || !options.sources) return reject(new Error('arrière-plan non disponible'));
       var w, url, attente = null, pos = 0, minuteur = null, pret = false, proxy;
       try {
-        url = URL.createObjectURL(new Blob([options.sources[0], '\n', options.sources[1], '\n(', travailleurMain.toString(), ')();'], { type: 'text/javascript' }));
+        url = URL.createObjectURL(new Blob([options.sources[0], '\n', options.sources[1], '\n', options.sources[2] || '', '\n(', travailleurMain.toString(), ')();'], { type: 'text/javascript' }));   // sources = [STAR GPU, STAR IA, (option) STAR IA WebGPU]
         w = new Worker(url);
       } catch (e) { return reject(e); }
       function fin() { if (minuteur) { clearInterval(minuteur); minuteur = null; } }
@@ -779,7 +780,7 @@
         else if (m.type === 'position') pos = m.position;
         else if (m.type === 'erreur') { fin(); var err = new Error(m.message); if (!pret) { w.terminate(); err.phase = m.phase; reject(err); } else if (attente) { var b = attente; attente = null; b.rej(err); } }
       };
-      w.postMessage({ type: 'charger', blob: blob, toutGPU: options.toutGPU, contexteMax: options.contexteMax });
+      w.postMessage({ type: 'charger', blob: blob, toutGPU: options.toutGPU, contexteMax: options.contexteMax, webgpu: !!options.webgpu });
     });
   }
 
