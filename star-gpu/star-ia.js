@@ -493,7 +493,13 @@
     };
     cfg.hd = kv[P + 'attention.key_length'] || (cfg.dim / cfg.tetes); cfg.q = cfg.tetes * cfg.hd; cfg.kvd = cfg.tetesKV * cfg.hd;
     var tok = creerTokenizer(kv), gpuInfo = { utilise: false, raison: 'pas de GPU demandé' }, gpuApi = null, gl = options.gpu && options.gpu.gl ? options.gpu.gl : null;
-    if (gl && options.gpu.info && options.gpu.info.calculFlottant && options.gpu.info.precisionOk !== false && options.utiliserGPU !== false) {
+    // WebGPU (optionnel, voir star-ia-webgpu.js) : essayé en premier si l'appareil le propose ; sinon on continue avec WebGL2 puis le processeur
+    var wg = null;
+    if (options.webgpu && options.utiliserWebGPU !== false) {
+      try { var rwg = await options.webgpu.autoTest(StarIA); if (rwg.ok) wg = options.webgpu; else gpuInfo.raison = 'WebGPU : l\'auto-test des produits de matrices a échoué'; }
+      catch (e) { gpuInfo.raison = 'WebGPU non utilisable : ' + e.message; }
+    }
+    if (gl && !wg && options.gpu.info && options.gpu.info.calculFlottant && options.gpu.info.precisionOk !== false && options.utiliserGPU !== false) {
       try { gpuApi = creerGPU(gl); var rap = autoTestGPU(gpuApi); gpuInfo = { utilise: rap.ok, test: rap, raison: rap.ok ? 'auto-test réussi' : 'le GPU de cet appareil ne donne pas des résultats exacts : processeur utilisé' }; if (!rap.ok) gpuApi = null; }
       catch (e) { gpuApi = null; gpuInfo = { utilise: false, raison: 'GPU non utilisable : ' + e.message }; }
     } else if (options.gpu) gpuInfo.raison = 'GPU sans calcul flottant ou précision insuffisante';
@@ -542,8 +548,10 @@
     }
     var statsGPU = { appels: 0 };
 
+    var pipeWG = null;   // calcul « tout sur le GPU » en WebGPU (voir star-ia-webgpu.js) : renvoie null ou une promesse de scores
     function avancer(token, voulLogits) {
       if (pos >= cfg.ctx) throw new Error('STAR IA : conversation trop longue pour la mémoire du modèle (' + cfg.ctx + ' mots).');
+      if (pipeWG) { ligne(embed, token, tampon.x); var rw = pipeWG.avancer(tampon.x, pos, voulLogits); pos++; return rw; }
       if (pipe) { ligne(embed, token, tampon.x); var r = pipe.avancer(tampon.x, pos, voulLogits); pos++; return r; }
       return avancerHybride(token, voulLogits);
     }
@@ -607,8 +615,27 @@
       return KI[ordre[garde - 1]];
     }
 
+    // ---- Calcul « tout sur le GPU » en WebGPU : utilisé seulement s'il redonne les mêmes scores que le processeur ----
+    if (wg) {
+      try {
+        var envW = function (m) { if (m.kind !== 'q8' && m.kind !== 'q4') throw new Error('poids non compressés (' + m.kind + ')'); return wg.envoyer(m); };
+        if (!(cfg.ctx > 0 && cfg.vocab > 12)) throw new Error('modèle trop petit');
+        var coucheW = couches.map(function (L) { return { an: L.an, fn: L.fn, biais: L.biais, h: { qkv: envW(L.qkv), o: envW(L.o), gu: envW(L.gu), d: envW(L.d) } }; });
+        var pw = wg.creerPipeline(cfg, coucheW, vecteur(norme), envW(wSortie)), xa2 = new Float32Array(cfg.dim), xb2 = new Float32Array(cfg.dim);
+        pos = 0; avancerHybride(3, false); var h1 = Float32Array.from(avancerHybride(11, true)); libererCache(); pos = 0;
+        ligne(embed, 3, xa2); pw.avancer(xa2, 0, false); ligne(embed, 11, xb2); var h2 = await pw.avancer(xb2, 1, true), e2 = 0, m2 = 0;
+        for (var qj = 0; qj < h1.length; qj++) { e2 = Math.max(e2, Math.abs(h1[qj] - h2[qj])); m2 = Math.max(m2, Math.abs(h1[qj])); }
+        gpuInfo.testIntegral = { ecartRel: e2 / Math.max(m2, 1e-9), webgpu: true };
+        if (e2 / Math.max(m2, 1e-9) < 2e-3) {
+          pipeWG = pw; gpuInfo.utilise = true; gpuInfo.mode = 'WebGPU'; gpuInfo.raison = 'auto-test réussi';
+          couches.forEach(function (L) { L.qkv = { kind: 'gpu', rows: L.qkv.rows, cols: L.qkv.cols }; L.o = { kind: 'gpu', rows: L.o.rows, cols: L.o.cols }; L.gu = { kind: 'gpu', rows: L.gu.rows, cols: L.gu.cols }; L.d = { kind: 'gpu', rows: L.d.rows, cols: L.d.cols }; });   // les poids vivent maintenant sur le GPU
+        } else gpuInfo.raison = 'WebGPU : le calcul intégral ne donne pas les mêmes résultats sur cet appareil : processeur utilisé';
+      } catch (e) { pipeWG = null; pos = 0; gpuInfo.raison = 'WebGPU : calcul intégral indisponible (' + e.message + ')'; }
+      pos = 0;
+    }
+
     // ---- Calcul « tout sur le GPU » : utilisé seulement s'il redonne les mêmes scores que le mode GPU + processeur ----
-    gpuInfo.mode = gpuApi ? 'GPU + processeur' : 'processeur';
+    gpuInfo.mode = pipeWG ? 'WebGPU' : (gpuApi ? 'GPU + processeur' : 'processeur');
     if (gpuApi && options.toutGPU !== false && sortieH && couches.every(function (L) { return L.h && L.h.qkv && L.h.o && L.h.gu && L.h.d; }) && cfg.ctx <= gl.getParameter(gl.MAX_TEXTURE_SIZE) && cfg.vocab > 12) {
       try {
         var pp = creerPipeline(gl, cfg, couches, norme, sortieH), idA = 3, idB = 11, xa = new Float32Array(cfg.dim), xb = new Float32Array(cfg.dim);
@@ -619,7 +646,7 @@
         if (ee / Math.max(mm, 1e-9) < 2e-3) { pipe = pp; gpuInfo.mode = 'GPU intégral'; } else gpuInfo.raison += ' ; le mode GPU intégral ne donne pas les mêmes résultats sur cet appareil : mode GPU + processeur gardé';
       } catch (e) { pipe = null; pos = 0; gpuInfo.raison += ' ; mode GPU intégral indisponible (' + e.message + ')'; }
     }
-    gpuInfo.texte = gpuApi ? gpuInfo.mode + ' (auto-test réussi)' : 'processeur — ' + gpuInfo.raison;
+    gpuInfo.texte = (gpuApi || pipeWG) ? gpuInfo.mode + ' (auto-test réussi)' : 'processeur — ' + gpuInfo.raison;
     // Message système de départ. Il est calculé UNE fois et gardé dans la mémoire du modèle (cache) : ensuite chaque nouvelle conversation
     // repart de là, sans le recalculer. Sur un téléphone, cela économise plusieurs secondes avant le premier mot.
     var systemeDefaut = 'Réponds en français, de façon brève.', prefixe = null;   // consigne courte : un essai avec une consigne plus longue a fait recopier la consigne par le modèle (mesure du 20/11/2026) ; prefixe = { txt, n } : mots du message système déjà calculés (positions 0 à n-1)
@@ -631,12 +658,20 @@
       get positionDepart() { return prefixe ? prefixe.n : 0; },
       reinitialiser: function () { pos = 0; prefixe = null; this._vu = 0; },
       // Donne des mots au modèle (sans rien générer) et renvoie les scores du dernier
-      nourrir: function (ids, logitsFin) { var lg = null; for (var i = 0; i < ids.length; i++) lg = avancer(ids[i], logitsFin && i === ids.length - 1); return lg; },
-      logits: function (ids) { pos = 0; prefixe = null; this._vu = 0; return Float32Array.from(this.nourrir(ids, true)); },
+      // (en WebGPU, la lecture des scores est asynchrone : nourrir() et logits() renvoient alors une promesse)
+      nourrir: function (ids, logitsFin) {
+        var i;
+        if (pipeWG) return (async function () { var lg = null; for (i = 0; i < ids.length; i++) { var r = avancer(ids[i], logitsFin && i === ids.length - 1); if (r) lg = await r; } return lg; })();
+        var lg = null; for (i = 0; i < ids.length; i++) lg = avancer(ids[i], logitsFin && i === ids.length - 1); return lg;
+      },
+      logits: function (ids) {
+        pos = 0; prefixe = null; this._vu = 0; var r = this.nourrir(ids, true);
+        return r && typeof r.then === 'function' ? r.then(function (v) { return Float32Array.from(v); }) : Float32Array.from(r);
+      },
       prechauffer: function (txt) { preparerPrefixe(txt || systemeDefaut); this._vu = 0; },
       // Génère à la suite des mots donnés
       generer: async function (ids, o) {
-        o = o || {}; var maxT = o.maxTokens || 128, sortieIds = [], t0 = performance.now(), lg = this.nourrir(ids, true), dec = tok.decodeur(), texte = '', hist = ids.slice();
+        o = o || {}; var maxT = o.maxTokens || 128, sortieIds = [], t0 = performance.now(), lg = await this.nourrir(ids, true), dec = tok.decodeur(), texte = '', hist = ids.slice();
         var fin = [tok.id('<|im_end|>'), tok.id('<|endoftext|>'), kv['tokenizer.ggml.eos_token_id']].filter(function (v) { return v !== undefined; });
         var tPrem = performance.now(), nGen = 0, tCalc = 0, tChoix = 0, coupe = false, termine = false, ta;
         for (var i = 0; i < maxT; i++) {
@@ -647,7 +682,7 @@
           if (pos >= cfg.ctx) break;
           if (o.signal && o.signal.annule) { avancer(nxt, false); break; }   // arrêt demandé : le dernier mot affiché est quand même gardé dans la mémoire
           if (i === maxT - 1) { coupe = true; avancer(nxt, false); break; }   // longueur maximale atteinte : la réponse est coupée
-          ta = performance.now(); lg = avancer(nxt, true); tCalc += performance.now() - ta;
+          ta = performance.now(); lg = await avancer(nxt, true); tCalc += performance.now() - ta;
           if (o.pauseMs) await new Promise(function (r) { setTimeout(r, o.pauseMs); }); else if (i % 2 === 1) await new Promise(function (r) { setTimeout(r, 0); }); // laisse respirer l'écran du téléphone (mode Économie : pause plus longue)
         }
         var t1 = performance.now(), nm = Math.max(1, nGen - 1);
@@ -676,7 +711,7 @@
       },
       nouvelleConversation: function () { pos = prefixe ? prefixe.n : 0; this._vu = 0; }
     };
-    if (pipe && options.prechauffer !== false) { try { modele.prechauffer(); } catch (e) { pos = 0; prefixe = null; } }   // le message système est calculé pendant que tu lis « prêt »
+    if ((pipe || pipeWG) && options.prechauffer !== false) { try { modele.prechauffer(); } catch (e) { pos = 0; prefixe = null; } }   // le message système est calculé pendant que tu lis « prêt »
     prog(1, 'prêt');
     return modele;
   }
