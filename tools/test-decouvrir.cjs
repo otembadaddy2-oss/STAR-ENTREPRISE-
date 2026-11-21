@@ -13,7 +13,8 @@ const path = require('path');
   await p.click('#entrer'); await p.waitForTimeout(500); await shot('02-rideau'); await p.waitForTimeout(1800); await shot('03-hero');
   const intro = await p.evaluate(() => getComputedStyle(document.getElementById('intro')).display); console.log('intro masquée:', intro === 'none');
   // défilement : sections puis chapitres de filiales (cibles représentatives)
-  const ids = ['manifeste', 'fondateur', 'filiales', 'f1', 'f2', 'f4', 'f6', 'f8', 'f10', 'f11', 'f15', 'f17', 'f19', 'f20', 'f21', 'komyo', 'tech', 'culture', 'saga', 'creations', 'histoire', 'contact'];
+  await p.click('#burger'); await p.waitForTimeout(600); await shot('03b-menu'); console.log('menu ouvert:', await p.evaluate(() => !document.getElementById('menu').hidden)); await p.click('#menu a[href="#vision"]'); await p.waitForTimeout(900); console.log('menu refermé:', await p.evaluate(() => document.getElementById('menu').hidden));
+  const ids = ['qui', 'manifeste', 'fondateur', 'vision', 'ambitions', 'valeurs', 'filiales', 'f1', 'f3', 'f6', 'f10', 'f19', 'f21', 'komyo', 'tech', 'culture', 'saga', 'creations', 'histoire', 'contact'];
   let k = 4;
   for (const id of ids) { await p.evaluate(i => document.getElementById(i).scrollIntoView({ behavior: 'instant' }), id); await p.waitForTimeout(1100); await p.evaluate(() => window.scrollBy(0, 40)); await p.waitForTimeout(400); await shot(String(k++).padStart(2, '0') + '-' + id); }
   const nb = await p.evaluate(() => document.querySelectorAll('.chap').length); console.log('chapitres filiales:', nb);
@@ -21,6 +22,8 @@ const path = require('path');
   const casse = await p.evaluate(() => [...document.images].filter(i => i.complete === false || (i.complete && i.naturalWidth === 0 && i.loading !== 'lazy')).map(i => i.src.slice(-40)));
   await p.evaluate(() => [...document.images].forEach(i => i.loading = 'eager')); await p.waitForTimeout(2500);
   const casse2 = await p.evaluate(() => [...document.images].filter(i => i.complete && i.naturalWidth === 0).map(i => i.src.slice(-40))); console.log('images cassées:', casse2.length, casse2.slice(0, 5));
+  // grands titres : aucun ne dépasse son conteneur (téléphone 400 px)
+  const trop = await p.evaluate(() => [...document.querySelectorAll('.mega,h2,h3')].filter(e => e.scrollWidth > e.clientWidth + 2 || e.getBoundingClientRect().right > innerWidth + 2).map(e => e.textContent.trim().slice(0, 24))); console.log('titres qui débordent:', trop.length, trop.slice(0, 5));
   // débordement horizontal
   const deb = await p.evaluate(() => document.documentElement.scrollWidth - innerWidth); console.log('débordement horizontal (px):', deb);
   // formulaire : validation
