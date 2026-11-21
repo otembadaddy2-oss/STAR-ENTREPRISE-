@@ -174,20 +174,21 @@ code,.m{font-family:ui-monospace,monospace;font-size:13px;color:var(--or)}.m{whi
   $('iaStop').onclick = function(){ if (signal) signal.annule = true; };
   // Comparaison des deux moteurs sur CET appareil : même modèle, même question, même réglage (température 0). Chiffres réels, rien de promis.
   async function comparer(){
-    if (!dernierBlob || occupe || comparant) return; comparant = true; $('iaComp').disabled = true; var lignes = [], res = {};
+    if (!dernierBlob || occupe || comparant) return; comparant = true; $('iaComp').disabled = true; var lignes = [], res = {}, txt = {};
     $('iaComparaison').textContent = 'Comparaison en cours : chaque moteur recharge le modèle puis répond à la même question…';
-    for (var moteur of ['webgl2', 'webgpu']) {
+    for (var moteur of ['webgpu', 'webgl2']) {   // WebGPU d'abord : sur certains téléphones, charger WebGL2 juste après avoir arrêté WebGPU échouait (mesure du 21/11/2026) ; WebGL2 en dernier évite de le recharger quand il gagne
       var nom = moteur === 'webgl2' ? 'WebGL2' : 'WebGPU';
-      if (moteur === 'webgpu' && (!navigator.gpu || !window.StarIAWebGPU)) { lignes.push(nom + ' : non disponible sur cet appareil'); continue; }
+      if (moteur === 'webgpu' && (!navigator.gpu || !window.StarIAWebGPU)) { txt[moteur] = nom + ' : non disponible sur cet appareil'; continue; }
       $('iaMoteur').value = moteur; await demarrer(Promise.resolve(dernierBlob), moteur);
-      if (!modele) { lignes.push(nom + ' : échec du chargement'); continue; }
+      if (!modele) { txt[moteur] = nom + ' : échec du chargement'; continue; }
       try {
         var mode = modele.gpu.utilise ? modele.gpu.mode : 'processeur', chg = (window.__chargeMs || 0) / 1000;
         var r = await modele.discuter([{ role: 'user', content: 'Explique en deux phrases à quoi sert un GPU.' }], { maxTokens: 48, temperature: 0, repetition: 1 });
         res[moteur] = r.motsParSeconde;
-        lignes.push(nom + ' (calcul réel : ' + mode + ') : ' + r.motsParSeconde.toFixed(1) + ' mots/s · premier mot ' + (r.msPremier / 1000).toFixed(1) + ' s · chargement ' + chg.toFixed(0) + ' s' + (moteur === 'webgpu' && mode !== 'WebGPU' ? '\n   WebGPU demandé mais non utilisé : ' + modele.gpu.raison : ''));
-      } catch (e) { lignes.push(nom + ' : erreur ' + e.message); }
+        txt[moteur] = (nom + ' (calcul réel : ' + mode + ') : ' + r.motsParSeconde.toFixed(1) + ' mots/s · premier mot ' + (r.msPremier / 1000).toFixed(1) + ' s · chargement ' + chg.toFixed(0) + ' s' + (moteur === 'webgpu' && mode !== 'WebGPU' ? '\n   WebGPU demandé mais non utilisé : ' + modele.gpu.raison : ''));
+      } catch (e) { txt[moteur] = nom + ' : erreur ' + e.message; }
     }
+    if (txt.webgl2) lignes.push(txt.webgl2); if (txt.webgpu) lignes.push(txt.webgpu);   // toujours dans le même ordre : WebGL2 puis WebGPU
     var mieux = res.webgpu !== undefined && res.webgl2 !== undefined ? (res.webgpu > res.webgl2 * 1.05 ? 'webgpu' : 'webgl2') : 'webgl2';
     lignes.push(mieux === 'webgpu' ? 'Résultat : WebGPU est plus rapide sur cet appareil.' : (res.webgpu !== undefined && res.webgl2 !== undefined ? 'Résultat : WebGL2 reste le meilleur choix sur cet appareil (WebGPU n\'est pas plus rapide de plus de 5 %).' : 'Résultat : comparaison impossible, WebGL2 gardé.'));
     lignes.push('GPU : ' + (gIA && gIA.info ? gIA.info.renderer : '?'));
