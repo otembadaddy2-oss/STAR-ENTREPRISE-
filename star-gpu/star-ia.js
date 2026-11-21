@@ -450,7 +450,40 @@
     }
     var rotBuf = new Float32Array(HD), invFreq = new Float32Array(HD / 2); for (var f = 0; f < HD / 2; f++) invFreq[f] = Math.pow(cfg.base, -2 * f / HD);
     var logitsBuf = new Float32Array(128 * LOG.h);
+    var tmp4 = new Float32Array(4);
+    function sync(cb, rgba) { gl.bindFramebuffer(gl.FRAMEBUFFER, cb.f); gl.readPixels(0, 0, 1, 1, rgba ? gl.RGBA : gl.RED, gl.FLOAT, tmp4); }   // attend la fin des calculs du GPU
     return {
+      // Diagnostic : combien de temps chaque sorte d'opération prend sur CET appareil. Chaque opération est répétée (1 fois puis 1+R fois)
+      // et la différence donne le temps d'un appel, sans le coût de l'attente. Ne touche pas à la conversation : seule la case du mot suivant est réécrite.
+      profil: function (pos, R) {
+        R = R || 8; var np = pos + 1, P = poids[0], out = [], cur = Xa, nxt = Xb, L = poids.length;
+        function mesurer(nom, appels, f, cb, rgba) {
+          function temps(k) { var t0 = performance.now(); for (var i = 0; i < k; i++) f(); sync(cb, rgba); return performance.now() - t0; }
+          temps(2); var a = Infinity, b = Infinity;
+          for (var e = 0; e < 3; e++) { a = Math.min(a, temps(1)); b = Math.min(b, temps(1 + R)); }
+          out.push({ nom: nom, ms: Math.max(0, (b - a) / R), appels: appels });
+        }
+        mesurer('Normalisations (RMS)', 2 * L, function () { rms(cur, P.an, H1); }, H1, true);
+        mesurer('Produit qkv (questions, clés, valeurs)', L, function () { mv(P.h.qkv, H1, QKV, P.bs); }, QKV);
+        mesurer('Positions (RoPE) et écriture dans la mémoire', L, function () {
+          passe(pRQ, QR, 0, 0, 128, QR.h, { QKV: QKV.t, ROT: ROT.t }, { OFF: 0, HD: HD, NQ: QD }, {});
+          passe(pKW, cK[0], 0, pos, KVD, 1, { QKV: QKV.t, ROT: ROT.t }, { OFF: QD, HD: HD, NQ: 0 }, {});
+          passe(pVW, cV[0], 0, pos, KVD, 1, { QKV: QKV.t, ROT: ROT.t }, { OFF: QD + KVD, HD: HD, NQ: 0 }, {});
+        }, cV[0]);
+        mesurer('Attention : scores', L, function () { passe(pSC, S, 0, 0, np, H, { Q: QR.t, K: cK[0].t }, { HD: HD, REP: REP }, { SC: 1 / Math.sqrt(HD) }); }, S);
+        mesurer('Attention : softmax', L, function () { passe(pST, ST, 0, 0, 2, H, { S: S.t }, { NP: np }, {}); }, ST);
+        mesurer('Attention : somme pondérée', L, function () { passe(pAT, ATT, 0, 0, 32, ATT.h, { S: S.t, ST: ST.t, Vc: cV[0].t }, { NP: np, HD: HD, REP: REP, QD: QD }, {}); }, ATT, true);
+        mesurer('Produit o (sortie de l\'attention)', L, function () { mv(P.h.o, ATT, nxt, cur); }, nxt);
+        mesurer('Produit gu (porte et montée)', L, function () { mv(P.h.gu, H1, GU, null); }, GU);
+        mesurer('SwiGLU', L, function () { passe(pSW, ACT, 0, 0, 32, ACT.h, { G: GU.t }, { FF: cfg.ffn }, {}); }, ACT, true);
+        mesurer('Produit d (descente)', L, function () { mv(P.h.d, ACT, cur, nxt); }, cur);
+        mesurer('Dernière étape : choix parmi tout le vocabulaire', 1, function () { rms(cur, NF, H1); mv(sortieH, H1, LOG, null); }, LOG);
+        var lec = Infinity; for (var q = 0; q < 4; q++) { sync(LOG, false); var t0 = performance.now(); gl.bindFramebuffer(gl.FRAMEBUFFER, LOG.f); gl.readPixels(0, 0, 128, LOG.h, gl.RED, gl.FLOAT, logitsBuf); lec = Math.min(lec, performance.now() - t0); }
+        out.push({ nom: 'Lecture des scores (GPU vers processeur)', ms: lec, appels: 1 });
+        var xz = new Float32Array(D), reel = Infinity; this.avancer(xz, pos, true);
+        for (var r = 0; r < 3; r++) { var t1 = performance.now(); this.avancer(xz, pos, true); reel = Math.min(reel, performance.now() - t1); }
+        return { moteur: 'WebGL2', position: pos, couches: L, categories: out, reelMs: reel };
+      },
       // Un mot : met le vecteur du mot en entrée, enchaîne les couches sur le GPU, lit les scores seulement si demandé
       avancer: function (xEmbed, pos, voulLogits) {
         remplirVec(Xa, xEmbed);
@@ -654,6 +687,12 @@
     function preparerPrefixe(txt) { var ids = tok.encoder(gabaritSysteme(txt), true); pos = 0; prefixe = null; for (var i = 0; i < ids.length; i++) avancer(ids[i], false); prefixe = { txt: txt, n: ids.length }; }
     var modele = {
       version: VERSION, cfg: cfg, tokenizer: tok, gpu: gpuInfo, kv: kv, systemeDefaut: systemeDefaut,
+      // Diagnostic de vitesse (calcul sur GPU seulement) : où l'appareil passe son temps pour calculer un mot. Ne change pas la conversation.
+      profiler: async function (o) {
+        var Pp = pipeWG || pipe; if (!Pp || !Pp.profil) throw new Error('Le diagnostic n\'est disponible qu\'avec le calcul sur le GPU (ici : ' + (gpuInfo.mode || 'processeur') + ').');
+        if (pos >= cfg.ctx) throw new Error('mémoire de conversation pleine');
+        var r = await Pp.profil(pos, (o && o.repetitions) || 8); r.cfg = { couches: cfg.couches, dim: cfg.dim, ffn: cfg.ffn, vocab: cfg.vocab }; r.modele = cfg.nom; return r;
+      },
       get position() { return pos; },
       get positionDepart() { return prefixe ? prefixe.n : 0; },
       reinitialiser: function () { pos = 0; prefixe = null; this._vu = 0; },
@@ -736,6 +775,7 @@
           signal = { annule: false }; var o = {}; for (var k in m.options) o[k] = m.options[k]; o.signal = signal; o.onToken = function (t) { envoyer('token', { t: t }); };
           var r = await modele.discuter(m.messages, o);
           envoyer('fin', { texte: r.texte, ids: r.ids, motsParSeconde: r.motsParSeconde, msPremier: r.msPremier, coupe: r.coupe, msCalculParMot: r.msCalculParMot, msChoixParMot: r.msChoixParMot, position: modele.position });
+        } else if (m.type === 'profil') { var rp = await modele.profiler({}); envoyer('profil', { resultat: rp });
         } else if (m.type === 'stop') { if (signal) signal.annule = true; }
         else if (m.type === 'nouvelle') { modele.nouvelleConversation(); envoyer('position', { position: modele.position }); }
       } catch (err) { envoyer('erreur', { message: err && err.message ? err.message : String(err), phase: m.type }); }
@@ -771,12 +811,14 @@
               });
             },
             nouvelleConversation: function () { w.postMessage({ type: 'nouvelle' }); },
+            profiler: function () { return new Promise(function (res, rej) { attente = { res: res, rej: rej, profil: true }; w.postMessage({ type: 'profil' }); }); },
             terminer: function () { fin(); w.terminate(); URL.revokeObjectURL(url); }
           };
           resolve(proxy);
         }
         else if (m.type === 'token') { if (attente && attente.onToken) attente.onToken(m.t); }
         else if (m.type === 'fin') { fin(); pos = m.position; var a = attente; attente = null; if (a) a.res({ texte: m.texte, ids: m.ids, motsParSeconde: m.motsParSeconde, msPremier: m.msPremier, coupe: m.coupe, msCalculParMot: m.msCalculParMot, msChoixParMot: m.msChoixParMot }); }
+        else if (m.type === 'profil') { var ap = attente; attente = null; if (ap) ap.res(m.resultat); }
         else if (m.type === 'position') pos = m.position;
         else if (m.type === 'erreur') { fin(); var err = new Error(m.message); if (!pret) { w.terminate(); err.phase = m.phase; reject(err); } else if (attente) { var b = attente; attente = null; b.rej(err); } }
       };

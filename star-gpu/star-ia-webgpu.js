@@ -288,6 +288,32 @@
         for (var f = 0; f < HD / 2; f++) invFreq[f] = Math.pow(cfg.base, -2 * f / HD);
         function un(pass, pip, g, n) { pass.setPipeline(pip); pass.setBindGroup(0, g); pass.dispatchWorkgroups(n); }
         return {
+          // Diagnostic : temps d'un appel de chaque sorte d'opération sur CET appareil (1 appel puis 1+R appels : la différence enlève le coût de l'attente).
+          // Ne touche pas à la conversation : seule la case du mot suivant (position pos) est réécrite.
+          profil: async function (pos, R) {
+            R = R || 8; var E = etapes[0], L = etapes.length, out = [], self = this;
+            dyn[0] = pos; dyn[1] = pos + 1; dev.queue.writeBuffer(DYN, 0, dyn);
+            async function temps(f, k) { var t0 = performance.now(), enc = dev.createCommandEncoder(), pass = enc.beginComputePass(); for (var i = 0; i < k; i++) f(pass); pass.end(); dev.queue.submit([enc.finish()]); await dev.queue.onSubmittedWorkDone(); return performance.now() - t0; }
+            async function mesurer(nom, appels, f) {
+              await temps(f, 2); var a = Infinity, b = Infinity;
+              for (var e = 0; e < 3; e++) { a = Math.min(a, await temps(f, 1)); b = Math.min(b, await temps(f, 1 + R)); }
+              out.push({ nom: nom, ms: Math.max(0, (b - a) / R), appels: appels });
+            }
+            await mesurer('Normalisations (RMS)', 2 * L, function (p) { un(p, pRMS, E.rms1, 1); });
+            await mesurer('Produit qkv (questions, clés, valeurs)', L, function (p) { api.lancer(p, E.qkv); });
+            await mesurer('Positions (RoPE) et écriture dans la mémoire', L, function (p) { un(p, pROPE, E.rope, Math.ceil(QD / 64)); });
+            await mesurer('Attention (scores, softmax, somme pondérée)', L, function (p) { un(p, pATT, E.att, H); });
+            await mesurer('Produit o (sortie de l\'attention)', L, function (p) { api.lancer(p, E.o); });
+            await mesurer('Produit gu (porte et montée)', L, function (p) { api.lancer(p, E.gu); });
+            await mesurer('SwiGLU', L, function (p) { un(p, pSW, E.sw, Math.ceil(FF / 64)); });
+            await mesurer('Produit d (descente)', L, function (p) { api.lancer(p, E.d); });
+            await mesurer('Dernière étape : choix parmi tout le vocabulaire', 1, function (p) { un(p, pRMS, rmsFin, 1); api.lancer(p, sortie); });
+            var lec = Infinity; for (var q = 0; q < 4; q++) { await temps(function () { }, 1); var t0 = performance.now(), enc2 = dev.createCommandEncoder(); enc2.copyBufferToBuffer(LOG, 0, RB, 0, V * 4); dev.queue.submit([enc2.finish()]); await RB.mapAsync(GPUMapMode.READ); new Float32Array(RB.getMappedRange(0, V * 4).slice(0)); RB.unmap(); lec = Math.min(lec, performance.now() - t0); }
+            out.push({ nom: 'Lecture des scores (GPU vers processeur)', ms: lec, appels: 1 });
+            var xz = new Float32Array(D), reel = Infinity; await self.avancer(xz, pos, true);
+            for (var r = 0; r < 3; r++) { var t1 = performance.now(); await self.avancer(xz, pos, true); reel = Math.min(reel, performance.now() - t1); }
+            return { moteur: 'WebGPU', position: pos, couches: L, categories: out, reelMs: reel };
+          },
           // Un mot : renvoie null (pas de scores demandés) ou une promesse de Float32Array(vocab)
           avancer: function (xEmbed, pos, voulLogits) {
             if (perdu) throw new Error('STAR IA WebGPU : ' + perdu);

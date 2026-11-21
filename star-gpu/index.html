@@ -48,6 +48,7 @@ code,.m{font-family:ui-monospace,monospace;font-size:13px;color:var(--or)}.m{whi
 <label for="iaSaisie">Ton message</label><textarea id="iaSaisie" rows="2" placeholder="Écris en français…"></textarea>
 <div class="r"><button id="iaEnvoi">Envoyer</button><button id="iaStop" disabled>Arrêter</button><button id="iaNouv">Nouvelle conversation</button></div>
 <div class="r"><button id="iaComp">Comparer WebGL2 et WebGPU (environ 1 minute)</button></div><span class="m" id="iaComparaison"></span>
+<div class="r"><button id="iaDiag">Diagnostic : où va le temps ? (environ 20 secondes)</button></div><span class="m" id="iaDiagnostic"></span>
 <div class="reg"><label style="margin:0" title="Bas = réponses plus prudentes mais qui peuvent se répéter ; haut = plus variées mais plus risquées">Créativité <input type="range" id="iaTemp" min="0" max="1.2" step="0.1" value="0.7"></label><label style="margin:0">Longueur max <input type="range" id="iaLong" min="32" max="400" step="16" value="208"></label><label style="margin:0"><input type="checkbox" id="iaEco"> Mode Économie (moins de chaleur)</label></div>
 <span class="m" id="iaStats"></span><p class="s2" id="iaAvert" style="margin-top:8px">Attention : STAR IA est un petit modèle (0,5 milliard de paramètres). Elle peut se tromper ou répondre à côté. Vérifie toujours les informations importantes (santé, argent, droit). Rien de ce qu'elle écrit n'est un avis professionnel.</p></div></div>
 
@@ -196,6 +197,23 @@ code,.m{font-family:ui-monospace,monospace;font-size:13px;color:var(--or)}.m{whi
     $('iaComparaison').textContent = lignes.join('\n'); window.__comparaison = { res: res, mieux: mieux, lignes: lignes };
     comparant = false; $('iaComp').disabled = false;
   }
+  // Diagnostic : où l'appareil passe son temps pour calculer UN mot (mesure chaque sorte d'opération sur le GPU ; la conversation n'est pas touchée)
+  async function diagnostiquer(){
+    if (!modele || occupe || comparant) return; if (!modele.profiler) { $('iaDiagnostic').textContent = 'Diagnostic indisponible avec ce mode de calcul.'; return; }
+    occupe = true; $('iaDiag').disabled = true; $('iaDiagnostic').textContent = 'Diagnostic en cours (ne change pas d\'application)…';
+    try {
+      var r = await modele.profiler(), tot = 0, lignes = [];
+      r.categories.forEach(function(c){ c.total = c.ms * c.appels; tot += c.total; });
+      var tri = r.categories.slice().sort(function(a, b){ return b.total - a.total; });
+      lignes.push('Un mot complet = ' + r.reelMs.toFixed(0) + ' ms mesurés (' + r.moteur + ', mémoire de ' + (r.position + 1) + ' mots, ' + r.couches + ' couches)');
+      tri.forEach(function(c){ lignes.push(Math.round(c.total / r.reelMs * 100) + ' % · ' + c.total.toFixed(c.total < 10 ? 1 : 0) + ' ms · ' + c.nom + (c.appels > 1 ? ' (' + c.ms.toFixed(2) + ' ms × ' + c.appels + ')' : '')); });
+      var reste = r.reelMs - tot; lignes.push((reste >= 0 ? 'Non expliqué : ' : 'Écart de mesure : ') + Math.round(Math.abs(reste) / r.reelMs * 100) + ' % (' + reste.toFixed(0) + ' ms : envoi des commandes, attente entre opérations)');
+      lignes.push('GPU : ' + (gIA && gIA.info ? gIA.info.renderer : '?'));
+      $('iaDiagnostic').textContent = lignes.join('\n'); window.__profil = r;
+    } catch (e) { $('iaDiagnostic').textContent = 'Diagnostic impossible : ' + e.message; }
+    occupe = false; $('iaDiag').disabled = false;
+  }
+  $('iaDiag').onclick = diagnostiquer;
   $('iaComp').onclick = comparer;
   $('iaNouv').onclick = function(){ if (!modele || occupe) return; modele.nouvelleConversation(); msgs = []; $('iaFil').textContent = ''; $('iaStats').textContent = ''; };
 })();
