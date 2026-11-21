@@ -1,0 +1,25 @@
+# Données de la page « Découvrez qui est STAR ENTREPRISE » (textes tirés du site officiel hébergé chez Hostinger).
+FILIALES = [
+ # nom, rubrique, texte, image, mode (cover | logo-noir | logo-blanc | affiche), page du site officiel
+ ("LIBOKÉ Épargne + Santé", "Épargne & santé", "Épargne programmée, épargne libre, épargne santé et familiale, avec un accompagnement social des ménages.", "f-liboke", "logo-noir", "liboke.html"),
+ ("Clinique Havre de Vie", "Santé", "Pédiatrie, kinésithérapie, néonatologie, laboratoire, gynécologie et hospitalisation, à Pointe-Noire, au service de tout le Congo.", "f-clinique", "cover", "clinique-havre-de-vie.html"),
+ ("STAR VITAL", "Santé & social", "Accompagnement social, conseil familial, assistance maladie rare, conseil et orientation.", "f-vital", "logo-blanc", "star-vital.html"),
+ ("STAR IMMO", "Immobilier", "Vente, location, gestion locative et conseil en investissement : du plan à la clé.", "f-meubles", "cover", "star-immo.html"),
+ ("STAR P.A.M.E.P", "Patrimoine", "Gestion, entretien et sécurisation de patrimoines immobiliers : maisons, espaces et terrains.", "f-pamep", "cover", "star-pamep.html"),
+ ("STAR Galerie Meubles", "Mobilier & décoration", "Mobilier résidentiel et professionnel, décoration intérieure : salon, chambre, salle à manger et extérieur.", "f-catalogue-meubles", "affiche", "star-galerie-meubles.html"),
+ ("STAR Déco Baby", "Enfants", "Décoration et aménagement d'espaces pour enfants, pensés pour l'éveil et la sécurité.", "f-decobaby", "cover", "star-deco-baby.html"),
+ ("STAR JET", "Aviation privée", "Location de jets privés, vol à la carte et conciergerie haut de gamme depuis Pointe-Noire.", "f-jet", "affiche", "star-jet.html"),
+ ("STAR Beach Village", "Tourisme & immobilier", "Complexe touristique et immobilier de prestige à Pointe-Noire : Tiny Houses, villas, résidence présidentielle.", "f-beach", "cover", "star-beach-village.html"),
+ ("STAR Beauty Wedding", "Mariage", "Robes de mariée, accessoires et décoration événementielle, à Pointe-Noire, Brazzaville et dans tout le Congo.", "f-wedding", "cover", "star-beauty-wedding.html"),
+ ("STAR CASA", "Beauté à domicile", "Beauté, coiffure et bien-être à domicile : le soin de vous, sans quitter chez vous.", "f-casa", "cover", "star-casa.html"),
+ ("STAR TRANS", "Transport", "Transport urbain et interurbain, navettes, location avec chauffeur et transferts aéroport.", "f-trans", "cover", "star-trans.html"),
+ ("STAR EXPRESS", "Gaz domestique", "Livraison rapide et sécurisée de gaz domestique. Commande en ligne, paiement mobile.", "f-express", "logo-noir", "star-express.html"),
+ ("STARCAROS", "Automobile", "Véhicules neufs et d'occasion, importation et financement auto.", "f-caros", "cover", "starcaros.html"),
+ ("CARRY.O AFRIQUE", "Art & culture", "La galerie d'art de STAR ENTREPRISE : des œuvres originales de Carry Otemba.", "f-carryo", "cover", "carry-o-afrique.html"),
+ ("STAR CRÉAT", "Agence créative", "Identité de marque, marketing digital, sites web et applications mobiles.", "f-creat", "logo-noir", "star-creat.html"),
+ ("STAR CLEANING", "Nettoyage", "Nettoyage résidentiel, bureaux et industriel, désinfection et entretien d'immeubles.", "", "art-cleaning", "star-cleaning.html"),
+ ("Les P'tits Grimpeurs", "Petite enfance", "Garderie, crèche et maternelle à Pointe-Noire : éveil, créativité et accompagnement des parents.", "f-grimpeurs", "cover", "les-ptits-grimpeurs.html"),
+ ("STAR EVENTS", "Événements", "Mariages, anniversaires, événements privés, professionnels, culturels et institutionnels.", "f-events", "logo-blanc", "star-events.html"),
+ ("STAR ÉNERGIE", "Énergie solaire", "Kits solaires résidentiels, panneaux photovoltaïques et audit énergétique.", "a-energie-affiche", "affiche", "star-energie.html"),
+ ("STAR MBOTÉ", "Fidélité", "Le programme de fidélité qui relie toutes les filiales : points, avantages et réductions.", "", "art-mbote", "star-mbote.html"),
+]
