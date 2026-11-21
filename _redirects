@@ -17,6 +17,8 @@ http://komyo.starentreprise.com/   /starvibe/  301!
 /decouvrir        /404.html  404!
 # Archives internes (copie du site officiel Hostinger, sans secrets) : jamais publiques.
 /docs/archives/*  /404.html  404!
+# Fiches des filiales (version 0, à compléter avec Carry) : pas publiques tant qu'elles ne sont pas finalisées.
+/docs/fiches-filiales/*  /404.html  404!
 /jeu-astro/*      /404.html  404!
 /jeu-astro        /404.html  404!
 /netlify/*        /404.html  404!
