@@ -454,6 +454,19 @@ footer{background:#020a22;border-top:0}
 @keyframes onde{from{transform:scale(.2);opacity:1}to{transform:scale(14);opacity:0}}
 #haut{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:55;width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:var(--nuit);color:#fff;font-size:1.3rem;cursor:pointer;opacity:0;transform:translateY(14px);pointer-events:none;transition:all .4s var(--ease);box-shadow:0 10px 26px -8px #000}
 #haut.on{opacity:1;transform:none;pointer-events:auto}
+
+/* ---- v5 : page fixe (pas de balancement gauche-droite) + diaporama des photos ---- */
+.gal.big{margin-inline:0}
+.gal,.fstrip,.posters,.tomes,.herosrow,.chips{overscroll-behavior-x:contain}
+html,body{overscroll-behavior-x:none}
+@supports (overflow:clip){html{overflow-x:clip}body{overflow-x:clip}}
+@keyframes kb{from{transform:scale(1.02)}to{transform:scale(1.12) translate(-1.2%,-1%)}}
+@keyframes kb2{from{transform:scale(1.1) translate(1%,.8%)}to{transform:scale(1.02)}}
+.ch-hero.cover img,.ch-hero.affiche .fg,.gfi img,.hero-c img,.poster img,.tome img,.portrait img{animation:kb 11s ease-in-out infinite alternate;animation-play-state:paused;will-change:transform}
+.gf:nth-child(even) .gfi img,.hero-c:nth-child(even) img,.tome:nth-child(even) img{animation-name:kb2}
+.vu .gfi img,.vu .hero-c img,.vu .poster img,.vu .tome img,.ch-hero.vu img,.portrait.vu img,.vu.portrait img{animation-play-state:running}
+.gal .gf,.posters .poster,.tomes .tome,.herosrow .hero-c{opacity:.55;transform:scale(.94);transition:opacity .6s,transform .6s var(--ease)}
+.gal .gf.cur,.posters .poster.cur,.tomes .tome.cur,.herosrow .hero-c.cur{opacity:1;transform:none}
 body.intro-on #haut,body.intro-on #lueur{display:none}
 
 </style></head><body>
@@ -922,6 +935,29 @@ f.addEventListener('submit',function(e){e.preventDefault();msg.style.color='';
     addEventListener('pointerup',function(e){if(e.pointerType!=='mouse'){cache=setTimeout(function(){lu.classList.remove('on')},900)}},{passive:true});
     document.addEventListener('mouseleave',function(){lu.classList.remove('on')});
   }
+
+  /* diaporama : defilement automatique des rangees de photos + zoom lent des photos visibles */
+  (function(){
+    var bandes=$$('.gal,.posters,.tomes,.herosrow');
+    function items(b){return [].slice.call(b.children)}
+    function courant(b){var c=b.scrollLeft+b.clientWidth/2,best=0,d=1e9;items(b).forEach(function(f,i){var m=f.offsetLeft+f.offsetWidth/2-b.offsetLeft,x=Math.abs(m-c);if(x<d){d=x;best=i}});return best}
+    function marque(b){var k=courant(b);items(b).forEach(function(f,i){f.classList.toggle('cur',i===k)})}
+    bandes.forEach(function(b){
+      var vis=false,pause=0,t0=0;
+      marque(b);
+      b.addEventListener('scroll',function(){clearTimeout(t0);t0=setTimeout(function(){marque(b)},60)},{passive:true});
+      ['touchstart','pointerdown','wheel'].forEach(function(ev){b.addEventListener(ev,function(){pause=Date.now()+7000},{passive:true})});
+      if('IntersectionObserver' in window)new IntersectionObserver(function(es){vis=es[0].isIntersecting;b.classList.toggle('vu',vis);if(b.parentNode)b.parentNode.classList.toggle('vu',vis)},{threshold:.35}).observe(b);
+      if(reduit)return;
+      setInterval(function(){
+        if(!vis||document.hidden||Date.now()<pause||document.body.classList.contains('menu-on'))return;
+        var it=items(b);if(it.length<2)return;var k=(courant(b)+1)%it.length,f=it[k];
+        var x=f.offsetLeft-b.offsetLeft-(b.clientWidth-f.offsetWidth)/2;
+        b.scrollTo({left:Math.max(0,x),behavior:k===0?'auto':'smooth'});
+      },3600+Math.round(Math.random()*900));
+    });
+    if('IntersectionObserver' in window){var zi=new IntersectionObserver(function(es){es.forEach(function(e){e.target.classList.toggle('vu',e.isIntersecting)})},{threshold:.2});$$('.ch-hero,.portrait').forEach(function(e){zi.observe(e)})}
+  })();
   addEventListener('scroll',function(){haut.classList.toggle('on',scrollY>700)},{passive:true});
   haut.addEventListener('click',function(){scrollTo({top:0,behavior:reduit?'auto':'smooth'})});
 })();
