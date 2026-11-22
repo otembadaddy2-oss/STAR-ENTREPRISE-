@@ -84,7 +84,7 @@ CHAPITRES = [
  dict(nom="STAR TRANS", rub="Transport", accroche="Voyagez la ville en toute sérénité.", page="star-trans.html",
       intro="Déplacements urbains, interurbains et transferts aéroport avec des chauffeurs professionnels et des véhicules entretenus, suivi des trajets et estimation fiable des temps d'arrivée.",
       pts=[("Chauffeurs professionnels","Sélectionnés, formés et courtois."),("Couverture étendue","Urbain, interurbain, aéroport."),("Véhicules entretenus","Un parc contrôlé régulièrement."),("Location avec chauffeur","Pour vos journées et vos événements.")],
-      imgs=[("f-trans","STAR TRANS, le taxi nouvelle génération","cover")]),
+      imgs=[("f-trans","STAR TRANS : voir le véhicule en entier","affiche")]),
  dict(nom="STAR EXPRESS", rub="Gaz domestique", accroche="Le gaz à votre porte, en quelques clics.", page="star-express.html",
       intro="STAR EXPRESS livre vos bouteilles de gaz domestique à Pointe-Noire : commande en ligne, paiement mobile, livraison suivie. Un service pensé pour ne jamais tomber à court.",
       pts=[("Livraison rapide","Commande traitée et livrée le jour même dans la plupart des quartiers."),("Sécurité","Bouteilles contrôlées, livreurs formés à la manipulation."),("Paiement mobile","Mobile Money, Airtel Money ou à la livraison."),("7 jours sur 7","Même le week-end. Bouteilles 6 kg, 12 kg, 38 kg.")],
