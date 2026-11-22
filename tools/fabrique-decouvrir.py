@@ -554,7 +554,7 @@ html,body{overscroll-behavior-x:none}
 @supports (overflow:clip){html{overflow-x:clip}body{overflow-x:clip}}
 @keyframes kb{from{transform:scale(1.02)}to{transform:scale(1.12) translate(-1.2%,-1%)}}
 @keyframes kb2{from{transform:scale(1.1) translate(1%,.8%)}to{transform:scale(1.02)}}
-.ch-hero.cover img,.ch-hero.affiche .fg,.gfi img,.hero-c img,.poster img,.tome img,.portrait img{animation:kb 11s ease-in-out infinite alternate;animation-play-state:paused;will-change:transform}
+.ch-hero.cover img,.gfi img,.hero-c img,.poster img,.tome img,.portrait img{animation:kb 11s ease-in-out infinite alternate;animation-play-state:paused;will-change:transform}
 .gf:nth-child(even) .gfi img,.hero-c:nth-child(even) img,.tome:nth-child(even) img{animation-name:kb2}
 .vu .gfi img,.vu .hero-c img,.vu .poster img,.vu .tome img,.ch-hero.vu img,.portrait.vu img,.vu.portrait img{animation-play-state:running}
 .gal .gf,.posters .poster,.tomes .tome,.herosrow .hero-c{opacity:.55;transform:scale(.94);transition:opacity .6s,transform .6s var(--ease)}
