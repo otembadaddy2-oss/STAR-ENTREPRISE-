@@ -519,8 +519,8 @@ footer{background:#020a22;border-top:0}
 .officiel h3{font-size:clamp(1.5rem,5.6vw,2.2rem);margin-bottom:10px;color:#fff}
 .officiel p{color:#cfd8ef;font-size:1.02rem}.officiel b{color:#fff;white-space:nowrap}
 /* diamant */
-.diamant{position:relative;width:min(46vw,170px);margin:38px 0 0;filter:drop-shadow(0 18px 24px rgba(31,79,209,.35))}
-.diamant svg{width:100%;display:block;animation:flotte 5s ease-in-out infinite}
+.diamant{position:relative;width:min(64vw,300px);margin:38px 0 0;filter:drop-shadow(0 18px 24px rgba(31,79,209,.22))}
+.diamant img{width:100%;height:auto;display:block;animation:flotte 5s ease-in-out infinite}
 .diamant i{position:absolute;inset:0;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.95) 50%,transparent 60%);mix-blend-mode:overlay;transform:translateX(-120%);animation:brille 3.6s ease-in-out infinite;pointer-events:none}
 @keyframes flotte{50%{transform:translateY(-8px) rotate(2deg)}}
 @keyframes brille{45%,100%{transform:translateX(130%)}}
@@ -554,7 +554,7 @@ html,body{overscroll-behavior-x:none}
 @supports (overflow:clip){html{overflow-x:clip}body{overflow-x:clip}}
 @keyframes kb{from{transform:scale(1.02)}to{transform:scale(1.12) translate(-1.2%,-1%)}}
 @keyframes kb2{from{transform:scale(1.1) translate(1%,.8%)}to{transform:scale(1.02)}}
-.ch-hero.cover img,.ch-hero.affiche .fg,.gfi img,.hero-c img,.poster img,.tome img,.portrait img{animation:kb 11s ease-in-out infinite alternate;animation-play-state:paused;will-change:transform}
+.ch-hero.cover img,.gfi img,.hero-c img,.poster img,.tome img,.portrait img{animation:kb 11s ease-in-out infinite alternate;animation-play-state:paused;will-change:transform}
 .gf:nth-child(even) .gfi img,.hero-c:nth-child(even) img,.tome:nth-child(even) img{animation-name:kb2}
 .vu .gfi img,.vu .hero-c img,.vu .poster img,.vu .tome img,.ch-hero.vu img,.portrait.vu img,.vu.portrait img{animation-play-state:running}
 .gal .gf,.posters .poster,.tomes .tome,.herosrow .hero-c{opacity:.55;transform:scale(.94);transition:opacity .6s,transform .6s var(--ease)}
@@ -615,7 +615,7 @@ BODY = r"""
       <p class="lead rv d1">Nous ne faisons pas que distribuer : nous créons. Des applications comme KOMYO et Keydou, des technologies de calcul graphique et d'intelligence artificielle, des marques, des jeux, une saga littéraire de dix tomes. Chaque création porte la même signature et la même exigence.</p>
     </div>
     <blockquote class="cite rv"><span class="ital">« Une idée, même imparfaite au départ, peut devenir un diamant si elle est taillée avec méthode, créativité et exigence. »</span><cite>— La philosophie de Carry OTEMBA</cite></blockquote>
-    <div class="diamant rv" aria-hidden="true"><svg viewBox="0 0 200 170"><defs><linearGradient id="dg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#8db2ff"/></linearGradient><linearGradient id="dg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bcd3ff"/><stop offset="1" stop-color="#2b5bd6"/></linearGradient><linearGradient id="dg3" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e6efff"/><stop offset="1" stop-color="#4f7df0"/></linearGradient></defs><polygon points="70,10 130,10 120,60 80,60" fill="url(#dg1)"/><polygon points="10,60 70,10 80,60" fill="url(#dg3)"/><polygon points="190,60 130,10 120,60" fill="url(#dg2)"/><polygon points="50,10 70,10 10,60" fill="#dce8ff"/><polygon points="150,10 130,10 190,60" fill="#7fa4f5"/><polygon points="10,60 80,60 100,165" fill="url(#dg2)"/><polygon points="80,60 120,60 100,165" fill="url(#dg1)"/><polygon points="120,60 190,60 100,165" fill="url(#dg3)"/></svg><i></i></div>
+    <div class="diamant rv" aria-hidden="true"><img src="img/diamant.webp" alt="" width="640" height="435" loading="lazy" decoding="async"><i></i></div>
     <div class="officiel rv"><span class="eyebrow">Une entreprise officielle</span><h3>Bien enregistrée en République du Congo</h3><p>STAR ENTREPRISE est immatriculée au Registre du Commerce et du Crédit Mobilier (RCCM) de Brazzaville sous le <b>n° CG-BZV-01-2026-A10-01950</b>. Elle exerce avec les autorisations délivrées par les administrations congolaises compétentes : formalités de création, statistique nationale et autorisation d'exercice des activités commerciales.</p></div>
   </div>
 </section>
