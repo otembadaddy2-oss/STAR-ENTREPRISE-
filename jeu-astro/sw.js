@@ -1,6 +1,6 @@
 /* ASTRO QUEST — service worker : le jeu s'installe sur le téléphone et fonctionne SANS connexion (tout est en cache). */
-var VERSION = 'astro-v1';
-var FICHIERS = ['./', './index.html', './game.js', './questions.js', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png'];
+var VERSION = 'astro-v2';
+var FICHIERS = ['./', './index.html', './game.js', './premium.js', './polices/inter-display-300.woff2', './polices/inter-display-600.woff2', './polices/inter-display-800.woff2', './polices/jbmono-500.woff2', './polices/jbmono-700.woff2', './questions.js', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png'];
 self.addEventListener('install', function (e) { e.waitUntil(caches.open(VERSION).then(function (c) { return c.addAll(FICHIERS); }).then(function () { return self.skipWaiting(); })); });
 self.addEventListener('activate', function (e) {
   e.waitUntil(caches.keys().then(function (ks) { return Promise.all(ks.filter(function (k) { return k.indexOf('astro-') === 0 && k !== VERSION; }).map(function (k) { return caches.delete(k); })); }).then(function () { return self.clients.claim(); }));

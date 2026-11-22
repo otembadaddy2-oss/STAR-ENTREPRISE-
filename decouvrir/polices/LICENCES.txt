@@ -1,0 +1,9 @@
+Polices incluses dans ASTRO QUEST (sous-ensembles latins, pour que le jeu fonctionne sans connexion)
+
+- Inter Display (Light, SemiBold, ExtraBold) : © The Inter Project Authors (https://github.com/rsms/inter). Licence SIL Open Font License 1.1.
+- JetBrains Mono (Medium, Bold) : © 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono). Licence SIL Open Font License 1.1.
+
+La licence SIL OFL 1.1 autorise l'usage, la modification et l'intégration dans un produit, y compris commercial, à condition de conserver cette mention
+et de ne pas vendre les polices seules. Texte complet : https://openfontlicense.org
+
+- Playfair Display, Cormorant Garamond, Great Vibes (sous-ensembles latins, via Fontsource) : SIL Open Font License 1.1.

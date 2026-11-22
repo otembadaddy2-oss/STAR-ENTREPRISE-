@@ -12,6 +12,12 @@ http://komyo.starentreprise.com/   /starvibe/  301!
 
 # Fichiers du dépôt qui n'ont pas à être publics (code des fonctions, outils, notes internes, annuaires de Keydou) : introuvables.
 # Jeu ASTRO QUEST : gardé de côté, NON PUBLIC jusqu'à l'ordre de Carry. Pour le publier : supprimer cette ligne (et la précédente), puis un déploiement.
+# Page « Découvrez qui est STAR ENTREPRISE » : publiée le 22/11/2026 sur Netlify (à la demande de Carry) ; elle migrera ensuite vers Hostinger.
+/decouvrir        /decouvrir/  301
+# Archives internes (copie du site officiel Hostinger, sans secrets) : jamais publiques.
+/docs/archives/*  /404.html  404!
+# Fiches des filiales (version 0, à compléter avec Carry) : pas publiques tant qu'elles ne sont pas finalisées.
+/docs/fiches-filiales/*  /404.html  404!
 /jeu-astro/*      /404.html  404!
 /jeu-astro        /404.html  404!
 /netlify/*        /404.html  404!
