@@ -87,7 +87,7 @@ MARQUES = gal_html([
  ('a-pioupiou-komyo', 'PIOUPIOU × KOMYO', 'Les enfants aussi ont leur espace', 'affiche'), ('c-lapinbio', 'Lapin Bio', 'Le bio de chez nous', 'cover'),
  ('c-burkina', 'Burkina Faso Bio', "Terre d'opportunités, terre de richesses", 'cover'), ('c-sosdoc', 'SOS DOC', 'Plateforme numérique', 'cover'),
  ('c-staralerte', 'STAR ALERTE', 'Un geste rapide peut sauver une vie', 'cover'), ('c-dinnovation-btp', 'D-Innovation BTP', "Des infrastructures qui tiennent l'épreuve du terrain", 'cover'),
- ('c-dinnovation-pressing', 'D-Innovation Pressing', 'Le soin du linge', 'cover'), ('c-kindimbou', 'Kindimbou', "Un guide d'utilisation clair", 'cover'),
+ ('c-pressing', 'D-Innovation Pressing', 'Nettoyage à sec, lavage et repassage, avec collecte et livraison à domicile', 'cover'), ('c-kindimbou', 'Kindimbou', "Un guide d'utilisation clair", 'cover'),
  ('g-sarah', 'Sarah', 'Assistante digitale des clients STAR ENTREPRISE', 'affiche')])
 
 CSS = r"""
@@ -434,7 +434,7 @@ details.q p{padding:0 20px 20px;color:var(--mute);max-width:70ch}
 .signature{font-size:clamp(2.2rem,9vw,3.6rem);line-height:1;margin-top:12px}
 
 /* contact */
-#contact{background:radial-gradient(90% 70% at 50% 0,#14265a66,transparent)}
+#contact{background:radial-gradient(90% 70% at 50% 0,#14265a66,transparent),var(--nuit)}
 .coord{display:grid;gap:12px;margin-block:26px}
 .coord a{display:flex;align-items:center;gap:14px;padding:18px 20px;border-radius:18px;border:1px solid var(--line);background:var(--glass);text-decoration:none;font-weight:600;font-size:1.05rem;transition:transform .3s var(--ease),border-color .3s}
 .coord a:hover{transform:translateX(6px);border-color:var(--gold)}
@@ -460,6 +460,94 @@ footer p{color:var(--mute);font-size:.85rem;max-width:62ch;margin:6px auto}
 @keyframes ping2{70%{box-shadow:0 10px 30px -6px #000,0 0 0 18px #1fa85500}100%{box-shadow:0 10px 30px -6px #000,0 0 0 0 #1fa85500}}
 body.intro-on #flot{display:none}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.js .rv{opacity:1;transform:none}html{scroll-behavior:auto}.manif span{opacity:1}}
+/* ================= THÈME v4 : fond clair, bleu nuit du logo STAR, motif bogolan ================= */
+:root{--nuit:#041030;--nuit2:#071a46;--bg:#ffffff;--bg2:#eef2fa;--ink:#0a1633;--mute:#46536f;--soft:#27344f;--line:rgba(4,16,48,.14);--glass:#ffffff;--gold:#a87a14;--gold2:#1a3f9e;--hl1:#16358f;--hl2:#2f66ea;--hl3:#1d46b8;--sh:0 22px 44px -26px rgba(4,16,48,.45);--blue:#1f4fd1}
+.nuit,.tk-nuit,#intro,#hero,.ch-titre,.ch-voile,.ch-hero,footer,#menu,.marquee,#bar{color:var(--ink);--bg:var(--nuit);--ink:#f6f3ec;--mute:#b9c3de;--soft:#d6ddf2;--line:rgba(255,255,255,.17);--glass:rgba(255,255,255,.06);--gold:#e3b653;--gold2:#d8e3ff;--hl1:#b98a2c;--hl2:#ffe29a;--hl3:#e3b653;--sh:0 22px 44px -26px #000}
+.nuit{background:var(--nuit);color:var(--ink);position:relative;isolation:isolate}
+.nuit::before{content:"";position:absolute;inset:0;z-index:-1;background:url(img/bg-pagne.webp) center/340px;opacity:.14;mix-blend-mode:screen;pointer-events:none}
+.teinte{background:var(--bg2)}
+.gold{background-image:linear-gradient(100deg,var(--hl1),var(--hl2) 40%,var(--hl3) 62%,var(--hl1));background-size:220% auto}
+.script{color:var(--gold2)}
+.btn{background:transparent}
+.btn:hover,.btn:focus-visible{background:rgba(4,16,48,.07);box-shadow:var(--sh)}
+.nuit .btn:hover,.tk-nuit .btn:hover,#hero .btn:hover{background:rgba(255,255,255,.12)}
+.btn.or:hover{background:linear-gradient(135deg,#ffe08a,#d39a30)}
+/* en-tête bleu nuit + logo officiel */
+#bar{height:calc(66px + env(safe-area-inset-top,0px));background:rgba(4,16,48,.97);border-bottom:1px solid rgba(255,255,255,.1);backdrop-filter:none;-webkit-backdrop-filter:none}
+#bar.plein{background:var(--nuit);box-shadow:0 8px 30px -14px #000}
+#bar .brand img{width:52px;height:52px;object-fit:contain;filter:none;border-radius:13px}
+#bar .topnav a{color:#cdd6ee}
+#bar .topnav a:hover,#bar .topnav a.on{color:#fff;background:rgba(255,255,255,.14)}
+#burger{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.28)}
+#burger i{background:#fff}
+#menu{background:radial-gradient(100% 70% at 50% 0,#0b2468,var(--nuit))}
+#menu nav a{border-bottom-color:rgba(255,255,255,.13);color:#fff}
+#menu nav a:hover{color:#ffe29a}
+.chips{top:calc(66px + env(safe-area-inset-top,0px));background:var(--bg);border-bottom:1px solid var(--line)}
+.chips a{background:var(--bg2);color:var(--mute)}
+.chips a.on{background:var(--nuit);color:#fff;border-color:transparent}
+.grandesec.nuit{background:var(--nuit)}
+.bloc-mv{background:var(--glass);box-shadow:var(--sh)}
+.bloc-mv p,.article p,.vals span{color:var(--soft)}
+.vals>div{background:var(--glass)}
+.amb>div,.pts li,.av,.engage div,.jeu,.tc{box-shadow:var(--sh)}
+.amb b{-webkit-text-stroke:1px var(--gold2)}
+/* intro : motif bogolan sous le bleu, sans filet jaune */
+#intro{background:var(--nuit)}
+.curtain{background:linear-gradient(rgba(4,16,48,.86),rgba(4,16,48,.94)),url(img/bg-pagne.webp) center/300px}
+.curtain.l,.curtain.r{border:0}
+.curtain::after{display:none}
+#hero::after{background:linear-gradient(180deg,rgba(4,16,48,.55) 0%,rgba(4,16,48,0) 30%,rgba(4,16,48,.82) 72%,rgba(4,16,48,.97) 100%)}
+#hero .lead{color:#e6ebf7}
+/* chapitres : image sombre, texte sous l'image sur fond clair */
+.ch-voile{background:linear-gradient(180deg,rgba(4,16,48,.5) 0%,rgba(4,16,48,0) 28%,rgba(4,16,48,.45) 52%,rgba(4,16,48,.93) 85%,rgba(4,16,48,.99) 100%)}
+.ch-titre{color:var(--ink)}
+.ch-hero .lg{width:min(94%,680px);max-height:74%;top:44%}
+.ch-intro{color:var(--soft)}
+.pts li{background:var(--glass)}
+.steps li{background:linear-gradient(90deg,rgba(4,16,48,.06),transparent)}
+.phone{box-shadow:0 0 0 6px #0b1530,0 50px 90px -20px rgba(4,16,48,.6),0 0 60px -10px rgba(47,102,234,.35)}
+.marquee{background:var(--nuit);border-block:0;color:var(--ink)}
+.marquee span{color:var(--gold)}
+form.cv input,form.cv select,form.cv textarea{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.24)}
+form.cv select option{color:#000}
+footer{background:#020a22;border-top:0}
+.cite .ital{color:var(--ink)}
+.officiel{margin-top:44px;padding:clamp(22px,5vw,38px);border-radius:24px;background:var(--nuit);color:#f6f3ec;position:relative;overflow:hidden;isolation:isolate;max-width:760px}
+.officiel::before{content:"";position:absolute;inset:0;z-index:-1;background:url(img/bg-pagne.webp) center/300px;opacity:.16;mix-blend-mode:screen}
+.officiel .eyebrow{color:#e3b653}
+.officiel h3{font-size:clamp(1.5rem,5.6vw,2.2rem);margin-bottom:10px;color:#fff}
+.officiel p{color:#cfd8ef;font-size:1.02rem}.officiel b{color:#fff;white-space:nowrap}
+/* diamant */
+.diamant{position:relative;width:min(46vw,170px);margin:38px 0 0;filter:drop-shadow(0 18px 24px rgba(31,79,209,.35))}
+.diamant svg{width:100%;display:block;animation:flotte 5s ease-in-out infinite}
+.diamant i{position:absolute;inset:0;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.95) 50%,transparent 60%);mix-blend-mode:overlay;transform:translateX(-120%);animation:brille 3.6s ease-in-out infinite;pointer-events:none}
+@keyframes flotte{50%{transform:translateY(-8px) rotate(2deg)}}
+@keyframes brille{45%,100%{transform:translateX(130%)}}
+/* effets de survol et de toucher */
+.pts li,.av,.amb>div,.vals>div,.tc,.bloc-mv,.engage>div,.jeu,.hero-c,.officiel{position:relative;overflow:hidden;transition:transform .45s var(--ease),box-shadow .45s,border-color .45s}
+.pts li::after,.av::after,.amb>div::after,.vals>div::after,.tc::after,.bloc-mv::after,.engage>div::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(120,160,255,.28) 50%,transparent 65%);transform:translateX(-130%);transition:transform .9s;pointer-events:none}
+@media(hover:hover){
+ .pts li:hover,.av:hover,.amb>div:hover,.vals>div:hover,.tc:hover,.bloc-mv:hover,.engage>div:hover,.jeu:hover,.hero-c:hover{transform:translateY(-8px);border-color:var(--gold);box-shadow:0 30px 56px -26px rgba(4,16,48,.6),0 0 0 1px var(--gold)}
+ .pts li:hover::after,.av:hover::after,.amb>div:hover::after,.vals>div:hover::after,.tc:hover::after,.bloc-mv:hover::after,.engage>div:hover::after{transform:translateX(130%)}
+ .gf:hover img,.poster:hover img,.tome:hover img{transform:scale(1.05)}
+ .gf:hover .gfi,.tome:hover img{box-shadow:0 34px 60px -24px rgba(4,16,48,.7)}
+}
+.pts li:active,.av:active,.amb>div:active,.vals>div:active,.tc:active{transform:scale(.98)}
+.gf .gfi{overflow:hidden}.gf img,.poster img,.tome img{transition:transform .8s var(--ease),box-shadow .5s}
+#lueur{position:fixed;left:0;top:0;width:420px;height:420px;border-radius:50%;pointer-events:none;z-index:4;background:radial-gradient(circle,rgba(60,115,255,.28),rgba(227,182,83,.13) 42%,transparent 68%);opacity:0;transition:opacity .45s;will-change:transform}
+#lueur.on{opacity:1}
+.etin{position:fixed;width:9px;height:9px;pointer-events:none;z-index:6;transform:rotate(45deg);background:linear-gradient(135deg,#fff,#7fa8ff);box-shadow:0 0 10px 2px rgba(120,165,255,.8);animation:etin .8s ease-out forwards}
+.etin.g{background:linear-gradient(135deg,#fff7d1,#e3b653);box-shadow:0 0 10px 2px rgba(227,182,83,.85)}
+@keyframes etin{to{transform:translate(var(--dx,0),var(--dy,30px)) rotate(225deg) scale(.1);opacity:0}}
+.onde{position:fixed;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;border:2px solid rgba(255,226,154,.95);box-shadow:0 0 22px 5px rgba(80,130,255,.55),inset 0 0 16px rgba(255,226,154,.45);pointer-events:none;z-index:200;animation:onde 1.05s ease-out forwards}
+.onde.o1{animation-delay:.12s;border-color:rgba(120,170,255,.95)}
+.onde.o2{animation-delay:.25s;border-color:rgba(255,255,255,.9)}
+@keyframes onde{from{transform:scale(.2);opacity:1}to{transform:scale(14);opacity:0}}
+#haut{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:55;width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:var(--nuit);color:#fff;font-size:1.3rem;cursor:pointer;opacity:0;transform:translateY(14px);pointer-events:none;transition:all .4s var(--ease);box-shadow:0 10px 26px -8px #000}
+#haut.on{opacity:1;transform:none;pointer-events:auto}
+body.intro-on #haut,body.intro-on #lueur{display:none}
+
 """
 
 WA_SVG = '<svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path fill="#fff" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>'
@@ -467,14 +555,14 @@ WA_SVG = '<svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><pa
 BODY = r"""
 <div id="prog"></div>
 <header id="bar">
-  <a class="brand" href="#hero" aria-label="STAR ENTREPRISE, haut de page"><img src="img/mark.webp" alt=""><span>STAR ENTREPRISE</span></a>
+  <a class="brand" href="#hero" aria-label="STAR ENTREPRISE, haut de page"><img src="img/logo-star.webp" alt="STAR ENTREPRISE"></a>
   <nav class="topnav" aria-label="Navigation principale"><a href="#qui">Qui sommes-nous</a><a href="#vision">Vision</a><a href="#ambitions">Ambitions</a><a href="#filiales">Filiales</a><a href="#komyo">KOMYO</a><a href="#saga">X SAPHIR</a><a href="#histoire">Blog</a></nav>
   <a class="btn or hcta" href="#contact">Contact</a>
   <button id="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu"><i></i><i></i><i></i></button>
 </header>
 <div id="menu" hidden><nav aria-label="Menu"><a href="#hero"><small>00</small>Accueil</a><a href="#qui"><small>01</small>Qui sommes-nous</a><a href="#vision"><small>02</small>Mission &amp; vision</a><a href="#ambitions"><small>03</small>Nos ambitions</a><a href="#valeurs"><small>04</small>Nos valeurs</a><a href="#filiales"><small>05</small>Nos 21 filiales</a><a href="#komyo"><small>06</small>KOMYO &amp; Keydou</a><a href="#energie"><small>07</small>STAR ÉNERGIE</a><a href="#tech"><small>08</small>STAR TECH</a><a href="#culture"><small>09</small>Le livre</a><a href="#saga"><small>10</small>X SAPHIR</a><a href="#creations"><small>11</small>Nos créations</a><a href="#histoire"><small>12</small>Le blog</a><a href="#contact"><small>13</small>Contact &amp; carrières</a></nav><p class="droits">© STAR ENTREPRISE — Tous droits réservés</p></div>
 
-<div id="intro" role="dialog" aria-label="Bienvenue chez STAR ENTREPRISE">
+<div id="intro" class="tk-nuit" role="dialog" aria-label="Bienvenue chez STAR ENTREPRISE">
   <canvas id="dust"></canvas>
   <div class="curtain l"></div><div class="curtain r"></div>
   <div class="core">
@@ -496,10 +584,10 @@ BODY = r"""
     <div class="slide"><img src="img/f-meubles.webp" alt=""></div>
   </div>
   <div class="wrap in">
-    <span class="eyebrow">Brazzaville · Pointe-Noire · Congo</span>
+    <span class="eyebrow">Du Canada au Congo</span>
     <h1>Qui est <span class="gold">STAR ENTREPRISE&nbsp;?</span></h1>
     <p class="lead">Une seule entreprise. Santé, épargne, immobilier, tourisme, énergie, art, numérique… Toutes les solutions pour votre vie, réunies sous une même étoile.</p>
-    <div class="cta"><a class="btn or" href="#filiales">Voir nos 21 filiales</a><a class="btn" href="#contact">Nous contacter</a></div>
+    <div class="cta"><a class="btn or" href="#filiales">Voir nos 21 filiales</a><a class="btn" href="#vision">Notre vision</a></div>
   </div>
   <i class="scrollcue" aria-hidden="true"></i>
 </section>
@@ -510,14 +598,16 @@ BODY = r"""
     <h2 class="mega rv">STAR<br><span class="gold">ENTREPRISE</span></h2>
     <p class="ital rv d1 chapeau">Un seul groupe, toutes les solutions pour votre vie.</p>
     <div class="deuxcol">
-      <p class="lead rv">STAR ENTREPRISE est un groupe congolais multi-métiers, né à Brazzaville et à Pointe-Noire et dirigé par son fondateur, Carry OTEMBA. Nous réunissons sous une même étoile vingt-et-une filiales : santé et solidarité, épargne, immobilier et patrimoine, tourisme et voyage, mariage et événements, énergie, mobilité, enfance, création et art.</p>
+      <p class="lead rv">STAR ENTREPRISE est un groupe multi-métiers fondé par Carry OTEMBA depuis le Canada, ouvert et officiellement enregistré en République du Congo, à Brazzaville et à Pointe-Noire. Nous réunissons sous une même étoile vingt-et-une filiales : santé et solidarité, épargne, immobilier et patrimoine, tourisme et voyage, mariage et événements, énergie, mobilité, enfance, création et art.</p>
       <p class="lead rv d1">Nous ne faisons pas que distribuer : nous créons. Des applications comme KOMYO et Keydou, des technologies de calcul graphique et d'intelligence artificielle, des marques, des jeux, une saga littéraire de dix tomes. Chaque création porte la même signature et la même exigence.</p>
     </div>
     <blockquote class="cite rv"><span class="ital">« Une idée, même imparfaite au départ, peut devenir un diamant si elle est taillée avec méthode, créativité et exigence. »</span><cite>— La philosophie de Carry OTEMBA</cite></blockquote>
+    <div class="diamant rv" aria-hidden="true"><svg viewBox="0 0 200 170"><defs><linearGradient id="dg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#8db2ff"/></linearGradient><linearGradient id="dg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bcd3ff"/><stop offset="1" stop-color="#2b5bd6"/></linearGradient><linearGradient id="dg3" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e6efff"/><stop offset="1" stop-color="#4f7df0"/></linearGradient></defs><polygon points="70,10 130,10 120,60 80,60" fill="url(#dg1)"/><polygon points="10,60 70,10 80,60" fill="url(#dg3)"/><polygon points="190,60 130,10 120,60" fill="url(#dg2)"/><polygon points="50,10 70,10 10,60" fill="#dce8ff"/><polygon points="150,10 130,10 190,60" fill="#7fa4f5"/><polygon points="10,60 80,60 100,165" fill="url(#dg2)"/><polygon points="80,60 120,60 100,165" fill="url(#dg1)"/><polygon points="120,60 190,60 100,165" fill="url(#dg3)"/></svg><i></i></div>
+    <div class="officiel rv"><span class="eyebrow">Une entreprise officielle</span><h3>Bien enregistrée en République du Congo</h3><p>STAR ENTREPRISE est immatriculée au Registre du Commerce et du Crédit Mobilier (RCCM) de Brazzaville sous le <b>n° CG-BZV-01-2026-A10-01950</b>. Elle exerce avec les autorisations délivrées par les administrations congolaises compétentes : formalités de création, statistique nationale et autorisation d'exercice des activités commerciales.</p></div>
   </div>
 </section>
 
-<section id="manifeste">
+<section id="manifeste" class="nuit">
   <div class="wrap">
     <span class="eyebrow rv">Notre force</span>
     <p class="manif" id="manif">Un seul compte. Une seule entreprise. Toutes les solutions pour votre vie.</p>
@@ -536,14 +626,14 @@ BODY = r"""
     <div>
       <span class="eyebrow rv">Le fondateur</span>
       <h2 class="rv">Carry <span class="gold">OTEMBA</span></h2>
-      <p class="lead rv d1">PDG de STAR ENTREPRISE. Du soin de la famille à l'énergie solaire, de l'art à l'intelligence artificielle : une vision, celle de mettre au service des Congolais, et bien au-delà, des solutions sérieuses, belles et accessibles.</p>
+      <p class="lead rv d1">PDG de STAR ENTREPRISE. Depuis le Canada, il a créé le groupe et l'a ouvert en République du Congo. Du soin de la famille à l'énergie solaire, de l'art à l'intelligence artificielle : une vision, celle de mettre au service des Congolais, et bien au-delà, des solutions sérieuses, belles et accessibles.</p>
       <p class="signature script rv d2">Carry Otemba</p>
       <p class="lead rv d2" style="margin-top:14px">Chaque filiale a son métier, son équipe et son identité. Toutes partagent la même promesse : <b style="color:var(--ink);font-weight:600">un seul groupe, toutes les solutions pour votre vie.</b></p>
     </div>
   </div>
 </section>
 
-<section id="vision" class="grandesec alt">
+<section id="vision" class="grandesec nuit">
   <div class="wrap">
     <span class="eyebrow rv">02 — Notre mission et notre vision</span>
     <h2 class="mega rv">NOTRE<br><span class="gold">VISION</span></h2>
@@ -559,7 +649,7 @@ BODY = r"""
   <div class="wrap">
     <span class="eyebrow rv">03 — Ce que nous voulons accomplir</span>
     <h2 class="mega rv">NOS<br><span class="gold">AMBITIONS</span></h2>
-    <p class="ital rv d1 chapeau">Voir grand, depuis le Congo, et le faire bien.</p>
+    <p class="ital rv d1 chapeau">Voir grand, du Canada au Congo, et le faire bien.</p>
     <div class="amb">
       <div class="rv"><b>01</b><h3>Un compte, tout le groupe</h3><p>Un seul compte, un paiement sécurisé et un programme de fidélité, STAR MBOTÉ, valables dans toutes les filiales.</p></div>
       <div class="rv d1"><b>02</b><h3>Des technologies de chez nous</h3><p>KOMYO, Keydou, STAR GPU, UC STAR, STAR IA : des outils pensés et conçus ici, qui tournent sur les téléphones que les gens ont déjà.</p></div>
@@ -571,7 +661,7 @@ BODY = r"""
   </div>
 </section>
 
-<section id="valeurs" class="grandesec alt">
+<section id="valeurs" class="grandesec nuit">
   <div class="wrap">
     <span class="eyebrow rv">04 — Ce qui nous guide</span>
     <h2 class="mega rv">NOS<br><span class="gold">VALEURS</span></h2>
@@ -581,7 +671,7 @@ BODY = r"""
       <div class="rv d2"><b>Transparence</b><span>Des délais tenus, une communication fluide, des conditions annoncées sans surprise.</span></div>
       <div class="rv"><b>Présence</b><span>Nous restons à vos côtés bien après le lancement, la vente ou la livraison.</span></div>
       <div class="rv d1"><b>Créativité</b><span>Nous aimons inventer : une marque, une application, un univers, une façon de faire.</span></div>
-      <div class="rv d2"><b>Fierté africaine</b><span>Nos racines, notre force. Nous créons ici, pour ici, et pour le monde.</span></div>
+      <div class="rv d2"><b>Fierté africaine</b><span>Nos racines, notre force. Nous créons du Canada au Congo, pour l'Afrique et pour le monde.</span></div>
     </div>
   </div>
 </section>
@@ -632,7 +722,7 @@ BODY = r"""
   </div>
 </section>
 
-<section id="energie" style="background:linear-gradient(180deg,var(--bg),#0d1a3d,var(--bg))">
+<section id="energie" class="teinte">
   <div class="wrap duo inv">
     <div class="portrait rv tilt"><img src="img/a-energie-affiche.webp" alt="Affiche STAR ÉNERGIE : kit solaire" loading="lazy"></div>
     <div>
@@ -644,7 +734,7 @@ BODY = r"""
   </div>
 </section>
 
-<section id="tech">
+<section id="tech" class="nuit">
   <canvas id="grille" aria-hidden="true"></canvas>
   <div class="wrap">
     <span class="eyebrow rv">STAR TECH · notre dernière création</span>
@@ -672,11 +762,11 @@ BODY = r"""
   </div>
 </section>
 
-<section id="saga" style="background:linear-gradient(180deg,var(--bg),#0b1330 40%,#1a0b10 80%,var(--bg))">
+<section id="saga" class="nuit">
   <div class="wrap">
     <span class="eyebrow rv">La saga · le jeu</span>
     <h2 class="rv">X <span class="gold">SAPHIR</span></h2>
-    <p class="lead rv d1">Les dix tomes sont terminés et disponibles. Un héros, Calpros, les Trois Forces, un clan et le Saphir des Deux Mondes. Voici les couvertures, puis l'univers du jeu qui arrive.</p>
+    <p class="lead rv d1">Les dix tomes sont terminés et disponibles. Une épopée née au Canada : un héros, Calpros, les Trois Forces, un clan et le Saphir des Deux Mondes. Voici les couvertures, puis l'univers du jeu qui arrive.</p>
   </div>
   <div class="tomes">
 %%TOMES%%
@@ -717,12 +807,12 @@ BODY = r"""
   <div class="wrap">
     <div class="duo" style="margin-top:70px">
       <div class="wide rv" style="aspect-ratio:9/16;max-width:340px;margin-inline:auto"><video id="v-star" playsinline preload="none" poster="img/p-star-entreprise.webp" controls><source src="video/star-entreprise.mp4" type="video/mp4"></video></div>
-      <div><span class="eyebrow rv">Le film</span><h2 class="rv" style="font-size:clamp(1.8rem,6.6vw,3rem)">Un seul groupe. <span class="gold">Toutes les solutions.</span></h2><p class="lead rv d1">STAR ENTREPRISE en moins de vingt-cinq secondes : restaurant, salle de sport, yaourt, entreprise… votre projet a sa place ici.</p></div>
+      <div><span class="eyebrow rv">Notre vidéo de présentation</span><h2 class="rv" style="font-size:clamp(1.8rem,6.6vw,3rem)">STAR ENTREPRISE <span class="gold">en 22 secondes</span></h2><p class="lead rv d1">Une courte vidéo pour comprendre ce que nous faisons : un seul groupe qui réunit des métiers variés (restauration, sport, alimentation, entreprises…) pour répondre à tous vos besoins.</p></div>
     </div>
   </div>
 </section>
 
-<section id="histoire">
+<section id="histoire" class="teinte">
   <div class="wrap">
     <span class="eyebrow rv">Le blog de STAR ENTREPRISE</span>
     <h2 class="rv">Notre histoire, <span class="gold">en détail</span></h2>
@@ -734,11 +824,12 @@ BODY = r"""
     <div class="article rv"><div><span class="eyebrow">Article 2</span><h3>L'exigence STAR ENTREPRISE, appliquée à chaque détail</h3><p class="ital">Quatre habitudes qui ne changent pas, d'une filiale à l'autre.</p></div>
       <div><div class="engage" style="margin-top:0;grid-template-columns:1fr 1fr"><div><b>Écoute</b><span>Nous partons de votre besoin, pas de notre catalogue.</span></div><div><b>Qualité</b><span>Des produits et des équipes sélectionnés avec soin.</span></div><div><b>Transparence</b><span>État, délais et conditions annoncés sans surprise.</span></div><div><b>Suivi</b><span>Nous restons présents après la prestation.</span></div></div></div></div>
 
-    <div class="article rv"><div><span class="eyebrow">Article 3</span><h3>Innover depuis le Congo</h3><p class="ital">Des applications, de l'intelligence artificielle et une saga, créées chez nous.</p></div>
+    <div class="article rv"><div><span class="eyebrow">Article 3</span><h3>Innover du Canada au Congo</h3><p class="ital">Des applications, de l'intelligence artificielle et une saga, créées chez nous.</p></div>
       <div><p>STAR ENTREPRISE ne se contente pas de distribuer : elle crée. KOMYO, le réseau social qui réunit la famille. Keydou, le compagnon qui répond et qui guide. STAR TECH, nos technologies de calcul graphique et d'intelligence artificielle qui tournent sur un simple téléphone. X SAPHIR, une saga de dix tomes devenue univers de jeu. Chaque création porte la même signature et reste la propriété de STAR ENTREPRISE.</p></div></div>
 
     <h3 class="sub rv"><small>Questions fréquentes</small>Vous vous <span class="gold">demandez</span>…</h3>
-    <details class="q rv"><summary>Comment vous contacter ?</summary><p>Par WhatsApp au +242 06 656 50 50 (service client), par e-mail à contact@starentreprise.com ou par téléphone. Nous sommes à Brazzaville et à Pointe-Noire.</p></details>
+    <details class="q rv"><summary>Comment vous contacter ?</summary><p>Par WhatsApp au +242 06 656 50 50 (service client), par e-mail à contact@starentreprise.com ou par téléphone. Nous sommes dirigés depuis le Canada et implantés en République du Congo : Brazzaville et Pointe-Noire.</p></details>
+    <details class="q rv"><summary>L'entreprise est-elle officiellement enregistrée ?</summary><p>Oui. STAR ENTREPRISE est immatriculée au Registre du Commerce et du Crédit Mobilier (RCCM) de Brazzaville sous le n° CG-BZV-01-2026-A10-01950, avec ses autorisations d'exercice délivrées par les administrations congolaises compétentes.</p></details>
     <details class="q rv"><summary>Comment payer ?</summary><p>Selon les services : Mobile Money, Airtel Money ou paiement à la livraison. Demandez-nous le détail pour la filiale qui vous intéresse.</p></details>
     <details class="q rv"><summary>Comment obtenir un prix ou un devis ?</summary><p>Écrivez-nous sur WhatsApp en indiquant la filiale et votre besoin : nous vous répondons avec une proposition adaptée.</p></details>
     <details class="q rv"><summary>Comment rejoindre l'équipe ?</summary><p>Remplissez le formulaire ci-dessous et joignez votre CV (PDF ou Word, 5 Mo maximum) : l'équipe recrutement vous recontacte.</p></details>
@@ -746,7 +837,7 @@ BODY = r"""
   </div>
 </section>
 
-<section id="contact">
+<section id="contact" class="nuit">
   <div class="wrap duo">
     <div>
       <span class="eyebrow rv">Contact · Carrières</span>
@@ -777,13 +868,14 @@ BODY = r"""
 </section>
 </main>
 
-<footer>
+<footer class="tk-nuit">
   <img src="img/logo-star.webp" alt="Logo officiel STAR ENTREPRISE">
   <div class="nm gold">STAR ENTREPRISE</div>
   <p>Un seul groupe, toutes les solutions pour votre vie.</p>
-  <p>Brazzaville · Pointe-Noire — République du Congo</p>
+  <p>Du Canada, Brazzaville, Pointe-Noire — République du Congo</p>
   <p class="droits">© 2026 STAR ENTREPRISE — Tous droits réservés. Les marques, logos, images, vidéos, textes, œuvres, personnages et technologies présentés sur cette page sont la propriété de STAR ENTREPRISE. Toute reproduction ou utilisation sans autorisation écrite est interdite.</p>
 </footer>
+<div id="lueur" aria-hidden="true"></div><button id="haut" type="button" aria-label="Retour en haut de la page">↑</button>
 <a id="flot" href="%%WA%%?text=Bonjour%20STAR%20ENTREPRISE" target="_blank" rel="noopener" aria-label="Écrire sur WhatsApp">%%WASVG%%</a>
 """
 
@@ -813,8 +905,13 @@ function lecteursHero(){if(hid||reduit)return;hid=setInterval(function(){sl[si].
 /* ----- progression + barre qui se cache en descendant ----- */
 var prog=$('#prog'),bar=$('#bar');function sc(){var h=de.scrollHeight-innerHeight;prog.style.width=(h>0?scrollY/h*100:0)+'%';bar.classList.toggle('plein',scrollY>innerHeight*.5)}addEventListener('scroll',sc,{passive:true});sc();
 /* menu plein écran + lien actif */
-var bg=$('#burger'),mn=$('#menu');function menu(o){mn.hidden=!o;bg.setAttribute('aria-expanded',o);body.classList.toggle('menu-on',o)}
-bg.addEventListener('click',function(){menu(mn.hidden)});$$('#menu a').forEach(function(a){a.addEventListener('click',function(){menu(false)})});addEventListener('keydown',function(e){if(e.key==='Escape')menu(false)});
+var bg=$('#burger'),mn=$('#menu');
+function ouvrirMenu(){mn.hidden=false;bg.setAttribute('aria-expanded',true);body.classList.add('menu-on');try{history.pushState({m:1},'')}catch(e){}}
+function fermerMenu(depuisRetour,lien){mn.hidden=true;bg.setAttribute('aria-expanded',false);body.classList.remove('menu-on');if(!depuisRetour){try{if(history.state&&history.state.m){lien?history.replaceState(null,''):history.back()}}catch(e){}}}
+bg.addEventListener('click',function(){mn.hidden?ouvrirMenu():fermerMenu(false)});
+$$('#menu a').forEach(function(a){a.addEventListener('click',function(){fermerMenu(false,true)})});
+addEventListener('popstate',function(){if(!mn.hidden)fermerMenu(true)});
+addEventListener('keydown',function(e){if(e.key==='Escape'&&!mn.hidden)fermerMenu(false)});
 var tl=$$('.topnav a'),tsec=tl.map(function(a){return $(a.getAttribute('href'))});
 if('IntersectionObserver' in window){var tio=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){var i=tsec.indexOf(e.target);tl.forEach(function(a,k){a.classList.toggle('on',k===i)})}})},{rootMargin:'-45% 0px -50% 0px'});tsec.forEach(function(s){s&&tio.observe(s)})}
 
@@ -872,6 +969,23 @@ f.addEventListener('submit',function(e){e.preventDefault();msg.style.color='';
     window.open('https://wa.me/242066565050?text='+t,'_blank','noopener');
   }
 });
+
+/* ----- lueur du curseur, étincelles-diamants, ondes d'énergie au toucher, retour en haut ----- */
+(function(){
+  var lu=$('#lueur'),haut=$('#haut'),dernier=0,cache=0;
+  function pos(x,y){lu.style.transform='translate('+(x-210)+'px,'+(y-210)+'px)';lu.classList.add('on')}
+  if(!reduit){
+    addEventListener('pointermove',function(e){if(e.pointerType==='mouse'){pos(e.clientX,e.clientY);var n=performance.now();if(n-dernier>45){dernier=n;var s=document.createElement('i');s.className='etin'+(Math.random()<.4?' g':'');s.style.left=(e.clientX+(Math.random()*18-9))+'px';s.style.top=(e.clientY+(Math.random()*18-9))+'px';s.style.setProperty('--dx',(Math.random()*40-20)+'px');s.style.setProperty('--dy',(20+Math.random()*30)+'px');document.body.appendChild(s);s.addEventListener('animationend',function(){s.remove()})}}},{passive:true});
+    addEventListener('pointerdown',function(e){
+      pos(e.clientX,e.clientY);clearTimeout(cache);
+      for(var i=0;i<3;i++){var o=document.createElement('i');o.className='onde o'+i;o.style.left=e.clientX+'px';o.style.top=e.clientY+'px';document.body.appendChild(o);o.addEventListener('animationend',function(){this.remove()})}
+    },{passive:true});
+    addEventListener('pointerup',function(e){if(e.pointerType!=='mouse'){cache=setTimeout(function(){lu.classList.remove('on')},900)}},{passive:true});
+    document.addEventListener('mouseleave',function(){lu.classList.remove('on')});
+  }
+  addEventListener('scroll',function(){haut.classList.toggle('on',scrollY>700)},{passive:true});
+  haut.addEventListener('click',function(){scrollTo({top:0,behavior:reduit?'auto':'smooth'})});
+})();
 })();
 """
 
@@ -882,7 +996,7 @@ def page(prefix=''):
     return ('<!doctype html><html lang="fr"><head><meta charset="utf-8">'
             '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
             '<title>Découvrez qui est STAR ENTREPRISE</title>'
-            '<meta name="description" content="STAR ENTREPRISE : une seule entreprise, 21 filiales, KOMYO, Keydou, STAR TECH, X SAPHIR. Santé, épargne, immobilier, énergie, art et numérique au Congo.">'
+            '<meta name="description" content="STAR ENTREPRISE : une seule entreprise, 21 filiales, KOMYO, Keydou, STAR TECH, X SAPHIR. Santé, épargne, immobilier, énergie, art et numérique, du Canada au Congo.">'
             '<meta name="theme-color" content="#07090f"><meta name="robots" content="noindex">'
             '<meta property="og:title" content="Découvrez qui est STAR ENTREPRISE"><meta property="og:description" content="Un seul groupe, toutes les solutions pour votre vie : 21 filiales, KOMYO, Keydou, STAR TECH, X SAPHIR. Découvrez notre vision, nos ambitions et tout ce que nous créons.">'
             '<meta property="og:locale" content="fr_FR"><meta property="og:site_name" content="STAR ENTREPRISE"><meta property="og:url" content="https://komyo.starentreprise.com/decouvrir/"><meta property="og:type" content="website"><meta property="og:image" content="https://komyo.starentreprise.com/decouvrir/img/partage.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Découvrez qui est STAR ENTREPRISE">'
@@ -902,6 +1016,7 @@ def apercu(chemin):
                         '-c:v', 'libx264', '-preset', 'slow', '-crf', '36', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', '-c:a', 'aac', '-b:a', '32k', out], check=True)
         return b64(out, 'video/mp4')
     h = re.sub(r'url\(polices/([\w-]+\.woff2)\)', lambda m: 'url(' + b64(OUT + 'polices/' + m.group(1), 'font/woff2') + ')', h)
+    h = re.sub(r'url\(img/([\w-]+\.webp)\)', lambda m: 'url(' + b64(OUT + 'img/' + m.group(1), 'image/webp') + ')', h)
     h = re.sub(r'(src|poster|href)="img/([\w-]+\.webp)"', lambda m: f'{m.group(1)}="' + b64(OUT + 'img/' + m.group(2), 'image/webp') + '"', h)
     h = re.sub(r'src="video/([\w-]+)\.mp4"', lambda m: 'src="' + vid_leger(m.group(1)) + '"', h)
     open(chemin, 'w', encoding='utf-8').write(h)
