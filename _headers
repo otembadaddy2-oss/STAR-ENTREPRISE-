@@ -5,6 +5,14 @@
 /docs/*
   Cache-Control: public, max-age=2592000
 
+# Page « Découvrez qui est STAR ENTREPRISE » : médias gardés 30 jours dans le téléphone du visiteur (moins de téléchargements, moins de crédits).
+/decouvrir/img/*
+  Cache-Control: public, max-age=2592000
+/decouvrir/video/*
+  Cache-Control: public, max-age=2592000
+/decouvrir/polices/*
+  Cache-Control: public, max-age=31536000, immutable
+
 /*.html
   Cache-Control: public, max-age=0, must-revalidate
 

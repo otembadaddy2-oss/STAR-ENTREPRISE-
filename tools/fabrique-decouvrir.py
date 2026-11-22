@@ -885,8 +885,8 @@ def page(prefix=''):
             '<meta name="description" content="STAR ENTREPRISE : une seule entreprise, 21 filiales, KOMYO, Keydou, STAR TECH, X SAPHIR. Santé, épargne, immobilier, énergie, art et numérique au Congo.">'
             '<meta name="theme-color" content="#07090f"><meta name="robots" content="noindex">'
             '<meta property="og:title" content="Découvrez qui est STAR ENTREPRISE"><meta property="og:description" content="Un seul groupe, toutes les solutions pour votre vie : 21 filiales, KOMYO, Keydou, STAR TECH, X SAPHIR. Découvrez notre vision, nos ambitions et tout ce que nous créons.">'
-            '<meta property="og:locale" content="fr_FR"><meta property="og:site_name" content="STAR ENTREPRISE"><meta property="og:image" content="img/partage.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Découvrez qui est STAR ENTREPRISE">'
-            '<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Découvrez qui est STAR ENTREPRISE"><meta name="twitter:image" content="img/partage.jpg">'
+            '<meta property="og:locale" content="fr_FR"><meta property="og:site_name" content="STAR ENTREPRISE"><meta property="og:url" content="https://komyo.starentreprise.com/decouvrir/"><meta property="og:type" content="website"><meta property="og:image" content="https://komyo.starentreprise.com/decouvrir/img/partage.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Découvrez qui est STAR ENTREPRISE">'
+            '<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Découvrez qui est STAR ENTREPRISE"><meta name="twitter:image" content="https://komyo.starentreprise.com/decouvrir/img/partage.jpg">'
             '<link rel="icon" href="img/mark.webp">'
             '<style>' + CSS + '</style></head><body>' + b + '<script>' + JS + '</script></body></html>')
 

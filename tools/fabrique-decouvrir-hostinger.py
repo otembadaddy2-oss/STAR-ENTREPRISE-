@@ -10,9 +10,8 @@ m = re.search(r"STAR_API_KEY\s*=\s*['\"]([^'\"]+)['\"]", src) or re.search(r"API
 assert m, "clé du formulaire introuvable"
 cle = m.group(1)
 h = open(ROOT + '/decouvrir/index.html', encoding='utf-8').read()
-h = h.replace('<meta name="robots" content="noindex">', '<link rel="canonical" href="https://www.starentreprise.com/decouvrir/"><meta property="og:url" content="https://www.starentreprise.com/decouvrir/"><meta property="og:type" content="website">')
-for k in ('og:image', 'twitter:image'):
-    h = h.replace('content="img/partage.jpg"', 'content="https://www.starentreprise.com/decouvrir/img/partage.jpg"')
+h = h.replace('komyo.starentreprise.com', 'www.starentreprise.com')   # adresses absolues (aperçu de lien) = domaine officiel
+h = h.replace('<meta name="robots" content="noindex">', '<link rel="canonical" href="https://www.starentreprise.com/decouvrir/">')
 h = h.replace('<style>', "<script>window.STAR_CONFIG={apiKey:'" + cle + "',endpoint:'/backend/candidature-cv.php'};</script><style>", 1)
 htaccess = """# Page « Découvrez qui est STAR ENTREPRISE » — réglages de vitesse (Hostinger / LiteSpeed)
 DirectoryIndex index.html
