@@ -11,7 +11,8 @@ assert m, "clé du formulaire introuvable"
 cle = m.group(1)
 h = open(ROOT + '/decouvrir/index.html', encoding='utf-8').read()
 h = h.replace('<meta name="robots" content="noindex">', '<link rel="canonical" href="https://www.starentreprise.com/decouvrir/"><meta property="og:url" content="https://www.starentreprise.com/decouvrir/"><meta property="og:type" content="website">')
-h = h.replace('<meta property="og:image" content="img/logo-star.webp">', '<meta property="og:image" content="https://www.starentreprise.com/decouvrir/img/logo-star.webp">')
+for k in ('og:image', 'twitter:image'):
+    h = h.replace('content="img/partage.jpg"', 'content="https://www.starentreprise.com/decouvrir/img/partage.jpg"')
 h = h.replace('<style>', "<script>window.STAR_CONFIG={apiKey:'" + cle + "',endpoint:'/backend/candidature-cv.php'};</script><style>", 1)
 htaccess = """# Page « Découvrez qui est STAR ENTREPRISE » — réglages de vitesse (Hostinger / LiteSpeed)
 DirectoryIndex index.html
