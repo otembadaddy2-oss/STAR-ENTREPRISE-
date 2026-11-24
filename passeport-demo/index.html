@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Suivi des demandes de passeport — Démonstration</title>
+<link rel="icon" href="../assets/img/icons/favicon-star-rounded-v1.png">
+<style>
+:root{--nuit:#06143a;--nuit2:#0c2260;--or:#c89b3c;--or2:#f3d58a;--fond:#f4f1ea;--carte:#fff;--txt:#16213a;--gris:#66708a;--trait:#e3dccb;--ok:#1f8a5b;--alerte:#c2410c;--rouge:#b42318;--bleu:#2457d6}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{overflow-x:clip}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--fond);color:var(--txt);font-size:15px;line-height:1.45;-webkit-text-size-adjust:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+header{background:linear-gradient(135deg,var(--nuit),var(--nuit2));color:#fff;padding:12px 16px;box-shadow:0 2px 14px #0004}
+.hd{max-width:1180px;margin:auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:40px;height:40px;border-radius:10px}
+.hd h1{font-size:16px;line-height:1.15;font-weight:700}
+.hd small{display:block;font-weight:400;color:var(--or2);font-size:11.5px;letter-spacing:.04em}
+.role{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px}
+.role select{background:#ffffff18;border:1px solid #ffffff44;border-radius:8px;padding:6px 8px;color:#fff}
+.role option{color:#000}
+.bandeau{background:#fff3cf;color:#6b4d00;text-align:center;font-size:12.5px;padding:6px 16px;border-bottom:1px solid #ecd48a}
+nav{background:#fff;border-bottom:1px solid var(--trait);position:sticky;top:0;z-index:15}
+nav .in{max-width:1180px;margin:auto;display:flex;gap:4px;padding:0 8px;overflow-x:auto}
+nav button{background:none;border:0;padding:12px 14px;font-weight:600;color:var(--gris);border-bottom:3px solid transparent;white-space:nowrap;cursor:pointer}
+nav button.on{color:var(--nuit);border-color:var(--or)}
+main{max-width:1180px;margin:auto;padding:18px 16px 60px}
+.vue{display:none}.vue.on{display:block}
+h2{font-size:20px;color:var(--nuit);margin-bottom:4px}
+.sous{color:var(--gris);margin-bottom:14px;font-size:14px}
+.carte{background:var(--carte);border:1px solid var(--trait);border-radius:16px;padding:16px;margin-bottom:14px}
+.carte h3{font-size:15px;color:var(--nuit);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.carte h3 .n{background:var(--nuit);color:var(--or2);width:24px;height:24px;border-radius:50%;display:inline-grid;place-items:center;font-size:12px}
+.grille{display:grid;grid-template-columns:repeat(12,1fr);gap:10px}
+.c12{grid-column:span 12}.c6{grid-column:span 6}.c4{grid-column:span 4}.c3{grid-column:span 3}.c8{grid-column:span 8}
+@media(max-width:720px){.c6,.c4,.c3,.c8{grid-column:span 12}.c3.m6{grid-column:span 6}}
+label{display:block;font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--gris);margin-bottom:3px}
+input,select,textarea{width:100%;border:1px solid #cfc7b2;border-radius:10px;padding:10px 11px;background:#fff;min-height:42px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--or);border-color:var(--or)}
+textarea.mrz{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;letter-spacing:.02em;min-height:88px;text-transform:uppercase}
+.btn{border:0;border-radius:11px;padding:11px 16px;font-weight:700;cursor:pointer;background:var(--nuit);color:#fff}
+.btn.or{background:linear-gradient(135deg,#e7c06a,var(--or));color:#2a1d00}
+.btn.clair{background:#fff;color:var(--nuit);border:1px solid #cfc7b2}
+.btn.petit{padding:7px 11px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.ligne{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.choix{display:flex;gap:8px;flex-wrap:wrap}
+.choix label.opt{display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:14px;font-weight:600;color:var(--txt);border:1.5px solid #cfc7b2;border-radius:12px;padding:10px 12px;cursor:pointer;background:#fff;margin:0;flex:1 1 220px}
+.choix input{width:auto;min-height:0}
+.choix label.opt:has(input:checked){border-color:var(--or);background:#fff8e6}
+.badge{display:inline-block;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;white-space:nowrap}
+.s-depose{background:#e9eefc;color:#2347a6}.s-recu{background:#e3f4fb;color:#0b6b8f}.s-traitement{background:#fff0d4;color:#8a5a00}.s-pret{background:#e1f6ea;color:#15693f}.s-remis{background:#dfe3ea;color:#3a4458}
+.t-renouvellement{background:#f3e6fb;color:#6b2a96}.t-premiere{background:#eef3e3;color:#46611b}
+.alerte{background:#fdece7;color:var(--rouge)}
+.ok{background:#e1f6ea;color:#15693f}
+.cam{position:relative;background:#0a1330;border-radius:14px;overflow:hidden;min-height:150px;display:none}
+.cam.on{display:block}
+.cam video,.cam canvas{width:100%;display:block}
+.cadre{position:absolute;left:5%;right:5%;bottom:12%;height:22%;border:2px dashed var(--or2);border-radius:8px;pointer-events:none}
+.alert{border-radius:12px;padding:10px 12px;margin-top:10px;font-size:14px}
+.alert.rouge{background:#fdece7;color:var(--rouge);border:1px solid #f3c1b2}
+.alert.orange{background:#fff3e0;color:#8a4b00;border:1px solid #f1d09b}
+.alert.vert{background:#e6f6ee;color:#15693f;border:1px solid #b8e2cb}
+.alert.bleu{background:#eaf0ff;color:#1e3a9a;border:1px solid #c5d3fb}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:#fff;border:1px solid var(--trait);border-radius:14px;padding:12px 14px}
+.kpi b{display:block;font-size:26px;color:var(--nuit);line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi span{font-size:12px;color:var(--gris)}
+.kpi.m b{color:#7a4bb0}.kpi.r b{color:var(--rouge)}.kpi.v b{color:var(--ok)}
+.graphes{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.graphes .carte{margin:0}
+.graphes canvas{max-height:260px}
+.tablewrap{overflow-x:auto;border:1px solid var(--trait);border-radius:12px;background:#fff}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{background:var(--nuit);color:#fff;text-align:left;padding:9px 10px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;position:sticky;top:0}
+td{padding:8px 10px;border-top:1px solid #efe9d8;white-space:nowrap}
+tr.cl{cursor:pointer}tr.cl:hover td{background:#fbf7ea}
+.filtres{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:10px}
+.tiroir{position:fixed;inset:0;background:#0009;z-index:60;display:none;align-items:flex-end;justify-content:center}
+.tiroir.on{display:flex}
+.tiroir .feuille{background:#fff;width:min(720px,100%);max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px 16px 28px}
+@media(min-width:820px){.tiroir{align-items:center}.tiroir .feuille{border-radius:20px}}
+.feuille h3{font-size:18px;color:var(--nuit)}
+.dl{display:grid;grid-template-columns:140px 1fr;gap:4px 12px;font-size:14px;margin:10px 0}
+.dl dt{color:var(--gris);font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding-top:2px}
+.histo{border-left:3px solid var(--or);margin:8px 0 0 6px;padding-left:12px}
+.histo div{margin-bottom:9px;font-size:13.5px}.histo small{color:var(--gris)}
+.recu{border:2px dashed var(--nuit);border-radius:14px;padding:14px;text-align:center}
+.recu .num{font-family:ui-monospace,Menlo,monospace;font-size:20px;font-weight:800;color:var(--nuit);letter-spacing:.04em}
+.recu svg{width:150px;height:150px;margin:8px auto 4px;display:block}
+.etapes{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.etape{flex:1 1 110px;text-align:center;border-radius:10px;padding:8px 4px;font-size:12px;font-weight:700;background:#efeadb;color:#8b856f}
+.etape.fait{background:#dff3e8;color:#15693f}.etape.now{background:var(--nuit);color:var(--or2)}
+.pied{margin-top:26px;font-size:12px;color:var(--gris);text-align:center}
+@media print{header,nav,.bandeau,.noprint,.pied{display:none!important}.tiroir{position:static;background:none;display:block}.tiroir:not(.on){display:none}.feuille{max-height:none;box-shadow:none}}
+</style>
+</head>
+<body>
+<header><div class="hd">
+  <img src="../assets/img/logo-star-rounded-v1.webp" alt="STAR ENTREPRISE">
+  <h1>Suivi des demandes de passeport<small>DÉMONSTRATION · STAR CRÉAT · STAR ENTREPRISE</small></h1>
+  <div class="role"><span>Profil&nbsp;:</span>
+    <select id="role"><option value="agent">Agent de guichet</option><option value="prefecture">Préfecture de Brazzaville</option><option value="ministere">Ministère (consultation)</option></select></div>
+</div></header>
+<div class="bandeau">⚠ Démonstration — toutes les personnes, pièces et numéros affichés sont <b>fictifs</b>. Les données restent sur cet appareil.</div>
+<nav><div class="in" id="onglets">
+  <button data-v="guichet" class="on">➕ Nouvelle demande</button>
+  <button data-v="dossiers">📂 Dossiers</button>
+  <button data-v="tableau">📊 Tableau de bord</button>
+  <button data-v="regles">🛡 Contrôles anti-fraude</button>
+</div></nav>
+
+<main>
+<!-- ===== GUICHET ===== -->
+<section id="v-guichet" class="vue on">
+  <h2>Enregistrer une demande</h2>
+  <p class="sous">Scanner la pièce, vérifier la fiche remplie automatiquement, puis remettre le reçu au demandeur.</p>
+
+  <div class="carte"><h3><span class="n">1</span>Type de demande</h3>
+    <div class="choix">
+      <label class="opt"><input type="radio" name="type" value="premiere" checked> 🆕 Première demande de passeport</label>
+      <label class="opt"><input type="radio" name="type" value="renouvellement"> 🔄 Renouvellement — passeport expiré</label>
+    </div>
+  </div>
+
+  <div class="carte"><h3><span class="n">2</span>Scanner la pièce du demandeur</h3>
+    <p class="sous" style="margin-bottom:8px">Carte nationale d'identité ou passeport : l'application lit la zone de lecture automatique (les lignes de « &lt;&lt;&lt; » en bas de la pièce) et vérifie ses clés de contrôle.</p>
+    <div class="ligne" style="margin-bottom:10px">
+      <button class="btn or" id="bCam">📷 Ouvrir la caméra</button>
+      <button class="btn clair" id="bFile">🖼 Choisir une photo</button>
+      <input type="file" id="fileIn" accept="image/*" capture="environment" hidden>
+      <span style="color:var(--gris);font-size:13px">ou essayer un exemple fictif :</span>
+      <button class="btn clair petit" data-ex="pass">Passeport</button>
+      <button class="btn clair petit" data-ex="cni">Carte d'identité</button>
+      <button class="btn clair petit" data-ex="faux">Pièce falsifiée</button>
+    </div>
+    <div class="cam" id="cam"><video id="vid" playsinline muted></video><div class="cadre"></div>
+      <div class="ligne" style="position:absolute;right:8px;top:8px"><button class="btn petit or" id="bSnap">Capturer</button><button class="btn petit clair" id="bStop">Fermer</button></div></div>
+    <canvas id="snap" hidden></canvas>
+    <label for="mrz" style="margin-top:10px">Lignes lues sur la pièce</label>
+    <textarea id="mrz" class="mrz" placeholder="P<COGNOM<<PRENOM<<<<<<<<<<<<<<<<<<<<<<<<<<<<<&#10;XX0000000<…"></textarea>
+    <div class="ligne" style="margin-top:8px"><button class="btn" id="bLire">Lire et remplir la fiche</button><span id="ocrEtat" style="font-size:13px;color:var(--gris)"></span></div>
+    <div id="resLecture"></div>
+  </div>
+
+  <div class="carte"><h3><span class="n">3</span>Fiche technique du demandeur</h3>
+    <div class="grille">
+      <div class="c6"><label>Nom</label><input id="f_nom"></div>
+      <div class="c6"><label>Prénoms</label><input id="f_prenoms"></div>
+      <div class="c4 m6"><label>Date de naissance</label><input id="f_naiss" type="date"></div>
+      <div class="c4 m6"><label>Sexe</label><select id="f_sexe"><option value="">—</option><option value="F">Féminin</option><option value="M">Masculin</option></select></div>
+      <div class="c4"><label>Nationalité</label><input id="f_nat" value="COG"></div>
+      <div class="c4 m6"><label>Pièce présentée</label><select id="f_ptype"><option value="PASSEPORT">Passeport</option><option value="CNI">Carte d'identité</option></select></div>
+      <div class="c4 m6"><label>N° de la pièce</label><input id="f_pnum"></div>
+      <div class="c4"><label>Date d'expiration de la pièce</label><input id="f_pexp" type="date"></div>
+      <div class="c6"><label>Téléphone du demandeur</label><input id="f_tel" inputmode="tel" placeholder="+242 06 000 00 00"></div>
+      <div class="c6"><label>Secteur de dépôt</label><select id="f_lieu"></select></div>
+    </div>
+    <div id="blocRenou" style="display:none;margin-top:12px">
+      <h3 style="margin-bottom:6px">🔄 Ancien passeport (expiré)</h3>
+      <div class="grille">
+        <div class="c4"><label>N° de l'ancien passeport</label><input id="f_anum"></div>
+        <div class="c4"><label>Date d'expiration</label><input id="f_aexp" type="date"></div>
+        <div class="c4"><label>Expiré depuis</label><input id="f_adepuis" readonly placeholder="calculé automatiquement"></div>
+      </div>
+    </div>
+    <div id="alertesForm"></div>
+    <div class="ligne" style="margin-top:12px"><button class="btn or" id="bValider">Enregistrer la demande et éditer le reçu</button><button class="btn clair" id="bVider">Effacer</button></div>
+  </div>
+</section>
+
+<!-- ===== DOSSIERS ===== -->
+<section id="v-dossiers" class="vue">
+  <h2>Dossiers</h2><p class="sous">Tous les dossiers enregistrés. Touchez une ligne pour voir la fiche, l'historique et faire avancer le dossier.</p>
+  <div class="filtres">
+    <input id="q" placeholder="🔎 Nom, n° de dossier, n° de pièce…">
+    <select id="fs"><option value="">Tous les états</option></select>
+    <select id="ft"><option value="">Tous les types</option><option value="premiere">Première demande</option><option value="renouvellement">Renouvellement</option></select>
+    <select id="fl"><option value="">Tous les secteurs</option></select>
+    <select id="fa"><option value="">Tous (alertes ou non)</option><option value="1">À vérifier uniquement</option></select>
+  </div>
+  <div class="ligne" style="margin-bottom:8px"><span id="cpt" style="color:var(--gris);font-size:13px"></span><button class="btn clair petit" id="bXlsx2" style="margin-left:auto">⬇ Excel</button></div>
+  <div class="tablewrap"><table><thead><tr><th>Dossier</th><th>Date</th><th>Nom et prénoms</th><th>Type</th><th>État</th><th>Secteur</th><th>Alerte</th></tr></thead><tbody id="tb"></tbody></table></div>
+</section>
+
+<!-- ===== TABLEAU DE BORD ===== -->
+<section id="v-tableau" class="vue">
+  <div class="ligne"><div><h2>Tableau de bord</h2><p class="sous">Situation en temps réel : qui a demandé, qui a été reçu, qui a son passeport, qui attend.</p></div>
+    <button class="btn or" id="bXlsx" style="margin-left:auto">⬇ Télécharger le fichier Excel</button></div>
+  <div class="kpis" id="kpis"></div>
+  <div class="graphes">
+    <div class="carte"><h3>Répartition par état</h3><canvas id="g1"></canvas></div>
+    <div class="carte"><h3>Première demande / renouvellement</h3><canvas id="g2"></canvas></div>
+    <div class="carte"><h3>Demandes par jour (30 derniers jours)</h3><canvas id="g3"></canvas></div>
+    <div class="carte"><h3>Par secteur de dépôt</h3><canvas id="g4"></canvas></div>
+  </div>
+  <div class="carte" style="margin-top:14px"><h3>Dossiers qui attendent depuis le plus longtemps</h3><div class="tablewrap"><table><thead><tr><th>Dossier</th><th>Nom</th><th>État</th><th>Dans cet état depuis</th></tr></thead><tbody id="tbAttente"></tbody></table></div></div>
+  <div class="carte"><h3>Synthèse croisée : type × état</h3><div class="tablewrap"><table id="croise"></table></div></div>
+</section>
+
+<!-- ===== RÈGLES ===== -->
+<section id="v-regles" class="vue">
+  <h2>Contrôles anti-fraude de la démonstration</h2>
+  <p class="sous">Ces vérifications se font automatiquement à chaque enregistrement. Un dossier « À vérifier » n'est pas refusé : il est signalé à la Préfecture.</p>
+  <div class="carte"><dl class="dl" style="grid-template-columns:220px 1fr">
+    <dt>Clés de contrôle</dt><dd>Les chiffres de contrôle de la zone de lecture sont recalculés. Une pièce modifiée à la main ne passe pas.</dd>
+    <dt>Doublon de pièce</dt><dd>Le même numéro de pièce ne peut pas être déposé deux fois.</dd>
+    <dt>Double identité</dt><dd>Même nom, mêmes prénoms et même date de naissance avec un autre numéro de pièce : alerte.</dd>
+    <dt>Pièce expirée</dt><dd>Une pièce d'identité expirée est signalée (sauf l'ancien passeport d'un renouvellement).</dd>
+    <dt>Renouvellement</dt><dd>L'ancien passeport doit être expiré. Son numéro ne peut pas servir deux fois. Le nouveau passeport n'est remis qu'après restitution ou annulation de l'ancien.</dd>
+    <dt>Historique</dt><dd>Chaque changement d'état garde la date, l'heure et l'agent. Rien ne s'efface.</dd>
+    <dt>Droits par profil</dt><dd>Agent : enregistre et fait avancer. Préfecture : suit tout et traite les alertes. Ministère : consultation et statistiques.</dd>
+  </dl></div>
+  <div class="alert bleu">Cette démonstration ne peut pas dire si une pièce est authentique : elle lit ce qui est écrit et contrôle sa cohérence. La vérification auprès des fichiers officiels demande un accord et un lien avec les services de l'État.</div>
+</section>
+<p class="pied">STAR ENTREPRISE · STAR CRÉAT · Démonstration conçue pour être présentée au Ministère · aucune donnée réelle</p>
+</main>
+
+<div class="tiroir" id="tiroir"><div class="feuille" id="feuille"></div></div>
+
+<script src="lib/chart.umd.js"></script>
+<script src="lib/xlsx.full.min.js"></script>
+<script src="lib/qrcode.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

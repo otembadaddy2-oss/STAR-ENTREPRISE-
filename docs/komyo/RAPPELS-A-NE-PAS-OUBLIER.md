@@ -466,3 +466,8 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - **Pubs pour www.starentreprise.com** (« /ads ») : Carry veut y revenir plus tard. Proposer : (1) voir les pubs des concurrents, (2) créer les visuels, (3) texte + plan de campagne, (4) vraie campagne payante (seulement après son accord + budget).
 - **Pili-Pili Events** : savoir si la personne utilise son espace (1 seule visite en 24 h, probablement la nôtre). Question ouverte : filiale ou cliente partenaire ?
 - **Idée de projet d'État (passeports)** : application de suivi des demandes de passeport pour le Ministère / Préfecture de Brazzaville. À cadrer en démonstration avec données fictives avant toute donnée réelle.
+
+## 24/11/2026 — Démo « Suivi des demandes de passeport » (dossier passeport-demo/)
+- App autonome (aucune donnée réelle, données fictives stockées sur l'appareil) : scan MRZ (clés de contrôle vérifiées, testé sur le spécimen ICAO), première demande + **renouvellement passeport expiré** (ancien passeport à restituer avant la remise), statuts + historique, alertes anti-fraude, tableau de bord Ministère/Préfecture, export Excel, reçu avec QR.
+- Excel d'exemple avec formules vivantes et diagrammes : `tools/fabrique-excel-passeport-demo.py`.
+- NON mis en ligne (≈41 crédits Netlify). À faire si Carry dit oui : mise en ligne + page protégée/noindex ; dossier PDF de présentation pour le Ministère ; lecture automatique de la photo (OCR) à rendre hors-ligne avant une vraie démo.
