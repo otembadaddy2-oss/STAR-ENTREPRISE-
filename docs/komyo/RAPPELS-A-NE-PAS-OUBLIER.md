@@ -461,3 +461,8 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 ## 24/11/2026 — STAR IMMO : 2 fiches de visite
 - Ajout dans le dossier STAR IMMO : « Fiche de visite d'appartement » (studio, chambre-salon, 2 ch-salon…) et « Fiche de visite de terrain » (parcelles), chacune avec une case « Prix de la visite (FCFA) » en or + paiement (payé/à payer, mode, n° de reçu).
 - STAR IMMO passe à 6 fiches ; carnet des 21 filiales = 76 pages. Aucun prix inventé : la case est à remplir par le conseiller.
+
+## 24/11/2026 — À rappeler à Carry
+- **Pubs pour www.starentreprise.com** (« /ads ») : Carry veut y revenir plus tard. Proposer : (1) voir les pubs des concurrents, (2) créer les visuels, (3) texte + plan de campagne, (4) vraie campagne payante (seulement après son accord + budget).
+- **Pili-Pili Events** : savoir si la personne utilise son espace (1 seule visite en 24 h, probablement la nôtre). Question ouverte : filiale ou cliente partenaire ?
+- **Idée de projet d'État (passeports)** : application de suivi des demandes de passeport pour le Ministère / Préfecture de Brazzaville. À cadrer en démonstration avec données fictives avant toute donnée réelle.
