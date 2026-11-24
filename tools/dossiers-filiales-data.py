@@ -4,6 +4,7 @@
 # Les fiches à remplir ne contiennent que des champs vides : le client remplit, la filiale complète.
 
 def T(label, span=6): return ('t', label, span)
+def P(label, span=4): return ('p', label, span)
 def C(label, opts, span=12): return ('c', label, opts, span)
 def L(label, n=3, h=8): return ('l', label, n, h)
 def TAB(cols, n, lh=8.6, w=None): return ('tab', cols, n, lh, w)
@@ -92,7 +93,24 @@ FILIALES = {
      [("Le propriétaire", CLIENT_COURT + [T('E-mail', 6)]),
       ("Le bien", [C('Type', ['Villa / maison', 'Appartement', 'Terrain', 'Local commercial']), T('Adresse (quartier, rue, repère)', 8), T('Ville', 4), T('Surface', 4), T('Année de construction', 4), T('Nombre de pièces', 4),
                    C('État général', ['Neuf', 'Bon', 'À rénover']), C('Documents disponibles', ['Titre foncier', 'Plan', 'Photos', 'Autre'])]),
-      ("Mon objectif", [C('Je veux', ['Vendre', 'Mettre en location', 'Confier la gestion']), T('Prix espéré (FCFA)', 6), T('Loyer espéré (FCFA)', 6)])])]),
+      ("Mon objectif", [C('Je veux', ['Vendre', 'Mettre en location', 'Confier la gestion']), T('Prix espéré (FCFA)', 6), T('Loyer espéré (FCFA)', 6)])]),
+    F("Fiche de visite <em>d'appartement</em>", "Studio, chambre-salon, deux chambres-salon et plus.", "Visite d'appartement",
+     [("Le client", [T('Nom et prénoms', 6), T('Téléphone', 3), T('WhatsApp', 3)]),
+      ("Le logement visité", [C('Type', ['Studio', 'Chambre-salon', 'Deux chambres-salon', 'Trois chambres-salon', 'Villa / maison', 'Autre']), T('Adresse (quartier, rue, repère)', 8), T('Référence du bien', 4),
+                              T('Loyer mensuel demandé (FCFA)', 6), T('Caution / avance (FCFA)', 6),
+                              C('Éléments constatés', ['Eau', 'Électricité', 'Cuisine', 'Douche / WC', 'Climatisation', 'Parking', 'Gardien', 'Clôture / portail'])]),
+      ("La visite", [T('Date de la visite', 4), T('Heure', 4), T('Conseiller STAR IMMO', 4), P('Prix de la visite', 4), C('Paiement', ['Payé', 'À payer'], 4), C('Mode', ['Espèces', 'MTN MoMo', 'Airtel Money'], 4), T('N° de reçu ou de transaction', 6), T('Reçu par', 6)]),
+      ("Avis du client", [C('Après la visite', ['Intéressé(e)', 'Veut réfléchir', 'Veut revisiter', 'Pas intéressé(e)']), L('Observations du client', 3)])],
+     sig=('Signature du client', 'Date et lieu', 'Visa du conseiller STAR IMMO'), reserve=['N° de visite', 'Date', 'Conseiller']),
+    F("Fiche de visite <em>de terrain</em>", "Terrain en vente, parcelle viabilisée ou à aménager.", "Visite de terrain",
+     [("Le client", [T('Nom et prénoms', 6), T('Téléphone', 3), T('WhatsApp', 3)]),
+      ("Le terrain visité", [C('Nature', ['Terrain nu', 'Parcelle viabilisée', 'Parcelle à aménager', 'Terrain à bâtir', 'Autre']), T('Adresse / repère d\'accès', 8), T('Référence', 4),
+                             T('Surface (m²)', 4), T('Propriétaire ou vendeur', 4), T('Prix demandé (FCFA)', 4),
+                             C('Accès', ['Route goudronnée', 'Piste'], 6), C('Relief', ['Plat', 'En pente'], 6),
+                             C('À proximité / documents', ['Eau', 'Électricité', 'Titre foncier', 'Plan / bornage', 'Attestation de vente'])]),
+      ("La visite", [T('Date de la visite', 4), T('Heure', 4), T('Conseiller STAR IMMO', 4), P('Prix de la visite', 4), C('Paiement', ['Payé', 'À payer'], 4), C('Mode', ['Espèces', 'MTN MoMo', 'Airtel Money'], 4), T('N° de reçu ou de transaction', 6), T('Reçu par', 6)]),
+      ("Avis du client et croquis", [C('Après la visite', ['Intéressé(e)', 'Veut réfléchir', 'Veut revisiter', 'Pas intéressé(e)']), ('l', 'Croquis ou repères du terrain', 2, 12)])],
+     sig=('Signature du client', 'Date et lieu', 'Visa du conseiller STAR IMMO'), reserve=['N° de visite', 'Date', 'Conseiller'])]),
 
  'pamep': dict(nom='STAR P.A.M.E.P', rub='Propriété · Administration · Maisons · Espaces', wordmark=True,
   pres=dict(titre_html="Votre patrimoine,<br><em>entre de bonnes mains.</em>", sous="Gestion et sécurisation de patrimoine",
@@ -435,6 +453,7 @@ def construire(f, H, secs, signatures, reserve):
         if k == 't': return H['champ'](item[1], item[2])
         if k == 'c': return H['cases'](item[1], item[2], item[3])
         if k == 'l': return H['lignes'](item[1], item[2], 12, item[3])
+        if k == 'p': return H['prix'](item[1], item[2])
         if k == 'tab': return '<div style="grid-column:span 12">' + H['table'](item[1], item[2], item[3], item[4]) + '</div>'
     for form in f['forms']:
         sections = [(t, ''.join(rendu(i) for i in items)) for t, items in form['sections']]

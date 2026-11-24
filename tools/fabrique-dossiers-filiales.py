@@ -61,6 +61,7 @@ body{{font-family:ID,sans-serif;font-weight:300;color:#1b1f2b;width:210mm;backgr
 .cb{{display:flex;flex-wrap:wrap;gap:1.2mm 4.2mm;align-items:center;min-height:6.4mm;padding:.2mm 0}}
 .cb span{{display:inline-flex;align-items:center;gap:1.6mm;font-size:8.6pt;color:#262b3d;font-weight:600}}
 .cb span:before{{content:"";width:3.7mm;height:3.7mm;border:.35mm solid #7a5a12;border-radius:.8mm;background:#fff;flex:0 0 auto}}
+.prix{{height:10.5mm;border:.55mm solid #b98a2c;background:#fff6d8;display:flex;align-items:center;justify-content:flex-end;padding-right:3mm}}.prix i{{font-style:normal;font-weight:800;font-size:9pt;letter-spacing:.14em;color:#a77a1c}}
 .note{{font-size:7.4pt;line-height:1.35;color:#4a5068;margin-top:1.6mm}}
 .note b{{color:#041030;font-weight:600}}
 table{{width:100%;border-collapse:collapse}}
@@ -103,6 +104,8 @@ def cases(label, options, span=12):
     return f'<div class="f" style="grid-column:span {span}"><label>{E(label)}</label><div class="cb">{"".join(f"<span>{E(o)}</span>" for o in options)}</div></div>'
 def lignes(label, n=3, span=12, h=7):
     return f'<div class="f" style="grid-column:span {span}"><label>{E(label)}</label>' + ''.join(f'<div style="border-bottom:.3mm solid #c9b57a;height:{h}mm"></div>' for _ in range(n)) + '</div>'
+def prix(label, span=4):
+    return f'<div class="f" style="grid-column:span {span}"><label>{E(label)}</label><div class="bx prix"><i>FCFA</i></div></div>'
 def table(cols, n, lh=8, largeurs=None):
     th = ''.join(f'<th{(" style=width:" + largeurs[i]) if largeurs else ""}>{E(c)}</th>' for i, c in enumerate(cols))
     return f'<table style="--lh:{lh}mm"><thead><tr>{th}</tr></thead><tbody>' + ''.join('<tr>' + '<td></td>' * len(cols) + '</tr>' for _ in range(n)) + '</tbody></table>'
@@ -114,7 +117,7 @@ def secs(liste):
     return ''.join(f'<div class="sec"><span>{n}</span><h2>{E(t)}</h2></div><div class="g">{c}</div>' for n, (t, c) in enumerate(liste, 1))
 
 exec(open(ROOT + '/tools/dossiers-filiales-data.py', encoding='utf-8').read())  # définit FILIALES (dict) et fonction construire(f, H)
-H = dict(champ=champ, cases=cases, lignes=lignes, table=table)
+H = dict(champ=champ, cases=cases, lignes=lignes, table=table, prix=prix)
 
 STARSVG = '<svg viewBox="0 0 100 96"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff2b0"/><stop offset=".55" stop-color="#e3b653"/><stop offset="1" stop-color="#b98a2c"/></linearGradient></defs><path d="M50 3l14.2 29.2 32 4.6-23.2 22.5 5.6 31.9L50 75.5 21.4 91.2 27 59.3 3.8 36.8l32-4.6z" fill="url(#g)"/></svg>'
 def entete(f):
