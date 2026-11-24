@@ -21,6 +21,8 @@ http://komyo.starentreprise.com/   /starvibe/  301!
 /docs/archives/*  /404.html  404!
 # Fiches des filiales (version 0, à compléter avec Carry) : pas publiques tant qu'elles ne sont pas finalisées.
 /docs/fiches-filiales/*  /404.html  404!
+# Documents complets des filiales (en cours de création avec Carry) : pas publics.
+/docs/documents-filiales/*  /404.html  404!
 /jeu-astro/*      /404.html  404!
 /jeu-astro        /404.html  404!
 /netlify/*        /404.html  404!
