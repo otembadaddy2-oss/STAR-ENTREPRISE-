@@ -6,39 +6,37 @@
 @font-face{font-family:PF;font-weight:800;src:url(../../../passeport-demo/polices/playfair-display-latin-800-normal.woff2) format("woff2")}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:1080px;height:1620px;background:#041a12;overflow:hidden}
-.aff{position:relative;width:1080px;height:1620px;font-family:ID,system-ui,sans-serif;color:#fff;overflow:hidden;background:radial-gradient(900px 700px at 80% 55%,#0c4a33 0,transparent 70%),radial-gradient(800px 600px at 10% 90%,#0a3b29 0,transparent 70%),linear-gradient(180deg,#062b1e,#041a12)}
+.aff{position:relative;width:1080px;height:1620px;font-family:ID,system-ui,sans-serif;color:#fff;overflow:hidden;background:#041a12 url(photo-femme-congolaise.jpg) center/cover no-repeat}
+.hautv{position:absolute;left:0;right:0;top:0;height:520px;background:linear-gradient(180deg,#041a12f2 0,#041a12d0 30%,#041a1255 70%,#041a1200 100%)}
+.basv{position:absolute;left:0;right:0;bottom:0;height:520px;background:linear-gradient(0deg,#02100bfa 0,#02100be6 26%,#02100b88 62%,#02100b00 100%)}
 .drap{position:absolute;left:0;right:0;top:0;height:14px;background:linear-gradient(90deg,#009543 0 33.3%,#f6c928 33.3% 66.6%,#d62f26 66.6%)}
-.logo{position:absolute;top:34px;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:18px}.logo img{width:70px;height:78px;filter:drop-shadow(0 4px 12px #0008)}
-.logo .t{font-family:PF,Georgia,serif;font-weight:800;font-size:50px;line-height:1}.logo .t small{display:block;font-family:ID;font-weight:300;font-size:16px;letter-spacing:.26em;color:#f9e08a;margin-top:7px}
-.cadre{position:absolute;left:50px;top:132px;width:980px;height:560px;border-radius:38px;border:4px solid #f6c92899;box-shadow:0 24px 70px #000c;background:url(photo-couple.jpg) 0 -250px/980px auto no-repeat}
-.cadre::after{content:"";position:absolute;inset:0;border-radius:34px;background:linear-gradient(180deg,#0000 70%,#041a1288 100%)}
-h1{position:absolute;top:704px;left:0;right:0;text-align:center;font-weight:800;font-size:138px;line-height:1;letter-spacing:-.02em;text-shadow:0 6px 30px #000a}h1 b{color:#f6c928}
-.gauche{position:absolute;left:52px;top:880px;width:480px}
-.sous{font-weight:600;font-size:37px;line-height:1.2;margin-bottom:34px}.sous em{font-style:normal;color:#f6c928}
-.puces div{display:flex;gap:14px;font-weight:600;font-size:31px;line-height:1.22;margin-bottom:22px}.puces i{font-style:normal;color:#f6c928}
-.carte{position:absolute;right:50px;top:904px;width:450px;background:#fff;border-radius:34px;padding:20px 20px 16px;text-align:center;color:#062b1e;box-shadow:0 24px 70px #000b}
-.carte svg{display:block;width:410px;height:410px;margin:0 auto}
+.logo{position:absolute;top:34px;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:18px}.logo img{width:66px;height:74px;filter:drop-shadow(0 4px 12px #0008)}
+.logo .t{font-family:PF,Georgia,serif;font-weight:800;font-size:48px;line-height:1}.logo .t small{display:block;font-family:ID;font-weight:300;font-size:15px;letter-spacing:.26em;color:#f9e08a;margin-top:7px}
+h1{position:absolute;top:128px;left:0;right:0;text-align:center;font-weight:800;font-size:146px;line-height:1;letter-spacing:-.02em;text-shadow:0 6px 30px #000a}h1 b{color:#f6c928}
+.sous{position:absolute;top:298px;left:40px;right:40px;text-align:center;font-weight:600;font-size:40px;line-height:1.2;text-shadow:0 3px 18px #000c}.sous em{font-style:normal;color:#f6c928}
+.gratuit{position:absolute;right:46px;top:428px;transform:rotate(-6deg);background:linear-gradient(180deg,#ffd75a,#f6a21e);color:#2a1b00;font-weight:800;font-size:46px;padding:12px 40px;border-radius:44px;box-shadow:0 10px 34px #000a;border:5px solid #fff}
+.puces{position:absolute;left:46px;top:1366px;width:520px;font-weight:600;font-size:29px;line-height:1.2;text-shadow:0 3px 14px #000d}
+.puces div{margin-bottom:12px;white-space:nowrap}.puces i{font-style:normal;color:#f6c928;margin-right:10px}
+.carte{position:absolute;right:46px;top:984px;width:452px;background:#fff;border-radius:34px;padding:20px 20px 16px;text-align:center;color:#062b1e;box-shadow:0 24px 70px #000c}
+.carte svg{display:block;width:412px;height:412px;margin:0 auto}
 .carte b{display:block;font-size:46px;font-weight:800;margin-top:10px;line-height:1}.carte span{display:block;font-weight:300;font-size:22px;color:#4a5a52;margin-top:6px}
-.gratuit{position:absolute;right:62px;top:840px;transform:rotate(-5deg);background:linear-gradient(180deg,#ffd75a,#f6a21e);color:#2a1b00;font-weight:800;font-size:44px;padding:12px 40px;border-radius:44px;box-shadow:0 10px 34px #000a;border:5px solid #fff;z-index:3}
-.bas{position:absolute;left:0;right:0;bottom:0;height:182px;padding:20px 50px 0;background:linear-gradient(0deg,#02100b,#041a12);border-top:2px solid #f6c92855}
-.but{font-size:21px;line-height:1.32;font-weight:300;color:#e9f3ed;margin-bottom:10px}.but b{font-weight:600;color:#f9e08a}
-.pied{display:flex;justify-content:space-between;align-items:center;font-size:20px;color:#cfe5d9}
-.pied .star{display:flex;align-items:center;gap:14px}.pied .star img{width:52px;height:52px;border-radius:10px;border:2px solid #f6c92899}
-.pied .star div{line-height:1.2}.pied strong{font-weight:800;color:#fff;font-size:24px}
-.demo{font-size:18px;color:#f9e08a;text-align:right;line-height:1.25}
+.bas{position:absolute;left:0;right:0;bottom:0;height:104px;padding:0 46px}
+.but{font-size:20px;line-height:1.32;font-weight:300;color:#e9f3ed;margin-bottom:8px;text-shadow:0 2px 10px #000}.but b{font-weight:600;color:#f9e08a}
+.pied{display:flex;justify-content:space-between;align-items:center;font-size:19px;color:#cfe5d9}
+.pied .star{display:flex;align-items:center;gap:12px}.pied .star img{width:42px;height:42px;border-radius:9px;border:2px solid #f6c92899}.pied strong{font-weight:800;color:#fff;font-size:22px}
+.demo{font-size:17px;color:#f9e08a}
 </style></head><body>
-<div class="aff"><div class="drap"></div>
+<div class="aff"><div class="hautv"></div><div class="basv"></div><div class="drap"></div>
 <div class="logo"><img src="../../../passeport-demo/logo.svg" alt=""><div class="t">Passeport Sûr<small>SUIVI · CONTRÔLE · TRANSPARENCE</small></div></div>
-<div class="cadre"></div>
 <h1>Scanne-moi <b>!</b></h1>
+<div class="sous">et prépare ta demande de <em>passeport</em><br>depuis ton téléphone</div>
 <div class="gratuit">C’est gratuit !</div>
-<div class="gauche"><div class="sous">et prépare ta demande de <em>passeport</em> depuis ton téléphone</div>
-<div class="puces"><div><i>★</i><span>Pré-enregistre-toi <b>avant</b> de te déplacer</span></div><div><i>★</i><span>Suis ton dossier <b>de A à Z</b></span></div><div><i>★</i><span>Sois reçu <b>dans l’ordre</b>, avec ton numéro</span></div></div></div>
+<div class="puces"><div><i>★</i>Pré-enregistre-toi <b>avant</b> de venir</div><div><i>★</i>Suis ton dossier <b>de A à Z</b></div><div><i>★</i>Sois reçu <b>dans l’ordre</b></div></div>
 <div class="carte"><div id="qr"></div><b>Scanne-moi</b><span>avec l’appareil photo de ton téléphone</span></div>
-<div class="bas"><div class="but"><b>Le but de l’application :</b> que chaque demande de passeport soit <b>suivie</b> de A à Z, que chacun soit reçu <b>dans l’ordre</b> et que les <b>fraudes</b> soient repérées. L’application est gratuite ; le tarif du passeport reste celui fixé par l’État.</div>
+<div class="bas"><div class="but"><b>Le but de l’application :</b> que chaque demande de passeport soit <b>suivie</b> de A à Z, que chacun soit reçu <b>dans l’ordre</b> et que les <b>fraudes</b> soient repérées. Application gratuite ; le tarif du passeport reste celui fixé par l’État.</div>
 <div class="pied"><div class="star"><img src="../../../passeport-demo/img/star-entreprise.webp" alt=""><div><strong>STAR ENTREPRISE</strong> · Brazzaville, Congo</div></div><div class="demo">Version de démonstration · données fictives</div></div></div></div>
 <script src="../../../passeport-demo/lib/qrcode.js"></script>
 <script>
 const q = qrcode(0, 'Q'); q.addData('https://star-entreprise.netlify.app/passeport-demo/installer.html'); q.make(); document.getElementById('qr').innerHTML = q.createSvgTag(10, 0);
-const sv = document.querySelector('#qr svg'); sv.setAttribute('shape-rendering', 'crispEdges'); sv.setAttribute('width', 410); sv.setAttribute('height', 410);
+const sv = document.querySelector('#qr svg'); sv.setAttribute('shape-rendering', 'crispEdges'); sv.setAttribute('width', 412); sv.setAttribute('height', 412);
 </script></body></html>
