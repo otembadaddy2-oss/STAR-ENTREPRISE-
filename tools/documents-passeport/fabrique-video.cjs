@@ -11,7 +11,7 @@ const lecture = t => Math.max(3200, Math.round(texte(t).split(' ').length * 330)
 const leg = async (num, titre, t, ms) => { voix.push(titre + '. ' + texte(t)); await page.evaluate(([a, b, c]) => V.leg(a, b, c), [num, titre, t]); await wait(ms || lecture(t)); };
 const carte = async (html, ms, nomVoix) => { voix.push(nomVoix || texte(html)); await page.evaluate(h => V.carte(h), html); await wait(ms); await page.evaluate(() => V.carte(null)); await wait(700); };
 async function pointeur(fr, sel, clic = true, nth = 0) {
-  const el = fr.locator(sel).nth(nth); await el.scrollIntoViewIfNeeded().catch(() => { }); const b = await el.boundingBox(); if (!b) throw new Error('introuvable : ' + sel);
+  const el = fr.locator(sel).nth(nth); let b = null; for (let k = 0; k < 5 && !b; k++) { await el.scrollIntoViewIfNeeded({ timeout: 3000 }).catch(() => { }); b = await el.boundingBox(); if (!b) await page.waitForTimeout(700); } if (!b) throw new Error('introuvable : ' + sel);
   await page.evaluate(([x, y]) => V.curseur(x, y, false), [b.x + b.width / 2 - 4, b.y + b.height / 2 - 4]); await wait(650);
   if (clic) { await page.evaluate(([x, y]) => V.curseur(x, y, true), [b.x + b.width / 2 - 4, b.y + b.height / 2 - 4]); await wait(220); try { await el.click({ timeout: 2500 }); } catch (e) { console.log('  (clic direct) ' + sel + ' : ' + e.message.split('\n').filter(l => /intercepts|not visible|detached/.test(l)).join(' ').slice(0, 160)); await el.evaluate(n => n.click()); } } return el;
 }

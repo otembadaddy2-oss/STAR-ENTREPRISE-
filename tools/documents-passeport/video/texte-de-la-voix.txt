@@ -31,7 +31,7 @@ TEXTE DE LA VOIX OFF — Guide vidéo « Passeport Sûr »
 
 15. Vérifier avant d’encaisser. La fiche, les pièces, la signature et les alertes s’affichent. L’encaissement est bloqué si une pièce obligatoire manque ou si une alerte grave n’a pas été examinée par la Préfecture.
 
-16. Encaisser et éditer le reçu. Montant, mode de paiement, puis Encaisser. Le reçu donne le rendez-vous d’enrôlement et le numéro d’appel. Ici, des montants fictifs.
+16. Encaisser et éditer le reçu. Le montant officiel, 50 000 FCFA, s’affiche déjà et ne peut pas être modifié à la caisse. On choisit le mode de paiement, puis Encaisser. Le reçu donne le rendez-vous d’enrôlement et le numéro d’appel.
 
 17. Le message WhatsApp du rendez-vous. Le demandeur reçoit la date de son rendez-vous et son numéro d’appel. Les numéros sont sans doublon, et la capacité du jour ne peut pas être dépassée.
 
