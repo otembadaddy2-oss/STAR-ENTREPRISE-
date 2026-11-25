@@ -12,7 +12,8 @@ couverture({ kic: 'Proposition de projet · Brazzaville', titre: 'Passeport Sûr
 <div class="carte r"><h3>3 · Sécuriser</h3><p>Doublons, pièces modifiées, fausses identités, réseaux d’intermédiaires, délais anormaux : le système les signale automatiquement à la Préfecture, qui décide des suites.</p></div></div>
 <h2>Pour qui ?</h2>
 <table><tr><th style="width:34mm">Qui</th><th>Ce que l’application lui apporte</th></tr>
-<tr><td><b>Le demandeur</b></td><td>Un accusé sur son téléphone, un rendez-vous précis, le suivi de son dossier, la possibilité d’envoyer une pièce manquante sans revenir au guichet.</td></tr>
+<tr><td><b>Le demandeur</b></td><td>La possibilité de se pré-enregistrer avant de se déplacer, un accusé sur son téléphone, un rendez-vous précis, le suivi de son dossier, la possibilité d’envoyer une pièce manquante sans revenir au guichet.</td></tr>
+<tr><td><b>L’accueil (front office)</b></td><td>Il reçoit les personnes pré-enregistrées, scanne l’accusé, compare la fiche aux pièces originales, puis envoie vers la caisse — ou signale un écart.</td></tr>
 <tr><td><b>L’agent de guichet</b></td><td>Une fiche qui se remplit à partir de la pièce scannée, la liste des pièces à fournir, la signature sur l’écran.</td></tr>
 <tr><td><b>La caisse</b></td><td>L’ouverture du dossier par scan du code QR, des contrôles avant l’encaissement, un reçu avec le rendez-vous.</td></tr>
 <tr><td><b>Les agents de porte</b></td><td>Une file claire, des boutons « appeler le suivant », « rappeler », « absent ».</td></tr>
@@ -80,6 +81,14 @@ ${fig('d_accueil', 'L’écran d’accueil : chaque profil voit d’emblée par 
 <p>L’agent photographie la pièce d’identité : la <b>zone de lecture automatique</b> (MRZ) est lue et la fiche se remplit toute seule, avec contrôle des chiffres de clé. Il joint les pièces (photo ou fichier), fait signer le demandeur du doigt, puis un <b>accusé</b> avec numéro de reçu et code QR est envoyé sur le téléphone du demandeur. Un dossier incomplet est enregistré « incomplet » : il pourra être terminé plus tard, par l’agent ou par le demandeur lui-même.</p>
 ${duo(['d_guichet_fiche', 'La fiche remplie à partir de la pièce.'], ['d_guichet_pieces', 'Les pièces à joindre, obligatoires et facultatives.'])}
 ${duo(['d_guichet_signature', 'Signature au doigt ou au stylet.'], ['d_accuse', 'L’accusé avec code QR, prêt à être envoyé par WhatsApp.'])}`,
+
+`<h2 style="margin-top:0">Autre entrée possible — le pré-enregistrement par le demandeur et l’accueil (front office)</h2>
+<p>Les personnes qui ont l’application peuvent <b>préparer leur demande avant de se déplacer</b>. Avec le lien donné par la Préfecture, le demandeur remplit sa fiche sur son téléphone et reçoit un <b>accusé avec code QR</b>. Il se présente ensuite à l’<b>accueil</b> (le « front office ») avec ses pièces originales.</p>
+<div class="tel-duo">${fig('t_inscription', 'Le demandeur ouvre le lien', 600)}${fig('t_inscription_champs', 'Il remplit sa fiche', 600)}${fig('t_inscription_recu', 'Il reçoit son accusé et son code QR', 600)}</div>
+<p>À l’accueil, l’agent <b>scanne l’accusé</b>, <b>compare la fiche aux originaux</b> (pièce d’identité, visage, pièces à fournir), corrige les petites erreurs de saisie, puis coche les trois vérifications et envoie la personne à la <b>caisse</b>. S’il constate un écart (identité différente, pièce suspecte), il le signale : la Préfecture est alertée et <b>la caisse reste bloquée</b>.</p>
+${duo(['d_accueil_liste', 'L’accueil : les pré-enregistrés attendus.'], ['d_accueil_fiche', 'La fiche à comparer avec les originaux, et les trois vérifications.'])}
+${duo(['d_caisse_bloquee', 'Sans vérification à l’accueil, la caisse ne peut pas encaisser.'], ['d_accueil_ok', 'Après vérification : le demandeur peut passer à la caisse.'])}
+<div class="note"><b>Pourquoi cette étape ?</b> Les informations saisies par le demandeur lui-même ne sont pas fiables tant qu’elles n’ont pas été comparées aux originaux : c’est le contrôle qui empêche de payer, et d’obtenir un rendez-vous, sur une fiche non vérifiée. Le pré-enregistrement <b>ne remplace pas</b> le dépôt au guichet : les deux entrées mènent à la même caisse.</div>`,
 
 `<h2 style="margin-top:0">Étape 2 — Le paiement à la caisse</h2>
 <p>Le demandeur présente son accusé. La caisse <b>scanne le code QR</b> (ou saisit le numéro) : la fiche, les pièces, la signature et les alertes s’affichent. L’encaissement est <b>bloqué</b> si une pièce obligatoire manque ou si une alerte grave n’a pas été examinée par la Préfecture. Après le paiement, un reçu est édité avec le <b>rendez-vous d’enrôlement</b> et le <b>numéro d’appel</b>.</p>

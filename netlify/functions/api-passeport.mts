@@ -1,6 +1,6 @@
 // PASSEPORT SÛR — API des postes (guichet, caisse, portes, préfecture) et des écrans de la salle d'attente.
 // Lectures : GET ?op=sync&espace=CODE&since=N[&ecran=NOM]  ·  GET ?op=ecran&espace=CODE&nom=NOM
-// Écritures : POST { op: creer | ecrire | payer | appeler | rappeler | absent | reglages, espace, … }
+// Écritures : POST { op: creer | preinscrire (public) | ecrire | payer | appeler | rappeler | absent | reglages, espace, … }
 import type { Context, Config } from "@netlify/functions";
 import { db, json } from "./_db.mts";
 import { ensurePasseport, creerMoteur, normaliserCode, messageRdv } from "./_passeport.mts";
@@ -30,6 +30,10 @@ export default async (req: Request, _context: Context) => {
     const ip = (req.headers.get("x-nf-client-connection-ip") || (req.headers.get("x-forwarded-for") || "").split(",")[0] || "").trim().slice(0, 60);
     const r = await m.creer(String(b.nom || ""), ip, Array.isArray(b.dossiers) ? b.dossiers : []);
     return "erreur" in r ? json({ error: r.erreur }, 429) : json(r, 201);
+  }
+  if (op === "preinscrire") {
+    const ip = (req.headers.get("x-nf-client-connection-ip") || (req.headers.get("x-forwarded-for") || "").split(",")[0] || "").trim().slice(0, 60);
+    const r: any = await m.preinscrire(normaliserCode(b.public), ip, b.dossier); return r.erreur ? json({ error: r.erreur }, r.statut || 400) : json({ id: r.id, code: r.code, dossier: r.dossier });
   }
   if (op === "suivi-piece") { const r: any = await m.suiviPiece(normaliserCode(b.public), brut(b.id), String(b.code || ""), b.piece); return r ? (r.erreur ? json({ error: r.erreur }, r.statut || 400) : json({ dossier: r.dossier, rev: r.rev })) : json({ error: "Aucun dossier ne correspond à ce numéro et à ce code." }, 404); }
   const code = normaliserCode(b.espace); if (!code) return json({ error: "Code de l'espace manquant." }, 400);

@@ -14,6 +14,7 @@ const SY = () => window.__spSync;
 /* ---------- Contenu ---------- */
 const PROFILS = {
   agent: { nom: 'Agent de guichet', icone: '🧾', vue: 'guichet', bouton: 'Enregistrer une demande', resume: 'Vous enregistrez les demandes : scan de la pièce, pièces jointes, signature, accusé WhatsApp.' },
+  accueil: { nom: 'Accueil (réception)', icone: '🛎', vue: 'reception', bouton: 'Ouvrir l’accueil', resume: 'Vous recevez les demandeurs pré-enregistrés : scan de l’accusé, comparaison avec les pièces originales, envoi à la caisse.' },
   caisse: { nom: 'Caisse', icone: '💳', vue: 'caisse', bouton: 'Ouvrir la caisse', resume: 'Vous encaissez : scan du QR de l’accusé, vérification du dossier, paiement, reçu avec rendez-vous.' },
   porte: { nom: 'Agent de porte', icone: '🚪', vue: 'file', bouton: 'Ouvrir la file d’attente', resume: 'Vous appelez les personnes à votre porte : le numéro, le nom et la porte s’affichent en salle.' },
   prefecture: { nom: 'Préfecture', icone: '🏛', vue: 'tableau', bouton: 'Ouvrir le tableau de bord', resume: 'Vous pilotez : espace partagé, réglages, tableau de bord, alertes anti-fraude, tous les postes.' },
@@ -28,6 +29,14 @@ const T = {
     { cible: '#gt5', titre: '5. Signature', texte: 'Le demandeur signe avec le doigt ou un stylet, directement sur l’écran.' },
     { cible: '#bValider', titre: 'Valider et donner l’accusé', texte: 'Un accusé est créé avec le numéro de reçu et un code QR. Envoyez-le au demandeur par WhatsApp : il le présentera à la caisse.' },
     { cible: '#chipEspace', titre: 'Travailler avec les autres postes', texte: 'Si la Préfecture a créé un espace, touchez ici et entrez son code : votre poste travaille alors en direct avec la caisse, les portes et les écrans.' }
+  ],
+  accueil: [
+    { titre: 'Bienvenue à l’accueil', texte: 'Votre rôle : recevoir les demandeurs qui se sont pré-enregistrés sur leur téléphone, vérifier leurs pièces originales, puis les envoyer à la caisse. Cette visite dure une minute.' },
+    { vue: 'reception', cible: '#bScanRecep', titre: 'Scanner l’accusé', texte: 'Le demandeur présente son accusé : touchez ici et placez le code QR devant la caméra. Son dossier s’ouvre tout seul.' },
+    { cible: '#r_id', titre: 'Ou saisir le numéro', texte: 'Sans caméra : tapez le N° de dossier et le code de contrôle à 6 caractères, puis « Ouvrir le dossier ».' },
+    { cible: '#bRecepEx', titre: 'S’entraîner', texte: '« Exemple » ouvre un pré-enregistrement fictif pour essayer sans risque.' },
+    { cible: '#recepRes', titre: 'Comparer avec les originaux', texte: 'Vous voyez la fiche et les pièces. Corrigez les petites erreurs de saisie, cochez les trois vérifications, puis « Vérifié : envoyer à la caisse ». En cas d’écart, choisissez le motif et signalez-le : la Préfecture est alertée et la caisse reste bloquée.', centre: true },
+    { cible: '#tbRecep', titre: 'Les personnes attendues', texte: 'Ici, les pré-enregistrés qui ne sont pas encore passés à l’accueil. Le bouton « Copier le lien » donne le lien à communiquer aux demandeurs.' }
   ],
   caisse: [
     { titre: 'Bienvenue à la caisse', texte: 'Votre rôle : encaisser le paiement. Le demandeur arrive avec son accusé WhatsApp. Cette visite dure une minute.' },
@@ -65,6 +74,7 @@ const T = {
   ]
 };
 const FAQ = [
+  ['Le demandeur peut-il s’enregistrer lui-même ?', 'Oui. Avec le lien de pré-enregistrement donné par la Préfecture, il remplit sa fiche sur son téléphone et reçoit un accusé avec un code QR. Il se présente ensuite à l’accueil avec ses pièces originales ; après vérification, il passe à la caisse. Sans cette vérification, le paiement est impossible.'],
   ['Comment le demandeur reçoit-il son accusé ?', 'À la fin de l’enregistrement, un bouton prépare le message WhatsApp avec le numéro de reçu et le code QR. Dans cette démonstration, c’est l’agent qui touche le bouton ; l’envoi automatique demande un compte WhatsApp Business de la Préfecture.'],
   ['Une pièce manque : que faire ?', 'Le dossier est enregistré « incomplet ». Le demandeur peut envoyer la pièce depuis son téléphone avec son lien de suivi, ou l’agent la joint plus tard. La caisse ne peut pas encaisser tant qu’une pièce obligatoire manque.'],
   ['Pourquoi l’encaissement est-il bloqué ?', 'Soit une pièce obligatoire manque, soit une alerte grave (doublon, pièce modifiée…) n’a pas encore été examinée par la Préfecture.'],
@@ -211,13 +221,30 @@ function faq() {
   document.body.appendChild(v); $('#fFerme').onclick = () => v.remove(); $('#fFerme').focus({ preventScroll: true });
   const k = e => { if (e.key === 'Escape') { v.remove(); document.removeEventListener('keydown', k, true); } }; document.addEventListener('keydown', k, true);
 }
+let diffInst = null; window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); diffInst = e; }); window.addEventListener('appinstalled', () => { diffInst = null; });
+const dejaInstalle = () => { try { return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) { return false; } };
+function panneauInstall() {
+  fermerPanneaux(); const ua = navigator.userAgent || '', ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1), android = /Android/.test(ua);
+  const m = document.createElement('div'); m.id = 'guideAide'; m.className = 'guideCarte'; m.setAttribute('role', 'dialog');
+  let h = '<h3>Installer l’application</h3>';
+  if (dejaInstalle()) h += '<p>✔ L’application est <b>déjà installée</b> sur cet appareil : vous l’utilisez depuis son icône.</p>';
+  else if (diffInst) h += '<p>Touchez le bouton : l’icône « Passeport Sûr » s’ajoute à votre écran.</p><div style="display:grid;gap:8px"><button type="button" id="aInstOk">📲 Installer maintenant</button></div>';
+  else if (ios) h += '<ol style="margin:0 0 6px 18px"><li>Ouvrez ce lien dans <b>Safari</b>.</li><li>Touchez <b>Partager</b> (le carré avec une flèche vers le haut).</li><li>Choisissez <b>« Sur l’écran d’accueil »</b>, puis <b>Ajouter</b>.</li></ol>';
+  else if (android) h += '<ol style="margin:0 0 6px 18px"><li>Ouvrez ce lien dans <b>Chrome</b>.</li><li>Touchez le menu <b>⋮</b> en haut à droite.</li><li>Choisissez <b>« Installer l’application »</b> (ou « Ajouter à l’écran d’accueil »).</li></ol>';
+  else h += '<ol style="margin:0 0 6px 18px"><li>Avec <b>Chrome</b> ou <b>Edge</b> : touchez l’icône d’installation à droite de la barre d’adresse (un écran avec une flèche), ou le menu <b>⋮</b> puis <b>« Installer Passeport Sûr »</b>.</li><li>Avec Firefox ou Safari sur ordinateur : l’application fonctionne dans le navigateur ; ajoutez la page à vos favoris.</li></ol>';
+  h += '<p style="font-size:13px;color:#5d6b64;margin-top:8px">L’installation est <b>facultative</b> : l’application fonctionne aussi directement dans le navigateur, sans compte ni téléchargement lourd.</p><div style="display:grid;gap:8px;margin-top:8px"><button type="button" class="sec" id="aInstFerme">Fermer</button></div>';
+  m.innerHTML = h; document.body.appendChild(m);
+  const ok = $('#aInstOk'); if (ok) ok.onclick = () => { try { diffInst.prompt(); diffInst.userChoice.finally(() => { diffInst = null; m.remove(); }); } catch (e) { m.remove(); } };
+  $('#aInstFerme').onclick = () => m.remove(); $('#aInstFerme').focus({ preventScroll: true });
+  const k = e => { if (e.key === 'Escape') { m.remove(); document.removeEventListener('keydown', k, true); } }; document.addEventListener('keydown', k, true);
+}
 function menuAide(btn) {
   if (document.getElementById('guideAide')) { fermerPanneaux(); return; } fermerPanneaux();
   const citoyen = SY() && SY().citoyen && SY().citoyen(); const role = citoyen ? 'demandeur' : profilCourant();
   const m = document.createElement('div'); m.id = 'guideAide'; m.className = 'guideCarte'; m.setAttribute('role', 'menu');
-  m.innerHTML = '<h3>Aide</h3><div style="display:grid;gap:8px"><button type="button" id="aVis" role="menuitem">▶ Visite guidée de mon profil</button>' + (citoyen ? '' : '<button type="button" class="sec" id="aProf" role="menuitem">👥 Changer de profil / je ne sais pas lequel choisir</button>') + '<button type="button" class="sec" id="aFaq" role="menuitem">❓ Questions fréquentes</button>' + (citoyen ? '' : '<button type="button" class="lien" id="aRaz" role="menuitem">↺ Revoir toutes les visites au prochain lancement</button>') + '</div>';
+  m.innerHTML = '<h3>Aide</h3><div style="display:grid;gap:8px"><button type="button" id="aVis" role="menuitem">▶ Visite guidée de mon profil</button>' + (citoyen ? '' : '<button type="button" class="sec" id="aProf" role="menuitem">👥 Changer de profil / je ne sais pas lequel choisir</button>') + '<button type="button" class="sec" id="aFaq" role="menuitem">❓ Questions fréquentes</button><button type="button" class="sec" id="aInst" role="menuitem">📲 Installer l’application</button>' + (citoyen ? '' : '<button type="button" class="lien" id="aRaz" role="menuitem">↺ Revoir toutes les visites au prochain lancement</button>') + '</div>';
   document.body.appendChild(m);
-  $('#aVis').onclick = () => { m.remove(); visite(role); }; const p = $('#aProf'); if (p) p.onclick = () => { m.remove(); choixProfil(false); }; $('#aFaq').onclick = () => { m.remove(); faq(); }; const z = $('#aRaz'); if (z) z.onclick = () => { ecrire({}); m.remove(); majCommence(); };
+  $('#aVis').onclick = () => { m.remove(); visite(role); }; const p = $('#aProf'); if (p) p.onclick = () => { m.remove(); choixProfil(false); }; $('#aFaq').onclick = () => { m.remove(); faq(); }; $('#aInst').onclick = () => { m.remove(); panneauInstall(); }; const z = $('#aRaz'); if (z) z.onclick = () => { ecrire({}); m.remove(); majCommence(); };
   $('#aVis').focus({ preventScroll: true });
   const k = e => { if (e.key === 'Escape') { m.remove(); document.removeEventListener('keydown', k, true); } }; document.addEventListener('keydown', k, true);
   setTimeout(() => { const f = e => { if (!m.contains(e.target) && e.target !== btn) { m.remove(); document.removeEventListener('pointerdown', f, true); } }; document.addEventListener('pointerdown', f, true); }, 0);

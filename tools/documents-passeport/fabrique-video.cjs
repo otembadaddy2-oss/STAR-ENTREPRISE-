@@ -34,14 +34,16 @@ const api = (body) => page.evaluate(async b => { const r = await fetch('/api/pas
   await scene('titre', async () => {
     await carte(`<img class="lg" src="/passeport-demo/logo.svg"><div class="kic">Guide vidéo d’utilisation · de A à Z</div><h1>Passeport Sûr</h1><div class="sous">Suivi · Contrôle · Transparence</div><div class="but"><small>Le but de l’application</small><p>${BUT}</p></div>`, 11000, 'Guide vidéo d’utilisation de Passeport Sûr, de A à Z. ' + texte(BUT));
     await carte(`<div class="kic">En trois mots</div><h1 style="font-size:46px">À quoi sert Passeport Sûr ?</h1><div class="tr"><div><h3>Suivre</h3><p>Chaque dossier est suivi : dépôt, paiement, rendez-vous, traitement, remise. Le demandeur voit où en est son passeport.</p></div><div><h3>Ordonner</h3><p>Un rendez-vous après paiement, des numéros, des portes, des écrans de salle d’attente : chacun passe à son tour.</p></div><div><h3>Sécuriser</h3><p>Doublons, pièces modifiées, faux, réseaux d’intermédiaires : le système les signale à la Préfecture.</p></div></div><p style="margin-top:22px;font-size:20px;color:#cfe5d9">Pour : les demandeurs, les agents de guichet, la caisse, les agents de porte, la Préfecture et le Ministère. Cette vidéo vous montre chaque rôle, pas à pas.</p>`, 14000);
+    await carte(`<div class="kic">La vision de son créateur</div><h1 style="font-size:44px">Un service public plus clair, plus juste, plus sûr</h1><div class="tr"><div><h3>Un service lisible</h3><p>Que chaque citoyen sache où en est sa demande, ce qu’il doit fournir et quand il sera reçu.</p></div><div><h3>Un accueil digne</h3><p>Que personne n’ait besoin de « connaître quelqu’un » : chacun est appelé à son tour, avec son nom, à une porte précise.</p></div><div><h3>Une confiance durable</h3><p>Que chaque étape laisse une trace, et que la décision reste toujours à l’agent habilité.</p></div></div><p style="margin-top:22px;font-size:20px;color:#cfe5d9">Conçu par STAR ENTREPRISE, à Brazzaville, sous la direction de Carry OTEMBA.</p>`, 13000);
+    await carte(`<div class="kic">Qui fait quoi</div><h1 style="font-size:44px">Le rôle du Ministère et de la Préfecture</h1><div class="tr"><div><h3>Le Ministère</h3><p>Fixe la procédure, les pièces exigées et les tarifs officiels ; choisit l’hébergement des données ; suit les résultats.</p></div><div><h3>La Préfecture</h3><p>Désigne le site, forme les agents, gère l’espace partagé et examine les alertes de fraude.</p></div><div><h3>STAR ENTREPRISE</h3><p>Fournit et maintient l’application, forme les premiers utilisateurs et rend compte des résultats.</p></div></div><p style="margin-top:22px;font-size:20px;color:#cfe5d9">Répartition proposée, à confirmer avec les autorités. La décision de délivrer un passeport reste toujours humaine.</p>`, 13000);
   });
 
   // ============ 1. Démarrer ============
   await scene('démarrer', async () => {
     await page.evaluate(() => V.mode('plein')); await page.evaluate(u => V.src('plein', u), APP + 'index.html?guide=1'); await wait(2800);
-    await leg('Étape 1 sur 9 · Démarrer', 'Ouvrir le lien et choisir son rôle', 'Rien à installer, pas de compte : on ouvre le lien. Au premier lancement, l’application demande <b>« Quel est votre rôle ? »</b> et s’adapte.');
+    await leg('Étape 1 sur 10 · Démarrer', 'Ouvrir le lien et choisir son rôle', 'Rien à installer, pas de compte : on ouvre le lien. Au premier lancement, l’application demande <b>« Quel est votre rôle ? »</b> et s’adapte.');
     await pointeur(F('plein'), '#guideProfil [data-p="agent"]'); await wait(1600);
-    await leg('Étape 1 sur 9 · Démarrer', 'Une visite guidée d’une minute', 'Pour chaque rôle, une <b>visite guidée</b> met en lumière ce qu’il faut utiliser. On peut la passer à tout moment, et la relancer avec le bouton <b>❓ Aide</b>.', 6500);
+    await leg('Étape 1 sur 10 · Démarrer', 'Une visite guidée d’une minute', 'Pour chaque rôle, une <b>visite guidée</b> met en lumière ce qu’il faut utiliser. On peut la passer à tout moment, et la relancer avec le bouton <b>❓ Aide</b>.', 6500);
     await pointeur(F('plein'), '#gSuiv'); await wait(2200); await pointeur(F('plein'), '#gSuiv'); await wait(2200); await pointeur(F('plein'), '#gPasser'); await wait(900);
   });
 
@@ -49,21 +51,21 @@ const api = (body) => page.evaluate(async b => { const r = await fetch('/api/pas
   await scene('guichet', async () => {
     const f = F('plein'); await page.evaluate(u => V.src('plein', u), APP + 'index.html'); await wait(2500);
     await pointeur(f, 'nav button[data-v="guichet"]'); await wait(900);
-    await leg('Étape 2 sur 9 · Agent de guichet', 'Enregistrer une demande', 'L’agent ouvre <b>Nouvelle demande</b>. D’abord le <b>type</b> : première demande, ou renouvellement d’un passeport expiré.', 5500);
-    await leg('Étape 2 sur 9 · Agent de guichet', 'Scanner la pièce', 'Il photographie la <b>bande de lecture</b> de la pièce d’identité. Ici, un exemple : la <b>fiche se remplit toute seule</b>, avec contrôle des chiffres de clé.', 4500);
+    await leg('Étape 2 sur 10 · Agent de guichet', 'Enregistrer une demande', 'L’agent ouvre <b>Nouvelle demande</b>. D’abord le <b>type</b> : première demande, ou renouvellement d’un passeport expiré.', 5500);
+    await leg('Étape 2 sur 10 · Agent de guichet', 'Scanner la pièce', 'Il photographie la <b>bande de lecture</b> de la pièce d’identité. Ici, un exemple : la <b>fiche se remplit toute seule</b>, avec contrôle des chiffres de clé.', 4500);
     await pointeur(f, '[data-ex="cni"]'); await wait(1500);
     await f.locator('#gt3').scrollIntoViewIfNeeded(); await wait(1200);
-    await leg('Étape 2 sur 9 · Agent de guichet', 'Contrôler la fiche', 'L’agent vérifie la fiche et ajoute le <b>téléphone du demandeur</b> : c’est là que l’accusé sera envoyé.', 4000);
+    await leg('Étape 2 sur 10 · Agent de guichet', 'Contrôler la fiche', 'L’agent vérifie la fiche et ajoute le <b>téléphone du demandeur</b> : c’est là que l’accusé sera envoyé.', 4000);
     await taper(f, '#f_tel', '+242 06 123 45 67'); await wait(900);
     await f.locator('#gt4').scrollIntoViewIfNeeded(); await wait(900);
-    await leg('Étape 2 sur 9 · Agent de guichet', 'Joindre les pièces', 'Photo ou fichier, pièce par pièce. Si une pièce manque, le dossier reste <b>« incomplet »</b> : on pourra le terminer plus tard, ou le demandeur enverra la pièce depuis son téléphone.', 7500);
+    await leg('Étape 2 sur 10 · Agent de guichet', 'Joindre les pièces', 'Photo ou fichier, pièce par pièce. Si une pièce manque, le dossier reste <b>« incomplet »</b> : on pourra le terminer plus tard, ou le demandeur enverra la pièce depuis son téléphone.', 7500);
     await pointeur(f, '#edGuichet [data-pj="photo"][data-k="photo"]'); await f.locator('#pjPhoto').setInputFiles(FIX + 'visage-test.png'); await wait(900);
     for (const k of ['identite', 'naissance', 'nationalite']) { await pointeur(f, '#edGuichet [data-pj="fichier"][data-k="' + k + '"]'); await f.locator('#pjFichier').setInputFiles(FIX + 'visage-test.png'); await wait(800); }
     await f.locator('#sigPad').scrollIntoViewIfNeeded(); await wait(600);
-    await leg('Étape 2 sur 9 · Agent de guichet', 'Faire signer', 'Le demandeur <b>signe avec le doigt</b> ou un stylet, directement sur l’écran.', 3800);
+    await leg('Étape 2 sur 10 · Agent de guichet', 'Faire signer', 'Le demandeur <b>signe avec le doigt</b> ou un stylet, directement sur l’écran.', 3800);
     const sb = await f.locator('#sigPad').boundingBox(); await page.evaluate(([x, y]) => V.curseur(x, y, false), [sb.x + 60, sb.y + 90]); await wait(700); await page.mouse.move(sb.x + 60, sb.y + 90); await page.mouse.down();
     for (let i = 0; i < 50; i++) { await page.mouse.move(sb.x + 60 + i * 10, sb.y + 90 + Math.sin(i / 3) * 48); await page.evaluate(([x, y]) => V.curseur(x, y, false), [sb.x + 60 + i * 10, sb.y + 90 + Math.sin(i / 3) * 48]); await wait(30); } await page.mouse.up(); await wait(800);
-    await leg('Étape 2 sur 9 · Agent de guichet', 'Valider et remettre l’accusé', 'Un clic sur <b>Valider</b> : le dossier est créé et l’<b>accusé</b> s’affiche, avec son <b>numéro de reçu</b> et un <b>code QR</b>. Il est envoyé au demandeur sur WhatsApp.', 4500);
+    await leg('Étape 2 sur 10 · Agent de guichet', 'Valider et remettre l’accusé', 'Un clic sur <b>Valider</b> : le dossier est créé et l’<b>accusé</b> s’affiche, avec son <b>numéro de reçu</b> et un <b>code QR</b>. Il est envoyé au demandeur sur WhatsApp.', 4500);
     await pointeur(f, '#bValider'); await wait(3800);
     dos = await f.evaluate(() => { const X = window.__spApi, d = X.DB.slice().sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0]; return { id: d.id, code: X.code(d.id, d.person.nom) }; });
     await wait(3000); await f.evaluate(() => { const t = document.getElementById('tiroir'); t && t.classList.remove('on'); });
@@ -72,44 +74,69 @@ const api = (body) => page.evaluate(async b => { const r = await fetch('/api/pas
   // ============ 3. Caisse ============
   await scene('caisse', async () => {
     const f = F('plein'); await f.locator('#role').selectOption('caisse'); await wait(600); await pointeur(f, 'nav button[data-v="caisse"]'); await wait(900);
-    await leg('Étape 3 sur 9 · Caisse', 'Ouvrir le dossier', 'Le demandeur présente son accusé. La caisse <b>scanne le code QR</b> — ou saisit le numéro de reçu et le code de contrôle — et le dossier s’ouvre.', 6500);
+    await leg('Étape 3 sur 10 · Caisse', 'Ouvrir le dossier', 'Le demandeur présente son accusé. La caisse <b>scanne le code QR</b> — ou saisit le numéro de reçu et le code de contrôle — et le dossier s’ouvre.', 6500);
     await taper(f, '#k_id', dos.id, 70); await taper(f, '#k_code', dos.code, 90); await pointeur(f, '#bCaisseOuvrir'); await f.locator('#k_montant').waitFor({ timeout: 8000 }); await wait(1200);
-    await leg('Étape 3 sur 9 · Caisse', 'Vérifier avant d’encaisser', 'La fiche, les pièces, la signature et les alertes s’affichent. <b>L’encaissement est bloqué</b> si une pièce obligatoire manque ou si une alerte grave n’a pas été examinée par la Préfecture.', 7500);
+    await leg('Étape 3 sur 10 · Caisse', 'Vérifier avant d’encaisser', 'La fiche, les pièces, la signature et les alertes s’affichent. <b>L’encaissement est bloqué</b> si une pièce obligatoire manque ou si une alerte grave n’a pas été examinée par la Préfecture.', 7500);
     await taper(f, '#k_montant', '75000', 110); await wait(700);
-    await leg('Étape 3 sur 9 · Caisse', 'Encaisser et éditer le reçu', 'Montant, mode de paiement, puis <b>Encaisser</b>. Le <b>reçu</b> donne le <b>rendez-vous d’enrôlement</b> et le <b>numéro d’appel</b>. Ici, des montants fictifs.', 5500);
+    await leg('Étape 3 sur 10 · Caisse', 'Encaisser et éditer le reçu', 'Montant, mode de paiement, puis <b>Encaisser</b>. Le <b>reçu</b> donne le <b>rendez-vous d’enrôlement</b> et le <b>numéro d’appel</b>. Ici, des montants fictifs.', 5500);
     await pointeur(f, '#bPayer'); await f.locator('.recu').waitFor({ timeout: 8000 }); await wait(3500);
     await f.evaluate(() => { const t = document.querySelector('#tiroir .feuille'); t && t.scrollTo({ top: 600, behavior: 'smooth' }); }); await wait(3500);
-    await leg('Étape 3 sur 9 · Caisse', 'Le message WhatsApp du rendez-vous', 'Le demandeur reçoit <b>la date de son rendez-vous</b> et son numéro d’appel. Les numéros sont sans doublon, et la capacité du jour ne peut pas être dépassée.', 6000);
+    await leg('Étape 3 sur 10 · Caisse', 'Le message WhatsApp du rendez-vous', 'Le demandeur reçoit <b>la date de son rendez-vous</b> et son numéro d’appel. Les numéros sont sans doublon, et la capacité du jour ne peut pas être dépassée.', 6000);
     await f.evaluate(() => { const t = document.getElementById('tiroir'); t && t.classList.remove('on'); });
   });
 
   // ============ 4. Préfecture : espace partagé ============
   await scene('préfecture : espace', async () => {
     const f = F('plein'); await page.evaluate(u => V.src('plein', u), APP + 'index.html'); await wait(2500); await f.locator('#role').selectOption('prefecture'); await wait(500);
-    await leg('Étape 4 sur 9 · Préfecture', 'Créer l’espace partagé', 'Pour que tous les postes travaillent ensemble, la <b>Préfecture crée un espace</b> : un code à 8 caractères que le guichet, la caisse, les portes et les écrans rejoignent.', 6500);
+    await leg('Étape 4 sur 10 · Préfecture', 'Créer l’espace partagé', 'Pour que tous les postes travaillent ensemble, la <b>Préfecture crée un espace</b> : un code à 8 caractères que le guichet, la caisse, les portes et les écrans rejoignent.', 6500);
     await pointeur(f, '#chipEspace'); await wait(900); await pointeur(f, '#bCreerEsp'); await f.waitForLoadState('load').catch(() => { }); await wait(3500);
     code = await f.evaluate(() => JSON.parse(localStorage.getItem('sp_espace_v1')).code); pub = await f.evaluate(() => window.__spSync.publique());
     await f.locator('#role').selectOption('prefecture'); await wait(400); await pointeur(f, '#chipEspace'); await wait(500);
-    await leg('Étape 4 sur 9 · Préfecture', 'Le code, le QR et les liens', 'Le panneau donne le <b>code de l’espace</b>, un QR pour relier un poste, et le <b>lien des écrans de salle</b>. À ne pas partager publiquement.', 7000);
+    await leg('Étape 4 sur 10 · Préfecture', 'Le code, le QR et les liens', 'Le panneau donne le <b>code de l’espace</b>, un QR pour relier un poste, et le <b>lien des écrans de salle</b>. À ne pas partager publiquement.', 7000);
     await pointeur(f, '#bFerme'); await wait(500);
     await pointeur(f, 'nav button[data-v="reglages"]'); await wait(1200);
-    await leg('Étape 4 sur 9 · Préfecture', 'Régler le site', 'Nombre de portes, personnes par jour, jours ouverts, heure de début, lieu. Ces valeurs sont des <b>exemples à fixer avec la Préfecture</b>.', 6500);
+    await leg('Étape 4 sur 10 · Préfecture', 'Régler le site', 'Nombre de portes, personnes par jour, jours ouverts, heure de début, lieu. Ces valeurs sont des <b>exemples à fixer avec la Préfecture</b>.', 6500);
     await f.evaluate(() => window.scrollBy({ top: 360, behavior: 'smooth' })); await wait(2500);
   });
 
-  // ============ 5. Salle d'attente : portes + écran ============
+  // ============ 5. Pré-enregistrement du demandeur + accueil (front office) ============
+  await scene('pré-enregistrement et accueil', async () => {
+    await page.evaluate(() => { V.mode('tel'); V.note('<h3>Le demandeur se pré-enregistre</h3>Avec le <b>lien donné par la Préfecture</b>, il prépare sa demande depuis son téléphone, <b>sans compte</b>, avant de se déplacer.'); });
+    await page.evaluate(u => V.src('t', u), APP + 'inscription.html?esp=' + pub); await wait(3000); const t = F('t');
+    await leg('Étape 5 sur 10 · Pré-enregistrement', 'Le demandeur prépare sa demande', 'Il choisit le type de demande, puis remplit sa fiche : nom, prénoms, naissance, téléphone et pièce d’identité — <b>exactement comme sur la pièce originale</b>.', 7500);
+    await taper(t, '#nom', 'Okemba', 80); await taper(t, '#prenoms', 'Prisca', 80);
+    await pointeur(t, '#naiss'); await t.locator('#naiss').fill('1993-05-17'); await pointeur(t, '#sexe'); await t.locator('#sexe').selectOption('F');
+    await taper(t, '#tel', '+242 06 321 54 76', 60); await taper(t, '#pnum', 'CNI772201', 80); await pointeur(t, '#pexp'); await t.locator('#pexp').fill('2031-02-28'); await wait(800);
+    await leg('Étape 5 sur 10 · Pré-enregistrement', 'Il envoie, et reçoit son accusé', 'Il touche <b>« Envoyer »</b> et reçoit un <b>accusé avec code QR</b>. Ce n’est pas encore un dépôt : il devra se présenter à l’<b>accueil</b> avec ses <b>pièces originales</b>.', 6500);
+    await pointeur(t, '#bEnvoyer'); await t.locator('#vRecu:not([hidden])').waitFor({ timeout: 10000 }); await wait(4500);
+    const pre = await t.evaluate(() => ({ id: document.getElementById('rNum').textContent.trim(), code: document.getElementById('rCode').textContent.trim() }));
+    await page.evaluate(() => V.mode('plein')); await page.evaluate(u => V.src('plein', u), APP + 'index.html?espace=' + code); await wait(3500); const f = F('plein');
+    await f.waitForFunction(i => window.__spApi && window.__spApi.DB.some(d => d.id === i), pre.id, { timeout: 15000 });
+    await f.evaluate(i => { const X = window.__spApi, d = X.DB.find(x => x.id === i); d.pieces = ['photo', 'identite', 'naissance', 'nationalite'].map((k, n) => ({ id: 'PJ-demo' + n, type: k, nom: k, mime: 'image/jpeg', taille: 1, at: new Date().toISOString(), par: 'demandeur', demo: true })); X.sauver(); }, pre.id);
+    await f.locator('#role').selectOption('accueil'); await wait(600);
+    await leg('Étape 5 sur 10 · Accueil (front office)', 'L’accueil reçoit la personne', 'L’agent d’<b>accueil</b> ouvre la page <b>Réception</b> et <b>scanne l’accusé</b> du demandeur — ou saisit le numéro de dossier et le code de contrôle.', 6500);
+    await pointeur(f, 'nav button[data-v="reception"]'); await wait(1500);
+    await taper(f, '#r_id', pre.id, 60); await taper(f, '#r_code', pre.code, 90); await pointeur(f, '#bRecepOuvrir'); await f.locator('#bRecepOk').waitFor({ timeout: 8000 }); await wait(1200);
+    await leg('Étape 5 sur 10 · Accueil (front office)', 'Comparer avec les pièces originales', 'La fiche et les pièces s’affichent. L’agent <b>compare avec les originaux</b>, corrige les petites erreurs de saisie, puis coche les <b>trois vérifications</b>.', 7500);
+    for (let i = 0; i < 3; i++) await pointeur(f, '.rv', true, i);
+    await wait(900);
+    await leg('Étape 5 sur 10 · Accueil (front office)', 'Vérifié : envoyer à la caisse', 'Un clic sur <b>« Vérifié »</b> envoie la personne à la caisse. En cas d’<b>écart</b> (identité différente, pièce suspecte), l’agent le signale : la Préfecture est alertée et <b>la caisse reste bloquée</b>.', 8000);
+    await pointeur(f, '#bRecepOk'); await wait(3500);
+  });
+
+  // ============ 6. Salle d'attente : portes + écran ============
   await scene('portes et écran de salle', async () => {
     await page.evaluate(() => V.mode('split')); await page.evaluate(([a, b]) => { V.src('g', a); V.src('d', b); }, [APP + 'index.html?espace=' + code, APP + 'ecran.html?espace=' + code]); await wait(3500);
     const g = F('g'), d = F('d');
-    await leg('Étape 5 sur 9 · Salle d’attente', 'Allumer l’écran de la salle', 'Sur la télévision, on ouvre le lien de l’écran, on donne un <b>nom à l’écran</b> et on touche <b>Démarrer</b>. Il affiche alors les appels en direct, avec la voix.', 6500);
+    await leg('Étape 6 sur 10 · Salle d’attente', 'Allumer l’écran de la salle', 'Sur la télévision, on ouvre le lien de l’écran, on donne un <b>nom à l’écran</b> et on touche <b>Démarrer</b>. Il affiche alors les appels en direct, avec la voix.', 6500);
     await taper(d, '#nomEcran', 'Salle d’attente 1', 70); await pointeur(d, '#bDemarrer'); await wait(2000);
     await g.locator('#role').selectOption('porte'); await wait(500); await pointeur(g, 'nav button[data-v="file"]'); await wait(1500);
-    await leg('Étape 5 sur 9 · Salle d’attente', 'Chaque porte appelle le suivant', 'Les personnes ont <b>rendez-vous aujourd’hui</b>, dans l’ordre de leur paiement. Chaque porte touche <b>« Appeler le suivant »</b>.', 5500);
+    await leg('Étape 6 sur 10 · Salle d’attente', 'Chaque porte appelle le suivant', 'Les personnes ont <b>rendez-vous aujourd’hui</b>, dans l’ordre de leur paiement. Chaque porte touche <b>« Appeler le suivant »</b>.', 5500);
     await g.locator('#portes').scrollIntoViewIfNeeded(); await wait(500);
     await pointeur(g, '[data-act="appeler"][data-p="1"]'); await wait(700); await pointeur(g, '[data-act="appeler"][data-p="2"]'); await wait(700); await pointeur(g, '[data-act="appeler"][data-p="3"]');
-    await leg('Étape 5 sur 9 · Salle d’attente', 'Numéro, nom et porte — à l’écran et à la voix', 'Trois portes appellent en même temps : l’écran les affiche <b>l’un après l’autre</b>. Chaque numéro reste <b>au moins 10 secondes</b> et est annoncé à voix haute avec sa porte.', 11000);
+    await leg('Étape 6 sur 10 · Salle d’attente', 'Numéro, nom et porte — à l’écran et à la voix', 'Trois portes appellent en même temps : l’écran les affiche <b>l’un après l’autre</b>. Chaque numéro reste <b>au moins 10 secondes</b> et est annoncé à voix haute avec sa porte.', 11000);
     await wait(14000);
-    await leg('Étape 5 sur 9 · Salle d’attente', 'Absent ? En fin de file', 'Si la personne ne se présente pas : <b>« Absent »</b>. Elle repart <b>à la fin de la file</b> et ne sera rappelée qu’après les autres.', 6000);
+    await leg('Étape 6 sur 10 · Salle d’attente', 'Absent ? En fin de file', 'Si la personne ne se présente pas : <b>« Absent »</b>. Elle repart <b>à la fin de la file</b> et ne sera rappelée qu’après les autres.', 6000);
     await pointeur(g, '[data-act="absent"][data-p="1"]'); await wait(2500);
   });
 
@@ -118,9 +145,9 @@ const api = (body) => page.evaluate(async b => { const r = await fetch('/api/pas
     const g = F('g'); const info = await g.evaluate(() => { const X = window.__spApi, d = X.DB.find(x => x.paiement && x.rdv && x.status === 'paye') || X.DB.find(x => x.paiement); return d && { id: d.id, code: X.code(d.id, d.person.nom) }; });
     await page.evaluate(() => { V.mode('tel'); V.note('<h3>Le demandeur</h3>Il ouvre le lien reçu sur WhatsApp : <b>sans compte ni mot de passe</b>, il voit son dossier — et seulement le sien.'); });
     await page.evaluate(u => V.src('t', u), APP + 'index.html?suivi=' + info.id + '&code=' + info.code + '&esp=' + pub); await wait(3500);
-    await leg('Étape 6 sur 9 · Le demandeur', 'Suivre son dossier depuis son téléphone', 'Il voit les <b>étapes franchies</b>, son <b>rendez-vous</b> (jour, heure, lieu) et son <b>numéro d’appel</b>. Le jour dit : il regarde l’écran et va à la porte indiquée.', 8500);
+    await leg('Étape 7 sur 10 · Le demandeur', 'Suivre son dossier depuis son téléphone', 'Il voit les <b>étapes franchies</b>, son <b>rendez-vous</b> (jour, heure, lieu) et son <b>numéro d’appel</b>. Le jour dit : il regarde l’écran et va à la porte indiquée.', 8500);
     await F('t').evaluate(() => window.scrollTo({ top: 360, behavior: 'smooth' })); await wait(3000);
-    await leg('Étape 6 sur 9 · Le demandeur', 'Une pièce manque ? Il l’envoie lui-même', 'Il prend la pièce en <b>photo</b> ou la joint depuis son téléphone : inutile de revenir au guichet.', 5500);
+    await leg('Étape 7 sur 10 · Le demandeur', 'Une pièce manque ? Il l’envoie lui-même', 'Il prend la pièce en <b>photo</b> ou la joint depuis son téléphone : inutile de revenir au guichet.', 5500);
     await F('t').evaluate(() => window.scrollTo({ top: 1100, behavior: 'smooth' })); await wait(3000);
   });
 
@@ -128,26 +155,26 @@ const api = (body) => page.evaluate(async b => { const r = await fetch('/api/pas
   await scene('pilotage', async () => {
     await page.evaluate(() => V.mode('plein')); await page.evaluate(u => V.src('plein', u), APP + 'index.html?espace=' + code); await wait(3500); const f = F('plein');
     await f.locator('#role').selectOption('ministere'); await wait(600); await pointeur(f, 'nav button[data-v="tableau"]'); await wait(3500);
-    await leg('Étape 7 sur 9 · Ministère et Préfecture', 'Le tableau de bord', 'La <b>situation réelle</b> : qui a demandé, payé, été reçu, reçu son passeport, délais moyens, renouvellements. Un export <b>Excel</b> fournit les tableaux et graphiques.', 8000);
+    await leg('Étape 8 sur 10 · Ministère et Préfecture', 'Le tableau de bord', 'La <b>situation réelle</b> : qui a demandé, payé, été reçu, reçu son passeport, délais moyens, renouvellements. Un export <b>Excel</b> fournit les tableaux et graphiques.', 8000);
     await f.evaluate(() => window.scrollBy({ top: 420, behavior: 'smooth' })); await wait(4000);
     await pointeur(f, 'nav button[data-v="fraude"]'); await wait(3500);
-    await leg('Étape 7 sur 9 · Ministère et Préfecture', 'Le contrôle anti-fraude', 'Doublons, pièces modifiées, fausses identités, réseaux, délais anormaux : les cas sont classés du plus grave au moins grave. Ce sont des <b>alertes à examiner par une personne</b>, pas des preuves.', 9000);
+    await leg('Étape 8 sur 10 · Ministère et Préfecture', 'Le contrôle anti-fraude', 'Doublons, pièces modifiées, fausses identités, réseaux, délais anormaux : les cas sont classés du plus grave au moins grave. Ce sont des <b>alertes à examiner par une personne</b>, pas des preuves.', 9000);
     await pointeur(f, 'nav button[data-v="dossiers"]'); await wait(1500);
-    await leg('Étape 7 sur 9 · Ministère et Préfecture', 'Tous les dossiers, avec leur historique', 'Recherche, filtres, et la fiche complète de chaque dossier : pièces, signature, <b>historique daté</b>, alertes.', 5500);
+    await leg('Étape 8 sur 10 · Ministère et Préfecture', 'Tous les dossiers, avec leur historique', 'Recherche, filtres, et la fiche complète de chaque dossier : pièces, signature, <b>historique daté</b>, alertes.', 5500);
     await pointeur(f, '#tb tr.cl', true, 2); await wait(3500); await f.evaluate(() => { const t = document.getElementById('tiroir'); t && t.classList.remove('on'); });
   });
 
   // ============ 8. Aide ============
   await scene('aide', async () => {
     const f = F('plein'); await f.evaluate(() => window.scrollTo({ top: 0 })); await pointeur(f, '#bAide'); await wait(900); await pointeur(f, '#aFaq'); await wait(900); await pointeur(f, '#guideFaqBox summary', true, 3); await wait(500);
-    await leg('Étape 8 sur 9 · Aide', 'Toujours une aide sous la main', 'Le bouton <b>❓ Aide</b> relance la visite guidée, permet de <b>changer de profil</b> et donne les réponses aux questions fréquentes.', 7500);
+    await leg('Étape 9 sur 10 · Aide', 'Toujours une aide sous la main', 'Le bouton <b>❓ Aide</b> relance la visite guidée, permet de <b>changer de profil</b> et donne les réponses aux questions fréquentes.', 7500);
     await pointeur(f, '#fFerme'); await wait(600);
   });
 
   // ============ 9. Fin ============
   await scene('fin', async () => {
     await api({ op: 'supprimer', espace: code, confirmation: 'EFFACER' }).catch(() => { }); await page.evaluate(() => V.leg('', '', ''));
-    await carte(`<div class="fin"><img src="/passeport-demo/img/star-entreprise.webp" alt=""><div class="kic" style="margin-top:20px">Étape 9 sur 9 · Pour conclure</div><h1 style="font-size:46px">Passeport Sûr</h1><div class="but" style="margin:18px auto 0;text-align:left"><small>Le but de l’application</small><p>${BUT}</p></div><p style="margin-top:22px;font-size:20px;color:#cfe5d9">Conçu par STAR ENTREPRISE, Brazzaville · www.starentreprise.com<br>Démonstration avec des données entièrement fictives · Tous droits réservés</p></div>`, 12000, 'Pour conclure : ' + texte(BUT) + ' Passeport Sûr est conçu par STAR ENTREPRISE, à Brazzaville.');
+    await carte(`<div class="fin"><img src="/passeport-demo/img/star-entreprise.webp" alt=""><div class="kic" style="margin-top:20px">Étape 10 sur 10 · Pour conclure</div><h1 style="font-size:46px">Passeport Sûr</h1><div class="but" style="margin:18px auto 0;text-align:left"><small>Le but de l’application</small><p>${BUT}</p></div><p style="margin-top:22px;font-size:20px;color:#cfe5d9">Conçu par STAR ENTREPRISE, Brazzaville · www.starentreprise.com<br>Démonstration avec des données entièrement fictives · Tous droits réservés</p></div>`, 12000, 'Pour conclure : ' + texte(BUT) + ' Passeport Sûr est conçu par STAR ENTREPRISE, à Brazzaville.');
   });
 
   const v = page.video(); await ctx.close(); const brut = await v.path(); await b.close();

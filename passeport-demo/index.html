@@ -10,6 +10,11 @@
 <title>Passeport Sûr — Suivi et contrôle des demandes</title>
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Passeport Sûr">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
 @font-face{font-family:ID;font-weight:300;font-display:swap;src:url(polices/inter-display-300.woff2) format("woff2")}
 @font-face{font-family:ID;font-weight:600;font-display:swap;src:url(polices/inter-display-600.woff2) format("woff2")}
@@ -60,7 +65,7 @@ textarea.mrz{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;
 .btn:hover{transform:translateY(-1px);box-shadow:0 6px 16px #062b1e33}
 .btn.vert{background:linear-gradient(135deg,#12b35a,var(--vert));color:#fff}
 .btn.or{background:linear-gradient(135deg,#ffe27a,var(--jaune));color:#3a2c00}
-.btn.rouge{background:var(--rouge)}
+.btn.rouge{background:var(--rouge)}.verif{display:grid;gap:8px;margin-top:12px}
 .btn.clair{background:#fff;color:var(--foret);border:1.5px solid #cfc8b2}
 .btn.petit{padding:8px 12px;font-size:13px}
 .btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
@@ -97,7 +102,7 @@ textarea.mrz{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;
 .b-tableau{background-image:url(img/brazzaville-ville.webp);background-position:center 60%}
 .b-fraude{background-image:url(img/empreinte.webp);background-position:center 50%}
 .b-citoyen{background-image:url(img/aeroport.webp);background-position:center 45%}
-.b-caisse{background-image:url(img/brazzaville-ville.webp);background-position:center 62%}.b-file{background-image:url(img/aeroport.webp);background-position:center 40%}
+.b-reception{background-image:url(img/batiment-rond.webp);background-position:center 50%}.b-caisse{background-image:url(img/brazzaville-ville.webp);background-position:center 62%}.b-file{background-image:url(img/aeroport.webp);background-position:center 40%}
 .b-apropos{background-image:url(img/batiment-rond.webp);background-position:center 30%}
 .acts .act{overflow:hidden;padding:0}.act .ph{height:118px;background:center/cover no-repeat;position:relative}
 .act .ph::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,#062b1e66)}
@@ -278,7 +283,7 @@ textarea.mrz{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;
 .b-tableau{background-image:url(img/brazzaville-ville.webp);background-position:center 60%}
 .b-fraude{background-image:url(img/empreinte.webp);background-position:center 50%}
 .b-citoyen{background-image:url(img/aeroport.webp);background-position:center 45%}
-.b-caisse{background-image:url(img/brazzaville-ville.webp);background-position:center 62%}.b-file{background-image:url(img/aeroport.webp);background-position:center 40%}
+.b-reception{background-image:url(img/batiment-rond.webp);background-position:center 50%}.b-caisse{background-image:url(img/brazzaville-ville.webp);background-position:center 62%}.b-file{background-image:url(img/aeroport.webp);background-position:center 40%}
 .b-apropos{background-image:url(img/batiment-rond.webp);background-position:center 30%}
 .acts .act{overflow:hidden;padding:0}.act .ph{height:118px;background:center/cover no-repeat;position:relative}
 .act .ph::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,#062b1e66)}
@@ -422,12 +427,13 @@ main{position:relative}
   <img src="logo.svg" alt="Logo Passeport Sûr">
   <div class="tt">PASSEPORT SÛR<small>Suivi · Contrôle · Transparence</small></div>
   <div class="role"><button type="button" id="chipEspace" class="chip-esp">⚪ Mode local</button><span>Profil</span>
-    <select id="role" aria-label="Profil"><option value="agent">Agent de guichet (enregistrement)</option><option value="caisse">Caisse (paiement)</option><option value="porte">Agent de porte (appel)</option><option value="prefecture">Préfecture de Brazzaville</option><option value="ministere">Ministère (consultation)</option></select></div>
+    <select id="role" aria-label="Profil"><option value="agent">Agent de guichet (enregistrement)</option><option value="accueil">Accueil (réception des demandeurs)</option><option value="caisse">Caisse (paiement)</option><option value="porte">Agent de porte (appel)</option><option value="prefecture">Préfecture de Brazzaville</option><option value="ministere">Ministère (consultation)</option></select></div>
 </div></header>
 <div class="bandeau" id="bandeau">Proposition de projet · démonstration — toutes les personnes, pièces et numéros affichés sont <b>fictifs</b> et restent sur cet appareil.</div>
 <nav><div class="in" id="onglets">
   <button data-v="accueil" class="on">Accueil</button>
   <button data-v="guichet" data-roles="agent,prefecture">Nouvelle demande</button>
+  <button data-v="reception" data-roles="accueil,prefecture">Réception</button>
   <button data-v="caisse" data-roles="caisse,prefecture">Caisse</button>
   <button data-v="file">File d'attente</button>
   <button data-v="reglages" data-roles="prefecture">Réglages</button>
@@ -530,6 +536,22 @@ main{position:relative}
 </section>
 
 <!-- ===== CAISSE ===== -->
+<section id="v-reception" class="vue">
+  <div class="baniere b-reception"><div class="txt"><h2>Accueil — recevoir les demandeurs</h2><p class="sous">Le demandeur s'est pré-enregistré sur son téléphone. Scannez son accusé, comparez la fiche à ses pièces originales, puis envoyez-le à la caisse.</p></div></div>
+  <div class="carte"><h3><span class="n">1</span>Scanner l'accusé du demandeur</h3>
+    <div class="ligne" style="margin-bottom:10px"><button class="btn vert" id="bScanRecep">📷 Scanner le code QR</button><button class="btn clair" id="bScanRecepStop" style="display:none">Fermer la caméra</button>
+      <button class="btn clair petit" id="bRecepEx">Exemple : pré-enregistrement</button></div>
+    <div class="scan" id="rScanBox"><video id="rScanVid" playsinline muted></video><div class="vise"></div></div>
+    <canvas id="rScanCv" hidden></canvas>
+    <div class="grille"><div class="c6"><label for="r_id">N° de dossier (sur l'accusé)</label><input id="r_id" placeholder="BZV-2026-P00001" autocapitalize="characters"></div>
+      <div class="c6"><label for="r_code">Code de contrôle</label><input id="r_code" placeholder="A1B2C3" autocapitalize="characters" maxlength="6"></div></div>
+    <div class="ligne" style="margin-top:10px"><button class="btn" id="bRecepOuvrir">Ouvrir le dossier</button><span id="rEtat" style="font-size:13px;color:var(--gris)"></span></div>
+  </div>
+  <div id="recepRes"></div>
+  <div class="carte"><h3>Pré-enregistrés en attente de vérification</h3><p class="sous" style="margin-bottom:8px">Personnes qui se sont enregistrées elles-mêmes et ne sont pas encore passées à l'accueil. <span id="lienPre" style="font-size:12.5px"></span></p>
+    <div class="tablewrap"><table><thead><tr><th>Pré-enregistré</th><th>N° de dossier</th><th>Demandeur</th><th>Type</th><th></th></tr></thead><tbody id="tbRecep"></tbody></table></div></div>
+</section>
+
 <section id="v-caisse" class="vue">
   <div class="baniere b-caisse"><div class="txt"><h2>Caisse — paiement</h2><p class="sous">Scannez le code QR de l'accusé du demandeur : sa fiche complète s'affiche, puis encaissez.</p></div></div>
   <div class="carte"><h3><span class="n">1</span>Scanner l'accusé du demandeur</h3>

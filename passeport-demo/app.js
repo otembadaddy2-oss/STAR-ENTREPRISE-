@@ -4,7 +4,7 @@
 const STATUTS = [['depose', 'Demande déposée'], ['paye', 'Paiement effectué'], ['recu', 'Dossier reçu'], ['traitement', 'En traitement'], ['pret', 'Passeport prêt'], ['remis', 'Remis au demandeur']];
 const SN = Object.fromEntries(STATUTS);
 const TN = { premiere: 'Première demande', renouvellement: 'Renouvellement' };
-const KN = { piece: 'Pièce modifiée', doublon: 'Doublon de pièce', identite: 'Double identité', reseau: 'Réseau d’intermédiaires', expiree: 'Pièce expirée', renouvellement: 'Renouvellement irrégulier', etape: 'Étape sautée', delai: 'Remise éclair', nuit: 'Action de nuit', bloque: 'Dossier bloqué', agent: 'Agent à surveiller' };
+const KN = { accueil: 'Écart constaté à l’accueil', piece: 'Pièce modifiée', doublon: 'Doublon de pièce', identite: 'Double identité', reseau: 'Réseau d’intermédiaires', expiree: 'Pièce expirée', renouvellement: 'Renouvellement irrégulier', etape: 'Étape sautée', delai: 'Remise éclair', nuit: 'Action de nuit', bloque: 'Dossier bloqué', agent: 'Agent à surveiller' };
 const LIEUX = ['Makélékélé', 'Bacongo', 'Poto-Poto', 'Moungali', 'Ouenzé', 'Talangaï', 'Mfilou', 'Madibou', 'Djiri'];
 const AGENTS = ['Agent 01', 'Agent 02', 'Agent 03', 'Agent 04', 'Agent 05', 'Agent 06'];
 const REQUIS = {   // liste indicative des pièces à fournir (à confirmer avec la Préfecture)
@@ -82,6 +82,7 @@ function computeFlags(all) {
   const eclairParAgent = {}, nuitParAgent = {};
   sorted.forEach(d => {
     const p = d.person;
+    if (d.accueil && d.accueil.ok === false) add(d, 'accueil', 'rouge', 30, 'Écart constaté à l’accueil : ' + (d.accueil.motif || 'à examiner') + '.');
     if (!d.mrzOk) add(d, 'piece', 'rouge', 40, 'Les chiffres de contrôle de la pièce sont faux : la pièce a peut-être été modifiée.');
     const g = parPiece[p.piece.numero]; if (g.length > 1 && g[0].id !== d.id) add(d, 'doublon', 'rouge', 40, 'Ce numéro de pièce est déjà dans le dossier ' + g[0].id + '.');
     const gi = parIdent[identCle(d)]; if (gi.length > 1 && gi[0].id !== d.id && gi.some(x => x.person.piece.numero !== p.piece.numero)) add(d, 'identite', 'rouge', 40, 'Mêmes nom, prénoms et naissance que le dossier ' + gi[0].id + ', avec une autre pièce.');
@@ -202,7 +203,7 @@ function sauver() { if (!(window.__spSync && (window.__spSync.actif() || window.
 
 /* ---------- Profil et navigation ---------- */
 let role = 'agent';
-const ROLES = { agent: 'Agent 03', caisse: 'Caisse', porte: 'Porte 1', prefecture: 'Préfecture', ministere: 'Ministère' };
+const ROLES = { agent: 'Agent 03', accueil: 'Accueil', caisse: 'Caisse', porte: 'Porte 1', prefecture: 'Préfecture', ministere: 'Ministère' };
 function appliquerRole() {
   role = $('#role').value;
   $$('#onglets button[data-roles]').forEach(b => { b.style.display = b.dataset.roles.split(',').includes(role) ? '' : 'none'; });

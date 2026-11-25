@@ -16,6 +16,9 @@ export async function ensurePasseport() {
     cree_le TIMESTAMPTZ NOT NULL DEFAULT now(), dernier_acces TIMESTAMPTZ NOT NULL DEFAULT now())`;
   await sql`ALTER TABLE pss_espaces ADD COLUMN IF NOT EXISTS code_public TEXT`;
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS pss_public_uniq ON pss_espaces (code_public)`;
+  await sql`ALTER TABLE pss_espaces ADD COLUMN IF NOT EXISTS compteur_pre INT NOT NULL DEFAULT 0`;
+  await sql`CREATE TABLE IF NOT EXISTS pss_prereg (ip TEXT NOT NULL, espace TEXT NOT NULL, at TIMESTAMPTZ NOT NULL DEFAULT now())`;
+  await sql`CREATE INDEX IF NOT EXISTS pss_prereg_ip ON pss_prereg (ip, at)`;
   await sql`CREATE TABLE IF NOT EXISTS pss_dossiers (
     espace TEXT NOT NULL REFERENCES pss_espaces(code) ON DELETE CASCADE, id TEXT NOT NULL, rev INT NOT NULL DEFAULT 1,
     status TEXT NOT NULL DEFAULT 'depose', rdv_date DATE, ticket INT, version BIGINT NOT NULL DEFAULT 0,
@@ -97,6 +100,41 @@ export function creerMoteur(sql: any) {
       return { code, publique };
     },
 
+    // Pré-enregistrement par le demandeur lui-même (lien public de l'espace, sans compte). Le dossier reste « à vérifier à l'accueil » :
+    // il ne peut pas être payé tant que l'accueil n'a pas comparé la fiche aux pièces originales.
+    async preinscrire(publique: string, ip: string, f: any) {
+      const e = (await sql`SELECT code, config FROM pss_espaces WHERE code_public = ${publique}`) as any[];
+      if (!e[0]) return { erreur: "Ce lien n'est plus valable : demandez le lien à la Préfecture.", statut: 404 };
+      const code = e[0].code as string, cfg = configEspace(e[0].config);
+      const txt = (v: unknown, n: number) => String(v ?? "").replace(/[\u0000-\u001f<>]/g, " ").replace(/\s+/g, " ").trim().slice(0, n);
+      const p = f && typeof f === "object" ? f : {};
+      const nom = txt(p.nom, 60).toUpperCase(), prenoms = txt(p.prenoms, 80), naissance = txt(p.naissance, 10), sexe = p.sexe === "F" || p.sexe === "M" ? p.sexe : "";
+      const pieceType = p.piece?.type === "PASSEPORT" ? "PASSEPORT" : "CNI", pieceNum = txt(p.piece?.numero, 30).toUpperCase().replace(/\s/g, ""), pieceExp = /^\d{4}-\d{2}-\d{2}$/.test(String(p.piece?.expiration || "")) ? String(p.piece.expiration) : "";
+      const type = p.type === "renouvellement" ? "renouvellement" : "premiere";
+      const manque: string[] = [];
+      if (!nom) manque.push("nom"); if (!prenoms) manque.push("prénoms");
+      const nd = /^\d{4}-\d{2}-\d{2}$/.test(naissance) ? Date.parse(naissance + "T00:00:00Z") : NaN;
+      if (!(nd > Date.parse("1900-01-01T00:00:00Z") && nd < Date.now())) manque.push("date de naissance valable");
+      if (!pieceNum) manque.push("numéro de la pièce d'identité");
+      const ancienNum = txt(p.ancien?.numero, 30).toUpperCase().replace(/\s/g, "");
+      if (type === "renouvellement" && !ancienNum) manque.push("numéro de l'ancien passeport");
+      if (manque.length) return { erreur: "Il manque ou il faut corriger : " + manque.join(", ") + ".", statut: 400 };
+      if (ip) { const n = ((await sql`SELECT count(*)::int AS n FROM pss_prereg WHERE ip = ${ip} AND at > now() - interval '1 hour'`) as any[])[0].n; if (n >= 10) return { erreur: "Trop de demandes depuis cet appareil : réessayez dans une heure.", statut: 429 }; }
+      const att = ((await sql`SELECT count(*)::int AS n FROM pss_dossiers WHERE espace = ${code} AND status = 'depose' AND data->'preinscrit' IS NOT NULL AND data->'accueil' IS NULL`) as any[])[0].n;
+      if (att >= 500) return { erreur: "Trop de pré-enregistrements en attente sur ce site : présentez-vous au guichet.", statut: 429 };
+      const n = Number(((await sql`UPDATE pss_espaces SET compteur_pre = compteur_pre + 1 WHERE code = ${code} RETURNING compteur_pre`) as any[])[0].compteur_pre);
+      const maintenant = new Date().toISOString(), id = "BZV-" + jourDe(cfg).slice(0, 4) + "-P" + String(n).padStart(5, "0");
+      const d: any = { id, type, mrzOk: true, createdAt: maintenant, status: "depose", agent: "Demandeur", lieu: cfg.lieu, preinscrit: { at: maintenant },
+        person: { nom, prenoms, naissance, sexe, nationalite: txt(p.nationalite, 40).toUpperCase() || "CONGOLAISE", tel: txt(p.tel, 24), piece: { type: pieceType, numero: pieceNum, expiration: pieceExp } },
+        ancien: type === "renouvellement" ? { numero: ancienNum, expiration: /^\d{4}-\d{2}-\d{2}$/.test(String(p.ancien?.expiration || "")) ? String(p.ancien.expiration) : "" } : null, ancienRestitue: false, pieces: [],
+        history: [{ s: "depose", at: maintenant, by: "Demandeur", note: "Pré-enregistré par le demandeur — à vérifier à l'accueil avec les pièces originales" }] };
+      const v = await bump(code);
+      await sql`INSERT INTO pss_dossiers (espace, id, rev, status, rdv_date, ticket, version, data) VALUES (${code}, ${id}, 1, 'depose', NULL, NULL, ${v}, ${JSON.stringify(d)}::jsonb)`;
+      if (ip) await sql`INSERT INTO pss_prereg (ip, espace) VALUES (${ip}, ${code})`;
+      await sql`DELETE FROM pss_prereg WHERE at < now() - interval '1 day'`;
+      return { id, code: codeSuivi(id, nom), dossier: assainir(d) };
+    },
+
     // Lecture complète pour les postes de travail (guichet, caisse, portes, préfecture).
     async sync(code: string, since: number, ecran?: string) {
       const e = await espace(code); if (!e) return null;
@@ -143,6 +181,8 @@ export function creerMoteur(sql: any) {
         const cur = (await sql`SELECT id, rev, status, data FROM pss_dossiers WHERE espace = ${code} AND id = ${id}`) as any[];
         if (!cur[0]) return { erreur: "Dossier introuvable", statut: 404 };
         if (cur[0].status !== "depose" || cur[0].data.paiement) return { erreur: "Ce dossier est déjà payé.", statut: 409, dossier: cur[0].data };
+        // Dossier pré-enregistré par le demandeur : il doit d'abord être vérifié à l'accueil, avec les pièces originales.
+        if (cur[0].data.preinscrit && !(cur[0].data.accueil && cur[0].data.accueil.ok)) return { erreur: "Ce dossier a été pré-enregistré par le demandeur : il doit d'abord être vérifié à l'accueil (pièces originales).", statut: 409, dossier: cur[0].data };
         // premier jour ouvré avec de la place
         const cfg = e.config; let jour = ajouterJours(jourDe(cfg), cfg.delai), choisi = "", rang = 0;
         for (let i = 0; i < 90 && !choisi; i++, jour = ajouterJours(jour, 1)) {
@@ -253,7 +293,7 @@ export function creerMoteur(sql: any) {
 // Version « demandeur » d'un dossier : seulement ce dont il a besoin (état, rendez-vous, numéro d'appel, pièces) — pas d'alertes, ni de numéro de pièce.
 export function assainir(d: any) {
   const p = d.person || {};
-  return { id: d.id, type: d.type, status: d.status, createdAt: d.createdAt, ticket: d.ticket ?? null, rdv: d.rdv || null, mrzOk: true,
+  return { id: d.id, type: d.type, status: d.status, createdAt: d.createdAt, ticket: d.ticket ?? null, rdv: d.rdv || null, mrzOk: true, preinscrit: !!d.preinscrit, accueil: d.accueil ? { ok: !!d.accueil.ok } : null,
     paiement: d.paiement ? { recu: d.paiement.recu, at: d.paiement.at } : null, pieces: (d.pieces || []).map((x: any) => ({ id: x.id, type: x.type, nom: x.nom, mime: x.mime, taille: x.taille, demo: !!x.demo })),
     person: { nom: p.nom || "", prenoms: p.prenoms || "", naissance: "", sexe: "", piece: { type: "CNI", numero: "", expiration: "" } },
     history: (d.history || []).slice(-6).map((h: any) => ({ s: h.s, at: h.at, by: "", note: "" })), ancienRestitue: !!d.ancienRestitue, ancien: d.ancien ? { numero: "", expiration: d.ancien.expiration || "" } : null, lieu: d.lieu || "" };

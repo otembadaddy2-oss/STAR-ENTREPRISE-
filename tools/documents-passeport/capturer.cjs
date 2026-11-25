@@ -98,6 +98,31 @@ const fermerTout = p => p.evaluate(() => { ['guideInvit', 'guideProfil', 'guideA
     await D.click('#tb tr.cl >> nth=2'); await wait(900); await D.screenshot({ path: OUT + 'd_fiche.png' }); await fermerTout(D);
     await role(T, 'ministere'); await aller(T, 'tableau'); await wait(2500); await T.screenshot({ path: OUT + 't_tableau.png' }); await aller(T, 'fraude'); await wait(2200); await T.screenshot({ path: OUT + 't_fraude.png' });
   });
+  // ---------------- Pré-enregistrement du demandeur + Accueil (front office) ----------------
+  await essai('pré-enregistrement et accueil', async () => {
+    const P = await ctxD.newPage(); await P.goto(BASE + 'index.html'); await wait(600);
+    const cr = await P.evaluate(async () => (await (await fetch('/api/passeport', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ op: 'creer', nom: 'Doc accueil', dossiers: [] }) })).json()));
+    const code = cr.code, pub = cr.publique; await P.close();
+    const pre = d => fetch('/api/passeport', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ op: 'preinscrire', public: pub, dossier: d }) }).then(r => r.json());
+    // le demandeur, sur son téléphone
+    const M = await ctxT.newPage(); await M.goto(BASE + 'inscription.html?esp=' + pub); await wait(900); await M.screenshot({ path: OUT + 't_inscription.png' });
+    await M.fill('#nom', 'Mpassi'); await M.fill('#prenoms', 'Grâce'); await M.fill('#naiss', '1991-07-21'); await M.selectOption('#sexe', 'F'); await M.fill('#tel', '+242 06 123 45 67'); await M.fill('#pnum', 'CNI123456'); await M.fill('#pexp', '2031-09-30');
+    await M.locator('#pnum').scrollIntoViewIfNeeded(); await wait(300); await M.screenshot({ path: OUT + 't_inscription_champs.png' });
+    await M.click('#bEnvoyer'); await M.waitForSelector('#vRecu:not([hidden])'); await wait(600); await M.screenshot({ path: OUT + 't_inscription_recu.png' });
+    const id1 = (await M.textContent('#rNum')).trim(), code1 = (await M.textContent('#rCode')).trim(); await M.close();
+    const r2 = await pre({ nom: 'Mavoungou', prenoms: 'Désiré', naissance: '1988-11-02', sexe: 'M', type: 'premiere', tel: '+242 06 777 88 99', piece: { type: 'CNI', numero: 'CNI445566', expiration: '2030-01-01' } });
+    // l'accueil
+    const A = await ctxD.newPage(); await A.goto(BASE + 'index.html?espace=' + code); await wait(2300); await role(A, 'caisse'); await aller(A, 'caisse'); await A.fill('#k_id', r2.id); await A.fill('#k_code', r2.code); await A.click('#bCaisseOuvrir'); await A.waitForSelector('#caisseRes .carte'); await wait(500); await A.locator('#caisseRes').screenshot({ path: OUT + 'd_caisse_bloquee.png' });
+    await role(A, 'accueil'); await aller(A, 'reception'); await wait(900); await A.screenshot({ path: OUT + 'd_accueil_liste.png' });
+    await A.fill('#r_id', id1); await A.fill('#r_code', code1); await A.click('#bRecepOuvrir'); await A.waitForSelector('#bRecepOk'); await wait(500);
+    await A.evaluate(i => { const X = window.__spApi, d = X.DB.find(x => x.id === i); d.pieces = ['photo', 'identite', 'naissance', 'nationalite'].map((k, n) => ({ id: 'PJ-demo' + n, type: k, nom: k, mime: 'image/jpeg', taille: 1, at: new Date().toISOString(), par: 'demandeur', demo: true })); X.sauver(); }, id1);
+    await A.click('#bRecepOuvrir'); await A.waitForSelector('#bRecepOk'); await wait(500);
+    const ck = A.locator('.rv'); for (let i = 0; i < await ck.count(); i++) await ck.nth(i).check(); await wait(300);
+    await A.locator('#recepRes').screenshot({ path: OUT + 'd_accueil_fiche.png' });
+    await A.click('#bRecepOk'); await A.waitForSelector('#recepRes .alert.vert'); await wait(500); await A.locator('#recepRes .alert.vert').first().screenshot({ path: OUT + 'd_accueil_ok.png' });
+    await A.close();
+  });
+
   await essai('à propos', async () => { await aller(D, 'regles'); await wait(700); await D.screenshot({ path: OUT + 'd_apropos.png', fullPage: true }); });
   console.log(echecs.length ? 'ÉCHECS : ' + echecs.join(', ') : 'TOUTES LES CAPTURES FAITES'); console.log(fs.readdirSync(OUT).filter(f => f.endsWith('.png')).length + ' images'); await b.close();
 })().catch(e => { console.log('CRASH', e.message.split('\n')[0]); process.exit(1); });

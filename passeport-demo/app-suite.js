@@ -78,7 +78,7 @@ async function retirer(el, id) {
   const c = contexte(el); if (!c) return; const i = c.list.findIndex(p => p.id === id); if (i < 0) return; const [p] = c.list.splice(i, 1); if (!p.demo) idb.del(id); urls.delete(id);
   if (c.d) { c.d.history.push({ s: c.d.status, at: NOW().toISOString(), by: c.k === 'citoyen' ? 'Demandeur' : A.ROLES[role], note: 'Pièce retirée : ' + LIBP[p.type] }); A.sauver(); contexteChange(c); } else { sauverBrouillon(); majEtapes(); remonter(el); }
 }
-function contexteChange(c) { if (c.k === 'detail') A.detail(c.d.id); else if (c.k === 'caisse') ouvrirCaisse(true); else if (c.k === 'citoyen') suivreRelance(); A.rafraichir(); }
+function contexteChange(c) { if (c.k === 'detail') A.detail(c.d.id); else if (c.k === 'caisse') ouvrirCaisse(true); else if (c.k === 'reception') ouvrirRecep(true); else if (c.k === 'citoyen') suivreRelance(); A.rafraichir(); }
 let suivreId = null; function suivreRelance() { $('#bSuivre').click(); }
 new MutationObserver(() => { requestAnimationFrame(() => { monter(); hydrate(); }); }).observe(document.body, { childList: true, subtree: true });
 
@@ -164,7 +164,7 @@ function piecesHtml(d, ctx) {
   const ph = d.photos || {}, list = d.pieces || [], m = manquantes(d);
   let h = '<h3 style="font-size:16px">Pièces et signature</h3><div class="pieces">' + list.map(figure).join('') +
     (ph.piece ? '<figure><img src="' + ph.piece + '" alt=""><figcaption>Pièce scannée</figcaption></figure>' : '') +
-    '<figure><img src="' + (ph.signature || signatureDemo(d.id)) + '" alt="Signature" style="background:#fff"><figcaption>Signature' + (ph.signature ? '' : ' (exemple)') + '</figcaption></figure></div>';
+    (d.preinscrit && !ph.signature ? '' : '<figure><img src="' + (ph.signature || signatureDemo(d.id)) + '" alt="Signature" style="background:#fff"><figcaption>Signature' + (ph.signature ? '' : ' (exemple)') + '</figcaption></figure>') + '</div>' + (d.preinscrit && !ph.signature ? '<p class="sous" style="margin-top:6px">Dossier pré-enregistré par le demandeur : pas de signature sur écran.</p>' : '');
   h += m.length ? '<div class="alert orange"><b>Dossier incomplet.</b> Pièces manquantes : ' + esc(m.map(r => r[1]).join(' · ')) + '.</div>' : '<div class="alert vert">✔ Toutes les pièces obligatoires sont fournies.</div>';
   if (ctx && !(ctx === 'detail' && role === 'ministere')) h += '<h3 style="font-size:16px;margin-top:12px">Joindre ou compléter des pièces</h3><div data-editeur="' + ctx + '" data-d="' + d.id + '"></div>';
   if (d.paiement) h += '<h3 style="font-size:16px">Paiement et appel</h3><dl class="dl"><dt>Reçu de paiement</dt><dd><b>' + esc(d.paiement.recu) + '</b> · ' + fmtDH(d.paiement.at) + '</dd><dt>Montant</dt><dd>' + Number(d.paiement.montant).toLocaleString('fr-FR') + ' FCFA · ' + esc(d.paiement.mode) + ' <small>(montant fictif de démonstration)</small></dd>' + (d.rdv ? '<dt>Rendez-vous</dt><dd>' + A.rdvLong(d.rdv.date) + ' · ' + d.rdv.heure + ' · ' + esc(d.rdv.lieu) + '</dd>' : '') + '<dt>N° d’appel</dt><dd><b>' + pad(d.ticket || 0, 3) + '</b>' + (d.appel ? ' · appelé à la porte ' + d.appel.porte + ' à ' + fmtDH(d.appel.at) : ' · en attente d’appel') + '</dd></dl>';
@@ -182,15 +182,20 @@ function caisse() {
   $('#kpisCaisse').innerHTML = [[pj.length, 'Paiements du jour', 'v'], [tot.toLocaleString('fr-FR'), 'Total encaissé (FCFA, fictif)', 'j'], [att.length, 'Dossiers en attente de paiement', ''], [bloques, 'Encaissements bloqués (alerte ou pièces)', 'r']].map(k => '<div class="kpi ' + k[2] + '"><b>' + k[0] + '</b><span>' + k[1] + '</span></div>').join('');
   $('#tbCaisse').innerHTML = pj.slice(0, 25).map(d => { const h = new Date(d.paiement.at); return '<tr class="cl" data-id="' + d.id + '"><td>' + pad(h.getHours()) + ':' + pad(h.getMinutes()) + '</td><td><b>' + pad(d.ticket, 3) + '</b></td><td>' + esc(d.paiement.recu) + '</td><td>' + esc(nomComplet(d)) + '</td><td>' + esc(d.paiement.mode) + '</td><td>' + Number(d.paiement.montant).toLocaleString('fr-FR') + '</td></tr>'; }).join('') || '<tr><td colspan="6" style="color:var(--gris)">Aucun paiement pour l’instant.</td></tr>';
 }
-let flux = null, boucle = null;
-function arretScan() { if (flux) flux.getTracks().forEach(t => t.stop()); flux = null; cancelAnimationFrame(boucle); $('#scanBox').classList.remove('on'); $('#bScanStop').style.display = 'none'; }
-async function lancerScan() {
-  try { if (!window.jsQR) A.chargerScript('lib/jsqr.js').catch(() => { }); flux = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false }); const v = $('#scanVid'); v.srcObject = flux; await v.play(); $('#scanBox').classList.add('on'); $('#bScanStop').style.display = ''; $('#scanEtat').textContent = 'Placez le code QR de l’accusé devant la caméra…';
-    const cvs = $('#scanCv'), x = cvs.getContext('2d', { willReadFrequently: true });
-    const tick = () => { if (!flux) return; if (v.readyState >= 2) { cvs.width = 480; cvs.height = Math.round(480 * v.videoHeight / v.videoWidth) || 360; x.drawImage(v, 0, 0, cvs.width, cvs.height); const im = x.getImageData(0, 0, cvs.width, cvs.height); const r = window.jsQR && jsQR(im.data, im.width, im.height); if (r && r.data && lireQR(r.data)) { arretScan(); return; } } boucle = requestAnimationFrame(tick); };
+function scanneur(P, surQR) {
+  let flux = null, boucle = null;
+function arret() { if (flux) flux.getTracks().forEach(t => t.stop()); flux = null; cancelAnimationFrame(boucle); $(P.box).classList.remove('on'); $(P.stop).style.display = 'none'; }
+async function lancer() {
+  try { if (!window.jsQR) A.chargerScript('lib/jsqr.js').catch(() => { }); flux = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false }); const v = $(P.vid); v.srcObject = flux; await v.play(); $(P.box).classList.add('on'); $(P.stop).style.display = ''; $(P.etat).textContent = 'Placez le code QR de l’accusé devant la caméra…';
+    const cvs = $(P.cv), x = cvs.getContext('2d', { willReadFrequently: true });
+    const tick = () => { if (!flux) return; if (v.readyState >= 2) { cvs.width = 480; cvs.height = Math.round(480 * v.videoHeight / v.videoWidth) || 360; x.drawImage(v, 0, 0, cvs.width, cvs.height); const im = x.getImageData(0, 0, cvs.width, cvs.height); const r = window.jsQR && jsQR(im.data, im.width, im.height); if (r && r.data && surQR(r.data)) { arret(); return; } } boucle = requestAnimationFrame(tick); };
     tick();
-  } catch (e) { $('#scanEtat').textContent = 'Caméra indisponible ici : saisissez le N° de reçu et le code, ou utilisez l’exemple.'; }
+  } catch (e) { $(P.etat).textContent = 'Caméra indisponible ici : saisissez le N° de reçu et le code, ou utilisez l’exemple.'; }
 }
+  return { lancer, arret };
+}
+const SCAN_CAISSE = scanneur({ box: '#scanBox', stop: '#bScanStop', vid: '#scanVid', etat: '#scanEtat', cv: '#scanCv' }, txt => lireQR(txt));
+const lancerScan = SCAN_CAISSE.lancer, arretScan = SCAN_CAISSE.arret;
 function lireQR(txt) { const p = String(txt).split('|'); if (p[0] === 'PSR1' && p[1]) { $('#k_id').value = p[1]; $('#k_code').value = p[2] || ''; ouvrirCaisse(); return true; } if (p[0] === 'PSR2' && p[3]) { $('#k_id').value = p[3]; $('#k_code').value = ''; ouvrirCaisse(true); return true; } return false; }
 function ouvrirCaisse(sansCode) {
   const id = $('#k_id').value.trim().toUpperCase(), cd = $('#k_code').value.trim().toUpperCase(), box = $('#caisseRes'), d = DB().find(x => x.id === id);
@@ -200,6 +205,7 @@ function ouvrirCaisse(sansCode) {
   let pay = '';
   if (d.paiement) pay = '<div class="alert vert"><b>Déjà payé</b> le ' + fmtDH(d.paiement.at) + ' · reçu ' + esc(d.paiement.recu) + ' · <b>N° d’appel ' + pad(d.ticket, 3) + '</b></div><div class="ligne"><button class="btn clair" id="bReimp">🖨 Réimprimer le reçu de paiement</button></div>';
   else if (bloque) pay = '<div class="alert rouge"><b>Encaissement bloqué.</b> Ce dossier a une alerte grave non examinée. La Préfecture doit l’examiner avant le paiement.</div>' + (role === 'prefecture' ? '<div class="ligne"><button class="btn clair" id="bDebloque">✔ Alerte examinée : autoriser l’encaissement</button></div>' : '');
+  else if (d.preinscrit && !(d.accueil && d.accueil.ok)) pay = '<div class="alert rouge"><b>À vérifier à l’accueil d’abord.</b> Ce dossier a été pré-enregistré par le demandeur' + (d.accueil && d.accueil.ok === false ? ' et un écart a été constaté (' + esc(d.accueil.motif || '') + ')' : '') + '. Envoyez-le à l’<b>accueil</b> avec ses pièces originales : l’encaissement est possible après vérification.</div>';
   else if (inc.length) pay = '<div class="alert rouge"><b>Encaissement impossible : dossier incomplet.</b> Il manque : ' + esc(inc.map(r => r[1]).join(' · ')) + '. Ajoutez-les ci-dessous (photo ou fichier), ou le demandeur les envoie depuis son téléphone.</div>';
   else if (peut) pay = '<h3 style="font-size:16px;margin-top:6px">Encaisser</h3><div class="grille"><div class="c6"><label for="k_montant">Montant encaissé (FCFA)</label><input id="k_montant" type="number" inputmode="numeric" min="1" placeholder="Saisir le montant"></div><div class="c6"><label for="k_mode">Mode de paiement</label><select id="k_mode"><option>Espèces</option><option>Mobile Money MTN</option><option>Mobile Money Airtel</option></select></div></div>' +
     '<p class="sous" style="margin:6px 0 0;font-size:12.5px">Le montant est celui fixé par l’administration. Dans la démonstration, saisissez un montant fictif.</p><div class="ligne" style="margin-top:10px"><button class="btn vert" id="bPayer">Encaisser et éditer le reçu de paiement</button></div><div id="payMsg"></div>';
@@ -215,7 +221,7 @@ const texteRdv = d => '*Passeport Sûr — Paiement enregistré*\n\nBonjour ' + 
 async function payer(d) {
   const m = Number($('#k_montant').value), mode = $('#k_mode').value, msg = $('#payMsg');
   if (!(m > 0)) { msg.innerHTML = '<div class="alert rouge">Saisissez le montant encaissé.</div>'; return; }
-  if (manquantes(d).length) { ouvrirCaisse(true); return; }
+  if (manquantes(d).length || (d.preinscrit && !(d.accueil && d.accueil.ok))) { ouvrirCaisse(true); return; }
   $('#bPayer').disabled = true;
   try {
     if (SY().actif()) await SY().payer(d.id, m, mode);
@@ -242,6 +248,72 @@ function recuPaiement(d) {
   $('#tiroir').classList.add('on'); $('#bFerme').onclick = () => $('#tiroir').classList.remove('on');
 }
 function exempleCaisse(incomplet) { const l = DB().filter(x => x.status === 'depose' && !A.flags(x).some(f => f.n === 'rouge') && (manquantes(x).length > 0) === !!incomplet).sort((a, b) => b.createdAt.localeCompare(a.createdAt)); const d = l[0]; if (!d) { $('#scanEtat').textContent = incomplet ? 'Aucun dossier incomplet disponible.' : 'Aucun dossier complet en attente de paiement.'; return; } $('#k_id').value = d.id; $('#k_code').value = A.code(d.id, d.person.nom); ouvrirCaisse(); }
+
+/* ---------- Accueil (front office) : recevoir les demandeurs pré-enregistrés ---------- */
+const attendus = () => DB().filter(d => d.status === 'depose' && !d.paiement && d.preinscrit && !(d.accueil && d.accueil.ok)).sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+const lienInscription = () => { const pub = SY() && SY().publique(); return pub ? location.origin + location.pathname.replace(/[^/]*$/, '') + 'inscription.html?esp=' + pub : ''; };
+function reception() {
+  const l = attendus(), lien = lienInscription();
+  $('#tbRecep').innerHTML = l.slice(0, 40).map(d => '<tr class="cl" data-rid="' + d.id + '"><td>' + fmtDH(d.preinscrit.at || d.createdAt) + '</td><td><b>' + esc(d.id) + '</b></td><td>' + esc(nomComplet(d)) + '</td><td>' + A.TN[d.type] + '</td><td><button class="btn clair petit" data-rouvrir="' + d.id + '">Ouvrir</button></td></tr>').join('') || '<tr><td colspan="5" style="color:var(--gris)">Aucun pré-enregistrement en attente.</td></tr>';
+  $('#lienPre').innerHTML = lien ? '<br>Lien du pré-enregistrement à donner aux demandeurs : <button class="btn clair petit" id="bCopierPre" type="button">📋 Copier le lien</button> <span id="copiePre" style="color:var(--vert)"></span>' : '<br><b>Le pré-enregistrement par les demandeurs demande l’espace partagé</b> : la Préfecture doit d’abord le créer (puce « Mode local » en haut).';
+  const b = $('#bCopierPre'); if (b) b.onclick = () => { const ok = () => { $('#copiePre').textContent = 'Lien copié.'; }; try { navigator.clipboard.writeText(lien).then(ok, () => { $('#copiePre').textContent = lien; }); } catch (e) { $('#copiePre').textContent = lien; } };
+}
+const SCAN_RECEP = scanneur({ box: '#rScanBox', stop: '#bScanRecepStop', vid: '#rScanVid', etat: '#rEtat', cv: '#rScanCv' }, txt => lireQRRecep(txt));
+function lireQRRecep(txt) { const p = String(txt).split('|'); if (p[0] === 'PSR1' && p[1]) { $('#r_id').value = p[1]; $('#r_code').value = p[2] || ''; ouvrirRecep(); return true; } return false; }
+const MOTIFS = ['Identité différente de celle de la pièce', 'Pièce suspecte ou falsifiée', 'Informations à corriger : dossier à refaire au guichet', 'Autre écart'];
+function ouvrirRecep(sansCode) {
+  const id = $('#r_id').value.trim().toUpperCase(), cd = $('#r_code').value.trim().toUpperCase(), box = $('#recepRes'), d = DB().find(x => x.id === id);
+  if (!d || (!sansCode && A.code(d.id, d.person.nom) !== cd)) { box.innerHTML = '<div class="alert rouge">Dossier introuvable ou code incorrect. Vérifiez l’accusé du demandeur.</div>'; return; }
+  $('#rEtat').textContent = '';
+  const peut = role === 'accueil' || role === 'prefecture', photo = (d.pieces || []).find(p => p.type === 'photo'), f = A.flags(d), p = d.person;
+  let verdict = '';
+  if (d.paiement) verdict = '<div class="alert vert"><b>Déjà payé</b> le ' + fmtDH(d.paiement.at) + ' · N° d’appel <b>' + pad(d.ticket, 3) + '</b>. Rien à faire à l’accueil.</div>';
+  else if (!d.preinscrit) verdict = '<div class="alert bleu">Ce dossier a été enregistré <b>au guichet</b> : il n’y a rien à vérifier à l’accueil. Le demandeur peut passer à la <b>caisse</b>.</div>';
+  else if (d.accueil && d.accueil.ok) verdict = '<div class="alert vert"><b>Vérifié à l’accueil</b> le ' + fmtDH(d.accueil.at) + ' (' + esc(d.accueil.by || 'Accueil') + '). Le demandeur peut passer à la <b>caisse</b>.</div>';
+  else if (!peut) verdict = '<div class="alert bleu">Seuls l’<b>accueil</b> et la <b>Préfecture</b> valident un pré-enregistrement.</div>';
+  else {
+    const rouge = d.accueil && d.accueil.ok === false ? '<div class="alert rouge"><b>Un écart a été constaté</b> le ' + fmtDH(d.accueil.at) + ' : ' + esc(d.accueil.motif || '') + '. Vous pouvez vérifier à nouveau après correction.</div>' : '';
+    const champ = (i, l, v, ty, ro) => '<div class="c6"><label for="' + i + '">' + l + '</label><input id="' + i + '" ' + (ty ? 'type="' + ty + '" ' : '') + 'value="' + esc(v || '') + '"' + (ro ? ' readonly style="background:#f1eee3"' : '') + '></div>';
+    verdict = rouge + '<h3 style="font-size:16px;margin-top:8px">Comparer avec les pièces originales</h3><p class="sous" style="margin-bottom:6px">Corrigez ci-dessous les petites erreurs de saisie. <b>Le nom ne se corrige pas ici</b> : s’il est faux, signalez un écart.</p>' +
+      '<div class="grille">' + champ('rv_nom', 'Nom (non modifiable)', p.nom, '', true) + champ('rv_prenoms', 'Prénoms', p.prenoms) + champ('rv_naiss', 'Date de naissance', p.naissance, 'date') + champ('rv_pnum', 'N° de la pièce d’identité', p.piece.numero) + (d.ancien ? champ('rv_anum', 'N° de l’ancien passeport', d.ancien.numero) : '') + '</div>' +
+      '<div class="verif"><label class="opt"><input type="checkbox" class="rv"> La pièce d’identité <b>originale</b> est présentée et correspond à la fiche</label><label class="opt"><input type="checkbox" class="rv"> Le visage de la personne présente correspond à la pièce</label><label class="opt"><input type="checkbox" class="rv"> Les pièces à fournir sont présentées en <b>originaux</b></label></div>' +
+      '<div class="ligne" style="margin-top:10px"><button class="btn vert" id="bRecepOk" disabled>✔ Vérifié : envoyer à la caisse</button></div>' +
+      '<div class="ligne" style="margin-top:12px;align-items:flex-end"><div style="flex:1 1 240px"><label for="rv_motif">Un écart ? Choisissez le motif</label><select id="rv_motif">' + MOTIFS.map(m => '<option>' + m + '</option>').join('') + '</select></div><button class="btn rouge" id="bRecepEcart" type="button">⚠ Signaler l’écart</button></div>';
+  }
+  box.innerHTML = '<div class="carte"><div class="ligne" style="align-items:flex-start;gap:14px"><div class="visage" ' + (photo && !photo.demo ? 'data-piece-bg="' + photo.id + '"' : '') + ' style="background-image:url(' + SIL + ')"></div><div style="flex:1 1 220px"><h3 style="margin-bottom:4px">' + esc(nomComplet(d)) + '</h3><div>' + A.bT(d.type) + ' ' + (d.preinscrit ? '<span class="badge" style="background:#e8f1fb;color:#1c3f66">Pré-enregistré</span>' : '') + '</div>' +
+    '<p style="margin:6px 0 0;color:var(--gris);font-size:14px">N° de dossier <b>' + esc(d.id) + '</b> · tél. ' + esc(p.tel || '—') + (d.preinscrit ? '<br>Pré-enregistré le ' + fmtDH(d.preinscrit.at || d.createdAt) : '') + '</p></div></div>' +
+    f.map(x => '<div class="alert ' + (x.n === 'rouge' ? 'rouge' : 'orange') + '"><b>' + KN[x.k] + '</b> — ' + esc(x.t) + '</div>').join('') + piecesHtml(d, peut && d.preinscrit && !d.paiement ? 'reception' : null) + verdict + '</div>';
+  const cks = $$('.rv'), ok = $('#bRecepOk'); cks.forEach(c => c.onchange = () => { ok.disabled = !cks.every(x => x.checked); });
+  if (ok) ok.onclick = () => validerRecep(d);
+  const ec = $('#bRecepEcart'); if (ec) ec.onclick = () => signalerEcart(d, $('#rv_motif').value);
+}
+function validerRecep(d) {
+  const at = NOW().toISOString(), p = d.person, corr = [], v = i => ($('#' + i) ? $('#' + i).value.trim() : null);
+  const pr = v('rv_prenoms'), na = v('rv_naiss'), pn = (v('rv_pnum') || '').toUpperCase().replace(/\s/g, ''), an = (v('rv_anum') || '').toUpperCase().replace(/\s/g, '');
+  if (!pr || !na || !pn || (d.ancien && !an)) { $('#recepRes').insertAdjacentHTML('afterbegin', '<div class="alert rouge">Les prénoms, la date de naissance et les numéros de pièces ne peuvent pas être vides.</div>'); return; }
+  if (pr !== p.prenoms) { p.prenoms = pr; corr.push('prénoms'); } if (na !== p.naissance) { p.naissance = na; corr.push('date de naissance'); } if (pn !== p.piece.numero) { p.piece.numero = pn; corr.push('n° de la pièce'); }
+  if (d.ancien && an !== d.ancien.numero) { d.ancien.numero = an; corr.push('n° de l’ancien passeport'); }
+  d.accueil = { ok: true, at, by: A.ROLES[role] };
+  d.history.push({ s: d.status, at, by: A.ROLES[role], note: 'Accueil : pièces originales vérifiées' + (corr.length ? ' · fiche corrigée (' + corr.join(', ') + ')' : '') });
+  A.sauver(); ouvrirRecep(true); reception();
+}
+function signalerEcart(d, motif) {
+  const at = NOW().toISOString(); d.accueil = { ok: false, at, by: A.ROLES[role], motif };
+  d.history.push({ s: d.status, at, by: A.ROLES[role], note: 'Accueil : écart constaté — ' + motif });
+  A.sauver(); ouvrirRecep(true); reception();
+}
+const NOMS_EX = [['NZAMBA', 'Prisca'], ['OKOMBI', 'Ghislain'], ['LOUBAKI', 'Estelle'], ['MBOUKOU', 'Fidèle'], ['TATY', 'Mireille'], ['ELENGA', 'Boris']];
+function exempleRecep() {
+  let d = attendus().sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
+  if (!d) {
+    const t = NOW(), n = DB().filter(x => x.preinscrit).length + 1, nm = NOMS_EX[(n - 1) % NOMS_EX.length], num = 'CNI' + String(870000 + Math.floor(Math.random() * 99999));
+    d = { id: 'BZV-' + t.getFullYear() + '-P' + pad(n, 5), type: 'premiere', mrzOk: true, createdAt: t.toISOString(), status: 'depose', agent: 'Demandeur', lieu: SY().cfg().lieu || 'Préfecture de Brazzaville', preinscrit: { at: t.toISOString() },
+      person: { nom: nm[0], prenoms: nm[1], naissance: '199' + (n % 10) + '-0' + (1 + n % 9) + '-1' + (n % 9), sexe: 'F', nationalite: 'CONGOLAISE', tel: '+242 06 4' + pad(n, 2) + ' 77 12', piece: { type: 'CNI', numero: num, expiration: '2031-06-30' } },
+      ancien: null, ancienRestitue: false, pieces: ['photo', 'identite', 'naissance', 'nationalite'].map((k, i) => ({ id: 'PJ-demo' + n + i, type: k, nom: k, mime: 'image/jpeg', taille: 1, at: t.toISOString(), par: 'demandeur', demo: true })), history: [{ s: 'depose', at: t.toISOString(), by: 'Demandeur', note: 'Pré-enregistré par le demandeur — à vérifier à l’accueil avec les pièces originales' }] };
+    DB().push(d); A.sauver();
+  }
+  $('#r_id').value = d.id; $('#r_code').value = A.code(d.id, d.person.nom); ouvrirRecep(); reception();
+}
 
 /* ---------- File d'attente et appel (plusieurs portes, jour du rendez-vous) ---------- */
 const portesCfg = () => { const c = SY().cfg(); return { n: c.portes, noms: c.noms || {} }; };
@@ -314,9 +386,10 @@ new MutationObserver(() => { const box = $('#resSuivi'); if (box && box.querySel
 $$('.baniere').forEach(b => { const t = b.querySelector('.txt'); if (!t) return; const bt = document.createElement('button'); bt.type = 'button'; bt.className = 'retour'; bt.textContent = '← Retour'; bt.onclick = () => { if (history.length > 1 && history.state && history.state.v !== 'accueil') history.back(); else A.aller('accueil'); }; t.prepend(bt); });
 
 /* ---------- Branchements ---------- */
-function render(v, o) { if (v !== 'file') { const fr = $('#apercuEcran'); if (fr && fr.getAttribute('src') && fr.getAttribute('src') !== 'about:blank') fr.setAttribute('src', 'about:blank'); } if (v === 'caisse') caisse(); if (v === 'file') vueFile(); if (v === 'reglages') vueReglages(); if (v === 'guichet' && o !== 'sync') { bandeauBrouillon(); majEtapes(); const ed = $('#edGuichet'); ed.dataset.monte = '0'; monter(); hydrate(); } }
+function render(v, o) { if (v !== 'file') { const fr = $('#apercuEcran'); if (fr && fr.getAttribute('src') && fr.getAttribute('src') !== 'about:blank') fr.setAttribute('src', 'about:blank'); } if (v === 'caisse') caisse(); if (v === 'reception') reception(); if (v === 'file') vueFile(); if (v === 'reglages') vueReglages(); if (v === 'guichet' && o !== 'sync') { bandeauBrouillon(); majEtapes(); const ed = $('#edGuichet'); ed.dataset.monte = '0'; monter(); hydrate(); } }
+$('#bScanRecep').onclick = SCAN_RECEP.lancer; $('#bScanRecepStop').onclick = SCAN_RECEP.arret; $('#bRecepEx').onclick = exempleRecep; $('#bRecepOuvrir').onclick = () => ouvrirRecep();
 $('#bScanCaisse').onclick = lancerScan; $('#bScanStop').onclick = arretScan; $('#bScanEx').onclick = () => exempleCaisse(false); $('#bScanEx2').onclick = () => exempleCaisse(true); $('#bCaisseOuvrir').onclick = () => ouvrirCaisse();
-document.addEventListener('click', e => { const tr = e.target.closest('#tbCaisse tr.cl, #tbFile tr.cl'); if (tr) A.detail(tr.dataset.id); });
+document.addEventListener('click', e => { const o = e.target.closest('[data-rouvrir]'); if (o) { $('#r_id').value = o.dataset.rouvrir; $('#r_code').value = ''; ouvrirRecep(true); $('#recepRes').scrollIntoView({ behavior: 'smooth', block: 'start' }); return; } const tr = e.target.closest('#tbCaisse tr.cl, #tbFile tr.cl'); if (tr) A.detail(tr.dataset.id); });
 window.__spSuite = { extras, reset, aSignature, accuse, lierAccuse, piecesHtml: piecesHtmlDetail, render, apres, role: r => { role = r; if ($('#v-file').classList.contains('on')) vueFile(); } };
 majEtapes(); monter(); hydrate(); bandeauBrouillon();
 try { const q = new URLSearchParams(location.search); if (q.get('suivi') && !q.get('esp')) { A.aller('citoyen'); $('#c_id').value = q.get('suivi'); $('#c_code').value = q.get('code') || ''; $('#bSuivre').click(); } } catch (e) { }

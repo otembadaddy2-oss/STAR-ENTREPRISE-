@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="author" content="STAR ENTREPRISE">
+<meta name="theme-color" content="#062b1e">
+<title>Pré-enregistrement — Passeport Sûr</title>
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+@font-face{font-family:ID;font-weight:300;font-display:swap;src:url(polices/inter-display-300.woff2) format("woff2")}
+@font-face{font-family:ID;font-weight:600;font-display:swap;src:url(polices/inter-display-600.woff2) format("woff2")}
+@font-face{font-family:ID;font-weight:800;font-display:swap;src:url(polices/inter-display-800.woff2) format("woff2")}
+@font-face{font-family:PF;font-weight:800;font-display:swap;src:url(polices/playfair-display-latin-800-normal.woff2) format("woff2")}
+:root{--foret:#062b1e;--foret2:#0a4430;--vert:#009543;--vert2:#e3f4e9;--jaune:#f6c928;--jaune2:#fff6cf;--rouge:#d62f26;--rouge2:#fdeceb;--ivoire:#f6f3ea;--encre:#12201a;--gris:#5d6b64;--trait:#e0dac6}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:ID,system-ui,-apple-system,"Segoe UI",sans-serif;font-weight:300;background:var(--ivoire);color:var(--encre);font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%}
+b,strong,label,button,dt{font-weight:600}
+button,input,select{font:inherit;color:inherit}
+h1,h2,h3{font-family:PF,Georgia,serif;font-weight:800;color:var(--foret);line-height:1.15}
+header{background:radial-gradient(900px 260px at 85% -40%,#0f6a45 0,transparent 70%),linear-gradient(135deg,var(--foret),var(--foret2));color:#fff;padding:14px 16px 18px;position:relative}
+header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;background:linear-gradient(90deg,var(--vert) 0 33.3%,var(--jaune) 33.3% 66.6%,var(--rouge) 66.6%)}
+.hd{max-width:640px;margin:auto;display:flex;align-items:center;gap:12px}
+.hd img{width:44px;height:50px}
+.hd .tt{font-family:PF,serif;font-weight:800;font-size:21px;line-height:1}
+.hd small{display:block;font-family:ID,sans-serif;font-weight:300;font-size:11px;letter-spacing:.14em;color:#f9e08a;margin-top:5px;text-transform:uppercase}
+.bandeau{background:var(--jaune2);color:#6a5300;text-align:center;font-size:12.5px;padding:6px 16px;border-bottom:1px solid #ecd988}
+main{max-width:640px;margin:auto;padding:16px 16px 40px}
+.carte{background:#fff;border:1px solid var(--trait);border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 6px 24px #062b1e14}
+.but{background:var(--vert2);border:1px solid #b9dfc6;border-radius:14px;padding:12px 14px;font-size:14.5px;margin-bottom:14px}
+.but b{color:var(--foret)}
+h1{font-size:26px;margin-bottom:6px}h2{font-size:19px;margin:16px 0 8px}
+.sous{color:var(--gris);font-size:14.5px}
+label{display:block;font-size:13.5px;margin:12px 0 4px;color:var(--foret)}
+input,select{width:100%;min-height:48px;padding:10px 12px;border:1.5px solid var(--trait);border-radius:12px;background:#fff;font-weight:400}
+input:focus,select:focus{outline:3px solid #00954355;border-color:var(--vert)}
+.l2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:420px){.l2{grid-template-columns:1fr}}
+.choix{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choix label{margin:0;border:1.5px solid var(--trait);border-radius:14px;padding:12px;display:flex;gap:8px;align-items:flex-start;cursor:pointer;background:#fff;min-height:56px}
+.choix input{width:20px;min-height:20px;margin-top:2px}
+.choix label:has(input:checked){border-color:var(--vert);background:var(--vert2)}
+.btn{display:block;width:100%;min-height:52px;border:0;border-radius:14px;background:var(--vert);color:#fff;font-size:17px;cursor:pointer;margin-top:18px;box-shadow:0 6px 18px #00954340}
+.btn.sec{background:#fff;color:var(--foret);border:1.5px solid var(--trait);box-shadow:none;margin-top:10px}
+.btn:disabled{opacity:.6}
+.alert{border-radius:12px;padding:10px 12px;font-size:14.5px;margin-top:12px}
+.alert.rouge{background:var(--rouge2);color:#8f1d17;border:1px solid #f1b9b5}
+.alert.bleu{background:#e8f1fb;color:#1c3f66;border:1px solid #bcd3ee}
+.alert.vert{background:var(--vert2);color:#0a4430;border:1px solid #b9dfc6}
+.recu{text-align:center}
+.recu .num{font-family:PF,serif;font-weight:800;font-size:25px;color:var(--foret);letter-spacing:.02em}
+.recu svg,.recu img.qr{width:190px;height:190px;margin:10px auto;display:block}
+.recu .code{font-size:22px;letter-spacing:.14em;color:var(--foret);font-weight:800}
+ol.etapes{margin:8px 0 0 20px}ol.etapes li{margin:6px 0}
+.sr{position:absolute;left:-9999px}
+footer{text-align:center;color:var(--gris);font-size:12.5px;padding:0 16px 24px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header><div class="hd"><img src="logo.svg" alt=""><div class="tt">Passeport Sûr<small>Pré-enregistrement du demandeur</small></div></div></header>
+<div class="bandeau">Démonstration — les informations saisies ici sont <b>fictives</b> : ne saisissez pas vos vraies données.</div>
+<main>
+<div class="but"><b>À quoi sert cette page ?</b> À préparer votre demande de passeport <b>avant</b> de vous déplacer : vous remplissez votre fiche, vous recevez un <b>accusé avec un code QR</b>, puis vous vous présentez à l’<b>accueil</b> avec vos pièces originales. Après vérification, vous passez à la <b>caisse</b>, puis vous recevez votre rendez-vous. Le but de l’application : que chaque demande soit <b>suivie</b> de A à Z, que chacun soit reçu <b>dans l’ordre</b> et que les <b>fraudes</b> soient repérées.</div>
+
+<section id="vForm" class="carte">
+  <h1>Je me pré-enregistre</h1>
+  <p class="sous">Quelques minutes suffisent. Les informations doivent être <b>identiques à vos pièces originales</b> : elles seront comparées à l’accueil.</p>
+  <div id="erreurLien" class="alert rouge" hidden>Ce lien est incomplet. Demandez à la Préfecture le lien du pré-enregistrement.</div>
+  <form id="f" novalidate autocomplete="on">
+    <h2>Votre demande</h2>
+    <div class="choix">
+      <label><input type="radio" name="type" value="premiere" checked> <span>🆕 Première demande</span></label>
+      <label><input type="radio" name="type" value="renouvellement"> <span>🔄 Renouvellement</span></label>
+    </div>
+    <h2>Vous</h2>
+    <div class="l2"><div><label for="nom">Nom</label><input id="nom" autocomplete="family-name" maxlength="60" required></div>
+    <div><label for="prenoms">Prénoms</label><input id="prenoms" autocomplete="given-name" maxlength="80" required></div></div>
+    <div class="l2"><div><label for="naiss">Date de naissance</label><input id="naiss" type="date" autocomplete="bday" required></div>
+    <div><label for="sexe">Sexe</label><select id="sexe"><option value="">—</option><option value="F">Féminin</option><option value="M">Masculin</option></select></div></div>
+    <div class="l2"><div><label for="nat">Nationalité</label><input id="nat" value="Congolaise" maxlength="40"></div>
+    <div><label for="tel">Téléphone (WhatsApp)</label><input id="tel" type="tel" inputmode="tel" autocomplete="tel" placeholder="+242 06 000 00 00" maxlength="24"></div></div>
+    <h2>Votre pièce d’identité</h2>
+    <div class="l2"><div><label for="ptype">Type</label><select id="ptype"><option value="CNI">Carte d’identité</option><option value="PASSEPORT">Passeport</option></select></div>
+    <div><label for="pnum">Numéro de la pièce</label><input id="pnum" maxlength="30" autocapitalize="characters" required></div></div>
+    <label for="pexp">Date d’expiration de la pièce</label><input id="pexp" type="date">
+    <div id="blocAncien" hidden>
+      <h2>Votre ancien passeport</h2>
+      <div class="l2"><div><label for="anum">Numéro de l’ancien passeport</label><input id="anum" maxlength="30" autocapitalize="characters"></div>
+      <div><label for="aexp">Date d’expiration</label><input id="aexp" type="date"></div></div>
+    </div>
+    <div id="msg" class="alert rouge" hidden role="alert"></div>
+    <button class="btn" id="bEnvoyer" type="submit">Envoyer mon pré-enregistrement</button>
+    <p class="sous" style="margin-top:10px;font-size:13px">Seules les informations utiles à votre demande sont enregistrées, et visibles uniquement du personnel autorisé. Ce pré-enregistrement <b>ne vaut pas dépôt</b> : il est validé à l’accueil.</p>
+  </form>
+</section>
+
+<section id="vRecu" class="carte" hidden>
+  <div class="recu">
+    <div style="font-size:12px;letter-spacing:.14em;color:var(--gris)">ACCUSÉ DE PRÉ-ENREGISTREMENT — DÉMONSTRATION</div>
+    <div class="num" id="rNum"></div>
+    <div id="rQr"></div>
+    <div style="font-size:13px;color:var(--gris)">Code de contrôle</div><div class="code" id="rCode"></div>
+    <p id="rNom" style="margin-top:8px"></p>
+  </div>
+  <div class="alert vert"><b>Votre pré-enregistrement est bien reçu.</b> Il n’est pas encore validé : il le sera à l’accueil.</div>
+  <h2>Et maintenant ?</h2>
+  <ol class="etapes">
+    <li><b>Gardez cet accusé</b> (capture d’écran ou bouton ci-dessous).</li>
+    <li>Présentez-vous à l’<b>accueil</b> avec cet accusé (le code QR) et vos <b>pièces originales</b>.</li>
+    <li>L’accueil vérifie, puis vous passez à la <b>caisse</b> pour payer et obtenir votre <b>rendez-vous</b>.</li>
+  </ol>
+  <h2>Pièces à apporter (liste indicative, à confirmer avec la Préfecture)</h2>
+  <ul id="rPieces" class="etapes" style="list-style:disc"></ul>
+  <a class="btn" id="aSuivi" href="#" style="text-align:center;text-decoration:none;line-height:52px;padding:0">Suivre mon dossier et ajouter mes pièces</a>
+  <button class="btn sec" id="bPng" type="button">Enregistrer l’accusé (image)</button>
+</section>
+</main>
+<footer>Conçu par STAR ENTREPRISE · Brazzaville · Démonstration, données fictives</footer>
+<script src="lib/qrcode.js"></script>
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var q = new URLSearchParams(location.search);
+  var pub = String(q.get('esp') || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+  var PIECES = { premiere: ['Photo d’identité', 'Pièce d’identité (carte nationale)', 'Acte de naissance', 'Certificat de nationalité', 'Justificatif de domicile (si demandé)'], renouvellement: ['Photo d’identité', 'Pièce d’identité', 'Ancien passeport (page d’identité)', 'Justificatif de domicile (si demandé)'] };
+  if (pub.length !== 8) { $('#erreurLien').hidden = false; $('#bEnvoyer').disabled = true; }
+  function type() { return document.querySelector('input[name="type"]:checked').value; }
+  document.querySelectorAll('input[name="type"]').forEach(function (r) { r.onchange = function () { $('#blocAncien').hidden = type() !== 'renouvellement'; }; });
+  var max = new Date().toISOString().slice(0, 10); $('#naiss').max = max;
+  function montrerErreur(t) { var m = $('#msg'); m.textContent = '⚠ ' + t; m.hidden = false; m.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+  function qrSvg(txt) { try { var c = qrcode(0, 'M'); c.addData(txt); c.make(); return c.createSvgTag(4, 0); } catch (e) { return ''; } }
+  function montrerRecu(r, nom, prenoms, t) {
+    $('#vForm').hidden = true; $('#vRecu').hidden = false; $('#rNum').textContent = r.id; $('#rCode').textContent = r.code; $('#rNom').textContent = nom + ' ' + prenoms;
+    $('#rQr').className = 'qr'; $('#rQr').innerHTML = qrSvg('PSR1|' + r.id + '|' + r.code);
+    var u = $('#rPieces'); u.innerHTML = ''; PIECES[t].forEach(function (x) { var li = document.createElement('li'); li.textContent = x; u.appendChild(li); });
+    $('#aSuivi').href = 'index.html?suivi=' + encodeURIComponent(r.id) + '&code=' + encodeURIComponent(r.code) + '&esp=' + pub;
+    try { sessionStorage.setItem('sp_prereg', JSON.stringify({ id: r.id, code: r.code, nom: nom, prenoms: prenoms, t: t, pub: pub })); } catch (e) { }
+    window.scrollTo(0, 0);
+  }
+  $('#f').addEventListener('submit', function (e) {
+    e.preventDefault(); $('#msg').hidden = true;
+    var d = { type: type(), nom: $('#nom').value.trim(), prenoms: $('#prenoms').value.trim(), naissance: $('#naiss').value, sexe: $('#sexe').value, nationalite: $('#nat').value.trim(), tel: $('#tel').value.trim(),
+      piece: { type: $('#ptype').value, numero: $('#pnum').value.trim(), expiration: $('#pexp').value }, ancien: type() === 'renouvellement' ? { numero: $('#anum').value.trim(), expiration: $('#aexp').value } : null };
+    var manque = []; if (!d.nom) manque.push('votre nom'); if (!d.prenoms) manque.push('vos prénoms'); if (!d.naissance) manque.push('votre date de naissance'); if (!d.piece.numero) manque.push('le numéro de votre pièce'); if (d.type === 'renouvellement' && !d.ancien.numero) manque.push('le numéro de votre ancien passeport');
+    if (manque.length) return montrerErreur('Il manque : ' + manque.join(', ') + '.');
+    var b = $('#bEnvoyer'); b.disabled = true; b.textContent = 'Envoi en cours…';
+    fetch('/api/passeport', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ op: 'preinscrire', public: pub, dossier: d }) })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (x) { if (!x.ok) throw new Error(x.j.error || 'Envoi impossible.'); montrerRecu(x.j, d.nom.toUpperCase(), d.prenoms, d.type); })
+      .catch(function (err) { b.disabled = false; b.textContent = 'Envoyer mon pré-enregistrement'; montrerErreur(err && err.message && !/Failed to fetch|NetworkError|Load failed/i.test(err.message) ? err.message : 'Pas de connexion : vérifiez votre réseau puis réessayez. Vos informations sont toujours à l’écran.'); });
+  });
+  $('#bPng').onclick = function () {
+    var svg = $('#rQr svg'); if (!svg) return;
+    var s = new XMLSerializer().serializeToString(svg), im = new Image();
+    im.onload = function () {
+      var c = document.createElement('canvas'); c.width = 640; c.height = 860; var x = c.getContext('2d');
+      x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.fillStyle = '#062b1e'; x.textAlign = 'center';
+      x.font = '600 22px sans-serif'; x.fillText('PASSEPORT SÛR — ACCUSÉ DE PRÉ-ENREGISTREMENT', 320, 50); x.font = '600 14px sans-serif'; x.fillText('Démonstration — données fictives', 320, 76);
+      x.font = '800 34px serif'; x.fillText($('#rNum').textContent, 320, 130); x.imageSmoothingEnabled = false; x.drawImage(im, 120, 160, 400, 400);
+      x.font = '300 18px sans-serif'; x.fillText('Code de contrôle', 320, 610); x.font = '800 40px sans-serif'; x.fillText($('#rCode').textContent, 320, 660);
+      x.font = '600 20px sans-serif'; x.fillText($('#rNom').textContent, 320, 715); x.font = '300 16px sans-serif'; x.fillText('À présenter à l’accueil avec vos pièces originales', 320, 770);
+      var a = document.createElement('a'); a.download = 'accuse-' + $('#rNum').textContent + '.png'; a.href = c.toDataURL('image/png'); document.body.appendChild(a); a.click(); a.remove();
+    };
+    im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s.indexOf('xmlns=') < 0 ? s.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"') : s);
+  };
+})();
+</script>
+</body>
+</html>

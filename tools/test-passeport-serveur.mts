@@ -91,6 +91,38 @@ try {
   ok((await pieceApi(new Request("https://t.test/api/passeport-piece?public=" + pub + "&dossier=" + ids[2] + "&code=" + ctrl + "&id=PJ-abc123xyz", { method: "PUT", headers: { "content-type": "image/png" }, body: new Uint8Array([1]) }), {})).status === 403, "le demandeur ne peut pas toucher le dossier d'un autre");
   const sy4 = await get("op=sync&espace=" + E + "&since=0"); ok(sy4.dossiers.find((d: any) => d.id === mon).data.pieces.some((p: any) => p.id === "PJ-demandeur1"), "la pièce du demandeur apparaît aux postes à la synchronisation suivante");
 
+  // ---------- pré-enregistrement par le demandeur + accueil (front office) ----------
+  const base = { nom: "mpassi", prenoms: "Grâce", naissance: "1990-04-12", sexe: "F", nationalite: "congolaise", tel: "+242 06 111 22 33", type: "premiere", piece: { type: "CNI", numero: "cni 556677", expiration: "2031-01-01" } };
+  const pr = await post({ op: "preinscrire", public: pub, dossier: base });
+  ok(pr.statut === 200 && /^BZV-\d{4}-P00001$/.test(pr.id) && /^[A-Z0-9]{6}$/.test(pr.code), "pré-enregistrement public : numéro " + pr.id + " et code de contrôle");
+  ok(pr.dossier.preinscrit === true && !JSON.stringify(pr.dossier).includes("556677"), "la réponse au demandeur ne renvoie pas le numéro de pièce");
+  const sP = await get("op=sync&espace=" + E + "&since=0"); const dP = sP.dossiers.find((x: any) => x.id === pr.id);
+  ok(dP && dP.data.person.nom === "MPASSI" && dP.data.person.piece.numero === "CNI556677" && dP.data.preinscrit && dP.data.status === "depose" && dP.data.agent === "Demandeur", "le dossier apparaît chez les postes (nom en majuscules, pièce nettoyée)");
+  ok((await get("op=suivi&public=" + pub + "&id=" + pr.id + "&code=" + pr.code)).statut === 200, "le demandeur retrouve son dossier avec son code");
+  const pr2 = await post({ op: "preinscrire", public: pub, dossier: base }); ok(pr2.statut === 200 && /P00002$/.test(pr2.id), "numéros de pré-enregistrement consécutifs, sans doublon");
+  const lot2 = await Promise.all([1, 2, 3, 4, 5].map(() => post({ op: "preinscrire", public: pub, dossier: base }))); const idsP = new Set(lot2.map((r: any) => r.id)); ok(lot2.every((r: any) => r.statut === 200) && idsP.size === 5, "5 pré-enregistrements simultanés : 5 numéros différents");
+  ok((await post({ op: "preinscrire", public: pub, dossier: { ...base, nom: "" } })).statut === 400, "nom manquant refusé");
+  ok((await post({ op: "preinscrire", public: pub, dossier: { ...base, naissance: "2999-01-01" } })).statut === 400, "date de naissance dans le futur refusée");
+  ok((await post({ op: "preinscrire", public: pub, dossier: { ...base, type: "renouvellement" } })).statut === 400, "renouvellement sans ancien passeport refusé");
+  ok((await post({ op: "preinscrire", public: "ZZZZZZZZ", dossier: base })).statut === 404, "lien public inconnu refusé");
+  ok((await post({ op: "preinscrire", public: E, dossier: base })).statut === 404, "le code des postes ne permet pas de pré-enregistrer");
+  const xss = await post({ op: "preinscrire", public: pub, dossier: { ...base, prenoms: "<b>x</b>\u0000Jean" } }); const sX = await get("op=sync&espace=" + E + "&since=0");
+  ok(xss.statut === 200 && !/[<>\u0000]/.test(sX.dossiers.find((x: any) => x.id === xss.id).data.person.prenoms), "caractères dangereux retirés des champs");
+  // la caisse ne peut pas encaisser un dossier pré-enregistré non vérifié
+  const pay0 = await post({ op: "payer", espace: E, id: pr.id, montant: 50000, mode: "Espèces", caissier: "Caisse" });
+  ok(pay0.statut === 409 && /accueil/i.test(pay0.error), "paiement refusé tant que l'accueil n'a pas vérifié : " + pay0.error);
+  // l'accueil valide (écriture normale d'un poste), puis la caisse peut encaisser
+  const lu = sX.dossiers.find((x: any) => x.id === pr.id);
+  const acc = await post({ op: "ecrire", espace: E, dossiers: [{ id: pr.id, baseRev: lu.rev, data: { ...lu.data, accueil: { ok: true, at: new Date().toISOString(), by: "Accueil" } } }] });
+  ok(acc.acceptes.length === 1, "l'accueil enregistre la vérification des originaux");
+  const pay1 = await post({ op: "payer", espace: E, id: pr.id, montant: 50000, mode: "Espèces", caissier: "Caisse" });
+  ok(pay1.statut === 200 && pay1.dossier.ticket >= 1 && pay1.dossier.paiement.recu, "après vérification, le paiement donne reçu, rendez-vous et numéro d'appel");
+  const sPub = await get("op=suivi&public=" + pub + "&id=" + pr.id + "&code=" + pr.code); ok(sPub.dossier.accueil && sPub.dossier.accueil.ok === true && sPub.dossier.paiement, "le demandeur voit « vérifié » puis son rendez-vous");
+  // limite par appareil : 10 par heure
+  const ipLimite = async (n: number) => { let dernier: any; for (let i = 0; i < n; i++) { const r = await api(new Request("https://t.test/api/passeport", { method: "POST", headers: { "x-nf-client-connection-ip": "203.0.113.77" }, body: JSON.stringify({ op: "preinscrire", public: pub, dossier: base }) }), {}); dernier = r.status; } return dernier; };
+  ok((await ipLimite(10)) === 200 && (await ipLimite(1)) === 429, "limite : 10 pré-enregistrements par heure et par appareil, le 11e est refusé (429)");
+  await db().sql`DELETE FROM pss_prereg WHERE ip = '203.0.113.77'`;
+
   // ---------- effacement définitif de l'espace ----------
   ok(stock.size >= 2, "avant effacement : " + stock.size + " pièces dans le magasin");
   ok((await post({ op: "supprimer", espace: E })).statut === 400, "effacer sans confirmation : refusé");

@@ -11,7 +11,7 @@ couverture({ kic: 'Guide d’utilisation · De A à Z', titre: 'Passeport Sûr',
 <div class="carte r"><h3>Sécuriser</h3><p>Les doublons, pièces modifiées, fausses identités, réseaux d’intermédiaires et délais anormaux sont signalés automatiquement.</p></div></div>
 <h2>Comment lire ce guide</h2>
 <p>Ce guide explique, <b>pas à pas</b>, comment utiliser l’application selon votre rôle. Chaque chapitre commence par rappeler <b>à quoi il sert par rapport au but</b> de l’application. Vous pouvez aller directement au chapitre qui vous concerne :</p>
-<div class="toc"><div><b>★</b>À propos : rôle, importance, avantages, vision</div><div><b>1</b>Démarrer : ouvrir, installer, choisir son profil</div><div><b>2</b>Les profils et la vie d’un dossier</div><div><b>3</b>Préfecture : mettre en place le site</div><div><b>4</b>Agent de guichet : enregistrer une demande</div><div><b>5</b>Caisse : encaisser</div><div><b>6</b>Agent de porte : appeler les personnes</div><div><b>7</b>L’écran de la salle d’attente</div><div><b>8</b>Le demandeur : suivre son dossier</div><div><b>9</b>Préfecture et Ministère : piloter</div><div><b>10</b>Questions fréquentes et dépannage</div><div><b>11</b>Bonnes pratiques</div><div><b>12</b>Glossaire</div></div>
+<div class="toc"><div><b>★</b>À propos : rôle, importance, avantages, vision</div><div><b>1</b>Démarrer : ouvrir, installer, choisir son profil</div><div><b>2</b>Les profils et la vie d’un dossier</div><div><b>3</b>Préfecture : mettre en place le site</div><div><b>4</b>Agent de guichet : enregistrer une demande</div><div><b>5</b>Accueil : recevoir les demandeurs pré-enregistrés</div><div><b>6</b>Caisse : encaisser</div><div><b>7</b>Agent de porte : appeler les personnes</div><div><b>8</b>L’écran de la salle d’attente</div><div><b>9</b>Le demandeur : se pré-enregistrer et suivre son dossier</div><div><b>10</b>Préfecture et Ministère : piloter</div><div><b>11</b>Questions fréquentes et dépannage</div><div><b>12</b>Bonnes pratiques</div><div><b>13</b>Glossaire</div></div>
 <div class="note"><b>À savoir.</b> Cette version est une <b>démonstration</b> : toutes les personnes, pièces, numéros et montants sont <b>fictifs</b>. Le tarif et la liste des pièces sont des <b>exemples à confirmer avec la Préfecture</b>. L’application ne prétend pas vérifier l’authenticité des documents.</div>`,
 
 `<h1 class="chap">À propos : son rôle, son importance, ses avantages</h1>
@@ -37,7 +37,9 @@ ${role('Pour atteindre le but, l’application doit être simple à ouvrir et à
 <h2>L’installer sur le téléphone (facultatif)</h2>
 <table><tr><th style="width:42mm">Téléphone</th><th>Comment faire</th></tr>
 <tr><td><b>Android (Chrome)</b></td><td>Touchez le menu <b>⋮</b> puis <b>« Ajouter à l’écran d’accueil »</b> (ou « Installer l’application »).</td></tr>
-<tr><td><b>iPhone (Safari)</b></td><td>Touchez <b>Partager</b> (le carré avec une flèche) puis <b>« Sur l’écran d’accueil »</b>.</td></tr></table>
+<tr><td><b>iPhone (Safari)</b></td><td>Touchez <b>Partager</b> (le carré avec une flèche) puis <b>« Sur l’écran d’accueil »</b>.</td></tr>
+<tr><td><b>Ordinateur (Chrome ou Edge)</b></td><td>Touchez l’icône d’installation à droite de la barre d’adresse, ou le menu <b>⋮</b> puis <b>« Installer Passeport Sûr »</b>.</td></tr></table>
+<p>Dans l’application, <b>❓ Aide → « Installer l’application »</b> affiche ces consignes pour votre appareil, et un bouton « Installer maintenant » quand l’appareil le permet. <b>L’installation est facultative</b> : l’application fonctionne aussi directement dans le navigateur.</p>
 <p>L’icône « Passeport Sûr » apparaît alors avec vos autres applications.</p>
 <h2>Au premier lancement : « Quel est votre rôle ? »</h2>
 <p>L’application vous demande votre rôle. Touchez le vôtre : elle règle le <b>profil</b>, ouvre la bonne page et lance une <b>visite guidée</b> d’environ une minute. Vous pouvez la passer à tout moment (« Passer » ou la touche Échap).</p>
@@ -54,11 +56,12 @@ ${fig('d_accueil', 'L’accueil avec la carte « Commencez ici » adaptée au pr
 `<h1 class="chap">2. Les profils et la vie d’un dossier</h1>
 <table><tr><th style="width:34mm">Profil</th><th>Ce qu’il fait</th><th style="width:34mm">Pages utilisées</th></tr>
 <tr><td><b>Agent de guichet</b></td><td>Enregistre les demandes : scan de la pièce, pièces jointes, signature, accusé.</td><td>Nouvelle demande, Dossiers</td></tr>
+<tr><td><b>Accueil</b> (front office)</td><td>Reçoit les personnes pré-enregistrées : scan de l’accusé, comparaison avec les originaux, envoi à la caisse.</td><td>Réception</td></tr>
 <tr><td><b>Caisse</b></td><td>Ouvre le dossier (scan du QR), vérifie, encaisse, édite le reçu avec le rendez-vous.</td><td>Caisse</td></tr>
 <tr><td><b>Agent de porte</b></td><td>Appelle les personnes, une par une, à sa porte.</td><td>File d’attente</td></tr>
 <tr><td><b>Préfecture</b></td><td>Crée l’espace, règle le site, examine les alertes, pilote tout.</td><td>Toutes</td></tr>
 <tr><td><b>Ministère</b></td><td>Consulte la situation réelle (lecture seule), exporte vers Excel.</td><td>Tableau de bord, Anti-fraude, Dossiers</td></tr>
-<tr><td><b>Demandeur</b></td><td>Suit son dossier avec le lien reçu, envoie une pièce manquante.</td><td>Suivi (page unique)</td></tr></table>
+<tr><td><b>Demandeur</b></td><td>Se pré-enregistre avec le lien de la Préfecture, suit son dossier, envoie une pièce manquante.</td><td>Suivi (page unique)</td></tr></table>
 <h2>Les six étapes d’un dossier</h2>
 <div class="etapes"><div><i>1</i><b>Demande déposée</b>au guichet</div><div><i>2</i><b>Paiement effectué</b>à la caisse</div><div><i>3</i><b>Dossier reçu</b>appelé en salle</div><div><i>4</i><b>En traitement</b>par la Préfecture</div><div><i>5</i><b>Passeport prêt</b>à retirer</div><div><i>6</i><b>Remis</b>au demandeur</div></div>
 <p>À chaque étape, la date et l’agent sont enregistrés dans l’<b>historique</b> du dossier : c’est ce qui permet le suivi, la transparence et le contrôle.</p>`,
@@ -109,7 +112,21 @@ ${fig('d_guichet_pieces', 'Les pièces à joindre, obligatoires et facultatives.
 <div class="tel-duo">${fig('t_guichet', 'Nouvelle demande', 600)}${fig('t_signature', 'Signature au doigt', 600)}${fig('t_accuse', 'Accusé prêt à envoyer', 600)}</div>
 <div class="note"><b>Dossier incomplet.</b> Dans la page <b>Dossiers</b>, le filtre « incomplets » liste les dossiers auxquels il manque des pièces. Ouvrez la fiche pour joindre la pièce (photo ou fichier).</div>`,
 
-`<h1 class="chap">5. Caisse : encaisser</h1>
+`<h1 class="chap">5. Accueil (front office) : recevoir les demandeurs pré-enregistrés</h1>
+${role('Le pré-enregistrement permet au demandeur de préparer sa demande avant de se déplacer. L’accueil vérifie ses pièces originales : c’est ce contrôle qui sécurise la suite (paiement, rendez-vous) et sert le but de l’application.')}
+<h2 style="margin-top:2mm">Qui passe par l’accueil ?</h2>
+<p>Les personnes qui <b>se sont pré-enregistrées elles-mêmes</b> sur leur téléphone (chapitre 9) et se présentent avec leur <b>accusé</b> (le code QR) et leurs <b>pièces originales</b>. Les dossiers déposés directement au guichet n’ont pas besoin de passer par l’accueil.</p>
+<h2>Recevoir une personne, pas à pas</h2>
+<ol class="pas"><li>Choisissez le profil <b>Accueil</b>, puis ouvrez la page <b>Réception</b>.</li><li>Touchez <b>« Scanner le code QR »</b> et présentez l’accusé devant la caméra. Sans caméra : saisissez le <b>N° de dossier</b> et le <b>code de contrôle</b> (6 caractères).</li><li>La fiche et les pièces s’affichent. <b>Comparez avec les originaux</b> : pièce d’identité, visage de la personne, pièces à fournir.</li><li>Corrigez si besoin les <b>prénoms</b>, la <b>date de naissance</b> ou le <b>numéro de pièce</b>. Le <b>nom</b> ne se corrige pas ici : s’il est faux, signalez un écart.</li><li>Cochez les <b>trois vérifications</b>, puis touchez <b>« Vérifié : envoyer à la caisse »</b>.</li></ol>
+${duo(['d_accueil_liste', 'La page Réception : scan, saisie du numéro et liste des personnes attendues.'], ['d_accueil_fiche', 'La fiche à comparer avec les originaux, et les trois vérifications.'])}
+<h2>S’il y a un écart</h2>
+<p>Identité différente de la pièce, pièce suspecte, informations à refaire : choisissez le <b>motif</b> puis touchez <b>« Signaler l’écart »</b>. L’écart apparaît comme <b>alerte grave</b> au contrôle anti-fraude de la Préfecture, et <b>la caisse ne peut pas encaisser</b> ce dossier. Après correction, l’accueil peut le vérifier de nouveau.</p>
+${duo(['d_caisse_bloquee', 'Si l’accueil n’a pas vérifié, la caisse affiche « À vérifier à l’accueil d’abord ».'], ['d_accueil_ok', 'Après vérification : « Vérifié à l’accueil » et passage à la caisse.'])}
+<div class="note"><b>À savoir.</b> Les pièces peuvent être jointes par le demandeur (depuis son lien de suivi) ou par l’accueil (photo ou fichier). La caisse exige toujours les pièces obligatoires. Dans cette démonstration, il n’y a pas de signature sur écran pour un pré-enregistrement : la Préfecture devra décider comment la recueillir.</div>
+<h2>Donner le lien de pré-enregistrement</h2>
+<p>Sur la page Réception, le bouton <b>« Copier le lien »</b> donne le lien à communiquer aux demandeurs (WhatsApp, affiche, SMS). Il demande que l’<b>espace partagé</b> soit créé par la Préfecture.</p>`,
+
+`<h1 class="chap">6. Caisse : encaisser</h1>
 ${role('La caisse est le point de contrôle avant le rendez-vous : un dossier incomplet ou suspect n’est pas encaissé. Après le paiement, le demandeur reçoit sa date et son numéro d’appel : c’est le début d’une file ordonnée.')}
 <h2 style="margin-top:2mm">Ouvrir le dossier</h2>
 <ol class="pas"><li>Ouvrez la page <b>Caisse</b>.</li><li>Touchez <b>« Scanner le code QR »</b> et présentez l’accusé du demandeur devant la caméra : le dossier s’ouvre tout seul.</li><li>Sans caméra : saisissez le <b>N° de reçu</b> et le <b>code de contrôle</b> (6 caractères), puis <b>« Ouvrir le dossier »</b>.</li><li>Pour vous entraîner : <b>« Exemple »</b> ouvre un dossier fictif.</li></ol>
@@ -125,7 +142,7 @@ ${fig('d_caisse_dossier', 'Le dossier ouvert à la caisse.', 1300, 'p')}`,
 ${duo(['d_recu', 'Le reçu avec le rendez-vous et le numéro d’appel.'], ['d_caisse', 'La page Caisse et les encaissements du jour.'])}
 <div class="tel-duo">${fig('t_caisse', 'Caisse sur téléphone', 600)}${fig('t_recu', 'Reçu sur téléphone', 600)}</div>`,
 
-`<h1 class="chap">6. Agent de porte : appeler les personnes</h1>
+`<h1 class="chap">7. Agent de porte : appeler les personnes</h1>
 ${role('C’est le cœur de la file ordonnée : chaque porte appelle la personne suivante, dans l’ordre du paiement. Personne ne passe devant, et personne n’est appelé deux fois en même temps.')}
 <h2 style="margin-top:2mm">La file du jour</h2>
 <p>Ouvrez <b>File d’attente</b>. En haut, la date du jour de rendez-vous ; la liste ne contient que les personnes <b>convoquées ce jour-là</b>, par ordre de numéro. Les cases montrent le nombre en attente, le prochain numéro, les personnes déjà appelées et l’attente moyenne.</p>
@@ -142,7 +159,7 @@ ${fig('d_portes', 'Les portes, chacune avec son numéro en cours et ses boutons.
 ${duo(['d_file_avant', 'La file avant les appels.'], ['d_file_apres', 'Après avoir appelé aux portes 1 et 2.'])}
 <div class="note"><b>Les écrans connectés</b> sont listés en haut de la page (« Écrans connectés : Salle d’attente 1… »). Si aucun n’est connecté, ouvrez l’écran (chapitre suivant).</div>`,
 
-`<h1 class="chap">7. L’écran de la salle d’attente</h1>
+`<h1 class="chap">8. L’écran de la salle d’attente</h1>
 ${role('L’écran rend la file visible et équitable : chacun voit son numéro, son nom et sa porte, et entend l’annonce. Il remplace les cris dans les couloirs et les passages « à la faveur ».')}
 <h2 style="margin-top:2mm">Installer l’écran (téléviseur, tablette ou ordinateur)</h2>
 <ol class="pas"><li>Sur l’appareil de la salle, ouvrez le <b>lien « écran »</b> donné par la Préfecture (ou touchez « Ouvrir un écran ici » dans le panneau de l’espace).</li><li>Entrez le <b>code de l’espace</b> et donnez un <b>nom à l’écran</b> (ex. « Salle d’attente 1 »).</li><li>Touchez <b>« ▶ Démarrer »</b> : l’écran passe en plein écran et commence à recevoir les appels en direct.</li><li>Touchez <b>« 🔊 Activer le son et la voix »</b> une fois : sans cela, le navigateur interdit le son.</li></ol>
@@ -153,9 +170,14 @@ ${duo(['d_ecran_demarrage', 'L’écran de démarrage.'], ['d_ecran_appel1', 'Un
 ${fig('d_ecran_appel2', 'L’écran de la salle : deuxième appel, portes et prochains numéros.', 1400, 'p')}
 <div class="note"><b>Conseils pratiques.</b> Branchez l’appareil sur secteur, désactivez sa mise en veille, vérifiez le son et la voix <b>française</b> avant l’ouverture. Plusieurs écrans peuvent être connectés en même temps : ils affichent la même chose.</div>`,
 
-`<h1 class="chap">8. Le demandeur : suivre son dossier</h1>
+`<h1 class="chap">9. Le demandeur : se pré-enregistrer et suivre son dossier</h1>
 ${role('Le suivi donne au citoyen une information claire sur sa demande, sans déplacement inutile : c’est la transparence recherchée par le but de l’application.')}
-<h2 style="margin-top:2mm">Recevoir et ouvrir son lien</h2>
+<h2 style="margin-top:2mm">Se pré-enregistrer avant de se déplacer</h2>
+<p>Avec le <b>lien de pré-enregistrement</b> donné par la Préfecture, le demandeur prépare sa demande depuis son téléphone, sans compte ni mot de passe :</p>
+<ol class="pas"><li>Choisissez <b>Première demande</b> ou <b>Renouvellement</b> (pour un renouvellement, indiquez l’ancien passeport).</li><li>Remplissez votre <b>nom, prénoms, date de naissance, téléphone</b> et les informations de votre <b>pièce d’identité</b> — exactement comme sur la pièce originale.</li><li>Touchez <b>« Envoyer mon pré-enregistrement »</b> : vous recevez un <b>accusé avec code QR</b>. Enregistrez-le (capture d’écran ou bouton « Enregistrer l’accusé »).</li><li>Présentez-vous à l’<b>accueil</b> avec l’accusé et vos <b>pièces originales</b>. Après vérification, vous passez à la caisse.</li></ol>
+<div class="tel-duo">${fig('t_inscription', 'Le lien de pré-enregistrement', 600)}${fig('t_inscription_champs', 'La fiche à remplir', 600)}${fig('t_inscription_recu', 'L’accusé avec code QR', 600)}</div>
+<div class="note"><b>Important.</b> Le pré-enregistrement <b>ne vaut pas dépôt</b> : il est validé à l’accueil. Les informations doivent être identiques à vos pièces originales ; la liste des pièces à apporter est indicative, à confirmer avec la Préfecture.</div>
+<h2>Recevoir et ouvrir son lien</h2>
 <p>Après l’enregistrement, puis après le paiement, le demandeur reçoit des messages sur WhatsApp (accusé, puis date de rendez-vous). Le message contient un <b>lien de suivi</b>. En l’ouvrant, il voit <b>uniquement son dossier</b> : sans compte, sans mot de passe.</p>
 <h2>Ce qu’il voit</h2>
 <ul><li>Les <b>étapes franchies</b> de son dossier (déposée, payée, reçue, en traitement, prête, remise).</li><li>Après le paiement : son <b>rendez-vous</b> (jour, heure, lieu) et son <b>numéro d’appel</b>.</li><li>Ce qu’il <b>manque</b> éventuellement, et la possibilité de <b>l’envoyer</b>.</li></ul>
@@ -164,7 +186,7 @@ ${role('Le suivi donne au citoyen une information claire sur sa demande, sans d�
 <div class="tel-duo">${fig('t_demandeur', 'Suivi du dossier', 600)}${fig('t_demandeur_rdv', 'Rendez-vous et numéro d’appel', 600)}${fig('t_accuse', 'Accusé reçu à l’enregistrement', 600)}</div>
 <div class="note r"><b>Le jour du rendez-vous</b> : venez avec votre <b>reçu de paiement</b>, asseyez-vous dans la salle, et regardez l’écran. Quand votre numéro s’affiche avec votre nom, levez-vous et allez à la <b>porte indiquée</b>.</div>`,
 
-`<h1 class="chap">9. Préfecture et Ministère : piloter</h1>
+`<h1 class="chap">10. Préfecture et Ministère : piloter</h1>
 ${role('Voir la situation réelle et les cas à risque est ce qui permet d’agir : accélérer ce qui bloque, examiner ce qui est suspect, rendre des comptes.')}
 <h2 style="margin-top:2mm">Le tableau de bord</h2>
 <p>Il montre : demandes enregistrées, dossiers reçus, en traitement, passeports prêts et remis, pas encore remis, renouvellements, alertes à examiner, dossiers incomplets et délai moyen de remise ; avec des graphiques (répartition par état, première demande / renouvellement, demandes par jour, secteurs). Le bouton <b>« Télécharger le fichier Excel »</b> exporte les tableaux et graphiques.</p>
@@ -180,13 +202,14 @@ ${fig('d_tableau_demo', 'Le tableau de bord (données fictives).', 1300, 'p')}
 ${duo(['d_dossiers', 'La liste des dossiers.'], ['d_fiche', 'La fiche d’un dossier.'])}
 <div class="tel-duo">${fig('t_tableau', 'Tableau de bord', 600)}${fig('t_fraude', 'Anti-fraude', 600)}</div>`,
 
-`<h1 class="chap">10. Questions fréquentes et dépannage</h1>
+`<h1 class="chap">11. Questions fréquentes et dépannage</h1>
 <table><tr><th style="width:62mm">Situation</th><th>Que faire ?</th></tr>
 <tr><td>Je ne sais pas quel profil choisir.</td><td>Touchez ❓ Aide puis « Changer de profil » : chaque rôle est décrit en une phrase.</td></tr>
 <tr><td>La visite guidée s’est fermée trop vite.</td><td>❓ Aide → « Visite guidée de mon profil », ou le bouton « Visite guidée » de la carte « Commencez ici ».</td></tr>
 <tr><td>La puce indique « Reconnexion… » (orange).</td><td>La connexion Internet est coupée. Les postes restent utilisables et se resynchronisent seuls. Évitez d’encaisser tant que la puce n’est pas redevenue verte.</td></tr>
 <tr><td>J’ai encaissé mais le réseau a coupé.</td><td>Rouvrez le dossier : s’il a été encaissé, le reçu s’affiche (« Déjà payé »). Sinon, encaissez de nouveau.</td></tr>
 <tr><td>« Encaissement bloqué ».</td><td>Une pièce obligatoire manque, ou une alerte grave attend l’examen de la Préfecture. Ajoutez la pièce ou demandez l’examen.</td></tr>
+<tr><td>« À vérifier à l’accueil d’abord ».</td><td>Le dossier a été pré-enregistré par le demandeur : envoyez-le à l’accueil avec ses pièces originales. Le paiement est possible après la vérification.</td></tr>
 <tr><td>« Ce dossier est déjà payé ».</td><td>Une autre caisse vient de l’encaisser : un dossier ne peut être payé qu’une fois. Réimprimez le reçu.</td></tr>
 <tr><td>Le scan de la pièce échoue.</td><td>Reprenez la photo (bien éclairée, à plat, bande de lecture nette et entière) ou saisissez les lignes à la main.</td></tr>
 <tr><td>Le code QR ne se lit pas.</td><td>Saisissez le N° de reçu et le code de contrôle à 6 caractères.</td></tr>
@@ -195,12 +218,12 @@ ${duo(['d_dossiers', 'La liste des dossiers.'], ['d_fiche', 'La fiche d’un dos
 <tr><td>Personne dans la file un jour de démonstration.</td><td>Page Réglages → « Avancer la date » jusqu’au jour du rendez-vous.</td></tr>
 <tr><td>Hors connexion, une page ne s’ouvre pas.</td><td>Une page jamais ouverte sur cet appareil a besoin d’Internet la première fois ; ensuite elle est gardée.</td></tr></table>`,
 
-`<h1 class="chap">11. Bonnes pratiques</h1>
+`<h1 class="chap">12. Bonnes pratiques</h1>
 <div class="cartes deux"><div class="carte"><h3>Protéger les accès</h3><p>Ne partagez pas le code de l’espace publiquement. Le lien de suivi d’un demandeur ne doit être envoyé qu’à lui.</p></div>
 <div class="carte j"><h3>Vérifier avant de valider</h3><p>Relisez toujours les lignes lues par le scan et la fiche : l’application aide, l’agent décide.</p></div>
 <div class="carte f"><h3>Respecter les alertes</h3><p>Une alerte grave non examinée bloque l’encaissement. Ne cherchez pas à la contourner : demandez l’examen.</p></div>
 <div class="carte r"><h3>Données fictives</h3><p>Dans cette version, n’entrez pas de vraies données personnelles. En fin de démonstration, effacez l’espace.</p></div></div>
-<h1 style="margin-top:8mm">12. Glossaire</h1>
+<h1 style="margin-top:8mm">13. Glossaire</h1>
 <table><tr><th style="width:42mm">Terme</th><th>Signification</th></tr>
 <tr><td>Accusé</td><td>Document remis au demandeur à l’enregistrement, avec son numéro de reçu et un code QR.</td></tr>
 <tr><td>Code de contrôle</td><td>6 caractères propres à un dossier, qui servent à l’ouvrir à la caisse ou à le suivre.</td></tr>
