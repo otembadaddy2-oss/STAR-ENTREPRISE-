@@ -37,6 +37,11 @@ const api = async (corps, jeton) => { const r = await fetch(ORIGINE + 'api/passe
   ok(await compte() >= 1 && await osc() >= 6, 'premier toucher : l’alerte arrivée entre-temps sonne tout de suite (' + await osc() + ' notes)');
   ok(!(await M.locator('#sonIndice').count()), 'le rappel disparaît une fois le son débloqué');
   ok(await M.evaluate(() => window.__vib) >= 1, 'le téléphone vibre aussi (quand il le permet)');
+  // arrêt immédiat de la sirène pendant qu'elle sonne
+  ok(await M.locator('#sonStop').isVisible() && (await M.evaluate(() => window.__spSon.etat().sonne)), 'pendant la sirène : le bouton « 🔇 Arrêter le son » est visible');
+  await M.click('#sonStop'); await M.waitForTimeout(300);
+  ok(!(await M.locator('#sonStop').count()) && !(await M.evaluate(() => window.__spSon.etat().sonne)), 'on touche « Arrêter le son » : la sirène est coupée tout de suite et le bouton disparaît');
+  ok(await M.locator('#alerteFraude').count() === 1, 'le message rouge reste affiché après l’arrêt du son (l’alerte n’est pas effacée)');
   // 3) nouvelle alerte de fraude : sonne
   const c1 = await compte(); await M.waitForTimeout(1700); await fraude(3, 'MOUKALA');
   ok(await att(async () => (await compte()) > c1, 25000), 'nouvelle alerte de fraude : le son retentit');

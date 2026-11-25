@@ -29,7 +29,7 @@ function verifier() {
   if (!b) { b = document.createElement('div'); b.id = 'alerteFraude'; b.setAttribute('role', 'alert'); b.setAttribute('aria-live', 'assertive'); const ref = $('#bandeau') || document.querySelector('header'); ref.after(b); }
   b.innerHTML = '<div class="tx">🚨 <b>' + non.length + ' alerte' + (non.length > 1 ? 's' : '') + ' de fraude grave non lue' + (non.length > 1 ? 's' : '') + '</b> — la plus récente : dossier <b>' + esc(p.d.id) + '</b> · ' + esc(p.f[0].t) + '</div><button type="button" id="alVoir">Voir les alertes</button><button type="button" class="sec" id="alLu">Marquer comme lues</button>' + (window.__spSon ? '<button type="button" class="sec" id="alSon" aria-label="Son des alertes"></button>' : '');
   const sn = $('#alSon'); if (sn) { const lib = () => { sn.textContent = window.__spSon.actif() ? '🔔 Son' : '🔕 Son coupé'; sn.setAttribute('aria-pressed', window.__spSon.actif() ? 'true' : 'false'); }; lib(); sn.onclick = () => { const v = !window.__spSon.actif(); window.__spSon.regler(v); lib(); if (v) { window.__spSon.debloquer(); setTimeout(() => window.__spSon.jouer('fraude', true), 150); } }; }
-  $('#alVoir').onclick = () => A.aller('fraude'); $('#alLu').onclick = () => { const s = lues(); non.forEach(x => s.add(x.d.id)); garder(s); dernier = ''; verifier(); };
+  $('#alVoir').onclick = () => A.aller('fraude'); $('#alLu').onclick = () => { if (window.__spSon) window.__spSon.arreter(); const s = lues(); non.forEach(x => s.add(x.d.id)); garder(s); dernier = ''; verifier(); };
 }
 window.__spAlertes = { verifier };
 verifier();
