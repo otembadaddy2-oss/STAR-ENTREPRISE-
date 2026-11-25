@@ -2,3 +2,5 @@
 captures/*.png
 video/*.webm
 video/echec-*.png
+video/*
+!video/texte-de-la-voix.txt
