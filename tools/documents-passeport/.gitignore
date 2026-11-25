@@ -1,3 +1,4 @@
 .images/
 captures/*.png
 video/*.webm
+video/echec-*.png
