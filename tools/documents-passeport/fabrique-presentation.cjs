@@ -47,7 +47,7 @@ couverture({ kic: 'Proposition de projet · Brazzaville', titre: 'Passeport Sûr
 <h2>Les principes qui guident la conception</h2>
 <ul><li><b>L’humain décide.</b> L’application signale, elle n’accuse pas et ne tranche pas.</li>
 <li><b>Utilisable par tous.</b> Peu de mots, de gros boutons, une aide intégrée, un téléphone suffit.</li>
-<li><b>Léger et accessible.</b> Qu’il s’ouvre vite et s’installe facilement sur n’importe quel téléphone ou ordinateur, même avec une connexion limitée.</li>
+<li><b>Léger et accessible.</b> Qu’il s’ouvre vite et s’installe facilement sur n’importe quel téléphone ou ordinateur, même avec une connexion limitée : une page d’installation à partager par WhatsApp (détection de l’appareil, code QR), un bouton « Installer » dans l’application, un texte réglable en taille, des images allégées (moins de 1 Mo au total) et un fonctionnement possible sans installation.</li>
 <li><b>Données protégées.</b> Seules les informations utiles sont gardées ; chacun ne voit que ce dont il a besoin ; l’hébergement et la durée de conservation sont décidés avec l’autorité.</li>
 <li><b>Honnêteté.</b> Une démonstration est présentée comme une démonstration ; ce qui reste à construire est dit clairement.</li></ul>
 <div class="note"><b>Ambition.</b> Si la démonstration convainc, STAR ENTREPRISE propose de la transformer, avec le Ministère et la Préfecture, en un <b>projet pilote sur un site</b>, évalué avant tout élargissement.</div>`,

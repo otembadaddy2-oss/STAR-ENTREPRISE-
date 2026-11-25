@@ -48,7 +48,7 @@ function ecranConnexion(pre) {
   ouvrir('<h1>Connexion</h1><p class="sous">Espace ' + espaceTxt() + '</p>' +
     '<form id="cpt_f" novalidate><label for="cpt_login">Identifiant</label><input id="cpt_login" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="30" value="' + esc(pre || '') + '">' +
     '<label for="cpt_mdp">Mot de passe</label><div class="mdp"><input id="cpt_mdp" type="password" autocomplete="current-password" maxlength="100"><button type="button" id="cpt_voir" aria-label="Afficher le mot de passe">Afficher</button></div>' +
-    '<div id="cpt_msg" role="alert"></div><button class="btn vert" id="cpt_ok" type="submit">Se connecter</button></form><button class="lien" id="cpt_oubli" type="button">Mot de passe oublié ?</button>');
+    '<div id="cpt_msg" role="alert"></div><button class="btn vert" id="cpt_ok" type="submit">Se connecter</button></form><button class="lien" id="cpt_oubli" type="button">Mot de passe oublié ?</button><a class="lien" href="installer.html" style="text-align:center">📲 Installer l’application sur cet appareil</a>');
   bascule('#cpt_mdp', $('#cpt_voir')); (pre ? $('#cpt_mdp') : $('#cpt_login')).focus();
   $('#cpt_f').onsubmit = async e => {
     e.preventDefault(); const l = $('#cpt_login').value.trim(), m = $('#cpt_mdp').value; if (!l || !m) return msg('Saisissez votre identifiant et votre mot de passe.');

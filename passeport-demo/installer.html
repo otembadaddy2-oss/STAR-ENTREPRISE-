@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="author" content="STAR ENTREPRISE">
+<meta name="theme-color" content="#062b1e">
+<title>Installer Passeport Sûr</title>
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+@font-face{font-family:ID;font-weight:300;font-display:swap;src:url(polices/inter-display-300.woff2) format("woff2")}
+@font-face{font-family:ID;font-weight:600;font-display:swap;src:url(polices/inter-display-600.woff2) format("woff2")}
+@font-face{font-family:ID;font-weight:800;font-display:swap;src:url(polices/inter-display-800.woff2) format("woff2")}
+@font-face{font-family:PF;font-weight:800;font-display:swap;src:url(polices/playfair-display-latin-800-normal.woff2) format("woff2")}
+:root{--foret:#062b1e;--foret2:#0a4430;--vert:#009543;--vert2:#e3f4e9;--jaune:#f6c928;--jaune2:#fff6cf;--rouge:#d62f26;--ivoire:#f6f3ea;--encre:#12201a;--gris:#5d6b64;--trait:#e0dac6}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:ID,system-ui,-apple-system,"Segoe UI",sans-serif;font-weight:300;background:var(--ivoire);color:var(--encre);font-size:17px;line-height:1.55;-webkit-text-size-adjust:100%}
+b,strong,button,summary{font-weight:600}
+h1,h2{font-family:PF,Georgia,serif;font-weight:800;color:var(--foret);line-height:1.15}
+header{background:radial-gradient(900px 260px at 85% -40%,#0f6a45 0,transparent 70%),linear-gradient(135deg,var(--foret),var(--foret2));color:#fff;padding:14px 16px 18px;position:relative}
+header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;background:linear-gradient(90deg,var(--vert) 0 33.3%,var(--jaune) 33.3% 66.6%,var(--rouge) 66.6%)}
+.hd{max-width:640px;margin:auto;display:flex;align-items:center;gap:12px}.hd img{width:46px;height:52px}
+.hd .tt{font-family:PF,serif;font-weight:800;font-size:22px;line-height:1}.hd small{display:block;font-family:ID,sans-serif;font-weight:300;font-size:11px;letter-spacing:.14em;color:#f9e08a;margin-top:5px;text-transform:uppercase}
+main{max-width:640px;margin:auto;padding:16px 16px 40px}
+.carte{background:#fff;border:1px solid var(--trait);border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 6px 24px #062b1e14}
+.but{background:var(--vert2);border:1px solid #b9dfc6;border-radius:14px;padding:12px 14px;font-size:15px;margin-bottom:14px}
+h1{font-size:28px;margin-bottom:6px}h2{font-size:20px;margin:0 0 8px}
+.sous{color:var(--gris);font-size:15px}
+.btn{display:block;width:100%;min-height:56px;border:0;border-radius:14px;background:var(--vert);color:#fff;font-size:18px;cursor:pointer;margin-top:12px;text-align:center;text-decoration:none;line-height:56px;box-shadow:0 6px 18px #00954340}
+.btn.sec{background:#fff;color:var(--foret);border:1.5px solid var(--trait);box-shadow:none}
+ol{margin:8px 0 0 22px}ol li{margin:10px 0}
+.pill{display:inline-block;background:var(--jaune2);color:#6a5300;border-radius:999px;padding:2px 10px;font-size:13px;font-weight:600}
+details{border-top:1px solid var(--trait);padding:10px 0}details:first-of-type{border-top:0}summary{cursor:pointer;min-height:44px;display:flex;align-items:center}
+.alert{border-radius:12px;padding:10px 12px;font-size:15px;margin-top:10px;background:#e8f1fb;color:#1c3f66;border:1px solid #bcd3ee}
+.alert.vert{background:var(--vert2);color:#0a4430;border-color:#b9dfc6}.alert.or{background:var(--jaune2);color:#6a5300;border-color:#ecd988}
+#qr svg{width:170px;height:170px;display:block;margin:10px auto}
+[hidden]{display:none!important}
+footer{text-align:center;color:var(--gris);font-size:13px;padding:0 16px 24px}
+:focus-visible{outline:3px solid #009543;outline-offset:2px}
+</style>
+</head>
+<body>
+<header><div class="hd"><img src="logo.svg" alt=""><div class="tt">Passeport Sûr<small>Installer l’application</small></div></div></header>
+<main>
+<div class="but"><b>À quoi sert l’application ?</b> À suivre chaque demande de passeport de A à Z, à recevoir chacun dans l’ordre, et à repérer les fraudes. Elle est conçue par STAR ENTREPRISE, à Brazzaville.</div>
+<section class="carte">
+  <h1>Installer en quelques touches</h1>
+  <p class="sous">Sur téléphone comme sur ordinateur. <b>Rien à télécharger dans une boutique</b>, aucun compte à créer pour l’installer.</p>
+  <div id="dejaInstalle" class="alert vert" hidden>✔ L’application est <b>déjà installée</b> sur cet appareil. <a href="index.html" style="color:inherit">Ouvrir l’application</a></div>
+  <button class="btn" id="bInstaller" type="button" hidden>📲 Installer maintenant</button>
+  <div id="votre" class="alert or" style="margin-top:12px"></div>
+</section>
+<section class="carte">
+  <h2>Choisissez votre appareil</h2>
+  <details id="d-android"><summary>📱 Téléphone Android</summary>
+    <ol><li>Ouvrez ce lien dans <b>Chrome</b>. <span class="pill">Si vous venez de WhatsApp</span> : touchez <b>⋮</b> puis <b>« Ouvrir dans Chrome »</b>.</li><li>Touchez le menu <b>⋮</b> en haut à droite.</li><li>Touchez <b>« Installer l’application »</b> (ou « Ajouter à l’écran d’accueil »).</li><li>Confirmez. L’icône <b>Passeport Sûr</b> apparaît avec vos applications.</li></ol></details>
+  <details id="d-ios"><summary>🍎 iPhone ou iPad</summary>
+    <ol><li>Ouvrez ce lien dans <b>Safari</b> (et non dans WhatsApp). <span class="pill">Si vous venez de WhatsApp</span> : touchez l’icône boussole ou <b>« Ouvrir dans Safari »</b>.</li><li>Touchez <b>Partager</b> (le carré avec une flèche vers le haut).</li><li>Faites défiler et touchez <b>« Sur l’écran d’accueil »</b>.</li><li>Touchez <b>Ajouter</b>. L’icône apparaît sur votre écran d’accueil.</li></ol></details>
+  <details id="d-pc"><summary>💻 Ordinateur (Windows, Mac)</summary>
+    <ol><li>Ouvrez ce lien dans <b>Chrome</b> ou <b>Edge</b>.</li><li>À droite de la barre d’adresse, touchez l’icône d’installation (un écran avec une flèche), ou le menu <b>⋮</b> puis <b>« Installer Passeport Sûr »</b>.</li><li>Confirmez : l’application s’ouvre dans sa propre fenêtre et s’ajoute à votre bureau.</li></ol>
+    <p class="sous" style="margin-top:8px">Avec Firefox ou Safari sur ordinateur, l’installation n’est pas proposée : utilisez simplement l’application dans le navigateur et ajoutez la page à vos favoris.</p></details>
+</section>
+<section class="carte">
+  <h2>Pas envie d’installer ?</h2>
+  <p>C’est <b>facultatif</b> : l’application fonctionne aussi directement dans le navigateur, sans compte pour le demandeur. Une fois ouverte, les pages déjà vues restent disponibles même avec une connexion faible.</p>
+  <a class="btn sec" href="index.html">Ouvrir l’application sans l’installer</a>
+</section>
+<section class="carte">
+  <h2>Envoyer ce lien à quelqu’un</h2>
+  <div id="qr" role="img" aria-label="Code QR du lien d’installation"></div>
+  <button class="btn sec" id="bPartager" type="button" hidden>📤 Partager le lien</button>
+  <button class="btn sec" id="bCopier" type="button">📋 Copier le lien</button>
+  <p id="copie" class="sous" style="text-align:center;margin-top:6px"></p>
+</section>
+</main>
+<footer>Conçu par STAR ENTREPRISE · Brazzaville · Démonstration, données fictives</footer>
+<script src="lib/qrcode.js"></script>
+<script src="installer.js"></script>
+</body>
+</html>

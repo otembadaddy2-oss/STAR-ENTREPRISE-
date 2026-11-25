@@ -225,6 +225,7 @@ function faq() {
 }
 let diffInst = null; window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); diffInst = e; }); window.addEventListener('appinstalled', () => { diffInst = null; });
 const dejaInstalle = () => { try { return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) { return false; } };
+function tailleTexte() { try { const z = parseFloat(localStorage.getItem('sp_zoom_v1') || '1'), n = z >= 1.3 ? 1 : z >= 1.15 ? 1.3 : 1.15; localStorage.setItem('sp_zoom_v1', String(n)); document.documentElement.style.zoom = n === 1 ? '' : String(n); return n; } catch (e) { return 1; } }
 function panneauInstall() {
   fermerPanneaux(); const ua = navigator.userAgent || '', ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1), android = /Android/.test(ua);
   const m = document.createElement('div'); m.id = 'guideAide'; m.className = 'guideCarte'; m.setAttribute('role', 'dialog');
@@ -234,7 +235,7 @@ function panneauInstall() {
   else if (ios) h += '<ol style="margin:0 0 6px 18px"><li>Ouvrez ce lien dans <b>Safari</b>.</li><li>Touchez <b>Partager</b> (le carré avec une flèche vers le haut).</li><li>Choisissez <b>« Sur l’écran d’accueil »</b>, puis <b>Ajouter</b>.</li></ol>';
   else if (android) h += '<ol style="margin:0 0 6px 18px"><li>Ouvrez ce lien dans <b>Chrome</b>.</li><li>Touchez le menu <b>⋮</b> en haut à droite.</li><li>Choisissez <b>« Installer l’application »</b> (ou « Ajouter à l’écran d’accueil »).</li></ol>';
   else h += '<ol style="margin:0 0 6px 18px"><li>Avec <b>Chrome</b> ou <b>Edge</b> : touchez l’icône d’installation à droite de la barre d’adresse (un écran avec une flèche), ou le menu <b>⋮</b> puis <b>« Installer Passeport Sûr »</b>.</li><li>Avec Firefox ou Safari sur ordinateur : l’application fonctionne dans le navigateur ; ajoutez la page à vos favoris.</li></ol>';
-  h += '<p style="font-size:13px;color:#5d6b64;margin-top:8px">L’installation est <b>facultative</b> : l’application fonctionne aussi directement dans le navigateur, sans compte ni téléchargement lourd.</p><div style="display:grid;gap:8px;margin-top:8px"><button type="button" class="sec" id="aInstFerme">Fermer</button></div>';
+  h += '<p style="margin-top:8px"><a href="installer.html" style="color:#062b1e">Voir la page d’installation (à partager par WhatsApp)</a></p><p style="font-size:13px;color:#5d6b64;margin-top:8px">L’installation est <b>facultative</b> : l’application fonctionne aussi directement dans le navigateur, sans compte ni téléchargement lourd.</p><div style="display:grid;gap:8px;margin-top:8px"><button type="button" class="sec" id="aInstFerme">Fermer</button></div>';
   m.innerHTML = h; document.body.appendChild(m);
   const ok = $('#aInstOk'); if (ok) ok.onclick = () => { try { diffInst.prompt(); diffInst.userChoice.finally(() => { diffInst = null; m.remove(); }); } catch (e) { m.remove(); } };
   $('#aInstFerme').onclick = () => m.remove(); $('#aInstFerme').focus({ preventScroll: true });
@@ -244,9 +245,9 @@ function menuAide(btn) {
   if (document.getElementById('guideAide')) { fermerPanneaux(); return; } fermerPanneaux();
   const citoyen = SY() && SY().citoyen && SY().citoyen(); const role = citoyen ? 'demandeur' : profilCourant();
   const m = document.createElement('div'); m.id = 'guideAide'; m.className = 'guideCarte'; m.setAttribute('role', 'menu');
-  m.innerHTML = '<h3>Aide</h3><div style="display:grid;gap:8px"><button type="button" id="aVis" role="menuitem">▶ Visite guidée de mon profil</button>' + (citoyen || sec() ? '' : '<button type="button" class="sec" id="aProf" role="menuitem">👥 Changer de profil / je ne sais pas lequel choisir</button>') + '<button type="button" class="sec" id="aFaq" role="menuitem">❓ Questions fréquentes</button><button type="button" class="sec" id="aInst" role="menuitem">📲 Installer l’application</button>' + (citoyen ? '' : '<button type="button" class="lien" id="aRaz" role="menuitem">↺ Revoir toutes les visites au prochain lancement</button>') + '</div>';
+  m.innerHTML = '<h3>Aide</h3><div style="display:grid;gap:8px"><button type="button" id="aVis" role="menuitem">▶ Visite guidée de mon profil</button>' + (citoyen || sec() ? '' : '<button type="button" class="sec" id="aProf" role="menuitem">👥 Changer de profil / je ne sais pas lequel choisir</button>') + '<button type="button" class="sec" id="aFaq" role="menuitem">❓ Questions fréquentes</button><button type="button" class="sec" id="aInst" role="menuitem">📲 Installer l’application</button><button type="button" class="sec" id="aTexte" role="menuitem">🔠 Changer la taille du texte</button>' + (citoyen ? '' : '<button type="button" class="lien" id="aRaz" role="menuitem">↺ Revoir toutes les visites au prochain lancement</button>') + '</div>';
   document.body.appendChild(m);
-  $('#aVis').onclick = () => { m.remove(); visite(role); }; const p = $('#aProf'); if (p) p.onclick = () => { m.remove(); choixProfil(false); }; $('#aFaq').onclick = () => { m.remove(); faq(); }; $('#aInst').onclick = () => { m.remove(); panneauInstall(); }; const z = $('#aRaz'); if (z) z.onclick = () => { ecrire({}); m.remove(); majCommence(); };
+  $('#aVis').onclick = () => { m.remove(); visite(role); }; const p = $('#aProf'); if (p) p.onclick = () => { m.remove(); choixProfil(false); }; $('#aFaq').onclick = () => { m.remove(); faq(); }; $('#aInst').onclick = () => { m.remove(); panneauInstall(); }; $('#aTexte').onclick = () => { const n = tailleTexte(); $('#aTexte').textContent = '🔠 Taille du texte : ' + (n === 1 ? 'normale' : n === 1.15 ? 'grande' : 'très grande') + ' (toucher pour changer)'; }; const z = $('#aRaz'); if (z) z.onclick = () => { ecrire({}); m.remove(); majCommence(); };
   $('#aVis').focus({ preventScroll: true });
   const k = e => { if (e.key === 'Escape') { m.remove(); document.removeEventListener('keydown', k, true); } }; document.addEventListener('keydown', k, true);
   setTimeout(() => { const f = e => { if (!m.contains(e.target) && e.target !== btn) { m.remove(); document.removeEventListener('pointerdown', f, true); } }; document.addEventListener('pointerdown', f, true); }, 0);
@@ -265,6 +266,9 @@ function majCommence() {
 /* ---------- Mise en route ---------- */
 function brancher() {
   const hd = document.querySelector('.role');
+  /* Installation facile : bouton visible en haut tant que l'application n'est pas installée ; taille du texte réglable (retenue sur l'appareil). */
+  try { const z = parseFloat(localStorage.getItem('sp_zoom_v1') || '1'); if (z > 1 && z <= 1.5) document.documentElement.style.zoom = String(z); } catch (e) { }
+  if (hd && !$('#bInstall') && !dejaInstalle()) { const bi = document.createElement('button'); bi.type = 'button'; bi.id = 'bInstall'; bi.textContent = '📲 Installer'; bi.setAttribute('aria-label', 'Installer l’application sur cet appareil'); (document.querySelector('.hd') || hd).appendChild(bi); bi.onclick = () => panneauInstall(); }
   if (hd && !$('#bAide')) { const b = document.createElement('button'); b.type = 'button'; b.id = 'bAide'; b.textContent = '❓ Aide'; b.setAttribute('aria-haspopup', 'menu'); hd.prepend(b); b.onclick = () => menuAide(b); }
   /* Le dernier profil choisi est retrouvé au rechargement (un caissier qui recharge reste à la caisse). */
   const s = $('#role'); const demandeur = SY() && SY().citoyen && SY().citoyen();
