@@ -99,6 +99,7 @@ function appliquerCompte(c) {
     $('#cm_mdp').onclick = () => { d.remove(); ecranChangement(false); }; $('#cm_out').onclick = () => SY().deconnexionCompte(); };
   document.addEventListener('click', () => { const m = $('#cptMenu'); if (m) m.remove(); });
   if (c.role === 'prefecture') installerVueComptes();
+  if (c.role === 'prefecture' || c.role === 'ministere') { installerVueSecurite(); demarrerVigie(); }
 }
 
 /* ---------- Gestion des comptes (Préfecture) ---------- */
@@ -133,10 +134,55 @@ document.addEventListener('click', async e => {
   if (bas) { try { await api().post({ op: 'comptes-basculer', espace: SY().esp(), login: bas.dataset.bas, actif: bas.dataset.actif === '1' }); chargerComptes(); } catch (er) { alert(er.message); } }
 });
 
+/* ---------- Message volant (refus du serveur, alerte de sécurité) ---------- */
+function toastSec(html, grave) {
+  let d = $('#secToast'); if (!d) { d = document.createElement('div'); d.id = 'secToast'; d.setAttribute('role', 'status'); d.style.cssText = 'position:fixed;left:14px;bottom:14px;z-index:9001;max-width:min(400px,calc(100vw - 28px));color:#fff;border-radius:14px;padding:12px 14px;box-shadow:0 10px 30px #0006;font-size:14.5px;border-left:6px solid #f6c928'; document.body.appendChild(d); }
+  d.style.background = grave ? '#8f1d17' : '#0a4430'; d.innerHTML = html; clearTimeout(toastSec.t); toastSec.t = setTimeout(() => { const x = $('#secToast'); if (x) x.remove(); }, 10000);
+}
+window.addEventListener('sp-refus', e => toastSec('<b>Le serveur a refusé une modification</b><br>' + esc(String(e.detail || '')), true));
+
+/* ---------- Déconnexion automatique après 30 minutes sans activité (poste partagé laissé ouvert) ---------- */
+let derniereAction = Date.now(); ['pointerdown', 'keydown', 'touchstart', 'wheel'].forEach(ev => window.addEventListener(ev, () => { derniereAction = Date.now(); }, { passive: true }));
+setInterval(() => { if (compte && Date.now() - derniereAction > 30 * 60000) SY().deconnexionCompte(); }, 30000);
+
+/* ---------- Journal de sécurité (Préfecture et Ministère) : qui a fait quoi, tentatives de contournement ---------- */
+const LIBELLES = { 'connexion-ok': 'Connexion', 'connexion-echec': 'Connexion refusée', 'connexion-bloquee': 'Compte bloqué (trop d’essais)', 'connexion-bloquee-ip': 'Appareil bloqué (trop d’essais)', 'deconnexion': 'Déconnexion', 'mot-de-passe-change': 'Mot de passe changé', 'mot-de-passe-oublie': 'Mot de passe oublié (demande)', 'mot-de-passe-reinitialise': 'Mot de passe réinitialisé', 'secours-ok': 'Accès retrouvé par code de secours', 'secours-echec': 'Code de secours refusé', 'compte-cree': 'Compte créé', 'compte-reactive': 'Compte réactivé', 'compte-desactive': 'Compte désactivé', 'espace-securise': 'Espace sécurisé', 'espace-efface': 'Espace effacé', 'reglages': 'Réglages modifiés', 'paiement': 'Paiement enregistré', 'refus-droit': 'Action refusée (droits insuffisants)', 'tentative-integrite': 'Tentative de modification interdite', 'tentative-montant': 'Montant non officiel refusé' };
+const lib = a => LIBELLES[a] || a;
+let dernierGrave = 0, vigie = null;
+function installerVueSecurite() {
+  if ($('#v-securite')) return;
+  const nav = $('#onglets') || document.querySelector('nav .in'); if (nav) { const b = document.createElement('button'); b.dataset.v = 'securite'; b.dataset.roles = 'prefecture,ministere'; b.innerHTML = 'Sécurité<span class="pt" id="ptSec" style="display:none"></span>'; const ref = nav.querySelector('[data-v="fraude"]'); if (ref) ref.after(b); else nav.appendChild(b); }
+  const sec = document.createElement('section'); sec.id = 'v-securite'; sec.className = 'vue';
+  sec.innerHTML = '<div class="baniere b-reglages"><div class="txt"><h2>Journal de sécurité</h2><p class="sous">Qui s’est connecté, qui a payé, qui a modifié les réglages — et toute tentative de contournement du système. Le journal ne peut qu’être complété : personne ne peut le modifier ni l’effacer sans que cela se voie.</p></div></div>' +
+    '<div class="carte"><div class="kpis" id="sec_kpis"></div><div class="ligne" style="margin-top:10px"><button class="btn vert" id="sec_verif">🔒 Vérifier l’intégrité du journal</button><label style="text-transform:none;letter-spacing:0;font-size:14px;display:flex;gap:6px;align-items:center;margin:0 0 0 auto"><input type="checkbox" id="sec_graves" style="width:auto;min-height:0"> Alertes graves seulement</label></div><div id="sec_etat"></div></div>' +
+    '<div class="carte"><div class="tablewrap"><table><thead><tr><th>Date et heure</th><th>Qui</th><th>Événement</th><th>Cible</th><th>Détail</th></tr></thead><tbody id="sec_tb"></tbody></table></div><p class="sous" style="margin-top:8px;font-size:13px">Les 200 derniers événements. Les adresses réseau ne sont pas affichées ici.</p></div>';
+  const ref = $('#v-reglages') || $('#v-fraude'); (ref ? ref.parentNode : document.body).appendChild(sec);
+  $('#sec_graves').onchange = chargerJournal;
+  $('#sec_verif').onclick = async () => { const e = $('#sec_etat'); e.innerHTML = '<div class="alert bleu">Vérification en cours…</div>'; try { const r = await api().get('op=journal-verifier&espace=' + SY().esp()); e.innerHTML = r.ok ? '<div class="alert vert">✔ <b>Journal intact</b> : ' + r.lignes + ' lignes, chaînées les unes aux autres. Aucune ligne n’a été modifiée, supprimée ou ajoutée après coup.</div>' : '<div class="alert rouge">✖ <b>Le journal a été falsifié</b> : la chaîne est rompue à la ligne ' + r.rompuA + ' (' + esc(r.raison) + '). Prévenez immédiatement le responsable de la sécurité.</div>'; } catch (er) { e.innerHTML = '<div class="alert rouge">' + esc(er.message) + '</div>'; } };
+}
+async function chargerJournal() {
+  if (!$('#sec_tb')) return;
+  try {
+    const g = $('#sec_graves') && $('#sec_graves').checked, r = await api().get('op=journal&espace=' + SY().esp() + '&limite=200' + (g ? '&graves=1' : ''));
+    $('#sec_kpis').innerHTML = '<div class="kpi"><b>' + r.total + '</b><span>Événements notés</span></div><div class="kpi r"><b>' + r.graves + '</b><span>Événements graves</span></div>';
+    $('#sec_tb').innerHTML = r.evenements.map(x => '<tr' + (x.grave ? ' style="background:var(--rouge2)"' : '') + '><td>' + A.fmtDH(x.at) + '</td><td>' + esc(x.login || '—') + (x.role ? ' <small style="color:var(--gris)">(' + esc(NOM_ROLE[x.role] || x.role) + ')</small>' : '') + '</td><td>' + (x.grave ? '🚨 ' : '') + '<b>' + esc(lib(x.action)) + '</b></td><td>' + esc(x.cible) + '</td><td>' + esc(x.detail) + '</td></tr>').join('') || '<tr><td colspan="5" style="color:var(--gris)">Aucun événement.</td></tr>';
+  } catch (e) { $('#sec_tb').innerHTML = '<tr><td colspan="5">' + esc(e.message) + '</td></tr>'; }
+}
+// Veille : toutes les 20 s, un message s'affiche dès qu'un nouvel événement grave est noté (tentative de contournement, montant non officiel, compte bloqué…).
+async function veiller() {
+  try {
+    const r = await api().get('op=journal&espace=' + SY().esp() + '&limite=20&graves=1'); const max = r.evenements.reduce((m, x) => Math.max(m, x.n), 0);
+    const pt = $('#ptSec'); if (pt) { pt.textContent = r.graves; pt.style.display = r.graves ? '' : 'none'; }
+    if (dernierGrave && max > dernierGrave) { const nouveaux = r.evenements.filter(x => x.n > dernierGrave); const x = nouveaux[0]; toastSec('<b>🛡 Alerte de sécurité</b><br>' + esc(lib(x.action)) + (x.login ? ' — ' + esc(x.login) : '') + (x.cible ? ' · ' + esc(x.cible) : '') + (nouveaux.length > 1 ? '<br><small>+ ' + (nouveaux.length - 1) + ' autre(s)</small>' : ''), true); if ($('#v-securite') && $('#v-securite').classList.contains('on')) chargerJournal(); }
+    dernierGrave = Math.max(dernierGrave, max);
+  } catch (e) { }
+}
+function demarrerVigie() { if (vigie) return; veiller(); vigie = setInterval(() => { if (!document.hidden) veiller(); }, 20000); }
+
 window.addEventListener('sp-connexion-requise', () => { compte = null; ecranConnexion(); });
 window.addEventListener('sp-changer-mdp', () => { if (!$('#ch_f')) ecranChangement(true); });
 window.addEventListener('sp-session', e => { appliquerCompte(e.detail); });
 if (SY().attenteConnexion()) ecranConnexion();
 if (SY().compte()) appliquerCompte(SY().compte());
-window.__spComptes = { render: v => { if (v === 'comptes') chargerComptes(); }, compte: () => compte };
+window.__spComptes = { render: v => { if (v === 'comptes') chargerComptes(); if (v === 'securite') chargerJournal(); }, compte: () => compte };
 })();

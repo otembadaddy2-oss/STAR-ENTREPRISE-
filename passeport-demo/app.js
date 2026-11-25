@@ -126,7 +126,7 @@ const jourSite = dec => new Date(Date.now() + 3600000 + (dec || 0) * DAY).toISOS
 const creneau = n => { const m = 8 * 60 + Math.floor((n - 1) / 10) * 30; return pad(Math.floor(m / 60)) + ':' + pad(m % 60); };
 const fmtLong = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }), cacheLong = {};
 const rdvLong = iso => cacheLong[iso] || (cacheLong[iso] = fmtLong.format(new Date(iso + 'T12:00:00Z')));
-const rdvHtml = d => d.ticket ? '<div class="alert vert">' + (d.rdv ? '📅 <b>Rendez-vous d’enrôlement : ' + rdvLong(d.rdv.date) + ' à partir de ' + d.rdv.heure + '</b><br>' + esc(d.rdv.lieu) + '<br>' : '') + 'Votre N° d’appel : <b style="font-size:20px">' + pad(d.ticket, 3) + '</b></div>' : '';
+const rdvHtml = d => d.ticket ? '<div class="alert vert">' + (d.rdv ? '📅 <b>Rendez-vous d’enrôlement : ' + rdvLong(d.rdv.date) + ' à partir de ' + d.rdv.heure + '</b><br>' + esc(d.rdv.lieu) + '<br>' : '') + (d.paiement && d.paiement.montant ? '💰 <b>Montant payé : ' + Number(d.paiement.montant).toLocaleString('fr-FR') + ' FCFA</b>' + (d.paiement.mode ? ' (' + esc(d.paiement.mode) + ')' : '') + (d.paiement.recu ? ' · reçu ' + esc(d.paiement.recu) : '') + '<br>' : '') + 'Votre N° d’appel : <b style="font-size:20px">' + pad(d.ticket, 3) + '</b></div>' : '';
 function deriver(all) {
   const today = jourSite(0), nowMs = Date.now();
   all.forEach(d => { delete d.paiement; delete d.appel; delete d.ticket; delete d.rdv;
@@ -286,7 +286,7 @@ function montrerRecu(d) {
     '<div style="font-size:13.5px">Étape suivante : <b>paiement à la caisse de la Préfecture</b>. La caisse scanne ce code QR.</div></div>' +
     (window.__spSuite ? window.__spSuite.accuse(d) : '') +
     (f.length ? '<div class="alert orange noprint">Dossier signalé « À vérifier » : ' + f.length + ' alerte(s) transmise(s) à la Préfecture.</div>' : '') +
-    '<div class="ligne noprint" style="margin-top:12px"><button class="btn or" onclick="window.print()">🖨 Imprimer l’accusé</button><button class="btn clair" id="bFerme">Fermer</button><button class="btn clair" id="bVoir">Voir le dossier</button></div>';
+    '<div class="ligne noprint" style="margin-top:12px"><button class="btn or" data-imprimer="1">🖨 Imprimer l’accusé</button><button class="btn clair" id="bFerme">Fermer</button><button class="btn clair" id="bVoir">Voir le dossier</button></div>';
   $('#tiroir').classList.add('on'); $('#bFerme').onclick = fermer; $('#bVoir').onclick = () => detail(d.id);
   if (window.__spSuite) window.__spSuite.lierAccuse(d);
 }
@@ -407,7 +407,7 @@ function detail(id) {
     (d.ancien ? '<dt>Ancien passeport</dt><dd>n° ' + esc(d.ancien.numero) + ' · expiré le ' + fmtD(d.ancien.expiration) + ' · ' + (d.ancienRestitue ? '<b style="color:var(--vert)">restitué / annulé</b>' : '<b style="color:var(--rouge)">pas encore restitué</b>') + '</dd>' : '') +
     '<dt>Secteur · agent</dt><dd>' + esc(d.lieu) + ' · ' + esc(d.agent || '—') + '</dd><dt>Déposé le</dt><dd>' + fmtDH(d.createdAt) + '</dd></dl>' +
     (window.__spSuite ? window.__spSuite.piecesHtml(d) : '') + '<h3 style="font-size:16px">Historique</h3><div class="histo">' + d.history.map(h => '<div><b>' + SN[h.s] + '</b> — ' + fmtDH(h.at) + '<br><small>' + esc(h.by) + (h.note ? ' · ' + esc(h.note) : '') + '</small></div>').join('') + '</div>' +
-    '<div class="ligne noprint" style="margin-top:14px">' + act + '<button class="btn clair" onclick="window.print()">🖨 Imprimer</button><button class="btn clair" id="bFerme">Fermer</button></div>';
+    '<div class="ligne noprint" style="margin-top:14px">' + act + '<button class="btn clair" data-imprimer="1">🖨 Imprimer</button><button class="btn clair" id="bFerme">Fermer</button></div>';
   $('#tiroir').classList.add('on'); $('#bFerme').onclick = fermer;
   const maj = (fn) => { fn(); sauver(); detail(id); rafraichir(); };
   const n = $('#bNext'); if (n) n.onclick = () => maj(() => { const s = STATUTS[i + 1][0]; d.status = s; d.history.push({ s, at: NOW().toISOString(), by: ROLES[role], note: '' }); });
@@ -505,6 +505,7 @@ function rafraichir(origine) {
   majPastille(); if (window.__spAlertes) window.__spAlertes.verifier(); const v = ($('#onglets .on') || {}).dataset; if (!v) return;
   if (v.v === 'accueil') accueil(); if (v.v === 'dossiers') liste(); if (v.v === 'tableau') tableau(); if (v.v === 'fraude') fraude(); if (window.__spSuite) window.__spSuite.render(v.v, origine);
 }
+document.addEventListener('click', e => { if (e.target.closest('[data-imprimer]')) window.print(); });   // pas de gestionnaire en ligne dans le HTML : exigé par la politique de sécurité du navigateur
 function init() {
   charger(); remplirLieux(); majType(); majPastille(); accueil();
   $('#onglets').addEventListener('click', e => { const b = e.target.closest('button'); if (b) aller(b.dataset.v); });

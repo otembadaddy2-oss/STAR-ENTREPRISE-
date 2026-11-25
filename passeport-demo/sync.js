@@ -89,7 +89,8 @@ async function pousser() {
     const lot = sales.slice(i, i + 20);
     try {
       const r = await post({ op: 'ecrire', espace: cx.code, dossiers: lot.map(d => ({ id: d.id, baseRev: d.__rev || 0, data: JSON.parse(strip(d)) })) });
-      r.acceptes.forEach(a => { const d = A.DB.find(x => x.id === a.id); if (d) { d.__rev = a.rev; snap.set(a.id, strip(d)); } });
+      r.acceptes.forEach(a => { const i3 = A.DB.findIndex(x => x.id === a.id); if (i3 < 0) return; if (a.data) { const f = JSON.parse(JSON.stringify(a.data)); f.__rev = a.rev; A.DB[i3] = f; snap.set(a.id, strip(f)); } else { const d = A.DB[i3]; d.__rev = a.rev; snap.set(a.id, strip(d)); } });
+      if (r.rejets && r.rejets.length) { r.rejets.forEach(x => { const k = A.DB.findIndex(d => d.id === x.id && !d.__rev); if (k >= 0) A.DB.splice(k, 1); snap.delete(x.id); }); A.recalculer(); window.dispatchEvent(new CustomEvent('sp-refus', { detail: r.rejets.map(x => x.raison).join(' · ') })); }
       if (r.conflits.length) { r.conflits.forEach(c => { const i2 = A.DB.findIndex(x => x.id === c.id); const f = i2 < 0 ? c.data : fusionner(A.DB[i2], c.data); f.__rev = c.rev; if (i2 < 0) A.DB.push(f); else A.DB[i2] = f; snap.set(c.id, strip(c.data) === strip(f) ? strip(f) : snap.get(c.id) || ''); });
         A.recalculer(); apresSauver(); }
       majChip(true);

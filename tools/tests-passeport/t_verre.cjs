@@ -4,6 +4,7 @@ const SP = __dirname + '/';
   const b = await chromium.launch(); const p = await (await b.newContext({ viewport: { width: 1280, height: 860 } })).newPage(); const errs = [];
   p.on('pageerror', e => errs.push(e.message));
   await p.goto('http://localhost:8766/passeport-demo/index.html'); await p.waitForTimeout(1500);
+  await p.selectOption('#role', 'prefecture'); await p.waitForTimeout(300);
   await p.click('nav button[data-v="tableau"]'); await p.waitForTimeout(1200);
   await p.screenshot({ path: SP + 'v_repos.png' });
   await p.click('nav button[data-v="dossiers"]'); await p.waitForTimeout(130);
@@ -24,6 +25,7 @@ const SP = __dirname + '/';
   console.log('mouvement réduit :', JSON.stringify(await q.evaluate(() => ({ sortie: document.querySelectorAll('.vue.sortie').length, verre: !!document.getElementById('verre') && getComputedStyle(document.getElementById('verre')).display }))));
   // téléphone
   const m = await (await b.newContext({ viewport: { width: 390, height: 800 }, deviceScaleFactor: 2 })).newPage(); await m.goto('http://localhost:8766/passeport-demo/index.html'); await m.waitForTimeout(1200);
+  await m.selectOption('#role', 'prefecture'); await m.waitForTimeout(300);
   await m.click('nav button[data-v="tableau"]'); await m.waitForTimeout(1300); await m.screenshot({ path: SP + 'v_tel.png' });
   console.log('scrollW tel', await m.evaluate(() => document.documentElement.scrollWidth), 'ERREURS', JSON.stringify(errs)); await b.close();
 })();
