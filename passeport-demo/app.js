@@ -385,6 +385,10 @@ function init() {
   $('#bXlsx').onclick = excel; $('#bXlsx2').onclick = excel; $('#bSuivre').onclick = suivre; $('#bExSuivi').onclick = exSuivi;
   document.addEventListener('click', e => { const tr = e.target.closest('tr.cl'); if (tr) detail(tr.dataset.id); if (e.target === $('#tiroir')) fermer(); });
   $('#reinit').onclick = () => { if (confirm('Remettre les données fictives de départ ?')) { try { localStorage.removeItem(KEY); } catch (e) { } charger(); rafraichir(); alert('Démonstration remise à zéro.'); } };
+  (function () { const c = $('#creditStar'), pn = $('#infos'); let n = 0, tm = null, lp = null;
+    const bascule = () => { pn.hidden = !pn.hidden; if (!pn.hidden) pn.scrollIntoView({ behavior: 'smooth', block: 'center' }); };
+    c.addEventListener('click', () => { n++; clearTimeout(tm); tm = setTimeout(() => n = 0, 900); if (n >= 3) { n = 0; bascule(); } });
+    c.addEventListener('touchstart', () => { lp = setTimeout(bascule, 800); }, { passive: true }); ['touchend', 'touchmove', 'touchcancel'].forEach(e => c.addEventListener(e, () => clearTimeout(lp), { passive: true })); })();
   appliquerRole();
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => { });
   window.__sp = { parseMRZ, buildTD3, buildTD1, computeFlags, get DB() { return DB; }, get FL() { return FL; }, code, KN, SN, TN };

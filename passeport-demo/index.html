@@ -102,14 +102,14 @@ textarea.mrz{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;
 .act .ph::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,#062b1e66)}
 .act .tx{padding:12px 16px 16px}.act .tx b{margin-top:0}
 .act .ph.p1{background-image:url(img/passeport-visas.webp)}.act .ph.p2{background-image:url(img/brazzaville-ville.webp)}.act .ph.p3{background-image:url(img/empreinte.webp)}.act .ph.p4{background-image:url(img/aeroport.webp)}
-.signature{margin:34px auto 0;max-width:760px;text-align:center;font-size:11.5px;color:var(--gris)}
-.signature .credit b{color:var(--foret)}
-.signature .credit{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
-.signature .credit img{width:30px;height:30px;border-radius:7px;opacity:.9}
-.signature details{margin:10px auto 0;display:block;text-align:center;max-width:100%}
-.signature summary{cursor:pointer;list-style:none;display:inline-block;padding:4px 12px;border:1px solid var(--trait);border-radius:999px;color:var(--gris);background:#fff;font-size:11.5px}
-.signature summary::-webkit-details-marker{display:none}
-.sig-panel{text-align:left;margin-top:10px;background:linear-gradient(135deg,#041030,#0a1d52);color:#dde4f5;border-radius:18px;padding:18px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:13px;line-height:1.55;box-shadow:var(--ombre)}
+.signature{margin:34px auto 0;max-width:760px;text-align:center;font-size:10px;color:#9aa59f}
+.signature .credit b{color:#6f7c75;font-weight:600}
+.signature .credit{display:block;cursor:default;user-select:none;-webkit-tap-highlight-color:transparent}
+
+
+
+
+.sig-panel[hidden]{display:none}.sig-panel{text-align:left;margin-top:12px;background:linear-gradient(135deg,#041030,#0a1d52);color:#dde4f5;border-radius:18px;padding:18px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:13px;line-height:1.55;box-shadow:var(--ombre)}
 .sig-panel img.lg{width:132px;height:auto;border-radius:12px;flex:none}
 .sig-panel b{color:#fff}.sig-panel .slogan{font-family:PF,serif;font-style:italic;font-weight:700;color:#f3d58a;font-size:15px;margin:6px 0}
 .sig-panel small{display:block;color:#9fb0d8;margin-top:8px;font-size:11px}
@@ -342,17 +342,15 @@ tr.cl{cursor:pointer}tr.cl:hover td{background:#f3f9f5}
   <p class="pied" style="margin-top:6px"><span id="reinit" style="cursor:pointer;text-decoration:underline">Remettre la démonstration à zéro</span></p>
 </section>
 <footer class="signature" id="signature">
-  <div class="credit"><img src="img/star-entreprise.webp" alt="" width="30" height="30"><span><b>STAR ENTREPRISE</b> — Tous droits réservés.</span></div>
-  <details id="infos"><summary>ⓘ Informations</summary>
-    <div class="sig-panel">
-      <img class="lg" src="img/star-entreprise.webp" alt="Logo officiel STAR ENTREPRISE">
-      <div><b>Application conçue et développée par STAR ENTREPRISE</b> (équipe STAR CRÉAT), Brazzaville, République du Congo.
-        <div class="slogan">Une seule entreprise, toutes les solutions pour votre vie.</div>
-        www.starentreprise.com · contact@starentreprise.com · +242 06 656 50 50
-        <small>Version de démonstration 1.0 · logo « Passeport Sûr » et conception : STAR ENTREPRISE · toutes les données affichées sont fictives.<br>
-        Photos libres de droits (licence Unsplash) : Valdhy Mbemba (Brazzaville), Global Residence Index (passeport), George Prentzas (empreinte), Jakub Żerdzicki (aéroport).</small></div>
-    </div>
-  </details>
+  <div class="credit" id="creditStar"><b>STAR ENTREPRISE</b> — Tous droits réservés.</div>
+  <div class="sig-panel" id="infos" hidden>
+    <img class="lg" src="img/star-entreprise.webp" alt="Logo officiel STAR ENTREPRISE">
+    <div><b>Application conçue et développée par STAR ENTREPRISE</b> (équipe STAR CRÉAT), Brazzaville, République du Congo.
+      <div class="slogan">Une seule entreprise, toutes les solutions pour votre vie.</div>
+      www.starentreprise.com · contact@starentreprise.com · +242 06 656 50 50
+      <small>Version de démonstration 1.0 · logo « Passeport Sûr » et conception : STAR ENTREPRISE · toutes les données affichées sont fictives.<br>
+      Photos libres de droits (licence Unsplash) : Valdhy Mbemba (Brazzaville), Global Residence Index (passeport), George Prentzas (empreinte), Jakub Żerdzicki (aéroport).</small></div>
+  </div>
 </footer>
 </main>
 
