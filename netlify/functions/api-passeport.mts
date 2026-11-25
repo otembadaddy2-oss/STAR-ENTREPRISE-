@@ -94,9 +94,11 @@ async function traiter(req: Request, _context: Context): Promise<Response> {
 }
 
 // Toute erreur imprévue : réponse neutre pour l'utilisateur (aucun détail technique), détail seulement dans les journaux du serveur.
+// Netlify n'applique pas le fichier _headers aux réponses des fonctions : le verrouillage des réponses (aucun contenu actif, jamais mises en cache, jamais intégrables dans une autre page) est posé ici.
+const verrouiller = (r: Response) => { const h = new Headers(r.headers); h.set("content-security-policy", "default-src 'none'; frame-ancestors 'none'"); h.set("cache-control", "no-store"); h.set("x-content-type-options", "nosniff"); return new Response(r.body, { status: r.status, statusText: r.statusText, headers: h }); };
 export default async (req: Request, context: Context) => {
-  try { return await traiter(req, context); }
-  catch (e: any) { console.error("passeport : erreur imprévue", String(e?.stack || e).slice(0, 900)); return json({ error: "Erreur du serveur. Réessayez dans un instant." }, 500); }
+  try { return verrouiller(await traiter(req, context)); }
+  catch (e: any) { console.error("passeport : erreur imprévue", String(e?.stack || e).slice(0, 900)); return verrouiller(json({ error: "Erreur du serveur. Réessayez dans un instant." }, 500)); }
 };
 
 export const config: Config = { path: "/api/passeport" };
