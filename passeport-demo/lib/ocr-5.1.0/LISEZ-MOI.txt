@@ -1,0 +1,1 @@
+Lecture automatique des pièces d'identité : Tesseract.js 5.1.0, tesseract.js-core 5.1.0 et données de langue « eng » (best_int), tous sous licence Apache 2.0, hébergés ici pour fonctionner sans site externe. Les images lues restent dans l'appareil.

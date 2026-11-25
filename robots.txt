@@ -1,3 +1,4 @@
 User-agent: *
 Disallow: /docs/
 Disallow: /so-membres/setup.html
+Disallow: /passeport-demo/

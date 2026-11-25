@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="author" content="STAR ENTREPRISE">
+<title>Salle d'attente — Passeport Sûr</title>
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<style>
+@font-face{font-family:ID;font-weight:300;font-display:swap;src:url(polices/inter-display-300.woff2) format("woff2")}
+@font-face{font-family:ID;font-weight:600;src:url(polices/inter-display-600.woff2) format("woff2")}
+@font-face{font-family:ID;font-weight:800;src:url(polices/inter-display-800.woff2) format("woff2")}
+@font-face{font-family:PF;font-weight:800;src:url(polices/playfair-display-latin-800-normal.woff2) format("woff2")}
+:root{--foret:#041f15;--foret2:#0a4430;--vert:#00a24a;--jaune:#f6c928;--rouge:#e23b30;--ivoire:#f6f3ea}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:radial-gradient(120vmax 80vmax at 80% -10%,#0f6a45 0,transparent 60%),linear-gradient(160deg,var(--foret),#06281c);color:#fff;font-family:ID,system-ui,sans-serif;font-weight:300;display:flex;flex-direction:column}
+header{display:flex;align-items:center;gap:2vmin;padding:2.2vmin 3vmin;position:relative}
+header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:.8vmin;background:linear-gradient(90deg,var(--vert) 0 33.3%,var(--jaune) 33.3% 66.6%,var(--rouge) 66.6%)}
+header img{height:8vmin}
+header h1{font-family:PF,serif;font-weight:800;font-size:4vmin;line-height:1.05}
+header h1 small{display:block;font-family:ID,sans-serif;font-weight:300;font-size:1.9vmin;letter-spacing:.16em;color:#f9e08a;text-transform:uppercase;margin-top:.6vmin}
+#heure{margin-left:auto;font-weight:800;font-size:5vmin;font-variant-numeric:tabular-nums}
+main{flex:1;display:grid;grid-template-columns:1.45fr 1fr;gap:2.4vmin;padding:2.6vmin 3vmin;min-height:0}
+.appel{background:linear-gradient(145deg,#0b3a2a,#06281c);border:.4vmin solid #1b6b4a;border-radius:3vmin;padding:3vmin;display:flex;flex-direction:column;justify-content:center;text-align:center;position:relative;overflow:hidden}
+.appel .lib{letter-spacing:.3em;font-size:2.2vmin;color:#9fd8b9;text-transform:uppercase}
+.appel .num{font-family:PF,serif;font-weight:800;font-size:25vmin;line-height:1;color:var(--jaune);margin:1vmin 0;font-variant-numeric:tabular-nums}
+.appel .nom{font-weight:800;font-size:6vmin;line-height:1.1}
+.appel .porte{margin:2.4vmin auto 0;background:var(--jaune);color:#2a1d00;font-weight:800;font-size:6.5vmin;border-radius:2vmin;padding:1vmin 4vmin;display:inline-block}
+.appel.nouveau{animation:flash 1s ease 6}
+@keyframes flash{0%,100%{box-shadow:0 0 0 0 #f6c92800}50%{box-shadow:0 0 0 2vmin #f6c92866,0 0 8vmin #f6c928aa}}
+@media(prefers-reduced-motion:reduce){.appel.nouveau{animation:none}}
+.col{display:flex;flex-direction:column;gap:2.4vmin;min-height:0}
+.bloc{background:#ffffff0d;border:.2vmin solid #ffffff22;border-radius:2.4vmin;padding:2vmin 2.4vmin;min-height:0}
+.bloc h2{font-size:2vmin;letter-spacing:.22em;text-transform:uppercase;color:#9fd8b9;font-weight:600;margin-bottom:1.2vmin}
+.l{display:flex;align-items:center;gap:2vmin;padding:.9vmin 0;border-top:.15vmin solid #ffffff1c;font-size:3vmin}
+.l:first-of-type{border-top:0}
+.l b{font-family:PF,serif;font-weight:800;color:var(--jaune);min-width:11vmin;font-size:4vmin;font-variant-numeric:tabular-nums}
+.l span{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.l em{font-style:normal;font-weight:800;background:#ffffff1f;border-radius:1vmin;padding:.2vmin 1.4vmin}
+.portes{display:grid;grid-template-columns:repeat(auto-fill,minmax(19vmin,1fr));gap:1.4vmin}
+.portes .p{background:#ffffff10;border:.2vmin solid #ffffff22;border-radius:1.6vmin;padding:1.2vmin 1.4vmin;text-align:center;min-width:0}
+.portes .p span{display:block;font-size:1.7vmin;letter-spacing:.14em;color:#9fd8b9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.portes .p b{display:block;font-family:PF,serif;font-weight:800;font-size:5.2vmin;color:var(--jaune);line-height:1.15;font-variant-numeric:tabular-nums}
+.portes .p em{display:block;font-style:normal;font-size:1.7vmin;color:#cfe5d9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:2.2vmin}
+.portes .p.on{background:#f6c9281f;border-color:var(--jaune)}
+.portes .p.libre b{color:#ffffff55}
+.chips{display:flex;flex-wrap:wrap;gap:1.2vmin}
+.chips i{font-style:normal;font-weight:800;font-size:3.4vmin;border:.25vmin solid #ffffff44;border-radius:1.4vmin;padding:.6vmin 2vmin;font-variant-numeric:tabular-nums}
+.chips i:first-child{border-color:var(--jaune);color:var(--jaune)}
+footer{padding:1.6vmin 3vmin 2vmin;font-size:2.4vmin;color:#cfe5d9;display:flex;gap:3vmin;align-items:center}
+footer b{color:var(--jaune)}
+#son{position:fixed;right:2vmin;bottom:2vmin;z-index:5;background:var(--jaune);color:#2a1d00;border:0;border-radius:1.6vmin;padding:1.2vmin 2.4vmin;font:600 2.4vmin ID,sans-serif;cursor:pointer}
+body.apercu #son,body.apercu footer{display:none}
+.demarrage{position:fixed;inset:0;z-index:20;background:radial-gradient(120vmax 80vmax at 80% -10%,#0f6a45 0,transparent 60%),linear-gradient(160deg,#041f15,#06281c);display:flex;align-items:center;justify-content:center;padding:3vmin;overflow:auto}
+.demarrage .boite{background:#ffffff10;border:.2vmin solid #ffffff2a;border-radius:3vmin;padding:4vmin;max-width:min(620px,94vw);width:100%;text-align:center}
+.demarrage img{height:12vmin;max-height:90px}
+.demarrage h2{font-family:PF,serif;font-weight:800;font-size:max(26px,4vmin);margin:1.4vmin 0 .8vmin}
+.demarrage p{font-size:max(15px,2vmin);color:#cfe5d9;margin-bottom:2vmin;line-height:1.4}
+.demarrage label{display:block;text-align:left;font-size:max(13px,1.7vmin);letter-spacing:.14em;text-transform:uppercase;color:#9fd8b9;margin:1.4vmin 0 .6vmin}
+.demarrage input{width:100%;font:600 max(18px,2.6vmin) ID,sans-serif;padding:1.4vmin 2vmin;border-radius:1.4vmin;border:.2vmin solid #ffffff44;background:#00000040;color:#fff;text-transform:uppercase;letter-spacing:.12em}
+.demarrage input#nomEcran{text-transform:none;letter-spacing:0}
+.demarrage button{margin-top:2.4vmin;width:100%;font:800 max(20px,3vmin) ID,sans-serif;padding:1.6vmin;border:0;border-radius:2vmin;background:var(--jaune);color:#2a1d00;cursor:pointer}
+.demarrage button.sec{background:transparent;color:#cfe5d9;border:.2vmin solid #ffffff44;font-weight:600;font-size:max(15px,2vmin);margin-top:1.2vmin}
+.demarrage .err{color:#ffb3ad;margin-top:1.4vmin;min-height:2.4vmin;font-size:max(14px,1.9vmin)}
+#etat{position:fixed;right:2vmin;bottom:9vmin;z-index:5;font-size:2vmin;padding:.6vmin 1.6vmin;border-radius:1.2vmin;background:#00000066;color:#cfe5d9}
+#etat.ko{background:#e23b30;color:#fff;font-weight:800}
+body.apercu #etat{display:none}
+.suite{margin-top:1.6vmin;font-size:2.2vmin;color:#f9e08a;min-height:2.8vmin;letter-spacing:.06em}
+.appel,.bloc{-webkit-backdrop-filter:blur(2.4vmin) saturate(1.4);backdrop-filter:blur(2.4vmin) saturate(1.4);box-shadow:inset 0 .15vmin 0 #ffffff33,0 1.2vmin 4vmin #00000040}
+.appel.nouveau .num,.appel.nouveau .nom,.appel.nouveau .porte{animation:glisse .8s cubic-bezier(.16,1,.3,1) both}
+.appel.nouveau .nom{animation-delay:.08s}.appel.nouveau .porte{animation-delay:.16s}
+@keyframes glisse{from{opacity:0;transform:translateY(5vmin) scale(.95);filter:blur(1.4vmin)}to{opacity:1;transform:none;filter:blur(0)}}
+@media(prefers-reduced-motion:reduce){.appel.nouveau .num,.appel.nouveau .nom,.appel.nouveau .porte{animation:none}}
+.vide{color:#9fd8b9;font-size:3vmin}
+@media(max-width:700px) and (orientation:portrait){main{grid-template-columns:1fr;overflow:auto}}
+</style>
+</head>
+<body>
+<header><img src="logo.svg" alt=""><h1>Salle d'attente<small>Préfecture de Brazzaville · démonstration</small></h1><div id="heure">--:--</div></header>
+<main>
+  <section class="appel" id="appel"><div class="lib">Appel en cours</div><div class="num" id="num">---</div><div class="nom" id="nom">En attente du prochain appel</div><div><span class="porte" id="porte" style="display:none"></span></div><div class="suite" id="suite"></div></section>
+  <div class="col">
+    <div class="bloc"><h2>Les portes</h2><div class="portes" id="portes"></div></div>
+    <div class="bloc"><h2>Prochains numéros</h2><div class="chips" id="prochains"></div></div>
+  </div>
+</main>
+<footer><span>Quand votre numéro s'affiche avec votre nom, <b>levez-vous</b> et allez à la <b>porte indiquée</b>, avec votre reçu de paiement.</span></footer>
+<div class="demarrage" id="demarrage"><div class="boite"><img src="logo.svg" alt=""><h2>Écran de la salle d'attente</h2><p>Entrez le code de l'espace (donné par la Préfecture), donnez un nom à cet écran, puis touchez <b>Démarrer</b>. Les numéros, les noms et les portes s'afficheront alors en direct.</p>
+<label for="codeEsp">Code de l'espace</label><input id="codeEsp" maxlength="9" autocomplete="off" spellcheck="false" placeholder="8 CARACTÈRES">
+<label for="nomEcran">Nom de cet écran</label><input id="nomEcran" maxlength="30" autocomplete="off" placeholder="ex. Salle d'attente 1" value="Écran de la salle">
+<div class="err" id="err"></div><button id="bDemarrer">▶ Démarrer</button><button class="sec" id="bLocal">Mode local (cet appareil seulement)</button></div></div>
+<div id="etat" style="display:none"></div>
+<button id="son" style="display:none">🔊 Activer le son et la voix</button>
+<script src="ecran.js"></script>
+</body>
+</html>

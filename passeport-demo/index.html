@@ -1,0 +1,713 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="author" content="STAR ENTREPRISE">
+<meta name="generator" content="STAR ENTREPRISE · STAR CRÉAT">
+<meta name="theme-color" content="#062b1e">
+<title>Passeport Sûr — Suivi et contrôle des demandes</title>
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Passeport Sûr">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+@font-face{font-family:ID;font-weight:300;font-display:swap;src:url(polices/inter-display-300.woff2) format("woff2")}
+@font-face{font-family:ID;font-weight:600;font-display:swap;src:url(polices/inter-display-600.woff2) format("woff2")}
+@font-face{font-family:ID;font-weight:800;font-display:swap;src:url(polices/inter-display-800.woff2) format("woff2")}
+@font-face{font-family:PF;font-weight:800;font-display:swap;src:url(polices/playfair-display-latin-800-normal.woff2) format("woff2")}
+@font-face{font-family:PF;font-weight:700;font-style:italic;src:url(polices/playfair-display-latin-700-italic.woff2) format("woff2")}
+:root{--foret:#062b1e;--foret2:#0a4430;--vert:#009543;--vert2:#e3f4e9;--jaune:#f6c928;--jaune2:#fff6cf;--rouge:#d62f26;--rouge2:#fdeceb;--ivoire:#f6f3ea;--carte:#fff;--encre:#12201a;--gris:#5d6b64;--trait:#e0dac6;--ombre:0 6px 24px #062b1e14}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{overflow-x:clip}
+body{font-family:ID,system-ui,-apple-system,"Segoe UI",sans-serif;font-weight:300;background:var(--ivoire);color:var(--encre);font-size:15.5px;line-height:1.5;-webkit-text-size-adjust:100%}
+b,strong,dt,label,th,button,.badge{font-weight:600}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{font-family:PF,Georgia,serif;font-weight:800;color:var(--foret);letter-spacing:-.01em;line-height:1.15}
+header{background:radial-gradient(900px 260px at 85% -40%,#0f6a45 0,transparent 70%),linear-gradient(135deg,var(--foret),var(--foret2));color:#fff;padding:12px 16px 14px;position:relative}
+header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;background:linear-gradient(90deg,var(--vert) 0 33.3%,var(--jaune) 33.3% 66.6%,var(--rouge) 66.6%)}
+.hd{max-width:1180px;margin:auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hd img{width:46px;height:52px;filter:drop-shadow(0 3px 8px #0006)}
+.hd .tt{font-family:PF,serif;font-weight:800;font-size:21px;line-height:1;letter-spacing:.01em}
+.hd .tt small{display:block;font-family:ID,sans-serif;font-weight:300;font-size:11px;letter-spacing:.14em;color:#f9e08a;margin-top:5px;text-transform:uppercase}
+.role{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12.5px;color:#cfe5d9}
+#bInstall{margin-left:auto;background:#f6c928;color:#3a2c00;border:0;border-radius:10px;padding:8px 12px;font-weight:600;min-height:40px;cursor:pointer;box-shadow:0 2px 8px #0004}#bInstall:focus-visible{outline:3px solid #fff}
+.role select{background:#ffffff1c;border:1px solid #ffffff50;border-radius:10px;padding:7px 9px;color:#fff;font-weight:600;max-width:210px}
+.role option{color:#000}
+.bandeau{background:var(--jaune2);color:#6a5300;text-align:center;font-size:12.5px;padding:6px 16px;border-bottom:1px solid #ecd988}
+nav{background:#fff;border-bottom:1px solid var(--trait);position:sticky;top:0;z-index:15;box-shadow:0 2px 10px #0000000a}
+nav .in{max-width:1180px;margin:auto;display:flex;gap:2px;padding:0 8px;overflow-x:auto;scrollbar-width:none}
+nav button{background:none;border:0;padding:13px 13px;color:var(--gris);border-bottom:3px solid transparent;white-space:nowrap;cursor:pointer;font-size:14px}
+nav button.on{color:var(--foret);border-color:var(--vert)}
+nav button .pt{display:inline-block;min-width:18px;padding:0 5px;margin-left:5px;background:var(--rouge);color:#fff;border-radius:9px;font-size:11px;line-height:18px;text-align:center}
+main{max-width:1180px;margin:auto;padding:20px 16px 60px}
+.vue{display:none}.vue.on{display:block;animation:ap .35s ease}
+@keyframes ap{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.vue.on{animation:none}}
+h2{font-size:26px;margin-bottom:4px}
+.sous{color:var(--gris);margin-bottom:16px;font-size:14.5px}
+.carte{background:var(--carte);border:1px solid var(--trait);border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:var(--ombre)}
+.carte h3{font-size:17px;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.carte h3 .n{background:var(--foret);color:var(--jaune);width:26px;height:26px;border-radius:50%;display:inline-grid;place-items:center;font-family:ID,sans-serif;font-weight:800;font-size:13px;flex:none}
+.grille{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}
+.c12{grid-column:span 12}.c6{grid-column:span 6}.c4{grid-column:span 4}.c3{grid-column:span 3}
+@media(max-width:720px){.c6,.c4,.c3{grid-column:span 12}.c4.m6{grid-column:span 6}}
+label{display:block;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--gris);margin-bottom:4px}
+input,select,textarea{width:100%;border:1.5px solid #cfc8b2;border-radius:12px;padding:11px 12px;background:#fff;min-height:44px;font-weight:600}
+input::placeholder,textarea::placeholder{font-weight:300;color:#9aa59f}
+input:focus,select:focus,textarea:focus{outline:3px solid #00954333;border-color:var(--vert)}
+input[readonly]{background:#f2efe4}
+textarea.mrz{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;font-weight:600;letter-spacing:.02em;min-height:92px;text-transform:uppercase;background:#0b2a1f;color:#bff0cf;border-color:#0b2a1f}
+.btn{border:0;border-radius:12px;padding:12px 18px;font-weight:600;cursor:pointer;background:var(--foret);color:#fff;transition:transform .12s,box-shadow .12s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 16px #062b1e33}
+.btn.vert{background:linear-gradient(135deg,#12b35a,var(--vert));color:#fff}
+.btn.or{background:linear-gradient(135deg,#ffe27a,var(--jaune));color:#3a2c00}
+.btn.rouge{background:var(--rouge)}.verif{display:grid;gap:8px;margin-top:12px}
+.btn.clair{background:#fff;color:var(--foret);border:1.5px solid #cfc8b2}
+.btn.petit{padding:8px 12px;font-size:13px}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.ligne{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.choix{display:flex;gap:10px;flex-wrap:wrap}
+.choix label.opt{display:flex;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-size:15px;color:var(--encre);border:2px solid #d8d1ba;border-radius:14px;padding:13px 14px;cursor:pointer;background:#fff;margin:0;flex:1 1 240px}
+.choix input{width:auto;min-height:0;accent-color:var(--vert)}
+.choix label.opt:has(input:checked){border-color:var(--vert);background:var(--vert2)}
+.badge{display:inline-block;border-radius:999px;padding:3px 11px;font-size:12px;white-space:nowrap}
+.s-depose{background:#e4ecf3;color:#32536f}.s-recu{background:#dff1ee;color:#18695f}.s-traitement{background:var(--jaune2);color:#7a5c00}.s-pret{background:var(--vert2);color:#0b6a31}.s-remis{background:#dde8e2;color:#1f4a38}
+.t-renouvellement{background:#efe6f6;color:#5f2b86}.t-premiere{background:#eaf3d9;color:#42601a}
+.alerte{background:var(--rouge2);color:var(--rouge)}.ok{background:var(--vert2);color:#0b6a31}.orange{background:#fff1dc;color:#8a4b00}
+.alert{border-radius:12px;padding:10px 13px;margin-top:10px;font-size:14px}
+.alert.rouge{background:var(--rouge2);color:#9a1f18;border:1px solid #f3c1bd}
+.alert.orange{background:#fff3e0;color:#7d4500;border:1px solid #f1d09b}
+.alert.vert{background:var(--vert2);color:#0b6a31;border:1px solid #b6e0c3}
+.alert.bleu{background:#eaf1ee;color:#1d4a3a;border:1px solid #c4d8cf}
+.cam{position:relative;background:#06150f;border-radius:14px;overflow:hidden;min-height:150px;display:none;margin-bottom:10px}
+.cam.on{display:block}.cam video{width:100%;display:block}
+.cadre{position:absolute;left:5%;right:5%;bottom:12%;height:22%;border:2px dashed var(--jaune);border-radius:8px;pointer-events:none}
+/* accueil */
+.hero{background:linear-gradient(100deg,#062b1ef2 0,#06311fd0 42%,#0a443040 100%),url(img/brazzaville-esplanade.webp) center 42%/cover,var(--foret2);border-radius:22px;padding:26px 22px;color:#fff;display:flex;gap:22px;align-items:center;flex-wrap:wrap;position:relative;overflow:hidden;box-shadow:var(--ombre)}
+.hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;background:linear-gradient(90deg,var(--vert) 0 33.3%,var(--jaune) 33.3% 66.6%,var(--rouge) 66.6%)}
+.hero img{width:112px;height:126px;filter:drop-shadow(0 8px 18px #0008)}
+.hero h1{color:#fff;font-size:34px;margin-bottom:6px}.hero h1 em{color:var(--jaune);font-style:italic}
+.hero p{color:#e4f1ea;max-width:560px}
+.baniere{position:relative;border-radius:20px;overflow:hidden;min-height:150px;display:flex;align-items:flex-end;margin-bottom:16px;background:var(--foret) center/cover no-repeat;box-shadow:var(--ombre)}
+.baniere::before{content:"";position:absolute;inset:0;background:linear-gradient(95deg,#062b1ef2 0,#062b1ec4 46%,#062b1e55 100%)}
+.baniere::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;background:linear-gradient(90deg,var(--vert) 0 33.3%,var(--jaune) 33.3% 66.6%,var(--rouge) 66.6%)}
+.baniere .txt{position:relative;padding:20px 20px 22px;color:#fff;max-width:720px}
+.baniere h2{color:#fff;margin-bottom:4px}.baniere .sous{color:#dcece3;margin-bottom:0}
+.b-guichet{background-image:url(img/passeport-visas.webp);background-position:center 55%}
+.b-dossiers{background-image:url(img/batiment-rond.webp);background-position:center 40%}
+.b-tableau{background-image:url(img/brazzaville-ville.webp);background-position:center 60%}
+.b-fraude{background-image:url(img/empreinte.webp);background-position:center 50%}
+.b-citoyen{background-image:url(img/aeroport.webp);background-position:center 45%}
+.b-reception{background-image:url(img/batiment-rond.webp);background-position:center 50%}.b-caisse{background-image:url(img/brazzaville-ville.webp);background-position:center 62%}.b-file{background-image:url(img/aeroport.webp);background-position:center 40%}
+.b-apropos{background-image:url(img/batiment-rond.webp);background-position:center 30%}
+.acts .act{overflow:hidden;padding:0}.act .ph{height:118px;background:center/cover no-repeat;position:relative}
+.act .ph::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,#062b1e66)}
+.act .tx{padding:12px 16px 16px}.act .tx b{margin-top:0}
+.act .ph.p1{background-image:url(img/passeport-visas.webp)}.act .ph.p2{background-image:url(img/brazzaville-ville.webp)}.act .ph.p3{background-image:url(img/empreinte.webp)}.act .ph.p4{background-image:url(img/aeroport.webp)}
+.chip-esp{border:1px solid #ffffff55;background:#ffffff1c;color:#fff;border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap}.chip-esp.on{background:#0a8f4a66;border-color:#5fe19a}.chip-esp.att{background:#e08a0066;border-color:#f6c928}
+.b-reglages{background-image:url(img/batiment-rond.webp);background-position:center 55%}
+.retour{background:#ffffff26;color:#fff;border:1px solid #ffffff55;border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:600;cursor:pointer;margin-bottom:10px;backdrop-filter:blur(2px)}
+.retour:hover{background:#ffffff40}
+.etapesG{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;padding-bottom:2px;scrollbar-width:none;position:sticky;top:0;z-index:12;background:var(--ivoire);padding-top:6px}
+.etapesG button{flex:none;border:1.5px solid #cfc8b2;background:#fff;border-radius:999px;padding:7px 13px;font-size:13px;font-weight:600;color:var(--gris);cursor:pointer;white-space:nowrap}
+.etapesG button.fait{border-color:var(--vert);color:#0b6a31;background:var(--vert2)}
+.bandeau-brouillon{background:#fff6cf;border:1.5px solid #ecd48a;border-radius:16px;padding:12px 14px;margin-bottom:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.pj{border:1.5px solid #d8d1ba;border-radius:14px;padding:11px 12px;margin-bottom:10px;background:#fff}
+.pj.ok{border-color:#9ed2b2;background:#f6fcf8}.pj.manque{border-color:#f0b8b2;background:#fff8f7}
+.pj-t{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}.pj-t i{font-style:normal;font-size:11px;color:var(--rouge);letter-spacing:.06em;text-transform:uppercase}.pj-t .badge{margin-left:auto}
+.vignes{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.vign{position:relative;width:74px;border:1px solid var(--trait);border-radius:10px;background:#f6f3ea;padding:4px;text-align:center;font-size:10px;color:var(--gris);overflow:hidden}
+.vign img{width:100%;height:56px;object-fit:cover;border-radius:6px;display:block;background:#fff}
+.vign .pdf{display:block;height:56px;line-height:56px;font-size:28px}
+.vign button{position:absolute;top:2px;right:2px;border:0;background:#000a;color:#fff;border-radius:50%;width:20px;height:20px;line-height:20px;font-size:11px;cursor:pointer;padding:0}
+.vign span.nm{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.pieces figure.pdfig a{display:block;font-size:40px;text-decoration:none;padding:20px 0}
+.sigpad{border:2px dashed #b9b196;border-radius:14px;background:#fffdf6;touch-action:none;display:block;width:100%;height:170px;cursor:crosshair}
+.sigpad.ok{border-color:var(--vert);border-style:solid}
+.visage{width:112px;height:140px;border-radius:14px;background:#e8e3d2 center/cover no-repeat;border:2px solid #cfc8b2;flex:none}
+.pieces{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0}
+.pieces figure{background:#f6f3ea;border:1px solid var(--trait);border-radius:12px;padding:8px;text-align:center}
+.pieces img{max-width:100%;max-height:150px;border-radius:8px;background:#fff}
+.pieces figcaption{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--gris);margin-top:4px}
+.wa{background:#e5ddd5;border-radius:16px;padding:12px;margin-top:12px}
+.wa .tete{display:flex;align-items:center;gap:8px;font-weight:600;color:#075e54;margin-bottom:8px;font-size:13px}
+.wa .tete i{width:26px;height:26px;border-radius:50%;background:#25d366;display:inline-grid;place-items:center;color:#fff;font-style:normal;font-size:14px}
+.wa .bulle{background:#dcf8c6;border-radius:12px 12px 12px 2px;padding:10px 12px;font-size:13.5px;line-height:1.45;color:#111;max-width:340px;white-space:pre-line;box-shadow:0 1px 2px #0002}
+.wa .bulle img{display:block;width:150px;height:150px;margin:8px auto 4px;background:#fff;border-radius:8px;padding:6px}
+.wa .heure{font-size:11px;color:#667;text-align:right;margin-top:3px}
+.scan{position:relative;background:#06150f;border-radius:14px;overflow:hidden;display:none;margin-bottom:10px}.scan.on{display:block}.scan video{width:100%;display:block;max-height:340px;object-fit:cover}
+.scan .vise{position:absolute;inset:18% 22%;border:3px solid var(--jaune);border-radius:16px;pointer-events:none;box-shadow:0 0 0 999px #0006}
+.guichets{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0}
+.porteC{background:#fff;border:1.5px solid var(--trait);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.porteC.on{border-color:var(--jaune);background:#fffbe8}
+.porteC .ph{display:flex;align-items:center;gap:6px;font-weight:600;color:var(--foret)}.porteC .ph button{border:0;background:none;cursor:pointer;color:var(--gris);font-size:14px;padding:0 2px}
+.porteC .nb{font-family:PF,serif;font-weight:800;font-size:30px;color:var(--foret);line-height:1}.porteC .nm{font-size:12.5px;color:var(--gris);min-height:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.porteC .bt{display:flex;gap:6px;flex-wrap:wrap}
+.ticket{font-family:PF,serif;font-weight:800;font-size:34px;color:var(--foret);line-height:1}
+.gros{font-family:PF,serif;font-weight:800;font-size:54px;color:var(--foret);line-height:1}
+.signature{margin:34px auto 0;max-width:760px;text-align:center;font-size:10px;color:#9aa59f}
+.signature .credit b{color:#6f7c75;font-weight:600}
+.signature .credit{display:block;cursor:default;user-select:none;-webkit-tap-highlight-color:transparent}
+
+
+
+
+.sig-panel[hidden]{display:none}.sig-panel{text-align:left;margin-top:12px;background:linear-gradient(135deg,#041030,#0a1d52);color:#dde4f5;border-radius:18px;padding:18px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:13px;line-height:1.55;box-shadow:var(--ombre)}
+.sig-panel img.lg{width:132px;height:auto;border-radius:12px;flex:none}
+.sig-panel b{color:#fff}.sig-panel .slogan{font-family:PF,serif;font-style:italic;font-weight:700;color:#f3d58a;font-size:15px;margin:6px 0}
+.sig-panel small{display:block;color:#9fb0d8;margin-top:8px;font-size:11px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}
+.kpi{background:#fff;border:1px solid var(--trait);border-radius:16px;padding:13px 15px;border-top:4px solid var(--foret);box-shadow:var(--ombre)}
+.kpi b{display:block;font-family:PF,serif;font-weight:800;font-size:30px;color:var(--foret);line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi span{font-size:12.5px;color:var(--gris)}
+.kpi.v{border-top-color:var(--vert)}.kpi.j{border-top-color:var(--jaune)}.kpi.r{border-top-color:var(--rouge)}.kpi.r b{color:var(--rouge)}.kpi.m{border-top-color:#8b4bc0}.kpi.m b{color:#6b2d99}
+.acts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.act{background:#fff;border:1px solid var(--trait);border-radius:18px;padding:16px;cursor:pointer;text-align:left;box-shadow:var(--ombre);transition:transform .15s,border-color .15s}
+.act:hover{transform:translateY(-3px);border-color:var(--vert)}.act{font:inherit;color:inherit}
+.act .i{font-size:26px}.act b{display:block;font-family:PF,serif;font-weight:800;font-size:17px;color:var(--foret);margin:6px 0 2px}.act span{font-size:13.5px;color:var(--gris)}
+.pas{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;counter-reset:p}
+.pas div{background:#fff;border:1px solid var(--trait);border-radius:16px;padding:14px 14px 14px 52px;position:relative;font-size:14px;color:var(--gris)}
+.pas div b{display:block;color:var(--foret);font-size:15px}
+.pas div::before{counter-increment:p;content:counter(p);position:absolute;left:12px;top:12px;width:28px;height:28px;border-radius:50%;background:var(--foret);color:var(--jaune);display:grid;place-items:center;font-weight:800;font-size:14px}
+.pas div:nth-child(3n+1)::before{background:var(--vert);color:#fff}.pas div:nth-child(3n+2)::before{background:var(--jaune);color:#3a2c00}.pas div:nth-child(3n)::before{background:var(--rouge);color:#fff}
+.graphes{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:12px}
+.graphes .carte{margin:0}.graphes canvas{max-height:270px}
+.tablewrap{overflow-x:auto;border:1px solid var(--trait);border-radius:14px;background:#fff}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{background:var(--foret);color:#fff;text-align:left;padding:10px 11px;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+td{padding:9px 11px;border-top:1px solid #efe9d6;white-space:nowrap}
+tr.cl{cursor:pointer}tr.cl:hover td{background:#f3f9f5}
+.filtres{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:10px}
+.risque{display:inline-block;min-width:38px;text-align:center;border-radius:8px;padding:2px 7px;font-weight:800;font-size:12.5px;color:#fff}
+.tiroir{position:fixed;inset:0;background:#031a11b8;z-index:60;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(2px)}
+.tiroir.on{display:flex}
+.tiroir .feuille{background:#fff;width:min(740px,100%);max-height:93vh;overflow:auto;border-radius:22px 22px 0 0;padding:20px 18px 30px}
+@media(min-width:820px){.tiroir{align-items:center}.tiroir .feuille{border-radius:22px}}
+.feuille h3{font-size:21px}
+.dl{display:grid;grid-template-columns:150px 1fr;gap:5px 12px;font-size:14.5px;margin:12px 0}
+.dl dt{color:var(--gris);font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;padding-top:3px}
+.histo{border-left:3px solid var(--jaune);margin:8px 0 0 6px;padding-left:13px}
+.histo div{margin-bottom:9px;font-size:14px}.histo small{color:var(--gris)}
+.recu{border:2px dashed var(--foret);border-radius:16px;padding:16px;text-align:center;background:linear-gradient(#fff,#f8fbf9)}
+.recu img.lg{width:54px;margin-bottom:4px}
+.recu .num{font-family:ui-monospace,Menlo,monospace;font-size:21px;font-weight:800;color:var(--foret);letter-spacing:.04em}
+.recu svg{width:150px;height:150px;margin:8px auto 4px;display:block}
+.etapes{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.etape{flex:1 1 110px;text-align:center;border-radius:11px;padding:9px 4px;font-size:12px;font-weight:600;background:#eee9d7;color:#8b856f}
+.etape.fait{background:var(--vert2);color:#0b6a31}.etape.now{background:var(--foret);color:var(--jaune)}
+.mini{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.chip{display:inline-block;background:var(--rouge2);color:#9a1f18;border-radius:7px;padding:2px 8px;font-size:11.5px;font-weight:600}
+.chip.o{background:#fff1dc;color:#7d4500}
+.pied{margin-top:28px;font-size:12px;color:var(--gris);text-align:center}
+.pied::before{content:"";display:block;height:4px;border-radius:2px;margin:0 auto 12px;width:90px;background:linear-gradient(90deg,var(--vert) 0 33.3%,var(--jaune) 33.3% 66.6%,var(--rouge) 66.6%)}
+.suivi{max-width:620px;margin:auto;text-align:left}
+@media print{header,nav,.bandeau,.noprint,.pied,.signature{display:none!important}.tiroir{position:static;background:none;display:block;backdrop-filter:none}.tiroir:not(.on){display:none}.feuille{max-height:none;box-shadow:none;width:100%}body{background:#fff}}
+
+/* ===== Verre : acrylique et transitions façon Windows 11 (zoom, flou, glissement) ===== */
+:root{--verre:rgba(255,255,255,.62);--verre-bord:rgba(255,255,255,.85);--verre-ombre:0 8px 30px #062b1e1f,inset 0 1px 0 #ffffffd9}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(640px 420px at 6% 10%,#00954338 0,transparent 70%),radial-gradient(560px 420px at 95% 28%,#f6c92848 0,transparent 70%),radial-gradient(640px 480px at 52% 100%,#d62f2628 0,transparent 70%)}
+@supports ((-webkit-backdrop-filter:blur(2px)) or (backdrop-filter:blur(2px))){
+ .carte{background:var(--verre);-webkit-backdrop-filter:blur(12px) saturate(1.4);backdrop-filter:blur(12px) saturate(1.4);border-color:var(--verre-bord);box-shadow:var(--verre-ombre)}
+ .porteC,.tablewrap{background:var(--verre);border-color:var(--verre-bord);box-shadow:var(--verre-ombre)}
+ .porteC.on{background:rgba(255,247,209,.72)}
+ .kpi{background:var(--verre);border-right-color:var(--verre-bord);border-bottom-color:var(--verre-bord);border-left-color:var(--verre-bord);box-shadow:var(--verre-ombre)}
+ nav{background:rgba(255,255,255,.7);-webkit-backdrop-filter:blur(18px) saturate(1.6);backdrop-filter:blur(18px) saturate(1.6)}
+ .tiroir .feuille{background:rgba(255,255,255,.9);-webkit-backdrop-filter:blur(26px) saturate(1.5);backdrop-filter:blur(26px) saturate(1.5)}
+}
+main{position:relative}
+.vue.on{animation:vin .5s cubic-bezier(.16,1,.3,1) backwards}
+@keyframes vin{from{opacity:0;transform:translateX(calc(var(--dx,1)*28px)) scale(.972)}to{opacity:1;transform:none}}
+.vue.sortie{display:block;position:absolute;left:16px;right:16px;top:20px;pointer-events:none;z-index:1;animation:vout .22s cubic-bezier(.4,0,1,1) forwards}
+@keyframes vout{to{opacity:0;transform:translateX(calc(var(--dx,1)*-24px)) scale(1.02)}}
+.vue.stagger .baniere,.vue.stagger .carte,.vue.stagger .kpi,.vue.stagger .porteC{will-change:transform,opacity;animation:item .5s cubic-bezier(.16,1,.3,1) backwards;animation-delay:calc(var(--i,0)*40ms + 70ms)}
+@keyframes item{from{opacity:0;transform:translateY(18px) scale(.985)}}
+#verre{position:fixed;inset:0;z-index:12;pointer-events:none;overflow:hidden;contain:strict}
+#verre i{position:absolute;top:0;bottom:0;left:0;width:55%;background:linear-gradient(105deg,#ffffff00 0,#ffffff8c 50%,#ffffff00 100%);opacity:0;will-change:transform,opacity}
+@media(prefers-reduced-motion:reduce){.vue.on{animation:none}}
+h2{font-size:26px;margin-bottom:4px}
+.sous{color:var(--gris);margin-bottom:16px;font-size:14.5px}
+.carte{background:var(--carte);border:1px solid var(--trait);border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:var(--ombre)}
+.carte h3{font-size:17px;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.carte h3 .n{background:var(--foret);color:var(--jaune);width:26px;height:26px;border-radius:50%;display:inline-grid;place-items:center;font-family:ID,sans-serif;font-weight:800;font-size:13px;flex:none}
+.grille{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}
+.c12{grid-column:span 12}.c6{grid-column:span 6}.c4{grid-column:span 4}.c3{grid-column:span 3}
+@media(max-width:720px){.c6,.c4,.c3{grid-column:span 12}.c4.m6{grid-column:span 6}}
+label{display:block;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--gris);margin-bottom:4px}
+input,select,textarea{width:100%;border:1.5px solid #cfc8b2;border-radius:12px;padding:11px 12px;background:#fff;min-height:44px;font-weight:600}
+input::placeholder,textarea::placeholder{font-weight:300;color:#9aa59f}
+input:focus,select:focus,textarea:focus{outline:3px solid #00954333;border-color:var(--vert)}
+input[readonly]{background:#f2efe4}
+textarea.mrz{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;font-weight:600;letter-spacing:.02em;min-height:92px;text-transform:uppercase;background:#0b2a1f;color:#bff0cf;border-color:#0b2a1f}
+.btn{border:0;border-radius:12px;padding:12px 18px;font-weight:600;cursor:pointer;background:var(--foret);color:#fff;transition:transform .12s,box-shadow .12s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 16px #062b1e33}
+.btn.vert{background:linear-gradient(135deg,#12b35a,var(--vert));color:#fff}
+.btn.or{background:linear-gradient(135deg,#ffe27a,var(--jaune));color:#3a2c00}
+.btn.rouge{background:var(--rouge)}
+.btn.clair{background:#fff;color:var(--foret);border:1.5px solid #cfc8b2}
+.btn.petit{padding:8px 12px;font-size:13px}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.ligne{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.choix{display:flex;gap:10px;flex-wrap:wrap}
+.choix label.opt{display:flex;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-size:15px;color:var(--encre);border:2px solid #d8d1ba;border-radius:14px;padding:13px 14px;cursor:pointer;background:#fff;margin:0;flex:1 1 240px}
+.choix input{width:auto;min-height:0;accent-color:var(--vert)}
+.choix label.opt:has(input:checked){border-color:var(--vert);background:var(--vert2)}
+.badge{display:inline-block;border-radius:999px;padding:3px 11px;font-size:12px;white-space:nowrap}
+.s-depose{background:#e4ecf3;color:#32536f}.s-recu{background:#dff1ee;color:#18695f}.s-traitement{background:var(--jaune2);color:#7a5c00}.s-pret{background:var(--vert2);color:#0b6a31}.s-remis{background:#dde8e2;color:#1f4a38}
+.t-renouvellement{background:#efe6f6;color:#5f2b86}.t-premiere{background:#eaf3d9;color:#42601a}
+.alerte{background:var(--rouge2);color:var(--rouge)}.ok{background:var(--vert2);color:#0b6a31}.orange{background:#fff1dc;color:#8a4b00}
+.alert{border-radius:12px;padding:10px 13px;margin-top:10px;font-size:14px}
+.alert.rouge{background:var(--rouge2);color:#9a1f18;border:1px solid #f3c1bd}
+.alert.orange{background:#fff3e0;color:#7d4500;border:1px solid #f1d09b}
+.alert.vert{background:var(--vert2);color:#0b6a31;border:1px solid #b6e0c3}
+.alert.bleu{background:#eaf1ee;color:#1d4a3a;border:1px solid #c4d8cf}
+.cam{position:relative;background:#06150f;border-radius:14px;overflow:hidden;min-height:150px;display:none;margin-bottom:10px}
+.cam.on{display:block}.cam video{width:100%;display:block}
+.cadre{position:absolute;left:5%;right:5%;bottom:12%;height:22%;border:2px dashed var(--jaune);border-radius:8px;pointer-events:none}
+/* accueil */
+.hero{background:linear-gradient(100deg,#062b1ef2 0,#06311fd0 42%,#0a443040 100%),url(img/brazzaville-esplanade.webp) center 42%/cover,var(--foret2);border-radius:22px;padding:26px 22px;color:#fff;display:flex;gap:22px;align-items:center;flex-wrap:wrap;position:relative;overflow:hidden;box-shadow:var(--ombre)}
+.hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;background:linear-gradient(90deg,var(--vert) 0 33.3%,var(--jaune) 33.3% 66.6%,var(--rouge) 66.6%)}
+.hero img{width:112px;height:126px;filter:drop-shadow(0 8px 18px #0008)}
+.hero h1{color:#fff;font-size:34px;margin-bottom:6px}.hero h1 em{color:var(--jaune);font-style:italic}
+.hero p{color:#e4f1ea;max-width:560px}
+.baniere{position:relative;border-radius:20px;overflow:hidden;min-height:150px;display:flex;align-items:flex-end;margin-bottom:16px;background:var(--foret) center/cover no-repeat;box-shadow:var(--ombre)}
+.baniere::before{content:"";position:absolute;inset:0;background:linear-gradient(95deg,#062b1ef2 0,#062b1ec4 46%,#062b1e55 100%)}
+.baniere::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;background:linear-gradient(90deg,var(--vert) 0 33.3%,var(--jaune) 33.3% 66.6%,var(--rouge) 66.6%)}
+.baniere .txt{position:relative;padding:20px 20px 22px;color:#fff;max-width:720px}
+.baniere h2{color:#fff;margin-bottom:4px}.baniere .sous{color:#dcece3;margin-bottom:0}
+.b-guichet{background-image:url(img/passeport-visas.webp);background-position:center 55%}
+.b-dossiers{background-image:url(img/batiment-rond.webp);background-position:center 40%}
+.b-tableau{background-image:url(img/brazzaville-ville.webp);background-position:center 60%}
+.b-fraude{background-image:url(img/empreinte.webp);background-position:center 50%}
+.b-citoyen{background-image:url(img/aeroport.webp);background-position:center 45%}
+.b-reception{background-image:url(img/batiment-rond.webp);background-position:center 50%}.b-caisse{background-image:url(img/brazzaville-ville.webp);background-position:center 62%}.b-file{background-image:url(img/aeroport.webp);background-position:center 40%}
+.b-apropos{background-image:url(img/batiment-rond.webp);background-position:center 30%}
+.acts .act{overflow:hidden;padding:0}.act .ph{height:118px;background:center/cover no-repeat;position:relative}
+.act .ph::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,#062b1e66)}
+.act .tx{padding:12px 16px 16px}.act .tx b{margin-top:0}
+.act .ph.p1{background-image:url(img/passeport-visas.webp)}.act .ph.p2{background-image:url(img/brazzaville-ville.webp)}.act .ph.p3{background-image:url(img/empreinte.webp)}.act .ph.p4{background-image:url(img/aeroport.webp)}
+.chip-esp{border:1px solid #ffffff55;background:#ffffff1c;color:#fff;border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap}.chip-esp.on{background:#0a8f4a66;border-color:#5fe19a}.chip-esp.att{background:#e08a0066;border-color:#f6c928}
+.b-reglages{background-image:url(img/batiment-rond.webp);background-position:center 55%}
+.retour{background:#ffffff26;color:#fff;border:1px solid #ffffff55;border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:600;cursor:pointer;margin-bottom:10px;backdrop-filter:blur(2px)}
+.retour:hover{background:#ffffff40}
+.etapesG{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;padding-bottom:2px;scrollbar-width:none;position:sticky;top:0;z-index:12;background:var(--ivoire);padding-top:6px}
+.etapesG button{flex:none;border:1.5px solid #cfc8b2;background:#fff;border-radius:999px;padding:7px 13px;font-size:13px;font-weight:600;color:var(--gris);cursor:pointer;white-space:nowrap}
+.etapesG button.fait{border-color:var(--vert);color:#0b6a31;background:var(--vert2)}
+.bandeau-brouillon{background:#fff6cf;border:1.5px solid #ecd48a;border-radius:16px;padding:12px 14px;margin-bottom:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.pj{border:1.5px solid #d8d1ba;border-radius:14px;padding:11px 12px;margin-bottom:10px;background:#fff}
+.pj.ok{border-color:#9ed2b2;background:#f6fcf8}.pj.manque{border-color:#f0b8b2;background:#fff8f7}
+.pj-t{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}.pj-t i{font-style:normal;font-size:11px;color:var(--rouge);letter-spacing:.06em;text-transform:uppercase}.pj-t .badge{margin-left:auto}
+.vignes{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.vign{position:relative;width:74px;border:1px solid var(--trait);border-radius:10px;background:#f6f3ea;padding:4px;text-align:center;font-size:10px;color:var(--gris);overflow:hidden}
+.vign img{width:100%;height:56px;object-fit:cover;border-radius:6px;display:block;background:#fff}
+.vign .pdf{display:block;height:56px;line-height:56px;font-size:28px}
+.vign button{position:absolute;top:2px;right:2px;border:0;background:#000a;color:#fff;border-radius:50%;width:20px;height:20px;line-height:20px;font-size:11px;cursor:pointer;padding:0}
+.vign span.nm{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.pieces figure.pdfig a{display:block;font-size:40px;text-decoration:none;padding:20px 0}
+.sigpad{border:2px dashed #b9b196;border-radius:14px;background:#fffdf6;touch-action:none;display:block;width:100%;height:170px;cursor:crosshair}
+.sigpad.ok{border-color:var(--vert);border-style:solid}
+.visage{width:112px;height:140px;border-radius:14px;background:#e8e3d2 center/cover no-repeat;border:2px solid #cfc8b2;flex:none}
+.pieces{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0}
+.pieces figure{background:#f6f3ea;border:1px solid var(--trait);border-radius:12px;padding:8px;text-align:center}
+.pieces img{max-width:100%;max-height:150px;border-radius:8px;background:#fff}
+.pieces figcaption{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--gris);margin-top:4px}
+.wa{background:#e5ddd5;border-radius:16px;padding:12px;margin-top:12px}
+.wa .tete{display:flex;align-items:center;gap:8px;font-weight:600;color:#075e54;margin-bottom:8px;font-size:13px}
+.wa .tete i{width:26px;height:26px;border-radius:50%;background:#25d366;display:inline-grid;place-items:center;color:#fff;font-style:normal;font-size:14px}
+.wa .bulle{background:#dcf8c6;border-radius:12px 12px 12px 2px;padding:10px 12px;font-size:13.5px;line-height:1.45;color:#111;max-width:340px;white-space:pre-line;box-shadow:0 1px 2px #0002}
+.wa .bulle img{display:block;width:150px;height:150px;margin:8px auto 4px;background:#fff;border-radius:8px;padding:6px}
+.wa .heure{font-size:11px;color:#667;text-align:right;margin-top:3px}
+.scan{position:relative;background:#06150f;border-radius:14px;overflow:hidden;display:none;margin-bottom:10px}.scan.on{display:block}.scan video{width:100%;display:block;max-height:340px;object-fit:cover}
+.scan .vise{position:absolute;inset:18% 22%;border:3px solid var(--jaune);border-radius:16px;pointer-events:none;box-shadow:0 0 0 999px #0006}
+.guichets{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0}
+.porteC{background:#fff;border:1.5px solid var(--trait);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.porteC.on{border-color:var(--jaune);background:#fffbe8}
+.porteC .ph{display:flex;align-items:center;gap:6px;font-weight:600;color:var(--foret)}.porteC .ph button{border:0;background:none;cursor:pointer;color:var(--gris);font-size:14px;padding:0 2px}
+.porteC .nb{font-family:PF,serif;font-weight:800;font-size:30px;color:var(--foret);line-height:1}.porteC .nm{font-size:12.5px;color:var(--gris);min-height:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.porteC .bt{display:flex;gap:6px;flex-wrap:wrap}
+.ticket{font-family:PF,serif;font-weight:800;font-size:34px;color:var(--foret);line-height:1}
+.gros{font-family:PF,serif;font-weight:800;font-size:54px;color:var(--foret);line-height:1}
+.signature{margin:34px auto 0;max-width:760px;text-align:center;font-size:10px;color:#9aa59f}
+.signature .credit b{color:#6f7c75;font-weight:600}
+.signature .credit{display:block;cursor:default;user-select:none;-webkit-tap-highlight-color:transparent}
+
+
+
+
+.sig-panel[hidden]{display:none}.sig-panel{text-align:left;margin-top:12px;background:linear-gradient(135deg,#041030,#0a1d52);color:#dde4f5;border-radius:18px;padding:18px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:13px;line-height:1.55;box-shadow:var(--ombre)}
+.sig-panel img.lg{width:132px;height:auto;border-radius:12px;flex:none}
+.sig-panel b{color:#fff}.sig-panel .slogan{font-family:PF,serif;font-style:italic;font-weight:700;color:#f3d58a;font-size:15px;margin:6px 0}
+.sig-panel small{display:block;color:#9fb0d8;margin-top:8px;font-size:11px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}
+.kpi{background:#fff;border:1px solid var(--trait);border-radius:16px;padding:13px 15px;border-top:4px solid var(--foret);box-shadow:var(--ombre)}
+.kpi b{display:block;font-family:PF,serif;font-weight:800;font-size:30px;color:var(--foret);line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi span{font-size:12.5px;color:var(--gris)}
+.kpi.v{border-top-color:var(--vert)}.kpi.j{border-top-color:var(--jaune)}.kpi.r{border-top-color:var(--rouge)}.kpi.r b{color:var(--rouge)}.kpi.m{border-top-color:#8b4bc0}.kpi.m b{color:#6b2d99}
+.acts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.act{background:#fff;border:1px solid var(--trait);border-radius:18px;padding:16px;cursor:pointer;text-align:left;box-shadow:var(--ombre);transition:transform .15s,border-color .15s}
+.act:hover{transform:translateY(-3px);border-color:var(--vert)}.act{font:inherit;color:inherit}
+.act .i{font-size:26px}.act b{display:block;font-family:PF,serif;font-weight:800;font-size:17px;color:var(--foret);margin:6px 0 2px}.act span{font-size:13.5px;color:var(--gris)}
+.pas{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;counter-reset:p}
+.pas div{background:#fff;border:1px solid var(--trait);border-radius:16px;padding:14px 14px 14px 52px;position:relative;font-size:14px;color:var(--gris)}
+.pas div b{display:block;color:var(--foret);font-size:15px}
+.pas div::before{counter-increment:p;content:counter(p);position:absolute;left:12px;top:12px;width:28px;height:28px;border-radius:50%;background:var(--foret);color:var(--jaune);display:grid;place-items:center;font-weight:800;font-size:14px}
+.pas div:nth-child(3n+1)::before{background:var(--vert);color:#fff}.pas div:nth-child(3n+2)::before{background:var(--jaune);color:#3a2c00}.pas div:nth-child(3n)::before{background:var(--rouge);color:#fff}
+.graphes{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:12px}
+.graphes .carte{margin:0}.graphes canvas{max-height:270px}
+.tablewrap{overflow-x:auto;border:1px solid var(--trait);border-radius:14px;background:#fff}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{background:var(--foret);color:#fff;text-align:left;padding:10px 11px;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+td{padding:9px 11px;border-top:1px solid #efe9d6;white-space:nowrap}
+tr.cl{cursor:pointer}tr.cl:hover td{background:#f3f9f5}
+.filtres{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:10px}
+.risque{display:inline-block;min-width:38px;text-align:center;border-radius:8px;padding:2px 7px;font-weight:800;font-size:12.5px;color:#fff}
+.tiroir{position:fixed;inset:0;background:#031a11b8;z-index:60;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(2px)}
+.tiroir.on{display:flex}
+.tiroir .feuille{background:#fff;width:min(740px,100%);max-height:93vh;overflow:auto;border-radius:22px 22px 0 0;padding:20px 18px 30px}
+@media(min-width:820px){.tiroir{align-items:center}.tiroir .feuille{border-radius:22px}}
+.feuille h3{font-size:21px}
+.dl{display:grid;grid-template-columns:150px 1fr;gap:5px 12px;font-size:14.5px;margin:12px 0}
+.dl dt{color:var(--gris);font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;padding-top:3px}
+.histo{border-left:3px solid var(--jaune);margin:8px 0 0 6px;padding-left:13px}
+.histo div{margin-bottom:9px;font-size:14px}.histo small{color:var(--gris)}
+.recu{border:2px dashed var(--foret);border-radius:16px;padding:16px;text-align:center;background:linear-gradient(#fff,#f8fbf9)}
+.recu img.lg{width:54px;margin-bottom:4px}
+.recu .num{font-family:ui-monospace,Menlo,monospace;font-size:21px;font-weight:800;color:var(--foret);letter-spacing:.04em}
+.recu svg{width:150px;height:150px;margin:8px auto 4px;display:block}
+.etapes{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.etape{flex:1 1 110px;text-align:center;border-radius:11px;padding:9px 4px;font-size:12px;font-weight:600;background:#eee9d7;color:#8b856f}
+.etape.fait{background:var(--vert2);color:#0b6a31}.etape.now{background:var(--foret);color:var(--jaune)}
+.mini{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.chip{display:inline-block;background:var(--rouge2);color:#9a1f18;border-radius:7px;padding:2px 8px;font-size:11.5px;font-weight:600}
+.chip.o{background:#fff1dc;color:#7d4500}
+.pied{margin-top:28px;font-size:12px;color:var(--gris);text-align:center}
+.pied::before{content:"";display:block;height:4px;border-radius:2px;margin:0 auto 12px;width:90px;background:linear-gradient(90deg,var(--vert) 0 33.3%,var(--jaune) 33.3% 66.6%,var(--rouge) 66.6%)}
+.suivi{max-width:620px;margin:auto;text-align:left}
+@media print{header,nav,.bandeau,.noprint,.pied,.signature{display:none!important}.tiroir{position:static;background:none;display:block;backdrop-filter:none}.tiroir:not(.on){display:none}.feuille{max-height:none;box-shadow:none;width:100%}body{background:#fff}}
+
+/* ===== Verre : acrylique et transitions façon Windows 11 (zoom, flou, glissement) ===== */
+:root{--verre:rgba(255,255,255,.62);--verre-bord:rgba(255,255,255,.85);--verre-ombre:0 8px 30px #062b1e1f,inset 0 1px 0 #ffffffd9}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(640px 420px at 6% 10%,#00954338 0,transparent 70%),radial-gradient(560px 420px at 95% 28%,#f6c92848 0,transparent 70%),radial-gradient(640px 480px at 52% 100%,#d62f2628 0,transparent 70%)}
+@supports ((-webkit-backdrop-filter:blur(2px)) or (backdrop-filter:blur(2px))){
+ .carte{background:var(--verre);-webkit-backdrop-filter:blur(12px) saturate(1.4);backdrop-filter:blur(12px) saturate(1.4);border-color:var(--verre-bord);box-shadow:var(--verre-ombre)}
+ .porteC,.tablewrap{background:var(--verre);border-color:var(--verre-bord);box-shadow:var(--verre-ombre)}
+ .porteC.on{background:rgba(255,247,209,.72)}
+ .kpi{background:var(--verre);border-right-color:var(--verre-bord);border-bottom-color:var(--verre-bord);border-left-color:var(--verre-bord);box-shadow:var(--verre-ombre)}
+ nav{background:rgba(255,255,255,.7);-webkit-backdrop-filter:blur(18px) saturate(1.6);backdrop-filter:blur(18px) saturate(1.6)}
+ .tiroir .feuille{background:rgba(255,255,255,.9);-webkit-backdrop-filter:blur(26px) saturate(1.5);backdrop-filter:blur(26px) saturate(1.5)}
+}
+main{position:relative}
+.vue.on{animation:vin .5s cubic-bezier(.16,1,.3,1) backwards}
+@keyframes vin{from{opacity:0;transform:translateX(calc(var(--dx,1)*28px)) scale(.972)}to{opacity:1;transform:none}}
+.vue.sortie{display:block;position:absolute;left:16px;right:16px;top:20px;pointer-events:none;z-index:1;animation:vout .22s cubic-bezier(.4,0,1,1) forwards}
+@keyframes vout{to{opacity:0;transform:translateX(calc(var(--dx,1)*-24px)) scale(1.02)}}
+.vue.stagger .baniere,.vue.stagger .carte,.vue.stagger .kpi,.vue.stagger .porteC{animation:item .55s cubic-bezier(.16,1,.3,1) backwards;animation-delay:calc(var(--i,0)*40ms + 70ms)}
+@keyframes item{from{opacity:0;transform:translateY(18px) scale(.985)}}
+#verre{position:fixed;inset:0;z-index:12;pointer-events:none;opacity:0;background:linear-gradient(105deg,#ffffff00 0 32%,#ffffffb3 47%,#ffffff00 62% 100%),rgba(255,255,255,.18);background-size:260% 100%,auto;-webkit-backdrop-filter:blur(12px) saturate(1.5);backdrop-filter:blur(12px) saturate(1.5)}
+#verre.go{animation:verre .62s cubic-bezier(.3,.6,.2,1)}
+@keyframes verre{0%{opacity:0;background-position:125% 0,0 0}16%{opacity:1}100%{opacity:0;background-position:-35% 0,0 0}}
+@media(prefers-reduced-motion:reduce){.vue.on,.vue.stagger .baniere,.vue.stagger .carte,.vue.stagger .kpi,.vue.stagger .porteC{animation:none}.vue.sortie{display:none}#verre{display:none}}
+@media print{#verre{display:none}body::before{display:none}}
+/* Doigts : cibles tactiles de 40 px et plus sur téléphone et tablette */
+@media (pointer:coarse){
+ #bAide,.chip-esp,.retour{min-height:40px;padding:8px 14px;font-size:13.5px}
+ .vign{width:84px}.vign button{width:34px;height:34px;line-height:34px;font-size:15px;top:0;right:0}
+ .porteC .ph button{min-width:42px;min-height:42px;font-size:19px}
+ [data-pj]{min-height:42px}
+ .btn.petit{min-height:42px}
+ nav button{padding-top:15px;padding-bottom:15px}
+}
+</style>
+</head>
+<body>
+<header><div class="hd">
+  <img src="logo.svg" alt="Logo Passeport Sûr">
+  <div class="tt">PASSEPORT SÛR<small>Suivi · Contrôle · Transparence</small></div>
+  <div class="role"><button type="button" id="chipEspace" class="chip-esp">⚪ Mode local</button><span>Profil</span>
+    <select id="role" aria-label="Profil"><option value="agent">Agent de guichet (enregistrement)</option><option value="accueil">Accueil (réception des demandeurs)</option><option value="caisse">Caisse (paiement)</option><option value="porte">Agent de porte (appel)</option><option value="prefecture">Préfecture de Brazzaville</option><option value="ministere">Ministère (consultation)</option></select></div>
+</div></header>
+<div class="bandeau" id="bandeau">Proposition de projet · démonstration — toutes les personnes, pièces et numéros affichés sont <b>fictifs</b> et restent sur cet appareil.</div>
+<nav><div class="in" id="onglets">
+  <button data-v="accueil" class="on">Accueil</button>
+  <button data-v="guichet" data-roles="agent,prefecture">Nouvelle demande</button>
+  <button data-v="reception" data-roles="accueil,prefecture">Réception</button>
+  <button data-v="caisse" data-roles="accueil,caisse,prefecture">Caisse</button>
+  <button data-v="file">File d'attente</button>
+  <button data-v="reglages" data-roles="prefecture">Réglages</button>
+  <button data-v="dossiers">Dossiers</button>
+  <button data-v="tableau" data-roles="prefecture,ministere">Tableau de bord</button>
+  <button data-v="fraude" data-roles="prefecture,ministere">Contrôle anti-fraude<span class="pt" id="ptFraude"></span></button>
+  <button data-v="citoyen">Suivre mon dossier</button>
+  <button data-v="regles">À propos</button>
+</div></nav>
+
+<main>
+<!-- ===== ACCUEIL ===== -->
+<section id="v-accueil" class="vue on">
+  <div class="hero">
+    <img src="logo.svg" alt="">
+    <div><h1>Chaque demande de passeport, <em>suivie de A à Z</em></h1>
+    <p>Une seule application pour enregistrer les demandes, vérifier les pièces, suivre chaque dossier jusqu'à la remise du passeport, et repérer automatiquement les fraudes et les contournements.</p></div>
+  </div>
+  <div class="kpis" id="kpisAccueil"></div>
+  <div class="acts" style="margin-bottom:16px">
+    <button class="act" data-go="guichet"><div class="ph p1"></div><div class="tx"><b>Nouvelle demande</b><span>Scanner la pièce, fiche automatique, reçu avec QR code.</span></div></button>
+    <button class="act" data-go="tableau"><div class="ph p2"></div><div class="tx"><b>Tableau de bord</b><span>Ministère et Préfecture : la situation réelle en temps réel.</span></div></button>
+    <button class="act" data-go="fraude"><div class="ph p3"></div><div class="tx"><b>Contrôle anti-fraude</b><span>Doublons, faux, réseaux, agents et délais suspects.</span></div></button>
+    <button class="act" data-go="citoyen"><div class="ph p4"></div><div class="tx"><b>Suivre mon dossier</b><span>Le demandeur voit où en est son passeport.</span></div></button>
+  </div>
+  <h2 style="font-size:21px;margin-bottom:10px">Comment ça marche</h2>
+  <div class="pas">
+    <div><b>Scanner, joindre, signer</b>Pièce scannée, fiche remplie seule, pièces jointes (photo ou fichier), signature au doigt. Reprise possible plus tard.</div>
+    <div><b>Accusé WhatsApp</b>Le demandeur reçoit son N° de reçu et un code QR sur son téléphone.</div>
+    <div><b>La caisse scanne le QR</b>Toute la fiche, les pièces et la signature s'affichent. Paiement, puis N° d'appel.</div>
+    <div><b>Salle d'attente</b>Les numéros défilent sur les écrans avec le nom et la porte.</div>
+    <div><b>Suivi et tableau de bord</b>Qui a payé, qui est reçu, qui a son passeport, qui attend. Export Excel.</div>
+    <div><b>Alertes automatiques</b>Fraudes et contournements signalés à la Préfecture.</div>
+  </div>
+</section>
+
+<!-- ===== GUICHET ===== -->
+<section id="v-guichet" class="vue">
+  <div class="baniere b-guichet"><div class="txt"><h2>Enregistrer une demande</h2><p class="sous">Scanner la pièce, joindre les documents, faire signer. On peut s'arrêter et reprendre plus tard : tout est gardé.</p></div></div>
+  <div id="brouillon"></div>
+  <div class="etapesG" id="etapesG"></div>
+  <div class="carte" id="gt1"><h3><span class="n">1</span>Type de demande</h3>
+    <div class="choix">
+      <label class="opt"><input type="radio" name="type" value="premiere" checked> 🆕 Première demande de passeport</label>
+      <label class="opt"><input type="radio" name="type" value="renouvellement"> 🔄 Renouvellement — passeport expiré</label>
+    </div>
+  </div>
+  <div class="carte" id="gt2"><h3><span class="n">2</span>Scanner la pièce du demandeur</h3>
+    <p class="sous" style="margin-bottom:10px">Carte d'identité ou passeport : l'application lit la zone de lecture automatique (les lignes de « &lt;&lt;&lt; » en bas de la pièce) et vérifie ses chiffres de contrôle.</p>
+    <div class="ligne" style="margin-bottom:10px">
+      <button class="btn vert" id="bCam">📷 Ouvrir la caméra</button>
+      <button class="btn clair" id="bFile">🖼 Choisir une photo</button>
+      <input type="file" id="fileIn" accept="image/*" capture="environment" hidden>
+    </div>
+    <div class="ligne" style="margin-bottom:10px"><span style="color:var(--gris);font-size:13px">Essayer un exemple fictif :</span>
+      <button class="btn clair petit" data-ex="pass">Passeport expiré</button><button class="btn clair petit" data-ex="cni">Carte d'identité</button><button class="btn clair petit" data-ex="faux">Pièce falsifiée</button></div>
+    <div class="cam" id="cam"><video id="vid" playsinline muted></video><div class="cadre"></div>
+      <div class="ligne" style="position:absolute;right:8px;top:8px"><button class="btn petit or" id="bSnap">Capturer</button><button class="btn petit clair" id="bStop">Fermer</button></div></div>
+    <canvas id="snap" hidden></canvas>
+    <label for="mrz">Lignes lues sur la pièce</label>
+    <textarea id="mrz" class="mrz" placeholder="P<COGNOM<<PRENOM<<<<<<<<<<<<<<<<<<<<<<<<<<<<<&#10;XX0000000<…"></textarea>
+    <div class="ligne" style="margin-top:10px"><button class="btn" id="bLire">Lire et remplir la fiche</button><span id="ocrEtat" style="font-size:13px;color:var(--gris)"></span></div>
+    <div id="resLecture"></div>
+  </div>
+  <div class="carte" id="gt3"><h3><span class="n">3</span>Fiche technique du demandeur</h3>
+    <div class="grille">
+      <div class="c6"><label for="f_nom">Nom</label><input id="f_nom"></div>
+      <div class="c6"><label for="f_prenoms">Prénoms</label><input id="f_prenoms"></div>
+      <div class="c4 m6"><label for="f_naiss">Date de naissance</label><input id="f_naiss" type="date"></div>
+      <div class="c4 m6"><label for="f_sexe">Sexe</label><select id="f_sexe"><option value="">—</option><option value="F">Féminin</option><option value="M">Masculin</option></select></div>
+      <div class="c4"><label for="f_nat">Nationalité</label><input id="f_nat" value="COG"></div>
+      <div class="c4 m6"><label for="f_ptype">Pièce présentée</label><select id="f_ptype"><option value="PASSEPORT">Passeport</option><option value="CNI">Carte d'identité</option></select></div>
+      <div class="c4 m6"><label for="f_pnum">N° de la pièce</label><input id="f_pnum"></div>
+      <div class="c4"><label for="f_pexp">Expiration de la pièce</label><input id="f_pexp" type="date"></div>
+      <div class="c6"><label for="f_tel">Téléphone du demandeur</label><input id="f_tel" inputmode="tel" placeholder="+242 06 000 00 00"></div>
+      <div class="c6"><label for="f_lieu">Secteur de dépôt</label><select id="f_lieu"></select></div>
+    </div>
+    <div id="blocRenou" style="display:none;margin-top:14px">
+      <h3 style="font-size:16px;margin-bottom:8px">🔄 Ancien passeport (expiré)</h3>
+      <div class="grille">
+        <div class="c4"><label for="f_anum">N° de l'ancien passeport</label><input id="f_anum"></div>
+        <div class="c4"><label for="f_aexp">Date d'expiration</label><input id="f_aexp" type="date"></div>
+        <div class="c4"><label for="f_adepuis">Expiré depuis</label><input id="f_adepuis" readonly placeholder="calculé automatiquement"></div>
+      </div>
+    </div>
+    <div id="alertesForm"></div>
+  </div>
+  <div class="carte" id="gt4"><h3><span class="n">4</span>Pièces à joindre (photo ou fichier)</h3>
+    <p class="sous" style="margin-bottom:10px">Pour chaque document : <b>📷 Photo</b> avec la caméra, ou <b>📎 Joindre</b> un fichier (photo ou PDF). Les pièces peuvent être ajoutées plus tard : le dossier restera « incomplet » jusqu'à ce qu'elles soient fournies.
+      <span style="display:block;font-size:12px;margin-top:4px">Liste indicative, à confirmer avec la Préfecture.</span></p>
+    <div data-editeur="guichet" id="edGuichet"></div>
+  </div>
+  <div class="carte" id="gt5"><h3><span class="n">5</span>Signature du demandeur</h3>
+    <label>Au doigt ou au stylet, dans le cadre</label>
+    <canvas id="sigPad" class="sigpad" aria-label="Zone de signature"></canvas>
+    <div class="ligne" style="margin-top:8px"><button class="btn clair petit" id="bSigEff">Effacer la signature</button><span id="sigEtat" style="font-size:13px;color:var(--gris)">Faites signer dans le cadre ci-dessus.</span></div>
+  </div>
+  <div class="carte"><div class="ligne"><button class="btn vert" id="bValider">Enregistrer la demande, éditer le reçu et envoyer l'accusé WhatsApp</button><button class="btn clair" id="bVider">Effacer</button></div>
+  </div>
+</section>
+
+<!-- ===== CAISSE ===== -->
+<section id="v-reception" class="vue">
+  <div class="baniere b-reception"><div class="txt"><h2>Accueil — recevoir les demandeurs</h2><p class="sous">Le demandeur s'est pré-enregistré sur son téléphone. Scannez son accusé, comparez la fiche à ses pièces originales, puis envoyez-le à la caisse.</p></div></div>
+  <div class="carte"><h3><span class="n">1</span>Scanner l'accusé du demandeur</h3>
+    <div class="ligne" style="margin-bottom:10px"><button class="btn vert" id="bScanRecep">📷 Scanner le code QR</button><button class="btn clair" id="bScanRecepStop" style="display:none">Fermer la caméra</button>
+      <button class="btn clair petit" id="bRecepEx">Exemple : pré-enregistrement</button></div>
+    <div class="scan" id="rScanBox"><video id="rScanVid" playsinline muted></video><div class="vise"></div></div>
+    <canvas id="rScanCv" hidden></canvas>
+    <div class="grille"><div class="c6"><label for="r_id">N° de dossier (sur l'accusé)</label><input id="r_id" placeholder="BZV-2026-P00001" autocapitalize="characters"></div>
+      <div class="c6"><label for="r_code">Code de contrôle</label><input id="r_code" placeholder="A1B2C3" autocapitalize="characters" maxlength="6"></div></div>
+    <div class="ligne" style="margin-top:10px"><button class="btn" id="bRecepOuvrir">Ouvrir le dossier</button><span id="rEtat" style="font-size:13px;color:var(--gris)"></span></div>
+  </div>
+  <div id="recepRes"></div>
+  <div class="carte"><h3>Pré-enregistrés en attente de vérification</h3><p class="sous" style="margin-bottom:8px">Personnes qui se sont enregistrées elles-mêmes et ne sont pas encore passées à l'accueil. <span id="lienPre" style="font-size:12.5px"></span></p>
+    <div class="tablewrap"><table><thead><tr><th>Pré-enregistré</th><th>N° de dossier</th><th>Demandeur</th><th>Type</th><th></th></tr></thead><tbody id="tbRecep"></tbody></table></div></div>
+</section>
+
+<section id="v-caisse" class="vue">
+  <div class="baniere b-caisse"><div class="txt"><h2>Caisse — paiement</h2><p class="sous">Scannez le code QR de l'accusé du demandeur : sa fiche complète s'affiche, puis encaissez.</p></div></div>
+  <div class="carte"><h3><span class="n">1</span>Scanner l'accusé du demandeur</h3>
+    <div class="ligne" style="margin-bottom:10px"><button class="btn vert" id="bScanCaisse">📷 Scanner le code QR</button><button class="btn clair" id="bScanStop" style="display:none">Fermer la caméra</button>
+      <button class="btn clair petit" id="bScanEx">Exemple : dossier complet</button><button class="btn clair petit" id="bScanEx2">Exemple : dossier incomplet</button></div>
+    <div class="scan" id="scanBox"><video id="scanVid" playsinline muted></video><div class="vise"></div></div>
+    <canvas id="scanCv" hidden></canvas>
+    <div class="grille"><div class="c6"><label for="k_id">N° de reçu (sur l'accusé)</label><input id="k_id" placeholder="BZV-2026-000012" autocapitalize="characters"></div>
+      <div class="c6"><label for="k_code">Code de contrôle</label><input id="k_code" placeholder="A1B2C3" autocapitalize="characters" maxlength="6"></div></div>
+    <div class="ligne" style="margin-top:10px"><button class="btn" id="bCaisseOuvrir">Ouvrir le dossier</button><span id="scanEtat" style="font-size:13px;color:var(--gris)"></span></div>
+  </div>
+  <div id="caisseRes"></div>
+  <div class="carte"><h3>Encaissements de la journée <span style="font-size:12px;font-weight:300;color:var(--gris)">(montants fictifs de démonstration)</span></h3><div class="kpis" id="kpisCaisse"></div>
+    <div class="tablewrap"><table><thead><tr><th>Heure</th><th>N° d'appel</th><th>Reçu de paiement</th><th>Demandeur</th><th>Mode</th><th>Montant (FCFA)</th></tr></thead><tbody id="tbCaisse"></tbody></table></div></div>
+</section>
+
+<!-- ===== RÉGLAGES ===== -->
+<section id="v-reglages" class="vue">
+  <div class="baniere b-reglages"><div class="txt"><h2>Réglages du site</h2><p class="sous">Portes, rendez-vous d'enrôlement et date de démonstration. Tout s'applique aux postes et aux écrans de la salle.</p></div></div>
+  <div id="r_info" class="alert bleu" style="margin-bottom:12px"></div>
+  <div class="carte"><h3>Portes et lieu</h3><div class="grille"><div class="c4"><label for="r_portes">Nombre de portes (1 à 12)</label><input id="r_portes" type="number" min="1" max="12"></div><div class="c8"><label for="r_lieu">Lieu du rendez-vous</label><input id="r_lieu" maxlength="80"></div></div></div>
+  <div class="carte"><h3>Montant officiel du passeport</h3><p class="sous" style="margin-bottom:10px">Quand l'administration communique le montant officiel, saisissez-le ici <b>une seule fois</b> : la caisse l'utilise automatiquement, le serveur refuse tout autre montant, et le reçu l'affiche.</p><div class="grille"><div class="c6"><label for="r_tarif1">Première demande (FCFA)</label><input id="r_tarif1" type="number" min="0" inputmode="numeric"></div><div class="c6"><label for="r_tarif2">Renouvellement (FCFA)</label><input id="r_tarif2" type="number" min="0" inputmode="numeric"></div></div><div id="r_tarif_etat" class="alert bleu" style="margin-top:10px"></div></div>
+  <div class="carte"><h3>Rendez-vous d'enrôlement</h3>
+    <p class="sous" style="margin-bottom:10px">Après le paiement, le demandeur reçoit sa date de rendez-vous : le premier jour ouvré qui a encore de la place. Les valeurs ci-dessous sont des exemples à fixer avec la Préfecture.</p>
+    <div class="grille"><div class="c4 m6"><label for="r_cap">Personnes par jour</label><input id="r_cap" type="number" min="1" max="2000"></div><div class="c4 m6"><label for="r_delai">Délai minimal après paiement (jours)</label><input id="r_delai" type="number" min="0" max="60"></div>
+      <div class="c4 m6"><label for="r_debut">Heure de début</label><input id="r_debut" type="time"></div><div class="c4 m6"><label for="r_pas">Durée d'un créneau (min)</label><input id="r_pas" type="number" min="5" max="240"></div><div class="c4 m6"><label for="r_par">Personnes par créneau</label><input id="r_par" type="number" min="1" max="500"></div></div>
+    <label style="margin-top:12px">Jours ouverts</label><div class="ligne" id="r_jours" style="gap:14px">
+      <label style="text-transform:none;letter-spacing:0;font-size:14px;color:var(--encre)"><input type="checkbox" value="1" style="width:auto;min-height:0"> Lun</label><label style="text-transform:none;letter-spacing:0;font-size:14px;color:var(--encre)"><input type="checkbox" value="2" style="width:auto;min-height:0"> Mar</label><label style="text-transform:none;letter-spacing:0;font-size:14px;color:var(--encre)"><input type="checkbox" value="3" style="width:auto;min-height:0"> Mer</label><label style="text-transform:none;letter-spacing:0;font-size:14px;color:var(--encre)"><input type="checkbox" value="4" style="width:auto;min-height:0"> Jeu</label><label style="text-transform:none;letter-spacing:0;font-size:14px;color:var(--encre)"><input type="checkbox" value="5" style="width:auto;min-height:0"> Ven</label><label style="text-transform:none;letter-spacing:0;font-size:14px;color:var(--encre)"><input type="checkbox" value="6" style="width:auto;min-height:0"> Sam</label><label style="text-transform:none;letter-spacing:0;font-size:14px;color:var(--encre)"><input type="checkbox" value="0" style="width:auto;min-height:0"> Dim</label></div></div>
+  <div class="carte"><h3>Démonstration : avancer la date</h3><p class="sous" style="margin-bottom:10px">Pour montrer le jour du rendez-vous sans attendre : avancez la date. Les personnes qui ont rendez-vous ce jour-là apparaissent dans la file d'attente et sur les écrans.</p>
+    <div class="grille"><div class="c4"><label for="r_dec">Avancer de (jours)</label><input id="r_dec" type="number" min="0" max="60"></div></div></div>
+  <div class="ligne"><button class="btn vert" id="bRegler">Enregistrer les réglages</button></div><div id="r_msg"></div>
+</section>
+
+<!-- ===== FILE D'ATTENTE ===== -->
+<section id="v-file" class="vue">
+  <div class="baniere b-file"><div class="txt"><h2>File d'attente et appel en salle</h2><p class="sous">Les numéros défilent dans l'ordre du paiement. Chaque porte appelle le suivant : le numéro, le nom et la porte s'affichent sur les écrans de la salle.</p></div></div>
+  <div id="jourFile" class="alert bleu" style="margin:0 0 10px"></div><div id="ecransCo" class="alert bleu" style="margin:0 0 10px"></div><div class="kpis" id="kpisFile"></div>
+  <div class="carte"><h3>Les portes</h3>
+    <div class="ligne" style="margin-bottom:10px"><span style="font-size:13.5px;color:var(--gris)">Nombre de portes ouvertes :</span><button class="btn clair petit" id="bPortesMoins" aria-label="Moins de portes">−</button><b id="nbPortes" style="min-width:24px;text-align:center;font-size:18px">6</b><button class="btn clair petit" id="bPortesPlus" aria-label="Plus de portes">+</button><span style="font-size:12.5px;color:var(--gris)">Touchez ✎ pour donner un nom à une porte (ex. « Vérification des pièces »).</span></div>
+    <div class="guichets" id="portes"></div>
+    <div id="appelEtat" class="alert bleu" style="display:none"></div>
+  </div>
+  <div class="graphes">
+    <div class="carte"><h3>Personnes en attente (dans l'ordre)</h3><div class="tablewrap"><table><thead><tr><th>N°</th><th>Demandeur</th><th>Type</th><th>Attente</th></tr></thead><tbody id="tbFile"></tbody></table></div></div>
+    <div class="carte"><h3>Écran de la salle (aperçu en direct)</h3><iframe id="apercuEcran" src="ecran.html?apercu=1" title="Écran de la salle" style="width:100%;height:330px;border:0;border-radius:12px;background:#06150f"></iframe>
+      <div class="ligne" style="margin-top:10px"><a class="btn clair petit" href="ecran.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block">🖥 Ouvrir l'écran de la salle (plein écran)</a></div>
+      <p class="sous" style="margin:8px 0 0;font-size:12.5px">En salle : un écran (ou plusieurs) ouvre cette page. Dans la démonstration, l'écran se met à jour tout seul quand une porte appelle.</p></div>
+  </div>
+</section>
+
+<!-- ===== DOSSIERS ===== -->
+<section id="v-dossiers" class="vue">
+  <div class="baniere b-dossiers"><div class="txt"><h2>Dossiers</h2><p class="sous">Tous les dossiers. Touchez une ligne pour voir la fiche, l'historique et faire avancer le dossier.</p></div></div>
+  <div class="filtres">
+    <input id="q" placeholder="🔎 Nom, n° de dossier, n° de pièce…" aria-label="Recherche">
+    <select id="fs" aria-label="État"></select>
+    <select id="ft" aria-label="Type"><option value="">Tous les types</option><option value="premiere">Première demande</option><option value="renouvellement">Renouvellement</option></select>
+    <select id="fl" aria-label="Secteur"></select>
+    <select id="fa" aria-label="Alerte"><option value="">Avec ou sans alerte</option><option value="1">À vérifier uniquement</option><option value="2">Dossiers incomplets</option></select>
+  </div>
+  <div class="ligne" style="margin-bottom:8px"><span id="cpt" style="color:var(--gris);font-size:13px"></span><button class="btn clair petit" id="bXlsx2" style="margin-left:auto">⬇ Excel</button></div>
+  <div class="tablewrap"><table><thead><tr><th>Dossier</th><th>Date</th><th>Nom et prénoms</th><th>Type</th><th>État</th><th>Secteur</th><th>Risque</th></tr></thead><tbody id="tb"></tbody></table></div>
+</section>
+
+<!-- ===== TABLEAU DE BORD ===== -->
+<section id="v-tableau" class="vue">
+  <div class="baniere b-tableau"><div class="txt"><h2>Tableau de bord</h2><p class="sous">La situation réelle : qui a demandé, qui a été reçu, qui a son passeport, qui attend.</p></div></div>
+  <div class="ligne" style="margin-bottom:6px"><button class="btn or" id="bXlsx" style="margin-left:auto">⬇ Télécharger le fichier Excel</button></div>
+  <div class="kpis" id="kpis"></div>
+  <div class="graphes">
+    <div class="carte"><h3>Répartition par état</h3><canvas id="g1"></canvas></div>
+    <div class="carte"><h3>Première demande / renouvellement</h3><canvas id="g2"></canvas></div>
+    <div class="carte"><h3>Demandes par jour (30 derniers jours)</h3><canvas id="g3"></canvas></div>
+    <div class="carte"><h3>Par secteur de dépôt</h3><canvas id="g4"></canvas></div>
+  </div>
+  <div class="carte" style="margin-top:14px"><h3>Dossiers qui attendent depuis le plus longtemps</h3><div class="tablewrap"><table><thead><tr><th>Dossier</th><th>Nom</th><th>État</th><th>Dans cet état depuis</th></tr></thead><tbody id="tbAttente"></tbody></table></div></div>
+  <div class="carte"><h3>Synthèse croisée : type × état</h3><div class="tablewrap"><table id="croise"></table></div></div>
+</section>
+
+<!-- ===== FRAUDE ===== -->
+<section id="v-fraude" class="vue">
+  <div class="baniere b-fraude"><div class="txt"><h2>Contrôle anti-fraude</h2><p class="sous">Le système surveille chaque dossier et chaque agent. Un cas signalé n'est pas refusé : il est présenté à la Préfecture, qui décide.</p></div></div>
+  <div class="kpis" id="kpisF"></div>
+  <div class="graphes">
+    <div class="carte"><h3>Alertes par nature</h3><canvas id="gf1"></canvas></div>
+    <div class="carte"><h3>Activité par agent (alertes)</h3><canvas id="gf2"></canvas></div>
+  </div>
+  <div class="carte" style="margin-top:14px"><h3>Cas à examiner, du plus grave au moins grave</h3><div class="tablewrap"><table><thead><tr><th>Risque</th><th>Dossier</th><th>Demandeur</th><th>Ce qui a été détecté</th><th>Suite</th></tr></thead><tbody id="tbFraude"></tbody></table></div></div>
+  <div class="carte"><h3>Surveillance des agents</h3><div class="tablewrap"><table><thead><tr><th>Agent</th><th>Dossiers saisis</th><th>Remis</th><th>Délai moyen</th><th>Alertes</th><th>Remises éclair</th><th>Actions de nuit</th></tr></thead><tbody id="tbAgents"></tbody></table></div></div>
+  <div class="carte"><h3>Ce que le système détecte</h3><dl class="dl" style="grid-template-columns:200px 1fr">
+    <dt>Pièce modifiée</dt><dd>Les chiffres de contrôle de la zone de lecture sont recalculés. Une pièce retouchée ne passe pas.</dd>
+    <dt>Doublon de pièce</dt><dd>Un même numéro de pièce ne peut pas être déposé deux fois.</dd>
+    <dt>Double identité</dt><dd>Mêmes nom, prénoms et naissance avec une autre pièce.</dd>
+    <dt>Réseau d'intermédiaires</dt><dd>Un même téléphone utilisé pour plusieurs personnes différentes.</dd>
+    <dt>Pièce expirée</dt><dd>Pièce d'identité expirée présentée au guichet.</dd>
+    <dt>Renouvellement irrégulier</dt><dd>Ancien passeport non expiré, déjà utilisé ailleurs, ou non restitué avant la remise.</dd>
+    <dt>Étape sautée</dt><dd>Un dossier qui passe d'un état à un autre en sautant une étape obligatoire.</dd>
+    <dt>Remise éclair</dt><dd>Passeport remis moins de 48 h après le dépôt : traitement de faveur possible.</dd>
+    <dt>Action de nuit</dt><dd>Changement d'état en dehors des heures de service (avant 7 h ou après 19 h).</dd>
+    <dt>Dossier bloqué</dt><dd>Aucun changement depuis plus de 25 jours.</dd>
+  </dl></div>
+</section>
+
+<!-- ===== CITOYEN ===== -->
+<section id="v-citoyen" class="vue">
+  <div class="suivi">
+    <div class="baniere b-citoyen" style="min-height:170px"><div class="txt"><h2>Où en est mon passeport ?</h2><p class="sous">Saisissez le numéro de dossier et le code de contrôle inscrits sur votre reçu.</p></div></div>
+    <div class="carte" style="text-align:left">
+      <label for="c_id">N° de dossier</label><input id="c_id" placeholder="BZV-2026-000012" autocapitalize="characters">
+      <label for="c_code" style="margin-top:10px">Code de contrôle (6 caractères)</label><input id="c_code" placeholder="A1B2C3" autocapitalize="characters" maxlength="6">
+      <div class="ligne" style="margin-top:12px"><button class="btn vert" id="bSuivre">Voir l'avancement</button><button class="btn clair petit" id="bExSuivi">Remplir avec un exemple</button></div>
+    </div>
+    <div id="resSuivi" style="text-align:left"></div>
+  </div>
+</section>
+
+<!-- ===== À PROPOS ===== -->
+<section id="v-regles" class="vue">
+  <div class="baniere b-apropos"><div class="txt"><h2>À propos de cette démonstration</h2><p class="sous">Ce que montre l'application, et ce qu'il faudrait pour la mettre en service.</p></div></div>
+  <div class="carte"><h3>Droits selon le profil</h3><dl class="dl" style="grid-template-columns:200px 1fr">
+    <dt>Agent de guichet</dt><dd>Enregistre les demandes, scanne les pièces, fait avancer ses dossiers.</dd>
+    <dt>Caisse</dt><dd>Scanne le code QR de l’accusé, voit la fiche complète (photo, pièce, signature), encaisse et remet le reçu avec le N° d’appel. Un dossier avec alerte grave n’est pas encaissé avant examen par la Préfecture.</dd><dt>Agent de porte</dt><dd>Appelle le suivant : le numéro, le nom et la porte s’affichent sur les écrans de la salle.</dd><dt>Préfecture</dt><dd>Suit tout, examine les alertes, transmet pour enquête.</dd>
+    <dt>Ministère</dt><dd>Consulte les statistiques et les alertes. Ne modifie rien.</dd>
+    <dt>Historique</dt><dd>Chaque changement garde la date, l'heure et la personne. Rien ne s'efface.</dd>
+  </dl></div>
+  <div class="alert bleu"><b>Limite importante.</b> L'application lit ce qui est écrit sur la pièce et contrôle sa cohérence. Elle ne peut pas savoir si une pièce est authentique : cela demande un lien avec les fichiers officiels de l'État.</div>
+  <div class="carte" style="margin-top:14px"><h3>Pour une mise en service réelle</h3><dl class="dl" style="grid-template-columns:200px 1fr">
+    <dt>Pièces jointes</dt><dd>Dans la démonstration, les photos et PDF restent sur l’appareil. En service réel : stockage chiffré sur un serveur sécurisé, avec durée de conservation fixée avec le Ministère. La liste des pièces à fournir est indicative et sera confirmée par la Préfecture.</dd><dt>WhatsApp</dt><dd>Envoi automatique de l’accusé avec le code QR : compte WhatsApp Business (Meta) et modèle de message validé. Dans la démonstration, l’agent touche « Envoyer ».</dd><dt>Écrans de salle</dt><dd>Un ou plusieurs écrans (téléviseurs) branchés sur la page « écran de la salle », avec le son. Les écrans se mettent à jour tout seuls.</dd><dt>Autorisation</dt><dd>Accord officiel du Ministère et respect de la loi congolaise sur la protection des données personnelles.</dd>
+    <dt>Hébergement</dt><dd>Serveur sécurisé choisi avec le Ministère, données chiffrées, sauvegardes.</dd>
+    <dt>Accès</dt><dd>Comptes nominatifs avec double vérification pour chaque agent.</dd>
+    <dt>Pilote</dt><dd>Test dans un seul secteur de Brazzaville avant tout élargissement.</dd>
+  </dl></div>
+  <p class="pied" style="margin-top:6px"><span id="reinit" style="cursor:pointer;text-decoration:underline">Remettre la démonstration à zéro</span></p>
+</section>
+<footer class="signature" id="signature">
+  <div class="credit" id="creditStar"><b>STAR ENTREPRISE</b> — Tous droits réservés.</div>
+  <div class="sig-panel" id="infos" hidden>
+    <img class="lg" src="img/star-entreprise.webp" alt="Logo officiel STAR ENTREPRISE">
+    <div><b>Application conçue et développée par STAR ENTREPRISE</b> (équipe STAR CRÉAT), Brazzaville, République du Congo.
+      <div class="slogan">Une seule entreprise, toutes les solutions pour votre vie.</div>
+      www.starentreprise.com · contact@starentreprise.com · +242 06 656 50 50
+      <small>Version de démonstration 1.0 · logo « Passeport Sûr » et conception : STAR ENTREPRISE · toutes les données affichées sont fictives.<br>
+      Photos libres de droits (licence Unsplash) : Valdhy Mbemba (Brazzaville), Global Residence Index (passeport), George Prentzas (empreinte), Jakub Żerdzicki (aéroport).</small></div>
+  </div>
+</footer>
+</main>
+
+<div class="tiroir" id="tiroir"><div class="feuille" id="feuille"></div></div>
+
+<script src="lib/qrcode.js"></script>
+<script src="app.js"></script>
+<script src="sync.js"></script>
+<script src="comptes.js"></script>
+<script src="app-suite.js"></script>
+<script src="guide.js"></script>
+<script src="alertes.js"></script>
+</body>
+</html>

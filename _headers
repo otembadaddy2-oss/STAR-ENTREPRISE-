@@ -33,6 +33,25 @@
 /starvibe/*
   Permissions-Policy: camera=(self), microphone=(self), geolocation=(), payment=()
 
+# Passeport Sûr (démonstration pour le Ministère) : non référencé par les moteurs de recherche ; caméra réservée à l'application (scan du QR et photos).
+/passeport-demo/*
+  X-Robots-Tag: noindex, nofollow
+  Permissions-Policy: camera=(self), microphone=(), geolocation=(), payment=()
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+/passeport-demo/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
+/passeport-demo/lib/ocr-5.1.0/*
+  Cache-Control: public, max-age=31536000, immutable
+/passeport-demo/polices/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Passeport Sûr — protection du navigateur : seuls les scripts de l'application elle-même s'exécutent (aucun script en ligne, aucun site tiers), et l'application ne peut parler qu'à son propre serveur.
+/api/passeport
+  Content-Security-Policy: default-src 'none'; frame-ancestors 'none'
+/api/passeport-piece
+  Content-Security-Policy: default-src 'none'; frame-ancestors 'none'
 /api/*
   Cache-Control: no-store
 
