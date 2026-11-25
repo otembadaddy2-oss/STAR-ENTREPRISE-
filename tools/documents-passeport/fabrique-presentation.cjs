@@ -20,7 +20,51 @@ couverture({ kic: 'Proposition de projet · Brazzaville', titre: 'Passeport Sûr
 <tr><td><b>Le Ministère</b></td><td>Une vue d’ensemble en temps réel : qui a demandé, payé, été reçu, reçu son passeport ; l’export Excel.</td></tr></table>
 <div class="note"><b>Ce que ce document est — et n’est pas.</b> C’est la présentation d’une <b>proposition de projet</b> avec une <b>démonstration fonctionnelle</b> dont toutes les données sont fictives. Ce n’est pas un système en service. L’application <b>ne prétend pas vérifier l’authenticité</b> des documents : elle signale des incohérences pour qu’un agent les examine. Les tarifs et la liste des pièces montrés sont des <b>exemples à confirmer avec la Préfecture</b>.</div>`,
 
-`<h1 style="margin-top:9mm">2. Les situations que le système veut traiter</h1>
+`<h1 class="chap">2. Son rôle, son importance, ses avantages</h1>
+<p><b>Son rôle.</b> « Passeport Sûr » est l’outil de travail commun de tous ceux qui touchent à une demande de passeport : le guichet, la caisse, les portes, la Préfecture et le Ministère. Il ne remplace ni la loi, ni les agents, ni la décision de délivrer un passeport : il <b>met de l’ordre, de la clarté et de la traçabilité</b> dans la démarche.</p>
+<h2>Pourquoi c’est important</h2>
+<ul><li><b>Pour le citoyen</b> : un droit essentiel — pouvoir voyager, étudier, se soigner ou travailler à l’étranger — passe par un document que l’on doit pouvoir demander <b>sans perdre des journées</b> et <b>sans devoir connaître quelqu’un</b>.</li>
+<li><b>Pour l’État</b> : un passeport est un document d’identité de la République. Chaque dossier doit être traité <b>de façon identique, traçable et contrôlable</b>, pour protéger la valeur et la confiance dans le document.</li>
+<li><b>Pour les agents</b> : un travail plus lisible, moins de contestations, des consignes claires à chaque étape.</li></ul>
+<h2>Ses avantages</h2>
+<table><tr><th style="width:44mm">Avantage</th><th>Ce que cela change concrètement</th></tr>
+<tr><td><b>Transparence</b></td><td>Le demandeur sait où en est son dossier et ce qui manque ; chaque étape est datée dans l’historique.</td></tr>
+<tr><td><b>Équité</b></td><td>L’ordre de passage suit l’ordre du paiement et du rendez-vous ; le numéro s’affiche à l’écran avec le nom et la porte.</td></tr>
+<tr><td><b>Gain de temps</b></td><td>Fiche pré-remplie par scan, pièces manquantes envoyées depuis le téléphone, moins d’allers-retours.</td></tr>
+<tr><td><b>Contrôle</b></td><td>Alertes automatiques (doublons, pièces modifiées, délais anormaux) à examiner par une personne, jamais de décision automatique.</td></tr>
+<tr><td><b>Pilotage</b></td><td>Chiffres en temps réel et export Excel pour les rapports et les décisions.</td></tr>
+<tr><td><b>Simplicité</b></td><td>Visite guidée par profil, fonctionne sur téléphone comme sur ordinateur, installation en quelques touches.</td></tr>
+<tr><td><b>Légèreté</b></td><td>Application légère (environ 1,4 Mo hors lecteur de pièces), pensée pour des réseaux et des appareils modestes.</td></tr></table>
+<div class="note"><b>Les avantages décrits sont ceux que la démonstration permet de montrer.</b> Les gains réels (temps d’attente, nombre de dossiers incomplets, fraudes repérées) devront être <b>mesurés pendant une phase pilote</b> et ne sont pas chiffrés ici.</div>`,
+
+`<h1 class="chap">3. La vision de son créateur</h1>
+<p>« Passeport Sûr » est conçu par <b>STAR ENTREPRISE</b>, entreprise congolaise basée à Brazzaville, dirigée par <b>Carry OTEMBA</b>. L’idée directrice est simple : <b>mettre la technologie congolaise au service d’un service public plus clair, plus juste et plus sûr</b>.</p>
+<div class="cartes">
+<div class="carte"><h3>Un service public lisible</h3><p>Que chaque citoyen sache, à tout moment, où en est sa demande, ce qu’il doit fournir et quand il sera reçu.</p></div>
+<div class="carte j"><h3>Un accueil digne</h3><p>Que personne ne soit contraint de « connaître quelqu’un » : chacun est appelé à son tour, avec son nom, à une porte précise.</p></div>
+<div class="carte r"><h3>Une confiance durable</h3><p>Que chaque étape laisse une trace, que les anomalies soient signalées, et que la décision reste toujours entre les mains des agents habilités.</p></div></div>
+<h2>Les principes qui guident la conception</h2>
+<ul><li><b>L’humain décide.</b> L’application signale, elle n’accuse pas et ne tranche pas.</li>
+<li><b>Utilisable par tous.</b> Peu de mots, de gros boutons, une aide intégrée, un téléphone suffit.</li>
+<li><b>Léger et accessible.</b> Qu’il s’ouvre vite et s’installe facilement sur n’importe quel téléphone ou ordinateur, même avec une connexion limitée.</li>
+<li><b>Données protégées.</b> Seules les informations utiles sont gardées ; chacun ne voit que ce dont il a besoin ; l’hébergement et la durée de conservation sont décidés avec l’autorité.</li>
+<li><b>Honnêteté.</b> Une démonstration est présentée comme une démonstration ; ce qui reste à construire est dit clairement.</li></ul>
+<div class="note"><b>Ambition.</b> Si la démonstration convainc, STAR ENTREPRISE propose de la transformer, avec le Ministère et la Préfecture, en un <b>projet pilote sur un site</b>, évalué avant tout élargissement.</div>`,
+
+`<h1 class="chap">4. Le rôle du Ministère et de la Préfecture</h1>
+<p>Une application seule ne suffit pas : le projet repose sur des <b>décisions et des responsabilités qui appartiennent à l’autorité</b>. Voici, à titre de proposition, ce que le Ministère et la Préfecture auraient « en charge ».</p>
+<table><tr><th style="width:44mm">Responsable</th><th>Ce qui lui revient dans le projet</th></tr>
+<tr><td><b>Le Ministère</b></td><td>Valider le principe du projet pilote et le cadre légal ; fixer la procédure officielle, les <b>pièces exigées</b> et les <b>tarifs</b> (ceux de la démonstration sont des exemples) ; choisir l’hébergement et les règles de conservation des données ; suivre les résultats avec le tableau de bord.</td></tr>
+<tr><td><b>La Préfecture</b></td><td>Désigner le site pilote, le nombre de portes et les jours d’ouverture ; nommer et former les agents (guichet, caisse, portes) ; créer et gérer l’espace partagé ; <b>examiner les alertes</b> de fraude et décider des suites.</td></tr>
+<tr><td><b>Les agents</b></td><td>Utiliser l’application selon leur profil ; appeler les personnes à leur tour ; ne jamais partager l’accès du poste.</td></tr>
+<tr><td><b>STAR ENTREPRISE</b></td><td>Fournir et maintenir l’application, former les premiers utilisateurs, corriger ce que le pilote révèle, et rendre compte des résultats.</td></tr></table>
+<h2>Ce que le Ministère garde toujours</h2>
+<ul><li>La <b>décision</b> de délivrer ou non un passeport, et toute décision à la suite d’une alerte.</li>
+<li>Le <b>contrôle</b> de l’accès aux données et de leur usage.</li>
+<li>La possibilité d’<b>arrêter ou de corriger</b> le dispositif à tout moment.</li></ul>
+<div class="note"><b>À confirmer ensemble.</b> Cette répartition est une proposition de travail. Les textes officiels, les tarifs et la liste des pièces restent ceux fixés par les autorités.</div>`,
+
+`<h1 style="margin-top:9mm">5. Les situations que le système veut traiter</h1>
 <p>Le projet part de situations que l’on rencontre couramment dans les services qui reçoivent du public. Elles sont présentées ici comme des <b>hypothèses de travail, à valider avec la Préfecture</b> par des observations sur le terrain :</p>
 <ul><li><b>Des files d’attente désordonnées</b> : on ne sait pas dans quel ordre on sera reçu ni à quelle heure.</li>
 <li><b>Une démarche peu lisible</b> pour le citoyen : où en est mon dossier ? que me manque-t-il ?</li>
@@ -31,7 +75,7 @@ couverture({ kic: 'Proposition de projet · Brazzaville', titre: 'Passeport Sûr
 <div class="etapes"><div><i>1</i><b>Dépôt</b>Scan, pièces, signature, accusé WhatsApp</div><div><i>2</i><b>Paiement</b>Scan du QR, contrôles, reçu</div><div><i>3</i><b>Rendez-vous</b>Date donnée après paiement</div><div><i>4</i><b>Salle</b>Numéros, noms et portes à l’écran</div><div><i>5</i><b>Traitement</b>Étapes suivies et datées</div><div><i>6</i><b>Remise</b>Passeport remis, dossier clos</div></div>
 ${fig('d_accueil', 'L’écran d’accueil : chaque profil voit d’emblée par où commencer.', 1500)}`,
 
-`<h1 class="chap">3. Le parcours, de A à Z</h1>
+`<h1 class="chap">6. Le parcours, de A à Z</h1>
 <h2>Étape 1 — Le dépôt au guichet</h2>
 <p>L’agent photographie la pièce d’identité : la <b>zone de lecture automatique</b> (MRZ) est lue et la fiche se remplit toute seule, avec contrôle des chiffres de clé. Il joint les pièces (photo ou fichier), fait signer le demandeur du doigt, puis un <b>accusé</b> avec numéro de reçu et code QR est envoyé sur le téléphone du demandeur. Un dossier incomplet est enregistré « incomplet » : il pourra être terminé plus tard, par l’agent ou par le demandeur lui-même.</p>
 ${duo(['d_guichet_fiche', 'La fiche remplie à partir de la pièce.'], ['d_guichet_pieces', 'Les pièces à joindre, obligatoires et facultatives.'])}
@@ -53,7 +97,7 @@ ${fig('d_file_apres', 'Le poste des portes : chaque porte appelle, rappelle ou s
 <p>Chaque changement d’état (dossier reçu, en traitement, passeport prêt, remis au demandeur) est <b>daté et attribué</b> à un agent. L’historique complet est conservé dans la fiche du dossier.</p>
 ${fig('d_fiche', 'La fiche d’un dossier : état, historique, pièces et alertes.', 1300, 'p')}`,
 
-`<h1 class="chap">4. Contrôle anti-fraude</h1>
+`<h1 class="chap">7. Contrôle anti-fraude</h1>
 <div class="butband"><small>En lien avec le but de l’application</small><p>Le troisième but est de <b>sécuriser</b> : repérer automatiquement les fraudes et les contournements, et les mettre sous les yeux de la Préfecture.</p></div>
 <p>Le système calcule pour chaque dossier un <b>score de risque (0 à 100)</b> à partir de règles claires et explicables :</p>
 <table><tr><th style="width:52mm">Signal</th><th>Ce qu’il détecte</th></tr>
@@ -69,14 +113,14 @@ ${fig('d_fiche', 'La fiche d’un dossier : état, historique, pièces et alerte
 <div class="note r"><b>Important.</b> Ces signaux sont des <b>alertes à examiner par des personnes</b>, pas des preuves de fraude. La démonstration <b>ne vérifie pas l’authenticité</b> d’un document : cela nécessiterait des liaisons avec les bases officielles, à convenir avec les autorités. Une alerte grave non examinée <b>bloque l’encaissement</b> ; la Préfecture l’examine puis l’autorise ou ouvre une enquête.</div>
 ${fig('d_fraude', 'Le contrôle anti-fraude : cas classés du plus grave au moins grave (données fictives).', 1300, 'p')}`,
 
-`<h1 class="chap">5. Pilotage pour le Ministère et la Préfecture</h1>
+`<h1 class="chap">8. Pilotage pour le Ministère et la Préfecture</h1>
 <p>Le <b>tableau de bord</b> montre la situation réelle : demandes enregistrées, dossiers reçus, en traitement, passeports prêts et remis, renouvellements, alertes, dossiers incomplets, délai moyen de remise. Un <b>export Excel</b> fournit les tableaux et les graphiques pour les rapports.</p>
 ${fig('d_tableau_demo', 'Le tableau de bord (données de démonstration fictives).', 1300, 'p')}
 <h2>Mise en place d’un site : l’« espace partagé »</h2>
 <p>La Préfecture crée un <b>espace</b> : un code à 8 caractères. Les postes (guichet, caisse, portes, préfecture) et les écrans de salle le rejoignent, et <b>tout se synchronise en direct</b>. Les réglages (nombre de portes de 1 à 12, capacité par jour, jours ouverts, heure de début, lieu) s’appliquent à tous.</p>
 ${duo(['d_espace', 'Le panneau de l’espace : code, QR, liens des postes et des écrans.'], ['d_reglages', 'Les réglages du site.'])}`,
 
-`<h1 class="chap">6. Simplicité d’utilisation et fluidité</h1>
+`<h1 class="chap">9. Simplicité d’utilisation et fluidité</h1>
 <p>L’application est pensée pour des agents qui ne sont pas informaticiens et pour des demandeurs qui utilisent surtout leur <b>téléphone</b>.</p>
 <ul><li><b>Guide intégré</b> : au premier lancement, l’application demande « Quel est votre rôle ? » et propose une <b>visite guidée</b> d’environ une minute pour chaque profil ; un bouton ❓ Aide donne les questions fréquentes.</li>
 <li><b>Téléphone et ordinateur</b> : mêmes fonctions, boutons agrandis pour le doigt, installation possible sur l’écran d’accueil du téléphone.</li>
@@ -84,7 +128,7 @@ ${duo(['d_espace', 'Le panneau de l’espace : code, QR, liens des postes et des
 <li><b>Résilience</b> : en cas de coupure du serveur, les postes l’indiquent, restent utilisables et se resynchronisent seuls ; les écrans gardent leur dernier affichage.</li></ul>
 <div class="tel-duo">${fig('t_visite', 'Visite guidée', 600)}${fig('t_caisse', 'Caisse sur téléphone', 600)}${fig('t_tableau', 'Tableau de bord sur téléphone', 600)}</div>`,
 
-`<h1 class="chap">7. Sécurité et protection des données personnelles</h1>
+`<h1 class="chap">10. Sécurité et protection des données personnelles</h1>
 <div class="butband"><small>En lien avec le but de l’application</small><p>Un système qui suit des demandes de passeport manipule des <b>données personnelles sensibles</b>. Les protéger fait partie du but : un système sûr, au service du citoyen.</p></div>
 <h3>Ce que fait déjà la démonstration</h3>
 <ul><li>Toutes les données sont <b>fictives</b>.</li><li>Un <b>code d’espace</b> donne accès aux postes ; le demandeur n’accède qu’à <b>son dossier</b>, avec son numéro et un <b>code de contrôle</b> propre.</li><li>La version « demandeur » d’un dossier est <b>réduite au nécessaire</b> (pas de numéro de pièce, pas de date de naissance).</li><li>Les textes saisis sont neutralisés (aucune injection de code), les écritures simultanées sont contrôlées, la capacité et les numéros d’appel ne peuvent pas être dépassés ni dupliqués.</li><li>Un bouton <b>« Effacer définitivement l’espace »</b> supprime les dossiers et les pièces du serveur.</li></ul>
@@ -97,7 +141,7 @@ ${duo(['d_espace', 'Le panneau de l’espace : code, QR, liens des postes et des
 <tr><td>Cadre juridique</td><td>Conformité à la réglementation congolaise sur la protection des données personnelles : finalité, durée de conservation, droits des personnes, responsable du traitement.</td></tr>
 <tr><td>Vérification indépendante</td><td>Audit de sécurité et tests de charge avant toute mise en service.</td></tr></table>`,
 
-`<h1 class="chap">8. Ce qui est démontré, ce qui reste à construire</h1>
+`<h1 class="chap">11. Ce qui est démontré, ce qui reste à construire</h1>
 <table><tr><th style="width:62mm">Démontré aujourd’hui</th><th>À construire / à décider pour un usage réel</th></tr>
 <tr><td>Parcours complet du dépôt à la remise, sur téléphone et ordinateur</td><td>Comptes nominatifs, journal d’audit, hébergement dédié</td></tr>
 <tr><td>Lecture de la zone MRZ d’une pièce (testée sur images de test)</td><td>Essai avec de <b>vraies pièces</b> et les appareils de la Préfecture</td></tr>
@@ -107,7 +151,7 @@ ${duo(['d_espace', 'Le panneau de l’espace : code, QR, liens des postes et des
 <tr><td>Alertes anti-fraude par règles explicables</td><td>Liaison avec les bases officielles pour vérifier l’authenticité (accords à obtenir)</td></tr>
 <tr><td>Tableau de bord et export Excel</td><td>Indicateurs définis avec le Ministère</td></tr></table>
 <div class="note">La <b>capture des empreintes et de la photo</b> reste faite avec le matériel officiel d’enrôlement : l’application organise le rendez-vous, la file et le suivi ; elle ne remplace pas ce matériel.</div>
-<h1 class="chap">9. Feuille de route proposée</h1>
+<h1 class="chap">12. Feuille de route proposée</h1>
 <table><tr><th style="width:36mm">Phase</th><th>Contenu</th><th style="width:48mm">Résultat attendu</th></tr>
 <tr><td><b>0 · Validation</b></td><td>Ateliers avec la Préfecture : pièces exigées, tarifs, jours et horaires, nombre de portes, rôles des agents.</td><td>Cahier des charges validé</td></tr>
 <tr><td><b>1 · Pilote</b></td><td>Un site (Brazzaville), un petit nombre d’agents, données réelles limitées, mesures avant/après.</td><td>Preuve sur le terrain</td></tr>
@@ -115,7 +159,7 @@ ${duo(['d_espace', 'Le panneau de l’espace : code, QR, liens des postes et des
 <tr><td><b>3 · Extension</b></td><td>Autres sites, autres services, rapports nationaux.</td><td>Déploiement progressif</td></tr></table>
 <p><b>Indicateurs de réussite à mesurer</b> : temps d’attente moyen, part des dossiers complets dès le premier passage, délai moyen jusqu’à la remise, nombre d’alertes examinées et traitées, satisfaction des demandeurs et des agents. Les calendriers et les coûts seront établis à l’issue de la phase 0.</p>`,
 
-`<h1 style="margin-top:9mm">10. Décisions attendues</h1>
+`<h1 style="margin-top:9mm">13. Décisions attendues</h1>
 <ol class="pas"><li><b>Valider le but et le périmètre</b> : suivre, ordonner, sécuriser — pour quels sites et quels types de demandes (première demande, renouvellement).</li>
 <li><b>Désigner un référent</b> à la Préfecture et un correspondant au Ministère.</li>
 <li><b>Fixer les règles locales</b> : liste des pièces, tarifs officiels, jours et horaires, capacité journalière, nombre de portes.</li>

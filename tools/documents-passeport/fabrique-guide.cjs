@@ -11,8 +11,24 @@ couverture({ kic: 'Guide d’utilisation · De A à Z', titre: 'Passeport Sûr',
 <div class="carte r"><h3>Sécuriser</h3><p>Les doublons, pièces modifiées, fausses identités, réseaux d’intermédiaires et délais anormaux sont signalés automatiquement.</p></div></div>
 <h2>Comment lire ce guide</h2>
 <p>Ce guide explique, <b>pas à pas</b>, comment utiliser l’application selon votre rôle. Chaque chapitre commence par rappeler <b>à quoi il sert par rapport au but</b> de l’application. Vous pouvez aller directement au chapitre qui vous concerne :</p>
-<div class="toc"><div><b>1</b>Démarrer : ouvrir, installer, choisir son profil</div><div><b>2</b>Les profils et la vie d’un dossier</div><div><b>3</b>Préfecture : mettre en place le site</div><div><b>4</b>Agent de guichet : enregistrer une demande</div><div><b>5</b>Caisse : encaisser</div><div><b>6</b>Agent de porte : appeler les personnes</div><div><b>7</b>L’écran de la salle d’attente</div><div><b>8</b>Le demandeur : suivre son dossier</div><div><b>9</b>Préfecture et Ministère : piloter</div><div><b>10</b>Questions fréquentes et dépannage</div><div><b>11</b>Bonnes pratiques</div><div><b>12</b>Glossaire</div></div>
+<div class="toc"><div><b>★</b>À propos : rôle, importance, avantages, vision</div><div><b>1</b>Démarrer : ouvrir, installer, choisir son profil</div><div><b>2</b>Les profils et la vie d’un dossier</div><div><b>3</b>Préfecture : mettre en place le site</div><div><b>4</b>Agent de guichet : enregistrer une demande</div><div><b>5</b>Caisse : encaisser</div><div><b>6</b>Agent de porte : appeler les personnes</div><div><b>7</b>L’écran de la salle d’attente</div><div><b>8</b>Le demandeur : suivre son dossier</div><div><b>9</b>Préfecture et Ministère : piloter</div><div><b>10</b>Questions fréquentes et dépannage</div><div><b>11</b>Bonnes pratiques</div><div><b>12</b>Glossaire</div></div>
 <div class="note"><b>À savoir.</b> Cette version est une <b>démonstration</b> : toutes les personnes, pièces, numéros et montants sont <b>fictifs</b>. Le tarif et la liste des pièces sont des <b>exemples à confirmer avec la Préfecture</b>. L’application ne prétend pas vérifier l’authenticité des documents.</div>`,
+
+`<h1 class="chap">À propos : son rôle, son importance, ses avantages</h1>
+<p><b>Son rôle.</b> « Passeport Sûr » est l’outil de travail commun du guichet, de la caisse, des portes, de la Préfecture et du Ministère. Il ne remplace ni la loi ni les agents : il <b>met de l’ordre, de la clarté et de la traçabilité</b> dans la demande de passeport.</p>
+<p><b>Son importance.</b> Un passeport ouvre le droit de voyager, d’étudier, de se soigner ou de travailler à l’étranger. Il doit pouvoir être demandé <b>sans perdre des journées</b> et <b>sans connaître quelqu’un</b> ; et, pour l’État, chaque dossier doit être <b>traité de la même façon, de manière traçable et contrôlable</b>.</p>
+<table><tr><th style="width:40mm">Avantage</th><th>Ce que vous constaterez</th></tr>
+<tr><td><b>Transparence</b></td><td>Le demandeur sait où en est son dossier et ce qui manque ; chaque étape est datée.</td></tr>
+<tr><td><b>Équité</b></td><td>On passe dans l’ordre du paiement et du rendez-vous ; le numéro, le nom et la porte s’affichent.</td></tr>
+<tr><td><b>Gain de temps</b></td><td>Fiche pré-remplie par scan, pièces manquantes envoyées depuis le téléphone.</td></tr>
+<tr><td><b>Contrôle</b></td><td>Des alertes à examiner par une personne ; jamais de décision automatique.</td></tr>
+<tr><td><b>Pilotage</b></td><td>Chiffres en direct et export Excel pour les rapports.</td></tr>
+<tr><td><b>Simplicité et légèreté</b></td><td>Visite guidée, aucun compte, application légère, installation en quelques touches sur téléphone ou ordinateur.</td></tr></table>
+<h2>La vision de son créateur</h2>
+<p>« Passeport Sûr » est conçu par <b>STAR ENTREPRISE</b>, à Brazzaville, sous la direction de <b>Carry OTEMBA</b>. Sa vision : <b>mettre la technologie congolaise au service d’un service public plus clair, plus juste et plus sûr</b> — où chacun est reçu à son tour, avec dignité, où chaque étape laisse une trace, et où <b>la décision reste toujours à l’agent habilité</b>.</p>
+<h2>Ce qui revient au Ministère et à la Préfecture</h2>
+<p>Le <b>Ministère</b> fixe la procédure, les pièces exigées et les tarifs officiels, choisit l’hébergement et les règles de conservation des données, et suit les résultats. La <b>Préfecture</b> désigne le site, les portes et les jours d’ouverture, nomme et forme les agents, gère l’espace partagé et <b>examine les alertes</b>. <b>STAR ENTREPRISE</b> fournit, maintient et forme. Cette répartition est une proposition de travail, à confirmer avec les autorités.</p>
+<div class="note"><b>À savoir.</b> Les gains réels (temps d’attente, dossiers incomplets, fraudes repérées) devront être <b>mesurés pendant un projet pilote</b> ; la démonstration ne les chiffre pas.</div>`,
 
 `<h1 class="chap">1. Démarrer</h1>
 ${role('Pour atteindre le but, l’application doit être simple à ouvrir et à comprendre dès le premier lancement, par n’importe quel agent ou demandeur.')}
