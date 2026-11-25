@@ -488,3 +488,11 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 ## 25/11/2026 — FUTURS PROJETS : idée « agent YouTube » (vidéo envoyée par Carry)
 - Fichier reçu : `video_star_entreprise.html` = un MP4 vertical de 85 s (reel d'un créateur brésilien, @igao.ia) : « Claude maîtrise YouTube » avec un outil gratuit GitHub « youtube-agent-skill » (≈11 compétences : scripts avec 21 accroches, titre + miniature, transcription → plan de montage, analyse de vidéos virales, commentaires, SEO, plan hebdo, audit…).
 - Vidéo d'un tiers : ne pas la republier. Idée à garder : un « agent contenu » pour les chaînes de STAR ENTREPRISE / KOMYO (relié à l'agent star-social-content). À cadrer avec Carry (quelle chaîne ? quel but ?). Vérifier la licence du dépôt avant toute reprise.
+
+## 25/11/2026 — « Passeport Sûr » v2 : signature, WhatsApp, caisse, file d'attente
+- Signature tactile (doigt/stylet) + photo : enregistrées dans le dossier, visibles à la caisse et en préfecture.
+- Accusé WhatsApp avec QR (aperçu + bouton « Envoyer » wa.me + QR téléchargeable) ; lien de suivi `?suivi=N°&code=`. En réel : API WhatsApp Business (compte Meta à ouvrir) pour l'envoi automatique.
+- Profil Caisse : scan du QR (jsQR), fiche complète, encaissement (montant saisi, aucun tarif inventé), reçu de paiement + N° d'appel ; encaissement bloqué si alerte grave non examinée.
+- File d'attente : ordre du paiement, appel par porte (1 à 4), « rappeler », « absent » ; écran de salle `ecran.html` (numéro, nom, porte, bip + voix française, prochains numéros). 6 états : déposée → payée → reçue → traitement → prête → remise.
+- Interprétation : « système de kimatique » = système de file d'attente avec écrans (à confirmer avec Carry).
+- Toujours NON mis en ligne (≈41 crédits).

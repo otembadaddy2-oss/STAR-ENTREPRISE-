@@ -97,11 +97,30 @@ textarea.mrz{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;
 .b-tableau{background-image:url(img/brazzaville-ville.webp);background-position:center 60%}
 .b-fraude{background-image:url(img/empreinte.webp);background-position:center 50%}
 .b-citoyen{background-image:url(img/aeroport.webp);background-position:center 45%}
+.b-caisse{background-image:url(img/brazzaville-ville.webp);background-position:center 62%}.b-file{background-image:url(img/aeroport.webp);background-position:center 40%}
 .b-apropos{background-image:url(img/batiment-rond.webp);background-position:center 30%}
 .acts .act{overflow:hidden;padding:0}.act .ph{height:118px;background:center/cover no-repeat;position:relative}
 .act .ph::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,#062b1e66)}
 .act .tx{padding:12px 16px 16px}.act .tx b{margin-top:0}
 .act .ph.p1{background-image:url(img/passeport-visas.webp)}.act .ph.p2{background-image:url(img/brazzaville-ville.webp)}.act .ph.p3{background-image:url(img/empreinte.webp)}.act .ph.p4{background-image:url(img/aeroport.webp)}
+.sigpad{border:2px dashed #b9b196;border-radius:14px;background:#fffdf6;touch-action:none;display:block;width:100%;height:170px;cursor:crosshair}
+.sigpad.ok{border-color:var(--vert);border-style:solid}
+.visage{width:112px;height:140px;border-radius:14px;background:#e8e3d2 center/cover no-repeat;border:2px solid #cfc8b2;flex:none}
+.pieces{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0}
+.pieces figure{background:#f6f3ea;border:1px solid var(--trait);border-radius:12px;padding:8px;text-align:center}
+.pieces img{max-width:100%;max-height:150px;border-radius:8px;background:#fff}
+.pieces figcaption{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--gris);margin-top:4px}
+.wa{background:#e5ddd5;border-radius:16px;padding:12px;margin-top:12px}
+.wa .tete{display:flex;align-items:center;gap:8px;font-weight:600;color:#075e54;margin-bottom:8px;font-size:13px}
+.wa .tete i{width:26px;height:26px;border-radius:50%;background:#25d366;display:inline-grid;place-items:center;color:#fff;font-style:normal;font-size:14px}
+.wa .bulle{background:#dcf8c6;border-radius:12px 12px 12px 2px;padding:10px 12px;font-size:13.5px;line-height:1.45;color:#111;max-width:340px;white-space:pre-line;box-shadow:0 1px 2px #0002}
+.wa .bulle img{display:block;width:150px;height:150px;margin:8px auto 4px;background:#fff;border-radius:8px;padding:6px}
+.wa .heure{font-size:11px;color:#667;text-align:right;margin-top:3px}
+.scan{position:relative;background:#06150f;border-radius:14px;overflow:hidden;display:none;margin-bottom:10px}.scan.on{display:block}.scan video{width:100%;display:block;max-height:340px;object-fit:cover}
+.scan .vise{position:absolute;inset:18% 22%;border:3px solid var(--jaune);border-radius:16px;pointer-events:none;box-shadow:0 0 0 999px #0006}
+.guichets{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0}
+.ticket{font-family:PF,serif;font-weight:800;font-size:34px;color:var(--foret);line-height:1}
+.gros{font-family:PF,serif;font-weight:800;font-size:54px;color:var(--foret);line-height:1}
 .signature{margin:34px auto 0;max-width:760px;text-align:center;font-size:10px;color:#9aa59f}
 .signature .credit b{color:#6f7c75;font-weight:600}
 .signature .credit{display:block;cursor:default;user-select:none;-webkit-tap-highlight-color:transparent}
@@ -166,12 +185,14 @@ tr.cl{cursor:pointer}tr.cl:hover td{background:#f3f9f5}
   <img src="logo.svg" alt="Logo Passeport Sûr">
   <div class="tt">PASSEPORT SÛR<small>Suivi · Contrôle · Transparence</small></div>
   <div class="role"><span>Profil</span>
-    <select id="role" aria-label="Profil"><option value="agent">Agent de guichet</option><option value="prefecture">Préfecture de Brazzaville</option><option value="ministere">Ministère (consultation)</option></select></div>
+    <select id="role" aria-label="Profil"><option value="agent">Agent de guichet (enregistrement)</option><option value="caisse">Caisse (paiement)</option><option value="porte">Agent de porte (appel)</option><option value="prefecture">Préfecture de Brazzaville</option><option value="ministere">Ministère (consultation)</option></select></div>
 </div></header>
 <div class="bandeau">Proposition de projet · démonstration — toutes les personnes, pièces et numéros affichés sont <b>fictifs</b> et restent sur cet appareil.</div>
 <nav><div class="in" id="onglets">
   <button data-v="accueil" class="on">Accueil</button>
-  <button data-v="guichet">Nouvelle demande</button>
+  <button data-v="guichet" data-roles="agent,prefecture">Nouvelle demande</button>
+  <button data-v="caisse" data-roles="caisse,prefecture">Caisse</button>
+  <button data-v="file">File d'attente</button>
   <button data-v="dossiers">Dossiers</button>
   <button data-v="tableau">Tableau de bord</button>
   <button data-v="fraude">Contrôle anti-fraude<span class="pt" id="ptFraude"></span></button>
@@ -196,12 +217,12 @@ tr.cl{cursor:pointer}tr.cl:hover td{background:#f3f9f5}
   </div>
   <h2 style="font-size:21px;margin-bottom:10px">Comment ça marche</h2>
   <div class="pas">
-    <div><b>Scanner la pièce</b>Carte d'identité ou passeport, lecture automatique.</div>
-    <div><b>Fiche remplie seule</b>Nom, naissance, numéro, expiration. Première demande ou renouvellement.</div>
-    <div><b>Reçu avec QR code</b>Numéro de dossier unique, impossible à refaire à la main.</div>
-    <div><b>Suivi en 5 étapes</b>Déposée, reçue, en traitement, prête, remise. Historique complet.</div>
-    <div><b>Tableau de bord</b>Qui demande, qui est reçu, qui a son passeport, qui attend. Export Excel.</div>
-    <div><b>Alertes automatiques</b>Les fraudes et les contournements sont signalés à la Préfecture.</div>
+    <div><b>Scanner et signer</b>Pièce scannée, fiche remplie seule, photo et signature au doigt.</div>
+    <div><b>Accusé WhatsApp</b>Le demandeur reçoit son N° de reçu et un code QR sur son téléphone.</div>
+    <div><b>La caisse scanne le QR</b>Toute la fiche, les pièces et la signature s'affichent. Paiement, puis N° d'appel.</div>
+    <div><b>Salle d'attente</b>Les numéros défilent sur les écrans avec le nom et la porte.</div>
+    <div><b>Suivi et tableau de bord</b>Qui a payé, qui est reçu, qui a son passeport, qui attend. Export Excel.</div>
+    <div><b>Alertes automatiques</b>Fraudes et contournements signalés à la Préfecture.</div>
   </div>
 </section>
 
@@ -253,7 +274,53 @@ tr.cl{cursor:pointer}tr.cl:hover td{background:#f3f9f5}
       </div>
     </div>
     <div id="alertesForm"></div>
-    <div class="ligne" style="margin-top:14px"><button class="btn vert" id="bValider">Enregistrer la demande et éditer le reçu</button><button class="btn clair" id="bVider">Effacer</button></div>
+  </div>
+  <div class="carte"><h3><span class="n">4</span>Photo du demandeur et signature</h3>
+    <div class="ligne" style="align-items:flex-start;gap:14px">
+      <div class="visage" id="prevVisage"></div>
+      <div style="flex:1 1 220px"><p class="sous" style="margin-bottom:8px">Photo d'identité du demandeur (caméra ou fichier). Elle sera retrouvée à la caisse avec la fiche.</p>
+        <button class="btn vert petit" id="bPhoto">📷 Prendre la photo</button> <button class="btn clair petit" id="bPhotoFichier">🖼 Choisir un fichier</button>
+        <input type="file" id="fileVisage" accept="image/*" capture="user" hidden></div>
+    </div>
+    <label style="margin-top:14px">Signature du demandeur (au doigt ou au stylet)</label>
+    <canvas id="sigPad" class="sigpad" aria-label="Zone de signature"></canvas>
+    <div class="ligne" style="margin-top:8px"><button class="btn clair petit" id="bSigEff">Effacer la signature</button><span id="sigEtat" style="font-size:13px;color:var(--gris)">Faites signer dans le cadre ci-dessus.</span></div>
+  </div>
+  <div class="carte"><div class="ligne"><button class="btn vert" id="bValider">Enregistrer la demande, éditer le reçu et envoyer l'accusé WhatsApp</button><button class="btn clair" id="bVider">Effacer</button></div>
+  </div>
+</section>
+
+<!-- ===== CAISSE ===== -->
+<section id="v-caisse" class="vue">
+  <div class="baniere b-caisse"><div class="txt"><h2>Caisse — paiement</h2><p class="sous">Scannez le code QR de l'accusé du demandeur : sa fiche complète s'affiche, puis encaissez.</p></div></div>
+  <div class="carte"><h3><span class="n">1</span>Scanner l'accusé du demandeur</h3>
+    <div class="ligne" style="margin-bottom:10px"><button class="btn vert" id="bScanCaisse">📷 Scanner le code QR</button><button class="btn clair" id="bScanStop" style="display:none">Fermer la caméra</button>
+      <button class="btn clair petit" id="bScanEx">Exemple : accusé d'un dossier en attente</button></div>
+    <div class="scan" id="scanBox"><video id="scanVid" playsinline muted></video><div class="vise"></div></div>
+    <canvas id="scanCv" hidden></canvas>
+    <div class="grille"><div class="c6"><label for="k_id">N° de reçu (sur l'accusé)</label><input id="k_id" placeholder="BZV-2026-000012" autocapitalize="characters"></div>
+      <div class="c6"><label for="k_code">Code de contrôle</label><input id="k_code" placeholder="A1B2C3" autocapitalize="characters" maxlength="6"></div></div>
+    <div class="ligne" style="margin-top:10px"><button class="btn" id="bCaisseOuvrir">Ouvrir le dossier</button><span id="scanEtat" style="font-size:13px;color:var(--gris)"></span></div>
+  </div>
+  <div id="caisseRes"></div>
+  <div class="carte"><h3>Encaissements de la journée <span style="font-size:12px;font-weight:300;color:var(--gris)">(montants fictifs de démonstration)</span></h3><div class="kpis" id="kpisCaisse"></div>
+    <div class="tablewrap"><table><thead><tr><th>Heure</th><th>N° d'appel</th><th>Reçu de paiement</th><th>Demandeur</th><th>Mode</th><th>Montant (FCFA)</th></tr></thead><tbody id="tbCaisse"></tbody></table></div></div>
+</section>
+
+<!-- ===== FILE D'ATTENTE ===== -->
+<section id="v-file" class="vue">
+  <div class="baniere b-file"><div class="txt"><h2>File d'attente et appel en salle</h2><p class="sous">Les numéros défilent dans l'ordre du paiement. Chaque porte appelle le suivant : le numéro, le nom et la porte s'affichent sur les écrans de la salle.</p></div></div>
+  <div class="kpis" id="kpisFile"></div>
+  <div class="carte"><h3>Appeler</h3>
+    <div class="ligne"><label for="selPorte" style="margin:0">Je suis à la</label><select id="selPorte" style="width:auto;min-width:130px"><option value="1">Porte 1</option><option value="2">Porte 2</option><option value="3">Porte 3</option><option value="4">Porte 4</option></select>
+      <button class="btn or" id="bAppeler">🔔 Appeler le suivant</button><button class="btn clair" id="bRappeler">Rappeler le dernier</button><button class="btn clair" id="bAbsent">Absent : renvoyer en fin de file</button></div>
+    <div id="appelEtat" class="alert bleu" style="display:none"></div>
+  </div>
+  <div class="graphes">
+    <div class="carte"><h3>Personnes en attente (dans l'ordre)</h3><div class="tablewrap"><table><thead><tr><th>N°</th><th>Demandeur</th><th>Type</th><th>Attente</th></tr></thead><tbody id="tbFile"></tbody></table></div></div>
+    <div class="carte"><h3>Écran de la salle (aperçu en direct)</h3><iframe id="apercuEcran" src="ecran.html?apercu=1" title="Écran de la salle" style="width:100%;height:330px;border:0;border-radius:12px;background:#06150f"></iframe>
+      <div class="ligne" style="margin-top:10px"><a class="btn clair petit" href="ecran.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block">🖥 Ouvrir l'écran de la salle (plein écran)</a></div>
+      <p class="sous" style="margin:8px 0 0;font-size:12.5px">En salle : un écran (ou plusieurs) ouvre cette page. Dans la démonstration, l'écran se met à jour tout seul quand une porte appelle.</p></div>
   </div>
 </section>
 
@@ -328,13 +395,13 @@ tr.cl{cursor:pointer}tr.cl:hover td{background:#f3f9f5}
   <div class="baniere b-apropos"><div class="txt"><h2>À propos de cette démonstration</h2><p class="sous">Ce que montre l'application, et ce qu'il faudrait pour la mettre en service.</p></div></div>
   <div class="carte"><h3>Droits selon le profil</h3><dl class="dl" style="grid-template-columns:200px 1fr">
     <dt>Agent de guichet</dt><dd>Enregistre les demandes, scanne les pièces, fait avancer ses dossiers.</dd>
-    <dt>Préfecture</dt><dd>Suit tout, examine les alertes, transmet pour enquête.</dd>
+    <dt>Caisse</dt><dd>Scanne le code QR de l’accusé, voit la fiche complète (photo, pièce, signature), encaisse et remet le reçu avec le N° d’appel. Un dossier avec alerte grave n’est pas encaissé avant examen par la Préfecture.</dd><dt>Agent de porte</dt><dd>Appelle le suivant : le numéro, le nom et la porte s’affichent sur les écrans de la salle.</dd><dt>Préfecture</dt><dd>Suit tout, examine les alertes, transmet pour enquête.</dd>
     <dt>Ministère</dt><dd>Consulte les statistiques et les alertes. Ne modifie rien.</dd>
     <dt>Historique</dt><dd>Chaque changement garde la date, l'heure et la personne. Rien ne s'efface.</dd>
   </dl></div>
   <div class="alert bleu"><b>Limite importante.</b> L'application lit ce qui est écrit sur la pièce et contrôle sa cohérence. Elle ne peut pas savoir si une pièce est authentique : cela demande un lien avec les fichiers officiels de l'État.</div>
   <div class="carte" style="margin-top:14px"><h3>Pour une mise en service réelle</h3><dl class="dl" style="grid-template-columns:200px 1fr">
-    <dt>Autorisation</dt><dd>Accord officiel du Ministère et respect de la loi congolaise sur la protection des données personnelles.</dd>
+    <dt>WhatsApp</dt><dd>Envoi automatique de l’accusé avec le code QR : compte WhatsApp Business (Meta) et modèle de message validé. Dans la démonstration, l’agent touche « Envoyer ».</dd><dt>Écrans de salle</dt><dd>Un ou plusieurs écrans (téléviseurs) branchés sur la page « écran de la salle », avec le son. Les écrans se mettent à jour tout seuls.</dd><dt>Autorisation</dt><dd>Accord officiel du Ministère et respect de la loi congolaise sur la protection des données personnelles.</dd>
     <dt>Hébergement</dt><dd>Serveur sécurisé choisi avec le Ministère, données chiffrées, sauvegardes.</dd>
     <dt>Accès</dt><dd>Comptes nominatifs avec double vérification pour chaque agent.</dd>
     <dt>Pilote</dt><dd>Test dans un seul secteur de Brazzaville avant tout élargissement.</dd>
@@ -359,6 +426,8 @@ tr.cl{cursor:pointer}tr.cl:hover td{background:#f3f9f5}
 <script src="lib/chart.umd.js"></script>
 <script src="lib/xlsx.full.min.js"></script>
 <script src="lib/qrcode.js"></script>
+<script src="lib/jsqr.js"></script>
 <script src="app.js"></script>
+<script src="app-suite.js"></script>
 </body>
 </html>

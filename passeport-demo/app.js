@@ -1,13 +1,13 @@
 /* Passeport Sûr — suivi et contrôle des demandes de passeport (démonstration : données fictives, stockées sur l'appareil) */
 (function () {
 'use strict';
-const STATUTS = [['depose', 'Demande déposée'], ['recu', 'Dossier reçu'], ['traitement', 'En traitement'], ['pret', 'Passeport prêt'], ['remis', 'Remis au demandeur']];
+const STATUTS = [['depose', 'Demande déposée'], ['paye', 'Paiement effectué'], ['recu', 'Dossier reçu'], ['traitement', 'En traitement'], ['pret', 'Passeport prêt'], ['remis', 'Remis au demandeur']];
 const SN = Object.fromEntries(STATUTS);
 const TN = { premiere: 'Première demande', renouvellement: 'Renouvellement' };
 const KN = { piece: 'Pièce modifiée', doublon: 'Doublon de pièce', identite: 'Double identité', reseau: 'Réseau d’intermédiaires', expiree: 'Pièce expirée', renouvellement: 'Renouvellement irrégulier', etape: 'Étape sautée', delai: 'Remise éclair', nuit: 'Action de nuit', bloque: 'Dossier bloqué', agent: 'Agent à surveiller' };
 const LIEUX = ['Makélékélé', 'Bacongo', 'Poto-Poto', 'Moungali', 'Ouenzé', 'Talangaï', 'Mfilou', 'Madibou', 'Djiri'];
 const AGENTS = ['Agent 01', 'Agent 02', 'Agent 03', 'Agent 04', 'Agent 05', 'Agent 06'];
-const KEY = 'sp_demo_v2';
+const KEY = 'sp_demo_v3';
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const DAY = 86400000, HOUR = 3600000;
@@ -116,48 +116,66 @@ function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 
 const NOMS = ['Mabiala', 'Nkounkou', 'Moukoko', 'Itoua', 'Okemba', 'Mouanda', 'Ngoma', 'Bakala', 'Massamba', 'Loubaki', 'Mpassi', 'Kimbembe', 'Boukaka', 'Ondongo', 'Tsiba', 'Makosso', 'Nzaba', 'Samba', 'Mavoungou', 'Ibara', 'Dzon', 'Elenga', 'Gampio', 'Lekaka'];
 const PF = ['Grâce', 'Prisca', 'Merveille', 'Esther', 'Sandrine', 'Chancelle', 'Divine', 'Laure', 'Ornella', 'Nadège', 'Josiane', 'Clarisse'];
 const PM = ['Jean-Claude', 'Rodrigue', 'Christ', 'Parfait', 'Brice', 'Fabrice', 'Giscard', 'Hervé', 'Dieudonné', 'Aimé', 'Steve', 'Gildas'];
+const serviceDay = ms => isoDate(new Date(ms - 4 * HOUR));
+function deriver(all) {
+  all.forEach(d => { delete d.paiement; delete d.appel; delete d.ticket;
+    const h = d.history.find(x => x.s === 'paye'); if (h) d.paiement = { montant: d.montant || 75000, mode: d.mode || 'Espèces', at: h.at, caissier: 'Caisse' };
+    const r = d.history.find(x => x.s === 'recu'); if (r) { const m = /(\d)/.exec(r.by); d.appel = { porte: m ? +m[1] : 1, at: r.at }; } });
+  const pays = all.filter(d => d.paiement).sort((x, y) => x.paiement.at.localeCompare(y.paiement.at)), cnt = {}; let rp = 0;
+  pays.forEach(d => { const k = serviceDay(T(d.paiement.at)); cnt[k] = (cnt[k] || 0) + 1; d.ticket = cnt[k]; d.paiement.recu = 'RP-' + new Date(d.paiement.at).getFullYear() + '-' + pad(++rp, 6); });
+}
 function seed() {
   const R = rng(20261125), pick = a => a[Math.floor(R() * a.length)], ri = (a, b) => a + Math.floor(R() * (b - a + 1));
-  const all = [], N = 86, now = NOW();
-  const dates = []; for (let i = 0; i < N; i++) dates.push(now.getTime() - (R() * R() * 64 + 0.3) * DAY); dates.sort((a, b) => a - b);
-  dates.forEach((ts, i) => {
-    const t = new Date(ts); t.setHours(ri(8, 16), ri(0, 59), 0, 0);
-    const ren = R() < 0.32, f = R() < 0.5, nom = pick(NOMS), prenoms = f ? pick(PF) : pick(PM), age = jours(t.getTime(), now.getTime()), agent = pick(AGENTS);
+  const all = [], now = NOW(), nowMs = now.getTime();
+  const fab = (i, ts, force) => {
+    const t = new Date(ts), ren = R() < 0.32, f = R() < 0.5, nom = pick(NOMS), prenoms = f ? pick(PF) : pick(PM), age = jours(t.getTime(), nowMs), agent = pick(AGENTS);
     const naiss = ri(1958, 2007) + '-' + pad(ri(1, 12)) + '-' + pad(ri(1, 28));
     const ptype = ren ? (R() < 0.6 ? 'PASSEPORT' : 'CNI') : (R() < 0.85 ? 'CNI' : 'PASSEPORT');
     const num = (ptype === 'CNI' ? 'CG' : 'OA') + pad(ri(1000000, 9999999), 7);
-    const exp = isoDate(new Date(now.getTime() + (ren && ptype === 'PASSEPORT' ? -ri(15, 900) : ri(200, 2800)) * DAY));
+    const exp = isoDate(new Date(nowMs + (ren && ptype === 'PASSEPORT' ? -ri(15, 900) : ri(200, 2800)) * DAY));
     const d = { id: 'BZV-' + t.getFullYear() + '-' + pad(i + 1, 6), type: ren ? 'renouvellement' : 'premiere', createdAt: t.toISOString(), lieu: pick(LIEUX), agent, mrzOk: true,
+      montant: pick([50000, 75000, 100000]), mode: pick(['Espèces', 'Mobile Money MTN', 'Mobile Money Airtel']),
       person: { nom: nom.toUpperCase(), prenoms, naissance: naiss, sexe: f ? 'F' : 'M', nationalite: 'COG', tel: '+242 06 ' + pad(ri(100, 999), 3) + ' ' + pad(ri(10, 99)) + ' ' + pad(ri(10, 99)), piece: { type: ptype, numero: num, expiration: exp } },
       ancien: null, ancienRestitue: false, history: [] };
-    if (ren) { const ae = isoDate(new Date(now.getTime() - ri(15, 900) * DAY)); d.ancien = { numero: 'OA' + pad(ri(1000000, 9999999), 7), expiration: ae }; if (ptype === 'PASSEPORT') { d.person.piece.numero = d.ancien.numero; d.person.piece.expiration = ae; } }
-    let steps = 0, tt = t.getTime(); const pas = [[1, 3], [2, 6], [3, 8], [2, 5]];
+    if (ren) { const ae = isoDate(new Date(nowMs - ri(15, 900) * DAY)); d.ancien = { numero: 'OA' + pad(ri(1000000, 9999999), 7), expiration: ae }; if (ptype === 'PASSEPORT') { d.person.piece.numero = d.ancien.numero; d.person.piece.expiration = ae; } }
+    let steps = 0, tt = t.getTime(); const pas = [[0, 1], [1, 3], [2, 6], [3, 8], [2, 5]];
     d.history.push({ s: 'depose', at: new Date(tt).toISOString(), by: agent, note: 'Dossier enregistré' });
-    for (let k = 0; k < 4; k++) {
-      let dl = ri(pas[k][0], pas[k][1]) * DAY + ri(0, 5) * HOUR; let at = new Date(tt + dl); at.setHours(ri(8, 16), ri(0, 59), 0, 0); dl = at.getTime() - tt; if (dl < 3 * HOUR) { at = new Date(tt + DAY); at.setHours(10, ri(0, 59)); }
-      if (at.getTime() < now.getTime() - 3 * HOUR && R() < (age > 20 ? 0.93 : 0.72)) { tt = at.getTime(); steps++; d.history.push({ s: STATUTS[k + 1][0], at: at.toISOString(), by: (k === 1 || k === 2) ? 'Préfecture' : agent, note: '' }); } else break;
+    for (let k = 0; k < 5; k++) {
+      if (force != null && steps >= force) break;
+      let at;
+      if (k === 0) at = new Date(tt + ri(8, 90) * 60000);
+      else if (k === 1 && force != null) at = new Date(tt + ri(5, 20) * 60000);
+      else { at = new Date(tt + ri(pas[k][0], pas[k][1]) * DAY + ri(0, 5) * HOUR); at.setHours(ri(8, 16), ri(0, 59), 0, 0); if (at.getTime() <= tt) at = new Date(tt + DAY); }
+      if (force == null && !(at.getTime() < nowMs - 3 * HOUR && (k === 1 && age > 1 ? true : R() < (age > 20 ? 0.93 : 0.72)))) break;
+      tt = at.getTime(); steps++;
+      d.history.push({ s: STATUTS[k + 1][0], at: at.toISOString(), by: k === 0 ? 'Caisse' : k === 1 ? 'Porte ' + ri(1, 4) : (k === 2 || k === 3) ? 'Préfecture' : agent, note: '' });
     }
     d.status = STATUTS[steps][0]; if (d.status === 'remis' && ren) d.ancienRestitue = true;
-    all.push(d);
-  });
+    return d;
+  };
+  const dates = []; for (let i = 0; i < 86; i++) dates.push(nowMs - (R() * R() * 64 + 0.3) * DAY); dates.sort((a, b) => a - b);
+  dates.forEach((ts, i) => { const t = new Date(ts); t.setHours(ri(8, 16), ri(0, 59), 0, 0); all.push(fab(i, t.getTime(), null)); });
   // cas réalistes d'irrégularités (pour montrer ce que le système détecte)
-  const A = all.length, rem = all.filter(x => x.status === 'remis' && jours(T(x.createdAt), now.getTime()) > 20);
-  all[A - 7].person.piece = Object.assign({}, all[9].person.piece);                                                                     // doublon de pièce
+  const A = all.length, rem = all.filter(x => x.status === 'remis' && jours(T(x.createdAt), nowMs) > 20);
+  all[A - 7].person.piece = Object.assign({}, all[9].person.piece);
   all[A - 15].person.piece = Object.assign({}, all[24].person.piece);
-  Object.assign(all[A - 4].person, { nom: all[16].person.nom, prenoms: all[16].person.prenoms, naissance: all[16].person.naissance });    // double identité
-  all[A - 10].mrzOk = false; all[A - 24].mrzOk = false;                                                                                  // pièces modifiées
-  ['A', 'B', 'C', 'D'].forEach((_, j) => { all[10 + j * 9].person.tel = '+242 06 612 34 78'; });                                          // un même téléphone, 4 personnes
-  rem.slice(0, 4).forEach((d, j) => {                                                                                                     // remises éclair par un même agent
-    d.agent = 'Agent 04'; const b = new Date(d.createdAt).getTime(), hrs = [1, 2, 3, 5];
-    d.history = [{ s: 'depose', at: d.createdAt, by: 'Agent 04', note: 'Dossier enregistré' }].concat(['recu', 'traitement', 'pret', 'remis'].map((s, k) => ({ s, at: new Date(b + hrs[k] * HOUR).toISOString(), by: 'Agent 04', note: '' })));
+  Object.assign(all[A - 4].person, { nom: all[16].person.nom, prenoms: all[16].person.prenoms, naissance: all[16].person.naissance });
+  all[A - 10].mrzOk = false; all[A - 24].mrzOk = false;
+  ['A', 'B', 'C', 'D'].forEach((_, j) => { all[10 + j * 9].person.tel = '+242 06 612 34 78'; });
+  rem.slice(0, 4).forEach(d => {
+    d.agent = 'Agent 04'; const b = T(d.createdAt), hrs = [1, 2, 3, 4, 6];
+    d.history = [{ s: 'depose', at: d.createdAt, by: 'Agent 04', note: 'Dossier enregistré' }].concat(['paye', 'recu', 'traitement', 'pret', 'remis'].map((s, k) => ({ s, at: new Date(b + hrs[k] * HOUR).toISOString(), by: k === 0 ? 'Caisse' : k === 1 ? 'Porte 2' : 'Agent 04', note: '' })));
     if (d.type === 'renouvellement') d.ancienRestitue = true;
   });
-  const sk = all.filter(x => x.status === 'pret' && x.history.length === 4)[0] || all.filter(x => x.status === 'traitement')[0];                 // étape sautée
-  if (sk) { sk.history = [sk.history[0], { s: 'pret', at: new Date(T(sk.history[0].at) + 2 * DAY).toISOString(), by: sk.agent, note: '' }]; sk.status = 'pret'; }
-  all.filter(x => x.history.length >= 3 && !x.history.some(h => h.by === 'Agent 04')).slice(0, 4).forEach(d => { const h = d.history[2]; const dd = new Date(h.at); dd.setHours(22, 40); h.at = dd.toISOString(); h.by = 'Agent 02'; });   // actions de nuit
-  const r2 = all.filter(x => x.type === 'renouvellement' && x.status !== 'remis'); if (r2.length) r2[r2.length - 1].ancien.expiration = isoDate(new Date(now.getTime() + 260 * DAY));
-  const sansRestit = all.filter(x => x.type === 'renouvellement' && x.status === 'remis' && !x.history.some(h => h.by === 'Agent 04'))[0]; if (sansRestit) sansRestit.ancienRestitue = false;
-  all.forEach(d => d.history.sort((a, b) => a.at.localeCompare(b.at)));
+  const sk = all.filter(x => x.status === 'pret' && x.history.length === 5)[0] || all.filter(x => x.status === 'traitement')[0];
+  if (sk) { sk.history = [sk.history[0], { s: 'recu', at: new Date(T(sk.history[0].at) + 2 * HOUR).toISOString(), by: 'Porte 1', note: '' }, { s: 'pret', at: new Date(T(sk.history[0].at) + 2 * DAY).toISOString(), by: sk.agent, note: '' }]; sk.status = 'pret'; }
+  all.filter(x => x.history.length >= 4 && !x.history.some(h => h.by === 'Agent 04')).slice(0, 4).forEach(d => { const h = d.history[3]; const dd = new Date(h.at); dd.setHours(22, 40); h.at = dd.toISOString(); h.by = 'Agent 02'; });
+  const r2 = all.filter(x => x.type === 'renouvellement' && x.status !== 'remis'); if (r2.length) r2[r2.length - 1].ancien.expiration = isoDate(new Date(nowMs + 260 * DAY));
+  const sr = all.filter(x => x.type === 'renouvellement' && x.status === 'remis' && !x.history.some(h => h.by === 'Agent 04'))[0]; if (sr) sr.ancienRestitue = false;
+  // la file d'attente du jour : 2 personnes déjà appelées, 9 en attente, 3 qui viennent de déposer
+  for (let j = 0; j < 14; j++) { const force = j < 2 ? 2 : j < 11 ? 1 : 0; all.push(fab(86 + j, nowMs - (330 - j * 20) * 60000, force)); }
+  all.forEach(d => d.history.sort((x, y) => x.at.localeCompare(y.at)));
+  deriver(all);
   FL = computeFlags(all);
   all.filter(d => flags(d).length).slice(0, 3).forEach((d, i) => { d.suite = i === 2 ? 'enquete' : 'verifie'; d.suiteAt = now.toISOString(); });
   return all;
@@ -168,11 +186,12 @@ function sauver() { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch
 
 /* ---------- Profil et navigation ---------- */
 let role = 'agent';
-const ROLES = { agent: 'Agent 03', prefecture: 'Préfecture', ministere: 'Ministère' };
+const ROLES = { agent: 'Agent 03', caisse: 'Caisse', porte: 'Porte 1', prefecture: 'Préfecture', ministere: 'Ministère' };
 function appliquerRole() {
   role = $('#role').value;
-  $('[data-v="guichet"]').style.display = role === 'ministere' ? 'none' : '';
-  if (role === 'ministere' && $('#onglets .on').dataset.v === 'guichet') aller('tableau');
+  $$('#onglets button[data-roles]').forEach(b => { b.style.display = b.dataset.roles.split(',').includes(role) ? '' : 'none'; });
+  const cur = $('#onglets .on'); if (cur && cur.style.display === 'none') aller('accueil');
+  if (window.__spSuite) window.__spSuite.role(role);
 }
 function aller(v) {
   $$('#onglets button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
@@ -210,25 +229,29 @@ function alertesForm() {
   const f = computeFlags(DB.concat([d]))[d.id] || [];
   box.innerHTML = f.length ? f.map(x => '<div class="alert ' + (x.n === 'rouge' ? 'rouge' : 'orange') + '">⚠ ' + esc(x.t) + '</div>').join('') + '<div class="alert bleu">Le dossier peut être enregistré : il sera signalé « À vérifier » à la Préfecture.</div>' : '<div class="alert vert">Aucune anomalie détectée.</div>';
 }
-function effacer() { ['f_nom', 'f_prenoms', 'f_naiss', 'f_pnum', 'f_pexp', 'f_tel', 'f_anum', 'f_aexp', 'f_adepuis', 'mrz'].forEach(i => $('#' + i).value = ''); $('#f_sexe').value = ''; $('#resLecture').innerHTML = ''; $('#alertesForm').innerHTML = ''; flux = null; }
+function effacer() { ['f_nom', 'f_prenoms', 'f_naiss', 'f_pnum', 'f_pexp', 'f_tel', 'f_anum', 'f_aexp', 'f_adepuis', 'mrz'].forEach(i => $('#' + i).value = ''); $('#f_sexe').value = ''; $('#resLecture').innerHTML = ''; $('#alertesForm').innerHTML = ''; flux = null; if (window.__spSuite) window.__spSuite.reset(); }
 function valider() {
   const d = lireFiche(), p = d.person, manque = [];
   if (!p.nom) manque.push('nom'); if (!p.prenoms) manque.push('prénoms'); if (!p.naissance) manque.push('date de naissance'); if (!p.piece.numero) manque.push('numéro de la pièce'); if (d.type === 'renouvellement' && !d.ancien.numero) manque.push('numéro de l’ancien passeport');
   if (manque.length) { $('#alertesForm').innerHTML = '<div class="alert rouge">Il manque : ' + manque.join(', ') + '.</div>'; return; }
+  if (window.__spSuite && !window.__spSuite.aSignature()) { $('#alertesForm').innerHTML = '<div class="alert rouge">La signature du demandeur est obligatoire : faites-le signer dans le cadre.</div>'; document.getElementById('sigPad').scrollIntoView({ block: 'center' }); return; }
   const t = NOW(); d.id = 'BZV-' + t.getFullYear() + '-' + pad(DB.length + 1, 6); d.createdAt = t.toISOString(); d.lieu = $('#f_lieu').value; d.history[0] = { s: 'depose', at: t.toISOString(), by: ROLES[role], note: 'Dossier enregistré' };
+  if (window.__spSuite) Object.assign(d, window.__spSuite.extras());
   DB.push(d); sauver(); effacer(); montrerRecu(d);
 }
-function code(id, nom) { let h = 7; const s = id + nom; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h.toString(36).toUpperCase().padStart(6, '0').slice(-6); }
+function code(id, nom) { let h = 7; const s = id + nom; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h.toString(36).toUpperCase().padStart(6, '7').slice(-6).replace(/0/g, '7').replace(/O/g, '8').replace(/1/g, '4').replace(/I/g, '9').replace(/L/g, '5'); }
 function qr(txt) { try { const q = qrcode(0, 'M'); q.addData(txt); q.make(); return q.createSvgTag(4, 0); } catch (e) { return ''; } }
 function montrerRecu(d) {
   const p = d.person, f = flags(d);
-  $('#feuille').innerHTML = '<div class="recu"><img class="lg" src="logo.svg" alt=""><div style="font-size:12px;letter-spacing:.14em;color:var(--gris)">REÇU DE DÉPÔT — DÉMONSTRATION</div><div class="num">' + d.id + '</div>' + qr('PASSEPORT-SUR-DEMO|' + d.id + '|' + code(d.id, p.nom)) +
-    '<div style="font-size:13px;color:var(--gris)">Code de contrôle : <b style="color:var(--foret);font-size:16px;letter-spacing:.1em">' + code(d.id, p.nom) + '</b></div>' +
+  $('#feuille').innerHTML = '<div class="recu"><img class="lg" src="logo.svg" alt=""><div style="font-size:12px;letter-spacing:.14em;color:var(--gris)">ACCUSÉ D’ENREGISTREMENT — DÉMONSTRATION</div><div class="num">' + d.id + '</div>' + qr('PSR1|' + d.id + '|' + code(d.id, p.nom)) +
+    '<div style="font-size:12.5px;color:var(--gris)">N° de reçu à présenter à la caisse de la Préfecture · code de contrôle <b style="color:var(--foret);font-size:15px;letter-spacing:.1em">' + code(d.id, p.nom) + '</b></div>' +
     '<dl class="dl" style="text-align:left"><dt>Demandeur</dt><dd>' + esc(p.nom + ' ' + p.prenoms) + '</dd><dt>Type</dt><dd>' + TN[d.type] + '</dd><dt>Déposé le</dt><dd>' + fmtDH(d.createdAt) + '</dd><dt>Secteur</dt><dd>' + esc(d.lieu) + '</dd></dl>' +
-    '<div style="font-size:13.5px">Conservez ce reçu. Avec le numéro et le code, vous suivez votre dossier dans « Suivre mon dossier ».</div></div>' +
+    '<div style="font-size:13.5px">Étape suivante : <b>paiement à la caisse de la Préfecture</b>. La caisse scanne ce code QR.</div></div>' +
+    (window.__spSuite ? window.__spSuite.accuse(d) : '') +
     (f.length ? '<div class="alert orange noprint">Dossier signalé « À vérifier » : ' + f.length + ' alerte(s) transmise(s) à la Préfecture.</div>' : '') +
-    '<div class="ligne noprint" style="margin-top:12px"><button class="btn or" onclick="window.print()">🖨 Imprimer le reçu</button><button class="btn clair" id="bFerme">Fermer</button><button class="btn clair" id="bVoir">Voir le dossier</button></div>';
+    '<div class="ligne noprint" style="margin-top:12px"><button class="btn or" onclick="window.print()">🖨 Imprimer l’accusé</button><button class="btn clair" id="bFerme">Fermer</button><button class="btn clair" id="bVoir">Voir le dossier</button></div>';
   $('#tiroir').classList.add('on'); $('#bFerme').onclick = fermer; $('#bVoir').onclick = () => detail(d.id);
+  if (window.__spSuite) window.__spSuite.lierAccuse(d);
 }
 function fermer() { $('#tiroir').classList.remove('on'); }
 
@@ -271,8 +294,8 @@ function liste() { const r = filtrer(); $('#cpt').textContent = r.length + ' dos
 function detail(id) {
   const d = DB.find(x => x.id === id); if (!d) return; const p = d.person, i = stIdx(d.status), peut = role !== 'ministere', f = flags(d);
   const etapes = '<div class="etapes">' + STATUTS.map((s, k) => '<div class="etape ' + (k < i ? 'fait' : k === i ? 'now' : '') + '">' + (k < i ? '✔ ' : '') + s[1] + '</div>').join('') + '</div>';
-  let act = '';
-  if (peut && i < 4) { const bl = d.type === 'renouvellement' && d.status === 'pret' && !d.ancienRestitue; act += '<button class="btn vert" id="bNext"' + (bl ? ' disabled' : '') + '>Passer à : ' + STATUTS[i + 1][1] + '</button>'; if (bl) act += '<div class="alert orange" style="flex:1 1 100%">Renouvellement : le nouveau passeport ne peut être remis qu’après restitution ou annulation de l’ancien.</div>'; }
+  let act = (i < 2 ? '<div class="alert bleu" style="flex:1 1 100%">' + (i === 0 ? 'En attente de paiement à la caisse (scan du code QR de l’accusé).' : 'Payé · N° d’appel ' + pad(d.ticket || 0, 3) + ' : en attente d’appel en salle.') + '</div>' : '');
+  if (peut && i >= 2 && i < 5) { const bl = d.type === 'renouvellement' && d.status === 'pret' && !d.ancienRestitue; act += '<button class="btn vert" id="bNext"' + (bl ? ' disabled' : '') + '>Passer à : ' + STATUTS[i + 1][1] + '</button>'; if (bl) act += '<div class="alert orange" style="flex:1 1 100%">Renouvellement : le nouveau passeport ne peut être remis qu’après restitution ou annulation de l’ancien.</div>'; }
   if (peut && d.type === 'renouvellement' && !d.ancienRestitue) act += '<button class="btn clair" id="bAnc">Ancien passeport restitué / annulé</button>';
   if (role === 'prefecture' && ouvert(d)) act += '<button class="btn clair" id="bVer">✔ Vérifié : rien d’anormal</button><button class="btn rouge" id="bEnq">🚨 Transmettre pour enquête</button>';
   const fl = f.map(x => '<div class="alert ' + (x.n === 'rouge' ? 'rouge' : 'orange') + '"><b>' + KN[x.k] + '</b> — ' + esc(x.t) + '</div>').join('') + (d.suite ? '<div class="alert vert">✔ ' + (d.suite === 'enquete' ? 'Transmis pour enquête' : 'Examiné par la Préfecture : rien d’anormal') + ' le ' + fmtDH(d.suiteAt) + '.</div>' : '');
@@ -281,7 +304,7 @@ function detail(id) {
     '<dt>Pièce présentée</dt><dd>' + (p.piece.type === 'CNI' ? 'Carte d’identité' : 'Passeport') + ' n° ' + esc(p.piece.numero) + ' (expire le ' + fmtD(p.piece.expiration) + ')</dd>' +
     (d.ancien ? '<dt>Ancien passeport</dt><dd>n° ' + esc(d.ancien.numero) + ' · expiré le ' + fmtD(d.ancien.expiration) + ' · ' + (d.ancienRestitue ? '<b style="color:var(--vert)">restitué / annulé</b>' : '<b style="color:var(--rouge)">pas encore restitué</b>') + '</dd>' : '') +
     '<dt>Secteur · agent</dt><dd>' + esc(d.lieu) + ' · ' + esc(d.agent || '—') + '</dd><dt>Déposé le</dt><dd>' + fmtDH(d.createdAt) + '</dd></dl>' +
-    '<h3 style="font-size:16px">Historique</h3><div class="histo">' + d.history.map(h => '<div><b>' + SN[h.s] + '</b> — ' + fmtDH(h.at) + '<br><small>' + esc(h.by) + (h.note ? ' · ' + esc(h.note) : '') + '</small></div>').join('') + '</div>' +
+    (window.__spSuite ? window.__spSuite.piecesHtml(d) : '') + '<h3 style="font-size:16px">Historique</h3><div class="histo">' + d.history.map(h => '<div><b>' + SN[h.s] + '</b> — ' + fmtDH(h.at) + '<br><small>' + esc(h.by) + (h.note ? ' · ' + esc(h.note) : '') + '</small></div>').join('') + '</div>' +
     '<div class="ligne noprint" style="margin-top:14px">' + act + '<button class="btn clair" onclick="window.print()">🖨 Imprimer</button><button class="btn clair" id="bFerme">Fermer</button></div>';
   $('#tiroir').classList.add('on'); $('#bFerme').onclick = fermer;
   const maj = (fn) => { fn(); sauver(); detail(id); rafraichir(); };
@@ -292,11 +315,11 @@ function detail(id) {
 }
 
 /* ---------- Statistiques ---------- */
-const COL = { depose: '#6b8aa3', recu: '#2a9d8f', traitement: '#f6c928', pret: '#009543', remis: '#0a4430' };
+const COL = { depose: '#6b8aa3', paye: '#8b4bc0', recu: '#2a9d8f', traitement: '#f6c928', pret: '#009543', remis: '#0a4430' };
 function stats() {
   const c = Object.fromEntries(STATUTS.map(s => [s[0], DB.filter(d => d.status === s[0]).length])), remis = DB.filter(d => d.status === 'remis');
   const delais = remis.map(d => jours(T(d.createdAt), T(last(d).at)));
-  return { T: DB.length, c, recus: DB.filter(d => stIdx(d.status) >= 1).length, nonRemis: DB.length - c.remis, ren: DB.filter(d => d.type === 'renouvellement').length, av: DB.filter(ouvert).length, delai: delais.length ? Math.round(delais.reduce((a, b) => a + b, 0) / delais.length) : 0 };
+  return { T: DB.length, c, recus: DB.filter(d => stIdx(d.status) >= 2).length, nonRemis: DB.length - c.remis, ren: DB.filter(d => d.type === 'renouvellement').length, av: DB.filter(ouvert).length, delai: delais.length ? Math.round(delais.reduce((a, b) => a + b, 0) / delais.length) : 0 };
 }
 const kp = (v, l, c) => '<div class="kpi ' + (c || '') + '"><b>' + v + '</b><span>' + l + '</span></div>';
 let charts = [];
@@ -335,7 +358,7 @@ function fraude() {
 }
 
 /* ---------- Suivi par le demandeur ---------- */
-const MSG = { depose: 'Votre demande a bien été enregistrée. Elle va être transmise pour réception.', recu: 'Votre dossier a été reçu. Il est en attente de traitement.', traitement: 'Votre dossier est en cours de traitement.', pret: 'Votre passeport est prêt. Présentez-vous au guichet avec votre reçu et une pièce d’identité.', remis: 'Votre passeport vous a été remis.' };
+const MSG = { paye: 'Votre paiement est enregistré. Surveillez les écrans de la salle : votre numéro d’appel s’affichera avec le nom de la porte.', depose: 'Votre demande a bien été enregistrée. Elle va être transmise pour réception.', recu: 'Votre dossier a été reçu. Il est en attente de traitement.', traitement: 'Votre dossier est en cours de traitement.', pret: 'Votre passeport est prêt. Présentez-vous au guichet avec votre reçu et une pièce d’identité.', remis: 'Votre passeport vous a été remis.' };
 function suivre() {
   const id = $('#c_id').value.trim().toUpperCase(), cd = $('#c_code').value.trim().toUpperCase(), box = $('#resSuivi'), d = DB.find(x => x.id === id);
   if (!d || code(d.id, d.person.nom) !== cd) { box.innerHTML = '<div class="alert rouge">Aucun dossier ne correspond à ce numéro et à ce code. Vérifiez votre reçu.</div>'; return; }
@@ -344,7 +367,7 @@ function suivre() {
     '<div class="etapes">' + STATUTS.map((s, k) => '<div class="etape ' + (k < i ? 'fait' : k === i ? 'now' : '') + '">' + (k < i ? '✔ ' : '') + s[1] + '</div>').join('') + '</div>' +
     '<div class="alert ' + (d.status === 'pret' || d.status === 'remis' ? 'vert' : 'bleu') + '"><b>' + SN[d.status] + '</b> — ' + MSG[d.status] + '</div>' +
     (d.type === 'renouvellement' && !d.ancienRestitue && d.status === 'pret' ? '<div class="alert orange">Renouvellement : apportez votre ancien passeport, il doit être restitué ou annulé avant la remise du nouveau.</div>' : '') +
-    '<p style="margin-top:10px;font-size:13px;color:var(--gris)">Dernière mise à jour : ' + fmtDH(last(d).at) + '</p></div>';
+    (d.ticket ? '<div class="alert bleu">Votre N° d’appel : <b style="font-size:20px">' + pad(d.ticket, 3) + '</b></div>' : '') + '<p style="margin-top:10px;font-size:13px;color:var(--gris)">Dernière mise à jour : ' + fmtDH(last(d).at) + '</p></div>';
 }
 function exSuivi() { const d = DB.filter(x => !flags(x).length)[Math.floor(Math.random() * 10)] || DB[0]; $('#c_id').value = d.id; $('#c_code').value = code(d.id, d.person.nom); suivre(); }
 
@@ -352,7 +375,7 @@ function exSuivi() { const d = DB.filter(x => !flags(x).length)[Math.floor(Math.
 function excel() {
   if (!window.XLSX) { alert('Export indisponible.'); return; }
   const wb = XLSX.utils.book_new(), s = stats();
-  const dos = DB.slice().sort((a, b) => a.createdAt.localeCompare(b.createdAt)).map(d => { const p = d.person, t = new Date(d.createdAt); return { 'N° dossier': d.id, 'Date de dépôt': fmtD(d.createdAt), 'Heure': pad(t.getHours()) + ':' + pad(t.getMinutes()), 'Nom': p.nom, 'Prénoms': p.prenoms, 'Date de naissance': fmtD(p.naissance), 'Sexe': p.sexe, 'Type de demande': TN[d.type], 'Pièce': p.piece.type, 'N° de pièce': p.piece.numero, 'Expiration pièce': fmtD(p.piece.expiration), 'Ancien passeport n°': d.ancien ? d.ancien.numero : '', 'Ancien expiré le': d.ancien ? fmtD(d.ancien.expiration) : '', 'Ancien restitué': d.ancien ? (d.ancienRestitue ? 'Oui' : 'Non') : '', 'Téléphone': p.tel, 'Secteur': d.lieu, 'Agent': d.agent, 'État': SN[d.status], 'Dernière mise à jour': fmtDH(last(d).at), 'Délai (jours)': jours(T(d.createdAt), (d.status === 'remis' ? T(last(d).at) : NOW().getTime())), 'Risque (0-100)': score(d), 'Alertes': flags(d).map(f => KN[f.k]).join(' | '), 'Suite donnée': d.suite === 'enquete' ? 'Enquête' : d.suite === 'verifie' ? 'Vérifié' : '' }; });
+  const dos = DB.slice().sort((a, b) => a.createdAt.localeCompare(b.createdAt)).map(d => { const p = d.person, t = new Date(d.createdAt); return { 'N° dossier': d.id, 'Date de dépôt': fmtD(d.createdAt), 'Heure': pad(t.getHours()) + ':' + pad(t.getMinutes()), 'Nom': p.nom, 'Prénoms': p.prenoms, 'Date de naissance': fmtD(p.naissance), 'Sexe': p.sexe, 'Type de demande': TN[d.type], 'Pièce': p.piece.type, 'N° de pièce': p.piece.numero, 'Expiration pièce': fmtD(p.piece.expiration), 'Ancien passeport n°': d.ancien ? d.ancien.numero : '', 'Ancien expiré le': d.ancien ? fmtD(d.ancien.expiration) : '', 'Ancien restitué': d.ancien ? (d.ancienRestitue ? 'Oui' : 'Non') : '', 'Téléphone': p.tel, 'Secteur': d.lieu, 'Agent': d.agent, 'N° d’appel': d.ticket || '', 'Montant payé (FCFA)': d.paiement ? d.paiement.montant : '', 'Porte': d.appel ? d.appel.porte : '', 'État': SN[d.status], 'Dernière mise à jour': fmtDH(last(d).at), 'Délai (jours)': jours(T(d.createdAt), (d.status === 'remis' ? T(last(d).at) : NOW().getTime())), 'Risque (0-100)': score(d), 'Alertes': flags(d).map(f => KN[f.k]).join(' | '), 'Suite donnée': d.suite === 'enquete' ? 'Enquête' : d.suite === 'verifie' ? 'Vérifié' : '' }; });
   const sh = (name, rows, w) => { const x = XLSX.utils.json_to_sheet(rows); if (w) x['!cols'] = w.map(n => ({ wch: n })); XLSX.utils.book_append_sheet(wb, x, name); };
   sh('Dossiers', dos, [18, 12, 8, 18, 20, 14, 6, 17, 11, 13, 14, 16, 14, 12, 16, 13, 10, 20, 18, 12, 12, 60, 12]);
   sh('Synthèse états', STATUTS.map(x => ({ 'État': x[1], 'Nombre': s.c[x[0]], 'Part (%)': s.T ? Math.round(s.c[x[0]] * 1000 / s.T) / 10 : 0 })).concat([{ 'État': 'TOTAL', 'Nombre': s.T, 'Part (%)': 100 }]), [24, 10, 10]);
@@ -368,7 +391,7 @@ function excel() {
 /* ---------- Démarrage ---------- */
 function rafraichir() {
   majPastille(); const v = ($('#onglets .on') || {}).dataset; if (!v) return;
-  if (v.v === 'accueil') accueil(); if (v.v === 'dossiers') liste(); if (v.v === 'tableau') tableau(); if (v.v === 'fraude') fraude();
+  if (v.v === 'accueil') accueil(); if (v.v === 'dossiers') liste(); if (v.v === 'tableau') tableau(); if (v.v === 'fraude') fraude(); if (window.__spSuite) window.__spSuite.render(v.v);
 }
 function init() {
   charger(); remplirLieux(); majType(); majPastille(); accueil();
@@ -391,6 +414,7 @@ function init() {
     c.addEventListener('touchstart', () => { lp = setTimeout(bascule, 800); }, { passive: true }); ['touchend', 'touchmove', 'touchcancel'].forEach(e => c.addEventListener(e, () => clearTimeout(lp), { passive: true })); })();
   appliquerRole();
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => { });
+  window.__spApi = { get DB() { return DB; }, sauver, detail, STATUTS, SN, TN, KN, esc, fmtD, fmtDH, jours, T, NOW, pad, isoDate, flags, score, ouvert, bS, bT, bR, code, qr, aller, rafraichir, get role() { return role; }, ROLES, DAY, HOUR, serviceDay, KEY, computeFlags };
   window.__sp = { parseMRZ, buildTD3, buildTD1, computeFlags, get DB() { return DB; }, get FL() { return FL; }, code, KN, SN, TN };
 }
 init();

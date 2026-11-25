@@ -12,7 +12,7 @@ from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.worksheet.datavalidation import DataValidation
 
 DB = json.load(open(sys.argv[1], encoding='utf-8')); OUT = sys.argv[2]
-ST = [('depose', 'Demande déposée'), ('recu', 'Dossier reçu'), ('traitement', 'En traitement'), ('pret', 'Passeport prêt'), ('remis', 'Remis au demandeur')]
+ST = [('depose', 'Demande déposée'), ('paye', 'Paiement effectué'), ('recu', 'Dossier reçu'), ('traitement', 'En traitement'), ('pret', 'Passeport prêt'), ('remis', 'Remis au demandeur')]
 SN = dict(ST); TN = {'premiere': 'Première demande', 'renouvellement': 'Renouvellement'}
 LIEUX = ['Makélékélé', 'Bacongo', 'Poto-Poto', 'Moungali', 'Ouenzé', 'Talangaï', 'Mfilou', 'Madibou', 'Djiri']
 NUIT, OR, CREME = '06143A', 'C89B3C', 'F4F1EA'
@@ -23,7 +23,7 @@ H = Font(bold=True, color='FFFFFF', name='Calibri'); HF = PatternFill('solid', f
 wb = Workbook(); tb = wb.active; tb.title = 'Tableau de bord'; ds = wb.create_sheet('Dossiers'); sy = wb.create_sheet('Synthèse')
 
 # ---- Dossiers ----
-cols = ['N° dossier', 'Date de dépôt', 'Heure', 'Nom', 'Prénoms', 'Date de naissance', 'Sexe', 'Type de demande', 'Pièce', 'N° de pièce', 'Expiration pièce', 'Ancien passeport n°', 'Ancien expiré le', 'Ancien restitué', 'Téléphone', 'Secteur', 'État', 'Dernière mise à jour', 'Délai (jours)', 'Alerte', 'Agent', 'Risque (0-100)']
+cols = ['N° dossier', 'Date de dépôt', 'Heure', 'Nom', 'Prénoms', 'Date de naissance', 'Sexe', 'Type de demande', 'Pièce', 'N° de pièce', 'Expiration pièce', 'Ancien passeport n°', 'Ancien expiré le', 'Ancien restitué', 'Téléphone', 'Secteur', 'État', 'Dernière mise à jour', 'Délai (jours)', 'Alerte', 'Agent', 'Risque (0-100)', 'N° d’appel', 'Montant payé (FCFA)', 'Porte']
 ds.append(cols)
 today = dt.datetime.now()
 for x in sorted(DB, key=lambda z: z['createdAt']):
@@ -33,16 +33,16 @@ for x in sorted(DB, key=lambda z: z['createdAt']):
                dt.date.fromisoformat(p['piece']['expiration']) if p['piece']['expiration'] else None,
                x['ancien']['numero'] if x.get('ancien') else None, dt.date.fromisoformat(x['ancien']['expiration']) if x.get('ancien') else None,
                ('Oui' if x.get('ancienRestitue') else 'Non') if x.get('ancien') else None, p.get('tel'), x['lieu'], SN[x['status']], lm, (fin_ - c).days,
-               ' | '.join(f['t'] for f in x.get('flags', [])) or None, x.get('agent'), x.get('score', 0)])
+               ' | '.join(f['t'] for f in x.get('flags', [])) or None, x.get('agent'), x.get('score', 0), x.get('ticket'), (x.get('paiement') or {}).get('montant'), (x.get('appel') or {}).get('porte')])
 n = ds.max_row
 for c in ds[1]: c.font = H; c.fill = HF; c.alignment = Alignment(vertical='center', wrap_text=True)
 ds.row_dimensions[1].height = 32
 for r in range(2, n + 1):
     for col in (2, 6, 11, 13): ds.cell(r, col).number_format = 'DD/MM/YYYY'
     ds.cell(r, 18).number_format = 'DD/MM/YYYY HH:MM'
-for i, w in enumerate([18, 13, 8, 18, 20, 14, 6, 17, 11, 13, 14, 16, 14, 12, 16, 13, 20, 18, 11, 70, 10, 12], 1): ds.column_dimensions[chr(64 + i)].width = w
+for i, w in enumerate([18, 13, 8, 18, 20, 14, 6, 17, 11, 13, 14, 16, 14, 12, 16, 13, 20, 18, 11, 70, 10, 12, 12, 18, 8], 1): ds.column_dimensions[chr(64 + i)].width = w
 ds.freeze_panes = 'E2'
-t = Table(displayName='Dossiers', ref=f'A1:V{n}'); t.tableStyleInfo = TableStyleInfo(name='TableStyleLight1', showRowStripes=True); ds.add_table(t)
+t = Table(displayName='Dossiers', ref=f'A1:Y{n}'); t.tableStyleInfo = TableStyleInfo(name='TableStyleLight1', showRowStripes=True); ds.add_table(t)
 for c in ds[1]: c.font = H; c.fill = HF
 dv = DataValidation(type='list', formula1='"' + ','.join(v for _, v in ST) + '"', allow_blank=False); ds.add_data_validation(dv); dv.add(f'Q2:Q{n + 300}')
 ds.conditional_formatting.add(f'T2:T{n}', FormulaRule(formula=['LEN($T2)>0'], fill=PatternFill('solid', bgColor='FDECE7', fgColor='FDECE7'), font=Font(color='B42318')))
@@ -55,17 +55,17 @@ def rng(col): return f'Dossiers!${col}$2:${col}$2000'
 sy['A1'] = 'Synthèse (formules : se met à jour toute seule)'; sy['A1'].font = Font(bold=True, size=14, color=NUIT)
 sy.append([]); sy['A3'] = 'État'; sy['B3'] = 'Nombre'; sy['C3'] = 'Part'
 for i, (_, nom) in enumerate(ST):
-    r = 4 + i; sy.cell(r, 1, nom); sy.cell(r, 2, f'=COUNTIF({rng("Q")},A{r})'); sy.cell(r, 3, f'=IF($B$9=0,0,B{r}/$B$9)'); sy.cell(r, 3).number_format = '0.0%'
-sy['A9'] = 'TOTAL'; sy['B9'] = '=SUM(B4:B8)'; sy['A9'].font = sy['B9'].font = Font(bold=True)
+    r = 4 + i; sy.cell(r, 1, nom); sy.cell(r, 2, f'=COUNTIF({rng("Q")},A{r})'); sy.cell(r, 3, f'=IF($B$10=0,0,B{r}/$B$10)'); sy.cell(r, 3).number_format = '0.0%'
+sy['A10'] = 'TOTAL'; sy['B10'] = '=SUM(B4:B9)'; sy['A10'].font = sy['B10'].font = Font(bold=True)
 sy['A12'] = 'Type \\ État';
 for j, (_, nom) in enumerate(ST): sy.cell(12, 2 + j, nom)
-sy.cell(12, 7, 'Total')
+sy.cell(12, 8, 'Total')
 for i, tp in enumerate(TN.values()):
     r = 13 + i; sy.cell(r, 1, tp)
-    for j in range(5): sy.cell(r, 2 + j, f'=COUNTIFS({rng("H")},$A{r},{rng("Q")},{chr(66 + j)}$12)')
-    sy.cell(r, 7, f'=SUM(B{r}:F{r})')
+    for j in range(6): sy.cell(r, 2 + j, f'=COUNTIFS({rng("H")},$A{r},{rng("Q")},{chr(66 + j)}$12)')
+    sy.cell(r, 8, f'=SUM(B{r}:G{r})')
 sy['A15'] = 'Total'
-for j in range(6): sy.cell(15, 2 + j, f'=SUM({chr(66 + j)}13:{chr(66 + j)}14)')
+for j in range(7): sy.cell(15, 2 + j, f'=SUM({chr(66 + j)}13:{chr(66 + j)}14)')
 sy['A18'] = 'Secteur'; sy['B18'] = 'Demandes'; sy['C18'] = 'Remis'
 for i, l in enumerate(LIEUX):
     r = 19 + i; sy.cell(r, 1, l); sy.cell(r, 2, f'=COUNTIF({rng("P")},A{r})'); sy.cell(r, 3, f'=COUNTIFS({rng("P")},A{r},{rng("Q")},"Remis au demandeur")')
@@ -82,7 +82,7 @@ for c in 'BCDEFG': sy.column_dimensions[c].width = 18
 tb.sheet_view.showGridLines = False
 tb['B2'] = 'SUIVI DES DEMANDES DE PASSEPORT — DÉMONSTRATION'; tb['B2'].font = Font(bold=True, size=18, color=NUIT)
 tb['B3'] = 'Données fictives · STAR CRÉAT · STAR ENTREPRISE · généré le ' + today.strftime('%d/%m/%Y'); tb['B3'].font = Font(italic=True, color='66708A')
-kp = [('Demandes enregistrées', f'=COUNTA({R})'), ('Dossiers reçus', f'=COUNTA({R})-COUNTIF({rng("Q")},"Demande déposée")'), ('En traitement', f'=COUNTIF({rng("Q")},"En traitement")'),
+kp = [('Demandes enregistrées', f'=COUNTA({R})'), ('Dossiers reçus', f'=COUNTA({R})-COUNTIF({rng("Q")},"Demande déposée")-COUNTIF({rng("Q")},"Paiement effectué")'), ('En traitement', f'=COUNTIF({rng("Q")},"En traitement")'),
       ('Passeports prêts à retirer', f'=COUNTIF({rng("Q")},"Passeport prêt")'), ('Passeports remis', f'=COUNTIF({rng("Q")},"Remis au demandeur")'), ('Pas encore remis', f'=COUNTA({R})-COUNTIF({rng("Q")},"Remis au demandeur")'),
       ('Renouvellements', f'=COUNTIF({rng("H")},"Renouvellement")'), ('Dossiers avec alerte', f'=COUNTIF({rng("T")},"?*")'), ('Délai moyen de remise (jours)', f'=IFERROR(ROUND(AVERAGEIFS({rng("S")},{rng("Q")},"Remis au demandeur"),0),0)')]
 for i, (lab, f) in enumerate(kp):
@@ -97,10 +97,10 @@ for c in range(1, 14): tb.column_dimensions[chr(64 + c)].width = 11
 tb.column_dimensions['A'].width = 3
 
 def graph(ch, titre, w=15.5, h=8.2): ch.title = titre; ch.width = w; ch.height = h; return ch
-p = graph(PieChart(), 'Répartition par état'); p.add_data(Reference(sy, min_col=2, min_row=3, max_row=8), titles_from_data=True); p.set_categories(Reference(sy, min_col=1, min_row=4, max_row=8))
+p = graph(PieChart(), 'Répartition par état'); p.add_data(Reference(sy, min_col=2, min_row=3, max_row=9), titles_from_data=True); p.set_categories(Reference(sy, min_col=1, min_row=4, max_row=9))
 p.dataLabels = DataLabelList(); p.dataLabels.showPercent = True; p.dataLabels.showVal = False; p.dataLabels.showCatName = False; p.dataLabels.showSerName = False; p.dataLabels.showLegendKey = False; tb.add_chart(p, 'B18')
 b = graph(BarChart(), 'Première demande / renouvellement par état'); b.type = 'col'; b.grouping = 'stacked'; b.overlap = 100
-b.add_data(Reference(sy, min_col=1, max_col=6, min_row=13, max_row=14), from_rows=True, titles_from_data=True); b.set_categories(Reference(sy, min_col=2, max_col=6, min_row=12)); tb.add_chart(b, 'H18')
+b.add_data(Reference(sy, min_col=1, max_col=7, min_row=13, max_row=14), from_rows=True, titles_from_data=True); b.set_categories(Reference(sy, min_col=2, max_col=7, min_row=12)); tb.add_chart(b, 'H18')
 l = graph(LineChart(), 'Demandes par jour (30 derniers jours)'); l.add_data(Reference(sy, min_col=6, min_row=18, max_row=48), titles_from_data=True); l.set_categories(Reference(sy, min_col=5, min_row=19, max_row=48)); l.legend = None; tb.add_chart(l, 'B35')
 s = graph(BarChart(), 'Demandes et passeports remis par secteur'); s.type = 'bar'; s.add_data(Reference(sy, min_col=2, max_col=3, min_row=18, max_row=27), titles_from_data=True); s.set_categories(Reference(sy, min_col=1, min_row=19, max_row=27)); tb.add_chart(s, 'H35')
 tb['B52'] = 'Ce classeur est vivant : ajoutez des lignes dans l\'onglet « Dossiers », les chiffres et les graphiques se mettent à jour. La démonstration en ligne produit le même fichier.'; tb['B52'].font = Font(italic=True, color='66708A')
