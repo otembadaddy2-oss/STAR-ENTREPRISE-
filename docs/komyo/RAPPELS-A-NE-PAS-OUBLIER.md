@@ -533,3 +533,10 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 ## RÈGLE DE CARRY (25/11/2026) — Passeport Sûr
 - Dans TOUS les documents, PDF, guides, vidéos et présentations, TOUJOURS préciser le BUT de l'application (à quoi elle sert, pour qui, quel problème elle résout) : cela doit être connu de tout lecteur/spectateur.
 - Carry demande aussi : dossier PDF complet + guide d'utilisation détaillé de A à Z + guide vidéo détaillé + application vraiment fluide (fluidité mesurée : 52-60 i/s à CPU ×2, chargement 3,0 s → 1,5 s, 2,4 → 1,1 Mo).
+
+## Passeport Sûr — documents et vidéo (25/11/2026)
+- Livrables dans docs/passeport-sur/ (JAMAIS publics : bloqués dans _redirects) : Passeport-Sur-Dossier-de-presentation.pdf (17 p.), Passeport-Sur-Guide-utilisation-A-a-Z.pdf (26 p.), Passeport-Sur-Guide-video.mp4 (sous-titres, sans voix).
+- Sources : tools/documents-passeport/ (capturer.cjs → captures réelles ; fabrique-presentation.cjs ; fabrique-guide.cjs ; fabrique-video.cjs + video-cadre.html ; lib-documents.cjs). Régénérer : serveur de test 8766 + `NODE_PATH=$(npm root -g) node …`.
+- RÈGLE DE CARRY : le BUT de l'application est rappelé partout (couverture, bandeau à chaque page, ruban permanent de la vidéo, carte finale).
+- Voix off : ElevenLabs non connecté (connexion refusée : Carry doit se reconnecter dans les connecteurs). Alternative testée en lecture seule : vidIQ (150 crédits, voix françaises Victoria/Nicolas/Guillaume/Adina) ; coût d'une narration inconnu → NE PAS dépenser sans l'accord de Carry. Texte de la voix : tools/documents-passeport/video/texte-de-la-voix.txt.
+- Fluidité : chargement 3,0 → 1,5 s, 2,4 → 1,1 Mo ; 52-60 i/s (CPU ×2).

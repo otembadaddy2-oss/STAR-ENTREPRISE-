@@ -8,7 +8,7 @@ const K = 'sp_guide_v1';
 const lire = () => { try { return JSON.parse(localStorage.getItem(K) || '{}') || {}; } catch (e) { return {}; } };
 const ecrire = o => { try { localStorage.setItem(K, JSON.stringify(o)); } catch (e) { } };
 const q = new URLSearchParams(location.search);
-const apercu = q.get('apercu') === '1' || window.self !== window.top;
+const apercu = q.get('apercu') === '1' || (window.self !== window.top && q.get('guide') !== '1');   // dans un cadre (aperçu, vidéo) : pas de guide, sauf ?guide=1
 const SY = () => window.__spSync;
 
 /* ---------- Contenu ---------- */
