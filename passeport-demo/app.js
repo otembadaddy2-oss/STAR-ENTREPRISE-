@@ -7,7 +7,11 @@ const TN = { premiere: 'Première demande', renouvellement: 'Renouvellement' };
 const KN = { piece: 'Pièce modifiée', doublon: 'Doublon de pièce', identite: 'Double identité', reseau: 'Réseau d’intermédiaires', expiree: 'Pièce expirée', renouvellement: 'Renouvellement irrégulier', etape: 'Étape sautée', delai: 'Remise éclair', nuit: 'Action de nuit', bloque: 'Dossier bloqué', agent: 'Agent à surveiller' };
 const LIEUX = ['Makélékélé', 'Bacongo', 'Poto-Poto', 'Moungali', 'Ouenzé', 'Talangaï', 'Mfilou', 'Madibou', 'Djiri'];
 const AGENTS = ['Agent 01', 'Agent 02', 'Agent 03', 'Agent 04', 'Agent 05', 'Agent 06'];
-const KEY = 'sp_demo_v3';
+const REQUIS = {   // liste indicative des pièces à fournir (à confirmer avec la Préfecture)
+  premiere: [['photo', 'Photo d’identité', true], ['identite', 'Pièce d’identité (carte nationale)', true], ['naissance', 'Acte de naissance', true], ['nationalite', 'Certificat de nationalité', true], ['domicile', 'Justificatif de domicile', false]],
+  renouvellement: [['photo', 'Photo d’identité', true], ['identite', 'Pièce d’identité', true], ['ancien', 'Ancien passeport (page d’identité)', true], ['domicile', 'Justificatif de domicile', false]] };
+const manquantes = d => (REQUIS[d.type] || []).filter(r => r[2] && !(d.pieces || []).some(p => p.type === r[0]));
+const KEY = 'sp_demo_v4';
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const DAY = 86400000, HOUR = 3600000;
@@ -176,6 +180,9 @@ function seed() {
   for (let j = 0; j < 14; j++) { const force = j < 2 ? 2 : j < 11 ? 1 : 0; all.push(fab(86 + j, nowMs - (330 - j * 20) * 60000, force)); }
   all.forEach(d => d.history.sort((x, y) => x.at.localeCompare(y.at)));
   deriver(all);
+  const R2 = rng(777);
+  all.forEach(d => { const req = REQUIS[d.type] || []; d.pieces = req.filter(r => r[2] || R2() < .4).map(r => ({ id: 'demo-' + d.id + '-' + r[0], type: r[0], nom: r[1] + '.jpg', mime: 'image/jpeg', demo: true, par: 'guichet' }));
+    if (stIdx(d.status) <= 1 && R2() < .45) { const n = 1 + Math.floor(R2() * 2); for (let k = 0; k < n; k++) { const ob = d.pieces.filter(p => req.some(r => r[0] === p.type && r[2])); if (ob.length > 1) d.pieces.splice(d.pieces.indexOf(ob[Math.floor(R2() * ob.length)]), 1); } } });
   FL = computeFlags(all);
   all.filter(d => flags(d).length).slice(0, 3).forEach((d, i) => { d.suite = i === 2 ? 'enquete' : 'verifie'; d.suiteAt = now.toISOString(); });
   return all;
@@ -193,10 +200,11 @@ function appliquerRole() {
   const cur = $('#onglets .on'); if (cur && cur.style.display === 'none') aller('accueil');
   if (window.__spSuite) window.__spSuite.role(role);
 }
-function aller(v) {
+function aller(v, sansHisto) {
   $$('#onglets button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
   $$('.vue').forEach(s => s.classList.toggle('on', s.id === 'v-' + v));
   rafraichir(); window.scrollTo({ top: 0 });
+  if (!sansHisto) { try { if (location.hash !== '#' + v) history.pushState({ v }, '', '#' + v); } catch (e) { } }
 }
 function majPastille() { const n = DB.filter(ouvert).length; const e = $('#ptFraude'); if (e) { e.textContent = n; e.style.display = n ? '' : 'none'; } }
 
@@ -237,7 +245,7 @@ function valider() {
   if (window.__spSuite && !window.__spSuite.aSignature()) { $('#alertesForm').innerHTML = '<div class="alert rouge">La signature du demandeur est obligatoire : faites-le signer dans le cadre.</div>'; document.getElementById('sigPad').scrollIntoView({ block: 'center' }); return; }
   const t = NOW(); d.id = 'BZV-' + t.getFullYear() + '-' + pad(DB.length + 1, 6); d.createdAt = t.toISOString(); d.lieu = $('#f_lieu').value; d.history[0] = { s: 'depose', at: t.toISOString(), by: ROLES[role], note: 'Dossier enregistré' };
   if (window.__spSuite) Object.assign(d, window.__spSuite.extras());
-  DB.push(d); sauver(); effacer(); montrerRecu(d);
+  DB.push(d); if (window.__spSuite) window.__spSuite.apres(d); sauver(); effacer(); montrerRecu(d);
 }
 function code(id, nom) { let h = 7; const s = id + nom; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h.toString(36).toUpperCase().padStart(6, '7').slice(-6).replace(/0/g, '7').replace(/O/g, '8').replace(/1/g, '4').replace(/I/g, '9').replace(/L/g, '5'); }
 function qr(txt) { try { const q = qrcode(0, 'M'); q.addData(txt); q.make(); return q.createSvgTag(4, 0); } catch (e) { return ''; } }
@@ -286,9 +294,9 @@ const bS = s => '<span class="badge s-' + s + '">' + SN[s] + '</span>', bT = t =
 const bR = d => { const s = score(d); return s ? '<span class="risque" style="background:' + couleurScore(s) + '">' + s + '</span>' + (d.suite ? ' <span class="badge ok">' + (d.suite === 'enquete' ? 'Enquête' : 'Vérifié') + '</span>' : '') : ''; };
 function filtrer() {
   const q = $('#q').value.trim().toLowerCase(), s = $('#fs').value, t = $('#ft').value, l = $('#fl').value, a = $('#fa').value;
-  return DB.filter(d => (!s || d.status === s) && (!t || d.type === t) && (!l || d.lieu === l) && (!a || ouvert(d)) && (!q || (d.id + ' ' + d.person.nom + ' ' + d.person.prenoms + ' ' + d.person.piece.numero).toLowerCase().includes(q))).sort((x, y) => y.createdAt.localeCompare(x.createdAt));
+  return DB.filter(d => (!s || d.status === s) && (!t || d.type === t) && (!l || d.lieu === l) && (!a || (a === '2' ? manquantes(d).length > 0 : ouvert(d))) && (!q || (d.id + ' ' + d.person.nom + ' ' + d.person.prenoms + ' ' + d.person.piece.numero).toLowerCase().includes(q))).sort((x, y) => y.createdAt.localeCompare(x.createdAt));
 }
-function liste() { const r = filtrer(); $('#cpt').textContent = r.length + ' dossier(s) sur ' + DB.length; $('#tb').innerHTML = r.slice(0, 150).map(d => '<tr class="cl" data-id="' + d.id + '"><td><b>' + d.id + '</b></td><td>' + fmtD(d.createdAt) + '</td><td>' + esc(d.person.nom + ' ' + d.person.prenoms) + '</td><td>' + bT(d.type) + '</td><td>' + bS(d.status) + '</td><td>' + esc(d.lieu) + '</td><td>' + bR(d) + '</td></tr>').join(''); }
+function liste() { const r = filtrer(); $('#cpt').textContent = r.length + ' dossier(s) sur ' + DB.length; $('#tb').innerHTML = r.slice(0, 150).map(d => '<tr class="cl" data-id="' + d.id + '"><td><b>' + d.id + '</b></td><td>' + fmtD(d.createdAt) + '</td><td>' + esc(d.person.nom + ' ' + d.person.prenoms) + '</td><td>' + bT(d.type) + '</td><td>' + bS(d.status) + '</td><td>' + esc(d.lieu) + '</td><td>' + bR(d) + (manquantes(d).length ? ' <span class="badge orange">Incomplet</span>' : '') + '</td></tr>').join(''); }
 
 /* ---------- Fiche dossier ---------- */
 function detail(id) {
@@ -319,7 +327,7 @@ const COL = { depose: '#6b8aa3', paye: '#8b4bc0', recu: '#2a9d8f', traitement: '
 function stats() {
   const c = Object.fromEntries(STATUTS.map(s => [s[0], DB.filter(d => d.status === s[0]).length])), remis = DB.filter(d => d.status === 'remis');
   const delais = remis.map(d => jours(T(d.createdAt), T(last(d).at)));
-  return { T: DB.length, c, recus: DB.filter(d => stIdx(d.status) >= 2).length, nonRemis: DB.length - c.remis, ren: DB.filter(d => d.type === 'renouvellement').length, av: DB.filter(ouvert).length, delai: delais.length ? Math.round(delais.reduce((a, b) => a + b, 0) / delais.length) : 0 };
+  return { T: DB.length, c, recus: DB.filter(d => stIdx(d.status) >= 2).length, nonRemis: DB.length - c.remis, ren: DB.filter(d => d.type === 'renouvellement').length, av: DB.filter(ouvert).length, inc: DB.filter(d => manquantes(d).length).length, delai: delais.length ? Math.round(delais.reduce((a, b) => a + b, 0) / delais.length) : 0 };
 }
 const kp = (v, l, c) => '<div class="kpi ' + (c || '') + '"><b>' + v + '</b><span>' + l + '</span></div>';
 let charts = [];
@@ -327,7 +335,7 @@ function graphes(list) { charts.forEach(c => c.destroy()); charts = []; if (wind
 function accueil() { const s = stats(); $('#kpisAccueil').innerHTML = kp(s.T, 'Demandes enregistrées') + kp(s.c.remis, 'Passeports remis', 'v') + kp(s.nonRemis, 'En attente', 'j') + kp(s.av, 'Alertes à examiner', 'r'); }
 function tableau() {
   const s = stats();
-  $('#kpis').innerHTML = kp(s.T, 'Demandes enregistrées') + kp(s.recus, 'Dossiers reçus') + kp(s.c.traitement, 'En traitement', 'j') + kp(s.c.pret, 'Passeports prêts à retirer', 'v') + kp(s.c.remis, 'Passeports remis', 'v') + kp(s.nonRemis, 'Pas encore remis', 'j') + kp(s.ren, 'Renouvellements', 'm') + kp(s.av, 'Alertes à examiner', 'r') + kp(s.delai + ' j', 'Délai moyen de remise');
+  $('#kpis').innerHTML = kp(s.T, 'Demandes enregistrées') + kp(s.recus, 'Dossiers reçus') + kp(s.c.traitement, 'En traitement', 'j') + kp(s.c.pret, 'Passeports prêts à retirer', 'v') + kp(s.c.remis, 'Passeports remis', 'v') + kp(s.nonRemis, 'Pas encore remis', 'j') + kp(s.ren, 'Renouvellements', 'm') + kp(s.av, 'Alertes à examiner', 'r') + kp(s.inc, 'Dossiers incomplets', 'j') + kp(s.delai + ' j', 'Délai moyen de remise');
   const jr = [], base = NOW(); for (let k = 29; k >= 0; k--) jr.push(isoDate(new Date(base.getTime() - k * DAY)));
   const lx = LIEUX.map(l => [l, DB.filter(d => d.lieu === l).length]).sort((a, b) => b[1] - a[1]);
   graphes([
@@ -375,7 +383,7 @@ function exSuivi() { const d = DB.filter(x => !flags(x).length)[Math.floor(Math.
 function excel() {
   if (!window.XLSX) { alert('Export indisponible.'); return; }
   const wb = XLSX.utils.book_new(), s = stats();
-  const dos = DB.slice().sort((a, b) => a.createdAt.localeCompare(b.createdAt)).map(d => { const p = d.person, t = new Date(d.createdAt); return { 'N° dossier': d.id, 'Date de dépôt': fmtD(d.createdAt), 'Heure': pad(t.getHours()) + ':' + pad(t.getMinutes()), 'Nom': p.nom, 'Prénoms': p.prenoms, 'Date de naissance': fmtD(p.naissance), 'Sexe': p.sexe, 'Type de demande': TN[d.type], 'Pièce': p.piece.type, 'N° de pièce': p.piece.numero, 'Expiration pièce': fmtD(p.piece.expiration), 'Ancien passeport n°': d.ancien ? d.ancien.numero : '', 'Ancien expiré le': d.ancien ? fmtD(d.ancien.expiration) : '', 'Ancien restitué': d.ancien ? (d.ancienRestitue ? 'Oui' : 'Non') : '', 'Téléphone': p.tel, 'Secteur': d.lieu, 'Agent': d.agent, 'N° d’appel': d.ticket || '', 'Montant payé (FCFA)': d.paiement ? d.paiement.montant : '', 'Porte': d.appel ? d.appel.porte : '', 'État': SN[d.status], 'Dernière mise à jour': fmtDH(last(d).at), 'Délai (jours)': jours(T(d.createdAt), (d.status === 'remis' ? T(last(d).at) : NOW().getTime())), 'Risque (0-100)': score(d), 'Alertes': flags(d).map(f => KN[f.k]).join(' | '), 'Suite donnée': d.suite === 'enquete' ? 'Enquête' : d.suite === 'verifie' ? 'Vérifié' : '' }; });
+  const dos = DB.slice().sort((a, b) => a.createdAt.localeCompare(b.createdAt)).map(d => { const p = d.person, t = new Date(d.createdAt); return { 'N° dossier': d.id, 'Date de dépôt': fmtD(d.createdAt), 'Heure': pad(t.getHours()) + ':' + pad(t.getMinutes()), 'Nom': p.nom, 'Prénoms': p.prenoms, 'Date de naissance': fmtD(p.naissance), 'Sexe': p.sexe, 'Type de demande': TN[d.type], 'Pièce': p.piece.type, 'N° de pièce': p.piece.numero, 'Expiration pièce': fmtD(p.piece.expiration), 'Ancien passeport n°': d.ancien ? d.ancien.numero : '', 'Ancien expiré le': d.ancien ? fmtD(d.ancien.expiration) : '', 'Ancien restitué': d.ancien ? (d.ancienRestitue ? 'Oui' : 'Non') : '', 'Téléphone': p.tel, 'Secteur': d.lieu, 'Agent': d.agent, 'N° d’appel': d.ticket || '', 'Montant payé (FCFA)': d.paiement ? d.paiement.montant : '', 'Porte': d.appel ? d.appel.porte : '', 'Pièces manquantes': manquantes(d).map(r => r[1]).join(' | '), 'État': SN[d.status], 'Dernière mise à jour': fmtDH(last(d).at), 'Délai (jours)': jours(T(d.createdAt), (d.status === 'remis' ? T(last(d).at) : NOW().getTime())), 'Risque (0-100)': score(d), 'Alertes': flags(d).map(f => KN[f.k]).join(' | '), 'Suite donnée': d.suite === 'enquete' ? 'Enquête' : d.suite === 'verifie' ? 'Vérifié' : '' }; });
   const sh = (name, rows, w) => { const x = XLSX.utils.json_to_sheet(rows); if (w) x['!cols'] = w.map(n => ({ wch: n })); XLSX.utils.book_append_sheet(wb, x, name); };
   sh('Dossiers', dos, [18, 12, 8, 18, 20, 14, 6, 17, 11, 13, 14, 16, 14, 12, 16, 13, 10, 20, 18, 12, 12, 60, 12]);
   sh('Synthèse états', STATUTS.map(x => ({ 'État': x[1], 'Nombre': s.c[x[0]], 'Part (%)': s.T ? Math.round(s.c[x[0]] * 1000 / s.T) / 10 : 0 })).concat([{ 'État': 'TOTAL', 'Nombre': s.T, 'Part (%)': 100 }]), [24, 10, 10]);
@@ -413,8 +421,10 @@ function init() {
     c.addEventListener('click', () => { n++; clearTimeout(tm); tm = setTimeout(() => n = 0, 900); if (n >= 3) { n = 0; bascule(); } });
     c.addEventListener('touchstart', () => { lp = setTimeout(bascule, 800); }, { passive: true }); ['touchend', 'touchmove', 'touchcancel'].forEach(e => c.addEventListener(e, () => clearTimeout(lp), { passive: true })); })();
   appliquerRole();
+  window.addEventListener('popstate', e => { const v = (e.state && e.state.v) || (location.hash || '#accueil').slice(1); const b = $('#onglets button[data-v="' + v + '"]'); if ($('#v-' + v) && b && b.style.display !== 'none') aller(v, true); });
+  try { const h = (location.hash || '').slice(1); history.replaceState({ v: 'accueil' }, '', '#accueil'); if (h && h !== 'accueil' && $('#v-' + h)) { aller(h, true); history.pushState({ v: h }, '', '#' + h); } } catch (e) { }
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => { });
-  window.__spApi = { get DB() { return DB; }, sauver, detail, STATUTS, SN, TN, KN, esc, fmtD, fmtDH, jours, T, NOW, pad, isoDate, flags, score, ouvert, bS, bT, bR, code, qr, aller, rafraichir, get role() { return role; }, ROLES, DAY, HOUR, serviceDay, KEY, computeFlags };
+  window.__spApi = { get DB() { return DB; }, sauver, detail, STATUTS, SN, TN, KN, esc, fmtD, fmtDH, jours, T, NOW, pad, isoDate, flags, score, ouvert, bS, bT, bR, code, qr, aller, rafraichir, get role() { return role; }, ROLES, DAY, HOUR, serviceDay, KEY, computeFlags, REQUIS, manquantes };
   window.__sp = { parseMRZ, buildTD3, buildTD1, computeFlags, get DB() { return DB; }, get FL() { return FL; }, code, KN, SN, TN };
 }
 init();

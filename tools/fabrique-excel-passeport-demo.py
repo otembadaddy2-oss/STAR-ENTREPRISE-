@@ -11,6 +11,8 @@ from openpyxl.formatting.rule import CellIsRule, FormulaRule
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.worksheet.datavalidation import DataValidation
 
+REQ = {'premiere': [('photo', 'Photo d’identité', 1), ('identite', 'Pièce d’identité', 1), ('naissance', 'Acte de naissance', 1), ('nationalite', 'Certificat de nationalité', 1)], 'renouvellement': [('photo', 'Photo d’identité', 1), ('identite', 'Pièce d’identité', 1), ('ancien', 'Ancien passeport', 1)]}
+def manque(x): return ' | '.join(r[1] for r in REQ.get(x['type'], []) if r[2] and not any(p['type'] == r[0] for p in x.get('pieces', []))) or None
 DB = json.load(open(sys.argv[1], encoding='utf-8')); OUT = sys.argv[2]
 ST = [('depose', 'Demande déposée'), ('paye', 'Paiement effectué'), ('recu', 'Dossier reçu'), ('traitement', 'En traitement'), ('pret', 'Passeport prêt'), ('remis', 'Remis au demandeur')]
 SN = dict(ST); TN = {'premiere': 'Première demande', 'renouvellement': 'Renouvellement'}
@@ -23,7 +25,7 @@ H = Font(bold=True, color='FFFFFF', name='Calibri'); HF = PatternFill('solid', f
 wb = Workbook(); tb = wb.active; tb.title = 'Tableau de bord'; ds = wb.create_sheet('Dossiers'); sy = wb.create_sheet('Synthèse')
 
 # ---- Dossiers ----
-cols = ['N° dossier', 'Date de dépôt', 'Heure', 'Nom', 'Prénoms', 'Date de naissance', 'Sexe', 'Type de demande', 'Pièce', 'N° de pièce', 'Expiration pièce', 'Ancien passeport n°', 'Ancien expiré le', 'Ancien restitué', 'Téléphone', 'Secteur', 'État', 'Dernière mise à jour', 'Délai (jours)', 'Alerte', 'Agent', 'Risque (0-100)', 'N° d’appel', 'Montant payé (FCFA)', 'Porte']
+cols = ['N° dossier', 'Date de dépôt', 'Heure', 'Nom', 'Prénoms', 'Date de naissance', 'Sexe', 'Type de demande', 'Pièce', 'N° de pièce', 'Expiration pièce', 'Ancien passeport n°', 'Ancien expiré le', 'Ancien restitué', 'Téléphone', 'Secteur', 'État', 'Dernière mise à jour', 'Délai (jours)', 'Alerte', 'Agent', 'Risque (0-100)', 'N° d’appel', 'Montant payé (FCFA)', 'Porte', 'Pièces manquantes']
 ds.append(cols)
 today = dt.datetime.now()
 for x in sorted(DB, key=lambda z: z['createdAt']):
@@ -33,7 +35,7 @@ for x in sorted(DB, key=lambda z: z['createdAt']):
                dt.date.fromisoformat(p['piece']['expiration']) if p['piece']['expiration'] else None,
                x['ancien']['numero'] if x.get('ancien') else None, dt.date.fromisoformat(x['ancien']['expiration']) if x.get('ancien') else None,
                ('Oui' if x.get('ancienRestitue') else 'Non') if x.get('ancien') else None, p.get('tel'), x['lieu'], SN[x['status']], lm, (fin_ - c).days,
-               ' | '.join(f['t'] for f in x.get('flags', [])) or None, x.get('agent'), x.get('score', 0), x.get('ticket'), (x.get('paiement') or {}).get('montant'), (x.get('appel') or {}).get('porte')])
+               ' | '.join(f['t'] for f in x.get('flags', [])) or None, x.get('agent'), x.get('score', 0), x.get('ticket'), (x.get('paiement') or {}).get('montant'), (x.get('appel') or {}).get('porte'), manque(x)])
 n = ds.max_row
 for c in ds[1]: c.font = H; c.fill = HF; c.alignment = Alignment(vertical='center', wrap_text=True)
 ds.row_dimensions[1].height = 32
@@ -42,7 +44,7 @@ for r in range(2, n + 1):
     ds.cell(r, 18).number_format = 'DD/MM/YYYY HH:MM'
 for i, w in enumerate([18, 13, 8, 18, 20, 14, 6, 17, 11, 13, 14, 16, 14, 12, 16, 13, 20, 18, 11, 70, 10, 12, 12, 18, 8], 1): ds.column_dimensions[chr(64 + i)].width = w
 ds.freeze_panes = 'E2'
-t = Table(displayName='Dossiers', ref=f'A1:Y{n}'); t.tableStyleInfo = TableStyleInfo(name='TableStyleLight1', showRowStripes=True); ds.add_table(t)
+t = Table(displayName='Dossiers', ref=f'A1:Z{n}'); t.tableStyleInfo = TableStyleInfo(name='TableStyleLight1', showRowStripes=True); ds.add_table(t)
 for c in ds[1]: c.font = H; c.fill = HF
 dv = DataValidation(type='list', formula1='"' + ','.join(v for _, v in ST) + '"', allow_blank=False); ds.add_data_validation(dv); dv.add(f'Q2:Q{n + 300}')
 ds.conditional_formatting.add(f'T2:T{n}', FormulaRule(formula=['LEN($T2)>0'], fill=PatternFill('solid', bgColor='FDECE7', fgColor='FDECE7'), font=Font(color='B42318')))

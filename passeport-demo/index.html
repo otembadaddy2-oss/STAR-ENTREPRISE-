@@ -103,6 +103,22 @@ textarea.mrz{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;
 .act .ph::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,#062b1e66)}
 .act .tx{padding:12px 16px 16px}.act .tx b{margin-top:0}
 .act .ph.p1{background-image:url(img/passeport-visas.webp)}.act .ph.p2{background-image:url(img/brazzaville-ville.webp)}.act .ph.p3{background-image:url(img/empreinte.webp)}.act .ph.p4{background-image:url(img/aeroport.webp)}
+.retour{background:#ffffff26;color:#fff;border:1px solid #ffffff55;border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:600;cursor:pointer;margin-bottom:10px;backdrop-filter:blur(2px)}
+.retour:hover{background:#ffffff40}
+.etapesG{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;padding-bottom:2px;scrollbar-width:none;position:sticky;top:0;z-index:12;background:var(--ivoire);padding-top:6px}
+.etapesG button{flex:none;border:1.5px solid #cfc8b2;background:#fff;border-radius:999px;padding:7px 13px;font-size:13px;font-weight:600;color:var(--gris);cursor:pointer;white-space:nowrap}
+.etapesG button.fait{border-color:var(--vert);color:#0b6a31;background:var(--vert2)}
+.bandeau-brouillon{background:#fff6cf;border:1.5px solid #ecd48a;border-radius:16px;padding:12px 14px;margin-bottom:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.pj{border:1.5px solid #d8d1ba;border-radius:14px;padding:11px 12px;margin-bottom:10px;background:#fff}
+.pj.ok{border-color:#9ed2b2;background:#f6fcf8}.pj.manque{border-color:#f0b8b2;background:#fff8f7}
+.pj-t{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}.pj-t i{font-style:normal;font-size:11px;color:var(--rouge);letter-spacing:.06em;text-transform:uppercase}.pj-t .badge{margin-left:auto}
+.vignes{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.vign{position:relative;width:74px;border:1px solid var(--trait);border-radius:10px;background:#f6f3ea;padding:4px;text-align:center;font-size:10px;color:var(--gris);overflow:hidden}
+.vign img{width:100%;height:56px;object-fit:cover;border-radius:6px;display:block;background:#fff}
+.vign .pdf{display:block;height:56px;line-height:56px;font-size:28px}
+.vign button{position:absolute;top:2px;right:2px;border:0;background:#000a;color:#fff;border-radius:50%;width:20px;height:20px;line-height:20px;font-size:11px;cursor:pointer;padding:0}
+.vign span.nm{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.pieces figure.pdfig a{display:block;font-size:40px;text-decoration:none;padding:20px 0}
 .sigpad{border:2px dashed #b9b196;border-radius:14px;background:#fffdf6;touch-action:none;display:block;width:100%;height:170px;cursor:crosshair}
 .sigpad.ok{border-color:var(--vert);border-style:solid}
 .visage{width:112px;height:140px;border-radius:14px;background:#e8e3d2 center/cover no-repeat;border:2px solid #cfc8b2;flex:none}
@@ -217,7 +233,7 @@ tr.cl{cursor:pointer}tr.cl:hover td{background:#f3f9f5}
   </div>
   <h2 style="font-size:21px;margin-bottom:10px">Comment ça marche</h2>
   <div class="pas">
-    <div><b>Scanner et signer</b>Pièce scannée, fiche remplie seule, photo et signature au doigt.</div>
+    <div><b>Scanner, joindre, signer</b>Pièce scannée, fiche remplie seule, pièces jointes (photo ou fichier), signature au doigt. Reprise possible plus tard.</div>
     <div><b>Accusé WhatsApp</b>Le demandeur reçoit son N° de reçu et un code QR sur son téléphone.</div>
     <div><b>La caisse scanne le QR</b>Toute la fiche, les pièces et la signature s'affichent. Paiement, puis N° d'appel.</div>
     <div><b>Salle d'attente</b>Les numéros défilent sur les écrans avec le nom et la porte.</div>
@@ -228,14 +244,16 @@ tr.cl{cursor:pointer}tr.cl:hover td{background:#f3f9f5}
 
 <!-- ===== GUICHET ===== -->
 <section id="v-guichet" class="vue">
-  <div class="baniere b-guichet"><div class="txt"><h2>Enregistrer une demande</h2><p class="sous">Scanner la pièce, vérifier la fiche remplie automatiquement, puis remettre le reçu au demandeur.</p></div></div>
-  <div class="carte"><h3><span class="n">1</span>Type de demande</h3>
+  <div class="baniere b-guichet"><div class="txt"><h2>Enregistrer une demande</h2><p class="sous">Scanner la pièce, joindre les documents, faire signer. On peut s'arrêter et reprendre plus tard : tout est gardé.</p></div></div>
+  <div id="brouillon"></div>
+  <div class="etapesG" id="etapesG"></div>
+  <div class="carte" id="gt1"><h3><span class="n">1</span>Type de demande</h3>
     <div class="choix">
       <label class="opt"><input type="radio" name="type" value="premiere" checked> 🆕 Première demande de passeport</label>
       <label class="opt"><input type="radio" name="type" value="renouvellement"> 🔄 Renouvellement — passeport expiré</label>
     </div>
   </div>
-  <div class="carte"><h3><span class="n">2</span>Scanner la pièce du demandeur</h3>
+  <div class="carte" id="gt2"><h3><span class="n">2</span>Scanner la pièce du demandeur</h3>
     <p class="sous" style="margin-bottom:10px">Carte d'identité ou passeport : l'application lit la zone de lecture automatique (les lignes de « &lt;&lt;&lt; » en bas de la pièce) et vérifie ses chiffres de contrôle.</p>
     <div class="ligne" style="margin-bottom:10px">
       <button class="btn vert" id="bCam">📷 Ouvrir la caméra</button>
@@ -252,7 +270,7 @@ tr.cl{cursor:pointer}tr.cl:hover td{background:#f3f9f5}
     <div class="ligne" style="margin-top:10px"><button class="btn" id="bLire">Lire et remplir la fiche</button><span id="ocrEtat" style="font-size:13px;color:var(--gris)"></span></div>
     <div id="resLecture"></div>
   </div>
-  <div class="carte"><h3><span class="n">3</span>Fiche technique du demandeur</h3>
+  <div class="carte" id="gt3"><h3><span class="n">3</span>Fiche technique du demandeur</h3>
     <div class="grille">
       <div class="c6"><label for="f_nom">Nom</label><input id="f_nom"></div>
       <div class="c6"><label for="f_prenoms">Prénoms</label><input id="f_prenoms"></div>
@@ -275,14 +293,13 @@ tr.cl{cursor:pointer}tr.cl:hover td{background:#f3f9f5}
     </div>
     <div id="alertesForm"></div>
   </div>
-  <div class="carte"><h3><span class="n">4</span>Photo du demandeur et signature</h3>
-    <div class="ligne" style="align-items:flex-start;gap:14px">
-      <div class="visage" id="prevVisage"></div>
-      <div style="flex:1 1 220px"><p class="sous" style="margin-bottom:8px">Photo d'identité du demandeur (caméra ou fichier). Elle sera retrouvée à la caisse avec la fiche.</p>
-        <button class="btn vert petit" id="bPhoto">📷 Prendre la photo</button> <button class="btn clair petit" id="bPhotoFichier">🖼 Choisir un fichier</button>
-        <input type="file" id="fileVisage" accept="image/*" capture="user" hidden></div>
-    </div>
-    <label style="margin-top:14px">Signature du demandeur (au doigt ou au stylet)</label>
+  <div class="carte" id="gt4"><h3><span class="n">4</span>Pièces à joindre (photo ou fichier)</h3>
+    <p class="sous" style="margin-bottom:10px">Pour chaque document : <b>📷 Photo</b> avec la caméra, ou <b>📎 Joindre</b> un fichier (photo ou PDF). Les pièces peuvent être ajoutées plus tard : le dossier restera « incomplet » jusqu'à ce qu'elles soient fournies.
+      <span style="display:block;font-size:12px;margin-top:4px">Liste indicative, à confirmer avec la Préfecture.</span></p>
+    <div data-editeur="guichet" id="edGuichet"></div>
+  </div>
+  <div class="carte" id="gt5"><h3><span class="n">5</span>Signature du demandeur</h3>
+    <label>Au doigt ou au stylet, dans le cadre</label>
     <canvas id="sigPad" class="sigpad" aria-label="Zone de signature"></canvas>
     <div class="ligne" style="margin-top:8px"><button class="btn clair petit" id="bSigEff">Effacer la signature</button><span id="sigEtat" style="font-size:13px;color:var(--gris)">Faites signer dans le cadre ci-dessus.</span></div>
   </div>
@@ -295,7 +312,7 @@ tr.cl{cursor:pointer}tr.cl:hover td{background:#f3f9f5}
   <div class="baniere b-caisse"><div class="txt"><h2>Caisse — paiement</h2><p class="sous">Scannez le code QR de l'accusé du demandeur : sa fiche complète s'affiche, puis encaissez.</p></div></div>
   <div class="carte"><h3><span class="n">1</span>Scanner l'accusé du demandeur</h3>
     <div class="ligne" style="margin-bottom:10px"><button class="btn vert" id="bScanCaisse">📷 Scanner le code QR</button><button class="btn clair" id="bScanStop" style="display:none">Fermer la caméra</button>
-      <button class="btn clair petit" id="bScanEx">Exemple : accusé d'un dossier en attente</button></div>
+      <button class="btn clair petit" id="bScanEx">Exemple : dossier complet</button><button class="btn clair petit" id="bScanEx2">Exemple : dossier incomplet</button></div>
     <div class="scan" id="scanBox"><video id="scanVid" playsinline muted></video><div class="vise"></div></div>
     <canvas id="scanCv" hidden></canvas>
     <div class="grille"><div class="c6"><label for="k_id">N° de reçu (sur l'accusé)</label><input id="k_id" placeholder="BZV-2026-000012" autocapitalize="characters"></div>
@@ -332,7 +349,7 @@ tr.cl{cursor:pointer}tr.cl:hover td{background:#f3f9f5}
     <select id="fs" aria-label="État"></select>
     <select id="ft" aria-label="Type"><option value="">Tous les types</option><option value="premiere">Première demande</option><option value="renouvellement">Renouvellement</option></select>
     <select id="fl" aria-label="Secteur"></select>
-    <select id="fa" aria-label="Alerte"><option value="">Avec ou sans alerte</option><option value="1">À vérifier uniquement</option></select>
+    <select id="fa" aria-label="Alerte"><option value="">Avec ou sans alerte</option><option value="1">À vérifier uniquement</option><option value="2">Dossiers incomplets</option></select>
   </div>
   <div class="ligne" style="margin-bottom:8px"><span id="cpt" style="color:var(--gris);font-size:13px"></span><button class="btn clair petit" id="bXlsx2" style="margin-left:auto">⬇ Excel</button></div>
   <div class="tablewrap"><table><thead><tr><th>Dossier</th><th>Date</th><th>Nom et prénoms</th><th>Type</th><th>État</th><th>Secteur</th><th>Risque</th></tr></thead><tbody id="tb"></tbody></table></div>
@@ -401,7 +418,7 @@ tr.cl{cursor:pointer}tr.cl:hover td{background:#f3f9f5}
   </dl></div>
   <div class="alert bleu"><b>Limite importante.</b> L'application lit ce qui est écrit sur la pièce et contrôle sa cohérence. Elle ne peut pas savoir si une pièce est authentique : cela demande un lien avec les fichiers officiels de l'État.</div>
   <div class="carte" style="margin-top:14px"><h3>Pour une mise en service réelle</h3><dl class="dl" style="grid-template-columns:200px 1fr">
-    <dt>WhatsApp</dt><dd>Envoi automatique de l’accusé avec le code QR : compte WhatsApp Business (Meta) et modèle de message validé. Dans la démonstration, l’agent touche « Envoyer ».</dd><dt>Écrans de salle</dt><dd>Un ou plusieurs écrans (téléviseurs) branchés sur la page « écran de la salle », avec le son. Les écrans se mettent à jour tout seuls.</dd><dt>Autorisation</dt><dd>Accord officiel du Ministère et respect de la loi congolaise sur la protection des données personnelles.</dd>
+    <dt>Pièces jointes</dt><dd>Dans la démonstration, les photos et PDF restent sur l’appareil. En service réel : stockage chiffré sur un serveur sécurisé, avec durée de conservation fixée avec le Ministère. La liste des pièces à fournir est indicative et sera confirmée par la Préfecture.</dd><dt>WhatsApp</dt><dd>Envoi automatique de l’accusé avec le code QR : compte WhatsApp Business (Meta) et modèle de message validé. Dans la démonstration, l’agent touche « Envoyer ».</dd><dt>Écrans de salle</dt><dd>Un ou plusieurs écrans (téléviseurs) branchés sur la page « écran de la salle », avec le son. Les écrans se mettent à jour tout seuls.</dd><dt>Autorisation</dt><dd>Accord officiel du Ministère et respect de la loi congolaise sur la protection des données personnelles.</dd>
     <dt>Hébergement</dt><dd>Serveur sécurisé choisi avec le Ministère, données chiffrées, sauvegardes.</dd>
     <dt>Accès</dt><dd>Comptes nominatifs avec double vérification pour chaque agent.</dd>
     <dt>Pilote</dt><dd>Test dans un seul secteur de Brazzaville avant tout élargissement.</dd>

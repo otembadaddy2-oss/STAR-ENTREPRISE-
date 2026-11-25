@@ -63,7 +63,7 @@ body.apercu #son,body.apercu footer{display:none}
 <button id="son">🔊 Activer le son et la voix</button>
 <script>
 (function () {
-  var KEY = 'sp_demo_v3', DAY = 86400000, HOUR = 3600000;
+  var KEY = 'sp_demo_v4', DAY = 86400000, HOUR = 3600000;
   var apercu = /apercu=1/.test(location.search); if (apercu) document.body.classList.add('apercu');
   var $ = function (s) { return document.querySelector(s); };
   var pad = function (n, l) { return String(n).padStart(l || 2, '0'); };

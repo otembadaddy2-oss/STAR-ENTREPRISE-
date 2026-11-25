@@ -496,3 +496,10 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - File d'attente : ordre du paiement, appel par porte (1 à 4), « rappeler », « absent » ; écran de salle `ecran.html` (numéro, nom, porte, bip + voix française, prochains numéros). 6 états : déposée → payée → reçue → traitement → prête → remise.
 - Interprétation : « système de kimatique » = système de file d'attente avec écrans (à confirmer avec Carry).
 - Toujours NON mis en ligne (≈41 crédits).
+
+## 25/11/2026 — « Passeport Sûr » v3 : pièces jointes, reprise, retour
+- Pièces à joindre : 📷 photo (caméra) ou 📎 fichier (image ou PDF ≤ 3 Mo), plusieurs documents ; stockées sur l'appareil (IndexedDB) dans la démo. Liste INDICATIVE par type de demande (première demande : photo, pièce d'identité, acte de naissance, certificat de nationalité ; renouvellement : photo, pièce d'identité, ancien passeport) → à confirmer avec la Préfecture.
+- Dossier incomplet enregistrable ; l'accusé WhatsApp liste les pièces manquantes + lien de suivi ; la caisse ne peut pas encaisser tant que c'est incomplet (elle peut ajouter les pièces sur place) ; le demandeur complète depuis « Suivre mon dossier ».
+- Reprise : brouillon sauvegardé automatiquement (champs, pièces, signature) avec bandeau « Reprendre » ; étapes cliquables 1-5 ; bouton ← Retour sur chaque écran et bouton Retour du téléphone (historique).
+- Correctif : ids des cartes du guichet renommés gt1-gt5 (conflit avec les graphiques g1-g4).
+- Toujours NON mis en ligne (≈41 crédits).
