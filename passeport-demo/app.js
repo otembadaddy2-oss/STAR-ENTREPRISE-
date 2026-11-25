@@ -1,20 +1,23 @@
-/* Suivi des demandes de passeport — démonstration (données fictives, stockées sur l'appareil) */
+/* Passeport Sûr — suivi et contrôle des demandes de passeport (démonstration : données fictives, stockées sur l'appareil) */
 (function () {
 'use strict';
 const STATUTS = [['depose', 'Demande déposée'], ['recu', 'Dossier reçu'], ['traitement', 'En traitement'], ['pret', 'Passeport prêt'], ['remis', 'Remis au demandeur']];
 const SN = Object.fromEntries(STATUTS);
 const TN = { premiere: 'Première demande', renouvellement: 'Renouvellement' };
+const KN = { piece: 'Pièce modifiée', doublon: 'Doublon de pièce', identite: 'Double identité', reseau: 'Réseau d’intermédiaires', expiree: 'Pièce expirée', renouvellement: 'Renouvellement irrégulier', etape: 'Étape sautée', delai: 'Remise éclair', nuit: 'Action de nuit', bloque: 'Dossier bloqué', agent: 'Agent à surveiller' };
 const LIEUX = ['Makélékélé', 'Bacongo', 'Poto-Poto', 'Moungali', 'Ouenzé', 'Talangaï', 'Mfilou', 'Madibou', 'Djiri'];
-const KEY = 'sp_demo_v1';
+const AGENTS = ['Agent 01', 'Agent 02', 'Agent 03', 'Agent 04', 'Agent 05', 'Agent 06'];
+const KEY = 'sp_demo_v2';
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const DAY = 86400000;
+const DAY = 86400000, HOUR = 3600000;
 const pad = (n, l = 2) => String(n).padStart(l, '0');
 const isoDate = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 const fmtD = s => { if (!s) return '—'; const d = new Date(s); return pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear(); };
 const fmtDH = s => { const d = new Date(s); return fmtD(s) + ' à ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); };
 const jours = (a, b) => Math.floor((b - a) / DAY);
 const NOW = () => new Date();
+const T = s => new Date(s).getTime();
 
 /* ---------- Zone de lecture automatique (MRZ) ---------- */
 const W = [7, 3, 1];
@@ -37,11 +40,7 @@ function buildTD1(p) {
   const l3 = (noAccent(p.nom).replace(/ /g, '<') + '<<' + noAccent(p.prenoms).replace(/ /g, '<')).padEnd(30, '<').slice(0, 30);
   return l1 + '\n' + l2 + '\n' + l3;
 }
-function dateMRZ(yymmdd_, futur) {
-  const yy = +yymmdd_.slice(0, 2), cur = NOW().getFullYear() % 100;
-  const y = futur ? 2000 + yy : (yy > cur ? 1900 + yy : 2000 + yy);
-  return y + '-' + yymmdd_.slice(2, 4) + '-' + yymmdd_.slice(4, 6);
-}
+function dateMRZ(s, futur) { const yy = +s.slice(0, 2), cur = NOW().getFullYear() % 100; const y = futur ? 2000 + yy : (yy > cur ? 1900 + yy : 2000 + yy); return y + '-' + s.slice(2, 4) + '-' + s.slice(4, 6); }
 const noms = s => { const p = s.split('<<'); return [p[0].replace(/</g, ' ').trim(), (p[1] || '').replace(/</g, ' ').trim()]; };
 function parseMRZ(txt) {
   const L = String(txt || '').toUpperCase().replace(/[ \t]/g, '').split(/\n+/).filter(Boolean);
@@ -58,101 +57,129 @@ function parseMRZ(txt) {
   return { ok: false, err: 'Lecture impossible : il faut 2 lignes de 44 caractères (passeport) ou 3 lignes de 30 (carte). Reprenez la photo ou corrigez les lignes.' };
 }
 
-/* ---------- Données ---------- */
+/* ---------- Moteur anti-fraude ---------- */
+const stIdx = s => STATUTS.findIndex(x => x[0] === s);
+const last = d => d.history[d.history.length - 1];
+const telCle = t => String(t || '').replace(/\D/g, '').slice(-8);
+const identCle = d => d.person.nom + '|' + d.person.prenoms + '|' + d.person.naissance;
+const hNuit = iso => { const h = new Date(iso).getHours(); return h < 7 || h >= 19; };
+function computeFlags(all) {
+  const FL = {}, auj = isoDate(NOW()), now = NOW().getTime();
+  const sorted = all.slice().sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  sorted.forEach(d => FL[d.id] = []);
+  const add = (d, k, n, p, t) => FL[d.id].push({ k, n, p, t });
+  const parPiece = {}, parIdent = {}, parTel = {}, parAncien = {};
+  sorted.forEach(d => {
+    (parPiece[d.person.piece.numero] = parPiece[d.person.piece.numero] || []).push(d);
+    (parIdent[identCle(d)] = parIdent[identCle(d)] || []).push(d);
+    const t = telCle(d.person.tel); if (t) (parTel[t] = parTel[t] || []).push(d);
+    if (d.ancien && d.ancien.numero) (parAncien[d.ancien.numero] = parAncien[d.ancien.numero] || []).push(d);
+  });
+  const eclairParAgent = {}, nuitParAgent = {};
+  sorted.forEach(d => {
+    const p = d.person;
+    if (!d.mrzOk) add(d, 'piece', 'rouge', 40, 'Les chiffres de contrôle de la pièce sont faux : la pièce a peut-être été modifiée.');
+    const g = parPiece[p.piece.numero]; if (g.length > 1 && g[0].id !== d.id) add(d, 'doublon', 'rouge', 40, 'Ce numéro de pièce est déjà dans le dossier ' + g[0].id + '.');
+    const gi = parIdent[identCle(d)]; if (gi.length > 1 && gi[0].id !== d.id && gi.some(x => x.person.piece.numero !== p.piece.numero)) add(d, 'identite', 'rouge', 40, 'Mêmes nom, prénoms et naissance que le dossier ' + gi[0].id + ', avec une autre pièce.');
+    const gt = telCle(p.tel) ? parTel[telCle(p.tel)] : null;
+    if (gt) { const ids = new Set(gt.map(identCle)); if (ids.size >= 3) add(d, 'reseau', 'rouge', 35, 'Le même téléphone (' + p.tel + ') sert à ' + ids.size + ' personnes différentes : intermédiaire possible.'); }
+    if (p.piece.expiration && p.piece.expiration < auj && !(d.type === 'renouvellement' && d.ancien && d.ancien.numero === p.piece.numero)) add(d, 'expiree', 'orange', 12, 'La pièce présentée est expirée depuis le ' + fmtD(p.piece.expiration) + '.');
+    if (d.type === 'renouvellement') {
+      if (!d.ancien || !d.ancien.numero) add(d, 'renouvellement', 'orange', 12, 'Renouvellement : le numéro de l’ancien passeport manque.');
+      else {
+        if (d.ancien.expiration && d.ancien.expiration > auj) add(d, 'renouvellement', 'orange', 15, 'L’ancien passeport n’est pas encore expiré (il expire le ' + fmtD(d.ancien.expiration) + ').');
+        const ga = (parAncien[d.ancien.numero] || []).filter(x => x.id !== d.id), gp = (parPiece[d.ancien.numero] || []).filter(x => x.id !== d.id && x.person.piece.type === 'PASSEPORT');
+        const autre = ga.concat(gp)[0]; if (autre && autre.createdAt < d.createdAt) add(d, 'renouvellement', 'rouge', 35, 'L’ancien passeport n° ' + d.ancien.numero + ' est déjà utilisé dans le dossier ' + autre.id + '.');
+      }
+      if (d.status === 'remis' && !d.ancienRestitue) add(d, 'renouvellement', 'rouge', 40, 'Nouveau passeport remis sans restitution ni annulation de l’ancien.');
+    }
+    const h = d.history;
+    for (let i = 1; i < h.length; i++) if (stIdx(h[i].s) - stIdx(h[i - 1].s) > 1) { add(d, 'etape', 'rouge', 35, 'Étape sautée : de « ' + SN[h[i - 1].s] + ' » directement à « ' + SN[h[i].s] + ' » (' + h[i].by + ').'); break; }
+    if (d.status === 'remis' && T(last(d).at) - T(d.createdAt) < 48 * HOUR) { add(d, 'delai', 'rouge', 30, 'Passeport remis ' + Math.max(1, Math.round((T(last(d).at) - T(d.createdAt)) / HOUR)) + ' h après le dépôt (' + last(d).by + ').'); (eclairParAgent[d.agent] = eclairParAgent[d.agent] || []).push(d); }
+    if (d.status !== 'remis' && now - T(last(d).at) > 25 * DAY) add(d, 'bloque', 'orange', 12, 'Aucun changement depuis ' + jours(T(last(d).at), now) + ' jours.');
+    const nuits = h.filter(x => hNuit(x.at) && /^Agent/.test(x.by));
+    if (nuits.length) { add(d, 'nuit', 'orange', 12, 'Action en dehors des heures de service : ' + fmtDH(nuits[0].at) + ' (' + nuits[0].by + ').'); nuits.forEach(x => (nuitParAgent[x.by] = nuitParAgent[x.by] || new Set()).add(d.id)); }
+  });
+  Object.entries(eclairParAgent).forEach(([ag, ds]) => { if (ds.length >= 3) ds.forEach(d => add(d, 'agent', 'rouge', 20, ag + ' : ' + ds.length + ' remises éclair (moins de 48 h) — profil à surveiller.')); });
+  Object.entries(nuitParAgent).forEach(([ag, s]) => { if (s.size >= 3) all.filter(d => s.has(d.id)).forEach(d => add(d, 'agent', 'orange', 10, ag + ' : ' + s.size + ' dossiers traités la nuit.')); });
+  Object.keys(FL).forEach(id => { FL[id].score = Math.min(100, FL[id].reduce((a, f) => a + f.p, 0)); });
+  return FL;
+}
+let FL = {};
+const flags = d => FL[d.id] || [];
+const score = d => (FL[d.id] && FL[d.id].score) || 0;
+const ouvert = d => flags(d).length && !d.suite;
+const couleurScore = s => s >= 60 ? '#d62f26' : s >= 30 ? '#e08a00' : '#c9a20c';
+
+/* ---------- Données fictives ---------- */
 function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 const NOMS = ['Mabiala', 'Nkounkou', 'Moukoko', 'Itoua', 'Okemba', 'Mouanda', 'Ngoma', 'Bakala', 'Massamba', 'Loubaki', 'Mpassi', 'Kimbembe', 'Boukaka', 'Ondongo', 'Tsiba', 'Makosso', 'Nzaba', 'Samba', 'Mavoungou', 'Ibara', 'Dzon', 'Elenga', 'Gampio', 'Lekaka'];
 const PF = ['Grâce', 'Prisca', 'Merveille', 'Esther', 'Sandrine', 'Chancelle', 'Divine', 'Laure', 'Ornella', 'Nadège', 'Josiane', 'Clarisse'];
 const PM = ['Jean-Claude', 'Rodrigue', 'Christ', 'Parfait', 'Brice', 'Fabrice', 'Giscard', 'Hervé', 'Dieudonné', 'Aimé', 'Steve', 'Gildas'];
-
-function evalFlags(d, all) {
-  const f = [], p = d.person;
-  if (!d.mrzOk) f.push({ n: 'rouge', t: 'Les clés de contrôle de la pièce sont fausses : la pièce a peut-être été modifiée.' });
-  const dup = all.find(e => e.id !== d.id && e.person.piece.numero && e.person.piece.numero === p.piece.numero);
-  if (dup) f.push({ n: 'rouge', t: 'Doublon : ce numéro de pièce est déjà dans le dossier ' + dup.id + '.' });
-  const dbl = all.find(e => e.id !== d.id && e.person.nom === p.nom && e.person.prenoms === p.prenoms && e.person.naissance === p.naissance && e.person.piece.numero !== p.piece.numero);
-  if (dbl) f.push({ n: 'rouge', t: 'Double identité possible : même nom, mêmes prénoms et même naissance que le dossier ' + dbl.id + ', avec une autre pièce.' });
-  const auj = isoDate(NOW());
-  const ancienMemePiece = d.type === 'renouvellement' && d.ancien && d.ancien.numero === p.piece.numero;
-  if (p.piece.expiration && p.piece.expiration < auj && !ancienMemePiece) f.push({ n: 'orange', t: 'La pièce présentée est expirée depuis le ' + fmtD(p.piece.expiration) + '.' });
-  if (d.type === 'renouvellement') {
-    if (!d.ancien || !d.ancien.numero) f.push({ n: 'orange', t: 'Renouvellement : le numéro de l’ancien passeport manque.' });
-    else {
-      if (d.ancien.expiration && d.ancien.expiration > auj) f.push({ n: 'orange', t: 'L’ancien passeport n’est pas encore expiré (il expire le ' + fmtD(d.ancien.expiration) + ').' });
-      const r = all.find(e => e.id !== d.id && ((e.ancien && e.ancien.numero === d.ancien.numero) || (e.person.piece.type === 'PASSEPORT' && e.person.piece.numero === d.ancien.numero)));
-      if (r) f.push({ n: 'rouge', t: 'L’ancien passeport n° ' + d.ancien.numero + ' est déjà utilisé dans le dossier ' + r.id + '.' });
-    }
-  }
-  return f;
-}
-const stIdx = s => STATUTS.findIndex(x => x[0] === s);
-const last = d => d.history[d.history.length - 1];
-
 function seed() {
-  const R = rng(20261124), pick = a => a[Math.floor(R() * a.length)], ri = (a, b) => a + Math.floor(R() * (b - a + 1));
-  const all = [], N = 74, now = NOW();
-  const dossiersTries = [];
-  for (let i = 0; i < N; i++) dossiersTries.push(now.getTime() - (R() * R() * 62 + 0.2) * DAY);
-  dossiersTries.sort((a, b) => a - b);
-  dossiersTries.forEach((ts, i) => {
-    const t = new Date(ts); t.setHours(ri(8, 15), ri(0, 59), 0, 0);
-    const ren = R() < 0.32, f = R() < 0.5, nom = pick(NOMS), prenoms = f ? pick(PF) : pick(PM);
-    const age = jours(t.getTime(), now.getTime());
+  const R = rng(20261125), pick = a => a[Math.floor(R() * a.length)], ri = (a, b) => a + Math.floor(R() * (b - a + 1));
+  const all = [], N = 86, now = NOW();
+  const dates = []; for (let i = 0; i < N; i++) dates.push(now.getTime() - (R() * R() * 64 + 0.3) * DAY); dates.sort((a, b) => a - b);
+  dates.forEach((ts, i) => {
+    const t = new Date(ts); t.setHours(ri(8, 16), ri(0, 59), 0, 0);
+    const ren = R() < 0.32, f = R() < 0.5, nom = pick(NOMS), prenoms = f ? pick(PF) : pick(PM), age = jours(t.getTime(), now.getTime()), agent = pick(AGENTS);
     const naiss = ri(1958, 2007) + '-' + pad(ri(1, 12)) + '-' + pad(ri(1, 28));
     const ptype = ren ? (R() < 0.6 ? 'PASSEPORT' : 'CNI') : (R() < 0.85 ? 'CNI' : 'PASSEPORT');
     const num = (ptype === 'CNI' ? 'CG' : 'OA') + pad(ri(1000000, 9999999), 7);
     const exp = isoDate(new Date(now.getTime() + (ren && ptype === 'PASSEPORT' ? -ri(15, 900) : ri(200, 2800)) * DAY));
-    const d = {
-      id: 'BZV-' + t.getFullYear() + '-' + pad(i + 1, 6), type: ren ? 'renouvellement' : 'premiere', createdAt: t.toISOString(), lieu: pick(LIEUX), mrzOk: true,
+    const d = { id: 'BZV-' + t.getFullYear() + '-' + pad(i + 1, 6), type: ren ? 'renouvellement' : 'premiere', createdAt: t.toISOString(), lieu: pick(LIEUX), agent, mrzOk: true,
       person: { nom: nom.toUpperCase(), prenoms, naissance: naiss, sexe: f ? 'F' : 'M', nationalite: 'COG', tel: '+242 06 ' + pad(ri(100, 999), 3) + ' ' + pad(ri(10, 99)) + ' ' + pad(ri(10, 99)), piece: { type: ptype, numero: num, expiration: exp } },
-      ancien: null, ancienRestitue: false, history: []
-    };
+      ancien: null, ancienRestitue: false, history: [] };
     if (ren) { const ae = isoDate(new Date(now.getTime() - ri(15, 900) * DAY)); d.ancien = { numero: 'OA' + pad(ri(1000000, 9999999), 7), expiration: ae }; if (ptype === 'PASSEPORT') { d.person.piece.numero = d.ancien.numero; d.person.piece.expiration = ae; } }
-    // avancement : plus le dossier est ancien, plus il est avancé
-    let steps = 0, tt = t.getTime();
-    const pas = [[1, 3], [2, 6], [3, 8], [2, 5]];
-    d.history.push({ s: 'depose', at: new Date(tt).toISOString(), by: 'Agent de guichet', note: 'Dossier enregistré' });
+    let steps = 0, tt = t.getTime(); const pas = [[1, 3], [2, 6], [3, 8], [2, 5]];
+    d.history.push({ s: 'depose', at: new Date(tt).toISOString(), by: agent, note: 'Dossier enregistré' });
     for (let k = 0; k < 4; k++) {
-      const dl = ri(pas[k][0], pas[k][1]) * DAY + ri(0, 6) * 3600000;
-      if (tt + dl < now.getTime() - 3600000 && R() < (age > 20 ? 0.93 : 0.72)) { tt += dl; steps++; d.history.push({ s: STATUTS[k + 1][0], at: new Date(tt).toISOString(), by: k === 0 ? 'Agent de guichet' : k === 3 ? 'Agent de guichet' : 'Préfecture', note: '' }); } else break;
+      let dl = ri(pas[k][0], pas[k][1]) * DAY + ri(0, 5) * HOUR; let at = new Date(tt + dl); at.setHours(ri(8, 16), ri(0, 59), 0, 0); dl = at.getTime() - tt; if (dl < 3 * HOUR) { at = new Date(tt + DAY); at.setHours(10, ri(0, 59)); }
+      if (at.getTime() < now.getTime() - 3 * HOUR && R() < (age > 20 ? 0.93 : 0.72)) { tt = at.getTime(); steps++; d.history.push({ s: STATUTS[k + 1][0], at: at.toISOString(), by: (k === 1 || k === 2) ? 'Préfecture' : agent, note: '' }); } else break;
     }
-    d.status = STATUTS[steps][0];
-    if (d.status === 'remis' && ren) d.ancienRestitue = true;
+    d.status = STATUTS[steps][0]; if (d.status === 'remis' && ren) d.ancienRestitue = true;
     all.push(d);
   });
-  // cas d'alertes réalistes
-  const A = all.length;
-  all[A - 6].person.piece.numero = all[8].person.piece.numero; all[A - 6].person.piece.type = all[8].person.piece.type;                  // doublon de pièce
-  all[A - 13].person.piece.numero = all[20].person.piece.numero; all[A - 13].person.piece.type = all[20].person.piece.type;
-  Object.assign(all[A - 3].person, { nom: all[15].person.nom, prenoms: all[15].person.prenoms, naissance: all[15].person.naissance });          // double identité
-  all[A - 9].mrzOk = false; all[A - 20].mrzOk = false;                                                                                        // clés de contrôle fausses
-  const ren2 = all.filter(x => x.type === 'renouvellement' && x.id !== all[A - 1].id);
-  if (ren2.length) ren2[ren2.length - 1].ancien.expiration = isoDate(new Date(now.getTime() + 260 * DAY));                                      // ancien non expiré
-  all.forEach((d, i) => { d.flags = evalFlags(d, all.slice(0, i + 1)); });
-  // un contrôle de la Préfecture déjà effectué pour deux dossiers
-  all.filter(d => d.flags.length).slice(0, 2).forEach(d => { d.verifie = { at: now.toISOString(), note: 'Vérifié par la Préfecture' }; });
+  // cas réalistes d'irrégularités (pour montrer ce que le système détecte)
+  const A = all.length, rem = all.filter(x => x.status === 'remis' && jours(T(x.createdAt), now.getTime()) > 20);
+  all[A - 7].person.piece = Object.assign({}, all[9].person.piece);                                                                     // doublon de pièce
+  all[A - 15].person.piece = Object.assign({}, all[24].person.piece);
+  Object.assign(all[A - 4].person, { nom: all[16].person.nom, prenoms: all[16].person.prenoms, naissance: all[16].person.naissance });    // double identité
+  all[A - 10].mrzOk = false; all[A - 24].mrzOk = false;                                                                                  // pièces modifiées
+  ['A', 'B', 'C', 'D'].forEach((_, j) => { all[10 + j * 9].person.tel = '+242 06 612 34 78'; });                                          // un même téléphone, 4 personnes
+  rem.slice(0, 4).forEach((d, j) => {                                                                                                     // remises éclair par un même agent
+    d.agent = 'Agent 04'; const b = new Date(d.createdAt).getTime(), hrs = [1, 2, 3, 5];
+    d.history = [{ s: 'depose', at: d.createdAt, by: 'Agent 04', note: 'Dossier enregistré' }].concat(['recu', 'traitement', 'pret', 'remis'].map((s, k) => ({ s, at: new Date(b + hrs[k] * HOUR).toISOString(), by: 'Agent 04', note: '' })));
+    if (d.type === 'renouvellement') d.ancienRestitue = true;
+  });
+  const sk = all.filter(x => x.status === 'pret' && x.history.length === 4)[0] || all.filter(x => x.status === 'traitement')[0];                 // étape sautée
+  if (sk) { sk.history = [sk.history[0], { s: 'pret', at: new Date(T(sk.history[0].at) + 2 * DAY).toISOString(), by: sk.agent, note: '' }]; sk.status = 'pret'; }
+  all.filter(x => x.history.length >= 3 && !x.history.some(h => h.by === 'Agent 04')).slice(0, 4).forEach(d => { const h = d.history[2]; const dd = new Date(h.at); dd.setHours(22, 40); h.at = dd.toISOString(); h.by = 'Agent 02'; });   // actions de nuit
+  const r2 = all.filter(x => x.type === 'renouvellement' && x.status !== 'remis'); if (r2.length) r2[r2.length - 1].ancien.expiration = isoDate(new Date(now.getTime() + 260 * DAY));
+  const sansRestit = all.filter(x => x.type === 'renouvellement' && x.status === 'remis' && !x.history.some(h => h.by === 'Agent 04'))[0]; if (sansRestit) sansRestit.ancienRestitue = false;
+  all.forEach(d => d.history.sort((a, b) => a.at.localeCompare(b.at)));
+  FL = computeFlags(all);
+  all.filter(d => flags(d).length).slice(0, 3).forEach((d, i) => { d.suite = i === 2 ? 'enquete' : 'verifie'; d.suiteAt = now.toISOString(); });
   return all;
 }
 let DB = [];
-function charger() { try { DB = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { DB = null; } if (!Array.isArray(DB) || !DB.length) { DB = seed(); sauver(); } }
-function sauver() { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch (e) { } }
+function charger() { try { DB = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { DB = null; } if (!Array.isArray(DB) || !DB.length) { DB = seed(); sauver(); } FL = computeFlags(DB); }
+function sauver() { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch (e) { } FL = computeFlags(DB); majPastille(); }
 
-/* ---------- Profil ---------- */
+/* ---------- Profil et navigation ---------- */
 let role = 'agent';
-const ROLES = { agent: 'Agent de guichet', prefecture: 'Préfecture', ministere: 'Ministère' };
+const ROLES = { agent: 'Agent 03', prefecture: 'Préfecture', ministere: 'Ministère' };
 function appliquerRole() {
   role = $('#role').value;
   $('[data-v="guichet"]').style.display = role === 'ministere' ? 'none' : '';
-  const actif = $('#onglets .on').dataset.v;
-  if (role === 'ministere' && actif === 'guichet') aller('tableau');
+  if (role === 'ministere' && $('#onglets .on').dataset.v === 'guichet') aller('tableau');
 }
-
-/* ---------- Navigation ---------- */
 function aller(v) {
   $$('#onglets button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
   $$('.vue').forEach(s => s.classList.toggle('on', s.id === 'v-' + v));
-  if (v === 'tableau') tableau(); if (v === 'dossiers') liste();
-  window.scrollTo({ top: 0 });
+  rafraichir(); window.scrollTo({ top: 0 });
 }
+function majPastille() { const n = DB.filter(ouvert).length; const e = $('#ptFraude'); if (e) { e.textContent = n; e.style.display = n ? '' : 'none'; } }
 
 /* ---------- Guichet ---------- */
 let flux = null;
@@ -167,53 +194,47 @@ function lire() {
   $('#f_nom').value = r.nom; $('#f_prenoms').value = r.prenoms; $('#f_naiss').value = r.naiss; $('#f_sexe').value = r.sexe; $('#f_nat').value = r.nat;
   $('#f_ptype').value = r.ptype; $('#f_pnum').value = r.num; $('#f_pexp').value = r.exp;
   if (typeCourant() === 'renouvellement' && r.ptype === 'PASSEPORT') { $('#f_anum').value = r.num; $('#f_aexp').value = r.exp; majAdepuis(); }
-  const c = r.checks, ligne = (l, ok) => '<span class="badge ' + (ok ? 'ok' : 'alerte') + '">' + (ok ? '✔ ' : '✖ ') + l + '</span> ';
-  box.innerHTML = '<div class="alert ' + (r.valide ? 'vert' : 'rouge') + '"><b>' + (r.valide ? 'Pièce lisible et cohérente.' : 'Attention : les clés de contrôle ne correspondent pas.') + '</b> ' + esc(r.format) + '<div style="margin-top:6px">' + ligne('Numéro', c.num) + ligne('Naissance', c.naiss) + ligne('Expiration', c.exp) + ligne('Contrôle global', c.global) + '</div></div>';
+  const c = r.checks, lg = (l, ok) => '<span class="badge ' + (ok ? 'ok' : 'alerte') + '">' + (ok ? '✔ ' : '✖ ') + l + '</span> ';
+  box.innerHTML = '<div class="alert ' + (r.valide ? 'vert' : 'rouge') + '"><b>' + (r.valide ? 'Pièce lisible et cohérente.' : 'Attention : les chiffres de contrôle ne correspondent pas.') + '</b> ' + esc(r.format) + '<div style="margin-top:6px">' + lg('Numéro', c.num) + lg('Naissance', c.naiss) + lg('Expiration', c.exp) + lg('Contrôle global', c.global) + '</div></div>';
   alertesForm();
 }
 function lireFiche() {
   const piece = { type: $('#f_ptype').value, numero: $('#f_pnum').value.trim().toUpperCase(), expiration: $('#f_pexp').value };
-  const d = { id: '(nouveau)', type: typeCourant(), mrzOk: flux ? flux.valide : true, person: { nom: $('#f_nom').value.trim().toUpperCase(), prenoms: $('#f_prenoms').value.trim(), naissance: $('#f_naiss').value, sexe: $('#f_sexe').value, nationalite: $('#f_nat').value.trim().toUpperCase(), tel: $('#f_tel').value.trim(), piece }, ancien: null, ancienRestitue: false };
+  const d = { id: '(nouveau)', type: typeCourant(), mrzOk: flux ? flux.valide : true, createdAt: NOW().toISOString(), status: 'depose', agent: ROLES[role], person: { nom: $('#f_nom').value.trim().toUpperCase(), prenoms: $('#f_prenoms').value.trim(), naissance: $('#f_naiss').value, sexe: $('#f_sexe').value, nationalite: $('#f_nat').value.trim().toUpperCase(), tel: $('#f_tel').value.trim(), piece }, ancien: null, ancienRestitue: false, history: [{ s: 'depose', at: NOW().toISOString(), by: ROLES[role], note: '' }] };
   if (d.type === 'renouvellement') d.ancien = { numero: $('#f_anum').value.trim().toUpperCase(), expiration: $('#f_aexp').value };
   return d;
 }
 function alertesForm() {
   const d = lireFiche(), box = $('#alertesForm');
   if (!d.person.nom && !d.person.piece.numero) { box.innerHTML = ''; return; }
-  const f = evalFlags(d, DB);
-  box.innerHTML = f.length ? f.map(x => '<div class="alert ' + (x.n === 'rouge' ? 'rouge' : 'orange') + '">⚠ ' + esc(x.t) + '</div>').join('') + '<div class="alert bleu">Le dossier pourra être enregistré : il sera marqué « À vérifier » pour la Préfecture.</div>' : '<div class="alert vert">Aucune anomalie détectée.</div>';
+  const f = computeFlags(DB.concat([d]))[d.id] || [];
+  box.innerHTML = f.length ? f.map(x => '<div class="alert ' + (x.n === 'rouge' ? 'rouge' : 'orange') + '">⚠ ' + esc(x.t) + '</div>').join('') + '<div class="alert bleu">Le dossier peut être enregistré : il sera signalé « À vérifier » à la Préfecture.</div>' : '<div class="alert vert">Aucune anomalie détectée.</div>';
 }
 function effacer() { ['f_nom', 'f_prenoms', 'f_naiss', 'f_pnum', 'f_pexp', 'f_tel', 'f_anum', 'f_aexp', 'f_adepuis', 'mrz'].forEach(i => $('#' + i).value = ''); $('#f_sexe').value = ''; $('#resLecture').innerHTML = ''; $('#alertesForm').innerHTML = ''; flux = null; }
 function valider() {
-  const d = lireFiche(), p = d.person;
-  const manque = []; if (!p.nom) manque.push('nom'); if (!p.prenoms) manque.push('prénoms'); if (!p.naissance) manque.push('date de naissance'); if (!p.piece.numero) manque.push('numéro de la pièce'); if (d.type === 'renouvellement' && !d.ancien.numero) manque.push('numéro de l’ancien passeport');
+  const d = lireFiche(), p = d.person, manque = [];
+  if (!p.nom) manque.push('nom'); if (!p.prenoms) manque.push('prénoms'); if (!p.naissance) manque.push('date de naissance'); if (!p.piece.numero) manque.push('numéro de la pièce'); if (d.type === 'renouvellement' && !d.ancien.numero) manque.push('numéro de l’ancien passeport');
   if (manque.length) { $('#alertesForm').innerHTML = '<div class="alert rouge">Il manque : ' + manque.join(', ') + '.</div>'; return; }
-  const t = NOW(); d.id = 'BZV-' + t.getFullYear() + '-' + pad(DB.length + 1, 6); d.createdAt = t.toISOString(); d.lieu = $('#f_lieu').value; d.status = 'depose';
-  d.history = [{ s: 'depose', at: t.toISOString(), by: ROLES[role], note: 'Dossier enregistré' }];
-  d.flags = evalFlags(d, DB); DB.push(d); sauver();
-  effacer(); montrerRecu(d);
+  const t = NOW(); d.id = 'BZV-' + t.getFullYear() + '-' + pad(DB.length + 1, 6); d.createdAt = t.toISOString(); d.lieu = $('#f_lieu').value; d.history[0] = { s: 'depose', at: t.toISOString(), by: ROLES[role], note: 'Dossier enregistré' };
+  DB.push(d); sauver(); effacer(); montrerRecu(d);
 }
 function code(id, nom) { let h = 7; const s = id + nom; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h.toString(36).toUpperCase().padStart(6, '0').slice(-6); }
 function qr(txt) { try { const q = qrcode(0, 'M'); q.addData(txt); q.make(); return q.createSvgTag(4, 0); } catch (e) { return ''; } }
 function montrerRecu(d) {
-  const p = d.person;
-  $('#feuille').innerHTML = '<div class="recu"><div style="font-size:12px;letter-spacing:.12em;color:var(--gris)">REÇU DE DÉPÔT — DÉMONSTRATION</div><div class="num">' + d.id + '</div>' + qr('SUIVI-PASSEPORT-DEMO|' + d.id + '|' + code(d.id, p.nom)) +
-    '<div style="font-size:12px;color:var(--gris)">Code de contrôle : <b>' + code(d.id, p.nom) + '</b></div>' +
+  const p = d.person, f = flags(d);
+  $('#feuille').innerHTML = '<div class="recu"><img class="lg" src="logo.svg" alt=""><div style="font-size:12px;letter-spacing:.14em;color:var(--gris)">REÇU DE DÉPÔT — DÉMONSTRATION</div><div class="num">' + d.id + '</div>' + qr('PASSEPORT-SUR-DEMO|' + d.id + '|' + code(d.id, p.nom)) +
+    '<div style="font-size:13px;color:var(--gris)">Code de contrôle : <b style="color:var(--foret);font-size:16px;letter-spacing:.1em">' + code(d.id, p.nom) + '</b></div>' +
     '<dl class="dl" style="text-align:left"><dt>Demandeur</dt><dd>' + esc(p.nom + ' ' + p.prenoms) + '</dd><dt>Type</dt><dd>' + TN[d.type] + '</dd><dt>Déposé le</dt><dd>' + fmtDH(d.createdAt) + '</dd><dt>Secteur</dt><dd>' + esc(d.lieu) + '</dd></dl>' +
-    '<div style="font-size:13px">Conservez ce reçu. Il permet de suivre l’avancement de votre dossier.</div></div>' +
-    (d.flags.length ? '<div class="alert orange noprint">Ce dossier est marqué « À vérifier » : ' + d.flags.length + ' alerte(s).</div>' : '') +
+    '<div style="font-size:13.5px">Conservez ce reçu. Avec le numéro et le code, vous suivez votre dossier dans « Suivre mon dossier ».</div></div>' +
+    (f.length ? '<div class="alert orange noprint">Dossier signalé « À vérifier » : ' + f.length + ' alerte(s) transmise(s) à la Préfecture.</div>' : '') +
     '<div class="ligne noprint" style="margin-top:12px"><button class="btn or" onclick="window.print()">🖨 Imprimer le reçu</button><button class="btn clair" id="bFerme">Fermer</button><button class="btn clair" id="bVoir">Voir le dossier</button></div>';
-  $('#tiroir').classList.add('on');
-  $('#bFerme').onclick = fermer; $('#bVoir').onclick = () => detail(d.id);
+  $('#tiroir').classList.add('on'); $('#bFerme').onclick = fermer; $('#bVoir').onclick = () => detail(d.id);
 }
 function fermer() { $('#tiroir').classList.remove('on'); }
 
-/* ---------- Scan : caméra + lecture ---------- */
+/* ---------- Scan : caméra et lecture ---------- */
 let stream = null;
-async function ouvrirCam() {
-  try { stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false }); const v = $('#vid'); v.srcObject = stream; await v.play(); $('#cam').classList.add('on'); }
-  catch (e) { $('#ocrEtat').textContent = 'Caméra indisponible ici : utilisez « Choisir une photo » ou un exemple.'; }
-}
+async function ouvrirCam() { try { stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false }); const v = $('#vid'); v.srcObject = stream; await v.play(); $('#cam').classList.add('on'); } catch (e) { $('#ocrEtat').textContent = 'Caméra indisponible ici : utilisez « Choisir une photo » ou un exemple.'; } }
 function fermerCam() { if (stream) stream.getTracks().forEach(t => t.stop()); stream = null; $('#cam').classList.remove('on'); }
 function capturer() { const v = $('#vid'), c = $('#snap'); c.width = v.videoWidth; c.height = v.videoHeight; c.getContext('2d').drawImage(v, 0, 0); fermerCam(); ocr(c); }
 function depuisFichier(file) { if (!file) return; const img = new Image(); img.onload = () => { const c = $('#snap'); c.width = img.naturalWidth; c.height = img.naturalHeight; c.getContext('2d').drawImage(img, 0, 0); URL.revokeObjectURL(img.src); ocr(c); }; img.src = URL.createObjectURL(file); }
@@ -226,118 +247,147 @@ async function ocr(canvas) {
     const r = await Tesseract.recognize(c2, 'eng', { tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<' });
     const lignes = r.data.text.toUpperCase().split(/\n/).map(x => x.replace(/[^A-Z0-9<]/g, '')).filter(x => x.length >= 28 && x.includes('<'));
     if (!lignes.length) throw new Error('aucune ligne');
-    $('#mrz').value = lignes.slice(-3).join('\n'); etat.textContent = 'Lecture terminée. Vérifiez les lignes puis appuyez sur « Lire et remplir la fiche ».'; lire();
+    $('#mrz').value = lignes.slice(-3).join('\n'); etat.textContent = 'Lecture terminée. Vérifiez les lignes.'; lire();
   } catch (e) { etat.textContent = 'Lecture automatique impossible pour cette photo (connexion ou image floue). Reprenez la photo ou saisissez les lignes.'; }
 }
 function exemple(k) {
-  const auj = NOW().getTime(), dt = n => isoDate(new Date(auj + n * DAY));
-  let txt;
+  const auj = NOW().getTime(), dt = n => isoDate(new Date(auj + n * DAY)); let txt;
   if (k === 'pass') txt = buildTD3({ nom: 'Moukala', prenoms: 'Grace Chancelle', num: 'OA4821937', naiss: '1991-04-17', sexe: 'F', exp: dt(-250) });
   else if (k === 'cni') txt = buildTD1({ nom: 'Batchi', prenoms: 'Rodrigue', num: 'CG6103348', naiss: '1987-09-03', sexe: 'M', exp: dt(1200) });
   else { const l = buildTD3({ nom: 'Ngouabi', prenoms: 'Prisca', num: 'OA7745120', naiss: '1994-02-11', sexe: 'F', exp: dt(900) }).split('\n'); l[1] = l[1].slice(0, 5) + '9' + l[1].slice(6); txt = l.join('\n'); }
-  $('#mrz').value = txt; if (k === 'pass') document.querySelector('input[name=type][value=renouvellement]').checked = true, majType(); lire();
+  $('#mrz').value = txt; if (k === 'pass') { document.querySelector('input[name=type][value=renouvellement]').checked = true; majType(); } lire();
 }
 
 /* ---------- Liste ---------- */
 const bS = s => '<span class="badge s-' + s + '">' + SN[s] + '</span>', bT = t => '<span class="badge t-' + t + '">' + TN[t] + '</span>';
-const aVerifier = d => d.flags && d.flags.length && !d.verifie;
+const bR = d => { const s = score(d); return s ? '<span class="risque" style="background:' + couleurScore(s) + '">' + s + '</span>' + (d.suite ? ' <span class="badge ok">' + (d.suite === 'enquete' ? 'Enquête' : 'Vérifié') + '</span>' : '') : ''; };
 function filtrer() {
   const q = $('#q').value.trim().toLowerCase(), s = $('#fs').value, t = $('#ft').value, l = $('#fl').value, a = $('#fa').value;
-  return DB.filter(d => (!s || d.status === s) && (!t || d.type === t) && (!l || d.lieu === l) && (!a || aVerifier(d)) &&
-    (!q || (d.id + ' ' + d.person.nom + ' ' + d.person.prenoms + ' ' + d.person.piece.numero).toLowerCase().includes(q))).sort((x, y) => y.createdAt.localeCompare(x.createdAt));
+  return DB.filter(d => (!s || d.status === s) && (!t || d.type === t) && (!l || d.lieu === l) && (!a || ouvert(d)) && (!q || (d.id + ' ' + d.person.nom + ' ' + d.person.prenoms + ' ' + d.person.piece.numero).toLowerCase().includes(q))).sort((x, y) => y.createdAt.localeCompare(x.createdAt));
 }
-function liste() {
-  const r = filtrer(); $('#cpt').textContent = r.length + ' dossier(s) sur ' + DB.length;
-  $('#tb').innerHTML = r.slice(0, 150).map(d => '<tr class="cl" data-id="' + d.id + '"><td><b>' + d.id + '</b></td><td>' + fmtD(d.createdAt) + '</td><td>' + esc(d.person.nom + ' ' + d.person.prenoms) + '</td><td>' + bT(d.type) + '</td><td>' + bS(d.status) + '</td><td>' + esc(d.lieu) + '</td><td>' + (aVerifier(d) ? '<span class="badge alerte">À vérifier</span>' : d.flags && d.flags.length ? '<span class="badge ok">Contrôlé</span>' : '') + '</td></tr>').join('');
-}
+function liste() { const r = filtrer(); $('#cpt').textContent = r.length + ' dossier(s) sur ' + DB.length; $('#tb').innerHTML = r.slice(0, 150).map(d => '<tr class="cl" data-id="' + d.id + '"><td><b>' + d.id + '</b></td><td>' + fmtD(d.createdAt) + '</td><td>' + esc(d.person.nom + ' ' + d.person.prenoms) + '</td><td>' + bT(d.type) + '</td><td>' + bS(d.status) + '</td><td>' + esc(d.lieu) + '</td><td>' + bR(d) + '</td></tr>').join(''); }
 
 /* ---------- Fiche dossier ---------- */
 function detail(id) {
-  const d = DB.find(x => x.id === id); if (!d) return; const p = d.person, i = stIdx(d.status), peut = role !== 'ministere';
+  const d = DB.find(x => x.id === id); if (!d) return; const p = d.person, i = stIdx(d.status), peut = role !== 'ministere', f = flags(d);
   const etapes = '<div class="etapes">' + STATUTS.map((s, k) => '<div class="etape ' + (k < i ? 'fait' : k === i ? 'now' : '') + '">' + (k < i ? '✔ ' : '') + s[1] + '</div>').join('') + '</div>';
   let act = '';
-  if (peut && i < 4) {
-    const bloque = d.type === 'renouvellement' && d.status === 'pret' && !d.ancienRestitue;
-    act += '<button class="btn or" id="bNext"' + (bloque ? ' disabled' : '') + '>Passer à : ' + STATUTS[i + 1][1] + '</button>';
-    if (bloque) act += '<div class="alert orange" style="flex:1 1 100%">Renouvellement : le nouveau passeport ne peut être remis qu’après restitution ou annulation de l’ancien.</div>';
-  }
+  if (peut && i < 4) { const bl = d.type === 'renouvellement' && d.status === 'pret' && !d.ancienRestitue; act += '<button class="btn vert" id="bNext"' + (bl ? ' disabled' : '') + '>Passer à : ' + STATUTS[i + 1][1] + '</button>'; if (bl) act += '<div class="alert orange" style="flex:1 1 100%">Renouvellement : le nouveau passeport ne peut être remis qu’après restitution ou annulation de l’ancien.</div>'; }
   if (peut && d.type === 'renouvellement' && !d.ancienRestitue) act += '<button class="btn clair" id="bAnc">Ancien passeport restitué / annulé</button>';
-  if (role === 'prefecture' && aVerifier(d)) act += '<button class="btn clair" id="bVer">✔ Alerte vérifiée par la Préfecture</button>';
-  const fl = (d.flags || []).map(x => '<div class="alert ' + (x.n === 'rouge' ? 'rouge' : 'orange') + '">⚠ ' + esc(x.t) + '</div>').join('') + (d.verifie ? '<div class="alert vert">✔ Alerte examinée par la Préfecture le ' + fmtDH(d.verifie.at) + '.</div>' : '');
-  $('#feuille').innerHTML = '<div class="ligne"><h3>' + d.id + '</h3><span style="margin-left:auto">' + bT(d.type) + ' ' + bS(d.status) + '</span></div>' + etapes + fl +
+  if (role === 'prefecture' && ouvert(d)) act += '<button class="btn clair" id="bVer">✔ Vérifié : rien d’anormal</button><button class="btn rouge" id="bEnq">🚨 Transmettre pour enquête</button>';
+  const fl = f.map(x => '<div class="alert ' + (x.n === 'rouge' ? 'rouge' : 'orange') + '"><b>' + KN[x.k] + '</b> — ' + esc(x.t) + '</div>').join('') + (d.suite ? '<div class="alert vert">✔ ' + (d.suite === 'enquete' ? 'Transmis pour enquête' : 'Examiné par la Préfecture : rien d’anormal') + ' le ' + fmtDH(d.suiteAt) + '.</div>' : '');
+  $('#feuille').innerHTML = '<div class="ligne"><h3>' + d.id + '</h3><span style="margin-left:auto">' + bT(d.type) + ' ' + bS(d.status) + '</span></div>' + (f.length ? '<div class="ligne" style="margin:6px 0">Niveau de risque : ' + bR(d) + '</div>' : '') + etapes + fl +
     '<dl class="dl"><dt>Demandeur</dt><dd><b>' + esc(p.nom + ' ' + p.prenoms) + '</b></dd><dt>Né(e) le</dt><dd>' + fmtD(p.naissance) + ' · ' + (p.sexe === 'F' ? 'Féminin' : p.sexe === 'M' ? 'Masculin' : '—') + '</dd><dt>Téléphone</dt><dd>' + esc(p.tel || '—') + '</dd>' +
     '<dt>Pièce présentée</dt><dd>' + (p.piece.type === 'CNI' ? 'Carte d’identité' : 'Passeport') + ' n° ' + esc(p.piece.numero) + ' (expire le ' + fmtD(p.piece.expiration) + ')</dd>' +
-    (d.ancien ? '<dt>Ancien passeport</dt><dd>n° ' + esc(d.ancien.numero) + ' · expiré le ' + fmtD(d.ancien.expiration) + ' · ' + (d.ancienRestitue ? '<b style="color:var(--ok)">restitué / annulé</b>' : '<b style="color:var(--alerte)">pas encore restitué</b>') + '</dd>' : '') +
-    '<dt>Secteur</dt><dd>' + esc(d.lieu) + '</dd><dt>Déposé le</dt><dd>' + fmtDH(d.createdAt) + '</dd></dl>' +
-    '<h3 style="font-size:15px">Historique</h3><div class="histo">' + d.history.map(h => '<div><b>' + SN[h.s] + '</b> — ' + fmtDH(h.at) + '<br><small>' + esc(h.by) + (h.note ? ' · ' + esc(h.note) : '') + '</small></div>').join('') + '</div>' +
+    (d.ancien ? '<dt>Ancien passeport</dt><dd>n° ' + esc(d.ancien.numero) + ' · expiré le ' + fmtD(d.ancien.expiration) + ' · ' + (d.ancienRestitue ? '<b style="color:var(--vert)">restitué / annulé</b>' : '<b style="color:var(--rouge)">pas encore restitué</b>') + '</dd>' : '') +
+    '<dt>Secteur · agent</dt><dd>' + esc(d.lieu) + ' · ' + esc(d.agent || '—') + '</dd><dt>Déposé le</dt><dd>' + fmtDH(d.createdAt) + '</dd></dl>' +
+    '<h3 style="font-size:16px">Historique</h3><div class="histo">' + d.history.map(h => '<div><b>' + SN[h.s] + '</b> — ' + fmtDH(h.at) + '<br><small>' + esc(h.by) + (h.note ? ' · ' + esc(h.note) : '') + '</small></div>').join('') + '</div>' +
     '<div class="ligne noprint" style="margin-top:14px">' + act + '<button class="btn clair" onclick="window.print()">🖨 Imprimer</button><button class="btn clair" id="bFerme">Fermer</button></div>';
   $('#tiroir').classList.add('on'); $('#bFerme').onclick = fermer;
-  const n = $('#bNext'); if (n) n.onclick = () => { const s = STATUTS[i + 1][0]; d.status = s; d.history.push({ s, at: NOW().toISOString(), by: ROLES[role], note: '' }); sauver(); detail(id); rafraichir(); };
-  const a = $('#bAnc'); if (a) a.onclick = () => { d.ancienRestitue = true; d.history.push({ s: d.status, at: NOW().toISOString(), by: ROLES[role], note: 'Ancien passeport restitué / annulé' }); sauver(); detail(id); rafraichir(); };
-  const v = $('#bVer'); if (v) v.onclick = () => { d.verifie = { at: NOW().toISOString(), note: 'Vérifié par la Préfecture' }; d.history.push({ s: d.status, at: NOW().toISOString(), by: ROLES[role], note: 'Alerte examinée' }); sauver(); detail(id); rafraichir(); };
+  const maj = (fn) => { fn(); sauver(); detail(id); rafraichir(); };
+  const n = $('#bNext'); if (n) n.onclick = () => maj(() => { const s = STATUTS[i + 1][0]; d.status = s; d.history.push({ s, at: NOW().toISOString(), by: ROLES[role], note: '' }); });
+  const a = $('#bAnc'); if (a) a.onclick = () => maj(() => { d.ancienRestitue = true; d.history.push({ s: d.status, at: NOW().toISOString(), by: ROLES[role], note: 'Ancien passeport restitué / annulé' }); });
+  const v = $('#bVer'); if (v) v.onclick = () => maj(() => { d.suite = 'verifie'; d.suiteAt = NOW().toISOString(); d.history.push({ s: d.status, at: NOW().toISOString(), by: ROLES[role], note: 'Alerte examinée : rien d’anormal' }); });
+  const e = $('#bEnq'); if (e) e.onclick = () => maj(() => { d.suite = 'enquete'; d.suiteAt = NOW().toISOString(); d.history.push({ s: d.status, at: NOW().toISOString(), by: ROLES[role], note: 'Transmis pour enquête' }); });
 }
 
-/* ---------- Tableau de bord ---------- */
-let charts = [];
-const COL = { depose: '#2f5bd8', recu: '#18a0c8', traitement: '#e4a21b', pret: '#1f9d63', remis: '#7b869c' };
+/* ---------- Statistiques ---------- */
+const COL = { depose: '#6b8aa3', recu: '#2a9d8f', traitement: '#f6c928', pret: '#009543', remis: '#0a4430' };
 function stats() {
-  const T = DB.length, c = Object.fromEntries(STATUTS.map(s => [s[0], DB.filter(d => d.status === s[0]).length]));
-  const remis = DB.filter(d => d.status === 'remis'), delais = remis.map(d => jours(new Date(d.createdAt).getTime(), new Date(last(d).at).getTime()));
-  return { T, c, recus: DB.filter(d => stIdx(d.status) >= 1).length, nonRemis: T - c.remis, ren: DB.filter(d => d.type === 'renouvellement').length, av: DB.filter(aVerifier).length, delai: delais.length ? Math.round(delais.reduce((a, b) => a + b, 0) / delais.length) : 0 };
+  const c = Object.fromEntries(STATUTS.map(s => [s[0], DB.filter(d => d.status === s[0]).length])), remis = DB.filter(d => d.status === 'remis');
+  const delais = remis.map(d => jours(T(d.createdAt), T(last(d).at)));
+  return { T: DB.length, c, recus: DB.filter(d => stIdx(d.status) >= 1).length, nonRemis: DB.length - c.remis, ren: DB.filter(d => d.type === 'renouvellement').length, av: DB.filter(ouvert).length, delai: delais.length ? Math.round(delais.reduce((a, b) => a + b, 0) / delais.length) : 0 };
 }
+const kp = (v, l, c) => '<div class="kpi ' + (c || '') + '"><b>' + v + '</b><span>' + l + '</span></div>';
+let charts = [];
+function graphes(list) { charts.forEach(c => c.destroy()); charts = []; if (window.Chart) { Chart.defaults.font.family = 'ID,system-ui,sans-serif'; Chart.defaults.font.size = 12; Chart.defaults.color = '#3c4a43'; list.forEach(f => { const c = f(); if (c) charts.push(c); }); } }
+function accueil() { const s = stats(); $('#kpisAccueil').innerHTML = kp(s.T, 'Demandes enregistrées') + kp(s.c.remis, 'Passeports remis', 'v') + kp(s.nonRemis, 'En attente', 'j') + kp(s.av, 'Alertes à examiner', 'r'); }
 function tableau() {
   const s = stats();
-  $('#kpis').innerHTML = [['Demandes enregistrées', s.T, ''], ['Dossiers reçus', s.recus, ''], ['En traitement', s.c.traitement, ''], ['Passeports prêts à retirer', s.c.pret, ''], ['Passeports remis', s.c.remis, 'v'], ['Pas encore remis', s.nonRemis, ''], ['Renouvellements', s.ren, 'm'], ['Dossiers à vérifier', s.av, 'r'], ['Délai moyen de remise', s.delai + ' j', '']].map(k => '<div class="kpi ' + k[2] + '"><b>' + k[1] + '</b><span>' + k[0] + '</span></div>').join('');
-  charts.forEach(c => c.destroy()); charts = [];
-  if (window.Chart) {
-    Chart.defaults.font.family = 'system-ui,sans-serif'; Chart.defaults.font.size = 12;
-    charts.push(new Chart($('#g1'), { type: 'doughnut', data: { labels: STATUTS.map(x => x[1]), datasets: [{ data: STATUTS.map(x => s.c[x[0]]), backgroundColor: STATUTS.map(x => COL[x[0]]) }] }, options: { plugins: { legend: { position: 'bottom' } } } }));
-    charts.push(new Chart($('#g2'), { type: 'bar', data: { labels: STATUTS.map(x => x[1]), datasets: [{ label: 'Première demande', data: STATUTS.map(x => DB.filter(d => d.type === 'premiere' && d.status === x[0]).length), backgroundColor: '#8aa84a' }, { label: 'Renouvellement', data: STATUTS.map(x => DB.filter(d => d.type === 'renouvellement' && d.status === x[0]).length), backgroundColor: '#8b4bc0' }] }, options: { scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } } }, plugins: { legend: { position: 'bottom' } } } }));
-    const jr = [], base = NOW(); for (let k = 29; k >= 0; k--) jr.push(isoDate(new Date(base.getTime() - k * DAY)));
-    charts.push(new Chart($('#g3'), { type: 'line', data: { labels: jr.map(x => x.slice(8) + '/' + x.slice(5, 7)), datasets: [{ label: 'Demandes', data: jr.map(j => DB.filter(d => isoDate(new Date(d.createdAt)) === j).length), borderColor: '#c89b3c', backgroundColor: '#c89b3c33', fill: true, tension: .3 }] }, options: { scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }, plugins: { legend: { display: false } } } }));
-    const lx = LIEUX.map(l => [l, DB.filter(d => d.lieu === l).length]).sort((a, b) => b[1] - a[1]);
-    charts.push(new Chart($('#g4'), { type: 'bar', data: { labels: lx.map(x => x[0]), datasets: [{ data: lx.map(x => x[1]), backgroundColor: '#0c2260' }] }, options: { indexAxis: 'y', scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }, plugins: { legend: { display: false } } } }));
-  }
-  const att = DB.filter(d => d.status !== 'remis').map(d => [d, jours(new Date(last(d).at).getTime(), NOW().getTime())]).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  $('#kpis').innerHTML = kp(s.T, 'Demandes enregistrées') + kp(s.recus, 'Dossiers reçus') + kp(s.c.traitement, 'En traitement', 'j') + kp(s.c.pret, 'Passeports prêts à retirer', 'v') + kp(s.c.remis, 'Passeports remis', 'v') + kp(s.nonRemis, 'Pas encore remis', 'j') + kp(s.ren, 'Renouvellements', 'm') + kp(s.av, 'Alertes à examiner', 'r') + kp(s.delai + ' j', 'Délai moyen de remise');
+  const jr = [], base = NOW(); for (let k = 29; k >= 0; k--) jr.push(isoDate(new Date(base.getTime() - k * DAY)));
+  const lx = LIEUX.map(l => [l, DB.filter(d => d.lieu === l).length]).sort((a, b) => b[1] - a[1]);
+  graphes([
+    () => new Chart($('#g1'), { type: 'doughnut', data: { labels: STATUTS.map(x => x[1]), datasets: [{ data: STATUTS.map(x => s.c[x[0]]), backgroundColor: STATUTS.map(x => COL[x[0]]), borderWidth: 2, borderColor: '#fff' }] }, options: { cutout: '58%', plugins: { legend: { position: 'bottom' } } } }),
+    () => new Chart($('#g2'), { type: 'bar', data: { labels: STATUTS.map(x => x[1]), datasets: [{ label: 'Première demande', data: STATUTS.map(x => DB.filter(d => d.type === 'premiere' && d.status === x[0]).length), backgroundColor: '#009543' }, { label: 'Renouvellement', data: STATUTS.map(x => DB.filter(d => d.type === 'renouvellement' && d.status === x[0]).length), backgroundColor: '#f6c928' }] }, options: { scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } } }, plugins: { legend: { position: 'bottom' } } } }),
+    () => new Chart($('#g3'), { type: 'line', data: { labels: jr.map(x => x.slice(8) + '/' + x.slice(5, 7)), datasets: [{ label: 'Demandes', data: jr.map(j => DB.filter(d => isoDate(new Date(d.createdAt)) === j).length), borderColor: '#009543', backgroundColor: '#00954326', fill: true, tension: .3, pointRadius: 2 }] }, options: { scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }, plugins: { legend: { display: false } } } }),
+    () => new Chart($('#g4'), { type: 'bar', data: { labels: lx.map(x => x[0]), datasets: [{ data: lx.map(x => x[1]), backgroundColor: '#0a4430' }] }, options: { indexAxis: 'y', scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }, plugins: { legend: { display: false } } } })]);
+  const att = DB.filter(d => d.status !== 'remis').map(d => [d, jours(T(last(d).at), NOW().getTime())]).sort((a, b) => b[1] - a[1]).slice(0, 8);
   $('#tbAttente').innerHTML = att.map(([d, j]) => '<tr class="cl" data-id="' + d.id + '"><td><b>' + d.id + '</b></td><td>' + esc(d.person.nom + ' ' + d.person.prenoms) + '</td><td>' + bS(d.status) + '</td><td>' + j + ' jour(s)</td></tr>').join('');
   $('#croise').innerHTML = '<thead><tr><th>Type</th>' + STATUTS.map(x => '<th>' + x[1] + '</th>').join('') + '<th>Total</th></tr></thead><tbody>' + Object.keys(TN).map(t => '<tr><td><b>' + TN[t] + '</b></td>' + STATUTS.map(x => '<td>' + DB.filter(d => d.type === t && d.status === x[0]).length + '</td>').join('') + '<td><b>' + DB.filter(d => d.type === t).length + '</b></td></tr>').join('') + '<tr><td><b>Total</b></td>' + STATUTS.map(x => '<td><b>' + s.c[x[0]] + '</b></td>').join('') + '<td><b>' + s.T + '</b></td></tr></tbody>';
 }
+function statsAgents() {
+  return AGENTS.map(a => { const ds = DB.filter(d => d.agent === a), rem = ds.filter(d => d.status === 'remis'), dl = rem.map(d => jours(T(d.createdAt), T(last(d).at))); const fa = ds.filter(d => flags(d).length);
+    return { a, n: ds.length, rem: rem.length, delai: dl.length ? (dl.reduce((x, y) => x + y, 0) / dl.length).toFixed(1) : '—', al: fa.length, eclair: ds.filter(d => flags(d).some(f => f.k === 'delai')).length, nuit: DB.filter(d => d.history.some(h => h.by === a && hNuit(h.at))).length }; });
+}
+function fraude() {
+  const cas = DB.filter(d => flags(d).length).sort((a, b) => score(b) - score(a) || b.createdAt.localeCompare(a.createdAt)), ou = cas.filter(ouvert);
+  const kinds = {}; cas.forEach(d => flags(d).forEach(f => kinds[f.k] = (kinds[f.k] || 0) + 1));
+  const tels = new Set(); cas.forEach(d => flags(d).filter(f => f.k === 'reseau').forEach(() => tels.add(telCle(d.person.tel))));
+  const ag = statsAgents(), surv = ag.filter(x => x.eclair >= 3 || x.nuit >= 3).length;
+  $('#kpisF').innerHTML = kp(ou.length, 'Cas à examiner', 'r') + kp(ou.filter(d => score(d) >= 60).length, 'Cas graves (risque ≥ 60)', 'r') + kp(tels.size, 'Réseaux d’intermédiaires', 'm') + kp(surv, 'Agents à surveiller', 'j') + kp(cas.filter(d => d.suite === 'enquete').length, 'Transmis pour enquête') + kp(cas.filter(d => d.suite === 'verifie').length, 'Examinés, rien d’anormal', 'v');
+  const ks = Object.entries(kinds).sort((a, b) => b[1] - a[1]);
+  graphes([
+    () => new Chart($('#gf1'), { type: 'bar', data: { labels: ks.map(k => KN[k[0]]), datasets: [{ data: ks.map(k => k[1]), backgroundColor: ks.map((k, i) => ['#d62f26', '#e08a00', '#f6c928', '#009543', '#0a4430'][i % 5]) }] }, options: { indexAxis: 'y', scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }, plugins: { legend: { display: false } } } }),
+    () => new Chart($('#gf2'), { type: 'bar', data: { labels: ag.map(x => x.a), datasets: [{ label: 'Dossiers saisis', data: ag.map(x => x.n), backgroundColor: '#9cc7ae' }, { label: 'Avec alerte', data: ag.map(x => x.al), backgroundColor: '#d62f26' }] }, options: { scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }, plugins: { legend: { position: 'bottom' } } } })]);
+  $('#tbFraude').innerHTML = cas.slice(0, 40).map(d => '<tr class="cl" data-id="' + d.id + '"><td>' + '<span class="risque" style="background:' + couleurScore(score(d)) + '">' + score(d) + '</span></td><td><b>' + d.id + '</b></td><td>' + esc(d.person.nom + ' ' + d.person.prenoms) + '</td><td><div class="mini">' + flags(d).map(f => '<span class="chip ' + (f.n === 'rouge' ? '' : 'o') + '" title="' + esc(f.t) + '">' + KN[f.k] + '</span>').join('') + '</div></td><td>' + (d.suite ? '<span class="badge ok">' + (d.suite === 'enquete' ? 'Enquête' : 'Vérifié') + '</span>' : '<span class="badge alerte">À examiner</span>') + '</td></tr>').join('');
+  $('#tbAgents').innerHTML = ag.map(x => '<tr><td><b>' + x.a + '</b></td><td>' + x.n + '</td><td>' + x.rem + '</td><td>' + x.delai + (x.delai === '—' ? '' : ' j') + '</td><td>' + (x.al ? '<span class="chip">' + x.al + '</span>' : '0') + '</td><td>' + (x.eclair >= 3 ? '<span class="chip">' + x.eclair + ' ⚠</span>' : x.eclair) + '</td><td>' + (x.nuit >= 3 ? '<span class="chip o">' + x.nuit + ' ⚠</span>' : x.nuit) + '</td></tr>').join('');
+}
+
+/* ---------- Suivi par le demandeur ---------- */
+const MSG = { depose: 'Votre demande a bien été enregistrée. Elle va être transmise pour réception.', recu: 'Votre dossier a été reçu. Il est en attente de traitement.', traitement: 'Votre dossier est en cours de traitement.', pret: 'Votre passeport est prêt. Présentez-vous au guichet avec votre reçu et une pièce d’identité.', remis: 'Votre passeport vous a été remis.' };
+function suivre() {
+  const id = $('#c_id').value.trim().toUpperCase(), cd = $('#c_code').value.trim().toUpperCase(), box = $('#resSuivi'), d = DB.find(x => x.id === id);
+  if (!d || code(d.id, d.person.nom) !== cd) { box.innerHTML = '<div class="alert rouge">Aucun dossier ne correspond à ce numéro et à ce code. Vérifiez votre reçu.</div>'; return; }
+  const i = stIdx(d.status), p = d.person;
+  box.innerHTML = '<div class="carte"><div class="ligne"><h3 style="margin:0">' + d.id + '</h3><span style="margin-left:auto">' + bT(d.type) + '</span></div><p style="margin:6px 0 0;color:var(--gris)">Demandeur : ' + esc(p.prenoms.charAt(0) + '. ' + p.nom.charAt(0) + '•••••') + ' · déposé le ' + fmtD(d.createdAt) + '</p>' +
+    '<div class="etapes">' + STATUTS.map((s, k) => '<div class="etape ' + (k < i ? 'fait' : k === i ? 'now' : '') + '">' + (k < i ? '✔ ' : '') + s[1] + '</div>').join('') + '</div>' +
+    '<div class="alert ' + (d.status === 'pret' || d.status === 'remis' ? 'vert' : 'bleu') + '"><b>' + SN[d.status] + '</b> — ' + MSG[d.status] + '</div>' +
+    (d.type === 'renouvellement' && !d.ancienRestitue && d.status === 'pret' ? '<div class="alert orange">Renouvellement : apportez votre ancien passeport, il doit être restitué ou annulé avant la remise du nouveau.</div>' : '') +
+    '<p style="margin-top:10px;font-size:13px;color:var(--gris)">Dernière mise à jour : ' + fmtDH(last(d).at) + '</p></div>';
+}
+function exSuivi() { const d = DB.filter(x => !flags(x).length)[Math.floor(Math.random() * 10)] || DB[0]; $('#c_id').value = d.id; $('#c_code').value = code(d.id, d.person.nom); suivre(); }
 
 /* ---------- Export Excel ---------- */
 function excel() {
   if (!window.XLSX) { alert('Export indisponible.'); return; }
   const wb = XLSX.utils.book_new(), s = stats();
-  const dos = DB.slice().sort((a, b) => a.createdAt.localeCompare(b.createdAt)).map(d => { const p = d.person, t = new Date(d.createdAt); return { 'N° dossier': d.id, 'Date de dépôt': fmtD(d.createdAt), 'Heure': pad(t.getHours()) + ':' + pad(t.getMinutes()), 'Nom': p.nom, 'Prénoms': p.prenoms, 'Date de naissance': fmtD(p.naissance), 'Sexe': p.sexe, 'Type de demande': TN[d.type], 'Pièce': p.piece.type, 'N° de pièce': p.piece.numero, 'Expiration pièce': fmtD(p.piece.expiration), 'Ancien passeport n°': d.ancien ? d.ancien.numero : '', 'Ancien expiré le': d.ancien ? fmtD(d.ancien.expiration) : '', 'Ancien restitué': d.ancien ? (d.ancienRestitue ? 'Oui' : 'Non') : '', 'Téléphone': p.tel, 'Secteur': d.lieu, 'État': SN[d.status], 'Dernière mise à jour': fmtDH(last(d).at), 'Délai (jours)': jours(new Date(d.createdAt).getTime(), (d.status === 'remis' ? new Date(last(d).at) : NOW()).getTime()), 'Alerte': (d.flags || []).map(f => f.t).join(' | '), 'Alerte examinée': d.verifie ? 'Oui' : '' }; });
+  const dos = DB.slice().sort((a, b) => a.createdAt.localeCompare(b.createdAt)).map(d => { const p = d.person, t = new Date(d.createdAt); return { 'N° dossier': d.id, 'Date de dépôt': fmtD(d.createdAt), 'Heure': pad(t.getHours()) + ':' + pad(t.getMinutes()), 'Nom': p.nom, 'Prénoms': p.prenoms, 'Date de naissance': fmtD(p.naissance), 'Sexe': p.sexe, 'Type de demande': TN[d.type], 'Pièce': p.piece.type, 'N° de pièce': p.piece.numero, 'Expiration pièce': fmtD(p.piece.expiration), 'Ancien passeport n°': d.ancien ? d.ancien.numero : '', 'Ancien expiré le': d.ancien ? fmtD(d.ancien.expiration) : '', 'Ancien restitué': d.ancien ? (d.ancienRestitue ? 'Oui' : 'Non') : '', 'Téléphone': p.tel, 'Secteur': d.lieu, 'Agent': d.agent, 'État': SN[d.status], 'Dernière mise à jour': fmtDH(last(d).at), 'Délai (jours)': jours(T(d.createdAt), (d.status === 'remis' ? T(last(d).at) : NOW().getTime())), 'Risque (0-100)': score(d), 'Alertes': flags(d).map(f => KN[f.k]).join(' | '), 'Suite donnée': d.suite === 'enquete' ? 'Enquête' : d.suite === 'verifie' ? 'Vérifié' : '' }; });
   const sh = (name, rows, w) => { const x = XLSX.utils.json_to_sheet(rows); if (w) x['!cols'] = w.map(n => ({ wch: n })); XLSX.utils.book_append_sheet(wb, x, name); };
-  sh('Dossiers', dos, [18, 12, 8, 18, 20, 14, 6, 16, 11, 13, 14, 16, 14, 12, 16, 13, 18, 20, 12, 60, 10]);
+  sh('Dossiers', dos, [18, 12, 8, 18, 20, 14, 6, 17, 11, 13, 14, 16, 14, 12, 16, 13, 10, 20, 18, 12, 12, 60, 12]);
   sh('Synthèse états', STATUTS.map(x => ({ 'État': x[1], 'Nombre': s.c[x[0]], 'Part (%)': s.T ? Math.round(s.c[x[0]] * 1000 / s.T) / 10 : 0 })).concat([{ 'État': 'TOTAL', 'Nombre': s.T, 'Part (%)': 100 }]), [24, 10, 10]);
   sh('Croisé type x état', Object.keys(TN).map(t => Object.assign({ 'Type': TN[t] }, ...STATUTS.map(x => ({ [x[1]]: DB.filter(d => d.type === t && d.status === x[0]).length })), { 'Total': DB.filter(d => d.type === t).length })), [18, 18, 16, 14, 16, 18, 8]);
   const jr = {}; DB.forEach(d => { const k = isoDate(new Date(d.createdAt)); jr[k] = (jr[k] || 0) + 1; });
   sh('Par jour', Object.keys(jr).sort().map(k => ({ 'Date': fmtD(k), 'Demandes': jr[k] })), [14, 10]);
   sh('Par secteur', LIEUX.map(l => ({ 'Secteur': l, 'Demandes': DB.filter(d => d.lieu === l).length, 'Remis': DB.filter(d => d.lieu === l && d.status === 'remis').length })), [18, 10, 10]);
-  sh('Alertes', DB.filter(d => d.flags && d.flags.length).map(d => ({ 'N° dossier': d.id, 'Nom': d.person.nom + ' ' + d.person.prenoms, 'Alerte': d.flags.map(f => f.t).join(' | '), 'Examinée': d.verifie ? 'Oui' : 'Non' })), [18, 28, 90, 10]);
-  XLSX.writeFile(wb, 'Suivi-passeports-DEMO-' + isoDate(NOW()) + '.xlsx');
+  sh('Agents', statsAgents().map(x => ({ 'Agent': x.a, 'Dossiers saisis': x.n, 'Remis': x.rem, 'Délai moyen (j)': x.delai, 'Dossiers avec alerte': x.al, 'Remises éclair': x.eclair, 'Actions de nuit': x.nuit })), [12, 16, 8, 16, 20, 16, 16]);
+  sh('Alertes', DB.filter(d => flags(d).length).sort((a, b) => score(b) - score(a)).map(d => ({ 'N° dossier': d.id, 'Nom': d.person.nom + ' ' + d.person.prenoms, 'Risque': score(d), 'Nature': flags(d).map(f => KN[f.k]).join(' | '), 'Détail': flags(d).map(f => f.t).join(' | '), 'Suite donnée': d.suite === 'enquete' ? 'Enquête' : d.suite === 'verifie' ? 'Vérifié' : 'À examiner' })), [18, 28, 8, 40, 100, 14]);
+  XLSX.writeFile(wb, 'Passeport-Sur-DEMO-' + isoDate(NOW()) + '.xlsx');
 }
 
 /* ---------- Démarrage ---------- */
-function rafraichir() { if ($('#v-dossiers').classList.contains('on')) liste(); if ($('#v-tableau').classList.contains('on')) tableau(); }
+function rafraichir() {
+  majPastille(); const v = ($('#onglets .on') || {}).dataset; if (!v) return;
+  if (v.v === 'accueil') accueil(); if (v.v === 'dossiers') liste(); if (v.v === 'tableau') tableau(); if (v.v === 'fraude') fraude();
+}
 function init() {
-  charger(); remplirLieux(); majType();
+  charger(); remplirLieux(); majType(); majPastille(); accueil();
   $('#onglets').addEventListener('click', e => { const b = e.target.closest('button'); if (b) aller(b.dataset.v); });
   $('#role').addEventListener('change', () => { appliquerRole(); rafraichir(); });
   $$('input[name=type]').forEach(r => r.addEventListener('change', majType));
-  ['f_nom', 'f_prenoms', 'f_naiss', 'f_pnum', 'f_pexp', 'f_anum', 'f_aexp'].forEach(i => $('#' + i).addEventListener('input', () => { if (i === 'f_aexp') majAdepuis(); alertesForm(); }));
+  ['f_nom', 'f_prenoms', 'f_naiss', 'f_pnum', 'f_pexp', 'f_anum', 'f_aexp', 'f_tel'].forEach(i => $('#' + i).addEventListener('input', () => { if (i === 'f_aexp') majAdepuis(); alertesForm(); }));
   $('#bLire').onclick = lire; $('#bValider').onclick = valider; $('#bVider').onclick = effacer;
   $('#bCam').onclick = ouvrirCam; $('#bStop').onclick = fermerCam; $('#bSnap').onclick = capturer;
   $('#bFile').onclick = () => $('#fileIn').click(); $('#fileIn').onchange = e => depuisFichier(e.target.files[0]);
   $$('[data-ex]').forEach(b => b.onclick = () => exemple(b.dataset.ex));
+  $$('[data-go]').forEach(b => b.onclick = () => aller(b.dataset.go));
   ['q', 'fs', 'ft', 'fl', 'fa'].forEach(i => $('#' + i).addEventListener('input', liste));
-  $('#bXlsx').onclick = excel; $('#bXlsx2').onclick = excel;
+  $('#bXlsx').onclick = excel; $('#bXlsx2').onclick = excel; $('#bSuivre').onclick = suivre; $('#bExSuivi').onclick = exSuivi;
   document.addEventListener('click', e => { const tr = e.target.closest('tr.cl'); if (tr) detail(tr.dataset.id); if (e.target === $('#tiroir')) fermer(); });
-  const reset = document.createElement('button'); reset.className = 'btn clair'; reset.style.marginTop = '12px'; reset.textContent = '↺ Remettre la démonstration à zéro (données fictives)';
-  reset.onclick = () => { if (confirm('Remettre les données fictives de départ ?')) { try { localStorage.removeItem(KEY); } catch (e) { } charger(); rafraichir(); alert('Démonstration remise à zéro.'); } };
-  $('#v-regles').appendChild(reset);
-  appliquerRole(); window.__sp = { parseMRZ, buildTD3, buildTD1, evalFlags, get DB() { return DB; } };
+  $('#reinit').onclick = () => { if (confirm('Remettre les données fictives de départ ?')) { try { localStorage.removeItem(KEY); } catch (e) { } charger(); rafraichir(); alert('Démonstration remise à zéro.'); } };
+  appliquerRole();
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => { });
+  window.__sp = { parseMRZ, buildTD3, buildTD1, computeFlags, get DB() { return DB; }, get FL() { return FL; }, code, KN, SN, TN };
 }
 init();
 })();

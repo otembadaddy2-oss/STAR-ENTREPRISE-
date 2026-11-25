@@ -471,3 +471,10 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - App autonome (aucune donnée réelle, données fictives stockées sur l'appareil) : scan MRZ (clés de contrôle vérifiées, testé sur le spécimen ICAO), première demande + **renouvellement passeport expiré** (ancien passeport à restituer avant la remise), statuts + historique, alertes anti-fraude, tableau de bord Ministère/Préfecture, export Excel, reçu avec QR.
 - Excel d'exemple avec formules vivantes et diagrammes : `tools/fabrique-excel-passeport-demo.py`.
 - NON mis en ligne (≈41 crédits Netlify). À faire si Carry dit oui : mise en ligne + page protégée/noindex ; dossier PDF de présentation pour le Ministère ; lecture automatique de la photo (OCR) à rendre hors-ligne avant une vraie démo.
+
+## 25/11/2026 — « Passeport Sûr » : application finale (dossier passeport-demo/)
+- Refonte complète : design aux couleurs du Congo (vert/jaune/rouge + vert forêt), logo SVG dessiné (bouclier-drapeau + livret + coche), accueil, 7 écrans, installable et hors connexion (PWA).
+- **Logo : Higgsfield a seulement 0,23 crédit (une image = 0,75)** → logo fait en SVG. Si Carry recharge, proposer des variantes d'image Higgsfield.
+- Moteur anti-fraude : pièce modifiée (chiffres de contrôle), doublon, double identité, réseau d'intermédiaires (même téléphone), pièce expirée, renouvellement irrégulier, étape sautée, remise éclair, action de nuit, dossier bloqué, agents à surveiller ; score de risque 0-100 ; la Préfecture classe « vérifié » ou « enquête ».
+- Suivi par le demandeur (n° de dossier + code du reçu). Excel enrichi : `tools/fabrique-excel-passeport-demo.py`.
+- NON mis en ligne (≈41 crédits). Prochaines étapes à proposer : mise en ligne (page non référencée), dossier PDF de présentation pour le Ministère, lecture photo hors-ligne.
