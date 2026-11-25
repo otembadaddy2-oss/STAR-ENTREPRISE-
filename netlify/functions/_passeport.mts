@@ -143,12 +143,13 @@ export function creerMoteur(sql: any) {
         const cfg = e.config; let jour = ajouterJours(jourDe(cfg), cfg.delai), choisi = "", rang = 0;
         for (let i = 0; i < 90 && !choisi; i++, jour = ajouterJours(jour, 1)) {
           if (!cfg.jours.includes(jourSemaine(jour))) continue;
-          const n = ((await sql`SELECT count(*)::int AS n FROM pss_dossiers WHERE espace = ${code} AND rdv_date = ${jour}`) as any[])[0].n;
+          // La capacité se mesure sur le plus grand numéro d'appel déjà attribué ce jour-là : l'index unique (espace, jour, numéro)
+          // garantit alors qu'aucun numéro supérieur à la capacité n'est jamais donné, même avec des paiements simultanés.
+          const n = ((await sql`SELECT COALESCE(max(ticket), 0)::int AS n FROM pss_dossiers WHERE espace = ${code} AND rdv_date = ${jour}`) as any[])[0].n;
           if (n < cfg.capacite) { choisi = jour; rang = n; }
         }
         if (!choisi) return { erreur: "Aucun rendez-vous disponible dans les 90 prochains jours.", statut: 409 };
-        const max = ((await sql`SELECT COALESCE(max(ticket), 0)::int AS m FROM pss_dossiers WHERE espace = ${code} AND rdv_date = ${choisi}`) as any[])[0].m;
-        const ticket = max + 1;
+        const ticket = rang + 1;   // rang = plus grand numéro déjà pris ce jour-là
         // 1) on réserve le numéro d'appel (index unique : jamais deux fois le même numéro le même jour)
         let res: any[] = [];
         try { res = (await sql`UPDATE pss_dossiers SET rev = rev + 1, rdv_date = ${choisi}, ticket = ${ticket} WHERE espace = ${code} AND id = ${id} AND rev = ${cur[0].rev} AND status = 'depose' AND ticket IS NULL RETURNING rev`) as any[]; }

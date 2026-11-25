@@ -6,6 +6,7 @@ const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAl
 const { esc, fmtD, fmtDH, pad, T, NOW, serviceDay, KN, REQUIS, manquantes } = A;
 let role = A.role;
 const DB = () => A.DB;
+const SY = () => window.__spSync;
 const nomComplet = d => d.person.nom + ' ' + d.person.prenoms;
 const LIBP = { autre: 'Autre document' }; Object.values(REQUIS).forEach(l => l.forEach(r => LIBP[r[0]] = r[1]));
 const svgUrl = s => 'data:image/svg+xml;utf8,' + encodeURIComponent(s);
@@ -31,7 +32,7 @@ async function traiter(file) {
   throw new Error('Format non accepté : photo ou PDF seulement.');
 }
 const urls = new Map();
-async function urlDe(id) { if (urls.has(id)) return urls.get(id); const r = await idb.get(id); if (!r || !r.blob) return null; const u = URL.createObjectURL(r.blob); urls.set(id, u); return u; }
+async function urlDe(id) { if (urls.has(id)) return urls.get(id); let r = await idb.get(id); if ((!r || !r.blob) && SY()) { const b = await SY().lirePiece(id); if (b) { r = { id, dossier: '', blob: b, mime: b.type }; idb.put(r); } } if (!r || !r.blob) return null; const u = URL.createObjectURL(r.blob); urls.set(id, u); return u; }
 async function hydrate() {
   for (const el of $$('[data-piece]:not([data-ok])')) { el.dataset.ok = 1; const u = await urlDe(el.dataset.piece); el.src = u || PIECE_PH; }
   for (const el of $$('[data-piece-bg]:not([data-ok])')) { el.dataset.ok = 1; const u = await urlDe(el.dataset.pieceBg); if (u) el.style.backgroundImage = 'url(' + u + ')'; }
@@ -66,6 +67,7 @@ async function ajouter(files) {
   if (!pending) return; const { el, k } = pending, c = contexte(el), msg = el.querySelector('#pjMsg'); if (!c) return; let ajoutes = 0, erreur = '';
   for (const f of files) { try { if (msg) msg.textContent = 'Enregistrement de « ' + f.name + ' »…'; const r = await traiter(f), id = 'PJ-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
       await idb.put({ id, dossier: c.d ? c.d.id : 'brouillon', blob: r.blob, mime: r.mime });
+      if (SY() && (SY().actif() || SY().citoyen())) await SY().envoyerPiece(id, r.blob, r.mime);
       c.list.push({ id, type: k, nom: f.name || (LIBP[k] + (r.mime === 'application/pdf' ? '.pdf' : '.jpg')), mime: r.mime, taille: r.blob.size, at: NOW().toISOString(), par: c.k === 'guichet' ? 'guichet' : c.k === 'citoyen' ? 'demandeur' : c.k === 'caisse' ? 'caisse' : 'agent' }); ajoutes++;
     } catch (x) { erreur = x.message; } }
   if (!ajoutes) { if (msg) msg.textContent = erreur ? '⚠ ' + erreur : ''; return; }
@@ -133,7 +135,7 @@ function reset() { raz(); bp.forEach(p => { if (!adoptes.has(p.id) && !p.demo) i
 /* ---------- Accusé WhatsApp avec code QR ---------- */
 const chiffres = t => String(t || '').replace(/\D/g, '');
 function qrGif(txt, cell) { try { const q = qrcode(0, 'M'); q.addData(txt); q.make(); return q.createDataURL(cell || 6, 2); } catch (e) { return ''; } }
-function lienSuivi(d) { return location.origin + location.pathname.replace(/[^/]*$/, '') + 'index.html?suivi=' + encodeURIComponent(d.id) + '&code=' + A.code(d.id, d.person.nom); }
+function lienSuivi(d) { return location.origin + location.pathname.replace(/[^/]*$/, '') + 'index.html?suivi=' + encodeURIComponent(d.id) + '&code=' + A.code(d.id, d.person.nom) + (SY() && SY().publique() ? '&esp=' + SY().publique() : ''); }
 const listeManque = d => manquantes(d).map(r => '• ' + r[1]).join('\n');
 function texteWA(d) { const m = manquantes(d); return '*Passeport Sûr — Accusé d’enregistrement*\n\nBonjour ' + d.person.prenoms + ',\nvotre dossier est bien enregistré.\n\nN° de reçu : *' + d.id + '*\nCode de contrôle : *' + A.code(d.id, d.person.nom) + '*\n\n' +
   (m.length ? '⚠ *Dossier incomplet* — il manque :\n' + listeManque(d) + '\nVous pouvez les envoyer depuis votre téléphone : ' + lienSuivi(d) + '\n\n' : '') + 'Présentez ce reçu (et le code QR) à la caisse de la Préfecture de Brazzaville pour effectuer le paiement.\n\nSuivi de votre dossier : ' + lienSuivi(d); }
@@ -165,15 +167,15 @@ function piecesHtml(d, ctx) {
     '<figure><img src="' + (ph.signature || signatureDemo(d.id)) + '" alt="Signature" style="background:#fff"><figcaption>Signature' + (ph.signature ? '' : ' (exemple)') + '</figcaption></figure></div>';
   h += m.length ? '<div class="alert orange"><b>Dossier incomplet.</b> Pièces manquantes : ' + esc(m.map(r => r[1]).join(' · ')) + '.</div>' : '<div class="alert vert">✔ Toutes les pièces obligatoires sont fournies.</div>';
   if (ctx && !(ctx === 'detail' && role === 'ministere')) h += '<h3 style="font-size:16px;margin-top:12px">Joindre ou compléter des pièces</h3><div data-editeur="' + ctx + '" data-d="' + d.id + '"></div>';
-  if (d.paiement) h += '<h3 style="font-size:16px">Paiement et appel</h3><dl class="dl"><dt>Reçu de paiement</dt><dd><b>' + esc(d.paiement.recu) + '</b> · ' + fmtDH(d.paiement.at) + '</dd><dt>Montant</dt><dd>' + Number(d.paiement.montant).toLocaleString('fr-FR') + ' FCFA · ' + esc(d.paiement.mode) + ' <small>(montant fictif de démonstration)</small></dd><dt>N° d’appel</dt><dd><b>' + pad(d.ticket || 0, 3) + '</b>' + (d.appel ? ' · appelé à la porte ' + d.appel.porte + ' à ' + fmtDH(d.appel.at) : ' · en attente d’appel') + '</dd></dl>';
+  if (d.paiement) h += '<h3 style="font-size:16px">Paiement et appel</h3><dl class="dl"><dt>Reçu de paiement</dt><dd><b>' + esc(d.paiement.recu) + '</b> · ' + fmtDH(d.paiement.at) + '</dd><dt>Montant</dt><dd>' + Number(d.paiement.montant).toLocaleString('fr-FR') + ' FCFA · ' + esc(d.paiement.mode) + ' <small>(montant fictif de démonstration)</small></dd>' + (d.rdv ? '<dt>Rendez-vous</dt><dd>' + A.rdvLong(d.rdv.date) + ' · ' + d.rdv.heure + ' · ' + esc(d.rdv.lieu) + '</dd>' : '') + '<dt>N° d’appel</dt><dd><b>' + pad(d.ticket || 0, 3) + '</b>' + (d.appel ? ' · appelé à la porte ' + d.appel.porte + ' à ' + fmtDH(d.appel.at) : ' · en attente d’appel') + '</dd></dl>';
   if (d.whatsapp) h += '<div class="alert vert">✔ Accusé WhatsApp envoyé le ' + fmtDH(d.whatsapp.at) + '.</div>';
   return h;
 }
 const piecesHtmlDetail = d => piecesHtml(d, 'detail');
 
 /* ---------- Caisse ---------- */
-const jourCourant = () => serviceDay(NOW().getTime());
-function paiementsDuJour() { return DB().filter(d => d.paiement && serviceDay(T(d.paiement.at)) === jourCourant()).sort((a, b) => b.paiement.at.localeCompare(a.paiement.at)); }
+const jourCourant = () => SY().jourCourant();
+function paiementsDuJour() { const aj = A.jourSite(0); return DB().filter(d => d.paiement && new Date(T(d.paiement.at) + 3600000).toISOString().slice(0, 10) === aj).sort((a, b) => b.paiement.at.localeCompare(a.paiement.at)); }
 function caisse() {
   const pj = paiementsDuJour(), tot = pj.reduce((a, d) => a + Number(d.paiement.montant), 0), att = DB().filter(d => d.status === 'depose');
   const bloques = att.filter(d => (A.flags(d).some(f => f.n === 'rouge') && !d.suite) || manquantes(d).length).length;
@@ -209,54 +211,73 @@ function ouvrirCaisse(sansCode) {
   const bd = $('#bDebloque'); if (bd) bd.onclick = () => { d.suite = 'verifie'; d.suiteAt = NOW().toISOString(); d.history.push({ s: d.status, at: NOW().toISOString(), by: 'Préfecture', note: 'Alerte examinée avant encaissement' }); A.sauver(); ouvrirCaisse(sansCode); };
   const br = $('#bReimp'); if (br) br.onclick = () => recuPaiement(d);
 }
-function payer(d) {
-  const m = Number($('#k_montant').value), mode = $('#k_mode').value;
-  if (!(m > 0)) { $('#payMsg').innerHTML = '<div class="alert rouge">Saisissez le montant encaissé.</div>'; return; }
+const texteRdv = d => '*Passeport Sûr — Paiement enregistré*\n\nBonjour ' + d.person.prenoms + ',\nvotre paiement est bien reçu.\n\n📅 *Rendez-vous d’enrôlement :*\n' + A.rdvLong(d.rdv.date) + ' à partir de ' + d.rdv.heure + '\n📍 ' + d.rdv.lieu + '\n\nReçu de paiement : *' + d.paiement.recu + '*\nVotre N° d’appel : *' + pad(d.ticket, 3) + '*\n\nPrésentez-vous ce jour-là avec ce message et votre reçu. Votre numéro, votre nom et la porte s’afficheront sur les écrans de la salle d’attente.\n\nSuivi de votre dossier : ' + lienSuivi(d);
+async function payer(d) {
+  const m = Number($('#k_montant').value), mode = $('#k_mode').value, msg = $('#payMsg');
+  if (!(m > 0)) { msg.innerHTML = '<div class="alert rouge">Saisissez le montant encaissé.</div>'; return; }
   if (manquantes(d).length) { ouvrirCaisse(true); return; }
-  const now = NOW(), jc = serviceDay(now.getTime()), pj = DB().filter(x => x.paiement && serviceDay(T(x.paiement.at)) === jc), ticket = pj.reduce((a, x) => Math.max(a, x.ticket || 0), 0) + 1;
-  const rp = DB().reduce((a, x) => Math.max(a, x.paiement ? Number(String(x.paiement.recu).split('-').pop()) : 0), 0) + 1;
-  d.status = 'paye'; d.ticket = ticket; d.paiement = { montant: m, mode, at: now.toISOString(), caissier: 'Caisse', recu: 'RP-' + now.getFullYear() + '-' + pad(rp, 6) };
-  d.history.push({ s: 'paye', at: now.toISOString(), by: 'Caisse', note: 'Paiement ' + m.toLocaleString('fr-FR') + ' FCFA — ' + mode });
-  A.sauver(); ouvrirCaisse(true); caisse(); recuPaiement(d);
+  $('#bPayer').disabled = true;
+  try {
+    if (SY().actif()) await SY().payer(d.id, m, mode);
+    else {
+      const r = SY().prochainRdvLocal(); if (!r) throw new Error('Aucun rendez-vous disponible dans les 90 prochains jours.');
+      const now = NOW(), rp = DB().reduce((a, x) => Math.max(a, x.paiement ? Number(String(x.paiement.recu).split('-').pop()) : 0), 0) + 1;
+      d.status = 'paye'; d.ticket = r.ticket; d.paiement = { montant: m, mode, at: now.toISOString(), caissier: 'Caisse', recu: 'RP-' + now.getFullYear() + '-' + pad(rp, 6) };
+      d.rdv = { date: r.date, heure: r.heure, lieu: r.lieu, objet: 'Enrôlement (empreintes et photo)' };
+      d.history.push({ s: 'paye', at: now.toISOString(), by: 'Caisse', note: 'Paiement ' + m.toLocaleString('fr-FR') + ' FCFA — ' + mode + ' · rendez-vous le ' + r.date });
+      A.sauver();
+    }
+  } catch (e) { msg.innerHTML = '<div class="alert rouge">' + esc(e.message) + '</div>'; const b = $('#bPayer'); if (b) b.disabled = false; return; }
+  const dd = DB().find(x => x.id === d.id); ouvrirCaisse(true); caisse(); recuPaiement(dd);
 }
 function recuPaiement(d) {
-  const p = d.paiement, msg = '*Passeport Sûr — Paiement enregistré*\n\nReçu de paiement : *' + p.recu + '*\nVotre N° d’appel : *' + pad(d.ticket, 3) + '*\n\nRestez dans la salle d’attente et surveillez les écrans : votre numéro, votre nom et la porte s’afficheront.';
+  const p = d.paiement, r = d.rdv;
   $('#feuille').innerHTML = '<div class="recu"><img class="lg" src="logo.svg" alt=""><div style="font-size:12px;letter-spacing:.14em;color:var(--gris)">REÇU DE PAIEMENT — DÉMONSTRATION</div><div class="num">' + esc(p.recu) + '</div>' +
-    '<div style="margin:10px 0 2px;font-size:12px;letter-spacing:.12em;color:var(--gris)">VOTRE N° D’APPEL</div><div class="gros">' + pad(d.ticket, 3) + '</div>' + A.qr('PSR2|' + p.recu + '|' + d.ticket + '|' + d.id) +
+    (r ? '<div class="alert vert" style="text-align:left;margin:10px 0"><b>📅 Rendez-vous d’enrôlement</b><br>' + esc(A.rdvLong(r.date)) + ' · à partir de <b>' + esc(r.heure) + '</b><br>' + esc(r.lieu) + '</div>' : '') +
+    '<div style="margin:6px 0 2px;font-size:12px;letter-spacing:.12em;color:var(--gris)">VOTRE N° D’APPEL</div><div class="gros">' + pad(d.ticket, 3) + '</div>' + A.qr('PSR2|' + p.recu + '|' + d.ticket + '|' + d.id) +
     '<dl class="dl" style="text-align:left"><dt>Demandeur</dt><dd>' + esc(nomComplet(d)) + '</dd><dt>Dossier</dt><dd>' + d.id + ' · ' + A.TN[d.type] + '</dd><dt>Payé</dt><dd>' + Number(p.montant).toLocaleString('fr-FR') + ' FCFA · ' + esc(p.mode) + ' <small>(fictif)</small></dd><dt>Date</dt><dd>' + fmtDH(p.at) + '</dd></dl>' +
-    '<div style="font-size:13.5px"><b>Asseyez-vous dans la salle d’attente.</b> Quand votre numéro s’affiche à l’écran avec votre nom, levez-vous et allez à la porte indiquée.</div></div>' +
-    '<div class="ligne noprint" style="margin-top:12px"><button class="btn or" onclick="window.print()">🖨 Imprimer le reçu</button><a class="btn vert" style="text-decoration:none;display:inline-block" target="_blank" rel="noopener" href="https://wa.me/' + chiffres(d.person.tel) + '?text=' + encodeURIComponent(msg) + '">📲 Envoyer le N° d’appel par WhatsApp</a><button class="btn clair" id="bFerme">Fermer</button></div>';
+    '<div style="font-size:13.5px"><b>Le jour du rendez-vous</b>, asseyez-vous dans la salle d’attente. Quand votre numéro s’affiche à l’écran avec votre nom, levez-vous et allez à la porte indiquée.</div></div>' +
+    '<div class="ligne noprint" style="margin-top:12px"><button class="btn or" onclick="window.print()">🖨 Imprimer le reçu</button>' + (r ? '<a class="btn vert" style="text-decoration:none;display:inline-block" target="_blank" rel="noopener" href="https://wa.me/' + chiffres(d.person.tel) + '?text=' + encodeURIComponent(texteRdv(d)) + '">📲 Envoyer la date du rendez-vous par WhatsApp</a>' : '') + '<button class="btn clair" id="bFerme">Fermer</button></div>' +
+    (r ? '<div class="wa noprint"><div class="tete"><i>✆</i> Message envoyé au ' + esc(d.person.tel || 'demandeur') + '</div><div class="bulle">' + esc(texteRdv(d).replace(/\*/g, '').replace(/\n\nSuivi de votre dossier : .*/, '')) + '<div class="heure">' + pad(NOW().getHours()) + ':' + pad(NOW().getMinutes()) + ' ✓✓</div></div></div>' : '');
   $('#tiroir').classList.add('on'); $('#bFerme').onclick = () => $('#tiroir').classList.remove('on');
 }
 function exempleCaisse(incomplet) { const l = DB().filter(x => x.status === 'depose' && !A.flags(x).some(f => f.n === 'rouge') && (manquantes(x).length > 0) === !!incomplet).sort((a, b) => b.createdAt.localeCompare(a.createdAt)); const d = l[0]; if (!d) { $('#scanEtat').textContent = incomplet ? 'Aucun dossier incomplet disponible.' : 'Aucun dossier complet en attente de paiement.'; return; } $('#k_id').value = d.id; $('#k_code').value = A.code(d.id, d.person.nom); ouvrirCaisse(); }
 
-/* ---------- File d'attente et appel (plusieurs portes) ---------- */
-const PK = 'sp_portes_v1';
-function portesCfg() { try { const c = JSON.parse(localStorage.getItem(PK) || 'null'); if (c && c.n) return c; } catch (e) { } return { n: 6, noms: {} }; }
-function sauverPortes(c) { try { localStorage.setItem(PK, JSON.stringify(c)); } catch (e) { } }
+/* ---------- File d'attente et appel (plusieurs portes, jour du rendez-vous) ---------- */
+const portesCfg = () => { const c = SY().cfg(); return { n: c.portes, noms: c.noms || {} }; };
 const rang = d => d.rang != null ? d.rang : d.ticket;
-function file() { return DB().filter(d => d.status === 'paye' && d.paiement && serviceDay(T(d.paiement.at)) === jourCourant()).sort((a, b) => rang(a) - rang(b)); }
-function appelsDuJour() { return DB().filter(d => d.appel && serviceDay(T(d.appel.at)) === jourCourant()).sort((a, b) => b.appel.at.localeCompare(a.appel.at)); }
+const rdvAujourdhui = d => d.rdv && d.rdv.date === jourCourant();
+function file() { return DB().filter(d => d.status === 'paye' && rdvAujourdhui(d)).sort((a, b) => rang(a) - rang(b)); }
+function appelsDuJour() { return DB().filter(d => d.appel && rdvAujourdhui(d)).sort((a, b) => b.appel.at.localeCompare(a.appel.at)); }
 function vueFile() {
-  const q = file(), ap = appelsDuJour(), now = NOW().getTime(), att = q.length ? Math.round(q.reduce((a, d) => a + (now - T(d.paiement.at)) / 60000, 0) / q.length) : 0, cfg = portesCfg(), ro = role === 'ministere';
-  $('#kpisFile').innerHTML = [[q.length, 'En attente', 'j'], [q[0] ? pad(q[0].ticket, 3) : '—', 'Prochain numéro', 'v'], [ap.length, 'Appelés aujourd’hui', ''], [att + ' min', 'Attente moyenne', 'm']].map(k => '<div class="kpi ' + k[2] + '"><b>' + k[0] + '</b><span>' + k[1] + '</span></div>').join('');
-  $('#tbFile').innerHTML = q.slice(0, 14).map(d => '<tr class="cl" data-id="' + d.id + '"><td><b class="ticket" style="font-size:20px">' + pad(d.ticket, 3) + '</b></td><td>' + esc(nomComplet(d)) + '</td><td>' + A.bT(d.type) + '</td><td>' + Math.round((now - T(d.paiement.at)) / 60000) + ' min</td></tr>').join('') || '<tr><td colspan="4" style="color:var(--gris)">Personne n’attend pour l’instant.</td></tr>';
+  const q = file(), ap = appelsDuJour(), now = NOW().getTime(), att = q.length ? Math.round(q.reduce((a, d) => a + (now - T(d.paiement.at)) / 60000, 0) / q.length) : 0, cfg = portesCfg(), ro = role === 'ministere', sc = SY().cfg();
+  $('#jourFile').innerHTML = '📅 <b>Rendez-vous du ' + esc(A.rdvLong(jourCourant())) + '</b>' + (sc.decalage ? ' <span class="badge orange">date simulée : +' + sc.decalage + ' j</span>' : ' (aujourd’hui)');
+  const ec = SY().ecrans(); $('#ecransCo').innerHTML = SY().actif() ? (ec.length ? '🖥 <b>Écrans connectés :</b> ' + ec.map(e => '🟢 ' + esc(e.nom)).join(' · ') : '🖥 Aucun écran connecté. Ouvrez « 🟢 Espace » en haut pour afficher le code et le lien des écrans.') : '🖥 Mode local : l’écran de la salle ne reçoit les appels que sur cet appareil. Pour relier plusieurs postes et écrans, touchez « Mode local » en haut.';
+  $('#kpisFile').innerHTML = [[q.length, 'En attente', 'j'], [q[0] ? pad(q[0].ticket, 3) : '—', 'Prochain numéro', 'v'], [ap.length, 'Appelés ce jour', ''], [att + ' min', 'Attente moyenne depuis le paiement', 'm']].map(k => '<div class="kpi ' + k[2] + '"><b>' + k[0] + '</b><span>' + k[1] + '</span></div>').join('');
+  $('#tbFile').innerHTML = q.slice(0, 14).map(d => '<tr class="cl" data-id="' + d.id + '"><td><b class="ticket" style="font-size:20px">' + pad(d.ticket, 3) + '</b></td><td>' + esc(nomComplet(d)) + '</td><td>' + A.bT(d.type) + '</td><td>' + esc(d.rdv.heure) + '</td></tr>').join('') || '<tr><td colspan="4" style="color:var(--gris)">Personne n’attend pour l’instant.</td></tr>';
   $('#nbPortes').textContent = cfg.n;
   let h = ''; for (let k = 1; k <= cfg.n; k++) { const cur = ap.find(x => x.appel.porte === k && x.status === 'recu'), nom = cfg.noms[k] || '';
     h += '<div class="porteC' + (ap[0] && ap[0].appel.porte === k && ap[0].status === 'recu' ? ' on' : '') + '"><div class="ph">🚪 Porte ' + k + '<button type="button" data-ed="' + k + '" title="Nommer la porte">✎</button></div><div class="nm">' + (nom ? esc(nom) : '&nbsp;') + '</div>' +
       '<div class="nb">' + (cur ? pad(cur.ticket, 3) : '—') + '</div><div class="nm">' + (cur ? esc(nomComplet(cur)) : 'libre') + '</div>' +
       '<div class="bt"><button type="button" class="btn or petit" data-act="appeler" data-p="' + k + '"' + (ro ? ' disabled' : '') + '>🔔 Appeler le suivant</button><button type="button" class="btn clair petit" data-act="rappeler" data-p="' + k + '"' + (ro || !cur ? ' disabled' : '') + '>↻ Rappeler</button><button type="button" class="btn clair petit" data-act="absent" data-p="' + k + '"' + (ro || !cur ? ' disabled' : '') + '>Absent</button></div></div>'; }
   $('#portes').innerHTML = h;
+  const fr = $('#apercuEcran'); const cible = SY().actif() ? 'ecran.html?apercu=1&espace=' + SY().code() : 'ecran.html?apercu=1'; if (fr && fr.getAttribute('src') !== cible) fr.setAttribute('src', cible);
 }
 function msgAppel(h, cl) { const e = $('#appelEtat'); e.style.display = ''; e.className = 'alert ' + (cl || 'bleu'); e.innerHTML = h; }
-function appeler(porte) {
-  const q = file(); if (!q.length) { msgAppel('Personne n’attend pour l’instant.', 'orange'); return; }
+const fini = (r, d) => { vueFile(); msgAppel(r, d); };
+async function appeler(porte) {
+  if (SY().actif()) { try { const r = await SY().appeler(porte); if (r.vide) { msgAppel('Personne n’attend pour ce jour.', 'orange'); return; } const d = r.dossier; vueFile(); msgAppel('🔔 <b>N° ' + pad(d.ticket, 3) + '</b> · ' + esc(nomComplet(d)) + ' → <b>Porte ' + porte + '</b> (affiché sur les écrans de la salle)', 'vert'); } catch (e) { msgAppel('⚠ ' + esc(e.message), 'rouge'); } return; }
+  const q = file(); if (!q.length) { msgAppel('Personne n’attend pour ce jour.', 'orange'); return; }
   const d = q[0], now = NOW().toISOString();
   d.status = 'recu'; d.appel = { porte, at: now }; d.history.push({ s: 'recu', at: now, by: 'Porte ' + porte, note: 'Appelé en salle' });
   A.sauver(); vueFile(); msgAppel('🔔 <b>N° ' + pad(d.ticket, 3) + '</b> · ' + esc(nomComplet(d)) + ' → <b>Porte ' + porte + '</b> (affiché sur les écrans de la salle)', 'vert');
 }
-function rappeler(porte) { const l = appelsDuJour().find(x => x.appel.porte === porte && x.status === 'recu'); if (!l) { msgAppel('Aucun appel à répéter à la porte ' + porte + '.', 'orange'); return; } l.appel.at = NOW().toISOString(); l.history.push({ s: l.status, at: l.appel.at, by: 'Porte ' + porte, note: 'Appel répété' }); A.sauver(); vueFile(); msgAppel('🔔 Appel répété : N° ' + pad(l.ticket, 3) + ' → Porte ' + porte, 'vert'); }
-function absent(porte) {
+async function rappeler(porte) {
+  if (SY().actif()) { try { const r = await SY().rappeler(porte); if (r.vide) { msgAppel('Aucun appel à répéter à la porte ' + porte + '.', 'orange'); return; } vueFile(); msgAppel('🔔 Appel répété : N° ' + pad(r.dossier.ticket, 3) + ' → Porte ' + porte, 'vert'); } catch (e) { msgAppel('⚠ ' + esc(e.message), 'rouge'); } return; }
+  const l = appelsDuJour().find(x => x.appel.porte === porte && x.status === 'recu'); if (!l) { msgAppel('Aucun appel à répéter à la porte ' + porte + '.', 'orange'); return; } l.appel.at = NOW().toISOString(); l.history.push({ s: l.status, at: l.appel.at, by: 'Porte ' + porte, note: 'Appel répété' }); A.sauver(); vueFile(); msgAppel('🔔 Appel répété : N° ' + pad(l.ticket, 3) + ' → Porte ' + porte, 'vert');
+}
+async function absent(porte) {
+  if (SY().actif()) { try { const r = await SY().absent(porte); if (r.vide) { msgAppel('Aucune personne appelée à la porte ' + porte + '.', 'orange'); return; } vueFile(); msgAppel('N° ' + pad(r.dossier.ticket, 3) + ' absent : renvoyé en fin de file.', 'orange'); } catch (e) { msgAppel('⚠ ' + esc(e.message), 'rouge'); } return; }
   const l = appelsDuJour().find(x => x.appel.porte === porte && x.status === 'recu'); if (!l) { msgAppel('Aucune personne appelée à la porte ' + porte + '.', 'orange'); return; }
   const max = DB().reduce((a, x) => Math.max(a, x.rang != null ? x.rang : (x.ticket || 0)), 0);
   l.status = 'paye'; l.rang = max + 1; delete l.appel; l.history.push({ s: 'paye', at: NOW().toISOString(), by: 'Porte ' + porte, note: 'Absent à l’appel — renvoyé en fin de file' }); A.sauver(); vueFile(); msgAppel('N° ' + pad(l.ticket, 3) + ' absent : renvoyé en fin de file.', 'orange');
@@ -264,10 +285,21 @@ function absent(porte) {
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-act]'), ed = e.target.closest('[data-ed]');
   if (b && b.closest('#portes')) { const k = +b.dataset.p; ({ appeler, rappeler, absent })[b.dataset.act](k); }
-  if (ed) { const c = portesCfg(), k = ed.dataset.ed, v = prompt('Nom de la porte ' + k + ' (vide pour effacer) :', c.noms[k] || ''); if (v !== null) { if (v.trim()) c.noms[k] = v.trim().slice(0, 40); else delete c.noms[k]; sauverPortes(c); vueFile(); } }
+  if (ed) { const c = portesCfg(), k = ed.dataset.ed, v = prompt('Nom de la porte ' + k + ' (vide pour effacer) :', c.noms[k] || ''); if (v !== null) { const noms = Object.assign({}, c.noms); if (v.trim()) noms[k] = v.trim().slice(0, 40); else delete noms[k]; SY().regler({ noms }).then(vueFile); } }
 });
-$('#bPortesPlus').onclick = () => { const c = portesCfg(); c.n = Math.min(12, c.n + 1); sauverPortes(c); vueFile(); };
-$('#bPortesMoins').onclick = () => { const c = portesCfg(); c.n = Math.max(1, c.n - 1); sauverPortes(c); vueFile(); };
+$('#bPortesPlus').onclick = async () => { await SY().regler({ portes: Math.min(12, portesCfg().n + 1) }); vueFile(); };
+$('#bPortesMoins').onclick = async () => { await SY().regler({ portes: Math.max(1, portesCfg().n - 1) }); vueFile(); };
+
+/* ---------- Réglages (préfecture) ---------- */
+function vueReglages() {
+  const c = SY().cfg(); $('#r_portes').value = c.portes; $('#r_cap').value = c.capacite; $('#r_delai').value = c.delai; $('#r_debut').value = c.debut; $('#r_pas').value = c.pas; $('#r_par').value = c.parCreneau; $('#r_lieu').value = c.lieu; $('#r_dec').value = c.decalage;
+  $$('#r_jours input').forEach(i => { i.checked = c.jours.includes(+i.value); });
+  $('#r_info').innerHTML = SY().actif() ? '🟢 Ces réglages s’appliquent à <b>tous les postes et écrans</b> de l’espace.' : '⚪ Mode local : ces réglages restent sur cet appareil.';
+}
+$('#bRegler').onclick = async () => {
+  const n = id => Number($('#' + id).value), jours = $$('#r_jours input').filter(i => i.checked).map(i => +i.value), m = $('#r_msg');
+  try { await SY().regler({ portes: n('r_portes'), capacite: n('r_cap'), delai: n('r_delai'), debut: $('#r_debut').value || '08:00', pas: n('r_pas'), parCreneau: n('r_par'), lieu: $('#r_lieu').value, decalage: n('r_dec'), jours: jours.length ? jours : [1, 2, 3, 4, 5] }); m.innerHTML = '<div class="alert vert">✔ Réglages enregistrés.</div>'; vueReglages(); A.rafraichir(); } catch (e) { m.innerHTML = '<div class="alert rouge">' + esc(e.message) + '</div>'; }
+};
 
 /* ---------- Complément par le demandeur (suivi) ---------- */
 function completerCitoyen() {
@@ -282,10 +314,10 @@ new MutationObserver(() => { const box = $('#resSuivi'); if (box && box.querySel
 $$('.baniere').forEach(b => { const t = b.querySelector('.txt'); if (!t) return; const bt = document.createElement('button'); bt.type = 'button'; bt.className = 'retour'; bt.textContent = '← Retour'; bt.onclick = () => { if (history.length > 1 && history.state && history.state.v !== 'accueil') history.back(); else A.aller('accueil'); }; t.prepend(bt); });
 
 /* ---------- Branchements ---------- */
-function render(v) { if (v === 'caisse') caisse(); if (v === 'file') vueFile(); if (v === 'guichet') { bandeauBrouillon(); majEtapes(); const ed = $('#edGuichet'); ed.dataset.monte = '0'; monter(); hydrate(); } }
+function render(v, o) { if (v === 'caisse') caisse(); if (v === 'file') vueFile(); if (v === 'reglages') vueReglages(); if (v === 'guichet' && o !== 'sync') { bandeauBrouillon(); majEtapes(); const ed = $('#edGuichet'); ed.dataset.monte = '0'; monter(); hydrate(); } }
 $('#bScanCaisse').onclick = lancerScan; $('#bScanStop').onclick = arretScan; $('#bScanEx').onclick = () => exempleCaisse(false); $('#bScanEx2').onclick = () => exempleCaisse(true); $('#bCaisseOuvrir').onclick = () => ouvrirCaisse();
 document.addEventListener('click', e => { const tr = e.target.closest('#tbCaisse tr.cl, #tbFile tr.cl'); if (tr) A.detail(tr.dataset.id); });
 window.__spSuite = { extras, reset, aSignature, accuse, lierAccuse, piecesHtml: piecesHtmlDetail, render, apres, role: r => { role = r; if ($('#v-file').classList.contains('on')) vueFile(); } };
 majEtapes(); monter(); hydrate(); bandeauBrouillon();
-try { const q = new URLSearchParams(location.search); if (q.get('suivi')) { A.aller('citoyen'); $('#c_id').value = q.get('suivi'); $('#c_code').value = q.get('code') || ''; $('#bSuivre').click(); } } catch (e) { }
+try { const q = new URLSearchParams(location.search); if (q.get('suivi') && !q.get('esp')) { A.aller('citoyen'); $('#c_id').value = q.get('suivi'); $('#c_code').value = q.get('code') || ''; $('#bSuivre').click(); } } catch (e) { }
 })();

@@ -121,12 +121,19 @@ const NOMS = ['Mabiala', 'Nkounkou', 'Moukoko', 'Itoua', 'Okemba', 'Mouanda', 'N
 const PF = ['Grâce', 'Prisca', 'Merveille', 'Esther', 'Sandrine', 'Chancelle', 'Divine', 'Laure', 'Ornella', 'Nadège', 'Josiane', 'Clarisse'];
 const PM = ['Jean-Claude', 'Rodrigue', 'Christ', 'Parfait', 'Brice', 'Fabrice', 'Giscard', 'Hervé', 'Dieudonné', 'Aimé', 'Steve', 'Gildas'];
 const serviceDay = ms => isoDate(new Date(ms - 4 * HOUR));
+const jourSite = dec => new Date(Date.now() + 3600000 + (dec || 0) * DAY).toISOString().slice(0, 10);
+const creneau = n => { const m = 8 * 60 + Math.floor((n - 1) / 10) * 30; return pad(Math.floor(m / 60)) + ':' + pad(m % 60); };
+const rdvLong = iso => new Date(iso + 'T12:00:00Z').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const rdvHtml = d => d.ticket ? '<div class="alert vert">' + (d.rdv ? '📅 <b>Rendez-vous d’enrôlement : ' + rdvLong(d.rdv.date) + ' à partir de ' + d.rdv.heure + '</b><br>' + esc(d.rdv.lieu) + '<br>' : '') + 'Votre N° d’appel : <b style="font-size:20px">' + pad(d.ticket, 3) + '</b></div>' : '';
 function deriver(all) {
-  all.forEach(d => { delete d.paiement; delete d.appel; delete d.ticket;
-    const h = d.history.find(x => x.s === 'paye'); if (h) d.paiement = { montant: d.montant || 75000, mode: d.mode || 'Espèces', at: h.at, caissier: 'Caisse' };
+  const today = jourSite(0), nowMs = Date.now();
+  all.forEach(d => { delete d.paiement; delete d.appel; delete d.ticket; delete d.rdv;
+    const h = d.history.find(x => x.s === 'paye');
+    if (h) { d.paiement = { montant: d.montant || 75000, mode: d.mode || 'Espèces', at: h.at, caissier: 'Caisse' };
+      d.rdv = { date: nowMs - T(h.at) < 14 * HOUR ? today : new Date(T(h.at) + 3600000).toISOString().slice(0, 10), heure: '08:00', lieu: 'Préfecture de Brazzaville', objet: 'Enrôlement (empreintes et photo)' }; }
     const r = d.history.find(x => x.s === 'recu'); if (r) { const m = /(\d)/.exec(r.by); d.appel = { porte: m ? +m[1] : 1, at: r.at }; } });
   const pays = all.filter(d => d.paiement).sort((x, y) => x.paiement.at.localeCompare(y.paiement.at)), cnt = {}; let rp = 0;
-  pays.forEach(d => { const k = serviceDay(T(d.paiement.at)); cnt[k] = (cnt[k] || 0) + 1; d.ticket = cnt[k]; d.paiement.recu = 'RP-' + new Date(d.paiement.at).getFullYear() + '-' + pad(++rp, 6); });
+  pays.forEach(d => { const k = d.rdv.date; cnt[k] = (cnt[k] || 0) + 1; d.ticket = cnt[k]; d.rdv.heure = creneau(d.ticket); d.paiement.recu = 'RP-' + new Date(d.paiement.at).getFullYear() + '-' + pad(++rp, 6); });
 }
 function seed() {
   const R = rng(20261125), pick = a => a[Math.floor(R() * a.length)], ri = (a, b) => a + Math.floor(R() * (b - a + 1));
@@ -189,7 +196,8 @@ function seed() {
 }
 let DB = [];
 function charger() { try { DB = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { DB = null; } if (!Array.isArray(DB) || !DB.length) { DB = seed(); sauver(); } FL = computeFlags(DB); }
-function sauver() { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch (e) { } FL = computeFlags(DB); majPastille(); }
+function recalculer() { FL = computeFlags(DB); majPastille(); }
+function sauver() { if (!(window.__spSync && (window.__spSync.actif() || window.__spSync.citoyen()))) { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch (e) { } } FL = computeFlags(DB); majPastille(); if (window.__spSync) window.__spSync.apresSauver(); }
 
 /* ---------- Profil et navigation ---------- */
 let role = 'agent';
@@ -366,7 +374,7 @@ function fraude() {
 }
 
 /* ---------- Suivi par le demandeur ---------- */
-const MSG = { paye: 'Votre paiement est enregistré. Surveillez les écrans de la salle : votre numéro d’appel s’affichera avec le nom de la porte.', depose: 'Votre demande a bien été enregistrée. Elle va être transmise pour réception.', recu: 'Votre dossier a été reçu. Il est en attente de traitement.', traitement: 'Votre dossier est en cours de traitement.', pret: 'Votre passeport est prêt. Présentez-vous au guichet avec votre reçu et une pièce d’identité.', remis: 'Votre passeport vous a été remis.' };
+const MSG = { paye: 'Votre paiement est enregistré. Présentez-vous le jour de votre rendez-vous : votre numéro, votre nom et la porte s’afficheront sur les écrans de la salle.', depose: 'Votre demande a bien été enregistrée. Elle va être transmise pour réception.', recu: 'Votre dossier a été reçu. Il est en attente de traitement.', traitement: 'Votre dossier est en cours de traitement.', pret: 'Votre passeport est prêt. Présentez-vous au guichet avec votre reçu et une pièce d’identité.', remis: 'Votre passeport vous a été remis.' };
 function suivre() {
   const id = $('#c_id').value.trim().toUpperCase(), cd = $('#c_code').value.trim().toUpperCase(), box = $('#resSuivi'), d = DB.find(x => x.id === id);
   if (!d || code(d.id, d.person.nom) !== cd) { box.innerHTML = '<div class="alert rouge">Aucun dossier ne correspond à ce numéro et à ce code. Vérifiez votre reçu.</div>'; return; }
@@ -375,7 +383,7 @@ function suivre() {
     '<div class="etapes">' + STATUTS.map((s, k) => '<div class="etape ' + (k < i ? 'fait' : k === i ? 'now' : '') + '">' + (k < i ? '✔ ' : '') + s[1] + '</div>').join('') + '</div>' +
     '<div class="alert ' + (d.status === 'pret' || d.status === 'remis' ? 'vert' : 'bleu') + '"><b>' + SN[d.status] + '</b> — ' + MSG[d.status] + '</div>' +
     (d.type === 'renouvellement' && !d.ancienRestitue && d.status === 'pret' ? '<div class="alert orange">Renouvellement : apportez votre ancien passeport, il doit être restitué ou annulé avant la remise du nouveau.</div>' : '') +
-    (d.ticket ? '<div class="alert bleu">Votre N° d’appel : <b style="font-size:20px">' + pad(d.ticket, 3) + '</b></div>' : '') + '<p style="margin-top:10px;font-size:13px;color:var(--gris)">Dernière mise à jour : ' + fmtDH(last(d).at) + '</p></div>';
+    rdvHtml(d) + '<p style="margin-top:10px;font-size:13px;color:var(--gris)">Dernière mise à jour : ' + fmtDH(last(d).at) + '</p></div>';
 }
 function exSuivi() { const d = DB.filter(x => !flags(x).length)[Math.floor(Math.random() * 10)] || DB[0]; $('#c_id').value = d.id; $('#c_code').value = code(d.id, d.person.nom); suivre(); }
 
@@ -397,9 +405,9 @@ function excel() {
 }
 
 /* ---------- Démarrage ---------- */
-function rafraichir() {
+function rafraichir(origine) {
   majPastille(); const v = ($('#onglets .on') || {}).dataset; if (!v) return;
-  if (v.v === 'accueil') accueil(); if (v.v === 'dossiers') liste(); if (v.v === 'tableau') tableau(); if (v.v === 'fraude') fraude(); if (window.__spSuite) window.__spSuite.render(v.v);
+  if (v.v === 'accueil') accueil(); if (v.v === 'dossiers') liste(); if (v.v === 'tableau') tableau(); if (v.v === 'fraude') fraude(); if (window.__spSuite) window.__spSuite.render(v.v, origine);
 }
 function init() {
   charger(); remplirLieux(); majType(); majPastille(); accueil();
@@ -424,7 +432,7 @@ function init() {
   window.addEventListener('popstate', e => { const v = (e.state && e.state.v) || (location.hash || '#accueil').slice(1); const b = $('#onglets button[data-v="' + v + '"]'); if ($('#v-' + v) && b && b.style.display !== 'none') aller(v, true); });
   try { const h = (location.hash || '').slice(1); history.replaceState({ v: 'accueil' }, '', '#accueil'); if (h && h !== 'accueil' && $('#v-' + h)) { aller(h, true); history.pushState({ v: h }, '', '#' + h); } } catch (e) { }
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => { });
-  window.__spApi = { get DB() { return DB; }, sauver, detail, STATUTS, SN, TN, KN, esc, fmtD, fmtDH, jours, T, NOW, pad, isoDate, flags, score, ouvert, bS, bT, bR, code, qr, aller, rafraichir, get role() { return role; }, ROLES, DAY, HOUR, serviceDay, KEY, computeFlags, REQUIS, manquantes };
+  window.__spApi = { get DB() { return DB; }, sauver, detail, STATUTS, SN, TN, KN, esc, fmtD, fmtDH, jours, T, NOW, pad, isoDate, flags, score, ouvert, bS, bT, bR, code, qr, aller, rafraichir, get role() { return role; }, ROLES, DAY, HOUR, serviceDay, KEY, computeFlags, REQUIS, manquantes, jourSite, rdvLong, rdvHtml, recalculer, creneau };
   window.__sp = { parseMRZ, buildTD3, buildTD1, computeFlags, get DB() { return DB; }, get FL() { return FL; }, code, KN, SN, TN };
 }
 init();

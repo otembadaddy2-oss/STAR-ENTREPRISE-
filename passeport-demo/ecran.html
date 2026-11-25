@@ -53,6 +53,20 @@ footer{padding:1.6vmin 3vmin 2vmin;font-size:2.4vmin;color:#cfe5d9;display:flex;
 footer b{color:var(--jaune)}
 #son{position:fixed;right:2vmin;bottom:2vmin;z-index:5;background:var(--jaune);color:#2a1d00;border:0;border-radius:1.6vmin;padding:1.2vmin 2.4vmin;font:600 2.4vmin ID,sans-serif;cursor:pointer}
 body.apercu #son,body.apercu footer{display:none}
+.demarrage{position:fixed;inset:0;z-index:20;background:radial-gradient(120vmax 80vmax at 80% -10%,#0f6a45 0,transparent 60%),linear-gradient(160deg,#041f15,#06281c);display:flex;align-items:center;justify-content:center;padding:3vmin;overflow:auto}
+.demarrage .boite{background:#ffffff10;border:.2vmin solid #ffffff2a;border-radius:3vmin;padding:4vmin;max-width:min(620px,94vw);width:100%;text-align:center}
+.demarrage img{height:12vmin;max-height:90px}
+.demarrage h2{font-family:PF,serif;font-weight:800;font-size:max(26px,4vmin);margin:1.4vmin 0 .8vmin}
+.demarrage p{font-size:max(15px,2vmin);color:#cfe5d9;margin-bottom:2vmin;line-height:1.4}
+.demarrage label{display:block;text-align:left;font-size:max(13px,1.7vmin);letter-spacing:.14em;text-transform:uppercase;color:#9fd8b9;margin:1.4vmin 0 .6vmin}
+.demarrage input{width:100%;font:600 max(18px,2.6vmin) ID,sans-serif;padding:1.4vmin 2vmin;border-radius:1.4vmin;border:.2vmin solid #ffffff44;background:#00000040;color:#fff;text-transform:uppercase;letter-spacing:.12em}
+.demarrage input#nomEcran{text-transform:none;letter-spacing:0}
+.demarrage button{margin-top:2.4vmin;width:100%;font:800 max(20px,3vmin) ID,sans-serif;padding:1.6vmin;border:0;border-radius:2vmin;background:var(--jaune);color:#2a1d00;cursor:pointer}
+.demarrage button.sec{background:transparent;color:#cfe5d9;border:.2vmin solid #ffffff44;font-weight:600;font-size:max(15px,2vmin);margin-top:1.2vmin}
+.demarrage .err{color:#ffb3ad;margin-top:1.4vmin;min-height:2.4vmin;font-size:max(14px,1.9vmin)}
+#etat{position:fixed;right:2vmin;bottom:9vmin;z-index:5;font-size:2vmin;padding:.6vmin 1.6vmin;border-radius:1.2vmin;background:#00000066;color:#cfe5d9}
+#etat.ko{background:#e23b30;color:#fff;font-weight:800}
+body.apercu #etat{display:none}
 .vide{color:#9fd8b9;font-size:3vmin}
 @media(max-width:700px) and (orientation:portrait){main{grid-template-columns:1fr;overflow:auto}}
 </style>
@@ -67,41 +81,77 @@ body.apercu #son,body.apercu footer{display:none}
   </div>
 </main>
 <footer><span>Quand votre numéro s'affiche avec votre nom, <b>levez-vous</b> et allez à la <b>porte indiquée</b>, avec votre reçu de paiement.</span></footer>
-<button id="son">🔊 Activer le son et la voix</button>
+<div class="demarrage" id="demarrage"><div class="boite"><img src="logo.svg" alt=""><h2>Écran de la salle d'attente</h2><p>Entrez le code de l'espace (donné par la Préfecture), donnez un nom à cet écran, puis touchez <b>Démarrer</b>. Les numéros, les noms et les portes s'afficheront alors en direct.</p>
+<label for="codeEsp">Code de l'espace</label><input id="codeEsp" maxlength="9" autocomplete="off" spellcheck="false" placeholder="8 CARACTÈRES">
+<label for="nomEcran">Nom de cet écran</label><input id="nomEcran" maxlength="30" autocomplete="off" placeholder="ex. Salle d'attente 1" value="Écran de la salle">
+<div class="err" id="err"></div><button id="bDemarrer">▶ Démarrer</button><button class="sec" id="bLocal">Mode local (cet appareil seulement)</button></div></div>
+<div id="etat" style="display:none"></div>
+<button id="son" style="display:none">🔊 Activer le son et la voix</button>
 <script>
 (function () {
-  var KEY = 'sp_demo_v4', DAY = 86400000, HOUR = 3600000;
-  var apercu = /apercu=1/.test(location.search); if (apercu) document.body.classList.add('apercu');
+  var KEY = 'sp_demo_v4', CK = 'sp_espace_v1', HOUR = 3600000;
+  var q = new URLSearchParams(location.search), apercu = q.get('apercu') === '1'; if (apercu) document.body.classList.add('apercu');
   var $ = function (s) { return document.querySelector(s); };
   var pad = function (n, l) { return String(n).padStart(l || 2, '0'); };
-  var jourService = function (ms) { var d = new Date(ms - 4 * HOUR); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
-  var son = false, derniere = null, premier = true;
-  function lire() { try { var d = JSON.parse(localStorage.getItem(KEY) || '[]'); return Array.isArray(d) ? d : []; } catch (e) { return []; } }
-  function nom(d) { return d.person.nom + ' ' + d.person.prenoms; }
+  var nettoyer = function (s) { return String(s == null ? '' : s).replace(/[<>&"]/g, ''); };
+  var son = false, derniere = null, premier = true, code = '', nomEc = '', echecs = 0;
   function bip() { try { var C = window.AudioContext || window.webkitAudioContext, a = new C(); [[880, 0], [660, .22], [880, .44]].forEach(function (n) { var o = a.createOscillator(), g = a.createGain(); o.type = 'sine'; o.frequency.value = n[0]; g.gain.setValueAtTime(.0001, a.currentTime + n[1]); g.gain.exponentialRampToValueAtTime(.35, a.currentTime + n[1] + .03); g.gain.exponentialRampToValueAtTime(.0001, a.currentTime + n[1] + .3); o.connect(g); g.connect(a.destination); o.start(a.currentTime + n[1]); o.stop(a.currentTime + n[1] + .32); }); } catch (e) { } }
-  function parler(d) { try { var civ = d.person.sexe === 'F' ? 'Madame' : d.person.sexe === 'M' ? 'Monsieur' : ''; var u = new SpeechSynthesisUtterance('Numéro ' + d.ticket + '. ' + civ + ' ' + d.person.prenoms + ' ' + d.person.nom.toLowerCase() + '. Porte ' + d.appel.porte + '.'); u.lang = 'fr-FR'; u.rate = .92; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (e) { } }
-  function maj() {
-    var db = lire(), now = Date.now(), j = jourService(now);
-    var appels = db.filter(function (d) { return d.appel && jourService(new Date(d.appel.at).getTime()) === j; }).sort(function (a, b) { return b.appel.at.localeCompare(a.appel.at); });
-    var attente = db.filter(function (d) { return d.status === 'paye' && d.paiement && jourService(new Date(d.paiement.at).getTime()) === j; }).sort(function (a, b) { return (a.rang != null ? a.rang : a.ticket) - (b.rang != null ? b.rang : b.ticket); });
-    var top = appels[0];
-    if (top) {
-      $('#num').textContent = pad(top.ticket, 3); $('#nom').textContent = nom(top); var p = $('#porte'); p.style.display = ''; p.textContent = '➜ PORTE ' + top.appel.porte;
-      var cle = top.id + '@' + top.appel.at;
-      if (cle !== derniere) { if (!premier) { var a = $('#appel'); a.classList.remove('nouveau'); void a.offsetWidth; a.classList.add('nouveau'); if (son && !apercu) { bip(); setTimeout(function () { parler(top); }, 900); } } derniere = cle; }
-    } else { $('#num').textContent = '---'; $('#nom').textContent = 'En attente du prochain appel'; $('#porte').style.display = 'none'; }
-    premier = false;
-    var cfg = {}; try { cfg = JSON.parse(localStorage.getItem('sp_portes_v1') || '{}') || {}; } catch (x) { }
-    var n = cfg.n || 6, noms = cfg.noms || {}, h = '';
-    for (var k = 1; k <= n; k++) { var cur = appels.filter(function (d) { return d.appel.porte === k && d.status === 'recu'; })[0], nm = noms[k] ? ' · ' + String(noms[k]).replace(/[<&]/g, '') : '';
-      h += '<div class="p ' + (cur ? '' : 'libre ') + (top && top.status === 'recu' && top.appel.porte === k ? 'on' : '') + '"><span>PORTE ' + k + nm + '</span><b>' + (cur ? pad(cur.ticket, 3) : '—') + '</b><em>' + (cur ? nom(cur).replace(/[<&]/g, '') : 'libre') + '</em></div>'; }
-    $('#portes').innerHTML = h;
-    $('#prochains').innerHTML = attente.slice(0, 10).map(function (d) { return '<i>' + pad(d.ticket, 3) + '</i>'; }).join('') || '<span class="vide">Personne n\'attend</span>';
-    var h = new Date(); $('#heure').textContent = pad(h.getHours()) + ':' + pad(h.getMinutes());
+  function parler(a) { try { var civ = a.sexe === 'F' ? 'Madame' : a.sexe === 'M' ? 'Monsieur' : ''; var u = new SpeechSynthesisUtterance('Numéro ' + a.ticket + '. ' + civ + ' ' + a.prenoms + ' ' + String(a.nom).toLowerCase() + '. Porte ' + a.porte + '.'); u.lang = 'fr-FR'; u.rate = .92; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (e) { } }
+  /* Mode local : l'état est lu dans les données de cet appareil. */
+  function lireLocal() {
+    var db = []; try { db = JSON.parse(localStorage.getItem(KEY) || '[]'); if (!Array.isArray(db)) db = []; } catch (e) { }
+    var cfg = {}; try { cfg = JSON.parse(localStorage.getItem('sp_reglages_v1') || '{}') || {}; } catch (x) { }
+    var jr = new Date(Date.now() + 3600000 + (cfg.decalage || 0) * 86400000).toISOString().slice(0, 10);
+    var appels = db.filter(function (d) { return d.appel && d.status === 'recu' && d.rdv && d.rdv.date === jr; }).sort(function (a, b) { return b.appel.at.localeCompare(a.appel.at); }).map(function (d) { return { ticket: d.ticket, nom: d.person.nom, prenoms: d.person.prenoms, sexe: d.person.sexe, porte: d.appel.porte, at: d.appel.at, id: d.id }; });
+    var att = db.filter(function (d) { return d.status === 'paye' && d.rdv && d.rdv.date === jr; }).sort(function (a, b) { return (a.rang != null ? a.rang : a.ticket) - (b.rang != null ? b.rang : b.ticket); }).map(function (d) { return d.ticket; });
+    return { appels: appels, prochains: att.slice(0, 14), portes: { n: cfg.portes || 6, noms: cfg.noms || {} }, lieu: cfg.lieu || 'Préfecture de Brazzaville' };
   }
+  function afficher(s) {
+    var appels = s.appels || [], top = appels[0];
+    if (top) {
+      $('#num').textContent = pad(top.ticket, 3); $('#nom').textContent = nettoyer(top.nom) + ' ' + nettoyer(top.prenoms); var p = $('#porte'); p.style.display = ''; p.textContent = '➜ PORTE ' + top.porte;
+      var cle = top.id + '@' + top.at;
+      if (cle !== derniere) { if (!premier) { var a = $('#appel'); a.classList.remove('nouveau'); void a.offsetWidth; a.classList.add('nouveau'); if (son && !apercu) { bip(); setTimeout(function () { parler(top); }, 900); } } derniere = cle; }
+    } else { $('#num').textContent = '---'; $('#nom').textContent = 'En attente du prochain appel'; $('#porte').style.display = 'none'; derniere = null; }
+    premier = false;
+    var n = (s.portes && s.portes.n) || 6, noms = (s.portes && s.portes.noms) || {}, h = '';
+    for (var k = 1; k <= n; k++) { var cur = appels.filter(function (d) { return d.porte === k; })[0], nm = noms[k] ? ' · ' + nettoyer(noms[k]) : '';
+      h += '<div class="p ' + (cur ? '' : 'libre ') + (top && top.porte === k ? 'on' : '') + '"><span>PORTE ' + k + nm + '</span><b>' + (cur ? pad(cur.ticket, 3) : '—') + '</b><em>' + (cur ? nettoyer(cur.nom) + ' ' + nettoyer(cur.prenoms) : 'libre') + '</em></div>'; }
+    $('#portes').innerHTML = h;
+    $('#prochains').innerHTML = (s.prochains || []).slice(0, 10).map(function (t) { return '<i>' + pad(t, 3) + '</i>'; }).join('') || '<span class="vide">Personne n\'attend</span>';
+    var d = new Date(); $('#heure').textContent = pad(d.getHours()) + ':' + pad(d.getMinutes());
+    var sub = document.querySelector('header h1 small'); if (sub && s.lieu) sub.textContent = nettoyer(s.lieu) + ' · démonstration';
+  }
+  function etat(ok, texte) { var e = $('#etat'); e.style.display = ''; e.className = ok ? '' : 'ko'; e.textContent = texte; }
+  async function tourServeur() {
+    try {
+      var r = await fetch('/api/passeport?op=ecran&espace=' + encodeURIComponent(code) + '&nom=' + encodeURIComponent(apercu ? '' : nomEc), { cache: 'no-store' });
+      if (!r.ok) throw new Error(r.status === 404 ? 'Espace introuvable' : 'Erreur ' + r.status);
+      var s = await r.json(); echecs = 0; afficher(s); etat(true, '🟢 Connecté · ' + (s.enAttente || 0) + ' en attente');
+    } catch (e) { echecs++; if (echecs >= 2) etat(false, '⚠ Connexion perdue — le dernier affichage reste visible'); }
+    setTimeout(tourServeur, document.hidden ? 5000 : 1500);
+  }
+  function demarrer(m, c, n) {
+    code = c; nomEc = n; $('#demarrage').style.display = 'none'; if (!apercu) $('#son').style.display = '';
+    if (m === 'serveur') { try { localStorage.setItem(CK + '_ecran', JSON.stringify({ code: c, nom: n })); } catch (e) { } tourServeur(); }
+    else { etat(true, '⚪ Mode local'); var loc = function () { afficher(lireLocal()); }; window.addEventListener('storage', function (e) { if (e.key === KEY) loc(); }); setInterval(loc, 1500); loc(); }
+    try { if (!apercu && document.documentElement.requestFullscreen && !document.fullscreenElement) document.documentElement.requestFullscreen().catch(function () { }); } catch (e) { }
+    try { if (navigator.wakeLock) navigator.wakeLock.request('screen').catch(function () { }); } catch (e) { }
+  }
+  $('#bDemarrer').onclick = async function () {
+    var c = $('#codeEsp').value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8), n = $('#nomEcran').value.trim() || 'Écran de la salle', err = $('#err'); err.textContent = '';
+    if (c.length !== 8) { err.textContent = 'Le code de l\'espace comporte 8 caractères.'; return; }
+    try { var r = await fetch('/api/passeport?op=ecran&espace=' + c + '&nom=' + encodeURIComponent(n), { cache: 'no-store' }); if (!r.ok) throw new Error(r.status === 404 ? 'Code inconnu : vérifiez-le auprès de la Préfecture.' : 'Serveur indisponible, réessayez.'); } catch (e) { err.textContent = e.message || 'Serveur indisponible.'; return; }
+    demarrer('serveur', c, n);
+  };
+  $('#bLocal').onclick = function () { demarrer('local', '', ''); };
   $('#son').onclick = function () { son = true; $('#son').style.display = 'none'; bip(); try { speechSynthesis.speak(new SpeechSynthesisUtterance('')); } catch (e) { } };
-  window.addEventListener('storage', function (e) { if (e.key === KEY) maj(); });
-  setInterval(maj, 1500); maj();
+  setInterval(function () { var d = new Date(); $('#heure').textContent = pad(d.getHours()) + ':' + pad(d.getMinutes()); }, 5000);
+  /* Départ : aperçu intégré (sans clic) ou code déjà connu. */
+  var qc = (q.get('espace') || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8), sv = {}; try { sv = JSON.parse(localStorage.getItem(CK + '_ecran') || '{}') || {}; } catch (e) { }
+  var cc = qc.length === 8 ? qc : (sv.code || '');
+  if (apercu) { if (qc.length === 8) demarrer('serveur', qc, ''); else demarrer('local', '', ''); }
+  else { if (cc) $('#codeEsp').value = cc; if (sv.nom) $('#nomEcran').value = sv.nom; }
 })();
 </script>
 </body>

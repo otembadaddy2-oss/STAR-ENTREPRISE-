@@ -508,3 +508,10 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - File d'attente : « Porte 1, Porte 2, … » (6 par défaut, réglable de 1 à 12, nom facultatif par porte). Chaque porte a ses boutons Appeler le suivant / Rappeler / Absent et son numéro en cours.
 - Écran de la salle : grand appel en cours (numéro, nom, porte) + grille de toutes les portes avec leur numéro et nom + prochains numéros.
 - Interprétation à confirmer avec Carry : « Porte 1, porte 2 … etc » = plusieurs portes numérotées, chacune appelant ses propres numéros.
+
+## Passeport Sûr v4 — système partagé en temps réel (25/11/2026)
+- Demande de Carry : écrans de la salle (« kimatique ») reliés à l'application et à la caisse ; après paiement le demandeur reçoit sur son accusé la date de son rendez-vous d'enrôlement ; numéros, noms et portes diffusés en direct dès qu'on allume les écrans.
+- Fait et testé en local (PostgreSQL réel, 3 postes + 2 écrans + 1 demandeur) : espace partagé (code à 8 caractères), paiement unique avec numéro d'appel sans doublon et rendez-vous au premier jour ouvré avec de la place, message WhatsApp avec la date, appel aux portes (1 à 12, personnes différentes par porte), écrans « Démarrer » (code + nom d'écran, plein écran, son/voix, bandeau si connexion perdue, reprise automatique), réglages (portes, capacité/jour, délai, jours, heure, créneaux, lieu, date simulée), pièces sur le serveur, lien de suivi du demandeur (accès limité à SON dossier).
+- Bug trouvé par les tests et corrigé : capacité/jour dépassée en paiements simultanés (maintenant garantie par l'index unique sur le numéro d'appel).
+- NON mis en ligne. Avant tout déploiement Netlify : demander le go de Carry, annoncer ≈ 41 crédits, prévenir que les écrans interrogent le serveur toutes les ~1,5 s (coût en invocations : en production, prévoir un hébergement dédié) ; l'envoi WhatsApp automatique exige un compte WhatsApp Business (Meta) — dans la démo l'envoi est manuel (bouton).
+- À confirmer avec Carry : « kimatique » = file d'attente/affichage en salle ; « Porte 1, porte 2… » = plusieurs portes d'appel.

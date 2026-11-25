@@ -103,6 +103,8 @@ textarea.mrz{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;
 .act .ph::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,#062b1e66)}
 .act .tx{padding:12px 16px 16px}.act .tx b{margin-top:0}
 .act .ph.p1{background-image:url(img/passeport-visas.webp)}.act .ph.p2{background-image:url(img/brazzaville-ville.webp)}.act .ph.p3{background-image:url(img/empreinte.webp)}.act .ph.p4{background-image:url(img/aeroport.webp)}
+.chip-esp{border:1px solid #ffffff55;background:#ffffff1c;color:#fff;border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap}.chip-esp.on{background:#0a8f4a66;border-color:#5fe19a}.chip-esp.att{background:#e08a0066;border-color:#f6c928}
+.b-reglages{background-image:url(img/batiment-rond.webp);background-position:center 55%}
 .retour{background:#ffffff26;color:#fff;border:1px solid #ffffff55;border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:600;cursor:pointer;margin-bottom:10px;backdrop-filter:blur(2px)}
 .retour:hover{background:#ffffff40}
 .etapesG{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;padding-bottom:2px;scrollbar-width:none;position:sticky;top:0;z-index:12;background:var(--ivoire);padding-top:6px}
@@ -205,15 +207,16 @@ tr.cl{cursor:pointer}tr.cl:hover td{background:#f3f9f5}
 <header><div class="hd">
   <img src="logo.svg" alt="Logo Passeport Sûr">
   <div class="tt">PASSEPORT SÛR<small>Suivi · Contrôle · Transparence</small></div>
-  <div class="role"><span>Profil</span>
+  <div class="role"><button type="button" id="chipEspace" class="chip-esp">⚪ Mode local</button><span>Profil</span>
     <select id="role" aria-label="Profil"><option value="agent">Agent de guichet (enregistrement)</option><option value="caisse">Caisse (paiement)</option><option value="porte">Agent de porte (appel)</option><option value="prefecture">Préfecture de Brazzaville</option><option value="ministere">Ministère (consultation)</option></select></div>
 </div></header>
-<div class="bandeau">Proposition de projet · démonstration — toutes les personnes, pièces et numéros affichés sont <b>fictifs</b> et restent sur cet appareil.</div>
+<div class="bandeau" id="bandeau">Proposition de projet · démonstration — toutes les personnes, pièces et numéros affichés sont <b>fictifs</b> et restent sur cet appareil.</div>
 <nav><div class="in" id="onglets">
   <button data-v="accueil" class="on">Accueil</button>
   <button data-v="guichet" data-roles="agent,prefecture">Nouvelle demande</button>
   <button data-v="caisse" data-roles="caisse,prefecture">Caisse</button>
   <button data-v="file">File d'attente</button>
+  <button data-v="reglages" data-roles="prefecture">Réglages</button>
   <button data-v="dossiers">Dossiers</button>
   <button data-v="tableau">Tableau de bord</button>
   <button data-v="fraude">Contrôle anti-fraude<span class="pt" id="ptFraude"></span></button>
@@ -329,10 +332,26 @@ tr.cl{cursor:pointer}tr.cl:hover td{background:#f3f9f5}
     <div class="tablewrap"><table><thead><tr><th>Heure</th><th>N° d'appel</th><th>Reçu de paiement</th><th>Demandeur</th><th>Mode</th><th>Montant (FCFA)</th></tr></thead><tbody id="tbCaisse"></tbody></table></div></div>
 </section>
 
+<!-- ===== RÉGLAGES ===== -->
+<section id="v-reglages" class="vue">
+  <div class="baniere b-reglages"><div class="txt"><h2>Réglages du site</h2><p class="sous">Portes, rendez-vous d'enrôlement et date de démonstration. Tout s'applique aux postes et aux écrans de la salle.</p></div></div>
+  <div id="r_info" class="alert bleu" style="margin-bottom:12px"></div>
+  <div class="carte"><h3>Portes et lieu</h3><div class="grille"><div class="c4"><label for="r_portes">Nombre de portes (1 à 12)</label><input id="r_portes" type="number" min="1" max="12"></div><div class="c8"><label for="r_lieu">Lieu du rendez-vous</label><input id="r_lieu" maxlength="80"></div></div></div>
+  <div class="carte"><h3>Rendez-vous d'enrôlement</h3>
+    <p class="sous" style="margin-bottom:10px">Après le paiement, le demandeur reçoit sa date de rendez-vous : le premier jour ouvré qui a encore de la place. Les valeurs ci-dessous sont des exemples à fixer avec la Préfecture.</p>
+    <div class="grille"><div class="c4 m6"><label for="r_cap">Personnes par jour</label><input id="r_cap" type="number" min="1" max="2000"></div><div class="c4 m6"><label for="r_delai">Délai minimal après paiement (jours)</label><input id="r_delai" type="number" min="0" max="60"></div>
+      <div class="c4 m6"><label for="r_debut">Heure de début</label><input id="r_debut" type="time"></div><div class="c4 m6"><label for="r_pas">Durée d'un créneau (min)</label><input id="r_pas" type="number" min="5" max="240"></div><div class="c4 m6"><label for="r_par">Personnes par créneau</label><input id="r_par" type="number" min="1" max="500"></div></div>
+    <label style="margin-top:12px">Jours ouverts</label><div class="ligne" id="r_jours" style="gap:14px">
+      <label style="text-transform:none;letter-spacing:0;font-size:14px;color:var(--encre)"><input type="checkbox" value="1" style="width:auto;min-height:0"> Lun</label><label style="text-transform:none;letter-spacing:0;font-size:14px;color:var(--encre)"><input type="checkbox" value="2" style="width:auto;min-height:0"> Mar</label><label style="text-transform:none;letter-spacing:0;font-size:14px;color:var(--encre)"><input type="checkbox" value="3" style="width:auto;min-height:0"> Mer</label><label style="text-transform:none;letter-spacing:0;font-size:14px;color:var(--encre)"><input type="checkbox" value="4" style="width:auto;min-height:0"> Jeu</label><label style="text-transform:none;letter-spacing:0;font-size:14px;color:var(--encre)"><input type="checkbox" value="5" style="width:auto;min-height:0"> Ven</label><label style="text-transform:none;letter-spacing:0;font-size:14px;color:var(--encre)"><input type="checkbox" value="6" style="width:auto;min-height:0"> Sam</label><label style="text-transform:none;letter-spacing:0;font-size:14px;color:var(--encre)"><input type="checkbox" value="0" style="width:auto;min-height:0"> Dim</label></div></div>
+  <div class="carte"><h3>Démonstration : avancer la date</h3><p class="sous" style="margin-bottom:10px">Pour montrer le jour du rendez-vous sans attendre : avancez la date. Les personnes qui ont rendez-vous ce jour-là apparaissent dans la file d'attente et sur les écrans.</p>
+    <div class="grille"><div class="c4"><label for="r_dec">Avancer de (jours)</label><input id="r_dec" type="number" min="0" max="60"></div></div></div>
+  <div class="ligne"><button class="btn vert" id="bRegler">Enregistrer les réglages</button></div><div id="r_msg"></div>
+</section>
+
 <!-- ===== FILE D'ATTENTE ===== -->
 <section id="v-file" class="vue">
   <div class="baniere b-file"><div class="txt"><h2>File d'attente et appel en salle</h2><p class="sous">Les numéros défilent dans l'ordre du paiement. Chaque porte appelle le suivant : le numéro, le nom et la porte s'affichent sur les écrans de la salle.</p></div></div>
-  <div class="kpis" id="kpisFile"></div>
+  <div id="jourFile" class="alert bleu" style="margin:0 0 10px"></div><div id="ecransCo" class="alert bleu" style="margin:0 0 10px"></div><div class="kpis" id="kpisFile"></div>
   <div class="carte"><h3>Les portes</h3>
     <div class="ligne" style="margin-bottom:10px"><span style="font-size:13.5px;color:var(--gris)">Nombre de portes ouvertes :</span><button class="btn clair petit" id="bPortesMoins" aria-label="Moins de portes">−</button><b id="nbPortes" style="min-width:24px;text-align:center;font-size:18px">6</b><button class="btn clair petit" id="bPortesPlus" aria-label="Plus de portes">+</button><span style="font-size:12.5px;color:var(--gris)">Touchez ✎ pour donner un nom à une porte (ex. « Vérification des pièces »).</span></div>
     <div class="guichets" id="portes"></div>
@@ -450,6 +469,7 @@ tr.cl{cursor:pointer}tr.cl:hover td{background:#f3f9f5}
 <script src="lib/qrcode.js"></script>
 <script src="lib/jsqr.js"></script>
 <script src="app.js"></script>
+<script src="sync.js"></script>
 <script src="app-suite.js"></script>
 </body>
 </html>
