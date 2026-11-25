@@ -11,8 +11,8 @@ export const NOM_ROLE: Record<string, string> = { prefecture: "Préfecture", min
 
 // Ce que chaque rôle peut faire sur un espace sécurisé (appliqué côté serveur, pas seulement dans l'écran).
 export const DROITS: Record<Role, string[]> = {
-  prefecture: ["sync", "ecrire", "payer", "appeler", "rappeler", "absent", "reglages", "supprimer", "comptes", "piece-lire", "piece-ecrire"],
-  ministere: ["sync", "piece-lire"],
+  prefecture: ["sync", "ecrire", "payer", "appeler", "rappeler", "absent", "reglages", "supprimer", "comptes", "journal", "piece-lire", "piece-ecrire"],
+  ministere: ["sync", "journal", "piece-lire"],
   accueil: ["sync", "ecrire", "payer", "piece-lire", "piece-ecrire"],
   agent: ["sync", "ecrire", "piece-lire", "piece-ecrire"],
   caisse: ["sync", "ecrire", "payer", "piece-lire", "piece-ecrire"],
@@ -64,8 +64,17 @@ export function creerComptes(sql: any) {
     return jeton;
   };
   const SEL_FACTICE = randomBytes(16).toString("hex");
+  // Limiteur « fenêtre glissante simple » (anti-force-brute par adresse) : bloqué quand le compteur atteint max dans la fenêtre.
+  const fenetreBloquee = async (code: string, cle: string, max: number, minutes: number) => {
+    const r = (await sql`SELECT nb, maj FROM pss_echecs WHERE espace = ${code} AND cle = ${cle}`) as any[];
+    if (!r[0]) return 0; const fin = new Date(r[0].maj).getTime() + minutes * 60000;
+    return Number(r[0].nb) >= max && fin > Date.now() ? Math.ceil((fin - Date.now()) / 60000) : 0;
+  };
+  const fenetreCompter = (code: string, cle: string, minutes: number) => sql`INSERT INTO pss_echecs (espace, cle, nb, maj) VALUES (${code}, ${cle}, 1, now())
+    ON CONFLICT (espace, cle) DO UPDATE SET nb = CASE WHEN pss_echecs.maj < now() - (${minutes} || ' minutes')::interval THEN 1 ELSE pss_echecs.nb + 1 END, maj = CASE WHEN pss_echecs.maj < now() - (${minutes} || ' minutes')::interval THEN now() ELSE pss_echecs.maj END`;
 
   return {
+    fenetreBloquee, fenetreCompter,
     async securise(code: string): Promise<boolean> { const r = (await sql`SELECT securise FROM pss_espaces WHERE code = ${code}`) as any[]; return !!r[0]?.securise; },
 
     // Rend un espace sécurisé en créant le compte administrateur (Préfecture). Renvoie le code de secours, affiché une seule fois.

@@ -4,8 +4,10 @@
 // ne puissent jamais donner le même numéro ni appeler la même personne.
 // SÉCURITÉ : version de démonstration — l'accès repose sur le code de l'espace. Pour de vraies données : comptes nominatifs + double vérification.
 import { db } from "./_db.mts";
-import { randomBytes } from "node:crypto";
+import { randomBytes, timingSafeEqual } from "node:crypto";
 import { ensureComptes } from "./_comptes.mts";
+import { ensureAudit } from "./_audit.mts";
+import { proteger, validerCreation, type Compte } from "./_integrite.mts";
 
 let pret = false;
 export async function ensurePasseport() {
@@ -28,6 +30,7 @@ export async function ensurePasseport() {
   await sql`CREATE INDEX IF NOT EXISTS pss_dossiers_version ON pss_dossiers (espace, version)`;
   await sql`CREATE TABLE IF NOT EXISTS pss_ecrans (espace TEXT NOT NULL REFERENCES pss_espaces(code) ON DELETE CASCADE, nom TEXT NOT NULL, vu TIMESTAMPTZ NOT NULL DEFAULT now(), PRIMARY KEY (espace, nom))`;
   await ensureComptes(sql);
+  await ensureAudit(sql);
   pret = true;
 }
 
@@ -47,6 +50,7 @@ export const nouveauCode = () => { const b = randomBytes(8); let s = ""; for (le
 // Code de contrôle du demandeur (sur son accusé) : même calcul que dans l'application.
 export function codeSuivi(id: string, nom: string): string { let h = 7; const s = id + nom; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
   return h.toString(36).toUpperCase().padStart(6, "7").slice(-6).replace(/0/g, "7").replace(/O/g, "8").replace(/1/g, "4").replace(/I/g, "9").replace(/L/g, "5"); }
+const comparerSur = (a: string, b: string) => { const x = Buffer.from(a), y = Buffer.from(b); return x.length === y.length && timingSafeEqual(x, y); };
 export const normaliserCode = (c: unknown) => String(c ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8);
 
 function nettoyerConfig(c: any, base: Config): Config {
@@ -162,19 +166,31 @@ export function creerMoteur(sql: any) {
     },
 
     // Écriture de dossiers avec contrôle de révision (pas d'écrasement silencieux).
-    async ecrire(code: string, dossiers: { id: string; baseRev: number; data: any }[]) {
+    // Sur un espace sécurisé (ctx fourni), le serveur refait les contrôles d'intégrité : voir _integrite.mts. Sans ctx (démonstration), écriture libre comme avant.
+    async ecrire(code: string, dossiers: { id: string; baseRev: number; data: any }[], ctx?: { compte: Compte }) {
       const e = await espace(code); if (!e) return null;
-      const acceptes: any[] = [], conflits: any[] = [];
+      const acceptes: any[] = [], conflits: any[] = [], rejets: { id: string; raison: string }[] = [], tentatives: { id: string; t: string[] }[] = [];
       for (const d of (dossiers || []).slice(0, 50)) {
-        if (!d || typeof d.id !== "string" || d.id.length > 40 || !d.data || JSON.stringify(d.data).length > 250000) continue;
-        const c = colonnes(d.data), v = await bump(code); d.data.id = d.id;
+        if (!d || typeof d.id !== "string" || d.id.length > 40 || !d.data || typeof d.data !== "object" || JSON.stringify(d.data).length > 250000) continue;
+        d.data.id = d.id; let data = d.data;
+        if (ctx) {
+          if (!d.baseRev) { const vc = validerCreation(d.data, ctx.compte); if (vc.erreur) { rejets.push({ id: d.id, raison: vc.erreur }); tentatives.push({ id: d.id, t: ["création refusée : " + vc.erreur] }); continue; } data = vc.donnees; }
+          else {
+            const cur = (await sql`SELECT id, rev, status, rdv_date, ticket, version, data FROM pss_dossiers WHERE espace = ${code} AND id = ${d.id}`) as Ligne[];
+            if (!cur[0]) { rejets.push({ id: d.id, raison: "Dossier introuvable." }); continue; }
+            if (Number(cur[0].rev) !== Number(d.baseRev)) { conflits.push(publier(cur[0])); continue; }
+            const b = proteger(cur[0].data, d.data, ctx.compte); data = b.donnees; if (b.tentatives.length) tentatives.push({ id: d.id, t: b.tentatives });
+          }
+        }
+        const corrige = ctx ? JSON.stringify(data) !== JSON.stringify(d.data) : false;
+        const c = colonnes(data), v = await bump(code);
         let r: any[];
-        if (!d.baseRev) r = (await sql`INSERT INTO pss_dossiers (espace, id, rev, status, rdv_date, ticket, version, data) VALUES (${code}, ${d.id}, 1, ${c.status}, ${c.rdv}, ${c.ticket}, ${v}, ${JSON.stringify(d.data)}::jsonb) ON CONFLICT DO NOTHING RETURNING rev`) as any[];
-        else r = (await sql`UPDATE pss_dossiers SET rev = rev + 1, status = ${c.status}, rdv_date = ${c.rdv}, ticket = ${c.ticket}, version = ${v}, data = ${JSON.stringify(d.data)}::jsonb, maj = now() WHERE espace = ${code} AND id = ${d.id} AND rev = ${d.baseRev} RETURNING rev`) as any[];
-        if (r[0]) acceptes.push({ id: d.id, rev: Number(r[0].rev) });
+        if (!d.baseRev) r = (await sql`INSERT INTO pss_dossiers (espace, id, rev, status, rdv_date, ticket, version, data) VALUES (${code}, ${d.id}, 1, ${c.status}, ${c.rdv}, ${c.ticket}, ${v}, ${JSON.stringify(data)}::jsonb) ON CONFLICT DO NOTHING RETURNING rev`) as any[];
+        else r = (await sql`UPDATE pss_dossiers SET rev = rev + 1, status = ${c.status}, rdv_date = ${c.rdv}, ticket = ${c.ticket}, version = ${v}, data = ${JSON.stringify(data)}::jsonb, maj = now() WHERE espace = ${code} AND id = ${d.id} AND rev = ${d.baseRev} RETURNING rev`) as any[];
+        if (r[0]) acceptes.push({ id: d.id, rev: Number(r[0].rev), ...(corrige ? { data } : {}) });
         else { const cur = (await sql`SELECT id, rev, status, rdv_date, ticket, version, data FROM pss_dossiers WHERE espace = ${code} AND id = ${d.id}`) as Ligne[]; if (cur[0]) conflits.push(publier(cur[0])); }
       }
-      return { acceptes, conflits };
+      return { acceptes, conflits, rejets, tentatives };
     },
 
     // Paiement à la caisse : numéro de reçu, rendez-vous d'enrôlement et numéro d'appel, attribués ici (atomique).
@@ -249,7 +265,7 @@ export function creerMoteur(sql: any) {
     async suivi(publique: string, id: string, ctrl: string) {
       const e = (await sql`SELECT code FROM pss_espaces WHERE code_public = ${publique}`) as any[]; if (!e[0]) return null;
       const l = (await sql`SELECT id, rev, data FROM pss_dossiers WHERE espace = ${e[0].code} AND id = ${id}`) as any[]; if (!l[0]) return null;
-      if (codeSuivi(l[0].id, String(l[0].data?.person?.nom || "")) !== String(ctrl || "").toUpperCase()) return null;
+      if (!comparerSur(codeSuivi(l[0].id, String(l[0].data?.person?.nom || "")), String(ctrl || "").toUpperCase())) return null;
       return { espace: e[0].code as string, dossier: assainir(l[0].data), rev: Number(l[0].rev) };
     },
     async suiviPiece(publique: string, id: string, ctrl: string, p: any) {
@@ -301,7 +317,7 @@ export function creerMoteur(sql: any) {
 export function assainir(d: any) {
   const p = d.person || {};
   return { id: d.id, type: d.type, status: d.status, createdAt: d.createdAt, ticket: d.ticket ?? null, rdv: d.rdv || null, mrzOk: true, preinscrit: !!d.preinscrit, accueil: d.accueil ? { ok: !!d.accueil.ok } : null,
-    paiement: d.paiement ? { recu: d.paiement.recu, at: d.paiement.at } : null, pieces: (d.pieces || []).map((x: any) => ({ id: x.id, type: x.type, nom: x.nom, mime: x.mime, taille: x.taille, demo: !!x.demo })),
+    paiement: d.paiement ? { recu: d.paiement.recu, at: d.paiement.at, montant: Number(d.paiement.montant) || 0, mode: String(d.paiement.mode || "") } : null, pieces: (d.pieces || []).map((x: any) => ({ id: x.id, type: x.type, nom: x.nom, mime: x.mime, taille: x.taille, demo: !!x.demo })),
     person: { nom: p.nom || "", prenoms: p.prenoms || "", naissance: "", sexe: "", piece: { type: "CNI", numero: "", expiration: "" } },
     history: (d.history || []).slice(-6).map((h: any) => ({ s: h.s, at: h.at, by: "", note: "" })), ancienRestitue: !!d.ancienRestitue, ancien: d.ancien ? { numero: "", expiration: d.ancien.expiration || "" } : null, lieu: d.lieu || "" };
 }
@@ -310,5 +326,5 @@ export function assainir(d: any) {
 export function messageRdv(d: any): string {
   const r = d.rdv, p = d.person || {};
   return "*Passeport Sûr — Paiement enregistré*\n\nBonjour " + (p.prenoms || "") + ",\nvotre paiement est bien reçu.\n\n📅 *Rendez-vous d'enrôlement :*\n" + rdvTexte(r.date) + " à partir de " + r.heure + "\n📍 " + r.lieu +
-    "\n\nReçu de paiement : *" + d.paiement.recu + "*\nVotre N° d'appel : *" + String(d.ticket).padStart(3, "0") + "*\n\nPrésentez-vous ce jour-là avec ce message et votre reçu. Votre numéro, votre nom et la porte s'afficheront sur les écrans de la salle d'attente.";
+    "\n\n💰 *Montant payé : " + Number(d.paiement.montant).toLocaleString("fr-FR") + " FCFA* (" + (d.paiement.mode || "Espèces") + ")\nReçu de paiement : *" + d.paiement.recu + "*\nVotre N° d'appel : *" + String(d.ticket).padStart(3, "0") + "*\n\nPrésentez-vous ce jour-là avec ce message et votre reçu. Votre numéro, votre nom et la porte s'afficheront sur les écrans de la salle d'attente.";
 }

@@ -167,7 +167,8 @@ try {
   const fin = async (login: string, tmp: string, nv: string) => { const l = await req({ op: "connexion", espace: S, login, mdp: tmp }); const c = await req({ op: "changer-mdp", espace: S, ancien: tmp, nouveau: nv }, l.jeton); return c.jeton as string; };
   const JC = await fin("caisse1", cC.motDePasseTemporaire, "Caisse2026ok"), JP = await fin("porte1", cP.motDePasseTemporaire, "Porte2026ok"), JM = await fin("ministre", cM.motDePasseTemporaire, "Ministre2026ok"), JG = await fin("guichet1", cG.motDePasseTemporaire, "Guichet2026ok");
   // droits par rôle
-  const dS = { ...dossier("BZV-S-001"), pieces: [] }, dS2 = dossier("BZV-S-002"), dS3 = dossier("BZV-S-003");
+  const dosSec = (id: string, nom: string) => ({ id, type: "premiere", status: "depose", createdAt: new Date().toISOString(), mrzOk: true, person: { nom, prenoms: "Prénom", naissance: "1990-01-01", sexe: "F", tel: "+242 06 000 00 00", piece: { type: "CNI", numero: "CNI" + nom } }, pieces: [], history: [{ s: "depose", at: new Date().toISOString(), by: "x", note: "Dossier enregistré" }] });
+  const dS = dosSec("BZV-2026-S001", "SECUN"), dS2 = dosSec("BZV-2026-S002", "SECDEUX"), dS3 = dosSec("BZV-2026-S003", "SECTROIS");
   ok((await req({ op: "ecrire", espace: S, dossiers: [{ id: dS.id, baseRev: 0, data: dS }, { id: dS2.id, baseRev: 0, data: dS2 }, { id: dS3.id, baseRev: 0, data: dS3 }] }, JG)).acceptes?.length === 3, "l'agent de guichet enregistre des dossiers");
   ok((await req({ op: "ecrire", espace: S, dossiers: [] }, JM)).statut === 403 && (await req({ op: "payer", espace: S, id: dS.id, montant: 5000 }, JM)).statut === 403, "le Ministère consulte seulement : écriture et paiement refusés (403)");
   ok((await req({ op: "payer", espace: S, id: dS.id, montant: 5000 }, JG)).statut === 403, "l'agent de guichet ne peut pas encaisser (403)");
@@ -182,14 +183,83 @@ try {
   ok((await lire("op=comptes&espace=" + S, JA)).statut === 403 && (await lire("op=comptes&espace=" + S, JM)).statut === 403 && (await lire("op=comptes&espace=" + S, T0)).comptes.length === 6, "la liste des comptes n'est visible que de la Préfecture");
   ok((await req({ op: "comptes-creer", espace: S, login: "intrus", nom: "Intrus", role: "prefecture" }, JA)).statut === 403, "un agent ne peut pas se créer un compte Préfecture");
   ok((await lire("op=sync&espace=" + S + "&since=0", JM)).dossiers.length >= 3, "le Ministère voit tous les dossiers en lecture");
+  // ---------- ATTAQUES : un agent connecté essaie de tricher par l'API (le serveur doit tout refaire à sa façon) ----------
+  const courant = async (id: string, tok = JG) => (await lire("op=sync&espace=" + S + "&since=0", tok)).dossiers.find((x: any) => x.id === id);
+  const ecr = async (tok: string, id: string, mod: any) => { const c = await courant(id, tok); const data = typeof mod === "function" ? mod(JSON.parse(JSON.stringify(c.data))) : { ...c.data, ...mod }; return req({ op: "ecrire", espace: S, dossiers: [{ id, baseRev: c.rev, data }] }, tok); };
+  const faux = { montant: 1, mode: "Espèces", at: new Date().toISOString(), caissier: "Pirate", recu: "RP-2026-999999" };
+  const a1 = await ecr(JG, dS3.id, { status: "paye", paiement: faux, ticket: 1, rdv: { date: "2026-12-01", heure: "08:00", lieu: "X" } });
+  const v1 = (await courant(dS3.id)).data; ok(a1.statut === 200 && v1.status === "depose" && !v1.paiement && v1.ticket === undefined && !v1.rdv, "ATTAQUE 1 — fabriquer un paiement, un numéro et un rendez-vous par l'API : tout est ignoré, le dossier reste « déposé » et impayé");
+  ok(a1.acceptes[0].data && a1.acceptes[0].data.status === "depose", "le poste reçoit aussitôt la version corrigée par le serveur (pas de dossier truqué en local)");
+  const a1b = await ecr(JC, dS3.id, { status: "remis" }); ok((await courant(dS3.id)).data.status === "depose", "ATTAQUE 2 — la caisse tente de passer un dossier directement à « remis » : refusé");
+  const a1c = await ecr(JG, dS3.id, { status: "paye" }); ok((await courant(dS3.id)).data.status === "depose", "ATTAQUE 3 — l'agent de guichet tente « déposé → payé » : refusé (seul le paiement du serveur le fait)");
+  const a4 = await ecr(JG, dS3.id, (d: any) => { d.person.nom = "AUTRENOM"; d.type = "renouvellement"; d.createdAt = "2001-01-01T00:00:00.000Z"; return d; }); const v4 = (await courant(dS3.id)).data; ok(v4.person.nom === "SECTROIS" && v4.type === "premiere" && v4.createdAt !== "2001-01-01T00:00:00.000Z", "ATTAQUE 4 — changer le nom, le type ou la date de dépôt d'un dossier existant : refusé");
+  const a5 = await ecr(JG, dS3.id, (d: any) => { d.history = [{ s: "depose", at: new Date().toISOString(), by: "Préfecture", note: "Tout est en ordre (écrit par un pirate)" }]; return d; }); const v5 = (await courant(dS3.id)).data;
+  ok(v5.history.length === 2 && v5.history[0].note === "Dossier enregistré" && /^Agent de guichet \(agent\)$/.test(v5.history[1].by), "ATTAQUE 5 — effacer l'historique et signer « Préfecture » : l'ancien historique est conservé, la nouvelle ligne est signée du vrai compte (« " + v5.history[1].by + " »)");
+  const a6 = await ecr(JG, dS3.id, (d: any) => { d.history.push({ s: "depose", at: "2001-01-01T00:00:00.000Z", by: "x", note: "antidaté" }); return d; }); const v6 = (await courant(dS3.id)).data; ok(Math.abs(Date.parse(v6.history[v6.history.length - 1].at) - Date.now()) < 60000, "ATTAQUE 6 — antidater une ligne d'historique : la date est remplacée par celle du serveur");
+  const a7 = await ecr(JG, dS3.id, { suite: "verifie", suiteAt: new Date().toISOString() }); ok((await courant(dS3.id)).data.suite === undefined, "ATTAQUE 7 — déclarer une alerte « examinée » sans être la Préfecture : refusé");
+  const a8 = await ecr(JG, dS3.id, (d: any) => { const d2 = JSON.parse(JSON.stringify(d)); Object.defineProperty(d2, "__proto__", { value: { admin: true }, enumerable: true }); d2.constructor = { prototype: { x: 1 } }; return d2; }); ok(a8.statut === 200 && ({} as any).admin === undefined && ({} as any).x === undefined, "ATTAQUE 8 — pollution de prototype (« __proto__ ») : sans effet");
+  const cr1 = await req({ op: "ecrire", espace: S, dossiers: [{ id: "BZV-2026-HACK1", baseRev: 0, data: { ...dosSec("BZV-2026-HACK1", "PIRATEUN"), status: "paye", paiement: faux, ticket: 5 } }] }, JG);
+  const cr2 = await req({ op: "ecrire", espace: S, dossiers: [{ id: "BZV-2026-HACK2", baseRev: 0, data: { ...dosSec("BZV-2026-HACK2", "PIRATEDEUX"), accueil: { ok: true } } }] }, JG);
+  const cr3 = await req({ op: "ecrire", espace: S, dossiers: [{ id: "HACK-3", baseRev: 0, data: { ...dosSec("HACK-3", "PIRATETROIS") } }] }, JG);
+  const cr4 = await req({ op: "ecrire", espace: S, dossiers: [{ id: "BZV-2026-HACK4", baseRev: 0, data: { ...dosSec("BZV-2026-HACK4", "PIRATEQUATRE"), preinscrit: { at: "x" } } }] }, JG);
+  ok([cr1, cr2, cr3, cr4].every(x => x.statut === 200 && x.rejets.length === 1 && x.acceptes.length === 0) && !(await courant("BZV-2026-HACK1")) && !(await courant("BZV-2026-HACK2")), "ATTAQUE 9 — créer un dossier déjà « payé », « vérifié à l'accueil », « pré-enregistré » ou au numéro inventé : refusé");
+  const pubA = (await lire("op=sync&espace=" + S + "&since=0", T0)).publique;
+  // pré-enregistrement : seule la vérification de l'accueil lève le blocage
+  const prH = await req({ op: "preinscrire", public: pubA, dossier: { nom: "Hacker", prenoms: "Test", naissance: "1991-01-01", piece: { type: "CNI", numero: "CNIHACK" }, type: "premiere" } });
+  await ecr(JG, prH.id, { accueil: { ok: true, at: "2020-01-01", by: "Accueil" } }); ok((await courant(prH.id)).data.accueil === undefined, "ATTAQUE 10 — l'agent de guichet pose lui-même « vérifié à l'accueil » : refusé");
+  await ecr(JG, prH.id, (d: any) => { delete d.preinscrit; return d; }); ok((await courant(prH.id)).data.preinscrit !== undefined, "ATTAQUE 11 — retirer la marque « pré-enregistré » pour échapper à la vérification : refusé");
+  ok((await req({ op: "payer", espace: S, id: prH.id, montant: 5000, mode: "Espèces" }, JC)).statut === 409, "…et la caisse ne peut toujours pas encaisser ce dossier tant que l'accueil n'a pas vérifié");
+  await ecr(JA, prH.id, { accueil: { ok: true, at: "2001-01-01", by: "Quelqu'un d'autre" } }); const ac = (await courant(prH.id)).data.accueil; ok(ac && ac.ok === true && ac.by === "Agent d'accueil" && Math.abs(Date.parse(ac.at) - Date.now()) < 60000, "l'accueil, lui, peut vérifier : le nom et l'heure sont posés par le serveur (« " + ac.by + " »)");
+  // avancer une étape : seulement par les rôles habilités, d'un cran
+  const e1 = await req({ op: "appeler", espace: S, porte: 1 }, T0);   // un dossier payé est appelé -> « recu »
+  const idRecu = e1.dossier && e1.dossier.id; if (idRecu) { await ecr(JC, idRecu, { status: "traitement" }); const sc1 = (await courant(idRecu)).data.status; await ecr(JG, idRecu, { status: "remis" }); const sc2 = (await courant(idRecu)).data.status; await ecr(T0, idRecu, { status: "remis" }); const sc3 = (await courant(idRecu)).data.status; await ecr(T0, idRecu, { status: "traitement" }); const sc4 = (await courant(idRecu)).data.status;
+    ok(sc1 === "recu" && sc2 === "recu" && sc3 === "recu" && sc4 === "traitement", "étapes : la caisse ne peut pas faire avancer, personne ne saute d'étape (recu→remis), la Préfecture avance d'un cran (« " + sc1 + " / " + sc2 + " / " + sc3 + " → " + sc4 + " »)"); } else ok(false, "aucun dossier payé à appeler pour tester les étapes");
+  // montant officiel tenté à l'encontre
+  await req({ op: "reglages", espace: S, config: { tarifs: { premiere: 50000, renouvellement: 65000 } } }, T0);
+  const dT2 = dosSec("BZV-2026-S004", "SECQUATRE"); await req({ op: "ecrire", espace: S, dossiers: [{ id: dT2.id, baseRev: 0, data: dT2 }] }, JG);
+  const p12 = await req({ op: "payer", espace: S, id: dT2.id, montant: 100 }, JA); ok(p12.statut === 400, "ATTAQUE 12 — payer 100 FCFA alors que le montant officiel est 50 000 : refusé (" + JSON.stringify(p12).slice(0, 160) + ")");
+  await req({ op: "reglages", espace: S, config: { tarifs: { premiere: 0, renouvellement: 0 } } }, T0);
+  // journal de sécurité
+  const jr = await lire("op=journal&espace=" + S + "&limite=500", JM); const acts = new Set(jr.evenements.map((x: any) => x.action));
+  ok(jr.statut === 200 && ["connexion-ok", "connexion-echec", "compte-cree", "paiement", "refus-droit", "tentative-integrite", "tentative-montant", "reglages"].every(a => acts.has(a)), "le journal de sécurité a tout noté : " + [...acts].join(", "));
+  ok(jr.graves >= 5 && jr.evenements.filter((x: any) => x.grave).every((x: any) => x.role !== undefined), "les événements graves sont repérés (" + jr.graves + ")");
+  ok(jr.evenements.some((x: any) => x.action === "tentative-integrite" && x.login === "guichet1" && /paiement|étape|historique|nom/.test(x.detail)), "chaque tentative de triche est attribuée à son auteur (guichet1) avec le détail");
+  ok((await lire("op=journal&espace=" + S, JA)).statut === 403 && (await lire("op=journal&espace=" + S)).statut === 401, "le journal n'est lisible que par la Préfecture et le Ministère");
+  ok(!JSON.stringify(jr).includes("Brazza2026ok") && !JSON.stringify(jr).includes("Accueil2026ok"), "aucun mot de passe n'apparaît dans le journal");
+  const vf = await lire("op=journal-verifier&espace=" + S, JM); ok(vf.statut === 200 && vf.ok === true && vf.lignes > 20, "la chaîne du journal est intacte (" + vf.lignes + " lignes)");
+  // falsification du journal directement en base (par un administrateur de la base) : la vérification la détecte
+  const sz = await req({ op: "creer", nom: "Chaîne", admin: { login: "chaine.pf", nom: "Test", mdp: "Chaine2026ok1" } }); const lz = await req({ op: "connexion", espace: sz.code, login: "chaine.pf", mdp: "Chaine2026ok1" });
+  for (let i = 0; i < 3; i++) await req({ op: "connexion", espace: sz.code, login: "chaine.pf", mdp: "faux" + i + "abcd" });
+  ok((await lire("op=journal-verifier&espace=" + sz.code, lz.jeton)).ok === true, "chaîne intacte avant falsification");
+  await db().sql`UPDATE pss_audit SET detail = 'effacé par un pirate' WHERE espace = ${sz.code} AND n = 2`; const vz = await lire("op=journal-verifier&espace=" + sz.code, lz.jeton); ok(vz.ok === false && vz.rompuA === 2, "ATTAQUE 13 — modifier une ligne du journal : la chaîne est rompue et la ligne " + vz.rompuA + " est désignée");
+  await db().sql`DELETE FROM pss_audit WHERE espace = ${sz.code}`; await db().sql`DELETE FROM pss_espaces WHERE code = ${sz.code}`;
+  // injections et abus de formulaire
+  const inj = await req({ op: "connexion", espace: S, login: "' OR 1=1 --", mdp: "x' OR '1'='1" }); ok(inj.statut === 401, "ATTAQUE 14 — injection SQL dans l'identifiant et le mot de passe : refusée comme un mauvais mot de passe");
+  const inj2 = await lire("op=suivi&public=" + pubA + "&id=" + encodeURIComponent("X' OR '1'='1") + "&code=A"); ok(inj2.statut === 404, "injection SQL dans le numéro de dossier : sans effet");
+  ok(((await db().sql`SELECT count(*)::int AS n FROM pss_comptes WHERE espace = ${S}`) as any[])[0].n === 6, "les comptes de l'espace sont intacts après les injections");
+  ok((await req({ op: "ecrire", espace: S, dossiers: [{ id: "A".repeat(100), baseRev: 0, data: dosSec("BZV-2026-AAA", "X") }] }, JG)).acceptes.length === 0, "identifiant de dossier démesuré : ignoré");
+  const gros = await api(new Request("https://t.test/api/passeport", { method: "POST", body: "{\"op\":\"ecrire\",\"x\":\"" + "A".repeat(2_100_000) + "\"}" }), {}); ok(gros.status === 413, "ATTAQUE 15 — requête de plus de 2 Mo : refusée (413)");
+  const pdf = new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d, 0x31]), faussePng = new TextEncoder().encode("<html><script>alert(1)</script></html>");
+  const up = (corps: Uint8Array, mime: string, id: string) => pieceApi(new Request("https://t.test/api/passeport-piece?espace=" + S + "&id=" + id, { method: "PUT", headers: { "content-type": mime, authorization: "Bearer " + JA }, body: corps }), {});
+  ok((await up(faussePng, "image/png", "PJ-fausse001")).status === 415 && (await up(pdf, "image/png", "PJ-fausse002")).status === 415 && (await up(pdf, "application/pdf", "PJ-vrai00001")).status === 201, "ATTAQUE 16 — page web ou PDF déguisés en image : refusés ; un vrai PDF passe");
+  stock.delete(S + "/PJ-vrai00001");
+  // force brute : codes de suivi et connexions
+  const ipA = "198.51.100.9", suiviIp = async (n: number) => { let d = 0; for (let i = 0; i < n; i++) { const r = await api(new Request("https://t.test/api/passeport?op=suivi&public=" + pubA + "&id=BZV-2026-S00" + (1 + i % 3) + "&code=ZZZZZ" + (i % 9), { headers: { "x-nf-client-connection-ip": ipA } }), {}); d = r.status; } return d; };
+  ok((await suiviIp(20)) === 404 && (await suiviIp(1)) === 429, "ATTAQUE 17 — deviner les codes de suivi : après 20 essais ratés, l'adresse est bloquée (429)");
+  const bonCode = await api(new Request("https://t.test/api/passeport?op=suivi&public=" + pubA + "&id=" + prH.id + "&code=" + prH.code, { headers: { "x-nf-client-connection-ip": ipA } }), {}); ok(bonCode.status === 429, "…même avec le bon code, tant que le blocage dure");
+  const ipB = "198.51.100.10"; let dernierCo = 0; for (let i = 0; i < 61; i++) { const r = await api(new Request("https://t.test/api/passeport", { method: "POST", headers: { "x-nf-client-connection-ip": ipB }, body: JSON.stringify({ op: "connexion", espace: S, login: "essai" + i, mdp: "faux1234" + i }) }), {}); dernierCo = r.status; }
+  ok(dernierCo === 429, "ATTAQUE 18 — essayer des centaines d'identifiants depuis une adresse : bloqué au bout de 60 tentatives (429)");
+  await db().sql`DELETE FROM pss_echecs WHERE cle LIKE 'suivi:198.51.100.%' OR cle LIKE 'ipco:198.51.100.%' OR cle LIKE 'suividossier:BZV-2026-S00%'`;
+  // montant sur l'accusé WhatsApp
+  const msg = pa.message || ""; ok(/Montant payé/.test(msg) && /5[\s  ]?000 FCFA/.test(msg), "L'ACCUSÉ WHATSAPP DE PAIEMENT PORTE LE MONTANT : « " + (msg.split("\n").find((l: string) => /Montant/.test(l)) || "").replace(/\*/g, "") + " »");
   // un jeton d'un autre espace ne sert à rien
   ok((await lire("op=sync&espace=" + sc.code.replace(/^./, c => (c === "A" ? "B" : "A")) + "&since=0", T0)).statut === 404 || true, "(contrôle d'espace inconnu)");
   const autre = await req({ op: "creer", nom: "Autre", admin: { login: "autre.pf", nom: "Autre", mdp: "Autre2026ok1" } }); ok((await lire("op=sync&espace=" + autre.code + "&since=0", T0)).statut === 401, "le jeton d'un espace ne donne aucun accès à un autre espace");
   await db().sql`DELETE FROM pss_espaces WHERE code = ${autre.code}`;
   // pièces jointes : même protection
-  const pjSec = () => new Request("https://t.test/api/passeport-piece?espace=" + S + "&id=PJ-secure0001", { method: "PUT", headers: { "content-type": "image/png" }, body: new Uint8Array([1, 2, 3, 4]) });
+  const pjSec = () => new Request("https://t.test/api/passeport-piece?espace=" + S + "&id=PJ-secure0001", { method: "PUT", headers: { "content-type": "image/png" }, body: new Uint8Array([0x89, 0x50, 0x4e, 0x47, 1, 2, 3, 4]) });
   ok((await pieceApi(pjSec(), {})).status === 401, "pièces : envoi refusé sans connexion");
-  const pjSec2 = new Request("https://t.test/api/passeport-piece?espace=" + S + "&id=PJ-secure0001", { method: "PUT", headers: { "content-type": "image/png", authorization: "Bearer " + JA }, body: new Uint8Array([1, 2, 3, 4]) }); ok((await pieceApi(pjSec2, {})).status === 201, "pièces : envoi accepté pour l'accueil connecté");
+  const pjSec2 = new Request("https://t.test/api/passeport-piece?espace=" + S + "&id=PJ-secure0001", { method: "PUT", headers: { "content-type": "image/png", authorization: "Bearer " + JA }, body: new Uint8Array([0x89, 0x50, 0x4e, 0x47, 1, 2, 3, 4]) }); ok((await pieceApi(pjSec2, {})).status === 201, "pièces : envoi accepté pour l'accueil connecté");
   ok((await pieceApi(new Request("https://t.test/api/passeport-piece?espace=" + S + "&id=PJ-secure0001"), {})).status === 401 && (await pieceApi(new Request("https://t.test/api/passeport-piece?espace=" + S + "&id=PJ-secure0001", { headers: { authorization: "Bearer " + JM } }), {})).status === 200, "pièces : lecture refusée sans connexion, permise au Ministère connecté");
   // le demandeur reste public (pré-enregistrement, suivi)
   const pubS = (await lire("op=sync&espace=" + S + "&since=0", T0)).publique; const prS = await req({ op: "preinscrire", public: pubS, dossier: { nom: "Test", prenoms: "Public", naissance: "1990-01-01", piece: { type: "CNI", numero: "CNI1" }, type: "premiere" } });
