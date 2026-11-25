@@ -91,7 +91,7 @@ function ecranChangement(force, ancien) {
 /* ---------- Pastille du compte connecté + rôle imposé ---------- */
 function appliquerCompte(c) {
   compte = c; document.body.classList.add('securise');
-  const s = $('#role'); if (s) { if (s.value !== c.role) { s.value = c.role; s.dispatchEvent(new Event('change')); } s.disabled = true; const r = document.querySelector('.role'); if (r) r.style.display = 'none'; }
+  const s = $('#role'); if (s) { if (s.value !== c.role) { s.value = c.role; s.dispatchEvent(new Event('change')); } s.disabled = true; const r = document.querySelector('.role'); if (r) [...r.children].forEach(x => { if (x.id !== 'bAide') x.style.display = 'none'; }); }   // le rôle est imposé par le compte ; le bouton Aide reste visible
   let chip = $('#cptChip'); if (!chip) { chip = document.createElement('div'); chip.id = 'cptChip'; const hd = document.querySelector('.hd'); if (hd) hd.appendChild(chip); chip.style.marginLeft = 'auto'; }
   chip.style.display = 'block'; chip.innerHTML = '<button type="button" aria-haspopup="menu" aria-expanded="false">👤 ' + esc(c.nom) + ' · ' + esc(NOM_ROLE[c.role] || c.role) + ' ▾</button>';
   const b = chip.querySelector('button'); b.onclick = e => { e.stopPropagation(); const m = $('#cptMenu'); if (m) { m.remove(); b.setAttribute('aria-expanded', 'false'); return; }
@@ -148,7 +148,7 @@ setInterval(() => { if (compte && Date.now() - derniereAction > 30 * 60000) SY()
 /* ---------- Journal de sécurité (Préfecture et Ministère) : qui a fait quoi, tentatives de contournement ---------- */
 const LIBELLES = { 'connexion-ok': 'Connexion', 'connexion-echec': 'Connexion refusée', 'connexion-bloquee': 'Compte bloqué (trop d’essais)', 'connexion-bloquee-ip': 'Appareil bloqué (trop d’essais)', 'deconnexion': 'Déconnexion', 'mot-de-passe-change': 'Mot de passe changé', 'mot-de-passe-oublie': 'Mot de passe oublié (demande)', 'mot-de-passe-reinitialise': 'Mot de passe réinitialisé', 'secours-ok': 'Accès retrouvé par code de secours', 'secours-echec': 'Code de secours refusé', 'compte-cree': 'Compte créé', 'compte-reactive': 'Compte réactivé', 'compte-desactive': 'Compte désactivé', 'espace-securise': 'Espace sécurisé', 'espace-efface': 'Espace effacé', 'reglages': 'Réglages modifiés', 'paiement': 'Paiement enregistré', 'refus-droit': 'Action refusée (droits insuffisants)', 'tentative-integrite': 'Tentative de modification interdite', 'tentative-montant': 'Montant non officiel refusé' };
 const lib = a => LIBELLES[a] || a;
-let dernierGrave = 0, vigie = null;
+let dernierGrave = null, vigie = null;   // null = première lecture pas encore faite (une première alerte sur un espace vierge doit quand même s'afficher)
 function installerVueSecurite() {
   if ($('#v-securite')) return;
   const nav = $('#onglets') || document.querySelector('nav .in'); if (nav) { const b = document.createElement('button'); b.dataset.v = 'securite'; b.dataset.roles = 'prefecture,ministere'; b.innerHTML = 'Sécurité<span class="pt" id="ptSec" style="display:none"></span>'; const ref = nav.querySelector('[data-v="fraude"]'); if (ref) ref.after(b); else nav.appendChild(b); }
@@ -173,8 +173,8 @@ async function veiller() {
   try {
     const r = await api().get('op=journal&espace=' + SY().esp() + '&limite=20&graves=1'); const max = r.evenements.reduce((m, x) => Math.max(m, x.n), 0);
     const pt = $('#ptSec'); if (pt) { pt.textContent = r.graves; pt.style.display = r.graves ? '' : 'none'; }
-    if (dernierGrave && max > dernierGrave) { const nouveaux = r.evenements.filter(x => x.n > dernierGrave); const x = nouveaux[0]; toastSec('<b>🛡 Alerte de sécurité</b><br>' + esc(lib(x.action)) + (x.login ? ' — ' + esc(x.login) : '') + (x.cible ? ' · ' + esc(x.cible) : '') + (nouveaux.length > 1 ? '<br><small>+ ' + (nouveaux.length - 1) + ' autre(s)</small>' : ''), true); if ($('#v-securite') && $('#v-securite').classList.contains('on')) chargerJournal(); }
-    dernierGrave = Math.max(dernierGrave, max);
+    if (dernierGrave !== null && max > dernierGrave) { const nouveaux = r.evenements.filter(x => x.n > dernierGrave); const x = nouveaux[0]; toastSec('<b>🛡 Alerte de sécurité</b><br>' + esc(lib(x.action)) + (x.login ? ' — ' + esc(x.login) : '') + (x.cible ? ' · ' + esc(x.cible) : '') + (nouveaux.length > 1 ? '<br><small>+ ' + (nouveaux.length - 1) + ' autre(s)</small>' : ''), true); if ($('#v-securite') && $('#v-securite').classList.contains('on')) chargerJournal(); }
+    dernierGrave = Math.max(dernierGrave || 0, max);
   } catch (e) { }
 }
 function demarrerVigie() { if (vigie) return; veiller(); vigie = setInterval(() => { if (!document.hidden) veiller(); }, 20000); }

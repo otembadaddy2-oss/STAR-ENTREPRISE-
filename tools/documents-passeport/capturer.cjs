@@ -4,7 +4,7 @@
 const { chromium } = require('playwright'); const fs = require('fs'); const path = require('path');
 const BASE = process.env.BASE || 'http://localhost:8766/passeport-demo/'; const OUT = path.join(__dirname, 'captures') + '/'; const FIX = path.join(__dirname, '..', 'tests-passeport') + '/';
 fs.mkdirSync(OUT, { recursive: true }); const wait = ms => new Promise(r => setTimeout(r, ms)); const echecs = [];
-const essai = async (nom, fn) => { try { await fn(); console.log('OK   ' + nom); } catch (e) { echecs.push(nom); console.log('ECHEC ' + nom + ' : ' + e.message.split('\n').slice(0, 7).join(' | ').slice(0, 500)); } };
+const essai = async (nom, fn) => { if (process.env.ONLY && !process.env.ONLY.split('|').includes(nom)) return; try { await fn(); console.log('OK   ' + nom); } catch (e) { echecs.push(nom); console.log('ECHEC ' + nom + ' : ' + e.message.split('\n').slice(0, 7).join(' | ').slice(0, 500)); } };
 const aller = (p, v) => p.evaluate(v => document.querySelector('nav button[data-v="' + v + '"]').click(), v);
 const role = async (p, r) => { await p.selectOption('#role', r); await wait(500); };
 const fermerTout = p => p.evaluate(() => { ['guideInvit', 'guideProfil', 'guideAide', 'guideFaqBox', 'guideCarte', 'guideSpot', 'guideVoile'].forEach(i => { const e = document.getElementById(i); if (e) e.remove(); }); document.getElementById('tiroir') && document.getElementById('tiroir').classList.remove('on'); });
@@ -98,21 +98,31 @@ const fermerTout = p => p.evaluate(() => { ['guideInvit', 'guideProfil', 'guideA
     await D.click('#tb tr.cl >> nth=2'); await wait(900); await D.screenshot({ path: OUT + 'd_fiche.png' }); await fermerTout(D);
     await role(T, 'ministere'); await aller(T, 'tableau'); await wait(2500); await T.screenshot({ path: OUT + 't_tableau.png' }); await aller(T, 'fraude'); await wait(2200); await T.screenshot({ path: OUT + 't_fraude.png' });
   });
+  // ---------------- Installation facile ----------------
+  await essai('installation', async () => {
+    const A = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, locale: 'fr-FR', userAgent: 'Mozilla/5.0 (Linux; Android 12; SM-A135F) AppleWebKit/537.36 Chrome/120 Mobile Safari/537.36' });
+    const I = await A.newPage(); await I.goto(BASE + 'installer.html'); await wait(900); await I.screenshot({ path: OUT + 't_installer.png' });
+    await I.locator('#d-android').scrollIntoViewIfNeeded(); await I.evaluate(() => window.scrollTo(0, 420)); await wait(300); await I.screenshot({ path: OUT + 't_installer_etapes.png' });
+    await A.close();
+  });
+  // Contextes tout neufs pour ces deux blocs (les blocs précédents ont rejoint un espace dans le contexte partagé).
+  const frais = async mob => { const c = await b.newContext(mob ? { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, timezoneId: 'Africa/Brazzaville', locale: 'fr-FR' } : { viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1.5, timezoneId: 'Africa/Brazzaville', locale: 'fr-FR' }); await c.addInitScript(() => { try { localStorage.setItem('sp_guide_v1', JSON.stringify({ vu: true, faits: { agent: 'passe', caisse: 'passe', porte: 'passe', prefecture: 'passe', ministere: 'passe', accueil: 'passe' } })); } catch (e) { } }); return c; };
+  const cD2 = await frais(false), cT2 = await frais(true);
   // ---------------- Pré-enregistrement du demandeur + Accueil (front office) ----------------
   await essai('pré-enregistrement et accueil', async () => {
-    const P = await ctxD.newPage(); await P.goto(BASE + 'index.html'); await wait(600);
+    const P = await cD2.newPage(); await P.goto(BASE + 'index.html'); await wait(600);
     const cr = await P.evaluate(async () => (await (await fetch('/api/passeport', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ op: 'creer', nom: 'Doc accueil', dossiers: [] }) })).json()));
     const code = cr.code, pub = cr.publique; await P.close();
-    const pre = d => fetch('/api/passeport', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ op: 'preinscrire', public: pub, dossier: d }) }).then(r => r.json());
+    const pre = d => fetch(BASE.replace('passeport-demo/', '') + 'api/passeport', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ op: 'preinscrire', public: pub, dossier: d }) }).then(r => r.json());
     // le demandeur, sur son téléphone
-    const M = await ctxT.newPage(); await M.goto(BASE + 'inscription.html?esp=' + pub); await wait(900); await M.screenshot({ path: OUT + 't_inscription.png' });
+    const M = await cT2.newPage(); await M.goto(BASE + 'inscription.html?esp=' + pub); await wait(900); await M.screenshot({ path: OUT + 't_inscription.png' });
     await M.fill('#nom', 'Mpassi'); await M.fill('#prenoms', 'Grâce'); await M.fill('#naiss', '1991-07-21'); await M.selectOption('#sexe', 'F'); await M.fill('#tel', '+242 06 123 45 67'); await M.fill('#pnum', 'CNI123456'); await M.fill('#pexp', '2031-09-30');
     await M.locator('#pnum').scrollIntoViewIfNeeded(); await wait(300); await M.screenshot({ path: OUT + 't_inscription_champs.png' });
     await M.click('#bEnvoyer'); await M.waitForSelector('#vRecu:not([hidden])'); await wait(600); await M.screenshot({ path: OUT + 't_inscription_recu.png' });
     const id1 = (await M.textContent('#rNum')).trim(), code1 = (await M.textContent('#rCode')).trim(); await M.close();
     const r2 = await pre({ nom: 'Mavoungou', prenoms: 'Désiré', naissance: '1988-11-02', sexe: 'M', type: 'premiere', tel: '+242 06 777 88 99', piece: { type: 'CNI', numero: 'CNI445566', expiration: '2030-01-01' } });
     // l'accueil
-    const A = await ctxD.newPage(); await A.goto(BASE + 'index.html?espace=' + code); await wait(2300); await role(A, 'caisse'); await aller(A, 'caisse'); await A.fill('#k_id', r2.id); await A.fill('#k_code', r2.code); await A.click('#bCaisseOuvrir'); await A.waitForSelector('#caisseRes .carte'); await wait(500); await A.locator('#caisseRes').screenshot({ path: OUT + 'd_caisse_bloquee.png' });
+    const A = await cD2.newPage(); await A.goto(BASE + 'index.html?espace=' + code); await wait(2300); await role(A, 'caisse'); await aller(A, 'caisse'); await A.fill('#k_id', r2.id); await A.fill('#k_code', r2.code); await A.click('#bCaisseOuvrir'); await A.waitForSelector('#caisseRes .carte'); await wait(500); await A.locator('#caisseRes').screenshot({ path: OUT + 'd_caisse_bloquee.png' });
     await role(A, 'accueil'); await aller(A, 'reception'); await wait(900); await A.screenshot({ path: OUT + 'd_accueil_liste.png' });
     await A.fill('#r_id', id1); await A.fill('#r_code', code1); await A.click('#bRecepOuvrir'); await A.waitForSelector('#bRecepOk'); await wait(500);
     await A.evaluate(i => { const X = window.__spApi, d = X.DB.find(x => x.id === i); d.pieces = ['photo', 'identite', 'naissance', 'nationalite'].map((k, n) => ({ id: 'PJ-demo' + n, type: k, nom: k, mime: 'image/jpeg', taille: 1, at: new Date().toISOString(), par: 'demandeur', demo: true })); X.sauver(); }, id1);
@@ -125,7 +135,7 @@ const fermerTout = p => p.evaluate(() => { ['guideInvit', 'guideProfil', 'guideA
 
   // ---------------- Espace sécurisé : connexion, comptes, alerte du Ministre, montant officiel ----------------
   await essai('connexion, comptes, alerte du Ministre, montant officiel', async () => {
-    const P = await ctxD.newPage(); await P.goto(BASE + 'index.html'); await wait(900);
+    const P = await cD2.newPage(); await P.goto(BASE + 'index.html'); await wait(900);
     await role(P, 'prefecture'); await P.click('#chipEspace'); await P.waitForSelector('#espSec'); await P.check('#espSec'); await P.uncheck('#espDemo');
     await P.fill('#sec_login', 'prefecture.brazza'); await P.fill('#sec_nom', 'Le Préfet de Brazzaville'); await P.fill('#sec_mdp', 'Brazza2026ok'); await P.click('#bCreerEsp'); await P.waitForSelector('#bSecNote', { timeout: 15000 });
     await Promise.all([P.waitForNavigation({ timeout: 20000 }).catch(() => { }), P.click('#bSecNote')]); await wait(2800);
@@ -138,15 +148,15 @@ const fermerTout = p => p.evaluate(() => { ['guideInvit', 'guideProfil', 'guideA
     await P.evaluate(async () => { const S = window.__spSync; await S.api.post({ op: 'comptes-reinitialiser', espace: S.esp(), login: 'caisse.jean' }); }); await wait(300);
     await fetch(BASE.replace('passeport-demo/', '') + 'api/passeport', { method: 'POST', body: JSON.stringify({ op: 'oubli', espace: code, login: 'accueil.marie' }) }); await P.reload(); await wait(2500); await aller(P, 'comptes'); await wait(900); await P.screenshot({ path: OUT + 'd_comptes.png', fullPage: true });
     // écran de connexion
-    const C = await ctxD.newPage(); await C.goto(BASE + 'index.html?espace=' + code); await C.waitForSelector('#cpt_f'); await wait(500); await C.screenshot({ path: OUT + 'd_connexion.png' });
-    const CT = await ctxT.newPage(); await CT.goto(BASE + 'index.html?espace=' + code); await CT.waitForSelector('#cpt_f'); await wait(500); await CT.screenshot({ path: OUT + 't_connexion.png' });
+    const C = await cD2.newPage(); await C.goto(BASE + 'index.html?espace=' + code); await C.waitForSelector('#cpt_f'); await wait(500); await C.screenshot({ path: OUT + 'd_connexion.png' });
+    const CT = await cT2.newPage(); await CT.goto(BASE + 'index.html?espace=' + code); await CT.waitForSelector('#cpt_f'); await wait(500); await CT.screenshot({ path: OUT + 't_connexion.png' });
     // le Ministre se connecte, puis une fraude apparaît
     await C.fill('#cpt_login', 'cabinet.ministre'); await C.fill('#cpt_mdp', tM); await C.click('#cpt_ok'); await C.waitForSelector('#ch_f'); await wait(400); await C.screenshot({ path: OUT + 'd_changer_mdp.png' });
     await C.fill('#ch_new', 'Ministre2026ok'); await C.fill('#ch_new2', 'Ministre2026ok'); await C.click('#ch_ok'); await C.waitForSelector('#cptOverlay', { state: 'detached' }); await wait(2500);
     const dup = n => ({ id: 'BZV-2026-D0' + n, type: 'premiere', status: 'depose', createdAt: new Date().toISOString(), mrzOk: true, agent: 'Agent 03', lieu: 'Makélékélé', person: { nom: n === 1 ? 'BOUKA' : 'BOUKA', prenoms: n === 1 ? 'Rodrigue' : 'Rodrigue Aimé', naissance: '1985-05-0' + n, sexe: 'M', tel: '+242 06 9' + n + '0 00 00', piece: { type: 'CNI', numero: 'CNI4455667', expiration: '2031-01-01' } }, ancien: null, pieces: [], history: [{ s: 'depose', at: new Date().toISOString(), by: 'Agent 03', note: 'Dossier enregistré' }] });
     await P.evaluate(async d => { const S = window.__spSync; await S.api.post({ op: 'ecrire', espace: S.esp(), dossiers: d.map(x => ({ id: x.id, baseRev: 0, data: x })) }); }, [dup(1), dup(2)]);
     await C.waitForSelector('#alerteFraude', { timeout: 20000 }); await wait(700); await C.screenshot({ path: OUT + 'd_ministre_alerte.png' });
-    const CM = await ctxT.newPage(); await CM.goto(BASE + 'index.html?espace=' + code); await CM.waitForSelector('#cpt_f'); await CM.fill('#cpt_login', 'cabinet.ministre'); await CM.fill('#cpt_mdp', 'Ministre2026ok'); await CM.click('#cpt_ok'); await CM.waitForSelector('#alerteFraude', { timeout: 20000 }); await wait(600); await CM.screenshot({ path: OUT + 't_ministre_alerte.png' });
+    const CM = await cT2.newPage(); await CM.goto(BASE + 'index.html?espace=' + code); await CM.waitForSelector('#cpt_f'); await CM.fill('#cpt_login', 'cabinet.ministre'); await CM.fill('#cpt_mdp', 'Ministre2026ok'); await CM.click('#cpt_ok'); await CM.waitForSelector('#alerteFraude', { timeout: 20000 }); await wait(600); await CM.screenshot({ path: OUT + 't_ministre_alerte.png' });
     // journal de sécurité : un agent de guichet tente de tricher ; le Ministre voit l'alerte
     const API = BASE.replace('passeport-demo/', '') + 'api/passeport', appel = async (c, j) => (await fetch(API, { method: 'POST', headers: j ? { authorization: 'Bearer ' + j } : {}, body: JSON.stringify(c) })).json();
     const cg = await P.evaluate(async () => { const S = window.__spSync; return S.api.post({ op: 'comptes-creer', espace: S.esp(), login: 'guichet.paul', nom: 'Paul Mavoungou', role: 'agent' }); });
@@ -156,8 +166,12 @@ const fermerTout = p => p.evaluate(() => { ['guideInvit', 'guideProfil', 'guideA
     await wait(500); const sy = await (await fetch(API + '?op=sync&espace=' + code + '&since=0', { headers: { authorization: 'Bearer ' + ng.jeton } })).json(); const cur = sy.dossiers.find(x => x.id === dd.id);
     await appel({ op: 'ecrire', espace: code, dossiers: [{ id: dd.id, baseRev: cur.rev, data: { ...cur.data, status: 'paye', ticket: 1, paiement: { montant: 1, mode: 'Espèces', at: new Date().toISOString(), caissier: 'moi', recu: 'RP-2026-000999' } } }] }, ng.jeton);
     await appel({ op: 'reglages', espace: code, config: { tarifs: { premiere: 1, renouvellement: 1 } } }, ng.jeton); await appel({ op: 'comptes-creer', espace: code, login: 'faux.admin', nom: 'Faux', role: 'prefecture' }, ng.jeton);
-    await C.evaluate(() => { const b = document.querySelector('nav button[data-v="securite"]'); b && b.click(); }); await C.waitForSelector('#sec_tb tr'); await wait(1200); await C.screenshot({ path: OUT + 'd_securite.png', fullPage: true });
-    await C.waitForSelector('#secToast', { timeout: 40000 }); await wait(500); await C.screenshot({ path: OUT + 'd_securite_alerte.png' });
+    await C.bringToFront(); await C.evaluate(() => { const b = document.querySelector('nav button[data-v="securite"]'); b && b.click(); }); await C.waitForSelector('#sec_tb tr'); await wait(1200); await C.screenshot({ path: OUT + 'd_securite.png', fullPage: true });
+    await C.bringToFront();
+    // la veille du Ministre relit le journal toutes les 20 s : on provoque un nouvel événement grave à chaque tour jusqu'à ce que le message apparaisse
+    let vu = false; for (let k = 0; k < 4 && !vu; k++) { await appel({ op: 'comptes-creer', espace: code, login: 'faux.admin' + (k + 2), nom: 'Faux ' + (k + 2), role: 'prefecture' }, ng.jeton); vu = await C.waitForSelector('#secToast', { state: 'attached', timeout: 24000 }).then(() => true, () => false); }
+    if (!vu) throw new Error('le message d’alerte de sécurité n’est pas apparu');
+    await wait(500); await C.screenshot({ path: OUT + 'd_securite_alerte.png' });
     await P.close(); await C.close(); await CT.close(); await CM.close();
   });
 

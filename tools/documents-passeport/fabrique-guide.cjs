@@ -36,6 +36,7 @@ ${role('Pour atteindre le but, l’application doit être simple à ouvrir et à
 <p>Ouvrez le <b>lien</b> que vous avez reçu (par WhatsApp, par exemple) dans le navigateur de votre téléphone ou de votre ordinateur. Il n’y a rien à télécharger ni à créer : pas de compte, pas de mot de passe.</p>
 <h2>L’installer sur le téléphone ou l’ordinateur (facultatif, ouvert à tous)</h2>
 <p><b>Le plus simple :</b> la Préfecture partage par WhatsApp le lien de la <b>page d’installation</b> (<i>installer.html</i>). Elle reconnaît l’appareil (Android, iPhone, ordinateur), affiche seulement les étapes utiles, propose un bouton « Installer maintenant » quand c’est possible, un <b>code QR</b> et un bouton « Partager le lien ». Rien à télécharger dans une boutique, aucun compte à créer. Dans l’application, le bouton jaune <b>📲 Installer</b> en haut ouvre les mêmes consignes ; <b>❓ Aide → « Changer la taille du texte »</b> agrandit les caractères (retenu sur l’appareil).</p>
+<div class="tel-duo">${fig('t_installer', 'La page d’installation : l’appareil est reconnu', 600)}${fig('t_installer_etapes', 'Les étapes, pour Android ici', 600)}</div>
 <table><tr><th style="width:42mm">Téléphone</th><th>Comment faire</th></tr>
 <tr><td><b>Android (Chrome)</b></td><td>Touchez le menu <b>⋮</b> puis <b>« Ajouter à l’écran d’accueil »</b> (ou « Installer l’application »).</td></tr>
 <tr><td><b>iPhone (Safari)</b></td><td>Touchez <b>Partager</b> (le carré avec une flèche) puis <b>« Sur l’écran d’accueil »</b>.</td></tr>

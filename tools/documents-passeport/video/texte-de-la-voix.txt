@@ -5,54 +5,80 @@ TEXTE DE LA VOIX OFF — Guide vidéo « Passeport Sûr »
 
 2. En trois motsÀ quoi sert Passeport Sûr ?SuivreChaque dossier est suivi : dépôt, paiement, rendez-vous, traitement, remise. Le demandeur voit où en est son passeport.OrdonnerUn rendez-vous après paiement, des numéros, des portes, des écrans de salle d’attente : chacun passe à son tour.SécuriserDoublons, pièces modifiées, faux, réseaux d’intermédiaires : le système les signale à la Préfecture.Pour : les demandeurs, les agents de guichet, la caisse, les agents de porte, la Préfecture et le Ministère. Cette vidéo vous montre chaque rôle, pas à pas.
 
-3. Ouvrir le lien et choisir son rôle. Rien à installer, pas de compte : on ouvre le lien. Au premier lancement, l’application demande « Quel est votre rôle ? » et s’adapte.
+3. La vision de son créateurUn service public plus clair, plus juste, plus sûrUn service lisibleQue chaque citoyen sache où en est sa demande, ce qu’il doit fournir et quand il sera reçu.Un accueil digneQue personne n’ait besoin de « connaître quelqu’un » : chacun est appelé à son tour, avec son nom, à une porte précise.Une confiance durableQue chaque étape laisse une trace, et que la décision reste toujours à l’agent habilité.Conçu par STAR ENTREPRISE, à Brazzaville, sous la direction de Carry OTEMBA.
 
-4. Une visite guidée d’une minute. Pour chaque rôle, une visite guidée met en lumière ce qu’il faut utiliser. On peut la passer à tout moment, et la relancer avec le bouton ❓ Aide.
+4. Qui fait quoiLe rôle du Ministère et de la PréfectureLe MinistèreFixe la procédure, les pièces exigées et les tarifs officiels ; choisit l’hébergement des données ; suit les résultats.La PréfectureDésigne le site, forme les agents, gère l’espace partagé et examine les alertes de fraude.STAR ENTREPRISEFournit et maintient l’application, forme les premiers utilisateurs et rend compte des résultats.Répartition proposée, à confirmer avec les autorités. La décision de délivrer un passeport reste toujours humaine.
 
-5. Enregistrer une demande. L’agent ouvre Nouvelle demande. D’abord le type : première demande, ou renouvellement d’un passeport expiré.
+5. Une page d’installation pour tous. La Préfecture partage un lien par WhatsApp. La page reconnaît l’appareil — Android, iPhone ou ordinateur — et montre seulement les étapes utiles, avec un code QR à partager. L’installation est facultative.
 
-6. Scanner la pièce. Il photographie la bande de lecture de la pièce d’identité. Ici, un exemple : la fiche se remplit toute seule, avec contrôle des chiffres de clé.
+6. Ouvrir le lien et choisir son rôle. Rien à installer, pas de compte : on ouvre le lien. Au premier lancement, l’application demande « Quel est votre rôle ? » et s’adapte.
 
-7. Contrôler la fiche. L’agent vérifie la fiche et ajoute le téléphone du demandeur : c’est là que l’accusé sera envoyé.
+7. Une visite guidée d’une minute. Pour chaque rôle, une visite guidée met en lumière ce qu’il faut utiliser. On peut la passer à tout moment, et la relancer avec le bouton ❓ Aide.
 
-8. Joindre les pièces. Photo ou fichier, pièce par pièce. Si une pièce manque, le dossier reste « incomplet » : on pourra le terminer plus tard, ou le demandeur enverra la pièce depuis son téléphone.
+8. Enregistrer une demande. L’agent ouvre Nouvelle demande. D’abord le type : première demande, ou renouvellement d’un passeport expiré.
 
-9. Faire signer. Le demandeur signe avec le doigt ou un stylet, directement sur l’écran.
+9. Scanner la pièce. Il photographie la bande de lecture de la pièce d’identité. Ici, un exemple : la fiche se remplit toute seule, avec contrôle des chiffres de clé.
 
-10. Valider et remettre l’accusé. Un clic sur Valider : le dossier est créé et l’accusé s’affiche, avec son numéro de reçu et un code QR. Il est envoyé au demandeur sur WhatsApp.
+10. Contrôler la fiche. L’agent vérifie la fiche et ajoute le téléphone du demandeur : c’est là que l’accusé sera envoyé.
 
-11. Ouvrir le dossier. Le demandeur présente son accusé. La caisse scanne le code QR — ou saisit le numéro de reçu et le code de contrôle — et le dossier s’ouvre.
+11. Joindre les pièces. Photo ou fichier, pièce par pièce. Si une pièce manque, le dossier reste « incomplet » : on pourra le terminer plus tard, ou le demandeur enverra la pièce depuis son téléphone.
 
-12. Vérifier avant d’encaisser. La fiche, les pièces, la signature et les alertes s’affichent. L’encaissement est bloqué si une pièce obligatoire manque ou si une alerte grave n’a pas été examinée par la Préfecture.
+12. Faire signer. Le demandeur signe avec le doigt ou un stylet, directement sur l’écran.
 
-13. Encaisser et éditer le reçu. Montant, mode de paiement, puis Encaisser. Le reçu donne le rendez-vous d’enrôlement et le numéro d’appel. Ici, des montants fictifs.
+13. Valider et remettre l’accusé. Un clic sur Valider : le dossier est créé et l’accusé s’affiche, avec son numéro de reçu et un code QR. Il est envoyé au demandeur sur WhatsApp.
 
-14. Le message WhatsApp du rendez-vous. Le demandeur reçoit la date de son rendez-vous et son numéro d’appel. Les numéros sont sans doublon, et la capacité du jour ne peut pas être dépassée.
+14. Ouvrir le dossier. Le demandeur présente son accusé. La caisse scanne le code QR — ou saisit le numéro de reçu et le code de contrôle — et le dossier s’ouvre.
 
-15. Créer l’espace partagé. Pour que tous les postes travaillent ensemble, la Préfecture crée un espace : un code à 8 caractères que le guichet, la caisse, les portes et les écrans rejoignent.
+15. Vérifier avant d’encaisser. La fiche, les pièces, la signature et les alertes s’affichent. L’encaissement est bloqué si une pièce obligatoire manque ou si une alerte grave n’a pas été examinée par la Préfecture.
 
-16. Le code, le QR et les liens. Le panneau donne le code de l’espace, un QR pour relier un poste, et le lien des écrans de salle. À ne pas partager publiquement.
+16. Encaisser et éditer le reçu. Montant, mode de paiement, puis Encaisser. Le reçu donne le rendez-vous d’enrôlement et le numéro d’appel. Ici, des montants fictifs.
 
-17. Régler le site. Nombre de portes, personnes par jour, jours ouverts, heure de début, lieu. Ces valeurs sont des exemples à fixer avec la Préfecture.
+17. Le message WhatsApp du rendez-vous. Le demandeur reçoit la date de son rendez-vous et son numéro d’appel. Les numéros sont sans doublon, et la capacité du jour ne peut pas être dépassée.
 
-18. Allumer l’écran de la salle. Sur la télévision, on ouvre le lien de l’écran, on donne un nom à l’écran et on touche Démarrer. Il affiche alors les appels en direct, avec la voix.
+18. Créer l’espace partagé. Pour que tous les postes travaillent ensemble, la Préfecture crée un espace : un code à 8 caractères que le guichet, la caisse, les portes et les écrans rejoignent.
 
-19. Chaque porte appelle le suivant. Les personnes ont rendez-vous aujourd’hui, dans l’ordre de leur paiement. Chaque porte touche « Appeler le suivant ».
+19. Le code, le QR et les liens. Le panneau donne le code de l’espace, un QR pour relier un poste, et le lien des écrans de salle. À ne pas partager publiquement.
 
-20. Numéro, nom et porte — à l’écran et à la voix. Trois portes appellent en même temps : l’écran les affiche l’un après l’autre. Chaque numéro reste au moins 10 secondes et est annoncé à voix haute avec sa porte.
+20. Régler le site. Nombre de portes, personnes par jour, jours ouverts, heure de début, lieu. Ces valeurs sont des exemples à fixer avec la Préfecture.
 
-21. Absent ? En fin de file. Si la personne ne se présente pas : « Absent ». Elle repart à la fin de la file et ne sera rappelée qu’après les autres.
+21. Le demandeur prépare sa demande. Il choisit le type de demande, puis remplit sa fiche : nom, prénoms, naissance, téléphone et pièce d’identité — exactement comme sur la pièce originale.
 
-22. Suivre son dossier depuis son téléphone. Il voit les étapes franchies, son rendez-vous (jour, heure, lieu) et son numéro d’appel. Le jour dit : il regarde l’écran et va à la porte indiquée.
+22. Il envoie, et reçoit son accusé. Il touche « Envoyer » et reçoit un accusé avec code QR. Ce n’est pas encore un dépôt : il devra se présenter à l’accueil avec ses pièces originales.
 
-23. Une pièce manque ? Il l’envoie lui-même. Il prend la pièce en photo ou la joint depuis son téléphone : inutile de revenir au guichet.
+23. L’accueil reçoit la personne. L’agent d’accueil ouvre la page Réception et scanne l’accusé du demandeur — ou saisit le numéro de dossier et le code de contrôle.
 
-24. Le tableau de bord. La situation réelle : qui a demandé, payé, été reçu, reçu son passeport, délais moyens, renouvellements. Un export Excel fournit les tableaux et graphiques.
+24. Comparer avec les pièces originales. La fiche et les pièces s’affichent. L’agent compare avec les originaux, corrige les petites erreurs de saisie, puis coche les trois vérifications.
 
-25. Le contrôle anti-fraude. Doublons, pièces modifiées, fausses identités, réseaux, délais anormaux : les cas sont classés du plus grave au moins grave. Ce sont des alertes à examiner par une personne, pas des preuves.
+25. Vérifié : envoyer à la caisse. Un clic sur « Vérifié » envoie la personne à la caisse. En cas d’écart (identité différente, pièce suspecte), l’agent le signale : la Préfecture est alertée et la caisse reste bloquée.
 
-26. Tous les dossiers, avec leur historique. Recherche, filtres, et la fiche complète de chaque dossier : pièces, signature, historique daté, alertes.
+26. Allumer l’écran de la salle. Sur la télévision, on ouvre le lien de l’écran, on donne un nom à l’écran et on touche Démarrer. Il affiche alors les appels en direct, avec la voix.
 
-27. Toujours une aide sous la main. Le bouton ❓ Aide relance la visite guidée, permet de changer de profil et donne les réponses aux questions fréquentes.
+27. Chaque porte appelle le suivant. Les personnes ont rendez-vous aujourd’hui, dans l’ordre de leur paiement. Chaque porte touche « Appeler le suivant ».
 
-28. Pour conclure : Passeport Sûr a un but simple : que chaque demande de passeport soit suivie de A à Z, que chaque personne soit reçue dans l’ordre, et que les fraudes et contournements soient repérés automatiquement. Passeport Sûr est conçu par STAR ENTREPRISE, à Brazzaville.
+28. Numéro, nom et porte — à l’écran et à la voix. Trois portes appellent en même temps : l’écran les affiche l’un après l’autre. Chaque numéro reste au moins 10 secondes et est annoncé à voix haute avec sa porte.
+
+29. Absent ? En fin de file. Si la personne ne se présente pas : « Absent ». Elle repart à la fin de la file et ne sera rappelée qu’après les autres.
+
+30. Suivre son dossier depuis son téléphone. Il voit les étapes franchies, son rendez-vous (jour, heure, lieu) et son numéro d’appel. Le jour dit : il regarde l’écran et va à la porte indiquée.
+
+31. Une pièce manque ? Il l’envoie lui-même. Il prend la pièce en photo ou la joint depuis son téléphone : inutile de revenir au guichet.
+
+32. Le tableau de bord. La situation réelle : qui a demandé, payé, été reçu, reçu son passeport, délais moyens, renouvellements. Un export Excel fournit les tableaux et graphiques.
+
+33. Le contrôle anti-fraude. Doublons, pièces modifiées, fausses identités, réseaux, délais anormaux : les cas sont classés du plus grave au moins grave. Ce sont des alertes à examiner par une personne, pas des preuves.
+
+34. Tous les dossiers, avec leur historique. Recherche, filtres, et la fiche complète de chaque dossier : pièces, signature, historique daté, alertes.
+
+35. Un identifiant et un mot de passe pour chacun. Dans un espace sécurisé, chaque personne se connecte avec son identifiant et son mot de passe, et ne voit que ce que son rôle permet. En cas d’oubli, la Préfecture réinitialise ; après cinq essais ratés, le compte est bloqué quinze minutes.
+
+36. Le Ministre voit la situation réelle. Le Ministre en poste se connecte : il voit en temps réel tout ce qui se passe sur l’interface, mais il ne modifie rien. Une tentative de triche est refusée par le serveur et inscrite dans un journal infalsifiable.
+
+37. Une fraude ? Un message s’affiche tout de suite. Deux dossiers portent le même numéro de pièce avec des noms différents : un message rouge apparaît sur l’écran du Ministre, avec le dossier concerné. Ce sont des alertes à examiner par une personne, pas des preuves.
+
+38. Une tentative de contournement est signalée. Un agent de guichet essaie de créer un compte « Préfecture » ou de changer lui-même le montant officiel : le serveur refuse, et le Ministre est averti aussitôt. Même en trafiquant l’écran, les règles sont revérifiées par le serveur : le contournement depuis l’application ne passe pas.
+
+39. Qui a fait quoi, quand. Le journal garde chaque connexion, chaque refus et chaque tentative. Chaque ligne est liée à la précédente : on peut vérifier qu’il n’a pas été retouché.
+
+40. Toujours une aide sous la main. Le bouton ❓ Aide relance la visite guidée, permet de changer de profil et donne les réponses aux questions fréquentes.
+
+41. Pour conclure : Passeport Sûr a un but simple : que chaque demande de passeport soit suivie de A à Z, que chaque personne soit reçue dans l’ordre, et que les fraudes et contournements soient repérés automatiquement. Passeport Sûr est conçu par STAR ENTREPRISE, à Brazzaville.

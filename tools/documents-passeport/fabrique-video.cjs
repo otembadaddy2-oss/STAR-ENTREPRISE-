@@ -40,6 +40,9 @@ const api = (body) => page.evaluate(async b => { const r = await fetch('/api/pas
 
   // ============ 1. Démarrer ============
   await scene('démarrer', async () => {
+    await page.evaluate(() => { V.mode('tel'); V.note('<h3>Installer, c’est facultatif</h3>Une page à partager par <b>WhatsApp</b> : elle reconnaît l’appareil et ne montre que les étapes utiles.'); });
+    await page.evaluate(u => V.src('t', u), APP + 'installer.html'); await wait(2800);
+    await leg('Étape 1 sur 10 · Démarrer', 'Une page d’installation pour tous', 'La Préfecture partage un lien par WhatsApp. La page reconnaît l’appareil — Android, iPhone ou ordinateur — et montre <b>seulement les étapes utiles</b>, avec un <b>code QR</b> à partager. <b>L’installation est facultative</b>.', 8500);
     await page.evaluate(() => V.mode('plein')); await page.evaluate(u => V.src('plein', u), APP + 'index.html?guide=1'); await wait(2800);
     await leg('Étape 1 sur 10 · Démarrer', 'Ouvrir le lien et choisir son rôle', 'Rien à installer, pas de compte : on ouvre le lien. Au premier lancement, l’application demande <b>« Quel est votre rôle ? »</b> et s’adapte.');
     await pointeur(F('plein'), '#guideProfil [data-p="agent"]'); await wait(1600);
@@ -162,6 +165,31 @@ const api = (body) => page.evaluate(async b => { const r = await fetch('/api/pas
     await pointeur(f, 'nav button[data-v="dossiers"]'); await wait(1500);
     await leg('Étape 8 sur 10 · Ministère et Préfecture', 'Tous les dossiers, avec leur historique', 'Recherche, filtres, et la fiche complète de chaque dossier : pièces, signature, <b>historique daté</b>, alertes.', 5500);
     await pointeur(f, '#tb tr.cl', true, 2); await wait(3500); await f.evaluate(() => { const t = document.getElementById('tiroir'); t && t.classList.remove('on'); });
+  });
+
+  // ============ 8bis. Connexion sécurisée, alerte de fraude et de sécurité du Ministre ============
+  await scene('connexion et alerte de sécurité', async () => {
+    const apiJ = (body, jeton) => page.evaluate(async ([b, j]) => { const r = await fetch('/api/passeport', { method: 'POST', headers: j ? { authorization: 'Bearer ' + j } : {}, body: JSON.stringify(b) }); return r.json(); }, [body, jeton]);
+    const sec = await apiJ({ op: 'creer', nom: 'Démonstration sécurisée', admin: { login: 'prefecture.demo', nom: 'Le Préfet', mdp: 'Brazza2026ok' } });
+    const T0 = (await apiJ({ op: 'connexion', espace: sec.code, login: 'prefecture.demo', mdp: 'Brazza2026ok' })).jeton;
+    const mk = async (login, nom, role) => { const c = await apiJ({ op: 'comptes-creer', espace: sec.code, login, nom, role }, T0); const l = await apiJ({ op: 'connexion', espace: sec.code, login, mdp: c.motDePasseTemporaire }); const n = await apiJ({ op: 'changer-mdp', espace: sec.code, ancien: c.motDePasseTemporaire, nouveau: 'Mdp2026demo' }, l.jeton); return n.jeton || l.jeton; };
+    await mk('cabinet.ministre', 'Cabinet du Ministre', 'ministere'); const jG = await mk('guichet.paul', 'Paul Mavoungou', 'agent');
+    await page.evaluate(() => { try { localStorage.setItem('sp_guide_v1', JSON.stringify({ vu: true, faits: { agent: 'passe', caisse: 'passe', porte: 'passe', prefecture: 'passe', ministere: 'passe', accueil: 'passe' } })); localStorage.removeItem('sp_espace_v1'); sessionStorage.clear(); } catch (e) { } });
+    await page.evaluate(() => V.mode('plein')); await page.evaluate(u => V.src('plein', u), APP + 'index.html?espace=' + sec.code); await wait(3500); const f = F('plein');
+    await f.locator('#cpt_f').waitFor({ timeout: 15000 });
+    await leg('Étape 8 sur 10 · Connexion sécurisée', 'Un identifiant et un mot de passe pour chacun', 'Dans un <b>espace sécurisé</b>, chaque personne se connecte avec <b>son identifiant et son mot de passe</b>, et ne voit que ce que son rôle permet. En cas d’oubli, la Préfecture réinitialise ; après cinq essais ratés, le compte est <b>bloqué quinze minutes</b>.', 9500);
+    await taper(f, '#cpt_login', 'cabinet.ministre', 70); await taper(f, '#cpt_mdp', 'Mdp2026demo', 70); await pointeur(f, '#cpt_ok'); await f.locator('#cptChip').waitFor({ timeout: 15000 }); await wait(2500);
+    await leg('Étape 8 sur 10 · Connexion sécurisée', 'Le Ministre voit la situation réelle', 'Le Ministre en poste se connecte : il voit <b>en temps réel</b> tout ce qui se passe sur l’interface, mais il ne modifie rien. Une tentative de triche est <b>refusée par le serveur</b> et inscrite dans un <b>journal infalsifiable</b>.', 8500);
+    const dos = n => ({ id: 'BZV-2026-V0' + n, type: 'premiere', status: 'depose', createdAt: new Date().toISOString(), mrzOk: true, agent: 'Agent 03', lieu: 'Makélékélé', person: { nom: 'BOUKA', prenoms: n === 1 ? 'Rodrigue' : 'Rodrigue Aimé', naissance: '1985-05-0' + n, sexe: 'M', tel: '+242 06 9' + n + '0 00 00', piece: { type: 'CNI', numero: 'CNI4455667', expiration: '2031-01-01' } }, pieces: [], history: [{ s: 'depose', at: new Date().toISOString(), by: 'x', note: 'Dossier enregistré' }] });
+    await apiJ({ op: 'ecrire', espace: sec.code, dossiers: [dos(1), dos(2)].map(d => ({ id: d.id, baseRev: 0, data: d })) }, jG);
+    await f.locator('#alerteFraude').waitFor({ state: 'attached', timeout: 30000 }); await wait(1500);
+    await leg('Étape 8 sur 10 · Alerte du Ministre', 'Une fraude ? Un message s’affiche tout de suite', 'Deux dossiers portent <b>le même numéro de pièce</b> avec des noms différents : un <b>message rouge</b> apparaît sur l’écran du Ministre, avec le dossier concerné. Ce sont des alertes à <b>examiner par une personne</b>, pas des preuves.', 9500);
+    // l'agent de guichet tente de contourner le système
+    let vu = false; for (let k = 0; k < 4 && !vu; k++) { await apiJ({ op: 'comptes-creer', espace: sec.code, login: 'faux.admin' + k, nom: 'Faux ' + k, role: 'prefecture' }, jG); await apiJ({ op: 'reglages', espace: sec.code, config: { tarifs: { premiere: 1, renouvellement: 1 } } }, jG); vu = await f.locator('#secToast').waitFor({ state: 'attached', timeout: 24000 }).then(() => true, () => false); }
+    await leg('Étape 8 sur 10 · Alerte de sécurité', 'Une tentative de contournement est signalée', 'Un agent de guichet essaie de créer un compte « Préfecture » ou de changer lui-même le <b>montant officiel</b> : le serveur refuse, et <b>le Ministre est averti aussitôt</b>. Même en trafiquant l’écran, les règles sont <b>revérifiées par le serveur</b> : le contournement depuis l’application ne passe pas.', 9500);
+    await pointeur(f, 'nav button[data-v="securite"]'); await wait(3500);
+    await leg('Étape 8 sur 10 · Journal de sécurité', 'Qui a fait quoi, quand', 'Le journal garde chaque connexion, chaque refus et chaque tentative. Chaque ligne est liée à la précédente : <b>on peut vérifier qu’il n’a pas été retouché</b>.', 7500);
+    await pointeur(f, '#sec_verif'); await wait(3000);
   });
 
   // ============ 8. Aide ============

@@ -22,7 +22,7 @@ const nav = (p, v) => p.evaluate(x => document.querySelector('nav button[data-v=
   await Promise.all([P.waitForNavigation({ timeout: 20000 }).catch(() => { }), P.click('#bSecNote')]); await P.waitForTimeout(2500);
   const code = await P.evaluate(() => JSON.parse(localStorage.getItem('sp_espace_v1')).code);
   ok(await att(async () => (await P.textContent('#cptChip')).includes('Le Préfet')), 'connecté automatiquement : le nom et le rôle s’affichent');
-  ok(await P.isDisabled('#role') && (await P.evaluate(() => document.querySelector('.role').style.display)) === 'none', 'le choix du profil est verrouillé (le rôle vient du compte)');
+  ok(await P.isDisabled('#role') && !(await P.isVisible('#role')) && await P.isVisible('#bAide'), 'le choix du profil est verrouillé et invisible (le rôle vient du compte), le bouton Aide reste là');
   await nav(P, 'comptes'); await P.waitForSelector('#v-comptes.on'); ok(true, 'onglet « Comptes » disponible pour la Préfecture');
 
   // ---------- création des comptes ----------
