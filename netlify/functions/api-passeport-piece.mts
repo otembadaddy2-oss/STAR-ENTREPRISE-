@@ -30,7 +30,7 @@ async function droitSurEspace(req: Request, sql: any, code: string, droit: strin
   return null;
 }
 
-export default async (req: Request, _context: Context) => {
+async function traiterPiece(req: Request, _context: Context): Promise<Response> {
   const url = new URL(req.url); let code = normaliserCode(url.searchParams.get("espace")); const id = String(url.searchParams.get("id") || "");
   if (req.method === "DELETE" && !id) {   // effacement de TOUTES les pièces d'un espace (avant « Effacer l'espace »)
     await ensurePasseport(); const sql0 = db().sql, m0 = creerMoteur(sql0);
@@ -75,4 +75,10 @@ export default async (req: Request, _context: Context) => {
   return json({ error: "Méthode non autorisée." }, 405);
 };
 
+// Netlify n'applique pas _headers aux fonctions : réponses JSON verrouillées ; pièces (images, PDF) jamais interprétées comme une page et jamais intégrables ailleurs.
+const verrouiller = (r: Response) => { const h = new Headers(r.headers); const j = /json/i.test(h.get("content-type") || ""); h.set("x-content-type-options", "nosniff"); h.set("content-security-policy", j ? "default-src 'none'; frame-ancestors 'none'" : "frame-ancestors 'none'"); if (j) h.set("cache-control", "no-store"); return new Response(r.body, { status: r.status, statusText: r.statusText, headers: h }); };
+export default async (req: Request, context: Context) => {
+  try { return verrouiller(await traiterPiece(req, context)); }
+  catch (e: any) { console.error("passeport-piece : erreur imprévue", String(e?.stack || e).slice(0, 900)); return verrouiller(json({ error: "Erreur du serveur. Réessayez dans un instant." }, 500)); }
+};
 export const config: Config = { path: "/api/passeport-piece" };

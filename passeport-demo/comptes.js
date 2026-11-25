@@ -173,7 +173,7 @@ async function veiller() {
   try {
     const r = await api().get('op=journal&espace=' + SY().esp() + '&limite=20&graves=1'); const max = r.evenements.reduce((m, x) => Math.max(m, x.n), 0);
     const pt = $('#ptSec'); if (pt) { pt.textContent = r.graves; pt.style.display = r.graves ? '' : 'none'; }
-    if (dernierGrave !== null && max > dernierGrave) { const nouveaux = r.evenements.filter(x => x.n > dernierGrave); const x = nouveaux[0]; toastSec('<b>🛡 Alerte de sécurité</b><br>' + esc(lib(x.action)) + (x.login ? ' — ' + esc(x.login) : '') + (x.cible ? ' · ' + esc(x.cible) : '') + (nouveaux.length > 1 ? '<br><small>+ ' + (nouveaux.length - 1) + ' autre(s)</small>' : ''), true); if ($('#v-securite') && $('#v-securite').classList.contains('on')) chargerJournal(); }
+    if (dernierGrave !== null && max > dernierGrave) { const nouveaux = r.evenements.filter(x => x.n > dernierGrave); const x = nouveaux[0]; if (window.__spSon) window.__spSon.jouer('securite'); toastSec('<b>🛡 Alerte de sécurité</b><br>' + esc(lib(x.action)) + (x.login ? ' — ' + esc(x.login) : '') + (x.cible ? ' · ' + esc(x.cible) : '') + (nouveaux.length > 1 ? '<br><small>+ ' + (nouveaux.length - 1) + ' autre(s)</small>' : ''), true); if ($('#v-securite') && $('#v-securite').classList.contains('on')) chargerJournal(); }
     dernierGrave = Math.max(dernierGrave || 0, max);
   } catch (e) { }
 }

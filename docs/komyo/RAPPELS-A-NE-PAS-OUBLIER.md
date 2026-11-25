@@ -554,3 +554,10 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - Deux défauts trouvés et corrigés : (1) la toute première alerte de sécurité sur un espace vierge n'apparaissait pas chez le Ministre ; (2) en espace sécurisé, le bouton Aide était caché. Tests ajoutés : `t_install.cjs`, `t_vigie.cjs`.
 - Livrables régénérés dans `docs/passeport-sur/` : dossier de présentation (29 p.), guide A à Z (36 p.), vidéo MP4 (≈ 9 min 40, sous-titrée) + `tools/documents-passeport/video/texte-de-la-voix.txt`.
 - EN ATTENTE : voix de Clémence (ElevenLabs refuse la connexion : Carry doit se reconnecter dans les connecteurs) ; aucun déploiement Netlify (~41 crédits) sans son « go ».
+
+## 2026-11-25 (soir) — Passeport Sûr EN LIGNE (PR #86 fusionnée, merge 99a0177) sur le « Go » de Carry
+- Lien : https://star-entreprise.netlify.app/passeport-demo/ (page d'installation : /passeport-demo/installer.html). Noindex, données fictives, documents/tools bloqués (404 vérifiés).
+- Vérifié EN LIGNE (vraies fonctions + vraie base) : t_vigie, t_install, t_accueil, t_securite (tout OK sauf les en-têtes d'API ci-dessous).
+- DÉCOUVERTE : Netlify n'applique PAS `_headers` aux fonctions → en ligne, l'API n'envoie ni CSP « rien » ni `no-store` (elle envoie `no-cache` + nosniff). Correctif PRÊT et testé en local (commit sur la branche, `verrouiller()` dans api-passeport et api-passeport-piece), NON déployé : à grouper avec les retours du test de Carry (un seul déploiement ≈ 41 crédits).
+- Espaces de test en ligne effacés (3NYNTYX6, KUEGF8AM, GQEKMPDE). Un espace de démonstration fictif créé par t_accueil via l'interface reste en ligne (code inconnu, sans donnée réelle).
+- À faire après le test de Carry : effacer son espace de test (bouton « Effacer l'espace »), saisir le vrai montant officiel, voix de Clémence (reconnexion ElevenLabs).
