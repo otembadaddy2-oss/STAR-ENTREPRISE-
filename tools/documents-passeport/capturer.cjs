@@ -147,6 +147,17 @@ const fermerTout = p => p.evaluate(() => { ['guideInvit', 'guideProfil', 'guideA
     await P.evaluate(async d => { const S = window.__spSync; await S.api.post({ op: 'ecrire', espace: S.esp(), dossiers: d.map(x => ({ id: x.id, baseRev: 0, data: x })) }); }, [dup(1), dup(2)]);
     await C.waitForSelector('#alerteFraude', { timeout: 20000 }); await wait(700); await C.screenshot({ path: OUT + 'd_ministre_alerte.png' });
     const CM = await ctxT.newPage(); await CM.goto(BASE + 'index.html?espace=' + code); await CM.waitForSelector('#cpt_f'); await CM.fill('#cpt_login', 'cabinet.ministre'); await CM.fill('#cpt_mdp', 'Ministre2026ok'); await CM.click('#cpt_ok'); await CM.waitForSelector('#alerteFraude', { timeout: 20000 }); await wait(600); await CM.screenshot({ path: OUT + 't_ministre_alerte.png' });
+    // journal de sécurité : un agent de guichet tente de tricher ; le Ministre voit l'alerte
+    const API = BASE.replace('passeport-demo/', '') + 'api/passeport', appel = async (c, j) => (await fetch(API, { method: 'POST', headers: j ? { authorization: 'Bearer ' + j } : {}, body: JSON.stringify(c) })).json();
+    const cg = await P.evaluate(async () => { const S = window.__spSync; return S.api.post({ op: 'comptes-creer', espace: S.esp(), login: 'guichet.paul', nom: 'Paul Mavoungou', role: 'agent' }); });
+    const lg = await appel({ op: 'connexion', espace: code, login: 'guichet.paul', mdp: cg.motDePasseTemporaire }); const ng = await appel({ op: 'changer-mdp', espace: code, ancien: cg.motDePasseTemporaire, nouveau: 'Guichet2026ok' }, lg.jeton);
+    const dd = { id: 'BZV-2026-G0001', type: 'premiere', status: 'depose', createdAt: new Date().toISOString(), mrzOk: true, person: { nom: 'LOUBAKI', prenoms: 'Estelle', naissance: '1990-03-03', piece: { type: 'CNI', numero: 'CNI5566771' } }, pieces: [], history: [{ s: 'depose', at: new Date().toISOString(), by: 'x', note: 'Dossier enregistré' }] };
+    await appel({ op: 'ecrire', espace: code, dossiers: [{ id: dd.id, baseRev: 0, data: dd }] }, ng.jeton);
+    await wait(500); const sy = await (await fetch(API + '?op=sync&espace=' + code + '&since=0', { headers: { authorization: 'Bearer ' + ng.jeton } })).json(); const cur = sy.dossiers.find(x => x.id === dd.id);
+    await appel({ op: 'ecrire', espace: code, dossiers: [{ id: dd.id, baseRev: cur.rev, data: { ...cur.data, status: 'paye', ticket: 1, paiement: { montant: 1, mode: 'Espèces', at: new Date().toISOString(), caissier: 'moi', recu: 'RP-2026-000999' } } }] }, ng.jeton);
+    await appel({ op: 'reglages', espace: code, config: { tarifs: { premiere: 1, renouvellement: 1 } } }, ng.jeton); await appel({ op: 'comptes-creer', espace: code, login: 'faux.admin', nom: 'Faux', role: 'prefecture' }, ng.jeton);
+    await C.evaluate(() => { const b = document.querySelector('nav button[data-v="securite"]'); b && b.click(); }); await C.waitForSelector('#sec_tb tr'); await wait(1200); await C.screenshot({ path: OUT + 'd_securite.png', fullPage: true });
+    await C.waitForSelector('#secToast', { timeout: 40000 }); await wait(500); await C.screenshot({ path: OUT + 'd_securite_alerte.png' });
     await P.close(); await C.close(); await CT.close(); await CM.close();
   });
 
