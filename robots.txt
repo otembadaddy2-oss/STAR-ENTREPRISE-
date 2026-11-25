@@ -1,3 +1,33 @@
+User-agent: WhatsApp
+Disallow: /docs/
+Disallow: /so-membres/setup.html
+Allow: /passeport-demo/
+
+User-agent: facebookexternalhit
+Disallow: /docs/
+Disallow: /so-membres/setup.html
+Allow: /passeport-demo/
+
+User-agent: Facebot
+Disallow: /docs/
+Disallow: /so-membres/setup.html
+Allow: /passeport-demo/
+
+User-agent: Twitterbot
+Disallow: /docs/
+Disallow: /so-membres/setup.html
+Allow: /passeport-demo/
+
+User-agent: TelegramBot
+Disallow: /docs/
+Disallow: /so-membres/setup.html
+Allow: /passeport-demo/
+
+User-agent: LinkedInBot
+Disallow: /docs/
+Disallow: /so-membres/setup.html
+Allow: /passeport-demo/
+
 User-agent: *
 Disallow: /docs/
 Disallow: /so-membres/setup.html

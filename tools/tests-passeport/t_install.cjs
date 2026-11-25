@@ -88,6 +88,17 @@ let echecs = 0; const ok = (c, m) => { console.log((c ? 'OK   ' : 'ECHEC') + ' '
     const html = fs.readFileSync(path.join(dir, '../index.html'), 'utf8') + fs.readFileSync(path.join(dir, '../app-suite.js'), 'utf8');
     ok(!/data:image\/(png|jpe?g|webp);base64,[A-Za-z0-9+/]{20000,}/.test(html), 'aucune grosse image en base64 dans index.html / app-suite.js'); }
 
+  // 7) Aperçu du lien (WhatsApp, Facebook, X…) : titre, description et image comme KOMYO
+  { const fs = require('fs'), path = require('path'); const rac = path.join(__dirname, '../../');
+    for (const page of ['installer.html', 'index.html', 'inscription.html']) {
+      const h = await (await fetch(B + page)).text(); const g = n => (new RegExp('<meta (?:property|name)="' + n + '" content="([^"]*)"').exec(h) || [])[1] || '';
+      const img = g('og:image'); ok(/^https:\/\/.+\.jpg$/.test(img) && g('og:title').length > 10 && g('og:description').length > 30 && g('twitter:card') === 'summary_large_image' && g('og:image:width') === '1200' && g('og:image:height') === '630', page + ' : aperçu du lien complet (titre, description, image 1200x630, adresse complète)');
+    }
+    const f = path.join(rac, 'passeport-demo/img/partage-passeport-sur.jpg'); const buf = fs.readFileSync(f); const taille = buf.length;
+    let w = 0, hh = 0; for (let i = 2; i < buf.length - 9;) { if (buf[i] !== 0xFF) { i++; continue; } const m = buf[i + 1]; if (m >= 0xC0 && m <= 0xC3) { hh = buf.readUInt16BE(i + 5); w = buf.readUInt16BE(i + 7); break; } i += 2 + buf.readUInt16BE(i + 2); }
+    ok(w === 1200 && hh === 630 && taille < 300 * 1024, 'image d’aperçu : ' + w + 'x' + hh + ', ' + Math.round(taille / 1024) + ' Ko (moins de 300 Ko pour WhatsApp)');
+    const rb = fs.readFileSync(path.join(rac, 'robots.txt'), 'utf8'); ok(/User-agent: WhatsApp[\s\S]*?Allow: \/passeport-demo\//.test(rb) && /User-agent: \*[\s\S]*Disallow: \/passeport-demo\//.test(rb), 'robots.txt : WhatsApp et les réseaux peuvent lire la page pour l’aperçu ; Google reste exclu'); }
+
   ok(errs.length === 0, 'aucune erreur de page ni de console' + (errs.length ? ' — ' + errs.slice(0, 4).join(' | ') : ''));
   await b.close();
   console.log(echecs ? '\n' + echecs + ' ÉCHEC(S)' : '\nTous les tests d’installation passent.');
