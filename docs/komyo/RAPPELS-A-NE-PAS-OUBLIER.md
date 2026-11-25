@@ -478,3 +478,9 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - Moteur anti-fraude : pièce modifiée (chiffres de contrôle), doublon, double identité, réseau d'intermédiaires (même téléphone), pièce expirée, renouvellement irrégulier, étape sautée, remise éclair, action de nuit, dossier bloqué, agents à surveiller ; score de risque 0-100 ; la Préfecture classe « vérifié » ou « enquête ».
 - Suivi par le demandeur (n° de dossier + code du reçu). Excel enrichi : `tools/fabrique-excel-passeport-demo.py`.
 - NON mis en ligne (≈41 crédits). Prochaines étapes à proposer : mise en ligne (page non référencée), dossier PDF de présentation pour le Ministère, lecture photo hors-ligne.
+
+## 25/11/2026 — « Passeport Sûr » : photos + signature STAR ENTREPRISE cachée
+- 6 photos libres de droits (licence Unsplash, ~830 Ko en WebP) : Brazzaville (Valdhy Mbemba ×3), passeport (Global Residence Index), empreinte (George Prentzas), aéroport (Jakub Żerdzicki). Script : `tools/photos-passeport-sur.py`.
+- Signature discrète en bas de chaque écran (logo officiel STAR ENTREPRISE + « Tous droits réservés », comme KOMYO) ; bouton « ⓘ Informations » qui ouvre le panneau caché : logo officiel, slogan, contacts, crédits photos. Méta « auteur : STAR ENTREPRISE » dans la page.
+- Environnement Carry : `images.unsplash.com` ajouté aux hôtes autorisés (nécessaire au téléchargement des photos).
+- Toujours NON mis en ligne (≈41 crédits). À proposer : mise en ligne + dossier PDF Ministère.
