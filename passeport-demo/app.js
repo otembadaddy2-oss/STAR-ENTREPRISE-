@@ -123,7 +123,8 @@ const PM = ['Jean-Claude', 'Rodrigue', 'Christ', 'Parfait', 'Brice', 'Fabrice', 
 const serviceDay = ms => isoDate(new Date(ms - 4 * HOUR));
 const jourSite = dec => new Date(Date.now() + 3600000 + (dec || 0) * DAY).toISOString().slice(0, 10);
 const creneau = n => { const m = 8 * 60 + Math.floor((n - 1) / 10) * 30; return pad(Math.floor(m / 60)) + ':' + pad(m % 60); };
-const rdvLong = iso => new Date(iso + 'T12:00:00Z').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const fmtLong = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }), cacheLong = {};
+const rdvLong = iso => cacheLong[iso] || (cacheLong[iso] = fmtLong.format(new Date(iso + 'T12:00:00Z')));
 const rdvHtml = d => d.ticket ? '<div class="alert vert">' + (d.rdv ? '📅 <b>Rendez-vous d’enrôlement : ' + rdvLong(d.rdv.date) + ' à partir de ' + d.rdv.heure + '</b><br>' + esc(d.rdv.lieu) + '<br>' : '') + 'Votre N° d’appel : <b style="font-size:20px">' + pad(d.ticket, 3) + '</b></div>' : '';
 function deriver(all) {
   const today = jourSite(0), nowMs = Date.now();
@@ -207,21 +208,22 @@ function appliquerRole() {
   $$('#onglets button[data-roles]').forEach(b => { b.style.display = b.dataset.roles.split(',').includes(role) ? '' : 'none'; });
   const cur = $('#onglets .on'); if (cur && cur.style.display === 'none') aller('accueil');
   if (window.__spSuite) window.__spSuite.role(role);
+  if ((role === 'prefecture' || role === 'ministere') && !window.Chart) { const sd = navigator.connection && navigator.connection.saveData; if (!sd) (window.requestIdleCallback || (f => setTimeout(f, 2500)))(() => chargerScript('lib/chart.umd.js').catch(() => { }), { timeout: 4000 }); }   // les tableaux de bord s'ouvrent alors sans attente
 }
 let tSortie = 0, tStagger = 0;
-/* Transition de page « verre » : l'ancienne page glisse et se floute, la nouvelle arrive en zoom, un voile de verre passe. */
+/* Transition de page « verre » : l'ancienne page glisse, la nouvelle arrive en zoom, un reflet de verre passe. Uniquement transformations et opacité (fluide sur téléphone). */
 function transitionPages(ancien, nouveau) {
   try {
     if (!ancien || !nouveau || ancien === nouveau || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
-    const ids = $$('#onglets button').map(b => b.dataset.v), i0 = ids.indexOf(ancien.id.slice(2)), i1 = ids.indexOf(nouveau.id.slice(2));
-    document.querySelector('main').style.setProperty('--dx', i0 >= 0 && i1 >= 0 && i1 < i0 ? -1 : 1);
+    const ids = $$('#onglets button').map(b => b.dataset.v), i0 = ids.indexOf(ancien.id.slice(2)), i1 = ids.indexOf(nouveau.id.slice(2)), dx = i0 >= 0 && i1 >= 0 && i1 < i0 ? -1 : 1;
+    ancien.style.setProperty('--dx', dx); nouveau.style.setProperty('--dx', dx);
     $$('.vue.sortie').forEach(s => s.classList.remove('sortie')); clearTimeout(tSortie);
     ancien.classList.add('sortie'); tSortie = setTimeout(() => ancien.classList.remove('sortie'), 240);
     $$('.vue.stagger').forEach(s => s.classList.remove('stagger')); clearTimeout(tStagger);
-    [...nouveau.querySelectorAll('.baniere,.carte,.kpi,.porteC')].slice(0, 14).forEach((e, i) => e.style.setProperty('--i', i));
-    nouveau.classList.add('stagger'); tStagger = setTimeout(() => nouveau.classList.remove('stagger'), 900);
-    let g = document.getElementById('verre'); if (!g) { g = document.createElement('div'); g.id = 'verre'; g.setAttribute('aria-hidden', 'true'); document.body.appendChild(g); }
-    g.classList.remove('go'); void g.offsetWidth; g.classList.add('go');
+    const items = nouveau.querySelectorAll('.baniere,.carte,.kpi,.porteC'); for (let i = 0; i < items.length && i < 12; i++) items[i].style.setProperty('--i', i);
+    nouveau.classList.add('stagger'); tStagger = setTimeout(() => nouveau.classList.remove('stagger'), 800);
+    let g = document.getElementById('verre'); if (!g) { g = document.createElement('div'); g.id = 'verre'; g.setAttribute('aria-hidden', 'true'); g.innerHTML = '<i></i>'; document.body.appendChild(g); }
+    const reflet = g.firstChild; if (reflet && reflet.animate) { if (reflet.__anim) reflet.__anim.cancel(); reflet.__anim = reflet.animate([{ transform: 'translateX(-120%) skewX(-14deg)', opacity: 0 }, { opacity: 1, offset: .25 }, { transform: 'translateX(330%) skewX(-14deg)', opacity: 0 }], { duration: 560, easing: 'cubic-bezier(.3,.6,.2,1)' }); }
   } catch (e) { }
 }
 function aller(v, sansHisto) {
@@ -295,7 +297,8 @@ async function ouvrirCam() { try { stream = await navigator.mediaDevices.getUser
 function fermerCam() { if (stream) stream.getTracks().forEach(t => t.stop()); stream = null; $('#cam').classList.remove('on'); }
 function capturer() { const v = $('#vid'), c = $('#snap'); c.width = v.videoWidth; c.height = v.videoHeight; c.getContext('2d').drawImage(v, 0, 0); fermerCam(); ocr(c); }
 function depuisFichier(file) { if (!file) return; const img = new Image(); img.onload = () => { const c = $('#snap'); c.width = img.naturalWidth; c.height = img.naturalHeight; c.getContext('2d').drawImage(img, 0, 0); URL.revokeObjectURL(img.src); ocr(c); }; img.src = URL.createObjectURL(file); }
-function chargerScript(src) { return new Promise((ok, ko) => { if (window.Tesseract) return ok(); const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = ko; document.head.appendChild(s); }); }
+const libsChargees = {};
+function chargerScript(src) { return libsChargees[src] || (libsChargees[src] = new Promise((ok, ko) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => { delete libsChargees[src]; s.remove(); ko(new Error('Chargement impossible : ' + src)); }; document.head.appendChild(s); })); }
 /* Corrections standard d'une lecture optique de MRZ : chiffres/lettres selon la position (0↔O, 1↔I, 5↔S, 8↔B…), et une lettre en trop ou en moins
    (choisie grâce aux chiffres de contrôle). Les chiffres de contrôle eux-mêmes ne sont JAMAIS « réparés » : s'ils ne correspondent pas, l'application le signale. */
 const MRZ_L2D = { O: '0', Q: '0', D: '0', I: '1', L: '1', Z: '2', S: '5', B: '8', G: '6' }, MRZ_D2L = { 0: 'O', 1: 'I', 2: 'Z', 5: 'S', 8: 'B', 6: 'G' };
@@ -421,7 +424,16 @@ function stats() {
 }
 const kp = (v, l, c) => '<div class="kpi ' + (c || '') + '"><b>' + v + '</b><span>' + l + '</span></div>';
 let charts = [];
-function graphes(list) { charts.forEach(c => c.destroy()); charts = []; if (window.Chart) { Chart.defaults.font.family = 'ID,system-ui,sans-serif'; Chart.defaults.font.size = 12; Chart.defaults.color = '#3c4a43'; list.forEach(f => { const c = f(); if (c) charts.push(c); }); } }
+let graphesJeton = 0;
+function graphes(list) {
+  charts.forEach(c => c.destroy()); charts = []; const jeton = ++graphesJeton;
+  chargerScript('lib/chart.umd.js').then(() => new Promise(ok => setTimeout(ok, 60))).then(() => {
+    if (jeton !== graphesJeton || !window.Chart) return;
+    Chart.defaults.font.family = 'ID,system-ui,sans-serif'; Chart.defaults.font.size = 12; Chart.defaults.color = '#3c4a43'; Chart.defaults.animation = { duration: 350 }; Chart.defaults.devicePixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+    const un = i => { if (jeton !== graphesJeton || i >= list.length) return; try { const c = list[i](); if (c) charts.push(c); } catch (e) { } (window.requestAnimationFrame || setTimeout)(() => un(i + 1)); };   // un graphique par image : pas de gros blocage
+    un(0);
+  }).catch(() => { });
+}
 function accueil() { const s = stats(); $('#kpisAccueil').innerHTML = kp(s.T, 'Demandes enregistrées') + kp(s.c.remis, 'Passeports remis', 'v') + kp(s.nonRemis, 'En attente', 'j') + kp(s.av, 'Alertes à examiner', 'r'); }
 function tableau() {
   const s = stats();
@@ -470,8 +482,9 @@ function suivre() {
 function exSuivi() { const d = DB.filter(x => !flags(x).length)[Math.floor(Math.random() * 10)] || DB[0]; $('#c_id').value = d.id; $('#c_code').value = code(d.id, d.person.nom); suivre(); }
 
 /* ---------- Export Excel ---------- */
-function excel() {
-  if (!window.XLSX) { alert('Export indisponible.'); return; }
+async function excel() {
+  if (!window.XLSX) { try { await chargerScript('lib/xlsx.full.min.js'); } catch (e) { } }
+  if (!window.XLSX) { alert('Export indisponible : vérifiez la connexion Internet puis réessayez.'); return; }
   const wb = XLSX.utils.book_new(), s = stats();
   const dos = DB.slice().sort((a, b) => a.createdAt.localeCompare(b.createdAt)).map(d => { const p = d.person, t = new Date(d.createdAt); return { 'N° dossier': d.id, 'Date de dépôt': fmtD(d.createdAt), 'Heure': pad(t.getHours()) + ':' + pad(t.getMinutes()), 'Nom': p.nom, 'Prénoms': p.prenoms, 'Date de naissance': fmtD(p.naissance), 'Sexe': p.sexe, 'Type de demande': TN[d.type], 'Pièce': p.piece.type, 'N° de pièce': p.piece.numero, 'Expiration pièce': fmtD(p.piece.expiration), 'Ancien passeport n°': d.ancien ? d.ancien.numero : '', 'Ancien expiré le': d.ancien ? fmtD(d.ancien.expiration) : '', 'Ancien restitué': d.ancien ? (d.ancienRestitue ? 'Oui' : 'Non') : '', 'Téléphone': p.tel, 'Secteur': d.lieu, 'Agent': d.agent, 'N° d’appel': d.ticket || '', 'Montant payé (FCFA)': d.paiement ? d.paiement.montant : '', 'Porte': d.appel ? d.appel.porte : '', 'Pièces manquantes': manquantes(d).map(r => r[1]).join(' | '), 'État': SN[d.status], 'Dernière mise à jour': fmtDH(last(d).at), 'Délai (jours)': jours(T(d.createdAt), (d.status === 'remis' ? T(last(d).at) : NOW().getTime())), 'Risque (0-100)': score(d), 'Alertes': flags(d).map(f => KN[f.k]).join(' | '), 'Suite donnée': d.suite === 'enquete' ? 'Enquête' : d.suite === 'verifie' ? 'Vérifié' : '' }; });
   const sh = (name, rows, w) => { const x = XLSX.utils.json_to_sheet(rows); if (w) x['!cols'] = w.map(n => ({ wch: n })); XLSX.utils.book_append_sheet(wb, x, name); };
@@ -514,7 +527,7 @@ function init() {
   window.addEventListener('popstate', e => { const v = (e.state && e.state.v) || (location.hash || '#accueil').slice(1); const b = $('#onglets button[data-v="' + v + '"]'); if ($('#v-' + v) && b && b.style.display !== 'none') aller(v, true); });
   try { const h = (location.hash || '').slice(1); history.replaceState({ v: 'accueil' }, '', '#accueil'); if (h && h !== 'accueil' && $('#v-' + h)) { aller(h, true); history.pushState({ v: h }, '', '#' + h); } } catch (e) { }
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => { });
-  window.__spApi = { get DB() { return DB; }, sauver, detail, STATUTS, SN, TN, KN, esc, fmtD, fmtDH, jours, T, NOW, pad, isoDate, flags, score, ouvert, bS, bT, bR, code, qr, aller, rafraichir, get role() { return role; }, ROLES, DAY, HOUR, serviceDay, KEY, computeFlags, REQUIS, manquantes, corrigerMRZ, parseMRZ, jourSite, rdvLong, rdvHtml, recalculer, creneau };
+  window.__spApi = { get DB() { return DB; }, sauver, detail, STATUTS, SN, TN, KN, esc, fmtD, fmtDH, jours, T, NOW, pad, isoDate, flags, score, ouvert, bS, bT, bR, code, qr, aller, rafraichir, get role() { return role; }, ROLES, DAY, HOUR, serviceDay, KEY, computeFlags, REQUIS, manquantes, corrigerMRZ, parseMRZ, chargerScript, jourSite, rdvLong, rdvHtml, recalculer, creneau };
   window.__sp = { parseMRZ, buildTD3, buildTD1, computeFlags, get DB() { return DB; }, get FL() { return FL; }, code, KN, SN, TN };
 }
 init();

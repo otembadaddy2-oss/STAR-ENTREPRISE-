@@ -185,7 +185,7 @@ function caisse() {
 let flux = null, boucle = null;
 function arretScan() { if (flux) flux.getTracks().forEach(t => t.stop()); flux = null; cancelAnimationFrame(boucle); $('#scanBox').classList.remove('on'); $('#bScanStop').style.display = 'none'; }
 async function lancerScan() {
-  try { flux = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false }); const v = $('#scanVid'); v.srcObject = flux; await v.play(); $('#scanBox').classList.add('on'); $('#bScanStop').style.display = ''; $('#scanEtat').textContent = 'Placez le code QR de l’accusé devant la caméra…';
+  try { if (!window.jsQR) A.chargerScript('lib/jsqr.js').catch(() => { }); flux = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false }); const v = $('#scanVid'); v.srcObject = flux; await v.play(); $('#scanBox').classList.add('on'); $('#bScanStop').style.display = ''; $('#scanEtat').textContent = 'Placez le code QR de l’accusé devant la caméra…';
     const cvs = $('#scanCv'), x = cvs.getContext('2d', { willReadFrequently: true });
     const tick = () => { if (!flux) return; if (v.readyState >= 2) { cvs.width = 480; cvs.height = Math.round(480 * v.videoHeight / v.videoWidth) || 360; x.drawImage(v, 0, 0, cvs.width, cvs.height); const im = x.getImageData(0, 0, cvs.width, cvs.height); const r = window.jsQR && jsQR(im.data, im.width, im.height); if (r && r.data && lireQR(r.data)) { arretScan(); return; } } boucle = requestAnimationFrame(tick); };
     tick();
@@ -261,7 +261,7 @@ function vueFile() {
       '<div class="nb">' + (cur ? pad(cur.ticket, 3) : '—') + '</div><div class="nm">' + (cur ? esc(nomComplet(cur)) : 'libre') + '</div>' +
       '<div class="bt"><button type="button" class="btn or petit" data-act="appeler" data-p="' + k + '"' + (ro ? ' disabled' : '') + '>🔔 Appeler le suivant</button><button type="button" class="btn clair petit" data-act="rappeler" data-p="' + k + '"' + (ro || !cur ? ' disabled' : '') + '>↻ Rappeler</button><button type="button" class="btn clair petit" data-act="absent" data-p="' + k + '"' + (ro || !cur ? ' disabled' : '') + '>Absent</button></div></div>'; }
   $('#portes').innerHTML = h;
-  const fr = $('#apercuEcran'); const cible = SY().actif() ? 'ecran.html?apercu=1&espace=' + SY().code() : 'ecran.html?apercu=1'; if (fr && fr.getAttribute('src') !== cible) fr.setAttribute('src', cible);
+  const fr = $('#apercuEcran'); const cible = SY().actif() ? 'ecran.html?apercu=1&espace=' + SY().code() : 'ecran.html?apercu=1'; if (fr && fr.getAttribute('src') !== cible) fr.setAttribute('src', cible);   // (déchargé dès qu'on quitte la page : plus de requêtes inutiles)
 }
 function msgAppel(h, cl) { const e = $('#appelEtat'); e.style.display = ''; e.className = 'alert ' + (cl || 'bleu'); e.innerHTML = h; }
 const fini = (r, d) => { vueFile(); msgAppel(r, d); };
@@ -314,7 +314,7 @@ new MutationObserver(() => { const box = $('#resSuivi'); if (box && box.querySel
 $$('.baniere').forEach(b => { const t = b.querySelector('.txt'); if (!t) return; const bt = document.createElement('button'); bt.type = 'button'; bt.className = 'retour'; bt.textContent = '← Retour'; bt.onclick = () => { if (history.length > 1 && history.state && history.state.v !== 'accueil') history.back(); else A.aller('accueil'); }; t.prepend(bt); });
 
 /* ---------- Branchements ---------- */
-function render(v, o) { if (v === 'caisse') caisse(); if (v === 'file') vueFile(); if (v === 'reglages') vueReglages(); if (v === 'guichet' && o !== 'sync') { bandeauBrouillon(); majEtapes(); const ed = $('#edGuichet'); ed.dataset.monte = '0'; monter(); hydrate(); } }
+function render(v, o) { if (v !== 'file') { const fr = $('#apercuEcran'); if (fr && fr.getAttribute('src') && fr.getAttribute('src') !== 'about:blank') fr.setAttribute('src', 'about:blank'); } if (v === 'caisse') caisse(); if (v === 'file') vueFile(); if (v === 'reglages') vueReglages(); if (v === 'guichet' && o !== 'sync') { bandeauBrouillon(); majEtapes(); const ed = $('#edGuichet'); ed.dataset.monte = '0'; monter(); hydrate(); } }
 $('#bScanCaisse').onclick = lancerScan; $('#bScanStop').onclick = arretScan; $('#bScanEx').onclick = () => exempleCaisse(false); $('#bScanEx2').onclick = () => exempleCaisse(true); $('#bCaisseOuvrir').onclick = () => ouvrirCaisse();
 document.addEventListener('click', e => { const tr = e.target.closest('#tbCaisse tr.cl, #tbFile tr.cl'); if (tr) A.detail(tr.dataset.id); });
 window.__spSuite = { extras, reset, aSignature, accuse, lierAccuse, piecesHtml: piecesHtmlDetail, render, apres, role: r => { role = r; if ($('#v-file').classList.contains('on')) vueFile(); } };

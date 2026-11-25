@@ -529,3 +529,7 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - Limites non vérifiables ici : vraie base/stockage Netlify, caméra et lecture de VRAIES pièces sur téléphone, fluidité du verre sur téléphone modeste, voix française de la télévision.
 - Supprimer la page après test = un nouveau déploiement : conseiller de la laisser en ligne (non indexée, sans lien) et d'effacer les données avec le bouton.
 - Pour un usage réel : hébergement dédié (VPS) + PostgreSQL, hébergement des données conforme aux exigences de l'État ; WhatsApp automatique = API WhatsApp Business (Meta) avec modèles de messages approuvés (payant) ou SMS.
+
+## RÈGLE DE CARRY (25/11/2026) — Passeport Sûr
+- Dans TOUS les documents, PDF, guides, vidéos et présentations, TOUJOURS préciser le BUT de l'application (à quoi elle sert, pour qui, quel problème elle résout) : cela doit être connu de tout lecteur/spectateur.
+- Carry demande aussi : dossier PDF complet + guide d'utilisation détaillé de A à Z + guide vidéo détaillé + application vraiment fluide (fluidité mesurée : 52-60 i/s à CPU ×2, chargement 3,0 s → 1,5 s, 2,4 → 1,1 Mo).
