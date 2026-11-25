@@ -484,3 +484,7 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - Signature discrète en bas de chaque écran (logo officiel STAR ENTREPRISE + « Tous droits réservés », comme KOMYO) ; bouton « ⓘ Informations » qui ouvre le panneau caché : logo officiel, slogan, contacts, crédits photos. Méta « auteur : STAR ENTREPRISE » dans la page.
 - Environnement Carry : `images.unsplash.com` ajouté aux hôtes autorisés (nécessaire au téléchargement des photos).
 - Toujours NON mis en ligne (≈41 crédits). À proposer : mise en ligne + dossier PDF Ministère.
+
+## 25/11/2026 — FUTURS PROJETS : idée « agent YouTube » (vidéo envoyée par Carry)
+- Fichier reçu : `video_star_entreprise.html` = un MP4 vertical de 85 s (reel d'un créateur brésilien, @igao.ia) : « Claude maîtrise YouTube » avec un outil gratuit GitHub « youtube-agent-skill » (≈11 compétences : scripts avec 21 accroches, titre + miniature, transcription → plan de montage, analyse de vidéos virales, commentaires, SEO, plan hebdo, audit…).
+- Vidéo d'un tiers : ne pas la republier. Idée à garder : un « agent contenu » pour les chaînes de STAR ENTREPRISE / KOMYO (relié à l'agent star-social-content). À cadrer avec Carry (quelle chaîne ? quel but ?). Vérifier la licence du dépôt avant toute reprise.
