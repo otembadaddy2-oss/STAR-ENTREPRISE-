@@ -10,6 +10,7 @@ const ecrire = o => { try { localStorage.setItem(K, JSON.stringify(o)); } catch 
 const q = new URLSearchParams(location.search);
 const apercu = q.get('apercu') === '1' || (window.self !== window.top && q.get('guide') !== '1');   // dans un cadre (aperçu, vidéo) : pas de guide, sauf ?guide=1
 const SY = () => window.__spSync;
+const sec = () => !!(SY() && SY().securise && SY().securise());   // espace sécurisé : le rôle vient du compte, on ne le choisit plus
 
 /* ---------- Contenu ---------- */
 const PROFILS = {
@@ -201,6 +202,7 @@ function invitation(role) {
   $('#iOui').onclick = () => { d.remove(); visite(role); };
 }
 function choixProfil(premiere) {
+  if (sec()) return;
   if (apercu) return; fermerPanneaux(); if (etat) nettoyer();
   const v = document.createElement('div'); v.id = 'guideVoile'; v.style.background = 'rgba(3,26,17,.55)'; document.body.appendChild(v);
   const c = document.createElement('div'); c.id = 'guideProfil'; c.className = 'guideCarte guideCentre'; c.setAttribute('role', 'dialog'); c.setAttribute('aria-modal', 'true'); c.setAttribute('aria-labelledby', 'gpT'); c.style.zIndex = 92; c.style.width = 'min(460px,calc(100vw - 24px))'; c.style.maxHeight = 'calc(100vh - 24px)'; c.style.overflow = 'auto';
@@ -242,7 +244,7 @@ function menuAide(btn) {
   if (document.getElementById('guideAide')) { fermerPanneaux(); return; } fermerPanneaux();
   const citoyen = SY() && SY().citoyen && SY().citoyen(); const role = citoyen ? 'demandeur' : profilCourant();
   const m = document.createElement('div'); m.id = 'guideAide'; m.className = 'guideCarte'; m.setAttribute('role', 'menu');
-  m.innerHTML = '<h3>Aide</h3><div style="display:grid;gap:8px"><button type="button" id="aVis" role="menuitem">▶ Visite guidée de mon profil</button>' + (citoyen ? '' : '<button type="button" class="sec" id="aProf" role="menuitem">👥 Changer de profil / je ne sais pas lequel choisir</button>') + '<button type="button" class="sec" id="aFaq" role="menuitem">❓ Questions fréquentes</button><button type="button" class="sec" id="aInst" role="menuitem">📲 Installer l’application</button>' + (citoyen ? '' : '<button type="button" class="lien" id="aRaz" role="menuitem">↺ Revoir toutes les visites au prochain lancement</button>') + '</div>';
+  m.innerHTML = '<h3>Aide</h3><div style="display:grid;gap:8px"><button type="button" id="aVis" role="menuitem">▶ Visite guidée de mon profil</button>' + (citoyen || sec() ? '' : '<button type="button" class="sec" id="aProf" role="menuitem">👥 Changer de profil / je ne sais pas lequel choisir</button>') + '<button type="button" class="sec" id="aFaq" role="menuitem">❓ Questions fréquentes</button><button type="button" class="sec" id="aInst" role="menuitem">📲 Installer l’application</button>' + (citoyen ? '' : '<button type="button" class="lien" id="aRaz" role="menuitem">↺ Revoir toutes les visites au prochain lancement</button>') + '</div>';
   document.body.appendChild(m);
   $('#aVis').onclick = () => { m.remove(); visite(role); }; const p = $('#aProf'); if (p) p.onclick = () => { m.remove(); choixProfil(false); }; $('#aFaq').onclick = () => { m.remove(); faq(); }; $('#aInst').onclick = () => { m.remove(); panneauInstall(); }; const z = $('#aRaz'); if (z) z.onclick = () => { ecrire({}); m.remove(); majCommence(); };
   $('#aVis').focus({ preventScroll: true });
@@ -276,6 +278,7 @@ function brancher() {
   const demarrer = () => {
     const m = lire();
     if (citoyen) { if (!(m.faits || {}).demandeur) { const d = document.createElement('div'); d.id = 'guideInvit'; d.className = 'guideCarte'; d.innerHTML = '<h3>👋 Bienvenue</h3><p>Voulez-vous voir comment suivre votre dossier ? Cela prend 20 secondes.</p><div class="bas"><button type="button" class="lien" id="iNon">Non merci</button><button type="button" id="iOui" style="margin-left:auto">▶ Voir</button></div>'; document.body.appendChild(d); $('#iNon').onclick = () => { marquer('demandeur', 'passe'); d.remove(); }; $('#iOui').onclick = () => { d.remove(); visite('demandeur'); }; } return; }
+    if (sec()) { const aller = () => { if (!(lire().faits || {})[profilCourant()]) invitation(profilCourant()); }; if (SY().attenteConnexion()) window.addEventListener('sp-session', () => window.setTimeout(aller, 900), { once: true }); else aller(); return; }
     if (!m.vu) choixProfil(true);
     else if (!(m.faits || {})[profilCourant()]) invitation(profilCourant());
   };

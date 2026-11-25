@@ -434,12 +434,12 @@ main{position:relative}
   <button data-v="accueil" class="on">Accueil</button>
   <button data-v="guichet" data-roles="agent,prefecture">Nouvelle demande</button>
   <button data-v="reception" data-roles="accueil,prefecture">Réception</button>
-  <button data-v="caisse" data-roles="caisse,prefecture">Caisse</button>
+  <button data-v="caisse" data-roles="accueil,caisse,prefecture">Caisse</button>
   <button data-v="file">File d'attente</button>
   <button data-v="reglages" data-roles="prefecture">Réglages</button>
   <button data-v="dossiers">Dossiers</button>
-  <button data-v="tableau">Tableau de bord</button>
-  <button data-v="fraude">Contrôle anti-fraude<span class="pt" id="ptFraude"></span></button>
+  <button data-v="tableau" data-roles="prefecture,ministere">Tableau de bord</button>
+  <button data-v="fraude" data-roles="prefecture,ministere">Contrôle anti-fraude<span class="pt" id="ptFraude"></span></button>
   <button data-v="citoyen">Suivre mon dossier</button>
   <button data-v="regles">À propos</button>
 </div></nav>
@@ -573,6 +573,7 @@ main{position:relative}
   <div class="baniere b-reglages"><div class="txt"><h2>Réglages du site</h2><p class="sous">Portes, rendez-vous d'enrôlement et date de démonstration. Tout s'applique aux postes et aux écrans de la salle.</p></div></div>
   <div id="r_info" class="alert bleu" style="margin-bottom:12px"></div>
   <div class="carte"><h3>Portes et lieu</h3><div class="grille"><div class="c4"><label for="r_portes">Nombre de portes (1 à 12)</label><input id="r_portes" type="number" min="1" max="12"></div><div class="c8"><label for="r_lieu">Lieu du rendez-vous</label><input id="r_lieu" maxlength="80"></div></div></div>
+  <div class="carte"><h3>Montant officiel du passeport</h3><p class="sous" style="margin-bottom:10px">Quand l'administration communique le montant officiel, saisissez-le ici <b>une seule fois</b> : la caisse l'utilise automatiquement, le serveur refuse tout autre montant, et le reçu l'affiche.</p><div class="grille"><div class="c6"><label for="r_tarif1">Première demande (FCFA)</label><input id="r_tarif1" type="number" min="0" inputmode="numeric"></div><div class="c6"><label for="r_tarif2">Renouvellement (FCFA)</label><input id="r_tarif2" type="number" min="0" inputmode="numeric"></div></div><div id="r_tarif_etat" class="alert bleu" style="margin-top:10px"></div></div>
   <div class="carte"><h3>Rendez-vous d'enrôlement</h3>
     <p class="sous" style="margin-bottom:10px">Après le paiement, le demandeur reçoit sa date de rendez-vous : le premier jour ouvré qui a encore de la place. Les valeurs ci-dessous sont des exemples à fixer avec la Préfecture.</p>
     <div class="grille"><div class="c4 m6"><label for="r_cap">Personnes par jour</label><input id="r_cap" type="number" min="1" max="2000"></div><div class="c4 m6"><label for="r_delai">Délai minimal après paiement (jours)</label><input id="r_delai" type="number" min="0" max="60"></div>
@@ -703,7 +704,9 @@ main{position:relative}
 <script src="lib/qrcode.js"></script>
 <script src="app.js"></script>
 <script src="sync.js"></script>
+<script src="comptes.js"></script>
 <script src="app-suite.js"></script>
 <script src="guide.js"></script>
+<script src="alertes.js"></script>
 </body>
 </html>

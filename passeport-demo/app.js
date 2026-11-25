@@ -198,7 +198,7 @@ function seed() {
 }
 let DB = [];
 function charger() { try { DB = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { DB = null; } if (!Array.isArray(DB) || !DB.length) { DB = seed(); sauver(); } FL = computeFlags(DB); }
-function recalculer() { FL = computeFlags(DB); majPastille(); }
+function recalculer() { FL = computeFlags(DB); majPastille(); if (window.__spAlertes) window.__spAlertes.verifier(); }
 function sauver() { if (!(window.__spSync && (window.__spSync.actif() || window.__spSync.citoyen()))) { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch (e) { } } FL = computeFlags(DB); majPastille(); if (window.__spSync) window.__spSync.apresSauver(); }
 
 /* ---------- Profil et navigation ---------- */
@@ -502,7 +502,7 @@ async function excel() {
 
 /* ---------- Démarrage ---------- */
 function rafraichir(origine) {
-  majPastille(); const v = ($('#onglets .on') || {}).dataset; if (!v) return;
+  majPastille(); if (window.__spAlertes) window.__spAlertes.verifier(); const v = ($('#onglets .on') || {}).dataset; if (!v) return;
   if (v.v === 'accueil') accueil(); if (v.v === 'dossiers') liste(); if (v.v === 'tableau') tableau(); if (v.v === 'fraude') fraude(); if (window.__spSuite) window.__spSuite.render(v.v, origine);
 }
 function init() {

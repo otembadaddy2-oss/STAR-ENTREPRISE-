@@ -8,15 +8,18 @@ const CK = 'sp_espace_v1', RK = 'sp_reglages_v1';
 const q = new URLSearchParams(location.search);
 let cx = null; try { cx = JSON.parse(localStorage.getItem(CK) || 'null'); } catch (e) { }
 if (q.get('espace')) { const c = String(q.get('espace')).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8); if (c.length === 8) { cx = { code: c }; try { localStorage.setItem(CK, JSON.stringify(cx)); } catch (e) { } } try { history.replaceState(history.state, '', location.pathname + location.hash); } catch (e) { } }
+const SK = 'sp_jeton_v1';
+let session = null, securise = false; try { const s = JSON.parse(sessionStorage.getItem(SK) || 'null'); if (s && cx && s.code === cx.code && s.jeton) session = s; } catch (e) { }
+const entetes = h => session ? Object.assign({}, h, { authorization: 'Bearer ' + session.jeton }) : (h || {});
 let version = 0, premier = true, config = null, decal = 0, ecrans = [], publique = '', enligne = null, snap = new Map(), tp = null, tt = null, citoyen = null, dernierEcrans = '';
 const strip = d => JSON.stringify(d, (k, v) => k === '__rev' ? undefined : v);
 const actif = () => !!cx && !citoyen;
-async function http(url, opt) { let r; try { r = await fetch(url, opt); } catch (e) { const x = new Error('Connexion perdue. Vérifiez le réseau puis réessayez. Si vous veniez d’encaisser, rouvrez le dossier : il affichera le reçu s’il a été enregistré.'); x.reseau = true; throw x; } const j = await r.json().catch(() => ({})); if (!r.ok) { const e = new Error(j.error || ('Erreur ' + r.status)); e.statut = r.status; e.corps = j; throw e; } return j; }
+async function http(url, opt) { let r; if (session && /^\/api\/passeport/.test(url)) opt = Object.assign({}, opt, { headers: entetes(opt && opt.headers) }); try { r = await fetch(url, opt); } catch (e) { const x = new Error('Connexion perdue. Vérifiez le réseau puis réessayez. Si vous veniez d’encaisser, rouvrez le dossier : il affichera le reçu s’il a été enregistré.'); x.reseau = true; throw x; } const j = await r.json().catch(() => ({})); if (!r.ok) { if (r.status === 401 && j.connexion && !citoyen) perdreSession(); if (r.status === 403 && j.changer) window.dispatchEvent(new CustomEvent('sp-changer-mdp')); const e = new Error(j.error || ('Erreur ' + r.status)); e.statut = r.status; e.corps = j; throw e; } return j; }
 const post = corps => http('/api/passeport', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(corps) });
 const get = qs => http('/api/passeport?' + qs);
 
 /* ---------- Réglages (serveur si connecté, sinon sur cet appareil) ---------- */
-const DEFAUT = { portes: 6, noms: {}, capacite: 60, delai: 1, jours: [1, 2, 3, 4, 5], debut: '08:00', pas: 30, parCreneau: 10, lieu: 'Préfecture de Brazzaville', decalage: 0 };
+const DEFAUT = { portes: 6, noms: {}, capacite: 60, delai: 1, jours: [1, 2, 3, 4, 5], debut: '08:00', pas: 30, parCreneau: 10, lieu: 'Préfecture de Brazzaville', decalage: 0, tarifs: { premiere: 0, renouvellement: 0 } };
 function cfgLocale() { try { return Object.assign({}, DEFAUT, JSON.parse(localStorage.getItem(RK) || '{}')); } catch (e) { return Object.assign({}, DEFAUT); } }
 const cfg = () => (actif() && config) ? config : cfgLocale();
 async function regler(p) {
@@ -55,6 +58,9 @@ function majUn(d, rev) { d.__rev = rev; const i = A.DB.findIndex(x => x.id === d
 
 /* ---------- Boucle de synchronisation des postes ---------- */
 /* Rythme économe : 1,5 s tant que ça bouge ; 3 s après 1 minute calme ; 5 s après 5 minutes calmes ; onglet caché : 8 s, puis veille après 10 minutes. */
+function perdreSession() { session = null; securise = true; try { sessionStorage.removeItem(SK); } catch (e) { } window.dispatchEvent(new CustomEvent('sp-connexion-requise')); }
+function ouvrirSession(r) { session = { code: cx.code, jeton: r.jeton, compte: r.compte }; securise = true; try { sessionStorage.setItem(SK, JSON.stringify(session)); } catch (e) { } window.dispatchEvent(new CustomEvent('sp-session', { detail: r.compte })); clearTimeout(tt); enCours = false; tour(); if (!premier) pousser(); }
+async function deconnexionCompte() { try { await post({ op: 'deconnexion', espace: cx.code }); } catch (e) { } session = null; try { sessionStorage.removeItem(SK); } catch (e) { } try { indexedDB.deleteDatabase('sp_pieces_v1'); } catch (e) { } location.reload(); }
 let dernierChg = Date.now(), dernierGeste = Date.now(), masqueDepuis = 0, veille = false, enCours = false;
 const delaiPour = (calme, cache) => cache ? 8000 : calme < 60000 ? 1500 : calme < 300000 ? 3000 : 5000;
 const delaiTour = () => delaiPour(Date.now() - Math.max(dernierChg, dernierGeste), document.hidden);
@@ -72,7 +78,7 @@ async function tour() {
     change = integrer(r.dossiers) || premier; premier = false; A.recalculer(); majChip(true);
     const e = JSON.stringify(ecrans); if (e !== dernierEcrans) { dernierEcrans = e; change = true; }
     if (change) A.rafraichir('sync');
-  } catch (e) { if (e.statut === 404) { enCours = false; deconnecter(); return; } majChip(false); }
+  } catch (e) { if (e.statut === 404) { enCours = false; deconnecter(); return; } if (e.statut === 401 && e.corps && e.corps.connexion) { enCours = false; return; } if (e.statut === 403 && e.corps && e.corps.changer) { enCours = false; return; } majChip(false); }
   enCours = false; planifier();
 }
 function apresSauver() { dernierChg = Date.now(); clearTimeout(tp); tp = setTimeout(citoyen ? pousserCitoyen : pousser, 250); }
@@ -102,10 +108,10 @@ async function porte(op, p) { const r = await post({ op, espace: cx.code, porte:
 /* ---------- Pièces sur le serveur ---------- */
 const urlPiece = id => citoyen ? '/api/passeport-piece?public=' + citoyen.pub + '&dossier=' + encodeURIComponent(citoyen.id) + '&code=' + citoyen.code + '&id=' + id : '/api/passeport-piece?espace=' + cx.code + '&id=' + id;
 async function envoyerPiece(id, blob, mime) {
-  for (let t = 0; t < 3; t++) { try { const r = await fetch(urlPiece(id), { method: 'PUT', headers: { 'content-type': mime }, body: blob }); if (r.ok) return true; if (r.status >= 400 && r.status < 500) break; } catch (e) { } await new Promise(ok => setTimeout(ok, 700 * (t + 1))); }
+  for (let t = 0; t < 3; t++) { try { const r = await fetch(urlPiece(id), { method: 'PUT', headers: entetes({ 'content-type': mime }), body: blob }); if (r.ok) return true; if (r.status >= 400 && r.status < 500) break; } catch (e) { } await new Promise(ok => setTimeout(ok, 700 * (t + 1))); }
   throw new Error('Envoi impossible : vérifiez la connexion et réessayez.');
 }
-async function lirePiece(id) { if (!actif() && !citoyen) return null; try { const r = await fetch(urlPiece(id)); return r.ok ? await r.blob() : null; } catch (e) { return null; } }
+async function lirePiece(id) { if (!actif() && !citoyen) return null; try { const r = await fetch(urlPiece(id), { headers: entetes() }); return r.ok ? await r.blob() : null; } catch (e) { return null; } }
 
 /* ---------- Mode demandeur (lien reçu par WhatsApp) ---------- */
 let snapPieces = new Set();
@@ -142,25 +148,37 @@ function lienEcran() { return location.origin + location.pathname.replace(/[^/]*
 function panneau() {
   const f = $('#feuille'); let h;
   if (!cx) h = '<h3>Espace partagé</h3><p class="sous" style="margin-top:6px">Pour que le guichet, la caisse, les portes, la préfecture et les <b>écrans de la salle</b> travaillent ensemble en temps réel, créez un espace puis donnez son code aux autres postes.</p>' +
-    '<div class="carte" style="margin-top:12px"><b>Créer un espace</b><label style="margin-top:8px"><input type="checkbox" id="espDemo" checked style="width:auto;min-height:0"> avec les dossiers de démonstration (' + A.DB.length + ')</label><div class="ligne" style="margin-top:10px"><button class="btn vert" id="bCreerEsp">Créer l’espace</button></div></div>' +
+    '<div class="carte" style="margin-top:12px"><b>Créer un espace</b><label style="margin-top:8px"><input type="checkbox" id="espDemo" checked style="width:auto;min-height:0"> avec les dossiers de démonstration (' + A.DB.length + ')</label>' +
+      '<label style="margin-top:8px"><input type="checkbox" id="espSec" style="width:auto;min-height:0"> <b>Espace sécurisé</b> : chaque agent se connecte avec son identifiant et son mot de passe (recommandé pour un vrai usage)</label>' +
+      '<div id="espSecChamps" style="display:none;margin-top:8px"><p class="sous" style="font-size:13px">Compte de l’administrateur (Préfecture). Mot de passe : 8 caractères minimum, avec au moins une lettre et un chiffre.</p><div class="grille"><div class="c6"><label for="sec_login">Identifiant</label><input id="sec_login" autocapitalize="none" autocomplete="username" maxlength="30" placeholder="prefecture.brazzaville"></div><div class="c6"><label for="sec_nom">Nom et fonction</label><input id="sec_nom" maxlength="60" placeholder="Le Préfet"></div><div class="c12"><label for="sec_mdp">Mot de passe</label><input id="sec_mdp" type="password" autocomplete="new-password" maxlength="100"></div></div></div>' +
+      '<div class="ligne" style="margin-top:10px"><button class="btn vert" id="bCreerEsp">Créer l’espace</button></div></div>' +
     '<div class="carte"><b>Rejoindre un espace</b><div class="ligne" style="margin-top:8px"><input id="espCode" placeholder="CODE À 8 CARACTÈRES" maxlength="9" style="max-width:240px;text-transform:uppercase"><button class="btn" id="bRejoindre">Rejoindre</button></div></div><div id="espMsg"></div><div class="ligne" style="margin-top:8px"><button class="btn clair" id="bFerme">Fermer</button></div>';
   else h = '<h3>Espace partagé</h3><div class="carte" style="text-align:center;margin-top:10px"><div style="font-size:12px;letter-spacing:.14em;color:var(--gris)">CODE DE L’ESPACE (POUR LES POSTES ET LES ÉCRANS)</div><div class="gros" style="font-size:40px;letter-spacing:.08em;margin:6px 0">' + cx.code.slice(0, 4) + '-' + cx.code.slice(4) + '</div>' + A.qr(lienPoste()) + '<div style="font-size:12.5px;color:var(--gris)">Scannez pour relier un autre poste (guichet, caisse, porte, préfecture).</div></div>' +
     '<div class="carte"><b>🖥 Écrans de la salle</b><p class="sous" style="margin:4px 0 8px;font-size:13px">Sur chaque téléviseur, ouvrez ce lien puis touchez « Démarrer » : l’écran affiche les numéros, les noms et les portes en temps réel.</p>' + A.qr(lienEcran()) + '<div class="ligne"><a class="btn clair petit" href="' + lienEcran() + '" target="_blank" rel="noopener" style="text-decoration:none">Ouvrir un écran ici</a><button class="btn clair petit" id="bCopierEcran">Copier le lien de l’écran</button></div>' +
     '<div style="margin-top:8px;font-size:13.5px">' + (ecrans.length ? ecrans.map(e => '🟢 ' + esc(e.nom) + ' <small style="color:var(--gris)">(vu il y a ' + e.ilYa + ' s)</small>').join('<br>') : '<span style="color:var(--gris)">Aucun écran connecté pour l’instant.</span>') + '</div></div>' +
     '<div class="ligne"><button class="btn clair" id="bFerme">Fermer</button><button class="btn rouge" id="bQuitter" style="margin-left:auto">Quitter l’espace</button></div><details style="margin-top:14px"><summary style="cursor:pointer;color:var(--gris);font-size:13.5px">Effacer définitivement cet espace (fin de la démonstration)</summary><p class="sous" style="margin:8px 0">Efface <b>tous les dossiers, pièces jointes et écrans</b> de l’espace sur le serveur, pour tous les postes. Impossible à annuler. Tapez EFFACER pour confirmer.</p><div class="ligne"><input id="espEff" placeholder="EFFACER" style="max-width:180px;text-transform:uppercase"><button class="btn rouge" id="bEffacer">Effacer l’espace</button></div><div id="espEffMsg"></div></details>';
   f.innerHTML = h; $('#tiroir').classList.add('on'); $('#bFerme').onclick = () => $('#tiroir').classList.remove('on');
-  const c = $('#bCreerEsp'); if (c) c.onclick = async () => { c.disabled = true; $('#espMsg').innerHTML = '<div class="alert bleu">Création…</div>'; try { const dossiers = $('#espDemo').checked ? A.DB.map(d => JSON.parse(strip(d))) : []; const r = await post({ op: 'creer', nom: 'Espace', dossiers }); cx = { code: r.code }; localStorage.setItem(CK, JSON.stringify(cx)); location.reload(); } catch (e) { c.disabled = false; $('#espMsg').innerHTML = '<div class="alert rouge">' + esc(e.message) + '</div>'; } };
+  const es = $('#espSec'); if (es) es.onchange = () => { $('#espSecChamps').style.display = es.checked ? '' : 'none'; };
+  const c = $('#bCreerEsp'); if (c) c.onclick = async () => { c.disabled = true; $('#espMsg').innerHTML = '<div class="alert bleu">Création…</div>'; try { const dossiers = $('#espDemo').checked ? A.DB.map(d => JSON.parse(strip(d))) : []; const corps = { op: 'creer', nom: 'Espace', dossiers }; if (es && es.checked) corps.admin = { login: $('#sec_login').value, nom: $('#sec_nom').value, mdp: $('#sec_mdp').value }; const r = await post(corps); cx = { code: r.code }; localStorage.setItem(CK, JSON.stringify(cx));
+    if (r.secours) { const l = await post({ op: 'connexion', espace: r.code, login: corps.admin.login, mdp: corps.admin.mdp }); try { sessionStorage.setItem(SK, JSON.stringify({ code: r.code, jeton: l.jeton, compte: l.compte })); } catch (e2) { } f.innerHTML = '<h3>Espace sécurisé créé</h3><div class="alert vert" style="margin-top:8px">Votre espace est prêt. Vous êtes connecté en tant que <b>' + esc(l.compte.nom) + '</b>.</div><div class="carte" style="text-align:center;margin-top:10px"><div style="font-size:12px;letter-spacing:.14em;color:var(--gris)">CODE DE SECOURS DE LA PRÉFECTURE</div><div class="gros" style="font-size:34px;letter-spacing:.08em;margin:8px 0">' + esc(r.secours) + '</div><p class="sous" style="font-size:13.5px">À <b>noter maintenant et à ranger en lieu sûr</b> : il ne sera <b>plus jamais affiché</b>. Il permet à la Préfecture de retrouver l’accès si elle oublie son mot de passe.</p></div><div class="ligne" style="margin-top:12px"><button class="btn vert" id="bSecNote">J’ai noté le code, continuer</button></div>'; $('#bSecNote').onclick = () => location.reload(); return; }
+    location.reload(); } catch (e) { c.disabled = false; $('#espMsg').innerHTML = '<div class="alert rouge">' + esc(e.message) + '</div>'; } };
   const j = $('#bRejoindre'); if (j) j.onclick = async () => { const code = $('#espCode').value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8); try { await get('op=sync&espace=' + code + '&since=999999999999'); cx = { code }; localStorage.setItem(CK, JSON.stringify(cx)); location.reload(); } catch (e) { $('#espMsg').innerHTML = '<div class="alert rouge">' + esc(e.message) + '</div>'; } };
   const eb = $('#bEffacer'); if (eb) eb.onclick = async () => { if ($('#espEff').value.trim().toUpperCase() !== 'EFFACER') { $('#espEffMsg').innerHTML = '<div class="alert orange">Tapez EFFACER pour confirmer.</div>'; return; } eb.disabled = true;
-    try { await fetch('/api/passeport-piece?espace=' + cx.code, { method: 'DELETE' }); await post({ op: 'supprimer', espace: cx.code, confirmation: 'EFFACER' }); try { localStorage.removeItem(CK); } catch (e) { } $('#espEffMsg').innerHTML = '<div class="alert vert">✔ Espace effacé du serveur. Rechargement…</div>'; setTimeout(() => location.reload(), 1200); }
+    try { await fetch('/api/passeport-piece?espace=' + cx.code, { method: 'DELETE', headers: entetes() }); await post({ op: 'supprimer', espace: cx.code, confirmation: 'EFFACER' }); try { localStorage.removeItem(CK); } catch (e) { } $('#espEffMsg').innerHTML = '<div class="alert vert">✔ Espace effacé du serveur. Rechargement…</div>'; setTimeout(() => location.reload(), 1200); }
     catch (e) { eb.disabled = false; $('#espEffMsg').innerHTML = '<div class="alert rouge">' + esc(e.message) + '</div>'; } };
   const qb = $('#bQuitter'); if (qb) qb.onclick = () => { if (confirm('Quitter l’espace partagé ? Cet appareil reprendra ses propres données de démonstration.')) deconnecter(); };
   const cp = $('#bCopierEcran'); if (cp) cp.onclick = () => { try { navigator.clipboard.writeText(lienEcran()); cp.textContent = '✔ Lien copié'; } catch (e) { } };
 }
 function deconnecter() { clearTimeout(tt); cx = null; try { localStorage.removeItem(CK); } catch (e) { } location.reload(); }
 const chip = $('#chipEspace'); if (chip) chip.onclick = panneau; majChip(null);
-if (actif()) tour();
+async function demarrer() {
+  try { const i = await get('op=info&espace=' + cx.code); securise = !!i.securise; } catch (e) { if (e.statut === 404) { deconnecter(); return; } }
+  if (securise && !session) { window.dispatchEvent(new CustomEvent('sp-connexion-requise')); return; }
+  if (session) window.dispatchEvent(new CustomEvent('sp-session', { detail: session.compte }));
+  tour();
+}
+if (actif()) demarrer();
 
-window.__spSync = { delaiPour, actif, citoyen: () => !!citoyen, code: () => cx && cx.code, publique: () => publique || (citoyen && citoyen.pub) || '', cfg, regler, jourCourant, prochainRdvLocal, heureCreneau, apresSauver, payer, appeler: p => porte('appeler', p), rappeler: p => porte('rappeler', p), absent: p => porte('absent', p),
+window.__spSync = { securise: () => securise, compte: () => session && session.compte, ouvrirSession, deconnexionCompte, api: { post, get }, attenteConnexion: () => securise && !session, esp: () => cx && cx.code, delaiPour, actif, citoyen: () => !!citoyen, code: () => cx && cx.code, publique: () => publique || (citoyen && citoyen.pub) || '', cfg, regler, jourCourant, prochainRdvLocal, heureCreneau, apresSauver, payer, appeler: p => porte('appeler', p), rappeler: p => porte('rappeler', p), absent: p => porte('absent', p),
   envoyerPiece, lirePiece, ecrans: () => ecrans, pret, panneau, enligne: () => enligne };
 })();
