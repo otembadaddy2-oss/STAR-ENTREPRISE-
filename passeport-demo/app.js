@@ -296,16 +296,80 @@ function fermerCam() { if (stream) stream.getTracks().forEach(t => t.stop()); st
 function capturer() { const v = $('#vid'), c = $('#snap'); c.width = v.videoWidth; c.height = v.videoHeight; c.getContext('2d').drawImage(v, 0, 0); fermerCam(); ocr(c); }
 function depuisFichier(file) { if (!file) return; const img = new Image(); img.onload = () => { const c = $('#snap'); c.width = img.naturalWidth; c.height = img.naturalHeight; c.getContext('2d').drawImage(img, 0, 0); URL.revokeObjectURL(img.src); ocr(c); }; img.src = URL.createObjectURL(file); }
 function chargerScript(src) { return new Promise((ok, ko) => { if (window.Tesseract) return ok(); const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = ko; document.head.appendChild(s); }); }
+/* Corrections standard d'une lecture optique de MRZ : chiffres/lettres selon la position (0↔O, 1↔I, 5↔S, 8↔B…), et une lettre en trop ou en moins
+   (choisie grâce aux chiffres de contrôle). Les chiffres de contrôle eux-mêmes ne sont JAMAIS « réparés » : s'ils ne correspondent pas, l'application le signale. */
+const MRZ_L2D = { O: '0', Q: '0', D: '0', I: '1', L: '1', Z: '2', S: '5', B: '8', G: '6' }, MRZ_D2L = { 0: 'O', 1: 'I', 2: 'Z', 5: 'S', 8: 'B', 6: 'G' };
+const MRZ_TYPES = {
+  td3a: 'LLLLL' + 'L'.repeat(39),
+  td3b: 'A'.repeat(9) + 'N' + 'LLL' + 'N'.repeat(6) + 'N' + 'L' + 'N'.repeat(6) + 'N' + 'A'.repeat(14) + 'A' + 'N',
+  td1a: 'LLLLL' + 'A'.repeat(9) + 'N' + 'A'.repeat(15),
+  td1b: 'N'.repeat(6) + 'N' + 'L' + 'N'.repeat(6) + 'N' + 'LLL' + 'A'.repeat(11) + 'N',
+  td1c: 'L'.repeat(30)
+};
+const mrzTypes = (l, ty) => [...l].map((c, i) => ty[i] === 'N' ? (MRZ_L2D[c] || c) : ty[i] === 'L' && c !== '<' ? (MRZ_D2L[c] || c) : c).join('');
+function mrzScore(l, nom) {
+  const v = (s, c) => /\d/.test(c) && String(chk(s)) === c;
+  if (nom === 'td3b') return [v(l.slice(0, 9), l[9]), v(l.slice(13, 19), l[19]), v(l.slice(21, 27), l[27]), v(l.slice(0, 10) + l.slice(13, 20) + l.slice(21, 43), l[43])].filter(Boolean).length;
+  if (nom === 'td1a') return v(l.slice(5, 14), l[14]) ? 1 : 0;
+  if (nom === 'td1b') return [v(l.slice(0, 6), l[6]), v(l.slice(8, 14), l[14])].filter(Boolean).length;
+  return 0;
+}
+function mrzPenalite(l, nom) {   // à égalité de chiffres de contrôle : on préfère la ligne qui « ressemble » à une vraie ligne MRZ
+  let p = 0; const ty = MRZ_TYPES[nom];
+  if (nom === 'td3a' && l[0] !== 'P') p += 5; if (nom === 'td1a' && !/[IAC]/.test(l[0])) p += 5;
+  if ((nom === 'td3a' || nom === 'td1a') && /[^A-Z<]/.test(l.slice(1, 5))) p += 3;
+  for (let i = 0; i < l.length; i++) { if (ty[i] === 'N' && !/\d/.test(l[i])) p += 2; else if (ty[i] === 'L' && /\d/.test(l[i])) p += 1; }
+  if (nom === 'td1b' && /</.test(l.slice(15, 18)) && l.slice(15, 18) !== '<<<') p += 2; if (nom === 'td3b' && /</.test(l.slice(10, 13)) && l.slice(10, 13) !== '<<<') p += 2;
+  return p;
+}
+function mrzLigne(l, n, nom) {   // ramène la ligne à la bonne longueur, puis corrige lettres/chiffres
+  const cands = [];
+  if (l.length === n) cands.push(l);
+  else if (l.length === n + 1) { for (let i = 0; i < l.length; i++) cands.push(l.slice(0, i) + l.slice(i + 1)); }
+  else if (l.length === n - 1) { for (let i = 0; i <= l.length; i++) cands.push(l.slice(0, i) + '<' + l.slice(i)); }
+  else return l;
+  let meilleur = null, sm = -1e9;
+  const nz = x => x === '0' ? 'O' : x;   // un caractère en trop est le plus souvent un doublon (« O » lu « O0 »)
+  cands.forEach((c, k) => { const m = mrzTypes(c, MRZ_TYPES[nom]); let s = mrzScore(m, nom) * 10 - mrzPenalite(m, nom);
+    if (l.length === n + 1 && k > 0 && k < l.length - 1 && (nz(l[k]) === nz(l[k - 1]) || nz(l[k]) === nz(l[k + 1])) && l[k] !== '<') s += 3;
+    if (s > sm) { sm = s; meilleur = m; } });
+  return meilleur;
+}
+function corrigerMRZ(lignes) {
+  const proche = (l, n) => Math.abs(l.length - n) <= 1;
+  const td3 = lignes.filter(l => proche(l, 44)), td1 = lignes.filter(l => proche(l, 30));
+  if (td3.length >= 2 && td3.length >= td1.length) { const [a, b] = td3.slice(-2); return [mrzLigne(a, 44, 'td3a'), mrzLigne(b, 44, 'td3b')]; }
+  if (td1.length >= 3) { const [a, b, c] = td1.slice(-3); return [mrzLigne(a, 30, 'td1a'), mrzLigne(b, 30, 'td1b'), mrzLigne(c, 30, 'td1c')]; }
+  return lignes.slice(-3);
+}
+/* Lecture automatique de la zone MRZ : moteur Tesseract hébergé dans l'application (aucun site externe, la photo ne quitte pas l'appareil). */
+let ocrWorker = null, ocrMinuteur = 0;
+function preparerMRZ(canvas) {   // zone basse de la pièce, agrandie, en niveaux de gris contrastés
+  const h = Math.round(canvas.height * 0.42), L = Math.min(2000, Math.max(1400, canvas.width)), k = L / canvas.width, c2 = document.createElement('canvas'); c2.width = L; c2.height = Math.round(h * k);
+  const x = c2.getContext('2d', { willReadFrequently: true }); x.fillStyle = '#fff'; x.fillRect(0, 0, c2.width, c2.height); x.drawImage(canvas, 0, canvas.height - h, canvas.width, h, 0, 0, c2.width, c2.height);
+  const im = x.getImageData(0, 0, c2.width, c2.height), d = im.data; let mn = 255, mx = 0;
+  for (let i = 0; i < d.length; i += 4) { const g = (d[i] * 0.3 + d[i + 1] * 0.59 + d[i + 2] * 0.11) | 0; d[i] = g; if (g < mn) mn = g; if (g > mx) mx = g; }
+  const sp = Math.max(1, mx - mn); for (let i = 0; i < d.length; i += 4) { const v = Math.max(0, Math.min(255, ((d[i] - mn) * 255 / sp - 128) * 1.35 + 128)); d[i] = d[i + 1] = d[i + 2] = v; }
+  x.putImageData(im, 0, 0); return c2;
+}
+async function moteurOcr(etat) {
+  if (ocrWorker) return ocrWorker;
+  await chargerScript('lib/ocr-5.1.0/tesseract.min.js');
+  const base = new URL('lib/ocr-5.1.0/', location.href).href;
+  const w = await Tesseract.createWorker('eng', 1, { workerPath: base + 'worker.min.js', corePath: base, langPath: base + 'lang', gzip: true, workerBlobURL: false, cacheMethod: 'none', logger: m => { if (etat && m && m.status === 'recognizing text') etat.textContent = 'Lecture de la pièce… ' + Math.round((m.progress || 0) * 100) + ' %'; } });
+  await w.setParameters({ tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<', tessedit_pageseg_mode: '6' });
+  ocrWorker = w; return w;
+}
 async function ocr(canvas) {
-  const etat = $('#ocrEtat'); etat.textContent = 'Lecture de la pièce en cours…';
+  const etat = $('#ocrEtat'); etat.textContent = 'Préparation de la lecture… (la première fois, quelques secondes)';
   try {
-    await chargerScript('https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js');
-    const h = Math.round(canvas.height * 0.42), c2 = document.createElement('canvas'); c2.width = canvas.width; c2.height = h; c2.getContext('2d').drawImage(canvas, 0, canvas.height - h, canvas.width, h, 0, 0, canvas.width, h);
-    const r = await Tesseract.recognize(c2, 'eng', { tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<' });
+    const w = await moteurOcr(etat); etat.textContent = 'Lecture de la pièce en cours…';
+    const r = await w.recognize(preparerMRZ(canvas));
+    clearTimeout(ocrMinuteur); ocrMinuteur = setTimeout(() => { if (ocrWorker) { ocrWorker.terminate().catch(() => { }); ocrWorker = null; } }, 120000);   // libère la mémoire après 2 min
     const lignes = r.data.text.toUpperCase().split(/\n/).map(x => x.replace(/[^A-Z0-9<]/g, '')).filter(x => x.length >= 28 && x.includes('<'));
     if (!lignes.length) throw new Error('aucune ligne');
-    $('#mrz').value = lignes.slice(-3).join('\n'); etat.textContent = 'Lecture terminée. Vérifiez les lignes.'; lire();
-  } catch (e) { etat.textContent = 'Lecture automatique impossible pour cette photo (connexion ou image floue). Reprenez la photo ou saisissez les lignes.'; }
+    $('#mrz').value = corrigerMRZ(lignes).join('\n'); etat.textContent = 'Lecture terminée. Vérifiez les lignes.'; lire();
+  } catch (e) { ocrWorker = null; etat.textContent = 'Lecture automatique impossible pour cette photo (image floue, trop sombre ou appareil trop ancien). Reprenez la photo ou saisissez les lignes à la main.'; }
 }
 function exemple(k) {
   const auj = NOW().getTime(), dt = n => isoDate(new Date(auj + n * DAY)); let txt;
@@ -450,7 +514,7 @@ function init() {
   window.addEventListener('popstate', e => { const v = (e.state && e.state.v) || (location.hash || '#accueil').slice(1); const b = $('#onglets button[data-v="' + v + '"]'); if ($('#v-' + v) && b && b.style.display !== 'none') aller(v, true); });
   try { const h = (location.hash || '').slice(1); history.replaceState({ v: 'accueil' }, '', '#accueil'); if (h && h !== 'accueil' && $('#v-' + h)) { aller(h, true); history.pushState({ v: h }, '', '#' + h); } } catch (e) { }
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => { });
-  window.__spApi = { get DB() { return DB; }, sauver, detail, STATUTS, SN, TN, KN, esc, fmtD, fmtDH, jours, T, NOW, pad, isoDate, flags, score, ouvert, bS, bT, bR, code, qr, aller, rafraichir, get role() { return role; }, ROLES, DAY, HOUR, serviceDay, KEY, computeFlags, REQUIS, manquantes, jourSite, rdvLong, rdvHtml, recalculer, creneau };
+  window.__spApi = { get DB() { return DB; }, sauver, detail, STATUTS, SN, TN, KN, esc, fmtD, fmtDH, jours, T, NOW, pad, isoDate, flags, score, ouvert, bS, bT, bR, code, qr, aller, rafraichir, get role() { return role; }, ROLES, DAY, HOUR, serviceDay, KEY, computeFlags, REQUIS, manquantes, corrigerMRZ, parseMRZ, jourSite, rdvLong, rdvHtml, recalculer, creneau };
   window.__sp = { parseMRZ, buildTD3, buildTD1, computeFlags, get DB() { return DB; }, get FL() { return FL; }, code, KN, SN, TN };
 }
 init();

@@ -6,7 +6,7 @@ const { ensurePasseport } = await import("../netlify/functions/_passeport.mts");
 const api = (await import("../netlify/functions/api-passeport.mts")).default as (r: Request, c: any) => Promise<Response>;
 const piece = await import("../netlify/functions/api-passeport-piece.mts");
 const stock = new Map<string, any>();
-piece.__utiliserMagasin({ get: async (k: string) => stock.get(k)?.v ?? null, set: async (k: string, v: any, o: any) => { stock.set(k, { v, o }); }, getMetadata: async (k: string) => ({ metadata: stock.get(k)?.o?.metadata }) });
+piece.__utiliserMagasin({ get: async (k: string) => stock.get(k)?.v ?? null, set: async (k: string, v: any, o: any) => { stock.set(k, { v, o }); }, getMetadata: async (k: string) => ({ metadata: stock.get(k)?.o?.metadata }), delete: async (k: string) => { stock.delete(k); }, list: async ({ prefix }: { prefix: string }) => ({ blobs: [...stock.keys()].filter(k => k.startsWith(prefix)).map(key => ({ key })) }) });
 const pieceApi = piece.default as (r: Request, c: any) => Promise<Response>;
 let ko = 0; const ok = (c: boolean, m: string) => { console.log((c ? "OK  " : "ÉCHEC ") + m); if (!c) ko++; };
 const post = async (corps: any) => { const r = await api(new Request("https://t.test/api/passeport", { method: "POST", body: JSON.stringify(corps) }), {}); return { statut: r.status, ...(await r.json()) } as any; };
@@ -90,6 +90,24 @@ try {
   const pg2 = await pieceApi(new Request("https://t.test/api/passeport-piece?espace=" + E + "&id=PJ-demandeur1"), {}); ok(pg2.status === 200, "les postes retrouvent la pièce du demandeur");
   ok((await pieceApi(new Request("https://t.test/api/passeport-piece?public=" + pub + "&dossier=" + ids[2] + "&code=" + ctrl + "&id=PJ-abc123xyz", { method: "PUT", headers: { "content-type": "image/png" }, body: new Uint8Array([1]) }), {})).status === 403, "le demandeur ne peut pas toucher le dossier d'un autre");
   const sy4 = await get("op=sync&espace=" + E + "&since=0"); ok(sy4.dossiers.find((d: any) => d.id === mon).data.pieces.some((p: any) => p.id === "PJ-demandeur1"), "la pièce du demandeur apparaît aux postes à la synchronisation suivante");
+
+  // ---------- effacement définitif de l'espace ----------
+  ok(stock.size >= 2, "avant effacement : " + stock.size + " pièces dans le magasin");
+  ok((await post({ op: "supprimer", espace: E })).statut === 400, "effacer sans confirmation : refusé");
+  ok((await pieceApi(new Request("https://t.test/api/passeport-piece?espace=ZZZZZZZZ", { method: "DELETE" }), {})).status === 404, "effacer les pièces d'un espace inconnu : 404");
+  const dp = await pieceApi(new Request("https://t.test/api/passeport-piece?espace=" + E, { method: "DELETE" }), {}); const dpj = await dp.json(); ok(dp.status === 200 && dpj.effacees >= 2 && stock.size === 0, "toutes les pièces de l'espace sont effacées (" + dpj.effacees + ")");
+  ok((await post({ op: "supprimer", espace: E, confirmation: "EFFACER" })).statut === 200, "l'espace est effacé");
+  ok((await get("op=sync&espace=" + E + "&since=0")).statut === 404 && (await get("op=suivi&public=" + pub + "&id=" + mon + "&code=" + ctrl)).statut === 404, "ensuite : l'espace et le suivi du demandeur n'existent plus");
+  const restes = (await db().sql`SELECT (SELECT count(*) FROM pss_dossiers WHERE espace = ${E})::int AS d, (SELECT count(*) FROM pss_ecrans WHERE espace = ${E})::int AS e`) as any[]; ok(restes[0].d === 0 && restes[0].e === 0, "plus aucun dossier ni écran en base pour cet espace");
+
+  // ---------- performance : création d'un espace avec 100 dossiers = très peu de requêtes (base distante en production) ----------
+  const { creerMoteur } = await import("../netlify/functions/_passeport.mts"); let nbReq = 0;
+  const compte = new Proxy(db().sql as any, { apply(cible: any, ceci: any, args: any[]) { nbReq++; return Reflect.apply(cible, ceci, args); } });
+  const cent = Array.from({ length: 100 }, (_, i) => dossier("BZV-2026-" + String(70000 + i), "PERF" + i)); cent[5] = cent[4];   // un doublon d'identifiant, ignoré
+  const t0 = Date.now(); const cp = await creerMoteur(compte).creer("Perf", "", cent); const dt = Date.now() - t0;
+  ok(cp.code && nbReq <= 14, "création avec 100 dossiers : " + nbReq + " requêtes seulement (" + dt + " ms)");
+  const nbD = ((await db().sql`SELECT count(*)::int AS n FROM pss_dossiers WHERE espace = ${cp.code}`) as any[])[0].n; ok(nbD === 99, "99 dossiers créés (le doublon est ignoré) : " + nbD);
+  await db().sql`DELETE FROM pss_espaces WHERE code = ${cp.code}`;
 
   // ---------- nettoyage ----------
   await db().sql`DELETE FROM pss_espaces WHERE code = ${E}`;

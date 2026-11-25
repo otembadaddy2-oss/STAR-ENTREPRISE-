@@ -224,6 +224,15 @@ main{position:relative}
 @keyframes verre{0%{opacity:0;background-position:125% 0,0 0}16%{opacity:1}100%{opacity:0;background-position:-35% 0,0 0}}
 @media(prefers-reduced-motion:reduce){.vue.on,.vue.stagger .baniere,.vue.stagger .carte,.vue.stagger .kpi,.vue.stagger .porteC{animation:none}.vue.sortie{display:none}#verre{display:none}}
 @media print{#verre{display:none}body::before{display:none}}
+/* Doigts : cibles tactiles de 40 px et plus sur téléphone et tablette */
+@media (pointer:coarse){
+ #bAide,.chip-esp,.retour{min-height:40px;padding:8px 14px;font-size:13.5px}
+ .vign{width:84px}.vign button{width:34px;height:34px;line-height:34px;font-size:15px;top:0;right:0}
+ .porteC .ph button{min-width:42px;min-height:42px;font-size:19px}
+ [data-pj]{min-height:42px}
+ .btn.petit{min-height:42px}
+ nav button{padding-top:15px;padding-bottom:15px}
+}
 </style>
 </head>
 <body>
@@ -494,5 +503,6 @@ main{position:relative}
 <script src="app.js"></script>
 <script src="sync.js"></script>
 <script src="app-suite.js"></script>
+<script src="guide.js"></script>
 </body>
 </html>

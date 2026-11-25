@@ -85,10 +85,14 @@ export function creerMoteur(sql: any) {
       if (!code) return { erreur: "Création impossible, réessayez." };
       if (Array.isArray(dossiers) && dossiers.length) {
         const v = await bump(code);
+        // Une seule insertion groupée (et non une requête par dossier) : rapide même avec la base distante.
+        const lignes: any[] = []; const vus = new Set<string>();
         for (const d of dossiers.slice(0, 400)) {
-          if (!d || typeof d.id !== "string" || d.id.length > 40) continue; const c = colonnes(d);
-          await sql`INSERT INTO pss_dossiers (espace, id, rev, status, rdv_date, ticket, version, data) VALUES (${code}, ${d.id}, 1, ${c.status}, ${c.rdv}, ${c.ticket}, ${v}, ${JSON.stringify(d)}::jsonb) ON CONFLICT DO NOTHING`;
+          if (!d || typeof d.id !== "string" || d.id.length > 40 || vus.has(d.id)) continue; vus.add(d.id); const c = colonnes(d);
+          lignes.push({ id: d.id, status: c.status, rdv: c.rdv, ticket: c.ticket, data: d });
         }
+        if (lignes.length) await sql`INSERT INTO pss_dossiers (espace, id, rev, status, rdv_date, ticket, version, data)
+          SELECT ${code}, x.id, 1, x.status, x.rdv::date, x.ticket, ${v}, x.data FROM jsonb_to_recordset(${JSON.stringify(lignes)}::jsonb) AS x(id text, status text, rdv text, ticket int, data jsonb) ON CONFLICT DO NOTHING`;
       }
       return { code, publique };
     },
@@ -96,7 +100,7 @@ export function creerMoteur(sql: any) {
     // Lecture complète pour les postes de travail (guichet, caisse, portes, préfecture).
     async sync(code: string, since: number, ecran?: string) {
       const e = await espace(code); if (!e) return null;
-      if (ecran) await sql`INSERT INTO pss_ecrans (espace, nom, vu) VALUES (${code}, ${ecran.slice(0, 40)}, now()) ON CONFLICT (espace, nom) DO UPDATE SET vu = now()`;
+      if (ecran) await sql`INSERT INTO pss_ecrans (espace, nom, vu) VALUES (${code}, ${ecran.slice(0, 40)}, now()) ON CONFLICT (espace, nom) DO UPDATE SET vu = now() WHERE pss_ecrans.vu < now() - interval '15 seconds'`;
       const lignes = (await sql`SELECT id, rev, status, rdv_date, ticket, version, data FROM pss_dossiers WHERE espace = ${code} AND version > ${since} ORDER BY version, id`) as Ligne[];
       const ecrans = (await sql`SELECT nom, extract(epoch FROM (now() - vu))::int AS il_y_a FROM pss_ecrans WHERE espace = ${code} AND vu > now() - interval '60 seconds' ORDER BY nom`) as any[];
       return { version: e.version, publique: e.publique, config: e.config, jour: jourDe(e.config), serveur: new Date().toISOString(), dossiers: lignes.map(publier), ecrans: ecrans.map(x => ({ nom: x.nom, ilYa: x.il_y_a })) };
@@ -105,7 +109,7 @@ export function creerMoteur(sql: any) {
     // Lecture minimale pour les écrans de la salle (pas de données personnelles inutiles).
     async ecran(code: string, nom: string) {
       const e = await espace(code); if (!e) return null;
-      if (nom) await sql`INSERT INTO pss_ecrans (espace, nom, vu) VALUES (${code}, ${nom.slice(0, 40)}, now()) ON CONFLICT (espace, nom) DO UPDATE SET vu = now()`;
+      if (nom) await sql`INSERT INTO pss_ecrans (espace, nom, vu) VALUES (${code}, ${nom.slice(0, 40)}, now()) ON CONFLICT (espace, nom) DO UPDATE SET vu = now() WHERE pss_ecrans.vu < now() - interval '15 seconds'`;
       const jour = jourDe(e.config);
       const appels = (await sql`SELECT ticket, data->'person'->>'nom' AS nom, data->'person'->>'prenoms' AS prenoms, data->'person'->>'sexe' AS sexe, (data->'appel'->>'porte')::int AS porte, data->'appel'->>'at' AS at, id
         FROM pss_dossiers WHERE espace = ${code} AND rdv_date = ${jour} AND status = 'recu' AND data->'appel' IS NOT NULL ORDER BY data->'appel'->>'at' DESC LIMIT 40`) as any[];
@@ -214,6 +218,13 @@ export function creerMoteur(sql: any) {
       }
       return { erreur: "Serveur occupé, réessayez.", statut: 503 };
     },
+
+    // Effacement définitif d'un espace (dossiers, écrans). Les pièces jointes sont effacées juste avant par l'API des pièces.
+    async idsPieces(code: string): Promise<string[]> {
+      const l = (await sql`SELECT data->'pieces' AS p FROM pss_dossiers WHERE espace = ${code}`) as any[];
+      return l.flatMap((r: any) => (Array.isArray(r.p) ? r.p : []).map((x: any) => String(x && x.id || "")).filter((i: string) => /^PJ-[a-z0-9]{6,30}$/i.test(i)));
+    },
+    async supprimer(code: string) { const r = (await sql`DELETE FROM pss_espaces WHERE code = ${code} RETURNING code`) as any[]; return !!r[0]; },
 
     async reglages(code: string, cfg: unknown) {
       const e = await espace(code); if (!e) return null;

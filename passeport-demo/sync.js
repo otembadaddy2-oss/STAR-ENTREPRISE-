@@ -11,7 +11,7 @@ if (q.get('espace')) { const c = String(q.get('espace')).toUpperCase().replace(/
 let version = 0, premier = true, config = null, decal = 0, ecrans = [], publique = '', enligne = null, snap = new Map(), tp = null, tt = null, citoyen = null, dernierEcrans = '';
 const strip = d => JSON.stringify(d, (k, v) => k === '__rev' ? undefined : v);
 const actif = () => !!cx && !citoyen;
-async function http(url, opt) { const r = await fetch(url, opt), j = await r.json().catch(() => ({})); if (!r.ok) { const e = new Error(j.error || ('Erreur ' + r.status)); e.statut = r.status; e.corps = j; throw e; } return j; }
+async function http(url, opt) { let r; try { r = await fetch(url, opt); } catch (e) { const x = new Error('Connexion perdue. Vérifiez le réseau puis réessayez. Si vous veniez d’encaisser, rouvrez le dossier : il affichera le reçu s’il a été enregistré.'); x.reseau = true; throw x; } const j = await r.json().catch(() => ({})); if (!r.ok) { const e = new Error(j.error || ('Erreur ' + r.status)); e.statut = r.status; e.corps = j; throw e; } return j; }
 const post = corps => http('/api/passeport', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(corps) });
 const get = qs => http('/api/passeport?' + qs);
 
@@ -54,19 +54,28 @@ function integrer(lignes) {
 function majUn(d, rev) { d.__rev = rev; const i = A.DB.findIndex(x => x.id === d.id); if (i < 0) A.DB.push(d); else A.DB[i] = d; snap.set(d.id, strip(d)); A.recalculer(); }
 
 /* ---------- Boucle de synchronisation des postes ---------- */
+/* Rythme économe : 1,5 s tant que ça bouge ; 3 s après 1 minute calme ; 5 s après 5 minutes calmes ; onglet caché : 8 s, puis veille après 10 minutes. */
+let dernierChg = Date.now(), dernierGeste = Date.now(), masqueDepuis = 0, veille = false, enCours = false;
+const delaiPour = (calme, cache) => cache ? 8000 : calme < 60000 ? 1500 : calme < 300000 ? 3000 : 5000;
+const delaiTour = () => delaiPour(Date.now() - Math.max(dernierChg, dernierGeste), document.hidden);
+function planifier() { clearTimeout(tt); if (!actif()) return; if (document.hidden && masqueDepuis && Date.now() - masqueDepuis > 600000) { veille = true; return; } tt = setTimeout(tour, delaiTour()); }
+function reveiller() { const calme = Date.now() - Math.max(dernierChg, dernierGeste); dernierGeste = Date.now(); if (!actif()) return; if (veille) { veille = false; tour(); } else if (calme > 60000 && !enCours) { clearTimeout(tt); tour(); } }
+['pointerdown', 'keydown', 'touchstart'].forEach(ev => window.addEventListener(ev, reveiller, { passive: true }));
+document.addEventListener('visibilitychange', () => { if (document.hidden) masqueDepuis = Date.now(); else { masqueDepuis = 0; reveiller(); } });
 async function tour() {
-  if (!actif()) return; let change = false;
+  if (!actif() || enCours) return; enCours = true; let change = false;
   try {
     const r = await get('op=sync&espace=' + cx.code + '&since=' + (premier ? 0 : Math.max(0, version - 3)));
     if (premier) { A.DB.length = 0; snap.clear(); }
+    if (r.version !== version) dernierChg = Date.now();
     version = r.version; config = r.config; publique = r.publique; decal = Date.parse(r.serveur) - Date.now(); ecrans = r.ecrans;
     change = integrer(r.dossiers) || premier; premier = false; A.recalculer(); majChip(true);
     const e = JSON.stringify(ecrans); if (e !== dernierEcrans) { dernierEcrans = e; change = true; }
     if (change) A.rafraichir('sync');
-  } catch (e) { if (e.statut === 404) { deconnecter(); return; } majChip(false); }
-  tt = setTimeout(tour, document.hidden ? 6000 : 1500);
+  } catch (e) { if (e.statut === 404) { enCours = false; deconnecter(); return; } majChip(false); }
+  enCours = false; planifier();
 }
-function apresSauver() { clearTimeout(tp); tp = setTimeout(citoyen ? pousserCitoyen : pousser, 250); }
+function apresSauver() { dernierChg = Date.now(); clearTimeout(tp); tp = setTimeout(citoyen ? pousserCitoyen : pousser, 250); }
 async function pousser() {
   if (!actif() || premier) return;
   const sales = A.DB.filter(d => strip(d) !== snap.get(d.id)); if (!sales.length) return;
@@ -138,10 +147,13 @@ function panneau() {
   else h = '<h3>Espace partagé</h3><div class="carte" style="text-align:center;margin-top:10px"><div style="font-size:12px;letter-spacing:.14em;color:var(--gris)">CODE DE L’ESPACE (POUR LES POSTES ET LES ÉCRANS)</div><div class="gros" style="font-size:40px;letter-spacing:.08em;margin:6px 0">' + cx.code.slice(0, 4) + '-' + cx.code.slice(4) + '</div>' + A.qr(lienPoste()) + '<div style="font-size:12.5px;color:var(--gris)">Scannez pour relier un autre poste (guichet, caisse, porte, préfecture).</div></div>' +
     '<div class="carte"><b>🖥 Écrans de la salle</b><p class="sous" style="margin:4px 0 8px;font-size:13px">Sur chaque téléviseur, ouvrez ce lien puis touchez « Démarrer » : l’écran affiche les numéros, les noms et les portes en temps réel.</p>' + A.qr(lienEcran()) + '<div class="ligne"><a class="btn clair petit" href="' + lienEcran() + '" target="_blank" rel="noopener" style="text-decoration:none">Ouvrir un écran ici</a><button class="btn clair petit" id="bCopierEcran">Copier le lien de l’écran</button></div>' +
     '<div style="margin-top:8px;font-size:13.5px">' + (ecrans.length ? ecrans.map(e => '🟢 ' + esc(e.nom) + ' <small style="color:var(--gris)">(vu il y a ' + e.ilYa + ' s)</small>').join('<br>') : '<span style="color:var(--gris)">Aucun écran connecté pour l’instant.</span>') + '</div></div>' +
-    '<div class="ligne"><button class="btn clair" id="bFerme">Fermer</button><button class="btn rouge" id="bQuitter" style="margin-left:auto">Quitter l’espace</button></div>';
+    '<div class="ligne"><button class="btn clair" id="bFerme">Fermer</button><button class="btn rouge" id="bQuitter" style="margin-left:auto">Quitter l’espace</button></div><details style="margin-top:14px"><summary style="cursor:pointer;color:var(--gris);font-size:13.5px">Effacer définitivement cet espace (fin de la démonstration)</summary><p class="sous" style="margin:8px 0">Efface <b>tous les dossiers, pièces jointes et écrans</b> de l’espace sur le serveur, pour tous les postes. Impossible à annuler. Tapez EFFACER pour confirmer.</p><div class="ligne"><input id="espEff" placeholder="EFFACER" style="max-width:180px;text-transform:uppercase"><button class="btn rouge" id="bEffacer">Effacer l’espace</button></div><div id="espEffMsg"></div></details>';
   f.innerHTML = h; $('#tiroir').classList.add('on'); $('#bFerme').onclick = () => $('#tiroir').classList.remove('on');
   const c = $('#bCreerEsp'); if (c) c.onclick = async () => { c.disabled = true; $('#espMsg').innerHTML = '<div class="alert bleu">Création…</div>'; try { const dossiers = $('#espDemo').checked ? A.DB.map(d => JSON.parse(strip(d))) : []; const r = await post({ op: 'creer', nom: 'Espace', dossiers }); cx = { code: r.code }; localStorage.setItem(CK, JSON.stringify(cx)); location.reload(); } catch (e) { c.disabled = false; $('#espMsg').innerHTML = '<div class="alert rouge">' + esc(e.message) + '</div>'; } };
   const j = $('#bRejoindre'); if (j) j.onclick = async () => { const code = $('#espCode').value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8); try { await get('op=sync&espace=' + code + '&since=999999999999'); cx = { code }; localStorage.setItem(CK, JSON.stringify(cx)); location.reload(); } catch (e) { $('#espMsg').innerHTML = '<div class="alert rouge">' + esc(e.message) + '</div>'; } };
+  const eb = $('#bEffacer'); if (eb) eb.onclick = async () => { if ($('#espEff').value.trim().toUpperCase() !== 'EFFACER') { $('#espEffMsg').innerHTML = '<div class="alert orange">Tapez EFFACER pour confirmer.</div>'; return; } eb.disabled = true;
+    try { await fetch('/api/passeport-piece?espace=' + cx.code, { method: 'DELETE' }); await post({ op: 'supprimer', espace: cx.code, confirmation: 'EFFACER' }); try { localStorage.removeItem(CK); } catch (e) { } $('#espEffMsg').innerHTML = '<div class="alert vert">✔ Espace effacé du serveur. Rechargement…</div>'; setTimeout(() => location.reload(), 1200); }
+    catch (e) { eb.disabled = false; $('#espEffMsg').innerHTML = '<div class="alert rouge">' + esc(e.message) + '</div>'; } };
   const qb = $('#bQuitter'); if (qb) qb.onclick = () => { if (confirm('Quitter l’espace partagé ? Cet appareil reprendra ses propres données de démonstration.')) deconnecter(); };
   const cp = $('#bCopierEcran'); if (cp) cp.onclick = () => { try { navigator.clipboard.writeText(lienEcran()); cp.textContent = '✔ Lien copié'; } catch (e) { } };
 }
@@ -149,6 +161,6 @@ function deconnecter() { clearTimeout(tt); cx = null; try { localStorage.removeI
 const chip = $('#chipEspace'); if (chip) chip.onclick = panneau; majChip(null);
 if (actif()) tour();
 
-window.__spSync = { actif, citoyen: () => !!citoyen, code: () => cx && cx.code, publique: () => publique || (citoyen && citoyen.pub) || '', cfg, regler, jourCourant, prochainRdvLocal, heureCreneau, apresSauver, payer, appeler: p => porte('appeler', p), rappeler: p => porte('rappeler', p), absent: p => porte('absent', p),
+window.__spSync = { delaiPour, actif, citoyen: () => !!citoyen, code: () => cx && cx.code, publique: () => publique || (citoyen && citoyen.pub) || '', cfg, regler, jourCourant, prochainRdvLocal, heureCreneau, apresSauver, payer, appeler: p => porte('appeler', p), rappeler: p => porte('rappeler', p), absent: p => porte('absent', p),
   envoyerPiece, lirePiece, ecrans: () => ecrans, pret, panneau, enligne: () => enligne };
 })();
