@@ -3,6 +3,7 @@ import type { Context, Config } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 import { db, json } from "./_db.mts";
 import { ensurePasseport, creerMoteur, normaliserCode } from "./_passeport.mts";
+import { creerComptes, DROITS, NOM_ROLE } from "./_comptes.mts";
 const brut = (v: unknown) => String(v ?? "").toUpperCase().replace(/[^A-Z0-9-]/g, "").slice(0, 40);
 
 type Magasin = { get: (k: string, o?: any) => Promise<any>; set: (k: string, v: any, o?: any) => Promise<any>; getMetadata?: (k: string) => Promise<any>; delete?: (k: string) => Promise<any>; list?: (o: { prefix: string }) => Promise<{ blobs: { key: string }[] }> };
@@ -11,11 +12,22 @@ export function __utiliserMagasin(m: Magasin) { magasin = m; }
 const store = (): Magasin => magasin || (getStore({ name: "passeport-pieces", consistency: "strong" }) as unknown as Magasin);   // lecture « forte » : une pièce envoyée est lisible tout de suite par les autres postes
 const MIMES = ["image/jpeg", "image/png", "application/pdf"];
 
+// Espace sécurisé : seules les personnes connectées, selon leur rôle, lisent ou envoient des pièces. Le demandeur passe par son numéro de reçu + code.
+async function droitSurEspace(req: Request, code: string, droit: string): Promise<Response | null> {
+  const c = creerComptes(db().sql); if (!(await c.securise(code))) return null;
+  const compte = await c.authentifier(code, (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim());
+  if (!compte) return json({ error: "Connexion requise : identifiez-vous.", connexion: true }, 401);
+  if (compte.doitChanger) return json({ error: "Changez d'abord votre mot de passe temporaire.", changer: true }, 403);
+  if (!(DROITS as any)[compte.role]?.includes(droit)) return json({ error: "Votre rôle (" + NOM_ROLE[compte.role] + ") ne permet pas cette action." }, 403);
+  return null;
+}
+
 export default async (req: Request, _context: Context) => {
   const url = new URL(req.url); let code = normaliserCode(url.searchParams.get("espace")); const id = String(url.searchParams.get("id") || "");
   if (req.method === "DELETE" && !id) {   // effacement de TOUTES les pièces d'un espace (avant « Effacer l'espace »)
     await ensurePasseport(); const m0 = creerMoteur(db().sql);
     if (!code || !(await m0.espace(code))) return json({ error: "Espace introuvable." }, 404);
+    const refus0 = await droitSurEspace(req, code, "supprimer"); if (refus0) return refus0;
     const s = store(); const cles = new Set<string>((await m0.idsPieces(code)).map(i => code + "/" + i));
     try { if (s.list) for (const b of ((await s.list({ prefix: code + "/" })).blobs || [])) cles.add(b.key); } catch (e) { }   // y compris les pièces envoyées mais jamais rattachées à un dossier
     let n = 0; for (const k of cles) { try { if (s.delete) { await s.delete(k); n++; } } catch (e) { } }
@@ -30,7 +42,10 @@ export default async (req: Request, _context: Context) => {
     if (!s) return json({ error: "Accès refusé." }, 403);
     if (req.method === "GET" && !s.dossier.pieces.some((p: any) => p.id === id)) return json({ error: "Pièce introuvable." }, 404);
     code = s.espace;
-  } else if (!code || !(await m.espace(code))) return json({ error: "Espace introuvable." }, 404);
+  } else {
+    if (!code || !(await m.espace(code))) return json({ error: "Espace introuvable." }, 404);
+    const refus = await droitSurEspace(req, code, req.method === "GET" ? "piece-lire" : "piece-ecrire"); if (refus) return refus;
+  }
   const cle = code + "/" + id;
   if (req.method === "GET") {
     const octets = await store().get(cle, { type: "arrayBuffer" });

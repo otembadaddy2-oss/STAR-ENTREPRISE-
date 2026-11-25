@@ -5,6 +5,7 @@
 // SÉCURITÉ : version de démonstration — l'accès repose sur le code de l'espace. Pour de vraies données : comptes nominatifs + double vérification.
 import { db } from "./_db.mts";
 import { randomBytes } from "node:crypto";
+import { ensureComptes } from "./_comptes.mts";
 
 let pret = false;
 export async function ensurePasseport() {
@@ -26,6 +27,7 @@ export async function ensurePasseport() {
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS pss_ticket_uniq ON pss_dossiers (espace, rdv_date, ticket) WHERE ticket IS NOT NULL`;
   await sql`CREATE INDEX IF NOT EXISTS pss_dossiers_version ON pss_dossiers (espace, version)`;
   await sql`CREATE TABLE IF NOT EXISTS pss_ecrans (espace TEXT NOT NULL REFERENCES pss_espaces(code) ON DELETE CASCADE, nom TEXT NOT NULL, vu TIMESTAMPTZ NOT NULL DEFAULT now(), PRIMARY KEY (espace, nom))`;
+  await ensureComptes(sql);
   pret = true;
 }
 
@@ -37,6 +39,7 @@ export const CONFIG_DEFAUT = {
   debut: "08:00", pas: 30, parCreneau: 10,
   lieu: "Préfecture de Brazzaville",
   decalage: 0,             // démonstration : avancer la date du jour de N jours
+  tarifs: { premiere: 0, renouvellement: 0 } as Record<string, number>,   // montant officiel (FCFA) ; 0 = pas encore communiqué (démonstration : montant libre)
 };
 export type Config = typeof CONFIG_DEFAUT;
 const ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
@@ -53,7 +56,8 @@ function nettoyerConfig(c: any, base: Config): Config {
   const jours = Array.isArray(c?.jours) ? [...new Set<number>(c.jours.map((x: unknown) => Math.round(Number(x))).filter((x: number) => x >= 0 && x <= 6))].sort() : base.jours;
   const hhmm = (v: unknown, d: string) => (/^\d{2}:\d{2}$/.test(String(v)) ? String(v) : d);
   return { portes: n(c?.portes, 1, 12, base.portes), noms, capacite: n(c?.capacite, 1, 2000, base.capacite), delai: n(c?.delai, 0, 60, base.delai), jours: jours.length ? jours : base.jours,
-    debut: hhmm(c?.debut, base.debut), pas: n(c?.pas, 5, 240, base.pas), parCreneau: n(c?.parCreneau, 1, 500, base.parCreneau), lieu: String(c?.lieu ?? base.lieu).slice(0, 80), decalage: n(c?.decalage, 0, 60, base.decalage) };
+    debut: hhmm(c?.debut, base.debut), pas: n(c?.pas, 5, 240, base.pas), parCreneau: n(c?.parCreneau, 1, 500, base.parCreneau), lieu: String(c?.lieu ?? base.lieu).slice(0, 80), decalage: n(c?.decalage, 0, 60, base.decalage),
+    tarifs: { premiere: n(c?.tarifs?.premiere, 0, 100000000, base.tarifs?.premiere ?? 0), renouvellement: n(c?.tarifs?.renouvellement, 0, 100000000, base.tarifs?.renouvellement ?? 0) } };
 }
 export const configEspace = (raw: unknown): Config => nettoyerConfig(raw || {}, CONFIG_DEFAUT);
 
@@ -182,6 +186,9 @@ export function creerMoteur(sql: any) {
         if (!cur[0]) return { erreur: "Dossier introuvable", statut: 404 };
         if (cur[0].status !== "depose" || cur[0].data.paiement) return { erreur: "Ce dossier est déjà payé.", statut: 409, dossier: cur[0].data };
         // Dossier pré-enregistré par le demandeur : il doit d'abord être vérifié à l'accueil, avec les pièces originales.
+        // Montant officiel : une fois communiqué par l'administration et saisi dans les réglages, aucun autre montant n'est accepté.
+        const officiel = Number(e.config.tarifs?.[cur[0].data.type === "renouvellement" ? "renouvellement" : "premiere"]) || 0;
+        if (officiel > 0 && montant !== officiel) return { erreur: "Le montant officiel est de " + officiel.toLocaleString("fr-FR") + " FCFA : aucun autre montant n'est accepté.", statut: 400 };
         if (cur[0].data.preinscrit && !(cur[0].data.accueil && cur[0].data.accueil.ok)) return { erreur: "Ce dossier a été pré-enregistré par le demandeur : il doit d'abord être vérifié à l'accueil (pièces originales).", statut: 409, dossier: cur[0].data };
         // premier jour ouvré avec de la place
         const cfg = e.config; let jour = ajouterJours(jourDe(cfg), cfg.delai), choisi = "", rang = 0;
