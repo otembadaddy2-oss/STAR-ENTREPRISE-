@@ -54,7 +54,7 @@ const nav = (p, v) => p.evaluate(x => document.querySelector('nav button[data-v=
   await A.evaluate(() => { const s = document.getElementById('role'); s.value = 'accueil'; s.dispatchEvent(new Event('change')); s.disabled = true; });
 
   // ---------- le montant officiel est saisi par la Préfecture ----------
-  await nav(P, 'reglages'); await P.waitForSelector('#r_tarif1'); ok(/pas encore communiqué/.test(await P.textContent('#r_tarif_etat')), 'réglages : « montant officiel pas encore communiqué »');
+  await nav(P, 'reglages'); await P.waitForSelector('#r_tarif1'); ok(/50[\s\u202f\u00a0]?000/.test(await P.textContent('#r_tarif_etat')) && (await P.inputValue('#r_tarif1')) === '50000', 'réglages : le montant officiel de 50 000 FCFA est déjà préenregistré');
   await P.fill('#r_tarif1', '50000'); await P.fill('#r_tarif2', '65000'); await P.click('#bRegler'); await P.waitForSelector('#r_msg .alert.vert');
   ok(/montant officiel est actif/.test(await P.textContent('#r_msg')) && /Montant officiel enregistré/.test(await P.textContent('#r_tarif_etat')), 'montant officiel saisi une fois : confirmation « actif sur tous les postes »');
 

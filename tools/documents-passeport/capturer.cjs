@@ -56,9 +56,9 @@ const fermerTout = p => p.evaluate(() => { ['guideInvit', 'guideProfil', 'guideA
   await essai('caisse', async () => {
     const dos = JSON.parse(fs.readFileSync(OUT + 'dossier.json', 'utf8')); await role(D, 'caisse'); await aller(D, 'caisse'); await wait(600); await D.screenshot({ path: OUT + 'd_caisse.png' });
     await D.fill('#k_id', dos.id); await D.fill('#k_code', dos.code); await D.click('#bCaisseOuvrir'); await D.waitForSelector('#k_montant'); await wait(500); await D.locator('#caisseRes').screenshot({ path: OUT + 'd_caisse_dossier.png' });
-    await D.fill('#k_montant', '75000'); await D.click('#bPayer'); await D.waitForSelector('.recu'); await wait(500); await D.screenshot({ path: OUT + 'd_recu.png' }); await fermerTout(D);
+    await D.click('#bPayer'); await D.waitForSelector('.recu'); await wait(500); await D.screenshot({ path: OUT + 'd_recu.png' }); await fermerTout(D);
     await role(T, 'caisse'); await aller(T, 'caisse'); await wait(600); await T.click('#bScanEx'); await T.waitForSelector('#k_montant'); await wait(400); await T.screenshot({ path: OUT + 't_caisse.png' });
-    await T.fill('#k_montant', '75000'); await T.tap('#bPayer'); await T.waitForSelector('.recu'); await wait(500); await T.screenshot({ path: OUT + 't_recu.png' }); await T.evaluate(() => document.querySelector('.recu').scrollIntoView()); await fermerTout(T);
+    await T.tap('#bPayer'); await T.waitForSelector('.recu'); await wait(500); await T.screenshot({ path: OUT + 't_recu.png' }); await T.evaluate(() => document.querySelector('.recu').scrollIntoView()); await fermerTout(T);
   });
 
   // ---------------- Salle d'attente, portes (scène partagée) ----------------
@@ -73,7 +73,7 @@ const fermerTout = p => p.evaluate(() => { ['guideInvit', 'guideProfil', 'guideA
     const sc = await A.evaluate(async c => { const pr = ['Moukala', 'Batchi', 'Ngouabi', 'Okemba', 'Itoua', 'Mpassi'], pn = ['Grâce', 'Rodrigue', 'Prisca', 'Aimé', 'Merveille', 'Jean-Claude'], r = [];
       for (let i = 0; i < 6; i++) { const id = 'BZV-2026-' + String(500 + i).padStart(6, '0'); const d = { id, status: 'depose', type: i % 3 === 2 ? 'renouvellement' : 'premiere', createdAt: new Date().toISOString(), lieu: 'Makélékélé', person: { nom: pr[i].toUpperCase(), prenoms: pn[i], naissance: '199' + i + '-05-1' + i, sexe: i % 2 ? 'M' : 'F', tel: '+242 06 55' + i + ' 00 1' + i, piece: { type: 'CNI', numero: 'CG50' + i + '1234', expiration: '2031-01-01' } }, history: [{ s: 'depose', at: new Date().toISOString(), by: 'Agent 03', note: '' }], pieces: [] };
         await fetch('/api/passeport', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ op: 'ecrire', espace: c, dossiers: [{ id, baseRev: 0, data: d }] }) });
-        const q = await (await fetch('/api/passeport', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ op: 'payer', espace: c, id, montant: 75000, mode: i % 2 ? 'Mobile Money MTN' : 'Espèces' }) })).json(); r.push(q.dossier && q.dossier.ticket); }
+        const q = await (await fetch('/api/passeport', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ op: 'payer', espace: c, id, montant: 50000, mode: i % 2 ? 'Mobile Money MTN' : 'Espèces' }) })).json(); r.push(q.dossier && q.dossier.ticket); }
       const g = await (await fetch('/api/passeport?op=sync&espace=' + c + '&since=0')).json(); await fetch('/api/passeport', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ op: 'reglages', espace: c, config: Object.assign({}, g.config, { decalage: 1, portes: 4, noms: { 1: 'Vérification des pièces', 2: 'Empreintes et photo' } }) }) }); return r; }, code);
     console.log('  dossiers encaissés, numéros :', JSON.stringify(sc));
     const TV = await ctxD.newPage(); await TV.setViewportSize({ width: 1920, height: 1080 }); await TV.goto(BASE + 'ecran.html?espace=' + code); await wait(500); await TV.screenshot({ path: OUT + 'd_ecran_demarrage.png' }); await TV.fill('#nomEcran', 'Salle d’attente 1'); await TV.click('#bDemarrer'); await wait(1800);
@@ -135,13 +135,14 @@ const fermerTout = p => p.evaluate(() => { ['guideInvit', 'guideProfil', 'guideA
 
   // ---------------- Espace sécurisé : connexion, comptes, alerte du Ministre, montant officiel ----------------
   await essai('connexion, comptes, alerte du Ministre, montant officiel', async () => {
+    const cD2 = await frais(false), cT2 = await frais(true);   // contextes tout neufs : le bloc précédent a rejoint un espace
     const P = await cD2.newPage(); await P.goto(BASE + 'index.html'); await wait(900);
     await role(P, 'prefecture'); await P.click('#chipEspace'); await P.waitForSelector('#espSec'); await P.check('#espSec'); await P.uncheck('#espDemo');
     await P.fill('#sec_login', 'prefecture.brazza'); await P.fill('#sec_nom', 'Le Préfet de Brazzaville'); await P.fill('#sec_mdp', 'Brazza2026ok'); await P.click('#bCreerEsp'); await P.waitForSelector('#bSecNote', { timeout: 15000 });
     await Promise.all([P.waitForNavigation({ timeout: 20000 }).catch(() => { }), P.click('#bSecNote')]); await wait(2800);
     const code = await P.evaluate(() => JSON.parse(localStorage.getItem('sp_espace_v1')).code);
-    await aller(P, 'reglages'); await wait(600); await P.locator('#r_tarif1').scrollIntoViewIfNeeded(); await P.fill('#r_tarif1', '50000'); await P.fill('#r_tarif2', '65000'); await P.click('#bRegler'); await P.waitForSelector('#r_msg .alert.vert'); await wait(500);
-    await P.locator('#r_tarif1').locator('xpath=ancestor::div[contains(@class,"carte")][1]').screenshot({ path: OUT + 'd_tarif.png' });
+    await aller(P, 'reglages'); await wait(600); await P.locator('#r_tarif1').scrollIntoViewIfNeeded(); await P.fill('#r_tarif1', '50000'); await P.fill('#r_tarif2', '50000'); await P.click('#bRegler'); await P.waitForSelector('#r_msg .alert.vert'); await wait(500);
+    await P.evaluate(() => { const e = document.getElementById('r_tarif1'); e.scrollIntoView({ block: 'center' }); window.scrollBy(0, 60); }); await wait(400); await P.locator('#r_tarif1').locator('xpath=ancestor::div[contains(@class,"carte")][1]').screenshot({ path: OUT + 'd_tarif.png' });
     await aller(P, 'comptes'); await wait(500);
     const mk = async (l, n, r) => { await P.fill('#cp_login', l); await P.fill('#cp_nom', n); await P.selectOption('#cp_role', r); await P.click('#cp_ok'); await P.waitForSelector('#tdmp'); const m = (await P.textContent('#tdmp')).trim(); if (r === 'ministere') await P.screenshot({ path: OUT + 'd_comptes_temp.png' }); await P.click('#tdFerme'); return m; };
     const tA = await mk('accueil.marie', 'Marie Nzila', 'accueil'); const tM = await mk('cabinet.ministre', 'Cabinet du Ministre', 'ministere'); await mk('caisse.jean', 'Jean Moukala', 'caisse');

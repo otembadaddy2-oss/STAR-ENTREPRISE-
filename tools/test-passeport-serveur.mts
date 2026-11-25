@@ -36,7 +36,7 @@ try {
   ok(p1.statut === 200 && p1.dossier.ticket === 1 && /^RP-\d{4}-000001$/.test(p1.dossier.paiement.recu), "paiement : reçu RP-…-000001, numéro d'appel 1");
   ok(/Rendez-vous d'enrôlement/.test(p1.message) && p1.message.includes(p1.dossier.rdv.date.slice(0, 4)), "le message WhatsApp contient la date du rendez-vous");
   ok((await post({ op: "payer", espace: E, id: ids[0], montant: 50000, mode: "Espèces" })).statut === 409, "double paiement refusé");
-  const lot = await Promise.all(ids.slice(1, 9).map(id => post({ op: "payer", espace: E, id, montant: 75000, mode: "Mobile Money MTN" })));
+  const lot = await Promise.all(ids.slice(1, 9).map(id => post({ op: "payer", espace: E, id, montant: 50000, mode: "Mobile Money MTN" })));
   ok(lot.every(r => r.statut === 200), "8 paiements simultanés réussis");
   const cle = new Set(lot.concat([p1]).map(r => r.dossier.rdv.date + "#" + r.dossier.ticket)); ok(cle.size === 9, "aucun numéro d'appel en double sur 9 paiements simultanés");
   const jours = lot.concat([p1]).reduce((a: any, r: any) => { a[r.dossier.rdv.date] = (a[r.dossier.rdv.date] || 0) + 1; return a; }, {});
@@ -170,15 +170,15 @@ try {
   const dosSec = (id: string, nom: string) => ({ id, type: "premiere", status: "depose", createdAt: new Date().toISOString(), mrzOk: true, person: { nom, prenoms: "Prénom", naissance: "1990-01-01", sexe: "F", tel: "+242 06 000 00 00", piece: { type: "CNI", numero: "CNI" + nom } }, pieces: [], history: [{ s: "depose", at: new Date().toISOString(), by: "x", note: "Dossier enregistré" }] });
   const dS = dosSec("BZV-2026-S001", "SECUN"), dS2 = dosSec("BZV-2026-S002", "SECDEUX"), dS3 = dosSec("BZV-2026-S003", "SECTROIS");
   ok((await req({ op: "ecrire", espace: S, dossiers: [{ id: dS.id, baseRev: 0, data: dS }, { id: dS2.id, baseRev: 0, data: dS2 }, { id: dS3.id, baseRev: 0, data: dS3 }] }, JG)).acceptes?.length === 3, "l'agent de guichet enregistre des dossiers");
-  ok((await req({ op: "ecrire", espace: S, dossiers: [] }, JM)).statut === 403 && (await req({ op: "payer", espace: S, id: dS.id, montant: 5000 }, JM)).statut === 403, "le Ministère consulte seulement : écriture et paiement refusés (403)");
-  ok((await req({ op: "payer", espace: S, id: dS.id, montant: 5000 }, JG)).statut === 403, "l'agent de guichet ne peut pas encaisser (403)");
-  ok((await req({ op: "payer", espace: S, id: dS.id, montant: 5000 }, JP)).statut === 403 && (await req({ op: "ecrire", espace: S, dossiers: [] }, JP)).statut === 403, "l'agent de porte ne peut ni encaisser ni modifier les dossiers");
+  ok((await req({ op: "ecrire", espace: S, dossiers: [] }, JM)).statut === 403 && (await req({ op: "payer", espace: S, id: dS.id, montant: 50000 }, JM)).statut === 403, "le Ministère consulte seulement : écriture et paiement refusés (403)");
+  ok((await req({ op: "payer", espace: S, id: dS.id, montant: 50000 }, JG)).statut === 403, "l'agent de guichet ne peut pas encaisser (403)");
+  ok((await req({ op: "payer", espace: S, id: dS.id, montant: 50000 }, JP)).statut === 403 && (await req({ op: "ecrire", espace: S, dossiers: [] }, JP)).statut === 403, "l'agent de porte ne peut ni encaisser ni modifier les dossiers");
   ok((await req({ op: "reglages", espace: S, config: { portes: 3 } }, JA)).statut === 403 && (await req({ op: "reglages", espace: S, config: { portes: 3 } }, JC)).statut === 403, "seule la Préfecture règle le site");
   ok((await req({ op: "supprimer", espace: S, confirmation: "EFFACER" }, JA)).statut === 403, "l'accueil ne peut pas effacer l'espace");
   await req({ op: "reglages", espace: S, config: { portes: 3, delai: 0, jours: [0, 1, 2, 3, 4, 5, 6], capacite: 50 } }, T0);
-  const pa = await req({ op: "payer", espace: S, id: dS.id, montant: 5000, mode: "Espèces", caissier: "Usurpateur" }, JA);
+  const pa = await req({ op: "payer", espace: S, id: dS.id, montant: 50000, mode: "Espèces", caissier: "Usurpateur" }, JA);
   ok(pa.statut === 200 && pa.dossier.ticket >= 1 && pa.dossier.paiement.recu && pa.dossier.paiement.caissier === "Agent d'accueil", "l'accueil valide le paiement : numéro d'appel, rendez-vous et reçu attribués automatiquement, au nom du compte connecté (pas du nom envoyé)");
-  const pc = await req({ op: "payer", espace: S, id: dS2.id, montant: 5000, mode: "Espèces" }, JC); ok(pc.statut === 200 && pc.dossier.paiement.caissier === "Caissière", "la caisse encaisse aussi");
+  const pc = await req({ op: "payer", espace: S, id: dS2.id, montant: 50000, mode: "Espèces" }, JC); ok(pc.statut === 200 && pc.dossier.paiement.caissier === "Caissière", "la caisse encaisse aussi");
   ok((await req({ op: "appeler", espace: S, porte: 1 }, JP)).statut === 200 && (await req({ op: "appeler", espace: S, porte: 1 }, JA)).statut === 403, "seul l'agent de porte appelle (ainsi que la Préfecture)");
   ok((await lire("op=comptes&espace=" + S, JA)).statut === 403 && (await lire("op=comptes&espace=" + S, JM)).statut === 403 && (await lire("op=comptes&espace=" + S, T0)).comptes.length === 6, "la liste des comptes n'est visible que de la Préfecture");
   ok((await req({ op: "comptes-creer", espace: S, login: "intrus", nom: "Intrus", role: "prefecture" }, JA)).statut === 403, "un agent ne peut pas se créer un compte Préfecture");
@@ -208,7 +208,7 @@ try {
   const prH = await req({ op: "preinscrire", public: pubA, dossier: { nom: "Hacker", prenoms: "Test", naissance: "1991-01-01", piece: { type: "CNI", numero: "CNIHACK" }, type: "premiere" } });
   await ecr(JG, prH.id, { accueil: { ok: true, at: "2020-01-01", by: "Accueil" } }); ok((await courant(prH.id)).data.accueil === undefined, "ATTAQUE 10 — l'agent de guichet pose lui-même « vérifié à l'accueil » : refusé");
   await ecr(JG, prH.id, (d: any) => { delete d.preinscrit; return d; }); ok((await courant(prH.id)).data.preinscrit !== undefined, "ATTAQUE 11 — retirer la marque « pré-enregistré » pour échapper à la vérification : refusé");
-  ok((await req({ op: "payer", espace: S, id: prH.id, montant: 5000, mode: "Espèces" }, JC)).statut === 409, "…et la caisse ne peut toujours pas encaisser ce dossier tant que l'accueil n'a pas vérifié");
+  ok((await req({ op: "payer", espace: S, id: prH.id, montant: 50000, mode: "Espèces" }, JC)).statut === 409, "…et la caisse ne peut toujours pas encaisser ce dossier tant que l'accueil n'a pas vérifié");
   await ecr(JA, prH.id, { accueil: { ok: true, at: "2001-01-01", by: "Quelqu'un d'autre" } }); const ac = (await courant(prH.id)).data.accueil; ok(ac && ac.ok === true && ac.by === "Agent d'accueil" && Math.abs(Date.parse(ac.at) - Date.now()) < 60000, "l'accueil, lui, peut vérifier : le nom et l'heure sont posés par le serveur (« " + ac.by + " »)");
   // avancer une étape : seulement par les rôles habilités, d'un cran
   const e1 = await req({ op: "appeler", espace: S, porte: 1 }, T0);   // un dossier payé est appelé -> « recu »
@@ -251,7 +251,7 @@ try {
   ok(dernierCo === 429, "ATTAQUE 18 — essayer des centaines d'identifiants depuis une adresse : bloqué au bout de 60 tentatives (429)");
   await db().sql`DELETE FROM pss_echecs WHERE cle LIKE 'suivi:198.51.100.%' OR cle LIKE 'ipco:198.51.100.%' OR cle LIKE 'suividossier:BZV-2026-S00%'`;
   // montant sur l'accusé WhatsApp
-  const msg = pa.message || ""; ok(/Montant payé/.test(msg) && /5[\s  ]?000 FCFA/.test(msg), "L'ACCUSÉ WHATSAPP DE PAIEMENT PORTE LE MONTANT : « " + (msg.split("\n").find((l: string) => /Montant/.test(l)) || "").replace(/\*/g, "") + " »");
+  const msg = pa.message || ""; ok(/Montant payé/.test(msg) && /50[\s  ]?000 FCFA/.test(msg), "L'ACCUSÉ WHATSAPP DE PAIEMENT PORTE LE MONTANT : « " + (msg.split("\n").find((l: string) => /Montant/.test(l)) || "").replace(/\*/g, "") + " »");
   // un jeton d'un autre espace ne sert à rien
   ok((await lire("op=sync&espace=" + sc.code.replace(/^./, c => (c === "A" ? "B" : "A")) + "&since=0", T0)).statut === 404 || true, "(contrôle d'espace inconnu)");
   const autre = await req({ op: "creer", nom: "Autre", admin: { login: "autre.pf", nom: "Autre", mdp: "Autre2026ok1" } }); ok((await lire("op=sync&espace=" + autre.code + "&since=0", T0)).statut === 401, "le jeton d'un espace ne donne aucun accès à un autre espace");

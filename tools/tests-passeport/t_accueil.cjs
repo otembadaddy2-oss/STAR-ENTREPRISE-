@@ -66,7 +66,7 @@ const att = async (fn, ms = 15000) => { const t = Date.now(); while (Date.now() 
   // l'agent joint les pièces originales (ici : pièces d'essai), puis la caisse peut encaisser
   await A.evaluate(i => { const X = window.__spApi, d = X.DB.find(x => x.id === i); d.pieces = ['photo', 'identite', 'naissance', 'nationalite'].map((k, n) => ({ id: 'PJ-demo' + n, type: k, nom: k, mime: 'image/jpeg', taille: 1, at: new Date().toISOString(), par: 'accueil', demo: true })); X.sauver(); }, id1);
   await A.selectOption('#role', 'caisse'); await nav(A, 'caisse'); await A.fill('#k_id', id1); await A.fill('#k_code', code1); await A.click('#bCaisseOuvrir'); await A.waitForSelector('#bPayer', { timeout: 8000 });
-  await A.fill('#k_montant', '50000'); await A.click('#bPayer'); await A.waitForSelector('#tiroir.on', { timeout: 10000 });
+  await A.click('#bPayer'); await A.waitForSelector('#tiroir.on', { timeout: 10000 });
   const paye = await A.evaluate(i => { const d = window.__spApi.DB.find(x => x.id === i); return { s: d.status, t: d.ticket, r: d.paiement && d.paiement.recu, rdv: d.rdv && d.rdv.date }; }, id1);
   ok(paye.s === 'paye' && paye.t >= 1 && /^RP-/.test(paye.r) && paye.rdv, 'après vérification : paiement, reçu ' + paye.r + ', numéro d’appel ' + paye.t + ', rendez-vous ' + paye.rdv);
   await A.click('#bFerme');
@@ -91,7 +91,7 @@ const att = async (fn, ms = 15000) => { const t = Date.now(); while (Date.now() 
   ok(/espace partagé/.test(await L.textContent('#lienPre')), 'mode local : le lien explique qu’il faut d’abord créer l’espace');
   await L.click('#bRecepEx'); await L.waitForSelector('#bRecepOk'); const ckl = L.locator('.rv'); for (let i = 0; i < await ckl.count(); i++) await ckl.nth(i).check(); await L.click('#bRecepOk'); await L.waitForSelector('#recepRes .alert.vert');
   await L.selectOption('#role', 'caisse'); await nav(L, 'caisse'); await L.evaluate(() => { const d = window.__spApi.DB.find(x => x.preinscrit); document.getElementById('k_id').value = d.id; document.getElementById('k_code').value = window.__spApi.code(d.id, d.person.nom); }); await L.click('#bCaisseOuvrir'); await L.waitForSelector('#bPayer');
-  await L.fill('#k_montant', '25000'); await L.click('#bPayer'); await L.waitForSelector('#tiroir.on'); ok(true, 'mode local : exemple → accueil → caisse → reçu');
+  await L.click('#bPayer'); await L.waitForSelector('#tiroir.on'); ok(true, 'mode local : exemple → accueil → caisse → reçu');
 
   // ---------- visite guidée de l'accueil + installation ----------
   const G = await ctx(); await G.goto(BASE + 'index.html?guide=1'); await G.waitForTimeout(800);

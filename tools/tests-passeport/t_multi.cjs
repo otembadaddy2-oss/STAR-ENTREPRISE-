@@ -52,7 +52,7 @@ const att = async (fn, ms = 8000) => { const t = Date.now(); while (Date.now() -
   await B.evaluate(() => document.querySelector('nav button[data-v="caisse"]').click());
   await B.click('#bScanEx'); await B.waitForSelector('#k_montant', { timeout: 6000 });
   const idPaye = (await B.inputValue('#k_id'));
-  await B.fill('#k_montant', '75000'); await B.click('#bPayer');
+  await B.click('#bPayer');
   await B.waitForSelector('.recu', { timeout: 10000 });
   const recu = await B.textContent('.recu .num'), rdvTxt = await B.textContent('.recu .alert');
   ok(/RP-\d{4}-\d{6}/.test(recu), 'reçu émis : ' + recu);
@@ -65,7 +65,7 @@ const att = async (fn, ms = 8000) => { const t = Date.now(); while (Date.now() -
   // deux autres paiements (pour avoir 3 personnes le même jour)
   for (let i = 0; i < 2; i++) {
     await B.click('#bScanEx'); await B.waitForSelector('#k_montant', { timeout: 6000 });
-    await B.fill('#k_montant', '75000'); await B.click('#bPayer'); await B.waitForSelector('.recu', { timeout: 10000 });
+    await B.click('#bPayer'); await B.waitForSelector('.recu', { timeout: 10000 });
     console.log('paiement', i + 2, await B.textContent('.recu .num'), (await B.textContent('.recu .gros')));
     await B.click('#bFerme'); await B.waitForTimeout(300);
   }
@@ -108,7 +108,7 @@ const att = async (fn, ms = 8000) => { const t = Date.now(); while (Date.now() -
   await C.route('**/api/passeport*', r => r.abort());
   await C.waitForTimeout(4500);
   ok(/perdue/.test(await C.textContent('#etat')) && (await C.textContent('#num')) === n2, 'coupure réseau : bandeau + dernier affichage conservé');
-  await C.unroute('**/api/passeport*'); await C.waitForTimeout(2500);
+  await C.unroute('**/api/passeport*'); await C.waitForFunction(() => /Connecté/.test(document.getElementById('etat').textContent), null, { timeout: 9000 }).catch(() => { });   // un onglet en arrière-plan n'interroge le serveur que toutes les 5 s
   ok(/Connecté/.test(await C.textContent('#etat')), 'reconnexion automatique de l’écran');
 
   // ---------- File vue par A (aperçu écran intégré) ----------

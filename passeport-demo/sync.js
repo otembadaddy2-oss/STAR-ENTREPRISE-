@@ -19,7 +19,7 @@ const post = corps => http('/api/passeport', { method: 'POST', headers: { 'conte
 const get = qs => http('/api/passeport?' + qs);
 
 /* ---------- Réglages (serveur si connecté, sinon sur cet appareil) ---------- */
-const DEFAUT = { portes: 6, noms: {}, capacite: 60, delai: 1, jours: [1, 2, 3, 4, 5], debut: '08:00', pas: 30, parCreneau: 10, lieu: 'Préfecture de Brazzaville', decalage: 0, tarifs: { premiere: 0, renouvellement: 0 } };
+const DEFAUT = { portes: 6, noms: {}, capacite: 60, delai: 1, jours: [1, 2, 3, 4, 5], debut: '08:00', pas: 30, parCreneau: 10, lieu: 'Préfecture de Brazzaville', decalage: 0, tarifs: { premiere: 50000, renouvellement: 50000 } };
 function cfgLocale() { try { return Object.assign({}, DEFAUT, JSON.parse(localStorage.getItem(RK) || '{}')); } catch (e) { return Object.assign({}, DEFAUT); } }
 const cfg = () => (actif() && config) ? config : cfgLocale();
 async function regler(p) {

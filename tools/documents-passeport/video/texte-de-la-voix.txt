@@ -31,7 +31,7 @@ TEXTE DE LA VOIX OFF — Guide vidéo « Passeport Sûr »
 
 15. Vérifier avant d’encaisser. La fiche, les pièces, la signature et les alertes s’affichent. L’encaissement est bloqué si une pièce obligatoire manque ou si une alerte grave n’a pas été examinée par la Préfecture.
 
-16. Encaisser et éditer le reçu. Montant, mode de paiement, puis Encaisser. Le reçu donne le rendez-vous d’enrôlement et le numéro d’appel. Ici, des montants fictifs.
+16. Encaisser et éditer le reçu. Le montant officiel, 50 000 FCFA, s’affiche déjà et ne peut pas être modifié à la caisse. On choisit le mode de paiement, puis Encaisser. Le reçu donne le rendez-vous d’enrôlement et le numéro d’appel.
 
 17. Le message WhatsApp du rendez-vous. Le demandeur reçoit la date de son rendez-vous et son numéro d’appel. Les numéros sont sans doublon, et la capacité du jour ne peut pas être dépassée.
 
@@ -73,9 +73,9 @@ TEXTE DE LA VOIX OFF — Guide vidéo « Passeport Sûr »
 
 36. Le Ministre voit la situation réelle. Le Ministre en poste se connecte : il voit en temps réel tout ce qui se passe sur l’interface, mais il ne modifie rien. Une tentative de triche est refusée par le serveur et inscrite dans un journal infalsifiable.
 
-37. Une fraude ? Un message s’affiche tout de suite. Deux dossiers portent le même numéro de pièce avec des noms différents : un message rouge apparaît sur l’écran du Ministre, avec le dossier concerné. Ce sont des alertes à examiner par une personne, pas des preuves.
+37. Une fraude ? Un message s’affiche tout de suite. Deux dossiers portent le même numéro de pièce avec des noms différents : un message rouge apparaît sur l’écran du Ministre, avec le dossier concerné, et une sirène retentit. Ce sont des alertes à examiner par une personne, pas des preuves.
 
-38. Une tentative de contournement est signalée. Un agent de guichet essaie de créer un compte « Préfecture » ou de changer lui-même le montant officiel : le serveur refuse, et le Ministre est averti aussitôt. Même en trafiquant l’écran, les règles sont revérifiées par le serveur : le contournement depuis l’application ne passe pas.
+38. Une tentative de contournement est signalée. Un agent de guichet essaie de créer un compte « Préfecture » ou de changer lui-même le montant officiel : le serveur refuse, et le Ministre est averti aussitôt, par un message et par un son. Même en trafiquant l’écran, les règles sont revérifiées par le serveur : le contournement depuis l’application ne passe pas.
 
 39. Qui a fait quoi, quand. Le journal garde chaque connexion, chaque refus et chaque tentative. Chaque ligne est liée à la précédente : on peut vérifier qu’il n’a pas été retouché.
 

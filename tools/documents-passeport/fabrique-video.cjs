@@ -11,7 +11,7 @@ const lecture = t => Math.max(3200, Math.round(texte(t).split(' ').length * 330)
 const leg = async (num, titre, t, ms) => { voix.push(titre + '. ' + texte(t)); await page.evaluate(([a, b, c]) => V.leg(a, b, c), [num, titre, t]); await wait(ms || lecture(t)); };
 const carte = async (html, ms, nomVoix) => { voix.push(nomVoix || texte(html)); await page.evaluate(h => V.carte(h), html); await wait(ms); await page.evaluate(() => V.carte(null)); await wait(700); };
 async function pointeur(fr, sel, clic = true, nth = 0) {
-  const el = fr.locator(sel).nth(nth); await el.scrollIntoViewIfNeeded().catch(() => { }); const b = await el.boundingBox(); if (!b) throw new Error('introuvable : ' + sel);
+  const el = fr.locator(sel).nth(nth); let b = null; for (let k = 0; k < 5 && !b; k++) { await el.scrollIntoViewIfNeeded({ timeout: 3000 }).catch(() => { }); b = await el.boundingBox(); if (!b) await page.waitForTimeout(700); } if (!b) throw new Error('introuvable : ' + sel);
   await page.evaluate(([x, y]) => V.curseur(x, y, false), [b.x + b.width / 2 - 4, b.y + b.height / 2 - 4]); await wait(650);
   if (clic) { await page.evaluate(([x, y]) => V.curseur(x, y, true), [b.x + b.width / 2 - 4, b.y + b.height / 2 - 4]); await wait(220); try { await el.click({ timeout: 2500 }); } catch (e) { console.log('  (clic direct) ' + sel + ' : ' + e.message.split('\n').filter(l => /intercepts|not visible|detached/.test(l)).join(' ').slice(0, 160)); await el.evaluate(n => n.click()); } } return el;
 }
@@ -80,8 +80,8 @@ const api = (body) => page.evaluate(async b => { const r = await fetch('/api/pas
     await leg('Étape 3 sur 10 · Caisse', 'Ouvrir le dossier', 'Le demandeur présente son accusé. La caisse <b>scanne le code QR</b> — ou saisit le numéro de reçu et le code de contrôle — et le dossier s’ouvre.', 6500);
     await taper(f, '#k_id', dos.id, 70); await taper(f, '#k_code', dos.code, 90); await pointeur(f, '#bCaisseOuvrir'); await f.locator('#k_montant').waitFor({ timeout: 8000 }); await wait(1200);
     await leg('Étape 3 sur 10 · Caisse', 'Vérifier avant d’encaisser', 'La fiche, les pièces, la signature et les alertes s’affichent. <b>L’encaissement est bloqué</b> si une pièce obligatoire manque ou si une alerte grave n’a pas été examinée par la Préfecture.', 7500);
-    await taper(f, '#k_montant', '75000', 110); await wait(700);
-    await leg('Étape 3 sur 10 · Caisse', 'Encaisser et éditer le reçu', 'Montant, mode de paiement, puis <b>Encaisser</b>. Le <b>reçu</b> donne le <b>rendez-vous d’enrôlement</b> et le <b>numéro d’appel</b>. Ici, des montants fictifs.', 5500);
+    await f.locator('#k_montant').scrollIntoViewIfNeeded().catch(() => { }); await wait(900);
+    await leg('Étape 3 sur 10 · Caisse', 'Encaisser et éditer le reçu', 'Le montant officiel, <b>50 000 FCFA</b>, s’affiche déjà et ne peut pas être modifié à la caisse. On choisit le mode de paiement, puis <b>Encaisser</b>. Le <b>reçu</b> donne le <b>rendez-vous d’enrôlement</b> et le <b>numéro d’appel</b>.', 5500);
     await pointeur(f, '#bPayer'); await f.locator('.recu').waitFor({ timeout: 8000 }); await wait(3500);
     await f.evaluate(() => { const t = document.querySelector('#tiroir .feuille'); t && t.scrollTo({ top: 600, behavior: 'smooth' }); }); await wait(3500);
     await leg('Étape 3 sur 10 · Caisse', 'Le message WhatsApp du rendez-vous', 'Le demandeur reçoit <b>la date de son rendez-vous</b> et son numéro d’appel. Les numéros sont sans doublon, et la capacité du jour ne peut pas être dépassée.', 6000);

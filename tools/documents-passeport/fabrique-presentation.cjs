@@ -93,7 +93,7 @@ ${duo(['d_connexion', 'L’écran de connexion : identifiant, mot de passe, « m
 ${duo(['d_ministre_alerte', 'L’interface du Ministre : le bandeau d’alerte de fraude, en temps réel.'], ['d_tarif', 'Le montant officiel, saisi une seule fois dans les réglages.'])}
 <div class="note"><b>Une alerte n’est pas une preuve.</b> Elle signale un cas à examiner par une personne habilitée. Le Ministre est informé ; la Préfecture examine ; la décision reste humaine.</div>
 <h2>Le montant officiel du passeport</h2>
-<p>Quand l’administration communiquera le <b>montant officiel</b>, la Préfecture le saisit <b>une seule fois</b> dans les réglages (première demande, renouvellement). Il s’applique alors <b>automatiquement à tous les postes</b> : la caisse l’affiche sans pouvoir le modifier, le reçu le porte, et le serveur <b>refuse tout autre montant</b>. Tant qu’il n’est pas saisi, la démonstration accepte un montant fictif. <b>Aucun tarif n’est inventé</b> dans ce dossier.</p>`,
+<p>Le <b>montant officiel</b> du passeport au Congo-Brazzaville est de <b>50 000 FCFA</b>, sauf décision du gouvernement : il est <b>déjà préenregistré</b>, et l’application est opérationnelle immédiatement. Si le montant change, la Préfecture le modifie <b>une seule fois</b> dans les réglages (première demande, renouvellement). Il s’applique alors <b>automatiquement à tous les postes</b> : la caisse l’affiche sans pouvoir le modifier, le reçu le porte, et le serveur <b>refuse tout autre montant</b>. Les autres tarifs éventuels (délais accélérés, par exemple) ne figurent pas dans ce dossier : ils relèvent du Ministère.</p>`,
 
 `<h1 style="margin-top:9mm">6. Les situations que le système veut traiter</h1>
 <p>Le projet part de situations que l’on rencontre couramment dans les services qui reçoivent du public. Elles sont présentées ici comme des <b>hypothèses de travail, à valider avec la Préfecture</b> par des observations sur le terrain :</p>
@@ -206,7 +206,7 @@ ${duo(['d_securite', 'Le journal de sécurité, visible de la Préfecture et du 
 <tr><td>Alerte de fraude en temps réel sur l’interface du Ministre</td><td>Définir avec le Ministère qui est alerté, par quel canal (écran, SMS, courriel) et à quelle gravité</td></tr>
 <tr><td>Lecture de la zone MRZ d’une pièce (testée sur images de test)</td><td>Essai avec de <b>vraies pièces</b> et les appareils de la Préfecture</td></tr>
 <tr><td>Accusé et message de paiement (montant, reçu, rendez-vous, numéro d’appel) préparés pour WhatsApp (envoi par bouton)</td><td>Envoi <b>automatique</b> à chaque paiement : API WhatsApp Business de Meta (modèles de messages approuvés, coût par message) ou SMS</td></tr>
-<tr><td>Caisse : contrôles, reçu, numéro d’appel ; montant officiel à saisir une seule fois (montants de la démonstration fictifs)</td><td>Montant officiel à communiquer, liaison avec les moyens de paiement réels</td></tr>
+<tr><td>Caisse : contrôles, reçu, numéro d’appel ; montant officiel de 50 000 FCFA préenregistré, modifiable une seule fois en cas de décision du gouvernement</td><td>Confirmation du montant par le Ministère, liaison avec les moyens de paiement réels</td></tr>
 <tr><td>Salle d’attente : portes, écrans, voix, file ordonnée</td><td>Matériel (téléviseurs, tablettes), réseau du site, voix française testée sur place</td></tr>
 <tr><td>Alertes anti-fraude par règles explicables</td><td>Liaison avec les bases officielles pour vérifier l’authenticité (accords à obtenir)</td></tr>
 <tr><td>Tableau de bord et export Excel</td><td>Indicateurs définis avec le Ministère</td></tr></table>
