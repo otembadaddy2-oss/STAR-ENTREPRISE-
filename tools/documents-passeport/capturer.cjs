@@ -123,6 +123,33 @@ const fermerTout = p => p.evaluate(() => { ['guideInvit', 'guideProfil', 'guideA
     await A.close();
   });
 
+  // ---------------- Espace sécurisé : connexion, comptes, alerte du Ministre, montant officiel ----------------
+  await essai('connexion, comptes, alerte du Ministre, montant officiel', async () => {
+    const P = await ctxD.newPage(); await P.goto(BASE + 'index.html'); await wait(900);
+    await role(P, 'prefecture'); await P.click('#chipEspace'); await P.waitForSelector('#espSec'); await P.check('#espSec'); await P.uncheck('#espDemo');
+    await P.fill('#sec_login', 'prefecture.brazza'); await P.fill('#sec_nom', 'Le Préfet de Brazzaville'); await P.fill('#sec_mdp', 'Brazza2026ok'); await P.click('#bCreerEsp'); await P.waitForSelector('#bSecNote', { timeout: 15000 });
+    await Promise.all([P.waitForNavigation({ timeout: 20000 }).catch(() => { }), P.click('#bSecNote')]); await wait(2800);
+    const code = await P.evaluate(() => JSON.parse(localStorage.getItem('sp_espace_v1')).code);
+    await aller(P, 'reglages'); await wait(600); await P.locator('#r_tarif1').scrollIntoViewIfNeeded(); await P.fill('#r_tarif1', '50000'); await P.fill('#r_tarif2', '65000'); await P.click('#bRegler'); await P.waitForSelector('#r_msg .alert.vert'); await wait(500);
+    await P.locator('#r_tarif1').locator('xpath=ancestor::div[contains(@class,"carte")][1]').screenshot({ path: OUT + 'd_tarif.png' });
+    await aller(P, 'comptes'); await wait(500);
+    const mk = async (l, n, r) => { await P.fill('#cp_login', l); await P.fill('#cp_nom', n); await P.selectOption('#cp_role', r); await P.click('#cp_ok'); await P.waitForSelector('#tdmp'); const m = (await P.textContent('#tdmp')).trim(); if (r === 'ministere') await P.screenshot({ path: OUT + 'd_comptes_temp.png' }); await P.click('#tdFerme'); return m; };
+    const tA = await mk('accueil.marie', 'Marie Nzila', 'accueil'); const tM = await mk('cabinet.ministre', 'Cabinet du Ministre', 'ministere'); await mk('caisse.jean', 'Jean Moukala', 'caisse');
+    await P.evaluate(async () => { const S = window.__spSync; await S.api.post({ op: 'comptes-reinitialiser', espace: S.esp(), login: 'caisse.jean' }); }); await wait(300);
+    await fetch(BASE.replace('passeport-demo/', '') + 'api/passeport', { method: 'POST', body: JSON.stringify({ op: 'oubli', espace: code, login: 'accueil.marie' }) }); await P.reload(); await wait(2500); await aller(P, 'comptes'); await wait(900); await P.screenshot({ path: OUT + 'd_comptes.png', fullPage: true });
+    // écran de connexion
+    const C = await ctxD.newPage(); await C.goto(BASE + 'index.html?espace=' + code); await C.waitForSelector('#cpt_f'); await wait(500); await C.screenshot({ path: OUT + 'd_connexion.png' });
+    const CT = await ctxT.newPage(); await CT.goto(BASE + 'index.html?espace=' + code); await CT.waitForSelector('#cpt_f'); await wait(500); await CT.screenshot({ path: OUT + 't_connexion.png' });
+    // le Ministre se connecte, puis une fraude apparaît
+    await C.fill('#cpt_login', 'cabinet.ministre'); await C.fill('#cpt_mdp', tM); await C.click('#cpt_ok'); await C.waitForSelector('#ch_f'); await wait(400); await C.screenshot({ path: OUT + 'd_changer_mdp.png' });
+    await C.fill('#ch_new', 'Ministre2026ok'); await C.fill('#ch_new2', 'Ministre2026ok'); await C.click('#ch_ok'); await C.waitForSelector('#cptOverlay', { state: 'detached' }); await wait(2500);
+    const dup = n => ({ id: 'BZV-2026-D0' + n, type: 'premiere', status: 'depose', createdAt: new Date().toISOString(), mrzOk: true, agent: 'Agent 03', lieu: 'Makélékélé', person: { nom: n === 1 ? 'BOUKA' : 'BOUKA', prenoms: n === 1 ? 'Rodrigue' : 'Rodrigue Aimé', naissance: '1985-05-0' + n, sexe: 'M', tel: '+242 06 9' + n + '0 00 00', piece: { type: 'CNI', numero: 'CNI4455667', expiration: '2031-01-01' } }, ancien: null, pieces: [], history: [{ s: 'depose', at: new Date().toISOString(), by: 'Agent 03', note: 'Dossier enregistré' }] });
+    await P.evaluate(async d => { const S = window.__spSync; await S.api.post({ op: 'ecrire', espace: S.esp(), dossiers: d.map(x => ({ id: x.id, baseRev: 0, data: x })) }); }, [dup(1), dup(2)]);
+    await C.waitForSelector('#alerteFraude', { timeout: 20000 }); await wait(700); await C.screenshot({ path: OUT + 'd_ministre_alerte.png' });
+    const CM = await ctxT.newPage(); await CM.goto(BASE + 'index.html?espace=' + code); await CM.waitForSelector('#cpt_f'); await CM.fill('#cpt_login', 'cabinet.ministre'); await CM.fill('#cpt_mdp', 'Ministre2026ok'); await CM.click('#cpt_ok'); await CM.waitForSelector('#alerteFraude', { timeout: 20000 }); await wait(600); await CM.screenshot({ path: OUT + 't_ministre_alerte.png' });
+    await P.close(); await C.close(); await CT.close(); await CM.close();
+  });
+
   await essai('à propos', async () => { await aller(D, 'regles'); await wait(700); await D.screenshot({ path: OUT + 'd_apropos.png', fullPage: true }); });
   console.log(echecs.length ? 'ÉCHECS : ' + echecs.join(', ') : 'TOUTES LES CAPTURES FAITES'); console.log(fs.readdirSync(OUT).filter(f => f.endsWith('.png')).length + ' images'); await b.close();
 })().catch(e => { console.log('CRASH', e.message.split('\n')[0]); process.exit(1); });

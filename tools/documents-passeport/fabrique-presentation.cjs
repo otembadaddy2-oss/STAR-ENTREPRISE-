@@ -13,7 +13,7 @@ couverture({ kic: 'Proposition de projet · Brazzaville', titre: 'Passeport Sûr
 <h2>Pour qui ?</h2>
 <table><tr><th style="width:34mm">Qui</th><th>Ce que l’application lui apporte</th></tr>
 <tr><td><b>Le demandeur</b></td><td>La possibilité de se pré-enregistrer avant de se déplacer, un accusé sur son téléphone, un rendez-vous précis, le suivi de son dossier, la possibilité d’envoyer une pièce manquante sans revenir au guichet.</td></tr>
-<tr><td><b>L’accueil (front office)</b></td><td>Il reçoit les personnes pré-enregistrées, scanne l’accusé, compare la fiche aux pièces originales, puis envoie vers la caisse — ou signale un écart.</td></tr>
+<tr><td><b>L’accueil (front office)</b></td><td>Il reçoit les personnes pré-enregistrées, scanne l’accusé, compare la fiche aux pièces originales, contrôle le paiement et les pièces, puis valide le paiement — ou signale un écart.</td></tr>
 <tr><td><b>L’agent de guichet</b></td><td>Une fiche qui se remplit à partir de la pièce scannée, la liste des pièces à fournir, la signature sur l’écran.</td></tr>
 <tr><td><b>La caisse</b></td><td>L’ouverture du dossier par scan du code QR, des contrôles avant l’encaissement, un reçu avec le rendez-vous.</td></tr>
 <tr><td><b>Les agents de porte</b></td><td>Une file claire, des boutons « appeler le suivant », « rappeler », « absent ».</td></tr>
@@ -65,7 +65,37 @@ couverture({ kic: 'Proposition de projet · Brazzaville', titre: 'Passeport Sûr
 <li>La possibilité d’<b>arrêter ou de corriger</b> le dispositif à tout moment.</li></ul>
 <div class="note"><b>À confirmer ensemble.</b> Cette répartition est une proposition de travail. Les textes officiels, les tarifs et la liste des pièces restent ceux fixés par les autorités.</div>`,
 
-`<h1 style="margin-top:9mm">5. Les situations que le système veut traiter</h1>
+`<h1 class="chap">5. Le back-office de réception, les comptes et les droits</h1>
+<div class="butband"><small>En lien avec le but de l’application</small><p>Suivre chaque demande, ordonner la file et détecter les fraudes suppose de savoir <b>qui fait quoi</b> : chaque agent a son compte et des droits limités à son rôle, et le Ministre voit la situation réelle, avec une alerte immédiate en cas de fraude.</p></div>
+<h2>Le back-office de réception</h2>
+<p>L’<b>agent d’accueil</b> dispose d’un espace de gestion de réception. Il peut <b>voir tous les dossiers enregistrés</b> dans le système et il ne peut que <b>contrôler et vérifier</b> : le dossier est-il payé ou non ? manque-t-il une pièce ? Il <b>valide le paiement</b>. Dès cette validation, le système attribue <b>automatiquement</b> le <b>numéro d’appel</b> et la <b>date de rendez-vous d’enrôlement</b>, les transmet au dossier et les <b>fait apparaître sur l’accusé</b> du demandeur (son lien de suivi et son reçu).</p>
+<h2>Connexion par identifiant et mot de passe</h2>
+<ul><li>L’accueil, la caisse, le guichet, les portes, la Préfecture et le Ministère <b>doivent se connecter</b> : un identifiant et un mot de passe <b>personnels</b>.</li>
+<li>La <b>Préfecture crée les comptes</b>. Elle remet à chaque agent un <b>mot de passe temporaire</b> (affiché une seule fois) que l’agent doit <b>changer dès sa première connexion</b>. Un mot de passe contient au moins 8 caractères, avec une lettre et un chiffre.</li>
+<li>Les mots de passe ne sont <b>jamais enregistrés en clair</b> (empreinte à sens unique avec sel). Après <b>5 essais ratés</b>, le compte est bloqué 15 minutes. Une session dure 12 heures au plus ; la Préfecture peut désactiver un compte ou le réinitialiser, ce qui ferme aussitôt sa session.</li>
+<li>Le <b>rôle est imposé par le compte</b> : on ne peut plus « choisir son profil ». Surtout, les droits sont <b>appliqués par le serveur</b> : même en manipulant l’écran, un agent ne peut pas faire ce que son rôle interdit.</li></ul>
+${duo(['d_connexion', 'L’écran de connexion : identifiant, mot de passe, « mot de passe oublié ».'], ['d_comptes', 'La Préfecture crée et gère les comptes de son espace.'])}
+<h2>Mot de passe oublié</h2>
+<table><tr><th style="width:52mm">Qui</th><th>Comment retrouver l’accès</th></tr>
+<tr><td><b>Un agent</b> (accueil, caisse, guichet, porte, Ministère)</td><td>Il saisit son identifiant : la demande apparaît chez la <b>Préfecture</b>, qui <b>réinitialise</b> et lui remet un mot de passe temporaire. La réponse est la même que l’identifiant existe ou non : on ne révèle pas quels comptes existent.</td></tr>
+<tr><td><b>La Préfecture</b></td><td>Elle utilise son <b>code de secours</b>, remis une seule fois à la création de l’espace (à ranger en lieu sûr). Il est <b>renouvelé</b> à chaque usage.</td></tr></table>
+<div class="note"><b>Limite actuelle.</b> Aucun service d’envoi de <b>courriel ou de SMS</b> n’est encore branché : la réinitialisation passe donc par la Préfecture. L’envoi automatique d’un lien ou d’un code se branchera avec un fournisseur choisi avec le Ministère, et s’ajoutera à ce dispositif sans le remplacer.</div>
+<h2>Les droits de chaque rôle</h2>
+<table><tr><th style="width:36mm">Rôle</th><th>Ce que le serveur autorise</th></tr>
+<tr><td><b>Préfecture</b></td><td>Tout : comptes, réglages du site et montant officiel, dossiers, paiement, appels, anti-fraude, effacement de l’espace.</td></tr>
+<tr><td><b>Ministère</b></td><td><b>Consulter seulement</b> : tableau de bord, anti-fraude, tous les dossiers. Aucune écriture.</td></tr>
+<tr><td><b>Accueil</b></td><td>Voir les dossiers, vérifier les pièces, <b>valider le paiement</b> ; pas de réglages, pas de comptes.</td></tr>
+<tr><td><b>Caisse</b></td><td>Voir les dossiers et encaisser.</td></tr>
+<tr><td><b>Agent de guichet</b></td><td>Enregistrer et compléter les dossiers ; ne peut pas encaisser.</td></tr>
+<tr><td><b>Agent de porte</b></td><td>Appeler, rappeler, signaler un absent ; ne modifie pas les dossiers.</td></tr></table>
+<h2>Le Ministre voit la situation réelle, et est alerté en temps réel</h2>
+<p>Connecté avec son compte, le Ministre (ou son cabinet) voit <b>la situation réelle</b> de tout ce qui se passe : dossiers, paiements, rendez-vous, tableau de bord. Dès qu’une <b>alerte de fraude grave</b> apparaît — pièce déjà utilisée, pièce modifiée, écart signalé à l’accueil… — un <b>message s’affiche sur son interface de contrôle</b> : un bandeau d’alerte, avec le dossier concerné et le motif, et un message qui apparaît aussitôt. Le bandeau reste jusqu’à ce que les alertes soient lues. Dans les essais, le message apparaît en quelques secondes (la fréquence de mise à jour de l’écran).</p>
+${duo(['d_ministre_alerte', 'L’interface du Ministre : le bandeau d’alerte de fraude, en temps réel.'], ['d_tarif', 'Le montant officiel, saisi une seule fois dans les réglages.'])}
+<div class="note"><b>Une alerte n’est pas une preuve.</b> Elle signale un cas à examiner par une personne habilitée. Le Ministre est informé ; la Préfecture examine ; la décision reste humaine.</div>
+<h2>Le montant officiel du passeport</h2>
+<p>Quand l’administration communiquera le <b>montant officiel</b>, la Préfecture le saisit <b>une seule fois</b> dans les réglages (première demande, renouvellement). Il s’applique alors <b>automatiquement à tous les postes</b> : la caisse l’affiche sans pouvoir le modifier, le reçu le porte, et le serveur <b>refuse tout autre montant</b>. Tant qu’il n’est pas saisi, la démonstration accepte un montant fictif. <b>Aucun tarif n’est inventé</b> dans ce dossier.</p>`,
+
+`<h1 style="margin-top:9mm">6. Les situations que le système veut traiter</h1>
 <p>Le projet part de situations que l’on rencontre couramment dans les services qui reçoivent du public. Elles sont présentées ici comme des <b>hypothèses de travail, à valider avec la Préfecture</b> par des observations sur le terrain :</p>
 <ul><li><b>Des files d’attente désordonnées</b> : on ne sait pas dans quel ordre on sera reçu ni à quelle heure.</li>
 <li><b>Une démarche peu lisible</b> pour le citoyen : où en est mon dossier ? que me manque-t-il ?</li>
@@ -76,7 +106,7 @@ couverture({ kic: 'Proposition de projet · Brazzaville', titre: 'Passeport Sûr
 <div class="etapes"><div><i>1</i><b>Dépôt</b>Scan, pièces, signature, accusé WhatsApp</div><div><i>2</i><b>Paiement</b>Scan du QR, contrôles, reçu</div><div><i>3</i><b>Rendez-vous</b>Date donnée après paiement</div><div><i>4</i><b>Salle</b>Numéros, noms et portes à l’écran</div><div><i>5</i><b>Traitement</b>Étapes suivies et datées</div><div><i>6</i><b>Remise</b>Passeport remis, dossier clos</div></div>
 ${fig('d_accueil', 'L’écran d’accueil : chaque profil voit d’emblée par où commencer.', 1500)}`,
 
-`<h1 class="chap">6. Le parcours, de A à Z</h1>
+`<h1 class="chap">7. Le parcours, de A à Z</h1>
 <h2>Étape 1 — Le dépôt au guichet</h2>
 <p>L’agent photographie la pièce d’identité : la <b>zone de lecture automatique</b> (MRZ) est lue et la fiche se remplit toute seule, avec contrôle des chiffres de clé. Il joint les pièces (photo ou fichier), fait signer le demandeur du doigt, puis un <b>accusé</b> avec numéro de reçu et code QR est envoyé sur le téléphone du demandeur. Un dossier incomplet est enregistré « incomplet » : il pourra être terminé plus tard, par l’agent ou par le demandeur lui-même.</p>
 ${duo(['d_guichet_fiche', 'La fiche remplie à partir de la pièce.'], ['d_guichet_pieces', 'Les pièces à joindre, obligatoires et facultatives.'])}
@@ -106,7 +136,7 @@ ${fig('d_file_apres', 'Le poste des portes : chaque porte appelle, rappelle ou s
 <p>Chaque changement d’état (dossier reçu, en traitement, passeport prêt, remis au demandeur) est <b>daté et attribué</b> à un agent. L’historique complet est conservé dans la fiche du dossier.</p>
 ${fig('d_fiche', 'La fiche d’un dossier : état, historique, pièces et alertes.', 1300, 'p')}`,
 
-`<h1 class="chap">7. Contrôle anti-fraude</h1>
+`<h1 class="chap">8. Contrôle anti-fraude</h1>
 <div class="butband"><small>En lien avec le but de l’application</small><p>Le troisième but est de <b>sécuriser</b> : repérer automatiquement les fraudes et les contournements, et les mettre sous les yeux de la Préfecture.</p></div>
 <p>Le système calcule pour chaque dossier un <b>score de risque (0 à 100)</b> à partir de règles claires et explicables :</p>
 <table><tr><th style="width:52mm">Signal</th><th>Ce qu’il détecte</th></tr>
@@ -122,14 +152,14 @@ ${fig('d_fiche', 'La fiche d’un dossier : état, historique, pièces et alerte
 <div class="note r"><b>Important.</b> Ces signaux sont des <b>alertes à examiner par des personnes</b>, pas des preuves de fraude. La démonstration <b>ne vérifie pas l’authenticité</b> d’un document : cela nécessiterait des liaisons avec les bases officielles, à convenir avec les autorités. Une alerte grave non examinée <b>bloque l’encaissement</b> ; la Préfecture l’examine puis l’autorise ou ouvre une enquête.</div>
 ${fig('d_fraude', 'Le contrôle anti-fraude : cas classés du plus grave au moins grave (données fictives).', 1300, 'p')}`,
 
-`<h1 class="chap">8. Pilotage pour le Ministère et la Préfecture</h1>
+`<h1 class="chap">9. Pilotage pour le Ministère et la Préfecture</h1>
 <p>Le <b>tableau de bord</b> montre la situation réelle : demandes enregistrées, dossiers reçus, en traitement, passeports prêts et remis, renouvellements, alertes, dossiers incomplets, délai moyen de remise. Un <b>export Excel</b> fournit les tableaux et les graphiques pour les rapports.</p>
 ${fig('d_tableau_demo', 'Le tableau de bord (données de démonstration fictives).', 1300, 'p')}
 <h2>Mise en place d’un site : l’« espace partagé »</h2>
 <p>La Préfecture crée un <b>espace</b> : un code à 8 caractères. Les postes (guichet, caisse, portes, préfecture) et les écrans de salle le rejoignent, et <b>tout se synchronise en direct</b>. Les réglages (nombre de portes de 1 à 12, capacité par jour, jours ouverts, heure de début, lieu) s’appliquent à tous.</p>
 ${duo(['d_espace', 'Le panneau de l’espace : code, QR, liens des postes et des écrans.'], ['d_reglages', 'Les réglages du site.'])}`,
 
-`<h1 class="chap">9. Simplicité d’utilisation et fluidité</h1>
+`<h1 class="chap">10. Simplicité d’utilisation et fluidité</h1>
 <p>L’application est pensée pour des agents qui ne sont pas informaticiens et pour des demandeurs qui utilisent surtout leur <b>téléphone</b>.</p>
 <ul><li><b>Guide intégré</b> : au premier lancement, l’application demande « Quel est votre rôle ? » et propose une <b>visite guidée</b> d’environ une minute pour chaque profil ; un bouton ❓ Aide donne les questions fréquentes.</li>
 <li><b>Téléphone et ordinateur</b> : mêmes fonctions, boutons agrandis pour le doigt, installation possible sur l’écran d’accueil du téléphone.</li>
@@ -137,30 +167,32 @@ ${duo(['d_espace', 'Le panneau de l’espace : code, QR, liens des postes et des
 <li><b>Résilience</b> : en cas de coupure du serveur, les postes l’indiquent, restent utilisables et se resynchronisent seuls ; les écrans gardent leur dernier affichage.</li></ul>
 <div class="tel-duo">${fig('t_visite', 'Visite guidée', 600)}${fig('t_caisse', 'Caisse sur téléphone', 600)}${fig('t_tableau', 'Tableau de bord sur téléphone', 600)}</div>`,
 
-`<h1 class="chap">10. Sécurité et protection des données personnelles</h1>
+`<h1 class="chap">11. Sécurité et protection des données personnelles</h1>
 <div class="butband"><small>En lien avec le but de l’application</small><p>Un système qui suit des demandes de passeport manipule des <b>données personnelles sensibles</b>. Les protéger fait partie du but : un système sûr, au service du citoyen.</p></div>
 <h3>Ce que fait déjà la démonstration</h3>
-<ul><li>Toutes les données sont <b>fictives</b>.</li><li>Un <b>code d’espace</b> donne accès aux postes ; le demandeur n’accède qu’à <b>son dossier</b>, avec son numéro et un <b>code de contrôle</b> propre.</li><li>La version « demandeur » d’un dossier est <b>réduite au nécessaire</b> (pas de numéro de pièce, pas de date de naissance).</li><li>Les textes saisis sont neutralisés (aucune injection de code), les écritures simultanées sont contrôlées, la capacité et les numéros d’appel ne peuvent pas être dépassés ni dupliqués.</li><li>Un bouton <b>« Effacer définitivement l’espace »</b> supprime les dossiers et les pièces du serveur.</li></ul>
+<ul><li>Toutes les données sont <b>fictives</b>.</li><li>Un <b>espace sécurisé</b> demande à chaque agent de se connecter (identifiant et mot de passe personnels, droits par rôle appliqués par le serveur, blocage après essais ratés, mot de passe oublié) ; un espace de démonstration reste accessible par son code. Le demandeur n’accède qu’à <b>son dossier</b>, avec son numéro et un <b>code de contrôle</b> propre.</li><li>La version « demandeur » d’un dossier est <b>réduite au nécessaire</b> (pas de numéro de pièce, pas de date de naissance).</li><li>Les textes saisis sont neutralisés (aucune injection de code), les écritures simultanées sont contrôlées, la capacité et les numéros d’appel ne peuvent pas être dépassés ni dupliqués.</li><li>Un bouton <b>« Effacer définitivement l’espace »</b> supprime les dossiers et les pièces du serveur.</li></ul>
 <h3>Ce qu’il faudra pour un usage réel</h3>
 <table><tr><th style="width:55mm">Sujet</th><th>Exigence proposée</th></tr>
-<tr><td>Comptes</td><td>Comptes <b>nominatifs</b> pour chaque agent, mots de passe robustes, double authentification, droits par profil.</td></tr>
+<tr><td>Comptes</td><td>Déjà présents dans la démonstration : comptes individuels, mots de passe robustes, droits par rôle. À ajouter : <b>double authentification</b>, envoi automatique par courriel ou SMS pour le mot de passe oublié, rattachement des comptes à l’identité officielle des agents, <b>minimisation des données visibles par rôle</b>.</td></tr>
 <tr><td>Hébergement</td><td>Serveur dédié, <b>hébergement conforme aux exigences de l’État</b> (y compris le lieu d’hébergement), sauvegardes, supervision.</td></tr>
 <tr><td>Traçabilité</td><td>Journal d’audit <b>infalsifiable</b> de toutes les consultations et modifications.</td></tr>
 <tr><td>Chiffrement</td><td>Chiffrement des échanges et des données au repos, gestion des clés.</td></tr>
 <tr><td>Cadre juridique</td><td>Conformité à la réglementation congolaise sur la protection des données personnelles : finalité, durée de conservation, droits des personnes, responsable du traitement.</td></tr>
 <tr><td>Vérification indépendante</td><td>Audit de sécurité et tests de charge avant toute mise en service.</td></tr></table>`,
 
-`<h1 class="chap">11. Ce qui est démontré, ce qui reste à construire</h1>
+`<h1 class="chap">12. Ce qui est démontré, ce qui reste à construire</h1>
 <table><tr><th style="width:62mm">Démontré aujourd’hui</th><th>À construire / à décider pour un usage réel</th></tr>
-<tr><td>Parcours complet du dépôt à la remise, sur téléphone et ordinateur</td><td>Comptes nominatifs, journal d’audit, hébergement dédié</td></tr>
+<tr><td>Parcours complet du dépôt à la remise, sur téléphone et ordinateur ; pré-enregistrement par le demandeur et accueil</td><td>Journal d’audit infalsifiable, hébergement dédié, double authentification</td></tr>
+<tr><td>Comptes du personnel, droits par rôle, mot de passe oublié (via la Préfecture)</td><td>Envoi automatique par courriel ou SMS ; comptes liés à l’identité officielle</td></tr>
+<tr><td>Alerte de fraude en temps réel sur l’interface du Ministre</td><td>Définir avec le Ministère qui est alerté, par quel canal (écran, SMS, courriel) et à quelle gravité</td></tr>
 <tr><td>Lecture de la zone MRZ d’une pièce (testée sur images de test)</td><td>Essai avec de <b>vraies pièces</b> et les appareils de la Préfecture</td></tr>
 <tr><td>Accusé et message de rendez-vous préparés pour WhatsApp (envoi par bouton)</td><td>Envoi <b>automatique</b> : API WhatsApp Business de Meta (modèles de messages approuvés, coût par message) ou SMS</td></tr>
-<tr><td>Caisse : contrôles, reçu, numéro d’appel (montants fictifs)</td><td>Tarifs officiels, liaison avec les moyens de paiement réels</td></tr>
+<tr><td>Caisse : contrôles, reçu, numéro d’appel ; montant officiel à saisir une seule fois (montants de la démonstration fictifs)</td><td>Montant officiel à communiquer, liaison avec les moyens de paiement réels</td></tr>
 <tr><td>Salle d’attente : portes, écrans, voix, file ordonnée</td><td>Matériel (téléviseurs, tablettes), réseau du site, voix française testée sur place</td></tr>
 <tr><td>Alertes anti-fraude par règles explicables</td><td>Liaison avec les bases officielles pour vérifier l’authenticité (accords à obtenir)</td></tr>
 <tr><td>Tableau de bord et export Excel</td><td>Indicateurs définis avec le Ministère</td></tr></table>
 <div class="note">La <b>capture des empreintes et de la photo</b> reste faite avec le matériel officiel d’enrôlement : l’application organise le rendez-vous, la file et le suivi ; elle ne remplace pas ce matériel.</div>
-<h1 class="chap">12. Feuille de route proposée</h1>
+<h1 class="chap">13. Feuille de route proposée</h1>
 <table><tr><th style="width:36mm">Phase</th><th>Contenu</th><th style="width:48mm">Résultat attendu</th></tr>
 <tr><td><b>0 · Validation</b></td><td>Ateliers avec la Préfecture : pièces exigées, tarifs, jours et horaires, nombre de portes, rôles des agents.</td><td>Cahier des charges validé</td></tr>
 <tr><td><b>1 · Pilote</b></td><td>Un site (Brazzaville), un petit nombre d’agents, données réelles limitées, mesures avant/après.</td><td>Preuve sur le terrain</td></tr>
@@ -168,13 +200,18 @@ ${duo(['d_espace', 'Le panneau de l’espace : code, QR, liens des postes et des
 <tr><td><b>3 · Extension</b></td><td>Autres sites, autres services, rapports nationaux.</td><td>Déploiement progressif</td></tr></table>
 <p><b>Indicateurs de réussite à mesurer</b> : temps d’attente moyen, part des dossiers complets dès le premier passage, délai moyen jusqu’à la remise, nombre d’alertes examinées et traitées, satisfaction des demandeurs et des agents. Les calendriers et les coûts seront établis à l’issue de la phase 0.</p>`,
 
-`<h1 style="margin-top:9mm">13. Décisions attendues</h1>
+`<h1 style="margin-top:9mm">14. Décisions attendues</h1>
 <ol class="pas"><li><b>Valider le but et le périmètre</b> : suivre, ordonner, sécuriser — pour quels sites et quels types de demandes (première demande, renouvellement).</li>
 <li><b>Désigner un référent</b> à la Préfecture et un correspondant au Ministère.</li>
 <li><b>Fixer les règles locales</b> : liste des pièces, tarifs officiels, jours et horaires, capacité journalière, nombre de portes.</li>
 <li><b>Choisir l’hébergement</b> et le cadre de protection des données personnelles.</li>
 <li><b>Choisir le canal de notification</b> : WhatsApp Business (compte de la Préfecture) et/ou SMS.</li>
-<li><b>Choisir le site pilote</b> et les agents participants.</li></ol>
+<li><b>Choisir le site pilote</b> et les agents participants.</li>
+<li><b>Communiquer le montant officiel</b> du passeport (première demande, renouvellement) : il sera saisi une seule fois et appliqué partout.</li>
+<li><b>Choisir le canal du « mot de passe oublié »</b> (courriel et/ou SMS) et le fournisseur d’envoi, en complément de la réinitialisation par la Préfecture.</li>
+<li><b>Définir l’alerte du Ministre</b> : qui est alerté, par quel canal (écran, SMS, courriel) et à partir de quelle gravité.</li>
+<li><b>Décider du recueil de la signature</b> pour un dossier pré-enregistré (à l’accueil, sur écran ou sur papier).</li>
+<li><b>Valider le nom de l’application</b> et vérifier sa disponibilité (marque, nom de domaine).</li></ol>
 <h2>Annexe — Glossaire</h2>
 <table><tr><th style="width:42mm">Terme</th><th>Signification</th></tr>
 <tr><td>Accusé</td><td>Document remis au demandeur après l’enregistrement, avec son numéro de reçu et un code QR.</td></tr>
@@ -183,7 +220,13 @@ ${duo(['d_espace', 'Le panneau de l’espace : code, QR, liens des postes et des
 <tr><td>Espace</td><td>Ensemble partagé (dossiers, réglages) auquel les postes et les écrans d’un site se connectent avec un code.</td></tr>
 <tr><td>N° d’appel</td><td>Numéro donné au paiement pour passer dans la salle d’attente le jour du rendez-vous.</td></tr>
 <tr><td>Porte</td><td>Poste de réception numéroté (Porte 1, Porte 2…) qui appelle les personnes une par une.</td></tr>
-<tr><td>Alerte</td><td>Signal automatique demandant l’examen d’un dossier par une personne.</td></tr></table>
+<tr><td>Alerte</td><td>Signal automatique demandant l’examen d’un dossier par une personne.</td></tr>
+<tr><td>Front office (accueil)</td><td>Poste qui reçoit les demandeurs, scanne l’accusé et compare la fiche aux pièces originales.</td></tr>
+<tr><td>Back-office de réception</td><td>Espace de gestion de l’accueil : voir les dossiers, contrôler les pièces et le paiement, valider le paiement.</td></tr>
+<tr><td>Pré-enregistrement</td><td>Fiche remplie par le demandeur lui-même sur son téléphone, validée ensuite à l’accueil.</td></tr>
+<tr><td>Espace sécurisé</td><td>Espace où chaque agent se connecte avec son identifiant et son mot de passe, avec des droits selon son rôle.</td></tr>
+<tr><td>Code de secours</td><td>Code remis une seule fois à la Préfecture pour retrouver l’accès si elle oublie son mot de passe.</td></tr>
+<tr><td>Montant officiel</td><td>Montant fixé par l’administration, saisi une seule fois et appliqué à tous les postes.</td></tr></table>
 ${signature()}`,
 
 `<section class="fin"><img src="file://${RACINE}/passeport-demo/img/star-entreprise.webp" alt="STAR ENTREPRISE"><h2>STAR ENTREPRISE</h2><p>Brazzaville, République du Congo · www.starentreprise.com</p><p><b>Passeport Sûr</b> — suivre chaque demande de passeport de A à Z, ordonner la file d’attente, détecter les fraudes.</p><p style="margin-top:10mm;font-size:9pt">Tous droits réservés. Démonstration avec données entièrement fictives.</p></section>`

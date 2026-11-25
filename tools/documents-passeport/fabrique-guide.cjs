@@ -41,6 +41,10 @@ ${role('Pour atteindre le but, l’application doit être simple à ouvrir et à
 <tr><td><b>Ordinateur (Chrome ou Edge)</b></td><td>Touchez l’icône d’installation à droite de la barre d’adresse, ou le menu <b>⋮</b> puis <b>« Installer Passeport Sûr »</b>.</td></tr></table>
 <p>Dans l’application, <b>❓ Aide → « Installer l’application »</b> affiche ces consignes pour votre appareil, et un bouton « Installer maintenant » quand l’appareil le permet. <b>L’installation est facultative</b> : l’application fonctionne aussi directement dans le navigateur.</p>
 <p>L’icône « Passeport Sûr » apparaît alors avec vos autres applications.</p>
+<h2>Se connecter (espace sécurisé)</h2>
+<p>Si la Préfecture a créé un <b>espace sécurisé</b>, l’application demande d’abord de <b>se connecter</b> : tapez votre <b>identifiant</b> et votre <b>mot de passe</b> personnels. Votre <b>rôle</b> est celui de votre compte : on ne le choisit plus. À la première connexion, le mot de passe <b>temporaire</b> remis par la Préfecture doit être remplacé par le vôtre (8 caractères minimum, avec une lettre et un chiffre).</p>
+<ul><li><b>Mot de passe oublié ?</b> Touchez le lien sous le bouton : saisissez votre identifiant, la demande part chez la Préfecture, qui vous remet un mot de passe temporaire. La Préfecture utilise son <b>code de secours</b>.</li><li><b>Compte bloqué ?</b> Après 5 essais ratés, le compte est bloqué 15 minutes ; la Préfecture peut aussi le réinitialiser.</li><li><b>Se déconnecter</b> : touchez votre nom en haut de l’écran. Faites-le toujours sur un poste partagé.</li></ul>
+${duo(['d_connexion', 'L’écran de connexion.'], ['d_comptes', 'Vue de la Préfecture : les comptes de l’espace.'])}
 <h2>Au premier lancement : « Quel est votre rôle ? »</h2>
 <p>L’application vous demande votre rôle. Touchez le vôtre : elle règle le <b>profil</b>, ouvre la bonne page et lance une <b>visite guidée</b> d’environ une minute. Vous pouvez la passer à tout moment (« Passer » ou la touche Échap).</p>
 <div class="duo">${fig('d_bienvenue', 'Sur ordinateur : choix du profil.', 1100)}<div class="tel">${fig('t_bienvenue', 'Sur téléphone.', 600)}</div></div>`,
@@ -56,7 +60,7 @@ ${fig('d_accueil', 'L’accueil avec la carte « Commencez ici » adaptée au pr
 `<h1 class="chap">2. Les profils et la vie d’un dossier</h1>
 <table><tr><th style="width:34mm">Profil</th><th>Ce qu’il fait</th><th style="width:34mm">Pages utilisées</th></tr>
 <tr><td><b>Agent de guichet</b></td><td>Enregistre les demandes : scan de la pièce, pièces jointes, signature, accusé.</td><td>Nouvelle demande, Dossiers</td></tr>
-<tr><td><b>Accueil</b> (front office)</td><td>Reçoit les personnes pré-enregistrées : scan de l’accusé, comparaison avec les originaux, envoi à la caisse.</td><td>Réception</td></tr>
+<tr><td><b>Accueil</b> (front office)</td><td>Reçoit les personnes pré-enregistrées : scan de l’accusé, comparaison avec les originaux, contrôle du paiement et des pièces, validation du paiement.</td><td>Réception, Caisse, Dossiers</td></tr>
 <tr><td><b>Caisse</b></td><td>Ouvre le dossier (scan du QR), vérifie, encaisse, édite le reçu avec le rendez-vous.</td><td>Caisse</td></tr>
 <tr><td><b>Agent de porte</b></td><td>Appelle les personnes, une par une, à sa porte.</td><td>File d’attente</td></tr>
 <tr><td><b>Préfecture</b></td><td>Crée l’espace, règle le site, examine les alertes, pilote tout.</td><td>Toutes</td></tr>
@@ -84,6 +88,12 @@ ${fig('d_espace', 'Le panneau de l’espace : code, QR, lien des écrans.', 1300
 <tr><td><b>Avancer la date (démonstration)</b></td><td>Pour montrer le jour du rendez-vous sans attendre : les personnes convoquées ce jour-là apparaissent dans la file.</td></tr></table>
 <div class="note">Les valeurs par défaut sont des <b>exemples</b> à fixer avec la Préfecture.</div>
 ${fig('d_reglages', 'La page Réglages.', 1300, 'p')}
+<h2>Sécuriser l’espace : les comptes du personnel</h2>
+<p>À la création de l’espace, cochez <b>« Espace sécurisé »</b> et renseignez l’<b>identifiant</b>, le <b>nom</b> et le <b>mot de passe</b> de l’administrateur. L’application affiche alors un <b>code de secours</b> : <b>notez-le immédiatement</b> et rangez-le en lieu sûr, il ne sera plus jamais affiché.</p>
+<p>Ouvrez ensuite la page <b>Comptes</b> : pour chaque agent (accueil, caisse, guichet, porte, Ministère), saisissez un identifiant, un nom et un <b>rôle</b>, puis touchez <b>« Créer le compte »</b>. Un <b>mot de passe temporaire</b> s’affiche <b>une seule fois</b> : remettez-le à la personne en main propre. Les boutons de la liste permettent de <b>réinitialiser</b> un mot de passe ou de <b>désactiver</b> un compte ; les demandes « mot de passe oublié » apparaissent en haut de la page.</p>
+<h2>Saisir le montant officiel</h2>
+<p>Dans <b>Réglages</b>, la carte <b>« Montant officiel du passeport »</b> reçoit le montant pour la première demande et pour le renouvellement. À saisir <b>une seule fois</b>, quand l’administration l’aura communiqué : la caisse l’affiche aussitôt, sans pouvoir le modifier, et le serveur refuse tout autre montant. Tant qu’il n’est pas saisi, la démonstration accepte un montant fictif.</p>
+${fig('d_tarif', 'Le montant officiel dans les réglages.', 1300, 'p')}
 <h2>Mettre fin à la démonstration</h2>
 <p>Dans le panneau de l’espace, ouvrez <b>« Effacer définitivement cet espace »</b>, tapez <b>EFFACER</b>, puis validez : tous les dossiers, pièces jointes et écrans de l’espace sont supprimés du serveur. <b>Impossible à annuler.</b></p>`,
 
@@ -119,6 +129,8 @@ ${role('Le pré-enregistrement permet au demandeur de préparer sa demande avant
 <h2>Recevoir une personne, pas à pas</h2>
 <ol class="pas"><li>Choisissez le profil <b>Accueil</b>, puis ouvrez la page <b>Réception</b>.</li><li>Touchez <b>« Scanner le code QR »</b> et présentez l’accusé devant la caméra. Sans caméra : saisissez le <b>N° de dossier</b> et le <b>code de contrôle</b> (6 caractères).</li><li>La fiche et les pièces s’affichent. <b>Comparez avec les originaux</b> : pièce d’identité, visage de la personne, pièces à fournir.</li><li>Corrigez si besoin les <b>prénoms</b>, la <b>date de naissance</b> ou le <b>numéro de pièce</b>. Le <b>nom</b> ne se corrige pas ici : s’il est faux, signalez un écart.</li><li>Cochez les <b>trois vérifications</b>, puis touchez <b>« Vérifié : envoyer à la caisse »</b>.</li></ol>
 ${duo(['d_accueil_liste', 'La page Réception : scan, saisie du numéro et liste des personnes attendues.'], ['d_accueil_fiche', 'La fiche à comparer avec les originaux, et les trois vérifications.'])}
+<h2>Contrôler et valider le paiement</h2>
+<p>L’accueil voit <b>tous les dossiers enregistrés</b> (page <b>Dossiers</b>) et ne peut que <b>contrôler et vérifier</b> : le dossier est-il <b>payé</b> ? manque-t-il une <b>pièce</b> ? Pour valider un paiement, ouvrez la page <b>Caisse</b>, scannez ou saisissez le dossier, puis touchez <b>« Encaisser »</b> : le <b>numéro d’appel</b> et la <b>date du rendez-vous d’enrôlement</b> sont attribués <b>automatiquement</b> et <b>apparaissent sur l’accusé</b> du demandeur. Le paiement est enregistré <b>à votre nom</b>.</p>
 <h2>S’il y a un écart</h2>
 <p>Identité différente de la pièce, pièce suspecte, informations à refaire : choisissez le <b>motif</b> puis touchez <b>« Signaler l’écart »</b>. L’écart apparaît comme <b>alerte grave</b> au contrôle anti-fraude de la Préfecture, et <b>la caisse ne peut pas encaisser</b> ce dossier. Après correction, l’accueil peut le vérifier de nouveau.</p>
 ${duo(['d_caisse_bloquee', 'Si l’accueil n’a pas vérifié, la caisse affiche « À vérifier à l’accueil d’abord ».'], ['d_accueil_ok', 'Après vérification : « Vérifié à l’accueil » et passage à la caisse.'])}
@@ -197,6 +209,9 @@ ${fig('d_tableau_demo', 'Le tableau de bord (données fictives).', 1300, 'p')}
 <div class="note r"><b>Rappel.</b> Une alerte est un <b>signal à examiner</b> par une personne, pas une preuve de fraude.</div>`,
 
 `${fig('d_fraude', 'Le contrôle anti-fraude (données fictives).', 1300, 'p')}
+<h2>L’alerte du Ministre en temps réel</h2>
+<p>Quand une <b>alerte de fraude grave</b> apparaît (pièce déjà utilisée, pièce modifiée, écart signalé à l’accueil…), un <b>bandeau rouge</b> s’affiche en haut de l’interface du Ministère et de la Préfecture, avec le dossier concerné et le motif, et un message apparaît en bas de l’écran. Touchez <b>« Voir les alertes »</b> pour ouvrir le contrôle anti-fraude, ou <b>« Marquer comme lues »</b> pour retirer le bandeau. Le Ministre consulte seulement : il ne peut rien modifier.</p>
+${fig('d_ministre_alerte', 'Le bandeau d’alerte sur l’interface du Ministre.', 1300, 'p')}
 <h2>Dossiers et fiche d’un dossier</h2>
 <p>La page <b>Dossiers</b> liste tous les dossiers ; recherchez par nom, numéro de dossier ou numéro de pièce, filtrez par état, type, secteur ou alerte, et touchez une ligne pour ouvrir la <b>fiche</b> : identité, pièces, signature, historique, alertes. La Préfecture et les agents autorisés peuvent <b>faire avancer</b> le dossier à l’étape suivante ; le Ministère est en <b>lecture seule</b>.</p>
 ${duo(['d_dossiers', 'La liste des dossiers.'], ['d_fiche', 'La fiche d’un dossier.'])}
@@ -209,6 +224,9 @@ ${duo(['d_dossiers', 'La liste des dossiers.'], ['d_fiche', 'La fiche d’un dos
 <tr><td>La puce indique « Reconnexion… » (orange).</td><td>La connexion Internet est coupée. Les postes restent utilisables et se resynchronisent seuls. Évitez d’encaisser tant que la puce n’est pas redevenue verte.</td></tr>
 <tr><td>J’ai encaissé mais le réseau a coupé.</td><td>Rouvrez le dossier : s’il a été encaissé, le reçu s’affiche (« Déjà payé »). Sinon, encaissez de nouveau.</td></tr>
 <tr><td>« Encaissement bloqué ».</td><td>Une pièce obligatoire manque, ou une alerte grave attend l’examen de la Préfecture. Ajoutez la pièce ou demandez l’examen.</td></tr>
+<tr><td>Je ne peux plus me connecter.</td><td>Vérifiez l’identifiant et le mot de passe. Après 5 essais ratés, attendez 15 minutes ou demandez une réinitialisation à la Préfecture (lien « Mot de passe oublié »).</td></tr>
+<tr><td>« Votre rôle ne permet pas cette action ».</td><td>Votre compte n’a pas ce droit (par exemple, seule la Préfecture règle le site). Demandez à la Préfecture si votre rôle doit changer.</td></tr>
+<tr><td>« Le montant officiel est de … FCFA ».</td><td>Le montant officiel a été saisi par la Préfecture : il est imposé à la caisse et ne peut pas être modifié.</td></tr>
 <tr><td>« À vérifier à l’accueil d’abord ».</td><td>Le dossier a été pré-enregistré par le demandeur : envoyez-le à l’accueil avec ses pièces originales. Le paiement est possible après la vérification.</td></tr>
 <tr><td>« Ce dossier est déjà payé ».</td><td>Une autre caisse vient de l’encaisser : un dossier ne peut être payé qu’une fois. Réimprimez le reçu.</td></tr>
 <tr><td>Le scan de la pièce échoue.</td><td>Reprenez la photo (bien éclairée, à plat, bande de lecture nette et entière) ou saisissez les lignes à la main.</td></tr>
@@ -228,6 +246,11 @@ ${duo(['d_dossiers', 'La liste des dossiers.'], ['d_fiche', 'La fiche d’un dos
 <tr><td>Accusé</td><td>Document remis au demandeur à l’enregistrement, avec son numéro de reçu et un code QR.</td></tr>
 <tr><td>Code de contrôle</td><td>6 caractères propres à un dossier, qui servent à l’ouvrir à la caisse ou à le suivre.</td></tr>
 <tr><td>Enrôlement</td><td>Prise des empreintes et de la photo, avec le matériel officiel, au rendez-vous donné.</td></tr>
+<tr><td>Front office (accueil)</td><td>Poste qui reçoit les demandeurs, scanne l’accusé et compare la fiche aux pièces originales.</td></tr>
+<tr><td>Pré-enregistrement</td><td>Fiche remplie par le demandeur lui-même sur son téléphone, validée ensuite à l’accueil.</td></tr>
+<tr><td>Espace sécurisé</td><td>Espace où chaque agent se connecte avec son identifiant et son mot de passe ; les droits dépendent du rôle.</td></tr>
+<tr><td>Code de secours</td><td>Code remis une seule fois à la Préfecture pour retrouver l’accès si elle oublie son mot de passe.</td></tr>
+<tr><td>Montant officiel</td><td>Montant fixé par l’administration, saisi une seule fois et appliqué à tous les postes.</td></tr>
 <tr><td>Espace</td><td>Ensemble partagé auquel les postes et les écrans d’un site se connectent avec un code.</td></tr>
 <tr><td>MRZ</td><td>Lignes de lettres et de chiffres (avec « &lt; ») en bas d’un passeport ou d’une carte, lisibles par machine.</td></tr>
 <tr><td>N° d’appel</td><td>Numéro donné au paiement ; il s’affiche à l’écran quand c’est votre tour.</td></tr>
