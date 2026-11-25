@@ -153,7 +153,7 @@ const api = (body) => page.evaluate(async b => { const r = await fetch('/api/pas
   const v = page.video(); await ctx.close(); const brut = await v.path(); await b.close();
   fs.writeFileSync(path.join(DIR, 'texte-de-la-voix.txt'), 'TEXTE DE LA VOIX OFF — Guide vidéo « Passeport Sûr »\n(les durées suivent les légendes ; une seule voix, ton posé et chaleureux)\n\n' + voix.map((t, i) => (i + 1) + '. ' + t).join('\n\n') + '\n');
   const mp4 = SORTIE + 'Passeport-Sur-Guide-video.mp4';
-  execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', brut, '-f', 'lavfi', '-i', 'anullsrc=r=44100:cl=stereo', '-c:v', 'libx264', '-preset', 'medium', '-crf', '21', '-pix_fmt', 'yuv420p', '-r', '25', '-c:a', 'aac', '-b:a', '64k', '-shortest', '-movflags', '+faststart', mp4]);
+  execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', brut, '-f', 'lavfi', '-i', 'anullsrc=r=44100:cl=stereo', '-c:v', 'libx264', '-preset', 'slow', '-crf', '28', '-pix_fmt', 'yuv420p', '-r', '25', '-c:a', 'aac', '-b:a', '48k', '-shortest', '-movflags', '+faststart', mp4]);
   const dur = execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', mp4]).toString().trim();
   console.log(echecs.length ? 'ÉCHECS : ' + echecs.join(', ') : 'TOUTES LES SCÈNES OK'); console.log('MP4 : ' + mp4 + ' · ' + Math.round(dur) + ' s · ' + Math.round(fs.statSync(mp4).size / 1024 / 1024 * 10) / 10 + ' Mo');
 })().catch(e => { console.log('CRASH', e.message); process.exit(1); });
