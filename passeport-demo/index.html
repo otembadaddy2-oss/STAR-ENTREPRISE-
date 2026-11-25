@@ -135,6 +135,11 @@ textarea.mrz{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;
 .scan{position:relative;background:#06150f;border-radius:14px;overflow:hidden;display:none;margin-bottom:10px}.scan.on{display:block}.scan video{width:100%;display:block;max-height:340px;object-fit:cover}
 .scan .vise{position:absolute;inset:18% 22%;border:3px solid var(--jaune);border-radius:16px;pointer-events:none;box-shadow:0 0 0 999px #0006}
 .guichets{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0}
+.porteC{background:#fff;border:1.5px solid var(--trait);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.porteC.on{border-color:var(--jaune);background:#fffbe8}
+.porteC .ph{display:flex;align-items:center;gap:6px;font-weight:600;color:var(--foret)}.porteC .ph button{border:0;background:none;cursor:pointer;color:var(--gris);font-size:14px;padding:0 2px}
+.porteC .nb{font-family:PF,serif;font-weight:800;font-size:30px;color:var(--foret);line-height:1}.porteC .nm{font-size:12.5px;color:var(--gris);min-height:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.porteC .bt{display:flex;gap:6px;flex-wrap:wrap}
 .ticket{font-family:PF,serif;font-weight:800;font-size:34px;color:var(--foret);line-height:1}
 .gros{font-family:PF,serif;font-weight:800;font-size:54px;color:var(--foret);line-height:1}
 .signature{margin:34px auto 0;max-width:760px;text-align:center;font-size:10px;color:#9aa59f}
@@ -328,9 +333,9 @@ tr.cl{cursor:pointer}tr.cl:hover td{background:#f3f9f5}
 <section id="v-file" class="vue">
   <div class="baniere b-file"><div class="txt"><h2>File d'attente et appel en salle</h2><p class="sous">Les numéros défilent dans l'ordre du paiement. Chaque porte appelle le suivant : le numéro, le nom et la porte s'affichent sur les écrans de la salle.</p></div></div>
   <div class="kpis" id="kpisFile"></div>
-  <div class="carte"><h3>Appeler</h3>
-    <div class="ligne"><label for="selPorte" style="margin:0">Je suis à la</label><select id="selPorte" style="width:auto;min-width:130px"><option value="1">Porte 1</option><option value="2">Porte 2</option><option value="3">Porte 3</option><option value="4">Porte 4</option></select>
-      <button class="btn or" id="bAppeler">🔔 Appeler le suivant</button><button class="btn clair" id="bRappeler">Rappeler le dernier</button><button class="btn clair" id="bAbsent">Absent : renvoyer en fin de file</button></div>
+  <div class="carte"><h3>Les portes</h3>
+    <div class="ligne" style="margin-bottom:10px"><span style="font-size:13.5px;color:var(--gris)">Nombre de portes ouvertes :</span><button class="btn clair petit" id="bPortesMoins" aria-label="Moins de portes">−</button><b id="nbPortes" style="min-width:24px;text-align:center;font-size:18px">6</b><button class="btn clair petit" id="bPortesPlus" aria-label="Plus de portes">+</button><span style="font-size:12.5px;color:var(--gris)">Touchez ✎ pour donner un nom à une porte (ex. « Vérification des pièces »).</span></div>
+    <div class="guichets" id="portes"></div>
     <div id="appelEtat" class="alert bleu" style="display:none"></div>
   </div>
   <div class="graphes">

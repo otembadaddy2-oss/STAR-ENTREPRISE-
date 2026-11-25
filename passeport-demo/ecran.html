@@ -39,6 +39,13 @@ main{flex:1;display:grid;grid-template-columns:1.45fr 1fr;gap:2.4vmin;padding:2.
 .l b{font-family:PF,serif;font-weight:800;color:var(--jaune);min-width:11vmin;font-size:4vmin;font-variant-numeric:tabular-nums}
 .l span{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .l em{font-style:normal;font-weight:800;background:#ffffff1f;border-radius:1vmin;padding:.2vmin 1.4vmin}
+.portes{display:grid;grid-template-columns:repeat(auto-fill,minmax(19vmin,1fr));gap:1.4vmin}
+.portes .p{background:#ffffff10;border:.2vmin solid #ffffff22;border-radius:1.6vmin;padding:1.2vmin 1.4vmin;text-align:center;min-width:0}
+.portes .p span{display:block;font-size:1.7vmin;letter-spacing:.14em;color:#9fd8b9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.portes .p b{display:block;font-family:PF,serif;font-weight:800;font-size:5.2vmin;color:var(--jaune);line-height:1.15;font-variant-numeric:tabular-nums}
+.portes .p em{display:block;font-style:normal;font-size:1.7vmin;color:#cfe5d9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:2.2vmin}
+.portes .p.on{background:#f6c9281f;border-color:var(--jaune)}
+.portes .p.libre b{color:#ffffff55}
 .chips{display:flex;flex-wrap:wrap;gap:1.2vmin}
 .chips i{font-style:normal;font-weight:800;font-size:3.4vmin;border:.25vmin solid #ffffff44;border-radius:1.4vmin;padding:.6vmin 2vmin;font-variant-numeric:tabular-nums}
 .chips i:first-child{border-color:var(--jaune);color:var(--jaune)}
@@ -55,7 +62,7 @@ body.apercu #son,body.apercu footer{display:none}
 <main>
   <section class="appel" id="appel"><div class="lib">Appel en cours</div><div class="num" id="num">---</div><div class="nom" id="nom">En attente du prochain appel</div><div><span class="porte" id="porte" style="display:none"></span></div></section>
   <div class="col">
-    <div class="bloc"><h2>Derniers appels</h2><div id="derniers"></div></div>
+    <div class="bloc"><h2>Les portes</h2><div class="portes" id="portes"></div></div>
     <div class="bloc"><h2>Prochains numéros</h2><div class="chips" id="prochains"></div></div>
   </div>
 </main>
@@ -84,7 +91,11 @@ body.apercu #son,body.apercu footer{display:none}
       if (cle !== derniere) { if (!premier) { var a = $('#appel'); a.classList.remove('nouveau'); void a.offsetWidth; a.classList.add('nouveau'); if (son && !apercu) { bip(); setTimeout(function () { parler(top); }, 900); } } derniere = cle; }
     } else { $('#num').textContent = '---'; $('#nom').textContent = 'En attente du prochain appel'; $('#porte').style.display = 'none'; }
     premier = false;
-    $('#derniers').innerHTML = appels.slice(1, 6).map(function (d) { return '<div class="l"><b>' + pad(d.ticket, 3) + '</b><span>' + nom(d).replace(/[<&]/g, '') + '</span><em>Porte ' + d.appel.porte + '</em></div>'; }).join('') || '<div class="vide">—</div>';
+    var cfg = {}; try { cfg = JSON.parse(localStorage.getItem('sp_portes_v1') || '{}') || {}; } catch (x) { }
+    var n = cfg.n || 6, noms = cfg.noms || {}, h = '';
+    for (var k = 1; k <= n; k++) { var cur = appels.filter(function (d) { return d.appel.porte === k && d.status === 'recu'; })[0], nm = noms[k] ? ' · ' + String(noms[k]).replace(/[<&]/g, '') : '';
+      h += '<div class="p ' + (cur ? '' : 'libre ') + (top && top.status === 'recu' && top.appel.porte === k ? 'on' : '') + '"><span>PORTE ' + k + nm + '</span><b>' + (cur ? pad(cur.ticket, 3) : '—') + '</b><em>' + (cur ? nom(cur).replace(/[<&]/g, '') : 'libre') + '</em></div>'; }
+    $('#portes').innerHTML = h;
     $('#prochains').innerHTML = attente.slice(0, 10).map(function (d) { return '<i>' + pad(d.ticket, 3) + '</i>'; }).join('') || '<span class="vide">Personne n\'attend</span>';
     var h = new Date(); $('#heure').textContent = pad(h.getHours()) + ':' + pad(h.getMinutes());
   }

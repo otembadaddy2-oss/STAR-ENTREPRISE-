@@ -503,3 +503,8 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - Reprise : brouillon sauvegardé automatiquement (champs, pièces, signature) avec bandeau « Reprendre » ; étapes cliquables 1-5 ; bouton ← Retour sur chaque écran et bouton Retour du téléphone (historique).
 - Correctif : ids des cartes du guichet renommés gt1-gt5 (conflit avec les graphiques g1-g4).
 - Toujours NON mis en ligne (≈41 crédits).
+
+## 25/11/2026 — Passeport Sûr : plusieurs portes
+- File d'attente : « Porte 1, Porte 2, … » (6 par défaut, réglable de 1 à 12, nom facultatif par porte). Chaque porte a ses boutons Appeler le suivant / Rappeler / Absent et son numéro en cours.
+- Écran de la salle : grand appel en cours (numéro, nom, porte) + grille de toutes les portes avec leur numéro et nom + prochains numéros.
+- Interprétation à confirmer avec Carry : « Porte 1, porte 2 … etc » = plusieurs portes numérotées, chacune appelant ses propres numéros.

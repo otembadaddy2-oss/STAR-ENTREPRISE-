@@ -230,29 +230,44 @@ function recuPaiement(d) {
 }
 function exempleCaisse(incomplet) { const l = DB().filter(x => x.status === 'depose' && !A.flags(x).some(f => f.n === 'rouge') && (manquantes(x).length > 0) === !!incomplet).sort((a, b) => b.createdAt.localeCompare(a.createdAt)); const d = l[0]; if (!d) { $('#scanEtat').textContent = incomplet ? 'Aucun dossier incomplet disponible.' : 'Aucun dossier complet en attente de paiement.'; return; } $('#k_id').value = d.id; $('#k_code').value = A.code(d.id, d.person.nom); ouvrirCaisse(); }
 
-/* ---------- File d'attente et appel ---------- */
+/* ---------- File d'attente et appel (plusieurs portes) ---------- */
+const PK = 'sp_portes_v1';
+function portesCfg() { try { const c = JSON.parse(localStorage.getItem(PK) || 'null'); if (c && c.n) return c; } catch (e) { } return { n: 6, noms: {} }; }
+function sauverPortes(c) { try { localStorage.setItem(PK, JSON.stringify(c)); } catch (e) { } }
 const rang = d => d.rang != null ? d.rang : d.ticket;
 function file() { return DB().filter(d => d.status === 'paye' && d.paiement && serviceDay(T(d.paiement.at)) === jourCourant()).sort((a, b) => rang(a) - rang(b)); }
 function appelsDuJour() { return DB().filter(d => d.appel && serviceDay(T(d.appel.at)) === jourCourant()).sort((a, b) => b.appel.at.localeCompare(a.appel.at)); }
 function vueFile() {
-  const q = file(), ap = appelsDuJour(), now = NOW().getTime(), att = q.length ? Math.round(q.reduce((a, d) => a + (now - T(d.paiement.at)) / 60000, 0) / q.length) : 0;
+  const q = file(), ap = appelsDuJour(), now = NOW().getTime(), att = q.length ? Math.round(q.reduce((a, d) => a + (now - T(d.paiement.at)) / 60000, 0) / q.length) : 0, cfg = portesCfg(), ro = role === 'ministere';
   $('#kpisFile').innerHTML = [[q.length, 'En attente', 'j'], [q[0] ? pad(q[0].ticket, 3) : '—', 'Prochain numéro', 'v'], [ap.length, 'Appelés aujourd’hui', ''], [att + ' min', 'Attente moyenne', 'm']].map(k => '<div class="kpi ' + k[2] + '"><b>' + k[0] + '</b><span>' + k[1] + '</span></div>').join('');
   $('#tbFile').innerHTML = q.slice(0, 14).map(d => '<tr class="cl" data-id="' + d.id + '"><td><b class="ticket" style="font-size:20px">' + pad(d.ticket, 3) + '</b></td><td>' + esc(nomComplet(d)) + '</td><td>' + A.bT(d.type) + '</td><td>' + Math.round((now - T(d.paiement.at)) / 60000) + ' min</td></tr>').join('') || '<tr><td colspan="4" style="color:var(--gris)">Personne n’attend pour l’instant.</td></tr>';
-  const ro = role === 'ministere'; ['bAppeler', 'bRappeler', 'bAbsent'].forEach(i => { $('#' + i).disabled = ro; });
+  $('#nbPortes').textContent = cfg.n;
+  let h = ''; for (let k = 1; k <= cfg.n; k++) { const cur = ap.find(x => x.appel.porte === k && x.status === 'recu'), nom = cfg.noms[k] || '';
+    h += '<div class="porteC' + (ap[0] && ap[0].appel.porte === k && ap[0].status === 'recu' ? ' on' : '') + '"><div class="ph">🚪 Porte ' + k + '<button type="button" data-ed="' + k + '" title="Nommer la porte">✎</button></div><div class="nm">' + (nom ? esc(nom) : '&nbsp;') + '</div>' +
+      '<div class="nb">' + (cur ? pad(cur.ticket, 3) : '—') + '</div><div class="nm">' + (cur ? esc(nomComplet(cur)) : 'libre') + '</div>' +
+      '<div class="bt"><button type="button" class="btn or petit" data-act="appeler" data-p="' + k + '"' + (ro ? ' disabled' : '') + '>🔔 Appeler le suivant</button><button type="button" class="btn clair petit" data-act="rappeler" data-p="' + k + '"' + (ro || !cur ? ' disabled' : '') + '>↻ Rappeler</button><button type="button" class="btn clair petit" data-act="absent" data-p="' + k + '"' + (ro || !cur ? ' disabled' : '') + '>Absent</button></div></div>'; }
+  $('#portes').innerHTML = h;
 }
 function msgAppel(h, cl) { const e = $('#appelEtat'); e.style.display = ''; e.className = 'alert ' + (cl || 'bleu'); e.innerHTML = h; }
-function appeler() {
+function appeler(porte) {
   const q = file(); if (!q.length) { msgAppel('Personne n’attend pour l’instant.', 'orange'); return; }
-  const d = q[0], porte = +$('#selPorte').value, now = NOW().toISOString();
+  const d = q[0], now = NOW().toISOString();
   d.status = 'recu'; d.appel = { porte, at: now }; d.history.push({ s: 'recu', at: now, by: 'Porte ' + porte, note: 'Appelé en salle' });
   A.sauver(); vueFile(); msgAppel('🔔 <b>N° ' + pad(d.ticket, 3) + '</b> · ' + esc(nomComplet(d)) + ' → <b>Porte ' + porte + '</b> (affiché sur les écrans de la salle)', 'vert');
 }
-function rappeler() { const l = appelsDuJour()[0]; if (!l) { msgAppel('Aucun appel à répéter.', 'orange'); return; } l.appel.at = NOW().toISOString(); l.history.push({ s: l.status, at: l.appel.at, by: 'Porte ' + l.appel.porte, note: 'Appel répété' }); A.sauver(); msgAppel('🔔 Appel répété : N° ' + pad(l.ticket, 3) + ' → Porte ' + l.appel.porte, 'vert'); }
-function absent() {
-  const porte = +$('#selPorte').value, l = appelsDuJour().find(x => x.appel.porte === porte && x.status === 'recu') || appelsDuJour().find(x => x.status === 'recu'); if (!l) { msgAppel('Aucune personne appelée à renvoyer.', 'orange'); return; }
+function rappeler(porte) { const l = appelsDuJour().find(x => x.appel.porte === porte && x.status === 'recu'); if (!l) { msgAppel('Aucun appel à répéter à la porte ' + porte + '.', 'orange'); return; } l.appel.at = NOW().toISOString(); l.history.push({ s: l.status, at: l.appel.at, by: 'Porte ' + porte, note: 'Appel répété' }); A.sauver(); vueFile(); msgAppel('🔔 Appel répété : N° ' + pad(l.ticket, 3) + ' → Porte ' + porte, 'vert'); }
+function absent(porte) {
+  const l = appelsDuJour().find(x => x.appel.porte === porte && x.status === 'recu'); if (!l) { msgAppel('Aucune personne appelée à la porte ' + porte + '.', 'orange'); return; }
   const max = DB().reduce((a, x) => Math.max(a, x.rang != null ? x.rang : (x.ticket || 0)), 0);
   l.status = 'paye'; l.rang = max + 1; delete l.appel; l.history.push({ s: 'paye', at: NOW().toISOString(), by: 'Porte ' + porte, note: 'Absent à l’appel — renvoyé en fin de file' }); A.sauver(); vueFile(); msgAppel('N° ' + pad(l.ticket, 3) + ' absent : renvoyé en fin de file.', 'orange');
 }
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'), ed = e.target.closest('[data-ed]');
+  if (b && b.closest('#portes')) { const k = +b.dataset.p; ({ appeler, rappeler, absent })[b.dataset.act](k); }
+  if (ed) { const c = portesCfg(), k = ed.dataset.ed, v = prompt('Nom de la porte ' + k + ' (vide pour effacer) :', c.noms[k] || ''); if (v !== null) { if (v.trim()) c.noms[k] = v.trim().slice(0, 40); else delete c.noms[k]; sauverPortes(c); vueFile(); } }
+});
+$('#bPortesPlus').onclick = () => { const c = portesCfg(); c.n = Math.min(12, c.n + 1); sauverPortes(c); vueFile(); };
+$('#bPortesMoins').onclick = () => { const c = portesCfg(); c.n = Math.max(1, c.n - 1); sauverPortes(c); vueFile(); };
 
 /* ---------- Complément par le demandeur (suivi) ---------- */
 function completerCitoyen() {
@@ -269,7 +284,6 @@ $$('.baniere').forEach(b => { const t = b.querySelector('.txt'); if (!t) return;
 /* ---------- Branchements ---------- */
 function render(v) { if (v === 'caisse') caisse(); if (v === 'file') vueFile(); if (v === 'guichet') { bandeauBrouillon(); majEtapes(); const ed = $('#edGuichet'); ed.dataset.monte = '0'; monter(); hydrate(); } }
 $('#bScanCaisse').onclick = lancerScan; $('#bScanStop').onclick = arretScan; $('#bScanEx').onclick = () => exempleCaisse(false); $('#bScanEx2').onclick = () => exempleCaisse(true); $('#bCaisseOuvrir').onclick = () => ouvrirCaisse();
-$('#bAppeler').onclick = appeler; $('#bRappeler').onclick = rappeler; $('#bAbsent').onclick = absent;
 document.addEventListener('click', e => { const tr = e.target.closest('#tbCaisse tr.cl, #tbFile tr.cl'); if (tr) A.detail(tr.dataset.id); });
 window.__spSuite = { extras, reset, aSignature, accuse, lierAccuse, piecesHtml: piecesHtmlDetail, render, apres, role: r => { role = r; if ($('#v-file').classList.contains('on')) vueFile(); } };
 majEtapes(); monter(); hydrate(); bandeauBrouillon();
