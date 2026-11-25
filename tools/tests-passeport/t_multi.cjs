@@ -89,7 +89,7 @@ const att = async (fn, ms = 8000) => { const t = Date.now(); while (Date.now() -
   console.log('B porte1 :', (await B.textContent('#appelEtat')).replace(/\s+/g, ' '));
   const nomC = await att(async () => { const n = await C.textContent('#num'); return n && n !== '---' ? n : null; }, 8000);
   ok(!!nomC, 'écran C affiche le N° ' + nomC + ' → ' + (await C.textContent('#nom')) + ' / ' + (await C.textContent('#porte')));
-  const nomD = await att(async () => { const n = await D.textContent('#num'); return n && n !== '---' ? n : null; }, 8000);
+  const nomD = await att(async () => { const n = await D.textContent('#num'); return n && n !== '---' && n === nomC ? n : null; }, 14000) || await D.textContent('#num');   // les écrans annoncent un numéro à la fois (10 s mini) : on laisse à D le temps d'arriver au même numéro que C
   ok(nomD === nomC, 'écran D affiche le même N° : ' + nomD);
   // deuxième appel porte 2 (depuis A) -> personne différente
   await A.evaluate(() => document.querySelector('nav button[data-v="file"]').click());
