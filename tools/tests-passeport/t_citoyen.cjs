@@ -59,7 +59,7 @@ const att = async (fn, ms = 8000) => { const t = Date.now(); while (Date.now() -
   const manq2 = await A.evaluate(i => { const X = window.__spApi; return X.manquantes(X.DB.find(x => x.id === i)).map(r => r[0]); }, id);
   for (const kk of manq2) { await A.click('#k_id', { force: true }).catch(() => { }); await A.fill('#k_id', id); await A.fill('#k_code', cc.code); await A.click('#bCaisseOuvrir'); await A.waitForTimeout(400); await A.click('#caisseRes [data-pj="fichier"][data-k="' + kk + '"]'); await A.setInputFiles('#pjFichier', SP + 'visage-test.png'); await A.waitForTimeout(1200); }
   await A.fill('#k_id', id); await A.fill('#k_code', cc.code); await A.click('#bCaisseOuvrir'); await A.waitForSelector('#k_montant', { timeout: 6000 });
-  await A.fill('#k_montant', '75000'); await A.click('#bPayer'); await A.waitForSelector('.recu', { timeout: 10000 });
+  await A.click('#bPayer'); await A.waitForSelector('.recu', { timeout: 10000 });
   await A.click('#bFerme');
   const rdv = await att(async () => { const t = await E.textContent('#resSuivi'); return /Rendez-vous d’enrôlement/.test(t) ? t : null; }, 12000);
   ok(!!rdv, 'le demandeur voit son rendez-vous sans recharger : ' + (rdv || '').replace(/\s+/g, ' ').slice(0, 140));

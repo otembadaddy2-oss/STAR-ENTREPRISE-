@@ -42,7 +42,7 @@ export const CONFIG_DEFAUT = {
   debut: "08:00", pas: 30, parCreneau: 10,
   lieu: "Préfecture de Brazzaville",
   decalage: 0,             // démonstration : avancer la date du jour de N jours
-  tarifs: { premiere: 0, renouvellement: 0 } as Record<string, number>,   // montant officiel (FCFA) ; 0 = pas encore communiqué (démonstration : montant libre)
+  tarifs: { premiere: 50000, renouvellement: 50000 } as Record<string, number>,   // montant officiel (FCFA) : 50 000 FCFA au Congo-Brazzaville sauf décision du gouvernement ; modifiable une fois dans les réglages (0 = montant libre)
 };
 export type Config = typeof CONFIG_DEFAUT;
 const ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";

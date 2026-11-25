@@ -80,8 +80,8 @@ const api = (body) => page.evaluate(async b => { const r = await fetch('/api/pas
     await leg('Étape 3 sur 10 · Caisse', 'Ouvrir le dossier', 'Le demandeur présente son accusé. La caisse <b>scanne le code QR</b> — ou saisit le numéro de reçu et le code de contrôle — et le dossier s’ouvre.', 6500);
     await taper(f, '#k_id', dos.id, 70); await taper(f, '#k_code', dos.code, 90); await pointeur(f, '#bCaisseOuvrir'); await f.locator('#k_montant').waitFor({ timeout: 8000 }); await wait(1200);
     await leg('Étape 3 sur 10 · Caisse', 'Vérifier avant d’encaisser', 'La fiche, les pièces, la signature et les alertes s’affichent. <b>L’encaissement est bloqué</b> si une pièce obligatoire manque ou si une alerte grave n’a pas été examinée par la Préfecture.', 7500);
-    await taper(f, '#k_montant', '75000', 110); await wait(700);
-    await leg('Étape 3 sur 10 · Caisse', 'Encaisser et éditer le reçu', 'Montant, mode de paiement, puis <b>Encaisser</b>. Le <b>reçu</b> donne le <b>rendez-vous d’enrôlement</b> et le <b>numéro d’appel</b>. Ici, des montants fictifs.', 5500);
+    await f.locator('#k_montant').scrollIntoViewIfNeeded().catch(() => { }); await wait(900);
+    await leg('Étape 3 sur 10 · Caisse', 'Encaisser et éditer le reçu', 'Le montant officiel, <b>50 000 FCFA</b>, s’affiche déjà et ne peut pas être modifié à la caisse. On choisit le mode de paiement, puis <b>Encaisser</b>. Le <b>reçu</b> donne le <b>rendez-vous d’enrôlement</b> et le <b>numéro d’appel</b>.', 5500);
     await pointeur(f, '#bPayer'); await f.locator('.recu').waitFor({ timeout: 8000 }); await wait(3500);
     await f.evaluate(() => { const t = document.querySelector('#tiroir .feuille'); t && t.scrollTo({ top: 600, behavior: 'smooth' }); }); await wait(3500);
     await leg('Étape 3 sur 10 · Caisse', 'Le message WhatsApp du rendez-vous', 'Le demandeur reçoit <b>la date de son rendez-vous</b> et son numéro d’appel. Les numéros sont sans doublon, et la capacité du jour ne peut pas être dépassée.', 6000);

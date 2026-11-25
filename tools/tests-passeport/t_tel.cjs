@@ -45,7 +45,7 @@ const att = async (fn, ms = 10000) => { const t = Date.now(); while (Date.now() 
   await C.tap('nav button[data-v="caisse"]'); await C.waitForTimeout(500); await trop(C, 'caisse'); await petit(C, 'caisse');
   await C.fill('#k_id', dos.id); await C.fill('#k_code', dos.code); await C.tap('#bCaisseOuvrir'); await C.waitForSelector('#k_montant', { timeout: 8000 });
   await C.screenshot({ path: SP + 'tel_caisse.png' });
-  await C.fill('#k_montant', '75000'); await C.tap('#bPayer'); await C.waitForSelector('.recu', { timeout: 10000 });
+  await C.tap('#bPayer'); await C.waitForSelector('.recu', { timeout: 10000 });
   ok(/Rendez-vous/.test(await C.textContent('.recu .alert')), 'caisse : reçu avec rendez-vous');
   await trop(C, 'reçu'); await C.screenshot({ path: SP + 'tel_recu.png' });
   const wa = await C.getAttribute('.recu ~ .ligne a[href*="wa.me"]', 'href'); ok(!!wa && /Rendez-vous/.test(decodeURIComponent(wa)), 'lien WhatsApp avec le rendez-vous');

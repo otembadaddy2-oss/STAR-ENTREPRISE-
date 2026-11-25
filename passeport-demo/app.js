@@ -131,7 +131,7 @@ function deriver(all) {
   const today = jourSite(0), nowMs = Date.now();
   all.forEach(d => { delete d.paiement; delete d.appel; delete d.ticket; delete d.rdv;
     const h = d.history.find(x => x.s === 'paye');
-    if (h) { d.paiement = { montant: d.montant || 75000, mode: d.mode || 'Espèces', at: h.at, caissier: 'Caisse' };
+    if (h) { d.paiement = { montant: d.montant || 50000, mode: d.mode || 'Espèces', at: h.at, caissier: 'Caisse' };
       d.rdv = { date: nowMs - T(h.at) < 14 * HOUR ? today : new Date(T(h.at) + 3600000).toISOString().slice(0, 10), heure: '08:00', lieu: 'Préfecture de Brazzaville', objet: 'Enrôlement (empreintes et photo)' }; }
     const r = d.history.find(x => x.s === 'recu'); if (r) { const m = /(\d)/.exec(r.by); d.appel = { porte: m ? +m[1] : 1, at: r.at }; } });
   const pays = all.filter(d => d.paiement).sort((x, y) => x.paiement.at.localeCompare(y.paiement.at)), cnt = {}; let rp = 0;
@@ -147,7 +147,7 @@ function seed() {
     const num = (ptype === 'CNI' ? 'CG' : 'OA') + pad(ri(1000000, 9999999), 7);
     const exp = isoDate(new Date(nowMs + (ren && ptype === 'PASSEPORT' ? -ri(15, 900) : ri(200, 2800)) * DAY));
     const d = { id: 'BZV-' + t.getFullYear() + '-' + pad(i + 1, 6), type: ren ? 'renouvellement' : 'premiere', createdAt: t.toISOString(), lieu: pick(LIEUX), agent, mrzOk: true,
-      montant: pick([50000, 75000, 100000]), mode: pick(['Espèces', 'Mobile Money MTN', 'Mobile Money Airtel']),
+      montant: 50000, mode: pick(['Espèces', 'Mobile Money MTN', 'Mobile Money Airtel']),
       person: { nom: nom.toUpperCase(), prenoms, naissance: naiss, sexe: f ? 'F' : 'M', nationalite: 'COG', tel: '+242 06 ' + pad(ri(100, 999), 3) + ' ' + pad(ri(10, 99)) + ' ' + pad(ri(10, 99)), piece: { type: ptype, numero: num, expiration: exp } },
       ancien: null, ancienRestitue: false, history: [] };
     if (ren) { const ae = isoDate(new Date(nowMs - ri(15, 900) * DAY)); d.ancien = { numero: 'OA' + pad(ri(1000000, 9999999), 7), expiration: ae }; if (ptype === 'PASSEPORT') { d.person.piece.numero = d.ancien.numero; d.person.piece.expiration = ae; } }

@@ -22,7 +22,7 @@ const nav = (p, v) => p.evaluate(x => document.querySelector('nav button[data-v=
   // ---------- 2. Parcours complet sous CSP : rien n'est bloqué ----------
   const D = await page(); await D.goto(BASE + 'index.html'); await D.waitForTimeout(1200);
   await D.selectOption('#role', 'agent'); await nav(D, 'guichet'); await D.click('[data-ex="cni"]'); await D.waitForTimeout(800);
-  await D.selectOption('#role', 'caisse'); await nav(D, 'caisse'); await D.click('#bScanEx'); await D.waitForSelector('#k_montant'); await D.fill('#k_montant', '75000'); await D.click('#bPayer'); await D.waitForSelector('.recu', { timeout: 8000 });
+  await D.selectOption('#role', 'caisse'); await nav(D, 'caisse'); await D.click('#bScanEx'); await D.waitForSelector('#k_montant'); await D.click('#bPayer'); await D.waitForSelector('.recu', { timeout: 8000 });
   ok(await D.locator('[data-imprimer]').count() >= 1, 'le bouton « Imprimer » fonctionne sans gestionnaire en ligne (délégation d’événement)');
   await D.evaluate(() => document.getElementById('tiroir').classList.remove('on'));
   await D.selectOption('#role', 'prefecture'); await nav(D, 'tableau'); await D.waitForTimeout(2500); await nav(D, 'fraude'); await D.waitForTimeout(1200); await nav(D, 'dossiers'); await D.waitForTimeout(600); await nav(D, 'file'); await D.waitForTimeout(1500); await nav(D, 'reglages'); await D.waitForTimeout(600);

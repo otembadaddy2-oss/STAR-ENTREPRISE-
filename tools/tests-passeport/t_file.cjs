@@ -12,7 +12,7 @@ const att = async (fn, ms = 8000) => { const t = Date.now(); while (Date.now() -
   await A.click('#chipEspace'); await A.waitForSelector('#bCreerEsp'); await Promise.all([A.waitForNavigation({ timeout: 20000 }).catch(() => { }), A.click('#bCreerEsp')]); await A.waitForTimeout(2000);
   const code = await A.evaluate(() => JSON.parse(localStorage.getItem('sp_espace_v1')).code);
   await A.selectOption('#role', 'caisse'); await A.evaluate(() => document.querySelector('nav button[data-v="caisse"]').click());
-  for (let i = 0; i < 4; i++) { await A.click('#bScanEx'); await A.waitForSelector('#k_montant'); await A.fill('#k_montant', '75000'); await A.click('#bPayer'); await A.waitForSelector('.recu'); await A.click('#bFerme'); await A.waitForTimeout(300); }
+  for (let i = 0; i < 4; i++) { await A.click('#bScanEx'); await A.waitForSelector('#k_montant'); await A.click('#bPayer'); await A.waitForSelector('.recu'); await A.click('#bFerme'); await A.waitForTimeout(300); }
   await A.evaluate(() => document.querySelector('nav button[data-v="reglages"]').click()); await A.selectOption('#role', 'prefecture');
   await A.evaluate(() => document.querySelector('nav button[data-v="reglages"]').click()); await A.fill('#r_dec', '1'); await A.fill('#r_portes', '3'); await A.click('#bRegler'); await A.waitForTimeout(800);
   const E = await mk(1280, 720, true); await E.goto(BASE + 'ecran.html?espace=' + code); await E.waitForTimeout(400); await E.fill('#nomEcran', 'Salle'); await E.click('#bDemarrer'); await E.waitForTimeout(1800);

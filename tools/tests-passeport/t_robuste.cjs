@@ -24,7 +24,7 @@ function couper() { try { srv.kill('SIGKILL'); } catch (e) { } srv = null; }
   couper(); console.log('… serveur coupé');
   ok(!!(await att(async () => /🟠/.test(await B.textContent('#chipEspace')), 12000)), 'panne : la puce passe à « Reconnexion… » : ' + (await B.textContent('#chipEspace')));
   await B.click('#bScanEx'); await B.waitForSelector('#k_montant', { timeout: 5000 }); ok(true, 'panne : la caisse reste utilisable (fiche ouverte)');
-  await B.fill('#k_montant', '75000'); await B.click('#bPayer'); await B.waitForTimeout(1500);
+  await B.click('#bPayer'); await B.waitForTimeout(1500);
   const msgPanne = await B.textContent('#payMsg'); ok(/Connexion perdue/.test(msgPanne), 'panne : encaisser affiche un message clair : « ' + msgPanne.trim().slice(0, 60) + '… »');
   ok((await B.$$('.recu')).length === 0, 'panne : aucun faux reçu n’est affiché');
   // changement local pendant la panne (Préfecture B fait avancer un dossier)
@@ -40,7 +40,7 @@ function couper() { try { srv.kill('SIGKILL'); } catch (e) { } srv = null; }
   const B1 = await mk(), B2 = await mk();
   for (const p of [B1, B2]) { await p.goto(BASE + 'index.html?espace=' + code); await p.waitForTimeout(2200); await p.selectOption('#role', 'caisse'); await p.evaluate(() => document.querySelector('nav button[data-v="caisse"]').click()); }
   const cible = await B1.evaluate(() => { const X = window.__spApi, d = X.DB.filter(x => x.status === 'depose' && !X.flags(x).some(f => f.n === 'rouge') && X.manquantes(x).length === 0).pop(); return d && { id: d.id, code: X.code(d.id, d.person.nom) }; });
-  for (const p of [B1, B2]) { await p.fill('#k_id', cible.id); await p.fill('#k_code', cible.code); await p.click('#bCaisseOuvrir'); await p.waitForSelector('#k_montant'); await p.fill('#k_montant', '75000'); }
+  for (const p of [B1, B2]) { await p.fill('#k_id', cible.id); await p.fill('#k_code', cible.code); await p.click('#bCaisseOuvrir'); await p.waitForSelector('#k_montant'); }
   await Promise.all([B1.click('#bPayer'), B2.click('#bPayer')]); await wait(2500);
   const r1 = await B1.$$('.recu').then(a => a.length), r2 = await B2.$$('.recu').then(a => a.length);
   const m1 = await B1.textContent('#payMsg').catch(() => ''), m2 = await B2.textContent('#payMsg').catch(() => '');
@@ -55,7 +55,7 @@ function couper() { try { srv.kill('SIGKILL'); } catch (e) { } srv = null; }
   const rep = await A.evaluate(async ([c, m]) => { const r = await fetch('/api/passeport', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ op: 'ecrire', espace: c, dossiers: [{ id: m.id, baseRev: 0, data: m }] }) }); return [r.status, await r.json()]; }, [code, mal]);
   console.log('écriture piégée →', rep[0]);
   // le pay passe par la caisse du serveur : on paie ce dossier puis on l'appelle
-  const pay = await api(A, { op: 'payer', espace: code, id: mal.id, montant: 1000, mode: 'Espèces' }); ok(pay[0] === 200, 'dossier piégé encaissé');
+  const pay = await api(A, { op: 'payer', espace: code, id: mal.id, montant: 50000, mode: 'Espèces' }); ok(pay[0] === 200, 'dossier piégé encaissé');
   await api(A, { op: 'reglages', espace: code, config: { decalage: 1 } }).catch(() => { });
   await A.evaluate(async c => { const g = await (await fetch('/api/passeport?op=sync&espace=' + c + '&since=0')).json(); await fetch('/api/passeport', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ op: 'reglages', espace: c, config: Object.assign({}, g.config, { decalage: 1 }) }) }); }, code);
   const E = await mk(1280, 720); await E.goto(BASE + 'ecran.html?espace=' + code); await E.waitForTimeout(500); await E.click('#bDemarrer'); await E.waitForTimeout(1500);
