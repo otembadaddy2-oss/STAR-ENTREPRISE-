@@ -515,3 +515,8 @@ Attribution (prénoms validés par Carry le 7 nov ; répartition proposée, rien
 - Bug trouvé par les tests et corrigé : capacité/jour dépassée en paiements simultanés (maintenant garantie par l'index unique sur le numéro d'appel).
 - NON mis en ligne. Avant tout déploiement Netlify : demander le go de Carry, annoncer ≈ 41 crédits, prévenir que les écrans interrogent le serveur toutes les ~1,5 s (coût en invocations : en production, prévoir un hébergement dédié) ; l'envoi WhatsApp automatique exige un compte WhatsApp Business (Meta) — dans la démo l'envoi est manuel (bouton).
 - À confirmer avec Carry : « kimatique » = file d'attente/affichage en salle ; « Porte 1, porte 2… » = plusieurs portes d'appel.
+
+## Passeport Sûr v5 (25/11/2026) — demandes de Carry après v4
+- Écran de salle : chaque numéro reste au moins 10 s, les appels simultanés passent un par un dans l'ordre, voix qui annonce numéro + nom + « veuillez vous diriger vers la porte N » (répétée une fois), « + N appels à annoncer » ; un absent repasse en fin de file. Testé (t_file) : 001/002/003 espacés de 10 s, absent après le dernier.
+- Style « verre » (acrylique) + transitions de pages façon Windows 11 (zoom, flou, glissement, voile de verre, cascade des cartes) ; désactivé si « mouvement réduit ».
+- RÈGLE : aucune mise en ligne Netlify (≈ 41 crédits) sans que Carry ait donné son accord APRÈS vérification complète.

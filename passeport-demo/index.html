@@ -201,6 +201,29 @@ tr.cl{cursor:pointer}tr.cl:hover td{background:#f3f9f5}
 .pied::before{content:"";display:block;height:4px;border-radius:2px;margin:0 auto 12px;width:90px;background:linear-gradient(90deg,var(--vert) 0 33.3%,var(--jaune) 33.3% 66.6%,var(--rouge) 66.6%)}
 .suivi{max-width:620px;margin:auto;text-align:left}
 @media print{header,nav,.bandeau,.noprint,.pied,.signature{display:none!important}.tiroir{position:static;background:none;display:block;backdrop-filter:none}.tiroir:not(.on){display:none}.feuille{max-height:none;box-shadow:none;width:100%}body{background:#fff}}
+
+/* ===== Verre : acrylique et transitions façon Windows 11 (zoom, flou, glissement) ===== */
+:root{--verre:rgba(255,255,255,.62);--verre-bord:rgba(255,255,255,.85);--verre-ombre:0 8px 30px #062b1e1f,inset 0 1px 0 #ffffffd9}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(640px 420px at 6% 10%,#00954338 0,transparent 70%),radial-gradient(560px 420px at 95% 28%,#f6c92848 0,transparent 70%),radial-gradient(640px 480px at 52% 100%,#d62f2628 0,transparent 70%)}
+@supports ((-webkit-backdrop-filter:blur(2px)) or (backdrop-filter:blur(2px))){
+ .carte,.porteC,.tablewrap{background:var(--verre);-webkit-backdrop-filter:blur(16px) saturate(1.5);backdrop-filter:blur(16px) saturate(1.5);border-color:var(--verre-bord);box-shadow:var(--verre-ombre)}
+ .porteC.on{background:rgba(255,247,209,.72)}
+ .kpi{background:var(--verre);-webkit-backdrop-filter:blur(16px) saturate(1.5);backdrop-filter:blur(16px) saturate(1.5);border-right-color:var(--verre-bord);border-bottom-color:var(--verre-bord);border-left-color:var(--verre-bord);box-shadow:var(--verre-ombre)}
+ nav{background:rgba(255,255,255,.7);-webkit-backdrop-filter:blur(18px) saturate(1.6);backdrop-filter:blur(18px) saturate(1.6)}
+ .tiroir .feuille{background:rgba(255,255,255,.9);-webkit-backdrop-filter:blur(26px) saturate(1.5);backdrop-filter:blur(26px) saturate(1.5)}
+}
+main{position:relative}
+.vue.on{animation:vin .5s cubic-bezier(.16,1,.3,1) backwards}
+@keyframes vin{from{opacity:0;transform:translateX(calc(var(--dx,1)*28px)) scale(.972);filter:blur(7px)}to{opacity:1;transform:none;filter:blur(0)}}
+.vue.sortie{display:block;position:absolute;left:16px;right:16px;top:20px;pointer-events:none;z-index:1;animation:vout .22s cubic-bezier(.4,0,1,1) forwards}
+@keyframes vout{to{opacity:0;transform:translateX(calc(var(--dx,1)*-24px)) scale(1.02);filter:blur(8px)}}
+.vue.stagger .baniere,.vue.stagger .carte,.vue.stagger .kpi,.vue.stagger .porteC{animation:item .55s cubic-bezier(.16,1,.3,1) backwards;animation-delay:calc(var(--i,0)*40ms + 70ms)}
+@keyframes item{from{opacity:0;transform:translateY(18px) scale(.985)}}
+#verre{position:fixed;inset:0;z-index:12;pointer-events:none;opacity:0;background:linear-gradient(105deg,#ffffff00 0 32%,#ffffffb3 47%,#ffffff00 62% 100%),rgba(255,255,255,.18);background-size:260% 100%,auto;-webkit-backdrop-filter:blur(12px) saturate(1.5);backdrop-filter:blur(12px) saturate(1.5)}
+#verre.go{animation:verre .62s cubic-bezier(.3,.6,.2,1)}
+@keyframes verre{0%{opacity:0;background-position:125% 0,0 0}16%{opacity:1}100%{opacity:0;background-position:-35% 0,0 0}}
+@media(prefers-reduced-motion:reduce){.vue.on,.vue.stagger .baniere,.vue.stagger .carte,.vue.stagger .kpi,.vue.stagger .porteC{animation:none}.vue.sortie{display:none}#verre{display:none}}
+@media print{#verre{display:none}body::before{display:none}}
 </style>
 </head>
 <body>

@@ -208,9 +208,27 @@ function appliquerRole() {
   const cur = $('#onglets .on'); if (cur && cur.style.display === 'none') aller('accueil');
   if (window.__spSuite) window.__spSuite.role(role);
 }
+let tSortie = 0, tStagger = 0;
+/* Transition de page « verre » : l'ancienne page glisse et se floute, la nouvelle arrive en zoom, un voile de verre passe. */
+function transitionPages(ancien, nouveau) {
+  try {
+    if (!ancien || !nouveau || ancien === nouveau || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+    const ids = $$('#onglets button').map(b => b.dataset.v), i0 = ids.indexOf(ancien.id.slice(2)), i1 = ids.indexOf(nouveau.id.slice(2));
+    document.querySelector('main').style.setProperty('--dx', i0 >= 0 && i1 >= 0 && i1 < i0 ? -1 : 1);
+    $$('.vue.sortie').forEach(s => s.classList.remove('sortie')); clearTimeout(tSortie);
+    ancien.classList.add('sortie'); tSortie = setTimeout(() => ancien.classList.remove('sortie'), 240);
+    $$('.vue.stagger').forEach(s => s.classList.remove('stagger')); clearTimeout(tStagger);
+    [...nouveau.querySelectorAll('.baniere,.carte,.kpi,.porteC')].slice(0, 14).forEach((e, i) => e.style.setProperty('--i', i));
+    nouveau.classList.add('stagger'); tStagger = setTimeout(() => nouveau.classList.remove('stagger'), 900);
+    let g = document.getElementById('verre'); if (!g) { g = document.createElement('div'); g.id = 'verre'; g.setAttribute('aria-hidden', 'true'); document.body.appendChild(g); }
+    g.classList.remove('go'); void g.offsetWidth; g.classList.add('go');
+  } catch (e) { }
+}
 function aller(v, sansHisto) {
+  const ancien = document.querySelector('.vue.on');
   $$('#onglets button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
   $$('.vue').forEach(s => s.classList.toggle('on', s.id === 'v-' + v));
+  transitionPages(ancien, document.getElementById('v-' + v));
   rafraichir(); window.scrollTo({ top: 0 });
   if (!sansHisto) { try { if (location.hash !== '#' + v) history.pushState({ v }, '', '#' + v); } catch (e) { } }
 }
