@@ -13,14 +13,19 @@ const carte = async (html, ms, nomVoix) => { voix.push(nomVoix || texte(html)); 
 async function pointeur(fr, sel, clic = true, nth = 0) {
   const el = fr.locator(sel).nth(nth); await el.scrollIntoViewIfNeeded().catch(() => { }); const b = await el.boundingBox(); if (!b) throw new Error('introuvable : ' + sel);
   await page.evaluate(([x, y]) => V.curseur(x, y, false), [b.x + b.width / 2 - 4, b.y + b.height / 2 - 4]); await wait(650);
-  if (clic) { await page.evaluate(([x, y]) => V.curseur(x, y, true), [b.x + b.width / 2 - 4, b.y + b.height / 2 - 4]); await wait(220); await el.click({ timeout: 8000 }); } return el;
+  if (clic) { await page.evaluate(([x, y]) => V.curseur(x, y, true), [b.x + b.width / 2 - 4, b.y + b.height / 2 - 4]); await wait(220); try { await el.click({ timeout: 2500 }); } catch (e) { console.log('  (clic direct) ' + sel + ' : ' + e.message.split('\n').filter(l => /intercepts|not visible|detached/.test(l)).join(' ').slice(0, 160)); await el.evaluate(n => n.click()); } } return el;
 }
 async function taper(fr, sel, t, delai = 85) { const el = fr.locator(sel); await pointeur(fr, sel, true); await el.fill(''); await el.pressSequentially(t, { delay: delai }); }
-const scene = async (nom, fn) => { try { await fn(); console.log('OK   ' + nom); } catch (e) { echecs.push(nom); console.log('ECHEC ' + nom + ' : ' + e.message.split('\n')[0]); } };
+const scene = async (nom, fn) => {
+  if (process.env.SCENES && !process.env.SCENES.split(',').includes(nom)) return;
+  try { await fn(); console.log('OK   ' + nom); }
+  catch (e) { echecs.push(nom); console.log('ECHEC ' + nom + ' : ' + e.message.split('\n').slice(0, 10).join(' | ')); try { await page.screenshot({ path: path.join(DIR, 'echec-' + nom.replace(/\W+/g, '_') + '.png') }); } catch (x) { } }
+};
 const api = (body) => page.evaluate(async b => { const r = await fetch('/api/passeport', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(b) }); return r.json(); }, body);
 
 (async () => {
   const b = await chromium.launch(); ctx = await b.newContext({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1, locale: 'fr-FR', timezoneId: 'Africa/Brazzaville', recordVideo: { dir: DIR, size: { width: 1280, height: 720 } } });
+  await ctx.addInitScript(() => { try { Element.prototype.requestFullscreen = function () { return Promise.resolve(); }; Element.prototype.webkitRequestFullscreen = Element.prototype.requestFullscreen; } catch (e) { } }); // le plein écran de l'écran de salle masquerait le cadre de tournage
   page = await ctx.newPage(); page.on('pageerror', e => console.log('  (erreur page) ' + e.message));
   await page.goto(BASE + 'tools/documents-passeport/video-cadre.html'); await page.evaluate(() => localStorage.clear()); await wait(800);
   let dos = null, code = '', pub = '';
