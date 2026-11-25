@@ -1,0 +1,5 @@
+Affiche « Passeport Sûr » avec code QR (créée avec Carry le 25/11/2026).
+- affiche.html : la mise en page (1080 x 1620). Le code QR est généré dans la page : changer le lien dans la ligne  q.addData('...')  quand l'adresse définitive sera choisie, puis refaire les fichiers.
+- photo-couple.jpg : photo générée (personnages fictifs) avec Canva.
+- Fichiers prêts : docs/passeport-sur/AFFICHE-Passeport-Sur-QR-*.png / .jpg / .pdf (le PDF s'imprime en 40 x 60 cm, rapport 2:3).
+- Le code QR mène à la page d'installation : https://star-entreprise.netlify.app/passeport-demo/installer.html (adresse de démonstration).

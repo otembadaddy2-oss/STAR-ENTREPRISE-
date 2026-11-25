@@ -10,7 +10,7 @@ for f in _passeport _comptes _audit _integrite _db api-passeport api-passeport-p
 cp tools/serveur-local-passeport.mts tools/test-passeport-serveur.mts "$D/2-Serveur/"
 # réglages de protection propres à Passeport Sûr (extraits de _headers, _redirects, robots.txt du site)
 { echo "# Extraits des fichiers du site qui protègent Passeport Sûr (à reporter sur l'hébergement choisi)"; echo; echo "## _headers"; awk '/Passeport Sûr/{p=1} p{print} /^$/{if(p&&++b>1)p=0}' _headers; echo; echo "## _redirects"; grep -n "passeport\|documents-filiales\|^/tools" _redirects || true; echo; echo "## robots.txt"; grep -n "passeport" robots.txt || true; } > "$D/2-Serveur/reglages-de-protection.txt"
-cp docs/passeport-sur/*.pdf docs/passeport-sur/*.mp4 "$D/3-Documents/"; cp tools/documents-passeport/video/texte-de-la-voix.txt "$D/3-Documents/"
+cp docs/passeport-sur/*.pdf docs/passeport-sur/*.mp4 docs/passeport-sur/AFFICHE-* "$D/3-Documents/"; cp tools/documents-passeport/video/texte-de-la-voix.txt "$D/3-Documents/"
 cp tools/tests-passeport/*.cjs tools/tests-passeport/LISEZ-MOI.md "$D/4-Tests/" 2>/dev/null || cp tools/tests-passeport/*.cjs "$D/4-Tests/"
 for f in tools/tests-passeport/ocr_*.png tools/tests-passeport/visage-test.png tools/tests-passeport/doc-test.pdf tools/tests-passeport/faux-format.txt; do [ -f "$f" ] && cp "$f" "$D/4-Tests/"; done
 cp tools/documents-passeport/*.cjs tools/documents-passeport/video-cadre.html "$D/5-Fabrication-des-documents/"
