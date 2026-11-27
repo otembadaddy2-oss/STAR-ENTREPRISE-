@@ -228,6 +228,47 @@ def casa_filles():
         'Choisissez la coiffure de votre fille et notez son numéro (E-01 à E-10) sur la fiche de réservation à domicile.', 'E', 'Notez le numéro de la coiffure (E-01 à E-10) dans la case « N° de coiffure » de la <b>fiche de réservation à domicile</b> STAR CASA. Les parents choisissent et restent auprès de l\'enfant pendant la coiffure.')
 FICHES['casa-femmes'] = casa_femmes; FICHES['casa-filles'] = casa_filles
 
+
+# ---------------------------------------------------------------- 4bis. STAR CASA : catalogue des 8 planches de Carry + fiche de réservation
+def casa_planches():
+    import planches as PL
+    f = dict(nom='STAR CASA', rub='Bien-être à domicile', wordmark=True); tete = entete(f)[0]
+    LETTRES = 'ABCDEFGH'; total = PL.TOTAL
+    mos = [(f'{HERE}/planches/A.jpg', (0, 0, 184, 219)), (f'{HERE}/planches/A.jpg', (368, 219, 552, 438)), (f'{HERE}/planches/G.jpg', (0, 0, 245, 305)),
+           (f'{HERE}/planches/G.jpg', (245, 305, 490, 610)), (f'{HERE}/planches/H.jpg', (245, 0, 490, 304)), (f'{HERE}/planches/B.jpg', (245, 378, 490, 731))]
+    mosaique = '<div class="img" style="height:100%;border-radius:0;display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:1fr;gap:1.2mm;background:#041030">' + ''.join('<div class="img" style="border-radius:0"><img src="' + I.datauri(p, 900, crop=c) + '" style="object-position:center 25%"></div>' for p, c in mos) + '</div>'
+    cov = couverture(f, 'Catalogue de coiffures<br><span style="color:#ffd466">STAR CASA</span>', 'Tresses, nattes, twists, afro, chignons : choisissez, nous venons chez vous', 'Catalogue de coiffures', mosaique,
+                     '<div style="margin-top:4mm"><span class="badge" style="background:#ffd466;color:#041030;border-color:#ffd466">8 planches · ' + str(total) + ' coiffures numérotées · réservation à domicile</span></div>')
+    nb = 11
+    steps = [('Feuilletez', 'Parcourez les 8 planches (A à H) et repérez la coiffure qui vous plaît.'), ('Notez le code', 'Lettre de la planche + numéro : par exemple C-7 ou F-15.'), ('Remplissez la fiche', 'Inscrivez le code dans la fiche « Réservation à domicile » jointe à la fin.'), ('Nous venons chez vous', 'Rendez-vous à l\'adresse et à l\'heure de votre choix.')]
+    tab = ''.join('<tr><td style="font-weight:800;text-align:center;font-family:PF,serif;font-size:11pt;color:#041030">' + L + '</td><td>' + E(PL.PLANCHES[L][2]) + '</td><td style="text-align:center">' + L + '-1 à ' + L + '-' + str(PL.PLANCHES[L][1]) + '</td><td style="text-align:center">' + str(PL.PLANCHES[L][1]) + '</td></tr>' for L in LETTRES)
+    p2 = ('<p class="intro">Voici le catalogue de coiffures africaines de STAR CASA : <b>' + str(total) + ' modèles</b> répartis en 8 planches. Chaque coiffure porte un numéro. Votre coiffeuse se déplace chez vous pour la réaliser.</p>'
+          + sec('Comment réserver') + '<div class="steps">' + ''.join('<div class="st"><i>' + str(i) + '</i><b>' + E(a) + '</b><p>' + E(b) + '</p></div>' for i, (a, b) in enumerate(steps, 1)) + '</div>'
+          + sec('Les 8 planches') + '<table style="--lh:8mm"><thead><tr><th style="width:9%">Planche</th><th>Style</th><th style="width:22%">Codes</th><th style="width:14%">Coiffures</th></tr></thead><tbody>' + tab + '<tr><td colspan="3" style="text-align:right;font-weight:600">Total</td><td style="text-align:center;font-weight:800">' + str(total) + '</td></tr></tbody></table>'
+          + sec('Bon à savoir') + '<ul class="liste"><li>Les photos sont des <b>modèles d\'inspiration</b> : le résultat dépend de votre type de cheveux, de leur longueur et de leur état ; la coiffeuse vous conseille sur place.</li><li>Le prix et la durée dépendent de la coiffure choisie et sont <b>confirmés à la réservation</b> par STAR CASA : aucun prix n\'est affiché dans ce catalogue.</li><li>Réservation en ligne ou par téléphone : WhatsApp +242 06 656 50 50.</li></ul>')
+    P = [cov, titre_page(f, 2, nb, 'Comment choisir', tete, "Choisir <em>sa coiffure</em>", 'Planches A à H · coiffure à domicile', p2)]
+    for k, L in enumerate(LETTRES):
+        im, n, th = PL.PLANCHES[L]; src = PL.OUTIMG[L]
+        P.append('<div class="pl"><div class="plh"><div><span class="plk">PLANCHE</span><span class="plL">' + L + '</span></div><div class="plt"><b>' + E(th) + '</b><span>Coiffures ' + L + '-1 à ' + L + '-' + str(n) + ' · notez la lettre et le numéro sur votre fiche de réservation</span></div><div class="pls">STAR <b>CASA</b></div></div>'
+                 '<div class="plim"><img src="' + I.datauri(src, 1100, 90) + '"></div>'
+                 '<div class="plf"><div>STAR CASA · Coiffure à domicile · WhatsApp +242 06 656 50 50 · contact@starentreprise.com<br>Images d\'inspiration (sources Pinterest) : droits réservés à leurs auteurs. Ce ne sont pas des réalisations STAR CASA.<span>Page ' + str(3 + k) + ' sur 12</span></div><img src="' + STAR + '"></div></div>')
+    dern = (sec('Réservation rapide') + '<p class="intro" style="margin-top:1.4mm">Remplissez une ligne par coiffure choisie, puis remettez cette page à STAR CASA ou envoyez-la par WhatsApp. La fiche complète « Réservation à domicile » suit.</p>'
+            + table(['Code de la coiffure', 'Nom de la cliente', 'Téléphone', 'Date souhaitée', 'Adresse (repère)'], 8, 10, ['16%', '24%', '18%', '16%', '26%']))
+    P.append(titre_page(f, 11, nb, 'Réservation rapide', tete, "Réservation <em>rapide</em>", 'Votre code de coiffure, votre adresse, votre date', dern))
+    css = """.pl{position:relative;width:210mm;height:297mm;overflow:hidden;page-break-after:always;background:#fffdf7}
+.plh{height:23mm;background:radial-gradient(60% 120% at 40% 0%,#10285f,#041030 75%);display:flex;align-items:center;gap:6mm;padding:0 12mm;border-bottom:1.6mm solid #b98a2c;color:#fff}
+.plk{display:block;font-weight:600;font-size:6.4pt;letter-spacing:.3em;color:#e3b653}.plL{font-family:PF,serif;font-weight:800;font-size:30pt;line-height:.95;color:#ffd466}
+.plt{flex:1}.plt b{display:block;font-family:PF,serif;font-size:15pt;font-weight:700}.plt span{font-size:7.6pt;color:#d9e3ff}
+.pls{font-family:PF,serif;font-weight:800;font-size:15pt;letter-spacing:.1em}.pls b{color:#ffd466}
+.plim{position:absolute;left:0;right:0;top:23mm;bottom:21mm;display:flex;align-items:center;justify-content:center;padding:3mm 0}.plim img{max-width:200mm;max-height:100%;width:auto;height:auto;display:block;border:.5mm solid #e3c98a;box-shadow:0 1mm 4mm rgba(0,0,0,.18)}
+.plf{position:absolute;left:0;right:0;bottom:0;height:21mm;display:flex;align-items:center;justify-content:space-between;padding:0 12mm;font-size:6.6pt;color:#6a6f82;line-height:1.5;border-top:.35mm solid #e3c98a}.plf span{display:block;color:#a77a1c;font-weight:600;letter-spacing:.08em}.plf img{height:15mm;width:15mm;object-fit:contain}"""
+    pdf1 = rendre('STAR-CASA-Catalogue-coiffures-8-planches', [p.replace('sur 11', 'sur 12') for p in P], css)
+    fiche = os.path.join(OUT, 'STAR-CASA-Fiche-de-reservation-a-domicile.pdf')
+    final = os.path.join(OUT, 'STAR-CASA-Catalogue-coiffures-et-reservation.pdf')
+    if os.path.exists(fiche): subprocess.run(['pdfunite', pdf1, fiche, final], check=True); print('   joint à la fiche de réservation ->', final)
+    return final
+FICHES['casa-planches'] = casa_planches
+
 # ---------------------------------------------------------------- 6. CARRY.O AFRIQUE : certificat
 def certificat():
     star = STAR
