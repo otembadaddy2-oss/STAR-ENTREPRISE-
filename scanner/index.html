@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>STAR Scanner — documents, billets, pièces</title>
+<meta name="description" content="Scannez un document en PDF, contrôlez un billet ou un papier avec un guide pas à pas, scannez une pièce pour Passeport Sûr. Gratuit, sans compte, rien n'est envoyé en ligne.">
+<meta name="theme-color" content="#041030">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--nuit:#041030;--nuit2:#0b2150;--or:#e3b653;--or2:#ffd466;--ordf:#a77a1c;--fond:#f7f4ea;--enc:#1b1f2b;--gris:#5a6075;--ok:#1f8a4c;--ko:#c0392b}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--fond);color:var(--enc);min-height:100vh;padding-bottom:env(safe-area-inset-bottom)}
+header{background:radial-gradient(80% 160% at 50% 0,var(--nuit2),var(--nuit) 75%);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 16px 12px;display:flex;align-items:center;gap:12px;border-bottom:3px solid var(--or);position:sticky;top:0;z-index:5}
+header img{width:44px;height:44px;border-radius:10px}header h1{margin:0;font-size:1.15rem;letter-spacing:.04em}header h1 b{color:var(--or2)}header small{display:block;font-size:.72rem;color:#c8d3f0;letter-spacing:.06em}
+#retour{margin-left:auto;background:#ffffff1a;color:#fff;border:1px solid #ffffff44;border-radius:10px;padding:8px 12px;font-size:.9rem;display:none;cursor:pointer;min-height:40px}
+main{max-width:640px;margin:0 auto;padding:16px}
+.ecran{display:none}.ecran.on{display:block}
+.carte{display:flex;gap:14px;align-items:center;width:100%;text-align:left;background:#fff;border:1px solid #e3c98a;border-radius:16px;padding:16px;margin:0 0 12px;cursor:pointer;font:inherit;color:inherit;min-height:84px}
+.carte .ic{flex:0 0 52px;height:52px;border-radius:14px;background:var(--nuit);display:grid;place-items:center;font-size:1.6rem}
+.carte b{display:block;font-size:1.05rem;color:var(--nuit)}.carte span{font-size:.86rem;color:var(--gris);line-height:1.35}
+.intro{color:var(--gris);font-size:.92rem;line-height:1.45;margin:2px 0 16px}
+h2{font-size:1.2rem;margin:4px 0 10px;color:var(--nuit)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 18px;border-radius:12px;border:0;font:600 1rem system-ui;cursor:pointer;background:var(--nuit);color:#fff}
+.btn.or{background:linear-gradient(180deg,var(--or2),var(--or));color:#2d2100}.btn.cl{background:#fff;color:var(--nuit);border:1.5px solid var(--nuit)}.btn.ko{background:#fff;color:var(--ko);border:1.5px solid var(--ko)}.btn[disabled]{opacity:.45;cursor:default}
+.rang{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.rang .btn{flex:1 1 140px}
+.zone{border:2px dashed #c9b57a;border-radius:16px;background:#fffdf7;padding:22px 14px;text-align:center;margin-bottom:12px}
+#cvs{display:block;width:100%;touch-action:none;background:#222;border-radius:12px}
+.cadre{position:relative;margin:8px 0}
+.vign{display:flex;gap:10px;overflow-x:auto;padding:6px 2px 10px}.vign figure{margin:0;flex:0 0 96px;text-align:center;font-size:.72rem;color:var(--gris)}.vign canvas,.vign img{width:96px;height:128px;object-fit:contain;background:#fff;border:1.5px solid #e3c98a;border-radius:8px;display:block}
+.vign .act{display:flex;gap:4px;justify-content:center;margin-top:3px}.vign .act button{border:1px solid #c9b57a;background:#fff;border-radius:6px;min-width:28px;height:28px;font-size:.8rem;cursor:pointer}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;background:#fff6d8;border:1px solid var(--or);font-size:.78rem;color:var(--ordf);font-weight:600}
+.liste label{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid #e3c98a;border-radius:12px;padding:12px;margin:0 0 8px;cursor:pointer}
+.liste input{width:24px;height:24px;margin:2px 0 0;flex:0 0 24px;accent-color:var(--nuit)}.liste b{display:block;color:var(--nuit);font-size:.95rem}.liste span{font-size:.84rem;color:var(--gris);line-height:1.35}
+.alerte{background:#fff6d8;border-left:5px solid var(--or);border-radius:10px;padding:10px 12px;font-size:.86rem;line-height:1.45;margin:10px 0;color:#5a4300}
+.verdict{border-radius:14px;padding:14px;margin:12px 0;font-weight:600;line-height:1.4}.verdict.ok{background:#e9f7ef;border:1px solid var(--ok);color:#14562f}.verdict.ko{background:#fdecea;border:1px solid var(--ko);color:#7d2218}.verdict.mid{background:#fff6d8;border:1px solid var(--or);color:#5a4300}
+.onglets{display:flex;gap:8px;margin:0 0 12px}.onglets button{flex:1;min-height:44px;border-radius:12px;border:1.5px solid var(--nuit);background:#fff;color:var(--nuit);font:600 .95rem system-ui;cursor:pointer}.onglets button.on{background:var(--nuit);color:#fff}
+#msg{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));background:var(--nuit);color:#fff;border-radius:12px;padding:12px 14px;font-size:.92rem;display:none;z-index:9;box-shadow:0 8px 24px #0006;max-width:620px;margin:0 auto}
+footer{max-width:640px;margin:0 auto;padding:6px 16px 28px;font-size:.74rem;color:var(--gris);text-align:center;line-height:1.5}
+</style>
+</head>
+<body>
+<header><img src="icon-192.png" alt="Logo STAR ENTREPRISE"><div><h1>STAR <b>Scanner</b></h1><small>STAR ENTREPRISE · gratuit, sans compte</small></div><button id="retour" type="button">← Accueil</button></header>
+<main>
+<section id="e-accueil" class="ecran on">
+  <p class="intro">Trois outils dans une seule application. Tout se passe <b>sur votre téléphone</b> : vos photos et vos PDF ne sont envoyés nulle part.</p>
+  <button class="carte" data-go="doc"><div class="ic">📄</div><div><b>Scanner un document</b><span>Photo → bords redressés → noir et blanc → PDF de plusieurs pages.</span></div></button>
+  <button class="carte" data-go="auth"><div class="ic">🔍</div><div><b>Vérifier un billet ou un papier</b><span>Contrôle guidé pas à pas (filigrane, relief, lumière UV) avec lampe du téléphone.</span></div></button>
+  <button class="carte" data-go="pass"><div class="ic">🛂</div><div><b>Scanner une pièce — Passeport Sûr</b><span>Lecture du passeport ou de la carte pour le suivi des demandes.</span></div></button>
+  <p class="intro" style="margin-top:14px">Astuce : touchez « Ajouter à l'écran d'accueil » dans le menu de votre navigateur pour l'installer comme une application.</p>
+</section>
+
+<section id="e-doc" class="ecran">
+  <h2>Scanner un document</h2>
+  <div id="d-choix">
+    <div class="zone"><p style="margin:0 0 10px;font-weight:600">Prenez le document en photo, bien à plat et bien éclairé.</p>
+      <div class="rang" style="justify-content:center"><label class="btn or" for="f-cam">📷 Prendre une photo</label><label class="btn cl" for="f-img">🖼️ Choisir une image</label></div>
+      <input id="f-cam" type="file" accept="image/*" capture="environment" hidden><input id="f-img" type="file" accept="image/*" multiple hidden></div>
+  </div>
+  <div id="d-recadre" hidden>
+    <div class="alerte" id="d-aide">Déplacez les 4 points pour qu'ils touchent les coins du document.</div>
+    <div class="cadre"><canvas id="cvs" width="600" height="800"></canvas></div>
+    <div class="rang"><button class="btn cl" id="b-auto" type="button">✨ Détecter les bords</button><button class="btn cl" id="b-rot" type="button">↻ Pivoter</button></div>
+    <div class="onglets" id="d-filtres"><button data-f="couleur" type="button">Couleur</button><button data-f="gris" type="button">Gris</button><button data-f="nb" class="on" type="button">Noir &amp; blanc</button></div>
+    <div class="rang"><button class="btn or" id="b-valider" type="button">✓ Ajouter cette page</button><button class="btn ko" id="b-annuler" type="button">Annuler</button></div>
+  </div>
+  <div id="d-pages" hidden>
+    <h2 style="margin-top:18px">Vos pages <span class="pill" id="d-nb">0</span></h2>
+    <div class="vign" id="d-vign"></div>
+    <div class="rang"><label class="btn cl" for="f-cam">+ Page (photo)</label><label class="btn cl" for="f-img">+ Page (image)</label></div>
+    <div class="onglets" id="d-format"><button data-fmt="a4" class="on" type="button">Format A4</button><button data-fmt="image" type="button">Taille de l'image</button></div>
+    <div class="rang"><button class="btn or" id="b-pdf" type="button">⬇ Télécharger le PDF</button><button class="btn" id="b-part" type="button">↗ Partager</button></div>
+    <div class="rang"><button class="btn cl" id="b-jpg" type="button">⬇ Page 1 en image (JPG)</button><button class="btn ko" id="b-vider" type="button">Tout effacer</button></div>
+  </div>
+</section>
+
+<section id="e-auth" class="ecran">
+  <h2>Vérifier un billet ou un papier</h2>
+  <div class="alerte"><b>À savoir :</b> un téléphone ne peut pas, à lui seul, reconnaître un faux billet ou un faux papier. Ce guide vous fait faire les contrôles qu'une personne attentive peut faire. Il <b>ne remplace pas</b> la vérification par une banque ou par l'administration.</div>
+  <div class="onglets" id="a-type"><button data-t="billet" class="on" type="button">Billet de banque</button><button data-t="papier" type="button">Papier officiel</button></div>
+  <div class="rang"><button class="btn cl" id="b-lampe" type="button">🔦 Allumer la lampe</button></div>
+  <p class="intro" id="a-lampe-info" hidden></p>
+  <div class="liste" id="a-liste"></div>
+  <div id="a-verdict"></div>
+  <div class="rang"><button class="btn cl" id="a-raz" type="button">Recommencer</button></div>
+</section>
+
+<section id="e-pass" class="ecran">
+  <h2>Scanner une pièce — Passeport Sûr</h2>
+  <p class="intro">Le scan de la bande lisible d'un passeport ou d'une carte d'identité est dans <b>Passeport Sûr</b>, l'application de suivi des demandes de passeport (démonstration). Il lit le nom, le numéro et la date de naissance pour éviter les erreurs de saisie.</p>
+  <div class="rang"><a class="btn or" href="../passeport-demo/index.html">Ouvrir Passeport Sûr</a><a class="btn cl" href="../passeport-demo/installer.html">Comment l'installer</a></div>
+  <div class="alerte">Pour garder seulement une copie PDF d'une pièce, utilisez « Scanner un document » : la copie reste sur votre téléphone.</div>
+</section>
+</main>
+<footer>© 2026 STAR ENTREPRISE · WhatsApp +242 06 656 50 50 · contact@starentreprise.com<br>Aucune photo, aucun PDF n'est envoyé : tout reste sur cet appareil.</footer>
+<div id="msg" role="status"></div>
+<script src="pdf.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
