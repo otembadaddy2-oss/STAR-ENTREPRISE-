@@ -1,0 +1,10 @@
+DOSSIERS SPÉCIAUX STAR ENTREPRISE (27/11/2026)
+1. STAR-ENTREPRISE-Dossier-de-partenariat.pdf ........ présentation du groupe (21 filiales) + 3 fiches à remplir pour devenir partenaire
+2. STAR-BEACH-VILLAGE-Dossier-de-presentation.pdf .... présentation illustrée de STAR BEACH VILLAGE
+3. STAR-BEACH-VILLAGE-Dossier-investisseur.pdf ....... choix résidence / Tiny House + fiche investisseur + lettre d'intention
+4. STAR-CASA-Catalogue-coiffures-femmes.pdf .......... 12 modèles numérotés F-01 à F-12
+5. STAR-CASA-Catalogue-coiffures-filles.pdf .......... 10 modèles numérotés E-01 à E-10
+6. STAR-CASA-Fiche-de-reservation-a-domicile.pdf ..... fiche mise à jour : cases « N° de coiffure » (catalogues F / E)
+7. CARRY-O-AFRIQUE-Certificat-authenticite.pdf ....... certificat d'authenticité & origine garantie (A4 paysage, 2 pages)
+Refaire : python3 tools/dossiers-speciaux/fabrique.py   (images d'inspiration : Unsplash, licence libre, auteurs crédités dans les documents ; collage et panneaux STAR BEACH VILLAGE : copie du site officiel dans docs/archives)
+Rien d'inventé : aucun prix (STAR BEACH VILLAGE : « nous consulter » ; STAR CASA : prix confirmés à la réservation). Les « parcours proposés » sont à valider par Carry.
