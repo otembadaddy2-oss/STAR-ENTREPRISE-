@@ -49,3 +49,20 @@ def panneau(nom, x0, y0, x1, y1, fois=2):
     im = Image.open(f'{SITE}/images/star-beach-village-entree.jpg').convert('RGB').crop((x0, y0, x1, y1))
     im = im.resize((im.width * fois, im.height * fois), Image.LANCZOS)
     p = f'{CACHE}/panneau-{nom}.jpg'; im.save(p, quality=90); return p
+
+def logo_officiel_uri(taille=900):
+    """Logo officiel STAR ENTREPRISE (carré arrondi doré sur bleu nuit) : les coins noirs du fichier d'origine sont rendus transparents."""
+    import base64
+    from collections import deque
+    im = Image.open(ROOT + '/docs/komyo/guide-assets/star-logo-officiel.png').convert('RGBA')
+    w, h = im.size; px = im.load(); vu = bytearray(w * h); q = deque()
+    for x, y in [(0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1)]: q.append((x, y)); vu[y * w + x] = 1
+    while q:
+        x, y = q.popleft(); r, g, b, a = px[x, y]
+        if r + g + b > 70: continue
+        px[x, y] = (0, 0, 0, 0)
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < w and 0 <= ny < h and not vu[ny * w + nx]: vu[ny * w + nx] = 1; q.append((nx, ny))
+    im = im.resize((taille, int(taille * h / w)), Image.LANCZOS); b = io.BytesIO(); im.save(b, 'PNG', optimize=True)
+    return 'data:image/png;base64,' + base64.b64encode(b.getvalue()).decode()

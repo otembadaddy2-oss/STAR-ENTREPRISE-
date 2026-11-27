@@ -80,7 +80,7 @@ def partenaire():
     f = dict(nom='STAR ENTREPRISE', rub='Dossier de partenariat', wordmark=True)
     tete = entete(f)[0]; T = 6
     cov = couverture(f, 'Devenez partenaire<br>de <span style="color:#ffd466">STAR ENTREPRISE</span>', 'Un seul groupe, toutes les solutions pour votre vie.', 'Dossier de partenariat',
-        '<div class="wm" style="height:100%;background:radial-gradient(60% 80% at 50% 45%,#10285f,#041030 70%);display:flex;flex-direction:column;align-items:center;justify-content:center">' + SVG_GRAND + '<div class="n" style="font-size:44pt;margin-top:3mm">STAR <b>ENTREPRISE</b></div><div class="l" style="width:90mm"></div><div class="s" style="font-size:10pt">Groupe multi-métiers · Congo</div></div>')
+        '<div style="height:100%;background:radial-gradient(60% 80% at 50% 45%,#10285f,#041030 70%);display:flex;align-items:center;justify-content:center"><img src="' + I.logo_officiel_uri(900) + '" style="height:128mm;width:auto;filter:drop-shadow(0 2mm 7mm rgba(0,0,0,.55))"></div>')
     P = []
     P.append(cov)
     # p2 : qui sommes-nous
