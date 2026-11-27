@@ -11,6 +11,8 @@ if '--sortie' in args: i = args.index('--sortie'); OUT = args[i + 1]; args = arg
 os.makedirs(OUT, exist_ok=True)
 FONT = ROOT + '/decouvrir/polices/'
 RCCM = 'RCCM Brazzaville n° CG-BZV-01-2026-A10-01950'
+REP = 'OTEMBA KIBANGOU Daddyh Cariany'; QUAL = 'Fondateur et Président Directeur Général'
+SIEGE = os.environ.get('STAR_SIEGE', '')   # adresse du siège : à renseigner (variable STAR_SIEGE) ; vide = ligne à remplir à la main
 CSS = f"""@font-face{{font-family:ID;font-weight:300;src:url(file://{FONT}inter-display-300.woff2)}}
 @font-face{{font-family:ID;font-weight:600;src:url(file://{FONT}inter-display-600.woff2)}}
 @font-face{{font-family:PF;font-weight:700;src:url(file://{FONT}playfair-display-latin-700-normal.woff2)}}
@@ -37,6 +39,7 @@ table{{width:100%;border-collapse:collapse;margin:2mm 0 3mm;break-inside:avoid}}
 .saut{{break-before:page}}.ni{{break-inside:avoid}}
 .cert{{position:relative;font-size:10.4pt;line-height:1.55}}.cert p{{margin-bottom:3mm}}.cert .b{{min-width:48mm}}
 """
+def V(t): return '<span class="b" style="min-width:0;font-weight:600;color:#041030;padding:0 2mm">' + E(t) + '</span>'
 def S(n='_'): return '<span class="b"></span>'
 def B(cls='', n=1): return ''.join(f'<span class="b {cls}"></span> ' for _ in range(n))
 def case(t): return f'<span class="case"></span>{E(t)}'
@@ -61,13 +64,13 @@ await p.pdf({{path:'{pdf}',format:'A4',printBackground:true,preferCSSPageSize:tr
     n = subprocess.run(['pdfinfo', pdf], capture_output=True, text=True).stdout
     print(nom, [l for l in n.split('\n') if l.startswith('Pages')]); shutil.rmtree(tmp); return pdf
 NOTE = '<p class="note">Modèle établi par STAR ENTREPRISE à titre d\'exemplaire : à compléter, puis à faire valider par un conseil juridique (avocat ou inspection du travail) avant usage, conformément au Code du travail et aux textes en vigueur en République du Congo.</p>'
-EMP = f'STAR ENTREPRISE, société immatriculée au Registre du Commerce et du Crédit Mobilier (RCCM) de Brazzaville sous le n° CG-BZV-01-2026-A10-01950, dont le siège est à {B("l")}, représentée par {B("l")}, agissant en qualité de {B()}, ci-après « <b>l\'Employeur</b> »'
+EMP = f'STAR ENTREPRISE, société immatriculée au Registre du Commerce et du Crédit Mobilier (RCCM) de Brazzaville sous le n° CG-BZV-01-2026-A10-01950, dont le siège est à {V(SIEGE) if SIEGE else B("l")}, représentée par {V(REP)}, agissant en qualité de {V(QUAL)}, ci-après « <b>l\'Employeur</b> »'
 
 # ---------------------------------------------------------------- certificat + attestation de travail
 def certificat():
     c = ('<div class="num">N° <span class="b c"></span> / STAR / RH / <span class="b c"></span></div>'
          '<h1><small>STAR ENTREPRISE</small>CERTIFICAT DE TRAVAIL</h1><div class="filet"></div>'
-         '<div class="cert"><p>Je soussigné(e), <span class="b l"></span>, agissant en qualité de <span class="b"></span> de <b>STAR ENTREPRISE</b>, société immatriculée au RCCM de Brazzaville sous le n° CG-BZV-01-2026-A10-01950, certifie que :</p>'
+         '<div class="cert"><p>Je soussigné(e), ' + V(REP) + ', agissant en qualité de ' + V(QUAL) + ' de <b>STAR ENTREPRISE</b>, société immatriculée au RCCM de Brazzaville sous le n° CG-BZV-01-2026-A10-01950, certifie que :</p>'
          '<div class="cadre"><div class="gr"><div class="f">M. / Mme : <span class="b l"></span></div><div class="f">Né(e) le : <span class="b"></span></div><div class="f">À : <span class="b"></span></div><div class="f">Nationalité : <span class="b"></span></div><div class="f">Pièce d\'identité n° : <span class="b"></span></div><div class="f">N° CNSS (si applicable) : <span class="b"></span></div></div></div>'
          '<p>a été employé(e) au sein de notre entreprise, <b>du</b> <span class="b"></span> <b>au</b> <span class="b"></span>, sous contrat à durée ' + case('indéterminée (CDI)') + case('déterminée (CDD)') + ',<br>en qualité de <span class="b l"></span>, ' + 'rattaché(e) à la filiale / au service <span class="b l"></span>.</p>'
          '<p>Dernier poste occupé : <span class="b l"></span>. Principales fonctions exercées : <span class="b xl"></span></p><p><span class="b" style="min-width:170mm"></span></p>'
@@ -77,7 +80,7 @@ def certificat():
          '<div class="sig"><div>Pour STAR ENTREPRISE<i>Nom, fonction, signature et cachet</i></div><div>Reçu par l\'intéressé(e)<i>Date et signature</i></div></div>' + NOTE)
     a = ('<div class="saut"></div><div class="num">N° <span class="b c"></span> / STAR / RH / <span class="b c"></span></div>'
          '<h1><small>STAR ENTREPRISE</small>ATTESTATION DE TRAVAIL</h1><div class="sous">Agent en poste</div><div class="filet"></div>'
-         '<div class="cert"><p>Je soussigné(e), <span class="b l"></span>, agissant en qualité de <span class="b"></span> de <b>STAR ENTREPRISE</b>, société immatriculée au RCCM de Brazzaville sous le n° CG-BZV-01-2026-A10-01950, atteste que :</p>'
+         '<div class="cert"><p>Je soussigné(e), ' + V(REP) + ', agissant en qualité de ' + V(QUAL) + ' de <b>STAR ENTREPRISE</b>, société immatriculée au RCCM de Brazzaville sous le n° CG-BZV-01-2026-A10-01950, atteste que :</p>'
          '<div class="cadre"><div class="gr"><div class="f">M. / Mme : <span class="b l"></span></div><div class="f">Né(e) le : <span class="b"></span></div><div class="f">À : <span class="b"></span></div><div class="f">Nationalité : <span class="b"></span></div><div class="f">Pièce d\'identité n° : <span class="b"></span></div><div class="f">N° CNSS (si applicable) : <span class="b"></span></div></div></div>'
          '<p>est employé(e) au sein de notre entreprise <b>depuis le</b> <span class="b"></span>, sous contrat à durée ' + case('indéterminée (CDI)') + case('déterminée (CDD) jusqu\'au ') + '<span class="b c"></span>,<br>en qualité de <span class="b l"></span>, filiale / service : <span class="b l"></span>.</p>'
          '<p>L\'intéressé(e) est actuellement <b>en poste</b> et exerce ses fonctions à ce jour.</p>'
@@ -132,7 +135,7 @@ def cdd():
 # ---------------------------------------------------------------- contrat de prestation de services
 def prestation():
     c = ('<h1><small>Contrat</small>PRESTATION DE SERVICES</h1><div class="sous">N° <span class="b c"></span> / STAR / CP / <span class="b c"></span></div><div class="filet"></div>'
-         '<div class="cadre"><div class="t">Entre les soussignés</div><p style="margin:0">STAR ENTREPRISE, société immatriculée au RCCM de Brazzaville sous le n° CG-BZV-01-2026-A10-01950, dont le siège est à <span class="b l"></span>, représentée par <span class="b l"></span>, en qualité de <span class="b"></span>, agissant ' + case('pour son propre compte') + case('pour sa filiale : ') + '<span class="b l"></span>, ci-après « <b>le Prestataire</b> »,</p></div>'
+         '<div class="cadre"><div class="t">Entre les soussignés</div><p style="margin:0">STAR ENTREPRISE, société immatriculée au RCCM de Brazzaville sous le n° CG-BZV-01-2026-A10-01950, dont le siège est à ' + (V(SIEGE) if SIEGE else '<span class="b l"></span>') + ', représentée par ' + V(REP) + ', en qualité de ' + V(QUAL) + ', agissant ' + case('pour son propre compte') + case('pour sa filiale : ') + '<span class="b l"></span>, ci-après « <b>le Prestataire</b> »,</p></div>'
          '<p style="text-align:center;margin:1mm 0">d\'une part, et</p>'
          '<div class="cadre"><div class="t">Le client</div><div class="gr"><div class="f">Nom / raison sociale : <span class="b l"></span></div><div class="f">RCCM / NIU (si société) : <span class="b"></span></div><div class="f">Représenté(e) par : <span class="b l"></span></div><div class="f">Qualité : <span class="b"></span></div><div class="f">Adresse : <span class="b l"></span></div><div class="f">Téléphone / WhatsApp : <span class="b"></span></div><div class="f">E-mail : <span class="b l"></span></div></div><p style="margin:2mm 0 0">ci-après « <b>le Client</b> », d\'autre part.</p></div>'
          '<p>Les parties ont convenu ce qui suit, conformément au droit en vigueur en République du Congo.</p>'
