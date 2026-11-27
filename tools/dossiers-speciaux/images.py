@@ -66,3 +66,10 @@ def logo_officiel_uri(taille=900):
             if 0 <= nx < w and 0 <= ny < h and not vu[ny * w + nx]: vu[ny * w + nx] = 1; q.append((nx, ny))
     im = im.resize((taille, int(taille * h / w)), Image.LANCZOS); b = io.BytesIO(); im.save(b, 'PNG', optimize=True)
     return 'data:image/png;base64,' + base64.b64encode(b.getvalue()).decode()
+
+def logo_officiel_jpeg_uri(taille=150, fond=(255, 255, 255)):
+    """Version légère du logo officiel (JPEG sur fond uni) pour les en-têtes répétés à chaque page."""
+    import base64
+    png = logo_officiel_uri(max(taille * 2, 300)); im = Image.open(io.BytesIO(base64.b64decode(png.split(',')[1]))).convert('RGBA')
+    bg = Image.new('RGB', im.size, fond); bg.paste(im, (0, 0), im); bg = bg.resize((taille, int(taille * bg.height / bg.width)), Image.LANCZOS)
+    b = io.BytesIO(); bg.save(b, 'JPEG', quality=88, optimize=True); return 'data:image/jpeg;base64,' + base64.b64encode(b.getvalue()).decode()
