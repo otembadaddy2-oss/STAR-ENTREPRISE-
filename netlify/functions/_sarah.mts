@@ -12,7 +12,7 @@ export const NUMERO_SERVICE_LISIBLE = "+242 05 597 24 27";
 export const CLES = { phone: "sarah_wa_phone_id", token: "sarah_wa_token", actif: "sarah_wa_actif", urgence: "sarah_ferme_urgence" };
 const MODELE = () => process.env.SARAH_MODEL || "claude-sonnet-5-5";
 const LIMITE_CONTACT_HEURE = () => Number(process.env.SARAH_MAX_PAR_CONTACT_HEURE) > 0 ? Number(process.env.SARAH_MAX_PAR_CONTACT_HEURE) : 30;
-const LIMITE_GLOBALE_HEURE = () => Number(process.env.SARAH_MAX_PAR_HEURE) > 0 ? Number(process.env.SARAH_MAX_PAR_HEURE) : 600;
+const LIMITE_GLOBALE_HEURE = () => Number(process.env.SARAH_MAX_PAR_HEURE) > 0 ? Number(process.env.SARAH_MAX_PAR_HEURE) : 3000;
 const HISTORIQUE = 14;           // derniers messages relus par Sarah
 const RETENTION_JOURS = 90;      // les messages sont effacés après 90 jours
 
@@ -152,7 +152,7 @@ export async function alerterEquipe(sujet: string, corps: string): Promise<boole
 }
 
 // ---------- Traitement d'un message ----------
-export interface Resultat { statut: "inactif" | "deja" | "pause" | "limite" | "repondu" | "echec_envoi" | "sans_ia"; escalade?: boolean }
+export interface Resultat { statut: "inactif" | "deja" | "pause" | "limite" | "repondu" | "echec_envoi" | "sans_ia" | "remplace"; escalade?: boolean }
 export async function purgerAnciens(sql: Sql) { await sql`DELETE FROM starvibe_sarah_msg WHERE created_at < now() - make_interval(days => ${RETENTION_JOURS})`; await sql`DELETE FROM starvibe_sarah_contacts WHERE dernier_message < now() - make_interval(days => ${RETENTION_JOURS}) AND a_repondre = false`; }
 
 export async function traiterMessage(sql: Sql, m: MessageEntrant): Promise<Resultat> {
@@ -169,7 +169,7 @@ export async function traiterMessage(sql: Sql, m: MessageEntrant): Promise<Resul
     RETURNING nb_messages, statut, pause_ia_jusqu
   `) as { nb_messages: number; statut: string; pause_ia_jusqu: string | null }[];
   const contact = c[0];
-  await sql`INSERT INTO starvibe_sarah_msg (tel_hash, role, auteur, texte, ext_id) VALUES (${tel}, 'user', 'client', ${m.type === "text" ? texteClient : `[${m.type} reçu]`}, ${m.id})`;
+  const monId = Number((((await sql`INSERT INTO starvibe_sarah_msg (tel_hash, role, auteur, texte, ext_id) VALUES (${tel}, 'user', 'client', ${m.type === "text" ? texteClient : `[${m.type} reçu]`}, ${m.id}) RETURNING id`) as { id: number | string }[])[0]?.id) || 0);
   const repondre = async (texte: string, o: { escalade?: boolean; motif?: string; tokensIn?: number; tokensOut?: number } = {}): Promise<Resultat> => {
     const ok = await envoyerWhatsApp(cfg.phoneId, cfg.token, m.from, texte);
     await sql`INSERT INTO starvibe_sarah_msg (tel_hash, role, auteur, texte, tokens_in, tokens_out, escalade) VALUES (${tel}, 'assistant', 'sarah', ${texte}, ${o.tokensIn || 0}, ${o.tokensOut || 0}, ${!!o.escalade})`;
@@ -197,6 +197,9 @@ export async function traiterMessage(sql: Sql, m: MessageEntrant): Promise<Resul
   const hist = (await sql`SELECT role, texte FROM starvibe_sarah_msg WHERE tel_hash = ${tel} ORDER BY id DESC LIMIT ${HISTORIQUE}`) as { role: string; texte: string }[];
   const messages = preparerHistorique(hist.reverse());
   const ia = await appelerSarah(messages, contact.nb_messages <= 1);
+  // Le client a écrit une ou deux lignes de plus pendant que je préparais ma réponse : c'est le traitement du message le plus récent qui répond (avec tout l'historique), pour ne pas répondre deux fois à la suite.
+  const plusRecent = (await sql`SELECT 1 FROM starvibe_sarah_msg WHERE tel_hash = ${tel} AND role = 'user' AND id > ${monId} LIMIT 1`) as unknown[];
+  if (plusRecent.length) return { statut: "remplace" };
   if (!ia || !ia.texte) return repondre(MESSAGE_PANNE, { escalade: true, motif: process.env.ANTHROPIC_API_KEY ? "L'IA n'a pas répondu (panne ou limite)" : "Clé de l'IA absente : Sarah ne peut pas répondre" });
   const { visible, escalade, motif } = extraireEscalade(ia.texte);
   const sortie = filtreSortant(visible || ia.texte, "STAR ENTREPRISE");

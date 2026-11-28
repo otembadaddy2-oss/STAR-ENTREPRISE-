@@ -24,8 +24,9 @@ P.append(f"""<div class="p" data-pied="{pied}"><h2>1. Où en est Sarah, en toute
 <div class="k ok"><b>Terminé et testé</b><ul><li>Le cerveau de Sarah est à jour (28/11/2026) : les 21 filiales en détail (services, parcours, prix publics, fiches à remplir), KOMYO et Keydou (prix vérifiés avec le code), le ton courtois, chaleureux et professionnel, les applications TERRAIN SÛR, CHECK-IN STAR et Passeport Sûr, la ligne +242 05 597 24 27.</li>
 <li>La réception des messages WhatsApp, la réponse, la mémoire de la conversation, le passage à l'équipe, la pause quand une personne répond, les protections (carte bancaire, détresse, tentatives de piratage, trop de messages), l'arrêt d'urgence.</li>
 <li>La console de l'équipe (<b>{BASE}/starvibe/sarah-admin.html</b>) : état de la ligne, conversations à reprendre, réponse humaine, effacement.</li>
+<li><b>Charge testée : 50 personnes qui écrivent en même temps</b> (100 messages, puis 50 autres) : toutes reçoivent leur réponse, sans mélange entre les conversations ; deux messages envoyés coup sur coup reçoivent une seule réponse.</li>
 <li><b>61 contrôles automatiques</b> passent (vraie base de données, faux WhatsApp et faux service d'IA) et la console a été essayée dans un navigateur de téléphone.</li></ul></div>
-<div class="k ko"><b>Pas encore possible sans vous</b><p style="margin:1mm 0 0">Brancher réellement le numéro demande <b>vos accès personnels</b> chez Meta (WhatsApp Business) et chez Netlify, ainsi qu'une <b>clé de l'intelligence artificielle</b>. Je n'ai pas ces accès et je ne les demande pas dans une conversation. Tant que ces étapes ne sont pas faites, <b>Sarah ne répond pas</b> sur le numéro : c'est volontaire et sans danger. Le test avec un vrai téléphone n'a donc pas encore pu être fait.</p></div>
+<div class="k ko"><b>Pas encore possible sans vous</b><p style="margin:1mm 0 0">Brancher réellement le numéro demande <b>vos accès personnels</b> chez Meta (WhatsApp Business) et chez Netlify. <b>L'intelligence artificielle fonctionne déjà</b> : Sarah utilise la même passerelle IA de Netlify que Keydou (vérifié en ligne le 28/11/2026). Je n'ai pas ces accès et je ne les demande pas dans une conversation. Tant que ces étapes ne sont pas faites, <b>Sarah ne répond pas</b> sur le numéro : c'est volontaire et sans danger. Le test avec un vrai téléphone n'a donc pas encore pu être fait.</p></div>
 <h3>Ce que Sarah fait une fois branchée</h3>
 <table><tr><th>Situation</th><th>Ce qui se passe</th></tr>
 <tr><td>Question sur le groupe, KOMYO, Keydou, les filiales, les applications</td><td>Sarah répond en français, court et clair, avec les liens utiles.</td></tr>
@@ -41,16 +42,14 @@ P.append(f"""<div class="p" data-pied="{pied}"><h2>2. Ce que vous devez faire (e
 <li>Notez l'<b>identifiant du numéro de téléphone</b> (« Phone number ID »), des chiffres affichés sur cette même page.</li>
 <li>Dans <b>Paramètres de l'application → Informations de base</b>, copiez le <b>secret de l'application</b> (« App secret »).</li>
 <li>Dans <b>Paramètres de l'entreprise → Utilisateurs système</b>, créez un utilisateur système (rôle administrateur), attribuez-lui l'application, puis <b>générez un jeton</b> sans date d'expiration avec les droits <code>whatsapp_business_messaging</code> et <code>whatsapp_business_management</code>. Copiez-le tout de suite : Meta ne le réaffiche pas.</li></ol>
-<h3><span class="n">B</span>Chez Anthropic (cerveau de Sarah)</h3>
-<ol><li>Sur <b>console.anthropic.com</b>, créez une <b>clé d'API</b> et ajoutez du crédit. Chaque réponse de Sarah consomme un peu de ce crédit ; surveillez-le dans la console Anthropic.</li></ol>
+<h3><span class="n">B</span>Intelligence artificielle : rien à faire</h3>
+<p>Sarah utilise la passerelle IA de votre compte Netlify, comme Keydou. Chaque réponse consomme des <b>crédits Netlify</b> : surveillez-les (alerte à 300 crédits, selon vos règles).</p>
 <h3><span class="n">C</span>Chez Netlify (le site)</h3>
-<p>Dans le site <b>star-entreprise</b> → <b>Site configuration → Environment variables</b>, ajoutez (sans toucher à ce qui existe déjà) :</p>
+<p>Dans le site <b>star-entreprise</b> → <b>Site configuration → Environment variables</b>, ajoutez (sans toucher à ce qui existe déjà). <b>Le mot de vérification vous a été donné dans la conversation avec Claude</b> (ne l'écrivez pas dans un document partagé) :</p>
 <table><tr><th>Nom</th><th>Valeur</th></tr>
-<tr><td><code>ANTHROPIC_API_KEY</code></td><td>la clé de l'étape B</td></tr>
-<tr><td><code>WHATSAPP_APP_SECRET</code></td><td>le secret de l'application (étape A4)</td></tr>
+<tr><td><code>WHATSAPP_APP_SECRET</code></td><td>le secret de l'application Meta (étape A4)</td></tr>
 <tr><td><code>WHATSAPP_VERIFY_TOKEN</code></td><td>un mot de passe que <b>vous inventez</b> (long, au hasard). Vous le retaperez chez Meta.</td></tr>
-<tr><td><code>JWT_SECRET</code></td><td>déjà présent normalement ; ne pas le changer</td></tr>
-<tr><td><code>SMTP_PASS</code> (facultatif)</td><td>pour recevoir un e-mail à chaque conversation à reprendre</td></tr></table>
+<tr><td><code>JWT_SECRET</code>, <code>SMTP_PASS</code></td><td>déjà présents dans Netlify : ne pas les changer (SMTP_PASS sert aux e-mails d'alerte à l'équipe)</td></tr></table>
 <p class="mini">Si <code>WHATSAPP_APP_SECRET</code> et <code>WHATSAPP_VERIFY_TOKEN</code> existent déjà pour les assistants d'entreprise avec la même application Meta, ne les changez pas : Sarah partage la même adresse de réception. Si Sarah a sa propre application Meta, utilisez <code>SARAH_WA_APP_SECRET</code>. Après avoir ajouté des variables, relancez un déploiement du site.</p><div class="bandeau"></div></div>""")
 P.append(f"""<div class="p" data-pied="{pied}"><h2>3. Relier Meta et le site, puis tester</h2>
 <ol style="list-style:none;padding-left:0"><li><span class="n">1</span>Chez Meta, <b>WhatsApp → Configuration → Webhook</b> : adresse de rappel <code>{BASE}/api/sarah-whatsapp</code>, jeton de vérification = votre <code>WHATSAPP_VERIFY_TOKEN</code>. Cliquez sur <b>Vérifier et enregistrer</b>, puis abonnez-vous au champ <b>messages</b>.</li>
