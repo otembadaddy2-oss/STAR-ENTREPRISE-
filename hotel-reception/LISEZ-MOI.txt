@@ -1,4 +1,4 @@
-CHECK-IN STAR — réception d'hôtel de luxe (prototype de démonstration, STAR ENTREPRISE, 28/11/2026). NON PUBLIÉ : bloqué dans _redirects tant que Carry n'a pas dit « publie ».
+CHECK-IN STAR — réception d'hôtel de luxe (prototype de démonstration, STAR ENTREPRISE, 28/11/2026). PUBLIÉ le 28/11/2026 sur ordre de Carry (https://star-entreprise.netlify.app/hotel-reception/).
 
 Parcours : photo du passeport -> lecture de la zone MRZ (contrôle des chiffres de contrôle, expiration, doublon) -> nombre de nuits -> attribution automatique de la chambre (170 chambres, 12 étages) -> enregistrement -> accusé en code QR (WhatsApp, partage d'image, PNG, fiche PDF de 2 pages).
 Autres écrans : tableau de bord, plan des chambres en temps réel, clients présents et départs, tarifs, vérification d'un accusé (code ou QR), journal verrouillé (chaîne d'empreintes), voix en français, hors connexion.

@@ -2,33 +2,47 @@ User-agent: WhatsApp
 Disallow: /docs/
 Disallow: /so-membres/setup.html
 Allow: /passeport-demo/
+Allow: /terrain-sur/
+Allow: /hotel-reception/
 
 User-agent: facebookexternalhit
 Disallow: /docs/
 Disallow: /so-membres/setup.html
 Allow: /passeport-demo/
+Allow: /terrain-sur/
+Allow: /hotel-reception/
 
 User-agent: Facebot
 Disallow: /docs/
 Disallow: /so-membres/setup.html
 Allow: /passeport-demo/
+Allow: /terrain-sur/
+Allow: /hotel-reception/
 
 User-agent: Twitterbot
 Disallow: /docs/
 Disallow: /so-membres/setup.html
 Allow: /passeport-demo/
+Allow: /terrain-sur/
+Allow: /hotel-reception/
 
 User-agent: TelegramBot
 Disallow: /docs/
 Disallow: /so-membres/setup.html
 Allow: /passeport-demo/
+Allow: /terrain-sur/
+Allow: /hotel-reception/
 
 User-agent: LinkedInBot
 Disallow: /docs/
 Disallow: /so-membres/setup.html
 Allow: /passeport-demo/
+Allow: /terrain-sur/
+Allow: /hotel-reception/
 
 User-agent: *
 Disallow: /docs/
 Disallow: /so-membres/setup.html
 Disallow: /passeport-demo/
+Disallow: /terrain-sur/
+Disallow: /hotel-reception/

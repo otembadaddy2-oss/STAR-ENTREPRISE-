@@ -1,4 +1,4 @@
-TERRAIN SÛR — prototype de démonstration (STAR ENTREPRISE, 28/11/2026). NON PUBLIÉ : bloqué dans _redirects tant que Carry n'a pas dit « publie ».
+TERRAIN SÛR — prototype de démonstration (STAR ENTREPRISE, 28/11/2026). PUBLIÉ le 28/11/2026 sur ordre de Carry (https://star-entreprise.netlify.app/terrain-sur/).
 
 Ce que c'est : application installable (PWA), sans compte, qui marche sans connexion une fois ouverte une première fois.
 - Scan d'un terrain : photo + position GPS + lecture visuelle des surfaces (couleurs, netteté, rugosité) faite sur l'appareil, rien n'est envoyé.

@@ -47,6 +47,27 @@
 /passeport-demo/polices/*
   Cache-Control: public, max-age=31536000, immutable
 
+
+# TERRAIN SÛR (génie civil) : non référencé ; caméra et position réservées à l'application ; aucun script ni site tiers ; rien n'est envoyé en ligne.
+/terrain-sur/*
+  X-Robots-Tag: noindex, nofollow
+  Permissions-Policy: camera=(self), microphone=(), geolocation=(self), payment=()
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'; connect-src 'self'; worker-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'
+/terrain-sur/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
+/terrain-sur/img/*
+  Cache-Control: public, max-age=2592000
+
+# CHECK-IN STAR (réception d'hôtel) : non référencé ; caméra réservée à l'application ; le moteur de lecture du passeport vient de /passeport-demo/lib (même site).
+/hotel-reception/*
+  X-Robots-Tag: noindex, nofollow
+  Permissions-Policy: camera=(self), microphone=(), geolocation=(), payment=()
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'
+/hotel-reception/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
+/hotel-reception/img/*
+  Cache-Control: public, max-age=2592000
+
 # Passeport Sûr — protection du navigateur : seuls les scripts de l'application elle-même s'exécutent (aucun script en ligne, aucun site tiers), et l'application ne peut parler qu'à son propre serveur.
 /api/passeport
   Content-Security-Policy: default-src 'none'; frame-ancestors 'none'
