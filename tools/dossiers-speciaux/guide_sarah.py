@@ -21,10 +21,10 @@ P = []
 P.append(f"""<div class="p cov"><img class="lg" src="{LOGO}"><h1>SARAH sur <b>WhatsApp</b></h1><h2>Guide de connexion du service à la clientèle<br>ce qui est prêt, ce qu'il vous reste à faire, pas à pas</h2>
 <div class="num">Numéro du service à la clientèle<b>+242 05 597 24 27</b></div><div class="ft">STAR ENTREPRISE · Brazzaville, République du Congo</div><div class="bandeau"></div></div>""")
 P.append(f"""<div class="p" data-pied="{pied}"><h2>1. Où en est Sarah, en toute honnêteté</h2>
-<div class="k ok"><b>Terminé et testé</b><ul><li>Le cerveau de Sarah est à jour : les 21 filiales, KOMYO et Keydou, les applications TERRAIN SÛR, CHECK-IN STAR et Passeport Sûr, la ligne +242 05 597 24 27.</li>
+<div class="k ok"><b>Terminé et testé</b><ul><li>Le cerveau de Sarah est à jour (28/11/2026) : les 21 filiales en détail (services, parcours, prix publics, fiches à remplir), KOMYO et Keydou (prix vérifiés avec le code), le ton courtois, chaleureux et professionnel, les applications TERRAIN SÛR, CHECK-IN STAR et Passeport Sûr, la ligne +242 05 597 24 27.</li>
 <li>La réception des messages WhatsApp, la réponse, la mémoire de la conversation, le passage à l'équipe, la pause quand une personne répond, les protections (carte bancaire, détresse, tentatives de piratage, trop de messages), l'arrêt d'urgence.</li>
 <li>La console de l'équipe (<b>{BASE}/starvibe/sarah-admin.html</b>) : état de la ligne, conversations à reprendre, réponse humaine, effacement.</li>
-<li><b>56 contrôles automatiques</b> passent (vraie base de données, faux WhatsApp et faux service d'IA) et la console a été essayée dans un navigateur de téléphone.</li></ul></div>
+<li><b>61 contrôles automatiques</b> passent (vraie base de données, faux WhatsApp et faux service d'IA) et la console a été essayée dans un navigateur de téléphone.</li></ul></div>
 <div class="k ko"><b>Pas encore possible sans vous</b><p style="margin:1mm 0 0">Brancher réellement le numéro demande <b>vos accès personnels</b> chez Meta (WhatsApp Business) et chez Netlify, ainsi qu'une <b>clé de l'intelligence artificielle</b>. Je n'ai pas ces accès et je ne les demande pas dans une conversation. Tant que ces étapes ne sont pas faites, <b>Sarah ne répond pas</b> sur le numéro : c'est volontaire et sans danger. Le test avec un vrai téléphone n'a donc pas encore pu être fait.</p></div>
 <h3>Ce que Sarah fait une fois branchée</h3>
 <table><tr><th>Situation</th><th>Ce qui se passe</th></tr>
