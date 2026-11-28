@@ -13,7 +13,7 @@ export function db() {
 // Version du schéma = empreinte du texte de ensureSchema() ci-dessous (vérifiée par tools/test-schema.mts).
 // Quand tu modifies une instruction du schéma : lance « node --experimental-strip-types tools/test-schema.mts --ecrire »
 // pour mettre à jour cette ligne. Sans cela, la base ne serait pas mise à jour (le test échoue pour te le rappeler).
-const SCHEMA_VERSION = "65117e4c8382c285";
+const SCHEMA_VERSION = "5d6e35f8a100ef04";
 
 // Idempotent schema setup — safe to call on every cold start.
 // Rapide : les ~80 instructions ne sont rejouées que si SCHEMA_VERSION a changé depuis la dernière fois
@@ -890,6 +890,13 @@ export async function ensureSchema() {
   await sql`CREATE INDEX IF NOT EXISTS starvibe_entreprise_conv_ent_idx ON starvibe_entreprise_conv (entreprise_id, created_at)`;
   await sql`CREATE INDEX IF NOT EXISTS starvibe_entreprise_conv_visiteur_idx ON starvibe_entreprise_conv (visiteur, created_at)`;
   await sql`CREATE INDEX IF NOT EXISTS starvibe_entreprise_conv_ext_idx ON starvibe_entreprise_conv (ext_id) WHERE ext_id <> ''`;
+
+  // Sarah sur WhatsApp (ligne du service à la clientèle) : un contact par numéro (empreinte + numéro chiffré pour le rappel par l'équipe), ses messages gardés 90 jours.
+  await sql`CREATE TABLE IF NOT EXISTS starvibe_sarah_contacts (tel_hash TEXT PRIMARY KEY, tel_chiffre TEXT NOT NULL DEFAULT '', nom TEXT NOT NULL DEFAULT '', statut TEXT NOT NULL DEFAULT 'ia', motif TEXT NOT NULL DEFAULT '', pause_ia_jusqu TIMESTAMPTZ, a_repondre BOOLEAN NOT NULL DEFAULT false, nb_messages INTEGER NOT NULL DEFAULT 0, premier_contact TIMESTAMPTZ NOT NULL DEFAULT now(), dernier_message TIMESTAMPTZ NOT NULL DEFAULT now())`;
+  await sql`CREATE TABLE IF NOT EXISTS starvibe_sarah_msg (id SERIAL PRIMARY KEY, tel_hash TEXT NOT NULL, role TEXT NOT NULL, auteur TEXT NOT NULL DEFAULT 'sarah', texte TEXT NOT NULL, ext_id TEXT NOT NULL DEFAULT '', tokens_in INTEGER NOT NULL DEFAULT 0, tokens_out INTEGER NOT NULL DEFAULT 0, escalade BOOLEAN NOT NULL DEFAULT false, created_at TIMESTAMPTZ NOT NULL DEFAULT now())`;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_sarah_msg_tel_idx ON starvibe_sarah_msg (tel_hash, id)`;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_sarah_msg_ext_idx ON starvibe_sarah_msg (ext_id) WHERE ext_id <> ''`;
+  await sql`CREATE INDEX IF NOT EXISTS starvibe_sarah_contacts_statut_idx ON starvibe_sarah_contacts (statut, dernier_message)`;
 
   await sql`CREATE TABLE IF NOT EXISTS schema_meta (cle TEXT PRIMARY KEY, valeur TEXT NOT NULL, maj TIMESTAMPTZ NOT NULL DEFAULT now())`;
   await sql`INSERT INTO schema_meta (cle, valeur) VALUES ('ddl', ${empreinte}) ON CONFLICT (cle) DO UPDATE SET valeur = EXCLUDED.valeur, maj = now()`;

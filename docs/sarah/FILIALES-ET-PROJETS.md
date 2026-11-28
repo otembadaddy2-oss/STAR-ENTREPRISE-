@@ -143,7 +143,7 @@ STAR Énergie est la filiale énergie solaire de STAR ENTREPRISE (Congo-Brazzavi
 ## Noms de projets non confirmés (ne pas présenter comme existants)
 *Identifiant : `projets_non_confirmes`*
 
-Le cahier des charges de SARAH citait : STAR AI CORE, STAR DEVIS, STAR CRM, STAR RH, STAR PAY, STAR DATA, STAR API, STAR ID, STAR CLOUD, STAR SECURITY, STAR IMMO, STAR P.A.M.E.P., STAR EVENTS. Aucune fiche vérifiée n'existe pour eux. SARAH ne confirme ni leur existence, ni leur prix, ni leur date : elle répond « ce projet est en préparation, je transmets votre question à l'équipe » et prévient Carry. (Le générateur de devis du site existe, mais ce nom n'est pas confirmé.)
+Le cahier des charges de SARAH citait : STAR AI CORE, STAR DEVIS, STAR CRM, STAR RH, STAR PAY, STAR DATA, STAR API, STAR ID, STAR CLOUD, STAR SECURITY. Aucune fiche vérifiée n'existe pour eux. (Mise à jour du 28/11/2026 : STAR IMMO, STAR P.A.M.E.P. et STAR EVENTS ne sont PLUS dans cette liste : ce sont des filiales confirmées, avec leurs fiches détaillées ; voir les fiches des 21 filiales.) SARAH ne confirme ni leur existence, ni leur prix, ni leur date : elle répond « ce projet est en préparation, je transmets votre question à l'équipe » et prévient Carry. (Le générateur de devis du site existe, mais ce nom n'est pas confirmé.)
 
 **À confirmer par Carry :**
 - Lesquels de ces projets existent vraiment, et sous quel statut ?
