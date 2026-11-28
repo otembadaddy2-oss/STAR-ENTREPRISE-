@@ -71,6 +71,11 @@ try {
   ok(SAVOIR_SARAH.includes("Keydou pour mon entreprise") && !SAVOIR_SARAH.includes("PAS ENCORE PUBLIÉ"), "l'offre Keydou pour les entreprises n'est plus présentée comme « pas encore publiée »");
   ok(["Essentiel 5 000 FCFA", "Complet (Pro) 19 $", "Premium 35 $", "Prestige 49 $", "Équipe 5 = 79 $", "Départ 39 $", "Business 99 $", "Grand compte 349 $", "1 000 FCFA par demande"].every((x) => SAVOIR_SARAH.includes(x)), "les prix Keydou du savoir sont ceux du code (Essentiel, Complet, Premium, Prestige, Équipe, Assistant, demande)");
   ok(/vouvoies toujours/.test(S.CONSIGNE_CANAL) && /COMMENT PRÉSENTER STAR ENTREPRISE/.test(S.CONSIGNE_CANAL), "la consigne impose un ton courtois, chaleureux et professionnel, et la façon de présenter le groupe");
+  const MAITRISE = ["A-1 à A-20", "H-1 à H-9", "CG-BZV-01-2026-A10-01950", "Code PIN oublié", "code temporaire à 6 chiffres", "Kaba+", "Regarder ensemble", "KDB-2026-A3F9", "acpce.cg", "1010", "De l'Ombre à la Lumière", "Heavy Jet", "Regards croisés", "dossier d'investisseur", "60 minutes par direct", "1 500 minutes de présence", "Pack de 10 images : 1 200 FCFA", "A1 à A10", "mode Tests"];
+  const absents = MAITRISE.filter((x) => !SB.includes(x.toLowerCase()));
+  ok(absents.length === 0, "le savoir couvre les catalogues, dossiers et guides (STAR CASA, œuvres, partenariat, KIDIMBOU, STAR ALERTE, KOMYO pas à pas)" + absents.map((x) => " MANQUE « " + x + " »").join(""));
+  ok(!SAVOIR_SARAH.includes("le Salon (appel vidéo en groupe Famille ou Amis), le bandeau"), "le Salon n'est plus présenté comme « pas encore disponible »");
+  ok(/Havre de Vie[^.]*confidentiel/i.test(SAVOIR_SARAH) && /business plan/i.test(SAVOIR_SARAH), "les documents confidentiels (business plan, dossier institutionnel Havre de Vie) sont signalés comme jamais partagés");
   ok(!/sk-ant|password\s*[:=]|JWT_SECRET/i.test(SAVOIR_SARAH), "aucun secret dans le savoir de Sarah");
   ok(SAVOIR_SARAH.includes("n'est pas publié") || SAVOIR_SARAH.includes("pas publié"), "le Scanner est bien indiqué comme non publié");
   const esc = S.extraireEscalade("Je transmets à l'équipe.\n[[HUMAIN: paiement à vérifier]]"); ok(esc.escalade && esc.motif === "paiement à vérifier" && !/HUMAIN/.test(esc.visible), "marqueur de passage de main lu puis retiré du message visible");
