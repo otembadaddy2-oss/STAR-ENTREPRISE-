@@ -1,0 +1,6 @@
+// CHECK-IN STAR : fonctionne sans connexion une fois ouvert une première fois. Aucune donnée n'est envoyée en ligne.
+const V = 'check-in-star-v1', FICHIERS = ['./', 'index.html', 'app.js', 'arrivee.js', 'mrz.js', 'chambres.js', 'journal.js', 'pdf.js', 'lib/qrcode.js', 'lib/jsqr.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'img/hall.jpg', 'img/lustre.jpg', 'img/chambre.jpg', 'img/chambre-business.jpg', 'img/suite.jpg', 'img/suite-diplomatique.jpg', 'img/piscine.jpg', 'img/reception.jpg'];
+self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(FICHIERS)).then(() => self.skipWaiting())); });
+self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V && k.startsWith('check-in-star')).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
+// Le moteur de lecture du passeport (../passeport-demo/lib/ocr-5.1.0/) est mis en cache à sa première utilisation.
+self.addEventListener('fetch', e => { if (e.request.method !== 'GET') return; e.respondWith(caches.match(e.request).then(r => r || fetch(e.request).then(rep => { if (rep.ok && /ocr-5\.1\.0/.test(e.request.url)) { const cp = rep.clone(); caches.open(V).then(c => c.put(e.request, cp)); } return rep; })));});

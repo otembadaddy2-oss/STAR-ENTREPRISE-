@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CHECK-IN STAR — du passeport à la chambre</title>
+<meta name="description" content="Réception d'hôtel de luxe : lecture du passeport, enregistrement automatique, attribution de la chambre, accusé de réception par code QR. STAR ENTREPRISE.">
+<meta name="theme-color" content="#0a1730">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="CHECK-IN STAR · STAR ENTREPRISE">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:title" content="CHECK-IN STAR — du passeport à la chambre">
+<meta property="og:description" content="Réception d'hôtel de luxe : lecture du passeport, enregistrement automatique, chambre attribuée, accusé en code QR. Version de démonstration, données fictives.">
+<meta property="og:url" content="https://star-entreprise.netlify.app/hotel-reception/">
+<meta property="og:image" content="https://star-entreprise.netlify.app/hotel-reception/img/partage-check-in-star.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="CHECK-IN STAR : réception d'hôtel, du passeport à la chambre">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--nuit:#0a1730;--nuit2:#13285a;--or:#d9b25a;--or2:#f2d27a;--ivoire:#f7f2e6;--papier:#fffdf8;--enc:#1b2030;--gris:#646b80;--ok:#1f8a4c;--bleu:#2b6fd6;--ora:#e07a1a;--ko:#c0392b;--vio:#7a4fc2;--ligne:#e6dcc0;--serif:Georgia,'Times New Roman',serif}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--ivoire);color:var(--enc);min-height:100vh}
+h1,h2,h3{font-family:var(--serif);color:var(--nuit);font-weight:700}h2{font-size:1.5rem;margin:0 0 6px}h3{font-size:1.1rem;margin:16px 0 6px}
+header{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;padding:calc(8px + env(safe-area-inset-top)) 16px 8px;background:linear-gradient(100deg,var(--nuit),var(--nuit2));color:#fff;border-bottom:3px solid var(--or)}
+header img{width:42px;height:42px;border-radius:10px}header .t b{font-family:var(--serif);font-size:1.15rem;letter-spacing:.06em}header .t b i{font-style:normal;color:var(--or2)}header .t small{display:block;font-size:.7rem;color:#c3cdea;letter-spacing:.05em}
+header .d{margin-left:auto;text-align:right;font-size:.78rem;color:#dfe6fa;line-height:1.25}header .d b{display:block;font-size:1.05rem;font-variant-numeric:tabular-nums}
+.bt{background:#ffffff1c;border:1px solid #ffffff45;color:#fff;border-radius:99px;min-height:34px;padding:0 12px;font-size:.78rem;cursor:pointer}
+.app{display:flex;max-width:1280px;margin:0 auto}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:30;background:var(--papier);border-top:1px solid var(--ligne);display:flex;padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;border:0;background:none;padding:7px 2px 6px;font:600 .68rem system-ui;color:var(--gris);cursor:pointer;min-height:56px}nav button span{display:block;font-size:1.3rem;line-height:1.1}nav button.on{color:var(--nuit);box-shadow:inset 0 3px 0 var(--or)}
+main{flex:1;min-width:0;padding:14px 16px calc(86px + env(safe-area-inset-bottom))}
+@media(min-width:900px){nav{position:sticky;top:62px;align-self:flex-start;flex-direction:column;width:178px;height:calc(100vh - 62px);border-top:0;border-right:1px solid var(--ligne);padding:14px 10px;gap:6px}nav button{flex:0 0 auto;display:flex;align-items:center;gap:10px;text-align:left;padding:12px;border-radius:12px;font-size:.92rem;min-height:48px}nav button span{display:inline;font-size:1.25rem}nav button.on{background:var(--nuit);color:#fff;box-shadow:none}main{padding-bottom:30px}}
+.ecran{display:none;animation:ent .4s ease}.ecran.on{display:block}@keyframes ent{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.hero{position:relative;border-radius:22px;overflow:hidden;color:#fff;min-height:210px;display:flex;align-items:flex-end;margin-bottom:14px;background:var(--nuit)}
+.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;animation:kb 26s ease-in-out infinite alternate;opacity:.8}@keyframes kb{from{transform:scale(1)}to{transform:scale(1.12) translate(-1.5%,-1%)}}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#0a1730f2 8%,#0a173066 60%,transparent)}
+.hero .tx{position:relative;z-index:2;padding:20px 18px;max-width:640px}.hero h2{color:#fff;font-size:1.9rem;margin:0 0 4px;text-shadow:0 2px 14px #0008}.hero p{margin:0 0 12px;color:#e7ecfb;line-height:1.45}
+.or{background:linear-gradient(180deg,var(--or2),var(--or));color:#2d2100}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 20px;border-radius:14px;border:0;font:700 1rem system-ui;cursor:pointer;background:var(--nuit);color:#fff;transition:transform .15s,box-shadow .2s}.btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px #0a173040}.btn.or{background:linear-gradient(180deg,var(--or2),var(--or));color:#2d2100}.btn.cl{background:#fff;color:var(--nuit);border:1.5px solid var(--nuit)}.btn.ko{background:#fff;color:var(--ko);border:1.5px solid var(--ko)}.btn[disabled]{opacity:.45;pointer-events:none}.btn.pt{min-height:40px;padding:0 14px;font-size:.88rem;border-radius:10px}
+.rang{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:8px 0 14px}.kpi div{background:var(--papier);border:1px solid var(--ligne);border-radius:16px;padding:12px 14px;position:relative;overflow:hidden}.kpi b{display:block;font-family:var(--serif);font-size:2rem;color:var(--nuit);font-variant-numeric:tabular-nums}.kpi span{font-size:.78rem;color:var(--gris)}.kpi div::after{content:"";position:absolute;right:-14px;top:-14px;width:54px;height:54px;border-radius:50%;background:var(--c,var(--or));opacity:.16}
+.boite{background:var(--papier);border:1px solid var(--ligne);border-radius:16px;padding:14px;margin:0 0 12px}
+.alerte{background:#fff4d6;border-left:5px solid var(--or);border-radius:10px;padding:10px 12px;font-size:.86rem;line-height:1.45;margin:10px 0;color:#5a4300}.alerte.ko{background:#fdecea;border-color:var(--ko);color:#7d2218}.alerte.ok{background:#e9f7ef;border-color:var(--ok);color:#14562f}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;font-size:.74rem;font-weight:700;background:#eef1f7;color:var(--nuit)}
+.demo{display:inline-block;background:#ffe9b3;color:#7a5200;border:1px dashed #c98b00;border-radius:8px;padding:1px 8px;font-size:.7rem;font-weight:700;vertical-align:middle}
+label.ch{display:block;font-size:.82rem;font-weight:700;margin:12px 0 4px;color:var(--nuit)}select,input[type=text],input[type=tel],input[type=date],input[type=number],textarea{width:100%;min-height:46px;border:1.5px solid #cdbf93;border-radius:12px;padding:0 12px;font:inherit;background:#fff}textarea{padding:10px 12px;min-height:80px;font-family:ui-monospace,Menlo,monospace;font-size:.85rem}
+.etapes{display:flex;gap:6px;margin:0 0 14px}.etapes div{flex:1;text-align:center;font-size:.72rem;font-weight:700;color:var(--gris);padding-top:8px;border-top:4px solid #ddd2ae;transition:.3s}.etapes div.on{color:var(--nuit);border-color:var(--or)}.etapes div.fait{color:var(--ok);border-color:var(--ok)}
+.zone{border:2px dashed #cdbf93;border-radius:18px;background:var(--papier);padding:20px 14px;text-align:center}
+.ident{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px 14px;margin:8px 0}.ident div small{display:block;color:var(--gris);font-size:.7rem;text-transform:uppercase;letter-spacing:.06em}.ident div b{font-size:1rem}
+.puces{display:flex;flex-wrap:wrap;gap:8px}.puces button{min-width:58px;min-height:52px;border-radius:14px;border:1.5px solid var(--nuit);background:#fff;font:700 1.1rem var(--serif);color:var(--nuit);cursor:pointer;transition:.2s}.puces button.on{background:var(--nuit);color:var(--or2);transform:scale(1.05)}
+.types{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}.types button{border:1.5px solid var(--ligne);background:#fff;border-radius:14px;padding:8px 10px;text-align:left;cursor:pointer;font:inherit;color:inherit}.types button.on{border-color:var(--nuit);background:#eef3ff;box-shadow:0 0 0 2px var(--nuit) inset}.types b{display:block;font-size:.88rem;color:var(--nuit)}.types small{color:var(--gris);font-size:.72rem}
+.chambre-carte{position:relative;border-radius:22px;overflow:hidden;background:var(--nuit);color:#fff;min-height:260px;display:flex;align-items:flex-end;box-shadow:0 16px 40px #0a173050}
+.chambre-carte img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.chambre-carte::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#0a1730f5 10%,#0a173040 70%)}
+.chambre-carte .in{position:relative;z-index:2;padding:16px;width:100%;display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap}.chambre-carte .num{font-family:var(--serif);font-size:4.6rem;line-height:.9;color:var(--or2);text-shadow:0 4px 20px #000a;font-variant-numeric:tabular-nums}
+.alt{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 10px}.alt button{flex:0 0 auto;border:1.5px solid var(--ligne);background:#fff;border-radius:14px;padding:8px 12px;cursor:pointer;text-align:left;font:inherit;min-width:130px}.alt button.on{border-color:var(--nuit);background:#eef3ff}
+.carte-cle{margin:12px auto;max-width:360px;border-radius:20px;overflow:hidden;background:linear-gradient(135deg,var(--nuit),var(--nuit2));color:#fff;box-shadow:0 20px 50px #0a173055;position:relative;animation:cle .9s cubic-bezier(.2,.9,.3,1.2) both}@keyframes cle{from{transform:translateY(40px) rotate(-4deg) scale(.9);opacity:0}to{transform:none;opacity:1}}
+.carte-cle .bandeau{height:96px;background:center/cover}.carte-cle .c{padding:14px 16px 16px;text-align:center}.carte-cle .c h3{color:var(--or2);margin:0}.carte-cle .qr{background:#fff;border-radius:16px;width:196px;height:196px;margin:10px auto;padding:10px;display:grid;place-items:center}.carte-cle .qr svg{width:100%;height:100%}
+.carte-cle::before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 40%,#ffffff26 50%,transparent 60%);transform:translateX(-100%);animation:brille 3.4s 1s infinite;z-index:3;pointer-events:none}@keyframes brille{to{transform:translateX(100%)}}
+.plan{overflow-x:auto;padding-bottom:6px}.etage{display:flex;align-items:center;gap:8px;margin:5px 0}.etage .n{flex:0 0 46px;font:700 .72rem var(--serif);color:var(--gris);text-align:right}
+.rm{width:36px;height:30px;border-radius:7px;border:0;font:700 .62rem system-ui;color:#fff;cursor:pointer;flex:0 0 auto;transition:transform .15s;animation:pop .5s both}.rm:hover{transform:scale(1.25);z-index:3;position:relative}@keyframes pop{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
+.rm.libre{background:#1f8a4c}.rm.occupee{background:#2b6fd6}.rm.depart{background:#e07a1a}.rm.sale{background:#d9a100}.rm.maint{background:#7b8190}.rm.reservee{background:#7a4fc2}.rm.sel{outline:3px solid var(--or2);outline-offset:1px}
+.leg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.76rem;color:var(--gris);margin:8px 0}.leg i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:5px;vertical-align:-1px}
+.ligne{display:flex;gap:10px;align-items:center;background:var(--papier);border:1px solid var(--ligne);border-radius:14px;padding:10px 12px;margin:0 0 8px}.ligne .nm{flex:1;min-width:0;font-size:.86rem;line-height:1.35}.ligne .nm b{display:block;color:var(--nuit)}.ligne .ch{flex:0 0 auto;font:700 1.2rem var(--serif);color:var(--nuit);min-width:52px;text-align:center}
+.barre{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:.82rem}.barre span:first-child{flex:0 0 130px}.barre .p{flex:1;height:11px;background:#e9e1c8;border-radius:9px;overflow:hidden}.barre .p i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,var(--or),var(--nuit2));transition:width .8s}.barre em{font-style:normal;flex:0 0 66px;text-align:right;font-weight:700;font-size:.78rem}
+table.tar{width:100%;border-collapse:collapse;font-size:.86rem}table.tar th{background:var(--nuit);color:#fff;text-align:left;padding:8px}table.tar td{border-bottom:1px solid var(--ligne);padding:6px 8px;vertical-align:middle}table.tar input{min-height:38px;width:100px}
+#msg{position:fixed;left:12px;right:12px;bottom:calc(86px + env(safe-area-inset-bottom));background:var(--nuit);color:#fff;border-radius:14px;padding:12px 16px;display:none;z-index:50;max-width:640px;margin:0 auto;box-shadow:0 10px 30px #0007}
+@media(min-width:900px){#msg{bottom:20px}}
+.grid2{display:grid;grid-template-columns:1fr;gap:12px}@media(min-width:900px){.grid2{grid-template-columns:1fr 1fr}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header><img src="icon-192.png" alt="STAR ENTREPRISE"><div class="t"><b>CHECK-IN <i>STAR</i></b><small id="hotelnom">Grand Hôtel (démonstration)</small></div><div class="d"><b id="horloge">--:--</b><span id="datejour">—</span></div><button class="bt" id="b-voix" type="button">🔇 voix</button></header>
+<div class="app">
+<nav><button data-go="tableau" class="on"><span>🏨</span>Tableau</button><button data-go="arrivee"><span>🛂</span>Arrivée</button><button data-go="plan"><span>🗺️</span>Plan</button><button data-go="sejours"><span>👥</span>Séjours</button><button data-go="tarifs"><span>💎</span>Tarifs</button><button data-go="verif"><span>🔐</span>Vérifier</button></nav>
+<main>
+<!-- TABLEAU -->
+<section id="e-tableau" class="ecran on">
+  <div class="hero"><img src="img/hall.jpg" alt=""><div class="tx"><h2>Du passeport à la chambre, sans papier.</h2><p>Le passeport est lu, le séjour enregistré, la chambre choisie et l'accusé envoyé en code QR. <span class="demo">données fictives</span></p><div class="rang" style="margin:0"><button class="btn or" data-go="arrivee" type="button">🛂 Nouvelle arrivée</button><button class="btn cl" id="b-demo" type="button">▶ Démonstration automatique</button></div></div></div>
+  <div class="kpi" id="kpi"></div>
+  <div class="grid2"><div class="boite"><h3 style="margin-top:0">Occupation par catégorie</h3><div id="barres"></div></div><div class="boite"><h3 style="margin-top:0">Aujourd'hui</h3><div id="aujourdhui"></div></div></div>
+  <div class="boite"><h3 style="margin-top:0">Alertes de la réception</h3><div id="alertes"></div></div>
+  <div class="boite"><h3 style="margin-top:0">Journal verrouillé</h3><div id="chaine-etat" style="font-weight:700"></div><div class="rang"><button class="btn cl pt" id="b-vchaine" type="button">🔎 Vérifier l'intégrité</button><button class="btn cl pt" id="b-reset" type="button">↺ Réinitialiser la démonstration</button></div><small style="color:var(--gris)">Chaque arrivée et chaque départ est enregistré dans une chaîne d'empreintes : toute modification cachée se voit.</small></div>
+</section>
+<!-- ARRIVÉE -->
+<section id="e-arrivee" class="ecran">
+  <div class="etapes" id="etapes"><div class="on">1 · Pièce d'identité</div><div>2 · Séjour</div><div>3 · Chambre</div><div>4 · Accusé</div></div>
+  <div id="a1">
+    <h2>Présentez le passeport</h2><p style="color:var(--gris);margin:0 0 10px">Posez la page d'identité à plat et photographiez la zone de lecture (les deux lignes de chevrons « &lt;&lt;&lt; » en bas).</p>
+    <div class="zone"><div class="rang" style="justify-content:center"><label class="btn or" for="f-cam">📷 Photographier le passeport</label><label class="btn cl" for="f-img">🖼️ Choisir une image</label></div><input id="f-cam" type="file" accept="image/*" capture="environment" hidden><input id="f-img" type="file" accept="image/*" hidden>
+      <div class="rang" style="justify-content:center"><button class="btn cl pt" data-ex="ok" type="button">🧪 Passeport d'exemple</button><button class="btn cl pt" data-ex="expire" type="button">⚠ Passeport expiré</button><button class="btn cl pt" data-ex="faux" type="button">⛔ Passeport falsifié</button></div></div>
+    <div id="ocr-etat" style="margin:8px 0;font-size:.88rem;color:var(--gris)"></div>
+    <label class="ch" for="mrz">Lignes de lecture automatique (modifiables)</label><textarea id="mrz" spellcheck="false" placeholder="P&lt;COGNOM&lt;&lt;PRENOM&lt;&lt;&lt;…&#10;AB1234567…"></textarea>
+    <div id="a1-res"></div>
+  </div>
+  <div id="a2" hidden>
+    <h2>Le séjour</h2>
+    <div class="boite"><div id="a2-id"></div></div>
+    <label class="ch">Combien de nuits ?</label><div class="puces" id="puces"></div>
+    <div class="grid2"><div><label class="ch" for="du">Date d'arrivée</label><input id="du" type="date"></div><div><label class="ch" for="au">Date de départ</label><input id="au" type="date"></div></div>
+    <label class="ch">Catégorie souhaitée</label><div class="types" id="types"></div>
+    <div class="grid2"><div><label class="ch" for="adultes">Personnes</label><select id="adultes"><option>1</option><option>2</option><option>3</option><option>4</option></select></div><div><label class="ch" for="tel">WhatsApp du client (pour l'accusé)</label><input id="tel" type="tel" placeholder="+242 06 000 00 00"></div></div>
+    <div class="rang"><label class="btn cl pt"><input type="checkbox" id="haut" style="margin-right:6px">Étage élevé</label><label class="btn cl pt"><input type="checkbox" id="pmr" style="margin-right:6px">Accès mobilité réduite</label></div>
+    <div class="rang"><button class="btn cl" id="a2-retour" type="button">← Retour</button><button class="btn or" id="a2-suite" type="button">Choisir la chambre →</button></div>
+  </div>
+  <div id="a3" hidden></div>
+  <div id="a4" hidden></div>
+</section>
+<!-- PLAN -->
+<section id="e-plan" class="ecran"><h2>Plan des 170 chambres</h2><div class="leg" id="leg"></div><div class="plan" id="plan"></div><div class="boite" id="plan-det" style="display:none"></div></section>
+<!-- SÉJOURS -->
+<section id="e-sejours" class="ecran"><h2>Clients présents</h2><label class="ch" for="rech" style="margin-top:0">Rechercher (nom, chambre, code)</label><input id="rech" type="text" placeholder="ex. 512 ou MARTIN"><div id="liste" style="margin-top:10px"></div></section>
+<!-- TARIFS -->
+<section id="e-tarifs" class="ecran"><h2>Catégories et tarifs</h2>
+  <div class="alerte">Les tarifs ci-dessous sont des <b>repères relevés en ligne</b> (en dollars, hors taxes, ils varient selon les dates). Seuls trois niveaux avaient un prix public ; les suites supérieures sont <b>sur devis</b>. La direction saisit ici ses <b>vrais tarifs</b>, en dollars ou en FCFA.</div>
+  <div class="boite"><label class="ch" style="margin-top:0" for="taux">Taux du jour : 1 $ = … FCFA (facultatif)</label><input id="taux" type="number" min="0" step="0.01" placeholder="à saisir par la direction"><small style="color:var(--gris)">Sans taux, les totaux restent en dollars.</small></div>
+  <div class="boite" style="overflow-x:auto"><table class="tar" id="tab-tarifs"></table></div>
+  <div class="boite"><label class="ch" style="margin-top:0" for="nomh">Nom de l'hôtel</label><input id="nomh" type="text"><div class="rang"><button class="btn or pt" id="b-sauve" type="button">Enregistrer</button></div></div>
+</section>
+<!-- VÉRIFIER -->
+<section id="e-verif" class="ecran"><h2>Vérifier un accusé</h2><p style="color:var(--gris);margin:0 0 10px">Le client montre son QR au restaurant, au spa ou à la porte : saisissez le code ou photographiez le QR.</p>
+  <label class="ch" for="v-code" style="margin-top:0">Code de séjour</label><input id="v-code" type="text" placeholder="ex. SJ-DEMO-004 ou le texte du QR" autocomplete="off"><div class="rang"><button class="btn or" id="b-v" type="button">Vérifier</button><label class="btn cl" for="f-qr">📷 Scanner un QR</label><input id="f-qr" type="file" accept="image/*" hidden></div><div id="v-res"></div></section>
+</main></div>
+<div id="msg" role="status"></div>
+<script src="lib/qrcode.js"></script><script src="lib/jsqr.js"></script><script src="pdf.js"></script><script src="mrz.js"></script><script src="chambres.js"></script><script src="journal.js"></script><script src="app.js"></script><script src="arrivee.js"></script>
+</body>
+</html>

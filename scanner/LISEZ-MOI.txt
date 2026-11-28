@@ -1,0 +1,6 @@
+STAR SCANNER (STAR ENTREPRISE) — application installable (PWA), 100 % sur le téléphone, aucune donnée envoyée en ligne.
+1) Scanner un document : photo ou image -> détection des bords (4 points déplaçables, correction de perspective) -> Couleur / Gris / Noir et blanc -> plusieurs pages -> PDF (A4 ou taille de l'image), partage, JPG.
+2) Vérifier un billet ou un papier : GUIDE pas à pas (toucher, contre-jour, inclinaison, petits textes, comparaison, lampe UV si on en possède une) + lampe du téléphone. Il NE détecte PAS automatiquement un faux (un téléphone n'a pas de lampe UV) ; il renvoie vers la banque / l'administration en cas de doute.
+3) Scanner une pièce : renvoie vers Passeport Sûr (lecture de la bande MRZ).
+Fichiers : index.html, app.js, pdf.js (mini générateur de PDF), sw.js, manifest.webmanifest. Test : python3 tools/tests-scanner/photo-test.py puis node tools/tests-scanner/t_scanner.cjs (serveur statique du dépôt sur le port 8767).
+Adresse après mise en ligne : https://star-entreprise.netlify.app/scanner/  — NON publié pour l'instant (publication = une mise en ligne Netlify, sur accord de Carry).

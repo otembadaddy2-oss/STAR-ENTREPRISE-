@@ -1,0 +1,15 @@
+CHECK-IN STAR — réception d'hôtel de luxe (prototype de démonstration, STAR ENTREPRISE, 28/11/2026). PUBLIÉ le 28/11/2026 sur ordre de Carry (https://star-entreprise.netlify.app/hotel-reception/).
+
+Parcours : photo du passeport -> lecture de la zone MRZ (contrôle des chiffres de contrôle, expiration, doublon) -> nombre de nuits -> attribution automatique de la chambre (170 chambres, 12 étages) -> enregistrement -> accusé en code QR (WhatsApp, partage d'image, PNG, fiche PDF de 2 pages).
+Autres écrans : tableau de bord, plan des chambres en temps réel, clients présents et départs, tarifs, vérification d'un accusé (code ou QR), journal verrouillé (chaîne d'empreintes), voix en français, hors connexion.
+
+Hôtel de référence : Radisson Blu M'Bamou Palace (Brazzaville) : 178 chambres (118 standard, 30 Business, 10 Junior, 10 Exécutives, 3 Diplomatiques, 3 Royales, 2 Présidentielles, 2 Penthouses) ; plan de démonstration réduit à 170 (112/28/10/10/3/3/2/2).
+Tarifs : repères en ligne en dollars (supérieure 184 à 247, exécutive 269, suites dès 397 ; autres suites sur devis), hors taxes. Aucun tarif FCFA public. La direction saisit ses vrais tarifs et le taux du jour dans l'écran Tarifs.
+Clients, séjours et chambres déjà occupées : FICTIFS. Aucun lien avec Radisson.
+
+Limites : pas de serrures connectées (le QR est un accusé / une preuve de séjour) ; WhatsApp semi-automatique (wa.me) ; lecture optique dépendante de la photo (saisie manuelle possible) ; pas de paiement ni facture ; données sur un seul appareil ; photo du passeport non conservée ; fiche à faire valider avec les autorités.
+Dépendance : le moteur de lecture optique est celui de ../passeport-demo/lib/ocr-5.1.0/ (même site).
+
+Fichiers : index.html, app.js (état, tableau, plan, séjours, tarifs, vérification), arrivee.js (assistant d'arrivée, accusé, PDF), mrz.js (lecture MRZ reprise de Passeport Sûr), chambres.js (170 chambres, tarifs, attribution), journal.js (SHA-256, chaîne), pdf.js, sw.js, lib/, img/.
+Photos (Unsplash, licence libre) : hall (Maverick Frame), lustre (Oswald Elsaboath), chambre (Vojtech Bruzek), chambre-business et suite (Point3D Commercial Imaging), suite-diplomatique (Rod Long), piscine (Cory Bjork), réception (Neon Wang). Aucune ne vient du Congo ; le hall est un rendu 3D.
+Tests : serveur statique à la racine (port 8768) puis node tools/tests-hotel/t_hotel.cjs ; vidéo : node tools/tests-hotel/video_hotel.cjs ; dossier : /usr/bin/python3.12 tools/dossiers-speciaux/checkin_star.py
