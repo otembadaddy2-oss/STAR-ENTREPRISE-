@@ -7,6 +7,7 @@
 import type { Context, Config } from "@netlify/functions";
 import { ensureSchema, db } from "./_db.mts";
 import { signatureMetaValide, signerCorps } from "./_entreprise.mts";
+import { configSarah, extraireMessages, transmettreVersSarah } from "./_sarah.mts";
 
 export default async (req: Request, _context: Context) => {
   const url = new URL(req.url);
@@ -26,9 +27,12 @@ export default async (req: Request, _context: Context) => {
   await ensureSchema();
   const { sql } = db();
   const envois: Promise<unknown>[] = [];
+  // Si Sarah (service à la clientèle) utilise la même application Meta, ses messages lui sont transmis ici ; les autres numéros restent aux assistants d'entreprise.
+  const sarah = await configSarah(sql as never);
+  if (sarah.actif && sarah.phoneId) envois.push(transmettreVersSarah(req.url, extraireMessages(d).filter((m) => m.phone === sarah.phoneId)));
   for (const en of d.entry || []) for (const ch of en.changes || []) {
     const v = ch.value; const phone = String(v?.metadata?.phone_number_id || "");
-    if (!phone) continue;
+    if (!phone || (sarah.actif && phone === sarah.phoneId)) continue;
     const e = (await sql`SELECT id FROM starvibe_entreprises WHERE wa_phone_id = ${phone} AND wa_actif = true AND ferme = false`) as { id: number }[];
     if (!e[0]) continue;
     for (const m of v?.messages || []) {
