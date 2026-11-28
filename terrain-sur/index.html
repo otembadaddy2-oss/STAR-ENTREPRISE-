@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>TERRAIN SÛR — le sol, les chantiers, la vérité</title>
+<meta name="description" content="Pré-diagnostic d'un terrain par photo et questions guidées, suivi des chantiers sans fraude, rapport vérifiable par code QR. Fonctionne sans connexion. STAR ENTREPRISE.">
+<meta name="theme-color" content="#06142e">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--nuit:#06142e;--nuit2:#0d2a5c;--or:#e3b653;--or2:#ffd466;--terre:#b4572a;--fond:#f4f1e8;--enc:#1a2030;--gris:#5a6275;--ok:#1f8a4c;--mid:#d9a100;--ora:#e07a1a;--ko:#c0392b}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--fond);color:var(--enc);min-height:100vh;padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+header{background:radial-gradient(90% 180% at 50% 0,var(--nuit2),var(--nuit) 70%);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 16px 12px;display:flex;align-items:center;gap:12px;border-bottom:3px solid var(--or);position:sticky;top:0;z-index:20}
+header img{width:44px;height:44px;border-radius:10px}header h1{margin:0;font-size:1.12rem;letter-spacing:.05em}header h1 b{color:var(--or2)}header small{display:block;font-size:.7rem;color:#c8d3f0;letter-spacing:.05em}
+#etat{margin-left:auto;font-size:.72rem;padding:4px 10px;border-radius:99px;background:#ffffff1f;border:1px solid #ffffff40}
+main{max-width:720px;margin:0 auto;padding:14px 16px}
+.ecran{display:none;animation:ent .35s ease}.ecran.on{display:block}@keyframes ent{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+nav{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #e3d9b8;display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:20}
+nav button{flex:1;border:0;background:none;padding:8px 2px 7px;font:600 .7rem system-ui;color:var(--gris);cursor:pointer;min-height:56px}nav button span{display:block;font-size:1.35rem;line-height:1.1}nav button.on{color:var(--nuit);box-shadow:inset 0 3px 0 var(--or)}
+h2{font-size:1.22rem;margin:2px 0 8px;color:var(--nuit)}h3{font-size:1rem;margin:16px 0 6px;color:var(--nuit)}
+.hero{position:relative;border-radius:20px;overflow:hidden;background:linear-gradient(160deg,var(--nuit),var(--nuit2) 60%,#5a2a14);color:#fff;padding:22px 18px 20px;margin-bottom:14px}
+.hero>*{position:relative;z-index:1}.hero>.radar{position:absolute;z-index:0;opacity:.45}.hero p{margin:6px 0 14px;color:#d7e0f7;line-height:1.45;font-size:.94rem;max-width:44ch}.hero h2{color:#fff;font-size:1.4rem;margin:0}
+.radar{position:absolute;right:-30px;top:-30px;width:190px;height:190px;border-radius:50%;border:2px solid #ffd46655;opacity:.9}
+.radar::before,.radar::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid #ffd466aa;animation:onde 3.2s infinite ease-out}.radar::after{animation-delay:1.6s}
+@keyframes onde{from{transform:scale(.3);opacity:1}to{transform:scale(1.25);opacity:0}}
+.radar i{position:absolute;left:50%;top:50%;width:92px;height:2px;background:linear-gradient(90deg,#ffd466,transparent);transform-origin:0 50%;animation:bal 3.2s linear infinite}@keyframes bal{to{transform:rotate(360deg)}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 18px;border-radius:12px;border:0;font:600 1rem system-ui;cursor:pointer;background:var(--nuit);color:#fff}
+.btn.or{background:linear-gradient(180deg,var(--or2),var(--or));color:#2d2100}.btn.cl{background:#fff;color:var(--nuit);border:1.5px solid var(--nuit)}.btn.ko{background:#fff;color:var(--ko);border:1.5px solid var(--ko)}.btn[disabled]{opacity:.45}
+.rang{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.rang .btn{flex:1 1 150px}
+.carte{display:flex;gap:14px;align-items:center;width:100%;text-align:left;background:#fff;border:1px solid #e3c98a;border-radius:16px;padding:14px;margin:0 0 10px;cursor:pointer;font:inherit;color:inherit;min-height:78px}
+.carte .ic{flex:0 0 50px;height:50px;border-radius:14px;background:var(--nuit);display:grid;place-items:center;font-size:1.5rem}.carte b{display:block;color:var(--nuit);font-size:1.02rem}.carte span{font-size:.84rem;color:var(--gris);line-height:1.35}
+.boite{background:#fff;border:1px solid #e3c98a;border-radius:14px;padding:12px 14px;margin:0 0 10px}
+.alerte{background:#fff6d8;border-left:5px solid var(--or);border-radius:10px;padding:10px 12px;font-size:.86rem;line-height:1.45;margin:10px 0;color:#5a4300}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;font-size:.76rem;font-weight:700;background:#eef1f7;color:var(--nuit)}
+.zone{border:2px dashed #c9b57a;border-radius:16px;background:#fffdf7;padding:18px 12px;text-align:center}
+.cadreph{position:relative;margin:10px 0}.cadreph canvas,.cadreph img{width:100%;display:block;border-radius:14px;background:#222}
+.legende{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:.74rem;color:var(--gris);margin:6px 0}.legende i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.obs{border-radius:10px;padding:8px 11px;margin:6px 0;font-size:.86rem;line-height:1.4}.obs.ok{background:#e9f7ef;color:#14562f}.obs.mid{background:#fff6d8;color:#5a4300}.obs.ko{background:#fdecea;color:#7d2218}
+label.champ{display:block;font-size:.84rem;font-weight:600;margin:10px 0 4px;color:var(--nuit)}select,input[type=text],input[type=date]{width:100%;min-height:46px;border:1.5px solid #c9b57a;border-radius:10px;padding:0 10px;font:inherit;background:#fff}
+.q{background:#fff;border:1px solid #e3c98a;border-radius:14px;padding:12px;margin:0 0 10px}.q b{display:block;color:var(--nuit);font-size:.98rem}.q small{display:block;color:var(--gris);margin:2px 0 8px;line-height:1.35}
+.q .ops{display:flex;flex-direction:column;gap:6px}.q .ops label{display:flex;gap:10px;align-items:center;padding:10px;border:1.5px solid #e3d9b8;border-radius:10px;cursor:pointer;font-size:.9rem;min-height:44px}.q .ops input{width:20px;height:20px;accent-color:var(--nuit)}.q .ops label:has(input:checked){border-color:var(--nuit);background:#eef3ff}
+.prog{height:8px;background:#e3d9b8;border-radius:9px;overflow:hidden;margin:6px 0 12px}.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--or),var(--terre));width:0;transition:width .4s}
+.jauge{display:flex;align-items:center;gap:16px;margin:8px 0}.jauge svg{flex:0 0 150px;width:150px;height:auto}.jauge .v{font-size:1.4rem;font-weight:800}
+.barre{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:.82rem}.barre span:first-child{flex:0 0 128px}.barre .p{flex:1;height:10px;background:#e7e3d3;border-radius:9px;overflow:hidden}.barre .p i{display:block;height:100%;border-radius:9px;transition:width .6s}.barre em{font-style:normal;flex:0 0 28px;text-align:right;font-weight:700}
+.verdict{border-radius:14px;padding:14px;margin:10px 0;font-weight:600;line-height:1.4;color:#fff}
+.sceau{font:.72rem ui-monospace,Menlo,monospace;word-break:break-all;background:#eef1f7;border-radius:8px;padding:8px;color:#33405e}
+.kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:8px 0}.kpi div{background:#fff;border:1px solid #e3c98a;border-radius:12px;padding:10px}.kpi b{display:block;font-size:1.5rem;color:var(--nuit)}.kpi span{font-size:.76rem;color:var(--gris)}
+.liste .ligne{display:flex;gap:10px;align-items:center;background:#fff;border:1px solid #e3d9b8;border-radius:12px;padding:10px;margin:0 0 8px}.ligne .pt{flex:0 0 12px;height:12px;border-radius:50%}.ligne img{width:54px;height:54px;object-fit:cover;border-radius:8px;background:#ddd}
+.ligne .t{flex:1;min-width:0;font-size:.84rem;line-height:1.35}.ligne .t b{display:block;color:var(--nuit)}
+.onglets{display:flex;gap:6px;margin:0 0 10px;overflow-x:auto}.onglets button{flex:0 0 auto;min-height:40px;border-radius:99px;border:1.5px solid var(--nuit);background:#fff;color:var(--nuit);font:600 .84rem system-ui;padding:0 14px;cursor:pointer}.onglets button.on{background:var(--nuit);color:#fff}
+#plan{width:100%;border-radius:14px;background:#0b1a38;display:block;touch-action:manipulation}
+.chaine{display:flex;align-items:center;gap:4px;overflow-x:auto;padding:8px 0}.chaine .mail{flex:0 0 auto;font:.62rem ui-monospace,monospace;background:#fff;border:1.5px solid #1f8a4c;border-radius:8px;padding:5px 7px;color:#14562f}.chaine .mail.ko{border-color:var(--ko);color:var(--ko);background:#fdecea}.chaine .lien{flex:0 0 14px;height:3px;background:#1f8a4c}
+#msg{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));background:var(--nuit);color:#fff;border-radius:12px;padding:12px 14px;font-size:.92rem;display:none;z-index:30;max-width:690px;margin:0 auto;box-shadow:0 8px 24px #0006}
+.demo{display:inline-block;background:#ffe9b3;color:#7a5200;border:1px dashed #c98b00;border-radius:8px;padding:2px 8px;font-size:.72rem;font-weight:700}
+footer{max-width:720px;margin:0 auto;padding:4px 16px 20px;font-size:.72rem;color:var(--gris);text-align:center;line-height:1.5}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header><img src="icon-192.png" alt="Logo STAR ENTREPRISE"><div><h1>TERRAIN <b>SÛR</b></h1><small>STAR ENTREPRISE · le sol, les chantiers, la vérité</small></div><span id="etat">hors ligne OK</span></header>
+<main>
+<!-- ACCUEIL -->
+<section id="e-accueil" class="ecran on">
+  <div class="hero"><div class="radar"><i></i></div><h2>Lire un terrain avant de construire.</h2>
+    <p>Une photo du sol, dix questions guidées, un diagnostic expliqué qui se lit à voix haute. Chaque relevé est daté, localisé et verrouillé : impossible à truquer sans que ça se voie.</p>
+    <div class="rang"><button class="btn or" data-go="scan">📷 Analyser un terrain</button><button class="btn cl" data-go="demo">▶ Voir la démonstration</button></div></div>
+  <button class="carte" data-go="scan"><div class="ic">🧭</div><div><b>Pré-diagnostic d'un terrain</b><span>Photo + GPS + questions de terrain → niveau de risque, causes, actions. Fonctionne sans connexion.</span></div></button>
+  <button class="carte" data-go="chantiers"><div class="ic">🏗️</div><div><b>Suivi des chantiers sans fraude</b><span>Photos datées et localisées, alerte si une photo est ancienne, réutilisée ou prise ailleurs.</span></div></button>
+  <button class="carte" data-go="etat"><div class="ic">🏛️</div><div><b>Tableau de bord de l'État</b><span>Carte des sites, niveaux de risque, anomalies, décisions à prendre. <span class="demo">données fictives</span></span></div></button>
+  <button class="carte" data-go="verif"><div class="ic">🔐</div><div><b>Vérifier un rapport</b><span>Entrez le code ou scannez le QR : le rapport est-il authentique et intact ?</span></div></button>
+  <div class="alerte"><b>À savoir.</b> Une photo ne peut pas mesurer la solidité réelle d'un sol. Cette application <b>oriente et alerte</b> ; elle ne remplace jamais l'étude géotechnique (sondages et essais). Sa force : repérer vite les terrains dangereux et empêcher les faux rapports.</div>
+</section>
+
+<!-- SCAN -->
+<section id="e-scan" class="ecran">
+  <div class="prog"><i id="prog"></i></div>
+  <div id="s1">
+    <h2>1. Où et pour quoi ?</h2>
+    <label class="champ" for="ville">Ville</label><select id="ville"><option value="brazzaville">Brazzaville</option><option value="pointenoire">Pointe-Noire</option><option value="autre">Autre localité</option></select>
+    <label class="champ" for="quartier">Quartier (facultatif)</label><select id="quartier"><option value="">— non précisé —</option></select>
+    <div id="note-ville" class="alerte" style="margin-top:8px"></div>
+    <label class="champ" for="usage">Que voulez-vous faire ici ?</label><select id="usage"></select>
+    <label class="champ" for="chsel">Chantier lié (facultatif)</label><select id="chsel"><option value="">— aucun —</option></select>
+    <h2 style="margin-top:18px">2. La photo du sol</h2>
+    <div class="zone"><p style="margin:0 0 6px;font-weight:600">Debout, appareil à hauteur de poitrine, orienté vers le sol, en plein jour.</p><p style="margin:0 0 10px;font-size:.84rem;color:var(--gris)">Cadrez environ 2 à 3 m de sol, sans trop de ciel.</p>
+      <div class="rang" style="justify-content:center"><label class="btn or" for="f-cam">📷 Prendre la photo</label><label class="btn cl" for="f-img">🖼️ Choisir une image</label><button class="btn cl" id="b-exemples" type="button">🧪 Photos d'exemple</button></div>
+      <input id="f-cam" type="file" accept="image/*" capture="environment" hidden><input id="f-img" type="file" accept="image/*" hidden></div>
+    <div id="exemples" class="rang" style="display:none"></div>
+    <div id="gps-info" class="boite" style="font-size:.84rem">📍 Position : <span id="gps-txt">en attente…</span> <button id="b-gps" class="btn cl" type="button" style="min-height:36px;padding:0 12px;font-size:.82rem;margin-left:6px">Actualiser</button></div>
+  </div>
+  <div id="s1b" hidden>
+    <div class="cadreph"><canvas id="cv-photo"></canvas></div>
+    <div class="legende" id="legende"></div>
+    <div id="obs-photo"></div>
+    <div class="rang"><button class="btn cl" id="b-refaire" type="button">↺ Refaire la photo</button><button class="btn or" id="b-suite" type="button">Continuer → questions</button></div>
+  </div>
+  <div id="s2" hidden>
+    <h2>3. Ce que vous voyez sur place</h2><p style="color:var(--gris);font-size:.88rem;margin:0 0 10px">Répondez avec honnêteté. Chaque réponse est utilisée et expliquée dans le résultat. Vous pouvez laisser une question vide si vous ne savez pas.</p>
+    <div id="questions"></div>
+    <div class="rang"><button class="btn cl" id="b-retour1" type="button">← Retour</button><button class="btn or" id="b-calcul" type="button">Obtenir le diagnostic</button></div>
+  </div>
+  <div id="s3" hidden>
+    <div id="resultat"></div>
+  </div>
+</section>
+
+<!-- CHANTIERS -->
+<section id="e-chantiers" class="ecran">
+  <h2>Chantiers suivis</h2>
+  <p style="color:var(--gris);font-size:.9rem;line-height:1.45;margin:0 0 10px">Créez un chantier au point GPS où vous vous trouvez, avec sa date d'ordre de service. Chaque relevé lié sera comparé : lieu, date, photo déjà utilisée.</p>
+  <div class="boite"><label class="champ" for="ch-nom" style="margin-top:0">Nom du chantier</label><input id="ch-nom" type="text" placeholder="Ex. Route d'accès du quartier (exemple)">
+    <label class="champ" for="ch-os">Date de l'ordre de service</label><input id="ch-os" type="date"><div class="rang"><button id="b-ch" class="btn or" type="button">Créer ici (utilise ma position)</button></div></div>
+  <div id="liste-ch" class="liste"></div>
+  <h3>Journal verrouillé</h3>
+  <div class="boite"><div id="chaine-etat" style="font-weight:700;margin-bottom:4px">—</div><div class="chaine" id="chaine"></div>
+    <div class="rang"><button class="btn cl" id="b-verif-chaine" type="button">🔎 Vérifier l'intégrité</button><button class="btn ko" id="b-faux" type="button">⚠ Simuler une falsification</button></div>
+    <small style="color:var(--gris)">Le bouton « simuler » modifie un relevé pour montrer que la chaîne se casse. C'est un test de démonstration.</small></div>
+  <div id="liste-rel" class="liste"></div>
+</section>
+
+<!-- ÉTAT -->
+<section id="e-etat" class="ecran">
+  <h2>Tableau de bord de l'État <span class="demo">données fictives</span></h2>
+  <div class="kpi" id="kpi"></div>
+  <div class="onglets" id="ong-ville"></div>
+  <canvas id="plan" width="680" height="420"></canvas>
+  <div class="legende" style="margin-top:6px"><span><i style="background:#1f8a4c"></i>Favorable</span><span><i style="background:#d9a100"></i>Vigilance</span><span><i style="background:#e07a1a"></i>Risque élevé</span><span><i style="background:#c0392b"></i>Critique</span><span>◆ = anomalie détectée</span></div>
+  <div id="detail-site" class="boite" style="display:none"></div>
+  <h3>Alertes anti-fraude à traiter</h3><div id="alertes" class="liste"></div>
+  <h3>Chantiers : déclaré contre constaté</h3><div id="ch-demo" class="liste"></div>
+  <p style="font-size:.78rem;color:var(--gris)">Toutes les positions, zones et identifiants de cette page sont inventés pour la démonstration. En production, ils viendraient des relevés réels transmis par les agents.</p>
+</section>
+
+<!-- VÉRIFIER -->
+<section id="e-verif" class="ecran">
+  <h2>Vérifier un rapport</h2>
+  <p style="color:var(--gris);font-size:.9rem;line-height:1.45;margin:0 0 10px">Saisissez le code de vérification imprimé sur le rapport (les 12 premiers caractères suffisent), ou photographiez son code QR.</p>
+  <label class="champ" for="v-code" style="margin-top:0">Code de vérification</label><input id="v-code" type="text" placeholder="ex. 3fa9c1d07b2e" autocapitalize="off" autocomplete="off">
+  <div class="rang"><button class="btn or" id="b-v" type="button">Vérifier</button><label class="btn cl" for="f-qr">📷 Scanner un QR</label><input id="f-qr" type="file" accept="image/*" hidden></div>
+  <div id="v-res"></div>
+  <div class="alerte">Dans ce mode hors connexion, la vérification se fait contre les relevés de <b>cet appareil</b>. En production, elle interrogerait le serveur de l'État : un rapport falsifié ou inconnu serait signalé quel que soit l'appareil.</div>
+</section>
+</main>
+<div id="msg" role="status"></div>
+<nav><button data-go="accueil" class="on"><span>🏠</span>Accueil</button><button data-go="scan"><span>📷</span>Scanner</button><button data-go="chantiers"><span>🏗️</span>Chantiers</button><button data-go="etat"><span>🏛️</span>État</button><button data-go="verif"><span>🔐</span>Vérifier</button></nav>
+<footer>TERRAIN SÛR · STAR ENTREPRISE · Brazzaville, République du Congo — prototype de démonstration. Photos d'exemple : Unsplash (licence libre), voir LISEZ-MOI.</footer>
+<script src="lib/qrcode.js"></script><script src="lib/jsqr.js"></script>
+<script src="pdf.js"></script><script src="analyse.js"></script><script src="regles.js"></script><script src="journal.js"></script><script src="donnees-demo.js"></script><script src="app.js"></script>
+</body>
+</html>

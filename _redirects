@@ -28,6 +28,9 @@ http://komyo.starentreprise.com/   /starvibe/  301!
 # STAR Scanner : MIS DE CÔTÉ (28/11/2026, demande de Carry), NON PUBLIC même si d'autres choses sont mises en ligne. Pour le publier : supprimer ces deux lignes, puis un déploiement, sur son « publie ».
 /scanner/*        /404.html  404!
 /scanner          /404.html  404!
+# TERRAIN SÛR (génie civil, prototype) : de côté, NON PUBLIC jusqu'au « publie » de Carry. Pour le publier : supprimer ces deux lignes puis un déploiement.
+/terrain-sur/*    /404.html  404!
+/terrain-sur      /404.html  404!
 # Dossiers spéciaux (partenaires, investisseurs, contrats et packs RH) : documents internes, jamais publics.
 /docs/dossiers-speciaux/*  /404.html  404!
 /netlify/*        /404.html  404!

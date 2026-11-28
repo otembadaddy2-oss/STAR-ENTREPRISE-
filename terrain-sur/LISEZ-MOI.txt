@@ -1,0 +1,14 @@
+TERRAIN SÛR — prototype de démonstration (STAR ENTREPRISE, 28/11/2026). NON PUBLIÉ : bloqué dans _redirects tant que Carry n'a pas dit « publie ».
+
+Ce que c'est : application installable (PWA), sans compte, qui marche sans connexion une fois ouverte une première fois.
+- Scan d'un terrain : photo + position GPS + lecture visuelle des surfaces (couleurs, netteté, rugosité) faite sur l'appareil, rien n'est envoyé.
+- 10 questions de terrain guidées → moteur de risque (5 risques notés, chaque point expliqué, règles de sécurité imposées) → niveau Favorable / Vigilance / Risque élevé / Critique.
+- Voix en français (lecture du résultat), rapport PDF de 2 pages avec QR code, journal chaîné anti-falsification, suivi de chantiers, contrôles anti-fraude (photo réutilisée, photo ancienne, mauvais lieu, mauvaise date), vérification d'un rapport par code ou QR.
+- Tableau de bord de l'État avec DONNÉES FICTIVES (plan, alertes, chantiers déclaré/constaté).
+
+Limites (à dire clairement) : une photo ne mesure pas la portance d'un sol ; le diagnostic ne remplace pas l'étude géotechnique ; les pondérations sont à valider par des géotechniciens ; le contexte local vient de la presse, ce n'est pas une carte officielle ; aucun serveur d'État n'est relié (la vérification se fait sur l'appareil).
+
+Fichiers : index.html, app.js (écrans), analyse.js (lecture de la photo), regles.js (questions et moteur de risque), journal.js (SHA-256, chaîne), donnees-demo.js (fictives), pdf.js (écrivain PDF), sw.js (hors connexion), lib/ (QR et lecture de QR), img/ (6 photos d'exemple).
+Photos d'exemple (Unsplash, licence libre) : Dmytro Bukhantsov (eau), Glenov Brankovic (piste), Travis Leery (boue), The Gambia (sable), Troy Mortier (chantier), Billy Freeman (terrassement, non utilisée à l'écran), Rory McKeever (sol brun). Aucune ne vient du Congo.
+Tests : serveur statique à la racine du dépôt (port 8768) puis node tools/tests-terrain/t_terrain.cjs
+Dossier de présentation : python3.12 tools/dossiers-speciaux/terrain_sur.py → docs/dossiers-speciaux/TERRAIN-SUR-Dossier-de-presentation.pdf
